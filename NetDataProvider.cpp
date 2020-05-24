@@ -1,0 +1,83 @@
+/*
+ * This file is part of the Flowee project
+ * Copyright (C) 2020 Tom Zander <tomz@freedommail.ch>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#include "NetDataProvider.h"
+#include "NetPeer.h"
+
+NetDataProvider::NetDataProvider(int initialBlockHeight, QObject *parent)
+    : QObject(parent),
+      m_blockHeight(initialBlockHeight)
+{
+}
+
+
+void NetDataProvider::newPeer(int peerId, const std::string &userAgent, int startHeight, PeerAddress address)
+{
+    QMutexLocker l(&m_peerMutex);
+    NetPeer *newPeer = new NetPeer(peerId, QString::fromStdString(userAgent), startHeight, address);
+    // assume this interface method is called in a thread that is not the Qt main one.
+    newPeer->moveToThread(thread());
+    newPeer->setParent(this);
+    m_peers.append(newPeer);
+    emit peerListChanged();
+}
+
+void NetDataProvider::lostPeer(int peerId)
+{
+    QMutexLocker l(&m_peerMutex);
+    for (auto p : m_peers) {
+        if (p->connectionId() == peerId) {
+            m_peers.removeAll(p);
+            p->deleteLater();
+            emit peerListChanged();
+            return;
+        }
+    }
+}
+
+void NetDataProvider::blockchainHeightChanged(int newHeight)
+{
+    m_blockHeight.storeRelease(newHeight);
+    emit blockHeightChanged();
+}
+
+void NetDataProvider::punishMentChanged(int peerId)
+{
+    QMutexLocker l(&m_peerMutex);
+    for (auto p : m_peers) {
+        if (p->connectionId() == peerId) {
+            p->notifyPunishmentChanged();
+            break;
+        }
+    }
+}
+
+QList<QObject *> NetDataProvider::peers() const
+{
+    QMutexLocker l(&m_peerMutex);
+    QList<QObject *> answer;
+    for (auto p : m_peers) {
+        answer.append(p);
+    }
+
+    return answer;
+}
+
+int NetDataProvider::blockheight() const
+{
+    return m_blockHeight.loadAcquire();
+}
