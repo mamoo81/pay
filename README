@@ -1,0 +1,45 @@
+This is the repository of Flowee Pay.
+
+Flowee Pay is a payment solution, also often called wallet, that allows
+users to pay and receive Bitcoin Cash in a simple application with little
+to no external parties we need to depend on.
+The only really required dependent is the peer to peer network, and thus
+the Internet.
+
+We use QML for the user interface, which allows fast turnaround for
+skinning and a very strong model/view separation. The goal here is to have
+multiple user interfaces for the one codebase. For instance you can have
+different GUI's for Android and for desktop.
+
+
+The goal of having a Free Software product like Flowee Pay is that average
+users can use the community client and when companies that want to bundle a
+wallet with their product (for instance to do some token thingy) they are
+more than welcome to provide their own skinning instead of the ones that
+are included in this repo.
+
+Any companies or groups doing this are going to help increase the quality
+of the main free software product and thus this benefits all.
+
+
+BUILDING
+
+Flowee Pay uses libraries from the Flowee the Hub product, you need to
+either install the Hub via your package manager or compile it before you
+compile Pay.
+The minimum version required for the Flowee libraries is 2020.04.1
+
+You need cmake and Qt5. When you have those installed it is just a matter
+of calling:
+
+  $ cmake .
+  $ make
+
+If you compile Flowee the Hub yourself you may want to export the
+following variable in case the build wasn't found.
+  export CMAKE_PREFIX_PATH=/path/to/the/flowee-build
+followed with the call to cmake and make like above.
+
+
+Upstream; https://gitlab.com/FloweeTheHub/pay
+Website: https://flowee.org
