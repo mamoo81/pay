@@ -6,5 +6,6 @@
         <file>NetView.qml</file>
         <file>BitcoinAmountLabel.qml</file>
         <file>WalletFrame.qml</file>
+        <file alias="FloweePay.png">../images/FloweePay.png</file>
     </qresource>
 </RCC>

@@ -88,20 +88,12 @@ ApplicationWindow {
         anchors.centerIn: parent
         visible: loading
 
-        Rectangle {
+        Image {
+            source: "qrc:///FloweePay.png"
             width: 250
+            height: 250
+            fillMode: Image.PreserveAspectFit
             anchors.centerIn: parent
-            height: 180
-            color: "#c3ac36"
-            border.color: "blue"
-            border.width: 6
-            radius: 20
-
-            Text {
-                anchors.centerIn: parent
-                font.pointSize: 40
-                text: "Flowee\nPay"
-            }
         }
     }
 
