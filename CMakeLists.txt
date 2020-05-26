@@ -72,7 +72,10 @@ find_package(Flowee REQUIRED flowee_p2p)
 target_compile_definitions(pay
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(pay
+    flowee_utils
     flowee_p2p
     ${OPENSSL_LIBRARIES}
     ${Boost_LIBRARIES}
     Qt5::Core Qt5::Quick)
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/pay DESTINATION bin)
