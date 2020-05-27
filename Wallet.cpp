@@ -416,7 +416,8 @@ void Wallet::saveSecrets()
 
         std::ofstream outFile((m_basedir / "secrets.dat~").string());
         outFile.write(data.begin(), data.size());
-
+        outFile.flush();
+        outFile.close();
         boost::filesystem::rename(m_basedir / "secrets.dat~", m_basedir / "secrets.dat");
     } catch (const std::exception &e) {
         logFatal() << "Failed to save the database. Reason:" << e.what();
@@ -589,7 +590,8 @@ void Wallet::saveWallet()
 
         std::ofstream outFile((m_basedir / "wallet.dat~").string());
         outFile.write(data.begin(), data.size());
-
+        outFile.flush();
+        outFile.close();
         boost::filesystem::rename(m_basedir / "wallet.dat~", m_basedir / "wallet.dat");
     } catch (const std::exception &e) {
         logFatal() << "Failed to save the database. Reason:" << e.what();
