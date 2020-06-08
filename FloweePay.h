@@ -57,20 +57,26 @@ public:
 
     DownloadManager* p2pNet();
 
+    /// return the app data location
     QString basedir() const;
 
+    /// for a price, in satoshis, return a formatted string in unitName().
     Q_INVOKABLE QString priceToString(qint64 price) const;
 
+    /// create a new wallet with an optional name.
     Q_INVOKABLE void createNewWallet(const QString &walletName = QString());
+    /// swipe a paper wallet with an optional name
     Q_INVOKABLE void createImportedWallet(const QString &privateKey, const QString &walletName);
 
-    Q_INVOKABLE StringType identifString(const QString &string) const;
+    /// take a bitcoin-address and identify the type.
+    Q_INVOKABLE StringType identifyString(const QString &string) const;
 
     /// returns the unit of our prices. BCH, for instance.
     QString unitName() const;
 
 signals:
     void loadComplete();
+    /// \internal
     void loadComplete_priv();
 
     void unitNameChanged();

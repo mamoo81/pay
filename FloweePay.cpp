@@ -203,7 +203,7 @@ void FloweePay::createImportedWallet(const QString &privateKey, const QString &w
     wallet->addPrivateKey(privateKey, 500000);
 }
 
-FloweePay::StringType FloweePay::identifString(const QString &string) const
+FloweePay::StringType FloweePay::identifyString(const QString &string) const
 {
     std::string s = string.toStdString();
 

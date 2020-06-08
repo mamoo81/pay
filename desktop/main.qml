@@ -257,7 +257,7 @@ ApplicationWindow {
             function validate() {
                 var ok = false;
                 if (privKeyButton.checked) {
-                    var typedData = Flowee.identifString(privKey.text)
+                    var typedData = Flowee.identifyString(privKey.text)
                     ok = typedData === Pay.PrivateKey;
                     feedback.checkState = ok ? Qt.Checked : Qt.Unchecked
                 } else {
