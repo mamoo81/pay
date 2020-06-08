@@ -25,7 +25,17 @@
 #include <base58.h>
 #include <cashaddr.h>
 
+#include <QFile>
 #include <QSet>
+
+
+/*
+ * Fee estimation needs to know how much space is used per input.
+ * 32 + 4 for the prevTx
+ * Then 72 + 33 bytes for the signature and pub-key (+-1).
+ * Using schnorr we can gain 8 bytes for the signature.
+ */
+constexpr int BYTES_PER_OUTPUT = 149;
 
 /*
  * TODO
@@ -295,6 +305,189 @@ void Wallet::setName(const QString &name)
     QMutexLocker locker(&m_lock);
     m_name = name;
     m_walletChanged = true;
+}
+
+const uint256 &Wallet::txid(Wallet::OutputRef ref) const
+{
+    QMutexLocker locker(&m_lock);
+    auto iter = m_walletTransactions.find(ref.txIndex());
+    if (m_walletTransactions.end() == iter)
+        throw std::runtime_error("Invalid ref");
+    return iter->second.txid;
+}
+
+Tx::Output Wallet::txOutout(Wallet::OutputRef ref) const
+{
+    QString txid;
+    {
+        QMutexLocker locker(&m_lock);
+        auto iter = m_walletTransactions.find(ref.txIndex());
+        if (m_walletTransactions.end() == iter)
+            throw std::runtime_error("Invalid ref");
+        txid = QString::fromStdString(iter->second.txid.ToString());
+    }
+
+    QString filename("%1/%2/%3");
+    filename = filename.arg(QString::fromStdString(m_basedir.string()));
+    filename = filename.arg(txid.left(2));
+    filename = filename.arg(txid.mid(2));
+
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly))
+        throw std::runtime_error("missing data");
+
+    const int fileSize = file.size();
+    Streaming::BufferPool pool(fileSize);
+    file.read(pool.begin(), fileSize);
+    Tx tx(pool.commit(fileSize));
+    return tx.output(ref.outputIndex());
+}
+
+const CKey &Wallet::unlockKey(Wallet::OutputRef ref) const
+{
+    QMutexLocker locker(&m_lock);
+    auto iter = m_walletTransactions.find(ref.txIndex());
+    if (m_walletTransactions.end() == iter)
+        throw std::runtime_error("Invalid ref");
+    auto iter2 = iter->second.outputs.find(ref.outputIndex());
+    if (iter2 == iter->second.outputs.end())
+        throw std::runtime_error("Invalid ref(2)");
+    auto iter3 = m_walletSecrets.find(iter2->second.walletSecretId);
+    assert(iter3 != m_walletSecrets.end());
+    return iter3->second.privKey;
+}
+
+CKeyID Wallet::newChangeAddress()
+{
+    QMutexLocker locker(&m_lock);
+    for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+        if (i->second.initialHeight == -1) // is change address.
+            return i->second.address;
+    }
+
+    // no change addresses, lets make some.
+    CKeyID answer;
+    for (int i = 0; i < 50; ++i) {
+        WalletSecret secret;
+        secret.privKey.MakeNewKey();
+
+        const CPubKey pubkey = secret.privKey.GetPubKey();
+        secret.address = pubkey.GetID();
+        if (i == 0)
+            answer = secret.address;
+        m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
+    }
+    m_secretsChanged = true;
+    saveSecrets();
+
+    return answer;
+}
+
+namespace {
+struct OutputSet {
+    std::vector<Wallet::OutputRef> outputs;
+    qint64 totalSats = 0;
+    int score = 0;
+    bool isDone = false;
+};
+
+}
+
+std::vector<Wallet::OutputRef> Wallet::findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const
+{
+    /*
+     * The main selection criterea is the amount of outputs we have afterwards.
+     *
+     * The goal is to always have between 10 and 15 outputs of varying sizes in
+     * our wallet, this makes sure we avoid being without confirmed outputs. Even
+     * on medium-heavy usage.
+     *
+     *
+     *
+     * As we assume the first items in the list of unspentOutputs are the oldest, all
+     * we need to do is find the combination of inputs that works best. So we just try
+     * all combinations till we get a nice set of working options to pick from.
+     *
+     * for each utxo
+     *   take outputSet
+     *    if its already reached the value, then next.
+     *    otherwise duplicate it.  Add yourself to one of the two.
+     *   add new outputset with just me.
+     */
+
+    std::deque<OutputSet> sets;
+    sets.resize(1);
+
+    const bool wantLessOutputs = m_unspentOutputs.size() > 15;
+    const bool wantMoreOutputs = m_unspentOutputs.size() < 10;
+
+    for (auto iter = m_unspentOutputs.begin(); iter != m_unspentOutputs.end(); ++iter) {
+        int isDones = 0;
+        for (auto setIter = sets.begin(); setIter != sets.end(); ++setIter) {
+            if (setIter->isDone) {
+                ++isDones;
+                continue;
+            }
+            OutputSet newSet = *setIter;
+            newSet.outputs.push_back(OutputRef(iter->first));
+            newSet.totalSats += iter->second;
+
+            const int outputCount = newSet.outputs.size();
+            const int fees = (txSize + outputCount * BYTES_PER_OUTPUT) * feePerByte;
+            const qint64 change = newSet.totalSats - output - fees;
+            if (change >= 0) {
+                newSet.isDone = true;
+                ++isDones;
+
+                // calculate score of this solution.
+                // If we wanted less outputs, the score is adjusted based on it doing so & vice-versa
+                newSet.score = 0;
+                if (wantMoreOutputs && newSet.isDone) { // so spend less
+                    if (outputCount == 1) // perfection!
+                        newSet.score = 1000;
+                    newSet.score -= 100 * outputCount;
+                }
+                else if (wantLessOutputs && newSet.isDone) {
+                    newSet.score = 100 * outputCount;
+                    newSet.score -= 100 * std::max(0, outputCount - 8); // don't go crazy now...
+                }
+
+                if (change < 100)
+                    newSet.score += 20000; // thats very nice (if over 0, that's for the miner)
+                else if (change < 1000) // too small UTXO, not nice.
+                    newSet.score -= 2000;
+                else if (change < 5000) // ditto
+                    newSet.score -= 1000;
+                // TODO for each input add a punishment if the output has lass than 2 confirmations
+            }
+
+            setIter = sets.insert(++setIter, newSet);
+        }
+
+        if (isDones > 10)
+            break;
+    }
+
+    size_t best = 0;
+    int bestScore = 0;
+    for (size_t i = 0; i < sets.size(); ++i) {
+        const auto &set = sets[i];
+        if (set.isDone && set.score > bestScore) {
+            best = i;
+            bestScore = sets.at(i).score;
+        }
+    }
+
+    if (sets.size() > best) {
+        const auto &set = sets.at(best);
+        change = set.totalSats - output;
+        change -= ((set.outputs.size() * BYTES_PER_OUTPUT) + txSize) * feePerByte;
+        assert(change >= 0);
+        return set.outputs;
+    }
+
+    // no result
+    return std::vector<OutputRef>();
 }
 
 void Wallet::newTransaction(const Tx &tx)

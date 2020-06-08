@@ -23,6 +23,7 @@
 
 #include <primitives/key.h>
 #include <primitives/pubkey.h>
+#include <primitives/FastTransaction.h>
 
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem.hpp>
@@ -90,6 +91,22 @@ public:
 
     QString name() const;
     void setName(const QString &name);
+
+    const uint256 &txid(OutputRef ref) const;
+    Tx::Output txOutout(OutputRef ref) const;
+    const CKey &unlockKey(OutputRef ref) const;
+
+    CKeyID newChangeAddress();
+
+    /**
+     * @brief findInputsFor UTXO fulfilment algo finding the inputs for your tx.
+     * @param output The amount of satoshis you want to make available (after fee).
+     * @param feePerByte fee per byte
+     * @param txSize the size of the transaction before we add inputs
+     * @param[out] change the amount of satoshis we over-provided for the expected \a output.
+     * @return The references to the outputs we suggest you fund your tx with.
+     */
+    std::vector<OutputRef> findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const;
 
 signals:
     void utxosChanged();

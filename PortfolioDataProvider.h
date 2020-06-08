@@ -19,6 +19,7 @@
 #define PORTFOLIODATAPROVIDER_H
 
 #include <QObject>
+#include <TransactionBuilder.h>
 
 #include "Wallet.h"
 #include "WalletHistoryModel.h"
@@ -59,6 +60,43 @@ private:
     std::unique_ptr<WalletHistoryModel> m_model;
 };
 
+
+class Payment : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(int feePerByte READ feePerByte WRITE setFeePerByte NOTIFY feePerByteChanged)
+    Q_PROPERTY(qint64 paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
+    Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
+public:
+    Payment(Wallet *wallet);
+
+    void setFeePerByte(int sats);
+    int feePerByte();
+
+    void setPaymentAmount(qint64 amount);
+    qint64 paymentAmount();
+
+    /// this method throws if its not a proper address.
+    /// @see FloweePay::identifyString()
+    void setTargetAddress(const QString &address);
+    QString targetAddress();
+
+    Q_INVOKABLE void approveAndSend();
+
+signals:
+    void feePerByteChanged();
+    void amountChanged();
+    void targetAddressChanged();
+
+private:
+    Wallet *m_wallet;
+    int m_fee; // in sats per byte
+    qint64 m_paymentAmount;
+    QString m_address;
+    std::unique_ptr<TransactionBuilder> m_tx;
+};
+
+
 class PortfolioDataProvider : public QObject
 {
     Q_OBJECT
@@ -71,6 +109,8 @@ public:
 
     AccountInfo *current() const;
     void setCurrent(AccountInfo *item);
+
+    Q_INVOKABLE QObject* startPayToAddress(const QString &address, qint64 amount);
 
 public slots:
     void addWalletAccount(Wallet *wallet);
