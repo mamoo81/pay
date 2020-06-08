@@ -121,6 +121,7 @@ ApplicationWindow {
             spacing: 20
             Button {
                 text: qsTr("Send")
+                onClicked: sendTransactionPane.start();
             }
             Button {
                 text: qsTr("Receive")
@@ -166,6 +167,7 @@ ApplicationWindow {
                 anchors.fill: parent
                 onClicked: createNewWalletDialog.showDialog()
             }
+
             Behavior on opacity { NumberAnimation { duration: 350 } }
         }
 
@@ -231,6 +233,36 @@ ApplicationWindow {
             visible: opacity !== 0
             width: 250
             x: -border.width
+            Behavior on opacity { NumberAnimation { duration: 350 } }
+        }
+
+        Item {
+            id: sendTransactionPane
+            anchors.bottom: walletFrame.bottom
+            anchors.top: buttonBar.bottom
+            anchors.left: walletFrame.right
+            anchors.right: parent.right
+            opacity: walletDetails.active ? 1 : 0
+            visible: opacity !== 0
+
+            signal startedTransaction
+
+            function start() {
+                startedTransaction(); // TODO, change the statemachine based on this.
+                // TODO init fields
+                opacity = 1
+
+                var obj = wallets.startPayToAddress("qpgn5ka4jptc98a9ftycvujxx33e79nxuqlz5mvxns", 15000000);
+                // obj.feePerByte = 1;
+                obj.approveAndSend();
+                console.log("done!");
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                color: "red"
+            }
+
             Behavior on opacity { NumberAnimation { duration: 350 } }
         }
     }

@@ -16,10 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "PortfolioDataProvider.h"
-#include "FloweePay.h"
+#include "PortfolioDataProvider_p.h"
 #include "FloweePay.h"
 
 #include <QFile>
+#include <QTimer>
 #include <base58.h>
 #include <cashaddr.h>
 
@@ -77,6 +78,8 @@ Payment::Payment(Wallet *wallet)
     : m_wallet(wallet),
       m_fee(1)
 {
+    assert(m_wallet);
+    assert(m_wallet->segment());
 }
 
 void Payment::setFeePerByte(int sats)
@@ -180,11 +183,9 @@ void Payment::approveAndSend()
     }
 
     tx = builder.createTransaction();
-
     /*
      * TODO
      *  - call to wallet to mark outputs locked and save tx.
-     *  - actually broadcast tx.
      */
 
     /*
@@ -197,7 +198,69 @@ void Payment::approveAndSend()
      *  * make sure that after a block came in we remove any transactions in that list
      *    which can no longer confirm.
      */
+
+    m_infoObject = std::make_shared<PaymentInfoObject>(this, tx);
+    FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(m_infoObject);
 }
+
+Wallet *Payment::wallet() const
+{
+    return m_wallet;
+}
+
+void Payment::sentToPeer()
+{
+    // this callback happens when one of our peers did a getdata for the transaction.
+    emit sent(++m_sentPeerCount);
+
+    if (m_sentPeerCount >= 2) {
+        // if two peers requested the tx, then wait a bit and check on the status
+        QTimer::singleShot(5 * 1000, [=]() {
+            if (m_sentPeerCount - m_rejectedPeerCount > 2) {
+                // When enough peers received the transaction stop broadcasting it.
+                m_infoObject.reset();
+            }
+        });
+    }
+}
+
+void Payment::txRejected(short reason, const QString &message)
+{
+    // reason is hinted using BroadcastTxData::RejectReason
+    logCritical() << "Transaction rejected" << reason << message;
+    ++m_rejectedPeerCount;
+}
+
+
+// //////////////////////////////////////////////////
+
+PaymentInfoObject::PaymentInfoObject(Payment *payment, const Tx &tx)
+    : BroadcastTxData(tx),
+      m_parent(payment)
+{
+    connect(this, SIGNAL(sentOneFired()), payment, SLOT(sentToPeer()), Qt::QueuedConnection);
+    connect(this, SIGNAL(txRejectedFired(short,QString)), payment,
+            SLOT(txRejected(short,QString)), Qt::QueuedConnection);
+}
+
+void PaymentInfoObject::txRejected(RejectReason reason, const std::string &message)
+{
+    emit txRejectedFired(reason, QString::fromStdString(message));
+}
+
+void PaymentInfoObject::sentOne()
+{
+    emit sentOneFired();
+}
+
+uint16_t PaymentInfoObject::privSegment() const
+{
+    assert(m_parent);
+    assert(m_parent->wallet());
+    assert(m_parent->wallet()->segment());
+    return m_parent->wallet()->segment()->segmentId();
+}
+
 
 // //////////////////////////////////////////////////////////////////////
 

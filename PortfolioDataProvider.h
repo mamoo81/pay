@@ -19,10 +19,11 @@
 #define PORTFOLIODATAPROVIDER_H
 
 #include <QObject>
-#include <TransactionBuilder.h>
-
 #include "Wallet.h"
 #include "WalletHistoryModel.h"
+
+#include <TransactionBuilder.h>
+#include <BroadcastTxData.h>
 
 class AccountInfo : public QObject
 {
@@ -83,17 +84,27 @@ public:
 
     Q_INVOKABLE void approveAndSend();
 
+    Wallet *wallet() const;
+
+private slots:
+    void sentToPeer();
+    void txRejected(short reason, const QString &message);
+
 signals:
     void feePerByteChanged();
     void amountChanged();
     void targetAddressChanged();
+    /// notify how many peers we relayed the transaction to.
+    void sent(int count);
 
 private:
     Wallet *m_wallet;
     int m_fee; // in sats per byte
     qint64 m_paymentAmount;
     QString m_address;
-    std::unique_ptr<TransactionBuilder> m_tx;
+    std::shared_ptr<BroadcastTxData> m_infoObject;
+    short m_sentPeerCount = 0;
+    short m_rejectedPeerCount = 0;
 };
 
 
