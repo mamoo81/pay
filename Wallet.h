@@ -39,6 +39,32 @@ class Wallet : public QObject, public DataListenerInterface
 public:
     Wallet(const boost::filesystem::path &basedir, uint16_t segmentId);
 
+    class OutputRef {
+    public:
+        explicit OutputRef(int txIndex = 0, int outputIndex = 0); // invalid
+        explicit OutputRef(uint64_t encoded);
+        OutputRef(const OutputRef &output) = default;
+        uint64_t encoded() const;
+
+        inline int txIndex() const {
+            return m_txid;
+        }
+        inline int outputIndex() const {
+            return m_outputIndex;
+        }
+
+        inline void setTxIndex(int index) {
+            m_txid = index;
+        }
+        inline void setOutputIndex(int index) {
+            m_outputIndex = index;
+        }
+
+    private:
+        uint32_t m_txid = 0; // index in m_walletTransactions
+        uint16_t m_outputIndex = 0;
+    };
+
     /**
      * @brief newTransactions announces a list of transactions pushed to us from a peer.
      * @param header the block header these transactions appeared in.

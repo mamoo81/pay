@@ -37,6 +37,12 @@
  * - Saving should be done more log-file style so we are not too dependent on keeping things in memory.
  *   The fileformat means we can just save dozens of files each saving a series of transactions.
  *   Please note that order is still relevant for the UTXO!
+ *
+ * - each wallet should have some booleans
+ *    - allow lookup through indexing-servers (i.e. introduce privacy-leak)
+ *    - auto-create new addresses (i.e. user doesn't expect us to be restricted to one priv-key)
+ *    - use HD wallet.  (i.e. we generate new addresses from one priv key only)
+ *    - sign using schnorr
  */
 
 namespace {
@@ -120,7 +126,6 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
         m_name = QString("unnamed-%1").arg(segmentId);
 }
 
-
 void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions)
 {
     auto transactions = sortTransactions(blockTransactions);
@@ -140,7 +145,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             if (m_txidCash.find(wtx.txid) != m_txidCash.end()) // already known
                 continue;
 
-            uint64_t prevTx = 0;
+            OutputRef prevTx;
             int inputIndex = -1;
             int outputIndex = -1;
             Output output;
@@ -149,19 +154,19 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 if (iter.tag() == Tx::PrevTxHash) {
                     ++inputIndex;
                     auto i = m_txidCash.find(iter.uint256Data());
-                    prevTx = (i != m_txidCash.end()) ? (i->second << 16) : 0;
+                    prevTx.setTxIndex((i != m_txidCash.end()) ? i->second : 0);
                     if (i != m_txidCash.end())
-                        logDebug() << "  Input:" << inputIndex << "prevTx:" << iter.uint256Data() << Log::Hex << i->second << prevTx;
+                        logDebug() << "  Input:" << inputIndex << "prevTx:" << iter.uint256Data() << Log::Hex << i->second << prevTx.encoded();
                 } else  if (iter.tag() == Tx::PrevTxIndex) {
-                    if (prevTx > 0) { // we know the prevTx
+                    if (prevTx.txIndex() > 0) { // we know the prevTx
                         assert(iter.longData() < 0xFFFF); // it would break our scheme
-                        prevTx += iter.longData();
+                        prevTx.setOutputIndex(iter.intData());
 
-                        auto utxo = m_unspentOutputs.find(prevTx);
+                        auto utxo = m_unspentOutputs.find(prevTx.encoded());
                         if (utxo != m_unspentOutputs.end()) {
                             // input is spending one of our UTXOs
                             logDebug() << "   -> spent UTXO";
-                            wtx.inputToWTX.insert(std::make_pair(inputIndex, prevTx));
+                            wtx.inputToWTX.insert(std::make_pair(inputIndex, prevTx.encoded()));
                         }
                     }
                 }
@@ -268,16 +273,14 @@ void Wallet::rebuildBloom()
 {
     auto lock = m_segment->clearFilter();
     for (auto priv : m_walletSecrets) {
-        m_segment->addToFilter(priv.second.address, priv.second.initialHeight);
+        if (priv.second.initialHeight > 0)
+            m_segment->addKeyToFilter(priv.second.address, priv.second.initialHeight);
     }
     for (auto utxo : m_unspentOutputs) {
-        uint64_t key = utxo.first;
-        uint32_t outputIndex = key & 0xFFFF;
-        key >>= 16;
-        assert(key < INT_MAX);
-        assert(m_walletTransactions.find(int(key)) != m_walletTransactions.end());
-        auto tx = m_walletTransactions.at(int(key));
-        m_segment->addToFilter(tx.txid, outputIndex);
+        OutputRef ref(utxo.first);
+        assert(m_walletTransactions.find(ref.txIndex()) != m_walletTransactions.end());
+        auto tx = m_walletTransactions.at(ref.txIndex());
+        m_segment->addToFilter(tx.txid, ref.outputIndex());
     }
     m_bloomScore = 0;
 }
@@ -319,7 +322,7 @@ void Wallet::createNewPrivateKey(int currentBlockheight)
     m_secretsChanged = true;
     saveSecrets();
 
-    m_segment->addToFilter(pubkey.GetID(), currentBlockheight);
+    m_segment->addKeyToFilter(pubkey.GetID(), currentBlockheight);
 
     rebuildBloom();
 }
@@ -344,7 +347,7 @@ bool Wallet::addPrivateKey(const QString &privKey, int startBlockHeight)
         m_secretsChanged = true;
         saveSecrets();
 
-        m_segment->addToFilter(pubkey.GetID(), startBlockHeight);
+        m_segment->addKeyToFilter(pubkey.GetID(), startBlockHeight);
 
         rebuildBloom();
         return true;
@@ -452,11 +455,8 @@ void Wallet::loadWallet()
             m_nextWalletTransactionId = std::max(m_nextWalletTransactionId, index);
             // insert outputs of new tx.
             for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
-                assert(i->second.walletSecretId < INT_MAX);
-                uint64_t key = index;
-                key <<= 16;
-                key += i->first;
-                m_unspentOutputs.insert(std::make_pair(key, i->second.value));
+                OutputRef ref(index, i->first);
+                m_unspentOutputs.insert(std::make_pair(ref.encoded(), i->second.value));
             }
             newTx.insert(index);
 
@@ -487,10 +487,9 @@ void Wallet::loadWallet()
         else if (parser.tag() == InputSpendsOutput) {
             assert(inputIndex >= 0);
             assert(tmp != 0);
-            uint64_t key = tmp;
-            key <<= 16;
-            key += parser.longData();
-            wtx.inputToWTX.insert(std::make_pair(inputIndex, key));
+            assert(parser.longData() < 0xFFFF);
+            OutputRef ref(tmp, parser.intData());
+            wtx.inputToWTX.insert(std::make_pair(inputIndex, ref.encoded()));
             tmp = 0;
         }
         else if (parser.tag() == OutputIndex) {
@@ -623,4 +622,30 @@ int Wallet::historicalOutputCount() const
         count += wtx.second.outputs.size();
     }
     return count;
+}
+
+Wallet::OutputRef::OutputRef(uint64_t encoded)
+{
+    m_outputIndex = encoded & 0xFFFF;
+    encoded >>= 16;
+    assert(encoded < 0xEFFFFFFF);
+    m_txid = encoded;
+    assert(m_txid >= 0);
+}
+
+Wallet::OutputRef::OutputRef(int txIndex, int outputIndex)
+    : m_txid(txIndex),
+      m_outputIndex(outputIndex)
+{
+    assert(txIndex >= 0); // zero is the 'invalid' state, which is valid here...
+    assert(outputIndex >= 0);
+    assert(outputIndex < 0XFFFF);
+}
+
+uint64_t Wallet::OutputRef::encoded() const
+{
+    uint64_t answer = m_txid;
+    answer <<= 16;
+    answer += m_outputIndex;
+    return answer;
 }
