@@ -91,20 +91,16 @@ AccountInfo *PortfolioDataProvider::current() const
     return nullptr;
 }
 
-void PortfolioDataProvider::setCurrent(AccountInfo *item_)
+void PortfolioDataProvider::setCurrent(AccountInfo *item)
 {
-    auto item = qobject_cast<AccountInfo*>(item_);
     if (item) {
         int index = m_accountInfos.indexOf(item);
         if (index == m_currentAccount)
             return;
         m_currentAccount = index;
     }
-    else if (item_ == nullptr) {
-        m_currentAccount = -1;
-    }
     else {
-        return;
+        m_currentAccount = -1;
     }
     emit currentChanged();
 }
