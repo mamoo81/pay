@@ -41,7 +41,9 @@ enum FileTags {
 FloweePay::FloweePay()
     : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
 {
+    // make it move to the proper thread.
     connect(this, SIGNAL(loadComplete_priv()), SIGNAL(loadComplete()), Qt::QueuedConnection);
+
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, [=]() {
         p2pNet()->shutdown();
         saveAll();

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.14
-import QtQml.StateMachine 1.0 as DSM
+import QtQml.StateMachine 1.15 as DSM
 import QtQuick.Window 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
@@ -35,24 +35,41 @@ ApplicationWindow {
 
     DSM.StateMachine {
         id: globalStateMachine
-        initialState: loading ? splash : walletsView
+        initialState: splash
         running: true
+
         DSM.State {
             id: splash
+            property bool loaded: wallets !== null
+
             DSM.SignalTransition {
                 targetState: walletsView
-                signal: Flowee.loadComplete
-                guard: net !== null
+                signal: splash.onLoadedChanged
+                guard: splash.loaded
             }
         }
+
         DSM.State {
             id: walletsView
+            property bool hasWallet: {
+                if (typeof wallets === 'undefined') {
+                    return false
+                }
+                return wallets.current !== null
+            }
+
+            DSM.SignalTransition {
+                targetState: walletDetails
+                signal: walletsView.onHasWalletChanged
+            }
+
             DSM.SignalTransition {
                 targetState: walletDetails
                 signal: wallets.onCurrentChanged
-                guard: wallets.current !== null
+                guard: wallets !== null && wallets.current !== null
             }
         }
+
         DSM.State {
             id: walletDetails
             DSM.SignalTransition {
@@ -69,7 +86,7 @@ ApplicationWindow {
         height: width
         color: "lightgrey"
         visible: opacity !== 0
-        opacity: loading || walletsView.active ? 0 : 1
+        opacity: walletDetails.active ? 1 : 0
         Text {
             text: "Back"
             anchors.centerIn: parent
@@ -86,7 +103,7 @@ ApplicationWindow {
     Item {
         id: loadingIndicator
         anchors.centerIn: parent
-        visible: loading
+        visible: splash.active
 
         Image {
             source: "qrc:///FloweePay.png"
@@ -109,23 +126,6 @@ ApplicationWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             text: "Flowee Pay"
             font.pointSize: 24
-        }
-
-        Row {
-            id: buttonBar
-            anchors.top: title.bottom
-            anchors.margins: 10
-            anchors.left: walletFrame.right
-            anchors.leftMargin: 10
-
-            spacing: 20
-            Button {
-                text: qsTr("Send")
-                onClicked: sendTransactionPane.start();
-            }
-            Button {
-                text: qsTr("Receive")
-            }
         }
 
         WalletsOverview {
@@ -235,33 +235,35 @@ ApplicationWindow {
             x: -border.width
             Behavior on opacity { NumberAnimation { duration: 350 } }
         }
+        Row {
+            id: buttonBar
 
-        Item {
+            anchors.top: title.bottom
+            anchors.margins: 10
+            anchors.left: walletFrame.right
+            anchors.leftMargin: 10
+            opacity: walletFrame.opacity
+
+            spacing: 20
+            Button {
+                text: qsTr("Send")
+                onClicked: sendTransactionPane.start();
+            }
+            Button {
+                text: qsTr("Receive")
+            }
+        }
+
+
+        SendTransactionPane {
             id: sendTransactionPane
             anchors.bottom: walletFrame.bottom
-            anchors.top: buttonBar.bottom
             anchors.left: walletFrame.right
             anchors.right: parent.right
-            opacity: walletDetails.active ? 1 : 0
+            anchors.top: buttonBar.bottom
+
+            opacity: (walletDetails.active && enabled) ? 1 : 0
             visible: opacity !== 0
-
-            signal startedTransaction
-
-            function start() {
-                startedTransaction(); // TODO, change the statemachine based on this.
-                // TODO init fields
-                opacity = 1
-
-                var obj = wallets.startPayToAddress("qpgn5ka4jptc98a9ftycvujxx33e79nxuqlz5mvxns", 15000000);
-                // obj.feePerByte = 1;
-                obj.approveAndSend();
-                console.log("done!");
-            }
-
-            Rectangle {
-                anchors.fill: parent
-                color: "red"
-            }
 
             Behavior on opacity { NumberAnimation { duration: 350 } }
         }

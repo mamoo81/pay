@@ -20,9 +20,12 @@
 #include "FloweePay.h"
 
 #include <QFile>
+#include <QSettings>
 #include <QTimer>
 #include <base58.h>
 #include <cashaddr.h>
+
+#define DEFAULT_WALLET "default_wallet_type"
 
 AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     : QObject(parent),
@@ -289,13 +292,17 @@ AccountInfo *PortfolioDataProvider::current() const
 
 void PortfolioDataProvider::setCurrent(AccountInfo *item)
 {
+    QSettings appConfig;
     if (item) {
         int index = m_accountInfos.indexOf(item);
         if (index == m_currentAccount)
             return;
         m_currentAccount = index;
+
+        appConfig.setValue(DEFAULT_WALLET, m_accounts.at(index)->segment()->segmentId());
     }
     else {
+        appConfig.remove(DEFAULT_WALLET);
         m_currentAccount = -1;
     }
     emit currentChanged();
@@ -313,6 +320,23 @@ QObject *PortfolioDataProvider::startPayToAddress(const QString &address, qint64
     } catch (...) {
         delete p;
         throw;
+    }
+}
+
+void PortfolioDataProvider::selectDefaultWallet()
+{
+    QSettings appConfig;
+    const int defaultWalletSegment = appConfig.value(DEFAULT_WALLET, -1).toInt();
+    if (defaultWalletSegment == -1)
+        return;
+    for (int i = 0; i < m_accounts.size(); ++i) {
+        auto wallet = m_accounts.at(i);
+        assert(wallet->segment());
+        if (wallet->segment()->segmentId() == defaultWalletSegment) {
+            m_currentAccount = i;
+            emit currentChanged();
+            break;
+        }
     }
 }
 

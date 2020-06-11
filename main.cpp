@@ -69,7 +69,6 @@ int main(int argc, char *argv[])
     ECC_State crypo_state; // allows the secp256k1 to function.
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
-    engine.rootContext()->setContextProperty("loading", QVariant(true));
     engine.rootContext()->setContextProperty("Flowee", FloweePay::instance());
     engine.load(url);
 
@@ -83,9 +82,10 @@ int main(int argc, char *argv[])
         for (auto wallet : app->wallets()) {
             wallets->addWalletAccount(wallet);
         }
+        wallets->selectDefaultWallet();
+
         engine.rootContext()->setContextProperty("net", netData);
         engine.rootContext()->setContextProperty("wallets", wallets);
-        engine.rootContext()->setContextProperty("loading", QVariant(false));
         if (parser.isSet(connect)) {
             app->p2pNet()->connectionManager().peerAddressDb().addOne( // actually connect to it too.
                         EndPoint(parser.value(connect).toStdString(), 8333));

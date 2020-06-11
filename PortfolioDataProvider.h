@@ -123,6 +123,8 @@ public:
 
     Q_INVOKABLE QObject* startPayToAddress(const QString &address, qint64 amount);
 
+    void selectDefaultWallet();
+
 public slots:
     void addWalletAccount(Wallet *wallet);
 
