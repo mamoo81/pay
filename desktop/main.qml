@@ -28,10 +28,14 @@ import Flowee.org.pay 1.0
 ApplicationWindow {
     id: window
     visible: true
-    width: 800
-    height: 600
+    width: Flowee.windowWidth
+    height: Flowee.windowHeight
     title: "Flowee Pay"
     // color: darkTheme.checked ? "black" : "white"
+
+    onWidthChanged: Flowee.windowWidth = width
+    onHeightChanged: Flowee.windowHeight = height
+
 
     DSM.StateMachine {
         id: globalStateMachine

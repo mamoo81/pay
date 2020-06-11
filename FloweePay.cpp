@@ -33,6 +33,8 @@
 
 #define FONTSIZE "FONT_SIZE"
 #define UNIT_TYPE "UNIT_TYPE"
+#define WINDOW_WIDTH "windowWidth"
+#define WINDOW_HEIGHT "windowHeight"
 
 enum FileTags {
     WalletId
@@ -196,6 +198,30 @@ Wallet *FloweePay::createWallet(const QString &name)
     saveData();
     emit walletsChanged();
     return w;
+}
+
+int FloweePay::windowHeight() const
+{
+    QSettings appSettings;
+    return appSettings.value(WINDOW_HEIGHT, 600).toInt();
+}
+
+void FloweePay::setWindowHeight(int windowHeight)
+{
+    QSettings appSettings;
+    appSettings.setValue(WINDOW_HEIGHT, windowHeight);
+}
+
+int FloweePay::windowWidth() const
+{
+    QSettings appSettings;
+    return appSettings.value(WINDOW_WIDTH, 800).toInt();
+}
+
+void FloweePay::setWindowWidth(int windowWidth)
+{
+    QSettings appSettings;
+    appSettings.setValue(WINDOW_WIDTH, windowWidth);
 }
 
 void FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)

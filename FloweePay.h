@@ -32,6 +32,8 @@ class FloweePay : public QObject, WorkerThreads
 {
     Q_OBJECT
     Q_PROPERTY(QString unitName READ unitName NOTIFY unitNameChanged)
+    Q_PROPERTY(int windowWidth READ windowWidth WRITE setWindowWidth NOTIFY windowWidthChanged)
+    Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
     Q_ENUMS(UnitsOfBitcoin StringType)
 public:
     enum StringType {
@@ -74,6 +76,12 @@ public:
     /// returns the unit of our prices. BCH, for instance.
     QString unitName() const;
 
+    int windowWidth() const;
+    void setWindowWidth(int windowWidth);
+
+    int windowHeight() const;
+    void setWindowHeight(int windowHeight);
+
 signals:
     void loadComplete();
     /// \internal
@@ -81,6 +89,9 @@ signals:
 
     void unitNameChanged();
     void walletsChanged();
+
+    void windowWidthChanged();
+    void windowHeightChanged();
 
 private:
     void init();
