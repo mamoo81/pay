@@ -233,7 +233,7 @@ void FloweePay::createImportedWallet(const QString &privateKey, const QString &w
 
 FloweePay::StringType FloweePay::identifyString(const QString &string) const
 {
-    std::string s = string.toStdString();
+    std::string s = string.trimmed().toStdString();
 
     CBase58Data legacy;
     if (legacy.SetString(s)) {

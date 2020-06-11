@@ -36,7 +36,6 @@ ApplicationWindow {
     onWidthChanged: Flowee.windowWidth = width
     onHeightChanged: Flowee.windowHeight = height
 
-
     DSM.StateMachine {
         id: globalStateMachine
         initialState: splash
@@ -257,7 +256,6 @@ ApplicationWindow {
                 text: qsTr("Receive")
             }
         }
-
 
         SendTransactionPane {
             id: sendTransactionPane
