@@ -65,6 +65,8 @@ enum SaveTags {
     PubKeyHash,
     HeightCreated, // for an address / privkey this is used to check which blocks to query
 
+    IsSingleAddressWallet, // bool
+
     TxId = 15,
     BlockHash,
     BlockHeight,
@@ -295,6 +297,16 @@ void Wallet::rebuildBloom()
     m_bloomScore = 0;
 }
 
+bool Wallet::isSingleAddressWallet() const
+{
+    return m_singleAddressWallet;
+}
+
+void Wallet::setSingleAddressWallet(bool singleAddressWallet)
+{
+    m_singleAddressWallet = singleAddressWallet;
+}
+
 QString Wallet::name() const
 {
     return m_name;
@@ -357,10 +369,12 @@ const CKey &Wallet::unlockKey(Wallet::OutputRef ref) const
     return iter3->second.privKey;
 }
 
-CKeyID Wallet::newChangeAddress()
+CKeyID Wallet::nextChangeAddress()
 {
     QMutexLocker locker(&m_lock);
     for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+        if (m_singleAddressWallet)
+            return i->second.address; // just return the first then.
         if (i->second.initialHeight == -1) // is change address.
             return i->second.address;
     }
@@ -583,6 +597,9 @@ void Wallet::loadSecrets()
         else if (parser.tag() == HeightCreated) {
             secret.initialHeight = parser.intData();
         }
+        else if (parser.tag() == IsSingleAddressWallet) {
+            m_singleAddressWallet = parser.boolData();
+        }
     }
     m_secretsChanged = false;
     ++m_nextWalletSecretId;
@@ -604,6 +621,8 @@ void Wallet::saveSecrets()
 
         builder.add(Separator, true);
     }
+    if (m_singleAddressWallet)
+        builder.add(isSingleAddressWallet(), true);
     auto data = builder.buffer();
 
     try {

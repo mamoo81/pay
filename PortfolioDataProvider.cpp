@@ -179,7 +179,7 @@ void Payment::approveAndSend()
         // But if we hit that, its better to give it to the miners than to
         // create a tiny change UTXO
         builder.appendOutput(change);
-        builder.pushOutputPay2Address(m_wallet->newChangeAddress());
+        builder.pushOutputPay2Address(m_wallet->nextChangeAddress());
     }
 
     tx = builder.createTransaction();

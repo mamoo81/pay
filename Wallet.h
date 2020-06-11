@@ -96,7 +96,7 @@ public:
     Tx::Output txOutout(OutputRef ref) const;
     const CKey &unlockKey(OutputRef ref) const;
 
-    CKeyID newChangeAddress();
+    CKeyID nextChangeAddress();
 
     /**
      * @brief findInputsFor UTXO fulfilment algo finding the inputs for your tx.
@@ -107,6 +107,9 @@ public:
      * @return The references to the outputs we suggest you fund your tx with.
      */
     std::vector<OutputRef> findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const;
+
+    bool isSingleAddressWallet() const;
+    void setSingleAddressWallet(bool isSingleAddressWallet);
 
 signals:
     void utxosChanged();
@@ -166,6 +169,8 @@ private:
     boost::filesystem::path m_basedir;
 
     friend class WalletHistoryModel;
+
+    bool m_singleAddressWallet = false;
 };
 
 #endif
