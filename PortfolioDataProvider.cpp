@@ -77,9 +77,10 @@ WalletHistoryModel *AccountInfo::historyModel()
 
 // //////////////////////////////////////////////////////////////////////
 
-Payment::Payment(Wallet *wallet)
+Payment::Payment(Wallet *wallet, qint64 amountToPay)
     : m_wallet(wallet),
-      m_fee(1)
+      m_fee(1),
+      m_paymentAmount(amountToPay)
 {
     assert(m_wallet);
     assert(m_wallet->segment());
@@ -98,17 +99,18 @@ int Payment::feePerByte()
     return m_fee;
 }
 
-void Payment::setPaymentAmount(qint64 amount)
+void Payment::setPaymentAmount(double amount_)
 {
+    qint64 amount = static_cast<qint64>(amount_);
     if (m_paymentAmount == amount)
         return;
     m_paymentAmount = amount;
     emit amountChanged();
 }
 
-qint64 Payment::paymentAmount()
+double Payment::paymentAmount()
 {
-    return m_paymentAmount;
+    return static_cast<double>(m_paymentAmount);
 }
 
 void Payment::setTargetAddress(const QString &address)
@@ -117,12 +119,17 @@ void Payment::setTargetAddress(const QString &address)
         return;
     switch (FloweePay::instance()->identifyString(address)) {
     case FloweePay::CashPKH:
-    case FloweePay::CashSH:
-    case FloweePay::LegacyPKH:
-    case FloweePay::LegacySH:
-        m_address = address;
+    case FloweePay::LegacyPKH: {
+        m_address = address.trimmed();
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), "bitcoincash");
+        assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr("bitcoincash", c));
         emit targetAddressChanged();
         break;
+    }
+    case FloweePay::CashSH:
+    case FloweePay::LegacySH:
+        throw std::runtime_error("Unsupported at this time");
     default:
         throw std::runtime_error("Address not recognized");
     }
@@ -131,6 +138,11 @@ void Payment::setTargetAddress(const QString &address)
 QString Payment::targetAddress()
 {
     return m_address;
+}
+
+QString Payment::formattedTargetAddress()
+{
+    return m_formattedTarget;
 }
 
 void Payment::approveAndSend()
@@ -308,13 +320,13 @@ void PortfolioDataProvider::setCurrent(AccountInfo *item)
     emit currentChanged();
 }
 
-QObject *PortfolioDataProvider::startPayToAddress(const QString &address, qint64 amount)
+QObject *PortfolioDataProvider::startPayToAddress(const QString &address, BitcoinValue *bitcoinValue)
 {
-    if (m_currentAccount == -1)
+    assert(bitcoinValue);
+    if (m_currentAccount == -1 || bitcoinValue == nullptr)
         return nullptr;
-    auto p = new Payment(m_accounts.at(m_currentAccount));
+    auto p = new Payment(m_accounts.at(m_currentAccount), bitcoinValue->value());
     try {
-        p->setPaymentAmount(amount);
         p->setTargetAddress(address);
         return p;
     } catch (...) {

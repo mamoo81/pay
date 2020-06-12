@@ -2,13 +2,14 @@ import QtQuick 2.14
 import Flowee.org.pay 1.0
 
 FocusScope {
-    id: bitcoinValueField
+    id: root
     height: balance.height + 16
     width: balance.width + 16
     focus: true
     activeFocusOnTab: true
 
     property alias value: privValue.value
+    property alias valueObject: privValue
 
     function reset() {
         privValue.enteredString = "0";
@@ -20,21 +21,21 @@ FocusScope {
     }
     MouseArea {
         anchors.fill: parent
-        onClicked: bitcoinValueField.focus = true
+        onClicked: root.focus = true
     }
     
     BitcoinAmountLabel {
         id: balance
         x: 8
         y: 8
-        value: bitcoinValueField.value
+        value: root.value
         colorize: false
-        visible: !bitcoinValueField.activeFocus
+        visible: !root.activeFocus
     }
     
     Text {
         text: privValue.enteredString
-        visible: bitcoinValueField.activeFocus
+        visible: root.activeFocus
         x: 8
         y: 8
     }
@@ -44,12 +45,12 @@ FocusScope {
         y: 8
         anchors.right: parent.right
         anchors.rightMargin: 8
-        visible: bitcoinValueField.activeFocus
+        visible: root.activeFocus
     }
     
     Rectangle { // focus scope indicator
         anchors.fill: parent
-        border.color: bitcoinValueField.activeFocus ? "#0066ff" : "#bdbdbd"
+        border.color: root.activeFocus ? "#0066ff" : "#bdbdbd"
         border.width: 1
         color: "#00000000" // transparant
     }

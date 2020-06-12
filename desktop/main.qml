@@ -275,7 +275,6 @@ ApplicationWindow {
 
     AbstractDialog {
         id: createNewWalletDialog
-        // standardButtons: StandardButton.Ok | StandardButton.Cancel
         visible: false
         title: "Create New Wallet"
 

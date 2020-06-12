@@ -21,6 +21,7 @@
 #include <QObject>
 #include "Wallet.h"
 #include "WalletHistoryModel.h"
+#include "BitcoinValue.h"
 
 #include <TransactionBuilder.h>
 #include <BroadcastTxData.h>
@@ -68,21 +69,23 @@ class Payment : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int feePerByte READ feePerByte WRITE setFeePerByte NOTIFY feePerByteChanged)
-    Q_PROPERTY(qint64 paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
+    Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
+    Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
 public:
-    Payment(Wallet *wallet);
+    Payment(Wallet *wallet, qint64 amountToPay);
 
     void setFeePerByte(int sats);
     int feePerByte();
 
-    void setPaymentAmount(qint64 amount);
-    qint64 paymentAmount();
+    void setPaymentAmount(double amount);
+    double paymentAmount();
 
     /// this method throws if its not a proper address.
     /// @see FloweePay::identifyString()
     void setTargetAddress(const QString &address);
     QString targetAddress();
+    QString formattedTargetAddress();
 
     Q_INVOKABLE void approveAndSend();
 
@@ -104,6 +107,7 @@ private:
     int m_fee; // in sats per byte
     qint64 m_paymentAmount;
     QString m_address;
+    QString m_formattedTarget;
     std::shared_ptr<BroadcastTxData> m_infoObject;
     short m_sentPeerCount = 0;
     short m_rejectedPeerCount = 0;
@@ -123,7 +127,7 @@ public:
     AccountInfo *current() const;
     void setCurrent(AccountInfo *item);
 
-    Q_INVOKABLE QObject* startPayToAddress(const QString &address, qint64 amount);
+    Q_INVOKABLE QObject* startPayToAddress(const QString &address, BitcoinValue *bitcoinValue);
 
     void selectDefaultWallet();
 
