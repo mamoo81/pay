@@ -47,6 +47,7 @@ set (PAY_SOURCES
     PortfolioDataProvider.cpp
     Wallet.cpp
     WalletHistoryModel.cpp
+    BitcoinValue.cpp
 )
 
 if(ANDROID)

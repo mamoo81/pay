@@ -264,7 +264,39 @@ void FloweePay::createNewWallet(const QString &walletName)
 
 QString FloweePay::unitName() const
 {
-    return QString("BCH");
+    switch (m_unit) {
+    case FloweePay::BCH:
+        return QLatin1String("BCH");
+    case FloweePay::MilliBCH:
+        return QLatin1String("mBCH");
+    case FloweePay::MicroBCH:
+        return QLatin1String("µBCH");
+    case FloweePay::Bits:
+        return QLatin1String("bits");
+    case FloweePay::Satoshis:
+        return QLatin1String("sats");
+    default:
+        assert(false);
+        return 0;
+    }
+}
+
+int FloweePay::unitAllowedDecimals() const
+{
+    switch (m_unit) {
+    case FloweePay::BCH:
+        return 8;
+    case FloweePay::MilliBCH:
+        return 5;
+    case FloweePay::MicroBCH:
+    case FloweePay::Bits:
+        return 2;
+    case FloweePay::Satoshis:
+        return 0;
+    default:
+        assert(false);
+        return 0;
+    }
 }
 
 QList<Wallet *> FloweePay::wallets() const

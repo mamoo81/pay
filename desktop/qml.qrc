@@ -8,5 +8,6 @@
         <file>WalletFrame.qml</file>
         <file alias="FloweePay.png">../images/FloweePay.png</file>
         <file>SendTransactionPane.qml</file>
+        <file>BitcoinValueField.qml</file>
     </qresource>
 </RCC>

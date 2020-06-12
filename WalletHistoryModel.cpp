@@ -75,14 +75,14 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
             auto prevOut = spendingTx.outputs.at(outputIndex);
             value += prevOut.value;
         }
-        return QVariant(value);
+        return QVariant(double(value));
     }
     case FundsOut: {
         qint64 value = 0;
         for (auto out : item.outputs) {
             value += out.second.value;
         }
-        return QVariant(value);
+        return QVariant(double(value));
     }
     case Unspent:
         // TODO

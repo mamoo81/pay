@@ -1,6 +1,7 @@
 #include "NetDataProvider.h"
 #include "PortfolioDataProvider.h"
 #include "FloweePay.h"
+#include "BitcoinValue.h"
 
 #include <QCommandLineParser>
 #include <QDateTime>
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
     srand((quint32) QDateTime::currentMSecsSinceEpoch());
 
     qmlRegisterType<FloweePay>("Flowee.org.pay", 1, 0, "Pay");
+    qmlRegisterType<BitcoinValue>("Flowee.org.pay", 1, 0, "BitcoinValue");
     QCommandLineParser parser;
     parser.setApplicationDescription("Flowee pay");
     QCommandLineOption debug(QStringList() << "debug", "Use debug level logging");

@@ -31,9 +31,10 @@ class Wallet;
 class FloweePay : public QObject, WorkerThreads
 {
     Q_OBJECT
-    Q_PROPERTY(QString unitName READ unitName NOTIFY unitNameChanged)
+    Q_PROPERTY(QString unitName READ unitName NOTIFY unitChanged)
     Q_PROPERTY(int windowWidth READ windowWidth WRITE setWindowWidth NOTIFY windowWidthChanged)
     Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
+    Q_PROPERTY(int unitAllowedDecimals READ unitAllowedDecimals NOTIFY unitChanged)
     Q_ENUMS(UnitsOfBitcoin StringType)
 public:
     enum StringType {
@@ -48,7 +49,8 @@ public:
         BCH,
         MilliBCH,
         MicroBCH,
-        Bits
+        Bits,
+        Satoshis
     };
     FloweePay();
     ~FloweePay();
@@ -63,7 +65,11 @@ public:
     QString basedir() const;
 
     /// for a price, in satoshis, return a formatted string in unitName().
-    Q_INVOKABLE QString priceToString(qint64 price) const;
+    Q_INVOKABLE inline QString priceToString(double price) const {
+        return priceToString(static_cast<qint64>(price));
+    }
+    /// for a price, in satoshis, return a formatted string in unitName().
+    QString priceToString(qint64 price) const;
 
     /// create a new wallet with an optional name.
     Q_INVOKABLE void createNewWallet(const QString &walletName = QString());
@@ -75,6 +81,8 @@ public:
 
     /// returns the unit of our prices. BCH, for instance.
     QString unitName() const;
+    /// returns the amount of digits allowed behind the decimal-separator.
+    int unitAllowedDecimals() const;
 
     int windowWidth() const;
     void setWindowWidth(int windowWidth);
@@ -87,7 +95,7 @@ signals:
     /// \internal
     void loadComplete_priv();
 
-    void unitNameChanged();
+    void unitChanged();
     void walletsChanged();
 
     void windowWidthChanged();

@@ -39,9 +39,9 @@ int AccountInfo::id() const
     return m_wallet->segment()->segmentId();
 }
 
-qint64 AccountInfo::balance() const
+double AccountInfo::balance() const
 {
-    return m_wallet->balance();
+    return static_cast<double>(m_wallet->balance());
 }
 
 int AccountInfo::unspentOutputCount() const

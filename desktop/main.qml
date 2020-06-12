@@ -251,6 +251,7 @@ ApplicationWindow {
             Button {
                 text: qsTr("Send")
                 onClicked: sendTransactionPane.start();
+                enabled: !sendTransactionPane.visible
             }
             Button {
                 text: qsTr("Receive")
@@ -263,6 +264,7 @@ ApplicationWindow {
             anchors.left: walletFrame.right
             anchors.right: parent.right
             anchors.top: buttonBar.bottom
+            anchors.topMargin: 10
 
             opacity: (walletDetails.active && enabled) ? 1 : 0
             visible: opacity !== 0

@@ -22,7 +22,7 @@ Item {
     width: row.width
     height: row.height
 
-    property int value: 0
+    property double value: 0
     property bool colorize: true
 
     Row {
@@ -35,7 +35,10 @@ Item {
             id: main
             text: {
                 var s = row.amountString
-                return s.substring(0, s.length - 5)
+                var removeChars = Flowee.unitAllowedDecimals
+                if (removeChars > 3)
+                    removeChars -= 3; // the next text field eats those
+                return s.substring(0, s.length - removeChars)
             }
             color: root.colorize ? (root.value > 0 ? "green" : "#444446") : "black";
         }
@@ -46,13 +49,14 @@ Item {
                 var pos = s.length - 5
                 return s.substring(pos, pos + 3);
             }
-            font.pointSize: sats.font.pointSize
+            font.pointSize: satsLabel.font.pointSize
             color: main.color
-            opacity: (sats.opacity !== 1 && text == "000") ? 0.3 : 1
+            opacity: (satsLabel.opacity !== 1 && text == "000") ? 0.3 : 1
             anchors.baseline: main.baseline
+            visible: Flowee.unitAllowedDecimals === 8
         }
         Text {
-            id: sats
+            id: satsLabel
             text: {
                 var s = row.amountString
                 return s.substring(s.length - 2);
@@ -61,6 +65,7 @@ Item {
             color: main.color
             opacity: text == "00" ? 0.3 : 1
             anchors.baseline: main.baseline
+            visible: Flowee.unitAllowedDecimals >= 2
         }
 
         Text {

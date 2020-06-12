@@ -28,7 +28,8 @@
 class AccountInfo : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int balance READ balance NOTIFY utxosChanged)
+    /// The wallet amount
+    Q_PROPERTY(double balance READ balance NOTIFY utxosChanged)
     Q_PROPERTY(int unspentOutputCount READ unspentOutputCount NOTIFY utxosChanged)
     Q_PROPERTY(int historicalOutputCount READ historicalOutputCount NOTIFY utxosChanged)
     Q_PROPERTY(int id READ id CONSTANT)
@@ -41,7 +42,8 @@ public:
     int id() const;
 
     /// return the current balance
-    qint64 balance() const;
+    double balance() const;
+
     /// return the amount of UTXOs that hold money
     int unspentOutputCount() const;
     /// return the amount of UTXOs ever created for this account.
