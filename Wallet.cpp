@@ -622,7 +622,7 @@ void Wallet::saveSecrets()
         builder.add(Separator, true);
     }
     if (m_singleAddressWallet)
-        builder.add(isSingleAddressWallet(), true);
+        builder.add(IsSingleAddressWallet, true);
     auto data = builder.buffer();
 
     try {
