@@ -202,17 +202,17 @@ void Payment::approveAndSign()
         builder.pushOutputPay2Address(m_wallet->nextChangeAddress());
         m_assignedFee -= change;
     }
-
     m_tx = builder.createTransaction();
 
     // now double-check the fee since we can't predict the signature size perfectly.
     int diff = m_tx.size() * m_fee - m_assignedFee;
     if (diff != 0 && changeOutput != -1) {
+        // a positive diff means we underpaid fee
         builder.selectOutput(changeOutput);
-        builder.setOutputValue(change + diff);
+        builder.setOutputValue(change - diff);
         m_assignedFee += diff;
+        m_tx = builder.createTransaction();
     }
-
     emit txCreated();
 }
 

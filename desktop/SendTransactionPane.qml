@@ -161,7 +161,7 @@ FocusScope {
 
                 Text {
                     text: checkAndSendTx.payment === null ? 0
-                                  : (checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize);
+                                  : (checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize).toFixed(3);
                 }
 
                 Pane {
