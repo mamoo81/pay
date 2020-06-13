@@ -77,6 +77,8 @@ FocusScope {
                 onClicked: {
                     checkAndSendTx.payment
                             = wallets.startPayToAddress(destination.text, bitcoinValueField.valueObject);
+
+                    checkAndSendTx.payment.approveAndSign()
                 }
             }
         }
@@ -102,47 +104,81 @@ FocusScope {
                 root.enabled = false
             }
         }
-
-        GridLayout {
-            id: diag
-            columns: 2
+        Pane {
             anchors.fill: parent
+            anchors.margins: 6
 
-            Text {
-                text: qsTr("Check your values and press approve to send payment.")
-                Layout.columnSpan: 2
-            }
+            GridLayout {
+                id: diag
+                columns: 2
+                anchors.fill: parent
 
-            Text {
-                text: "Destination:"
-            }
-            Text {
-                text: checkAndSendTx.payment.formattedTargetAddress
-            }
-            Text {
-                text: "Value:"
-            }
-            BitcoinAmountLabel {
-                value: checkAndSendTx.payment.paymentAmount
-                colorize: false
-            }
-
-            // TODO show fee and fee per byte and change amount
-
-            Pane {
-                implicitHeight: button.height + 50
-                Button {
-                    id: button
-                    text: qsTr("Approve and Send")
-                    onClicked:  {
-                        // checkAndSendTx.payment.approveAndSend();
-                        checkAndSendTx.payment = null
-                    }
-                    anchors.centerIn: parent
+                Text {
+                    text: qsTr("Check your values and press approve to send payment.")
+                    font.bold: true
+                    Layout.columnSpan: 2
                 }
-                Layout.columnSpan: 2
-                Layout.fillHeight: true
-                Layout.fillWidth: true
+
+                Text {
+                    text: "Destination:"
+                }
+                Text {
+                    text: checkAndSendTx.payment === null ? "waiting" : checkAndSendTx.payment.formattedTargetAddress
+                }
+                Text {
+                    text: "Value:"
+                }
+                BitcoinAmountLabel {
+                    value: checkAndSendTx.payment === null ? 0 : checkAndSendTx.payment.paymentAmount
+                    colorize: false
+                }
+
+                Text {
+                    text: "TxId:"
+                }
+
+                Text {
+                    text: checkAndSendTx.payment === null ? "waiting" : checkAndSendTx.payment.txid
+                    wrapMode: Text.WrapAnywhere
+                }
+
+                Text {
+                    text: "Fee (total):"
+                }
+
+                Text {
+                    text: checkAndSendTx.payment === null ? 0 : checkAndSendTx.payment.assignedFee
+                }
+                Text {
+                    text: "transaction size:"
+                }
+                Text {
+                    text: checkAndSendTx.payment === null ? 0 : checkAndSendTx.payment.txSize
+                }
+                Text {
+                    text: "Fee (per byte):"
+                }
+
+                Text {
+                    text: checkAndSendTx.payment === null ? 0
+                                  : (checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize);
+                }
+
+                Pane {
+                    implicitHeight: button.height + 50
+                    Button {
+                        id: button
+                        text: qsTr("Approve and Send")
+                        onClicked:  {
+                            checkAndSendTx.payment.sendTx();
+                            checkAndSendTx.payment = null
+                        }
+                        anchors.centerIn: parent
+                    }
+                    Layout.columnSpan: 2
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                }
             }
         }
     }

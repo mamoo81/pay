@@ -145,7 +145,7 @@ QString Payment::formattedTargetAddress()
     return m_formattedTarget;
 }
 
-void Payment::approveAndSend()
+void Payment::approveAndSign()
 {
     if (m_address.isEmpty() || m_paymentAmount < 600)
         throw std::runtime_error("Can not create transaction, missing data");
@@ -182,22 +182,42 @@ void Payment::approveAndSend()
     const auto prevOuts = m_wallet->findInputsFor(m_paymentAmount, m_fee, tx.size(), change);
     if (prevOuts.empty())
         throw std::runtime_error("Not enough funds");
+    m_assignedFee = 0;
+    qint64 fundsIngoing = 0;
     for (auto ref : prevOuts) {
         builder.appendInput(m_wallet->txid(ref), ref.outputIndex());
         auto output = m_wallet->txOutout(ref);
+        fundsIngoing += output.outputValue;
         builder.pushInputSignature(m_wallet->unlockKey(ref), output.outputScript, output.outputValue);
     }
 
+    m_assignedFee = fundsIngoing - m_paymentAmount;
+    int changeOutput = -1;
     if (change > 1000) {
         // notice that the findInputsFor() will try really really hard to avoid us
         // having change greater than 100 and less than 1000.
         // But if we hit that, its better to give it to the miners than to
         // create a tiny change UTXO
-        builder.appendOutput(change);
+        changeOutput = builder.appendOutput(change);
         builder.pushOutputPay2Address(m_wallet->nextChangeAddress());
+        m_assignedFee -= change;
     }
 
-    tx = builder.createTransaction();
+    m_tx = builder.createTransaction();
+
+    // now double-check the fee since we can't predict the signature size perfectly.
+    int diff = m_tx.size() * m_fee - m_assignedFee;
+    if (diff != 0 && changeOutput != -1) {
+        builder.selectOutput(changeOutput);
+        builder.setOutputValue(change + diff);
+        m_assignedFee += diff;
+    }
+
+    emit txCreated();
+}
+
+void Payment::sendTx()
+{
     /*
      * TODO
      *  - call to wallet to mark outputs locked and save tx.
@@ -214,8 +234,15 @@ void Payment::approveAndSend()
      *    which can no longer confirm.
      */
 
-    m_infoObject = std::make_shared<PaymentInfoObject>(this, tx);
+    m_infoObject = std::make_shared<PaymentInfoObject>(this, m_tx);
     FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(m_infoObject);
+}
+
+QString Payment::txid() const
+{
+    if (!m_tx.isValid())
+        return QString();
+    return QString::fromStdString(m_tx.createHash().ToString());
 }
 
 Wallet *Payment::wallet() const
@@ -244,6 +271,16 @@ void Payment::txRejected(short reason, const QString &message)
     // reason is hinted using BroadcastTxData::RejectReason
     logCritical() << "Transaction rejected" << reason << message;
     ++m_rejectedPeerCount;
+}
+
+int Payment::assignedFee() const
+{
+    return m_assignedFee;
+}
+
+int Payment::txSize() const
+{
+    return m_tx.size();
 }
 
 

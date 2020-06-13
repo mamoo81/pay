@@ -36,7 +36,7 @@ Rectangle {
         Text {
             id: titleLabel
             text: root.wallet === null ? "" : root.wallet.name
-            font.pointSize: 14
+            font.pixelSize: 26
             font.bold: true
             anchors.centerIn: parent
             wrapMode: Text.WordWrap

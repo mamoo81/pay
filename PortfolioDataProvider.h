@@ -72,6 +72,9 @@ class Payment : public QObject
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
+    Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
+    Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
+    Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
 public:
     Payment(Wallet *wallet, qint64 amountToPay);
 
@@ -87,9 +90,17 @@ public:
     QString targetAddress();
     QString formattedTargetAddress();
 
-    Q_INVOKABLE void approveAndSend();
+    Q_INVOKABLE void approveAndSign();
+    Q_INVOKABLE void sendTx();
+
+    /// return the txid, should there be a transaction (otherwise empty string)
+    QString txid() const;
+
+    int assignedFee() const;
+    int txSize() const;
 
     Wallet *wallet() const;
+
 
 private slots:
     void sentToPeer();
@@ -102,9 +113,13 @@ signals:
     /// notify how many peers we relayed the transaction to.
     void sent(int count);
 
+    void txCreated();
+
 private:
     Wallet *m_wallet;
-    int m_fee; // in sats per byte
+    Tx m_tx;
+    int m_fee = 1; // in sats per byte
+    int m_assignedFee = 0;
     qint64 m_paymentAmount;
     QString m_address;
     QString m_formattedTarget;
