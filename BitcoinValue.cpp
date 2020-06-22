@@ -18,6 +18,9 @@
 #include "BitcoinValue.h"
 #include "FloweePay.h"
 
+#include <QClipboard>
+#include <QGuiApplication>
+
 BitcoinValue::BitcoinValue(QObject *parent) : QObject(parent)
 {
 }
@@ -56,6 +59,27 @@ void BitcoinValue::addSeparator()
             m_typedNumber = "0.";
         setStringValue(m_typedNumber);
         emit enteredStringChanged();
+    }
+}
+
+void BitcoinValue::paste()
+{
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    assert(clipboard);
+    QString originalText = clipboard->text().trimmed();
+    bool started = false;
+    for (int i = 0; i < originalText.size(); ++i) {
+        auto k = originalText.at(i);
+        if (k.isDigit()) {
+            started = true;
+            addNumber(k);
+        }
+        else if ((started || (originalText.size() > i + 1 && originalText.at(i+1).isDigit()))
+                  && (k.unicode() == ',' || k.unicode() == '.')) {
+            addSeparator();
+        }
+        else if (started)
+            return;
     }
 }
 

@@ -69,4 +69,8 @@ FocusScope {
             event.accepted = true
         }
     }
+    Shortcut {
+        sequence: StandardKey.Paste
+        onActivated: privValue.paste()
+    }
 }

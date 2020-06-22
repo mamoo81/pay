@@ -42,6 +42,7 @@ public:
 
     Q_INVOKABLE void addNumber(QChar number);
     Q_INVOKABLE void addSeparator();
+    Q_INVOKABLE void paste();
     Q_INVOKABLE void backspacePressed();
 
     QString stringForValue() const;
