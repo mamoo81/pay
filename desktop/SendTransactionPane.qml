@@ -121,11 +121,25 @@ FocusScope {
 
                 Text {
                     text: "Destination:"
+                    Layout.alignment: Qt.AlignRight
                 }
                 Text {
                     text: checkAndSendTx.payment === null ? "waiting" : checkAndSendTx.payment.formattedTargetAddress
                 }
                 Text {
+                    id: origText
+                    text: qsTr("Was:")
+                    Layout.alignment: Qt.AlignRight
+                    visible: checkAndSendTx.payment !== null
+                            && checkAndSendTx.payment.targetAddress !== checkAndSendTx.payment.formattedTargetAddress
+                }
+                Text {
+                    visible: origText.visible
+                    text: checkAndSendTx.payment === null ? "" : checkAndSendTx.payment.targetAddress
+                }
+
+                Text {
+                    Layout.alignment: Qt.AlignRight
                     text: "Value:"
                 }
                 BitcoinAmountLabel {
@@ -135,15 +149,17 @@ FocusScope {
 
                 Text {
                     text: "TxId:"
+                    Layout.alignment: Qt.AlignRight
                 }
 
                 Text {
-                    text: checkAndSendTx.payment === null ? "waiting" : checkAndSendTx.payment.txid
+                    text: checkAndSendTx.payment === null ? "" : checkAndSendTx.payment.txid
                     wrapMode: Text.WrapAnywhere
                 }
 
                 Text {
                     text: "Fee (total):"
+                    Layout.alignment: Qt.AlignRight
                 }
 
                 Text {
@@ -151,14 +167,15 @@ FocusScope {
                 }
                 Text {
                     text: "transaction size:"
+                    Layout.alignment: Qt.AlignRight
                 }
                 Text {
                     text: checkAndSendTx.payment === null ? 0 : checkAndSendTx.payment.txSize
                 }
                 Text {
                     text: "Fee (per byte):"
+                    Layout.alignment: Qt.AlignRight
                 }
-
                 Text {
                     text: checkAndSendTx.payment === null ? 0
                                   : (checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize).toFixed(3);
