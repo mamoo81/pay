@@ -118,8 +118,21 @@ void Payment::setTargetAddress(const QString &address)
     if (m_address == address)
         return;
     switch (FloweePay::instance()->identifyString(address)) {
-    case FloweePay::CashPKH:
     case FloweePay::LegacyPKH: {
+        m_address = address.trimmed();
+        CBase58Data legacy;
+        auto ok = legacy.SetString(m_address.toStdString());
+        assert(ok);
+        assert(legacy.isMainnetPkh());
+        CashAddress::Content c;
+        c.hash = legacy.data();
+        c.type = CashAddress::PUBKEY_TYPE;
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr("bitcoincash", c));
+
+        emit targetAddressChanged();
+        break;
+    }
+    case FloweePay::CashPKH: {
         m_address = address.trimmed();
         auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), "bitcoincash");
         assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
@@ -147,32 +160,19 @@ QString Payment::formattedTargetAddress()
 
 void Payment::approveAndSign()
 {
-    if (m_address.isEmpty() || m_paymentAmount < 600)
+    if (m_formattedTarget.isEmpty() || m_paymentAmount < 600)
         throw std::runtime_error("Can not create transaction, missing data");
     TransactionBuilder builder;
     builder.appendOutput(m_paymentAmount);
     bool ok = false;
-    std::string s = m_address.toStdString();
-    CBase58Data legacy;
-    if (legacy.SetString(s)) {
-        if (legacy.isMainnetPkh()) {
-            assert(legacy.data().size() == 20);
-            builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(legacy.data().data())));
-            ok = true;
-        }
-        // TODO p2sh
+    CashAddress::Content c = CashAddress::decodeCashAddrContent(m_formattedTarget.toStdString(), "bitcoincash");
+    assert(!c.hash.empty());
+    if (c.type == CashAddress::PUBKEY_TYPE) {
+        builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));
+        ok = true;
     }
-    else {
-        CashAddress::Content c = CashAddress::decodeCashAddrContent(s, "bitcoincash");
-        if (!c.hash.empty()) {
-            if (c.type == CashAddress::PUBKEY_TYPE) {
-                builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));
-                ok = true;
-            }
-            // else if (c.type == CashAddress::SCRIPT_TYPE)
-            // TODO p2sh
-        }
-    }
+    // else if (c.type == CashAddress::SCRIPT_TYPE)
+    // TODO p2sh must be added in transactionbuilder first
     assert(ok); // mismatch between setPayTo and this method...
 
     auto tx = builder.createTransaction();

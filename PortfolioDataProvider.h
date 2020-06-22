@@ -71,6 +71,7 @@ class Payment : public QObject
     Q_PROPERTY(int feePerByte READ feePerByte WRITE setFeePerByte NOTIFY feePerByteChanged)
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
+    // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
     Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
