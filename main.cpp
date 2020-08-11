@@ -10,6 +10,8 @@
 #include <QQmlContext>
 #include <QStandardPaths>
 
+#include <signal.h>
+
 namespace {
 void HandleSigTerm(int) {
     QCoreApplication::quit();
