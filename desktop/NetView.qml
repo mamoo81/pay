@@ -46,7 +46,7 @@ Item {
 
         Rectangle {
             id: peerList
-            width: parent.width / 3
+            width: parent.width / 2
             height: parent.height
             x: parent.width
             color: "#aaffffff"
@@ -57,6 +57,7 @@ Item {
                 id: netTitle
                 text: "Peers (" + net.peers.length + ")"
                 anchors.horizontalCenter: parent.horizontalCenter
+                y: 10
             }
 
             ListView {
@@ -65,6 +66,8 @@ Item {
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
+                anchors.margins: 6
+                clip: true
 
                 delegate: Item {
                     id: peerPane
@@ -73,7 +76,7 @@ Item {
 
                     Text {
                         id: mainLabel
-                        font.pointSize: 12
+                        font.pixelSize: 20
                         text: modelData.userAgent
                     }
                     Row {
@@ -82,12 +85,12 @@ Item {
                         spacing: 10
                         Text {
                             id: secondRow
-                            font.pointSize: 10
+                            font.pixelSize: 18
                             color: "#444444"
                             text: qsTr("Start-height: %1").arg(modelData.startHeight)
                         }
                         Text {
-                            font.pointSize: 10
+                            font.pixelSize: 18
                             color: "#444444"
                             text: qsTr("ban-score: %1").arg(modelData.banScore)
                         }

@@ -21,6 +21,9 @@ import QtQuick.Controls 2.14
 Item {
     id: walletTransaction
     height: mainLabel.height + 10 + date.height
+    width: mainLabel.width + bitcoinAmountLabel.width + 30
+
+
 
     /*
        we have

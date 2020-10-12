@@ -20,7 +20,7 @@ import QtQuick 2.14
 Rectangle {
     id: root
     visible: opacity !== 0
-    color: "#00000000" // aka background is transparant
+    color: "#00000000" // transparant
     border.color: titleRow.border.color
     border.width: titleRow.border.width
 
@@ -75,7 +75,7 @@ Rectangle {
         model: root.wallet.transactions
 
         delegate: WalletTransaction {
-            width: parent.width
+            // width: parent.width
         }
     }
 }

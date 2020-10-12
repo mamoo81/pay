@@ -222,11 +222,6 @@ ApplicationWindow {
             }
         }
 
-        NetView {
-            id: netView
-            anchors.fill: parent
-        }
-
         WalletFrame {
             id: walletFrame
             anchors.bottom: parent.bottom
@@ -234,7 +229,7 @@ ApplicationWindow {
             anchors.bottomMargin: x
             opacity: walletDetails.active ? 1 : 0
             visible: opacity !== 0
-            width: 250
+            width: 300
             x: -border.width
             Behavior on opacity { NumberAnimation { duration: 350 } }
         }
@@ -270,6 +265,10 @@ ApplicationWindow {
             visible: opacity !== 0
 
             Behavior on opacity { NumberAnimation { duration: 350 } }
+        }
+        NetView {
+            id: netView
+            anchors.fill: parent
         }
     }
 
