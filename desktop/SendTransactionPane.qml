@@ -34,7 +34,7 @@ FocusScope {
                 return  res === Pay.CashPKH || res === Pay.LegacyPKH;
             }
 
-            placeholderText: "Search or enter bitcoin address"
+            placeholderText: qsTr("Enter bitcoin address")
             Layout.fillWidth: true
 
             onFocusChanged: {

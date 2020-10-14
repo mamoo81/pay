@@ -35,6 +35,7 @@ class FloweePay : public QObject, WorkerThreads
     Q_PROPERTY(int windowWidth READ windowWidth WRITE setWindowWidth NOTIFY windowWidthChanged)
     Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
     Q_PROPERTY(int unitAllowedDecimals READ unitAllowedDecimals NOTIFY unitChanged)
+    Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
     Q_ENUMS(UnitsOfBitcoin StringType)
 public:
     enum StringType {
@@ -90,6 +91,9 @@ public:
     int windowHeight() const;
     void setWindowHeight(int windowHeight);
 
+    bool darkSkin() const;
+    void setDarkSkin(bool darkSkin);
+
 signals:
     void loadComplete();
     /// \internal
@@ -97,6 +101,7 @@ signals:
 
     void unitChanged();
     void walletsChanged();
+    void darkSkinChanged();
 
     void windowWidthChanged();
     void windowHeightChanged();
@@ -111,6 +116,9 @@ private:
     QString m_basedir;
     std::unique_ptr<DownloadManager> m_downloadManager;
     QList<Wallet*> m_wallets;
+    int m_windowWidth;
+    int m_windowHeight;
+    bool m_darkSkin;
 };
 
 #endif

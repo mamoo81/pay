@@ -17,6 +17,7 @@
  */
 import QtQuick 2.14
 
+/* This frame shows a wallet-name, some basic info and the historical transactions */
 Rectangle {
     id: root
     visible: opacity !== 0

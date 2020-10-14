@@ -31,10 +31,10 @@
 #include <base58.h>
 #include <cashaddr.h>
 
-#define FONTSIZE "FONT_SIZE"
-#define UNIT_TYPE "UNIT_TYPE"
-#define WINDOW_WIDTH "windowWidth"
-#define WINDOW_HEIGHT "windowHeight"
+constexpr const char *UNIT_TYPE = "UNIT_TYPE";
+constexpr const char *WINDOW_WIDTH = "windowWidth";
+constexpr const char *WINDOW_HEIGHT = "windowHeight";
+constexpr const char *DARKSKIN = "darkSkin";
 
 enum FileTags {
     WalletId
@@ -56,11 +56,18 @@ FloweePay::FloweePay()
 
     QSettings appConfig;
     m_unit = static_cast<UnitOfBitcoin>(appConfig.value(UNIT_TYPE, BCH).toInt());
+    m_windowHeight = appConfig.value(WINDOW_HEIGHT, -1).toInt();
+    m_windowWidth = appConfig.value(WINDOW_WIDTH, -1).toInt();
+    m_darkSkin = appConfig.value(DARKSKIN, true).toBool();
 }
 
 FloweePay::~FloweePay()
 {
     qDeleteAll(m_wallets);
+    QSettings appConfig;
+    appConfig.setValue(WINDOW_HEIGHT, m_windowHeight);
+    appConfig.setValue(WINDOW_WIDTH, m_windowWidth);
+    appConfig.setValue(DARKSKIN, m_darkSkin);
 }
 
 FloweePay *FloweePay::instance()
@@ -200,28 +207,47 @@ Wallet *FloweePay::createWallet(const QString &name)
     return w;
 }
 
+bool FloweePay::darkSkin() const
+{
+    return m_darkSkin;
+}
+
+void FloweePay::setDarkSkin(bool darkSkin)
+{
+    if (m_darkSkin == darkSkin)
+        return;
+    m_darkSkin = darkSkin;
+    emit darkSkinChanged();
+}
+
 int FloweePay::windowHeight() const
 {
-    QSettings appSettings;
-    return appSettings.value(WINDOW_HEIGHT, 600).toInt();
+    return m_windowHeight;
 }
 
 void FloweePay::setWindowHeight(int windowHeight)
 {
-    QSettings appSettings;
-    appSettings.setValue(WINDOW_HEIGHT, windowHeight);
+    if (m_windowHeight == windowHeight)
+        return;
+    m_windowHeight = windowHeight;
+    emit windowHeightChanged();
 }
 
 int FloweePay::windowWidth() const
 {
-    QSettings appSettings;
-    return appSettings.value(WINDOW_WIDTH, 800).toInt();
+    return m_windowWidth;
+    // QSettings appSettings;
+    // return appSettings.value(WINDOW_WIDTH, 800).toInt();
 }
 
 void FloweePay::setWindowWidth(int windowWidth)
 {
-    QSettings appSettings;
-    appSettings.setValue(WINDOW_WIDTH, windowWidth);
+    if (windowWidth == m_windowWidth)
+        return;
+    m_windowWidth = windowWidth;
+    emit windowWidthChanged();
+    // QSettings appSettings;
+    // appSettings.setValue(WINDOW_WIDTH, windowWidth);
 }
 
 void FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)

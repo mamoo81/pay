@@ -9,5 +9,6 @@
         <file alias="FloweePay.png">../images/FloweePay.png</file>
         <file>SendTransactionPane.qml</file>
         <file>BitcoinValueField.qml</file>
+        <file>ControlColors.js</file>
     </qresource>
 </RCC>

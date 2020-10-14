@@ -17,6 +17,10 @@
  */
 import QtQuick 2.14
 
+/*
+  This shows all the wallets in a list to select one from.
+  Each wallet shows its name, historical data, its current value etc.
+ */
 ListView {
     id: root
     model: walletsView.active ? wallets.accounts : null

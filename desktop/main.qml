@@ -16,26 +16,98 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.14
-import QtQml.StateMachine 1.14 as DSM
-import QtQuick.Window 2.14
+//   import QtQml.StateMachine 1.14 as DSM
+//   import QtQuick.Window 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
-import QtQuick.Dialogs 1.3
+//   import QtQuick.Dialogs 1.3
 import Flowee.org.pay 1.0
+
+import "./ControlColors.js" as ControlColors
 
 // import QtQuick.VirtualKeyboard 2.14
 
 ApplicationWindow {
     id: window
     visible: true
-    width: Flowee.windowWidth
-    height: Flowee.windowHeight
+    width: Flowee.windowWidth == -1 ? 600 : Flowee.windowWidth
+    height: Flowee.windowHeight == -1 ? 400 : Flowee.windowHeight
+    minimumWidth: 300
+    minimumHeight: 200
     title: "Flowee Pay"
-    // color: darkTheme.checked ? "black" : "white"
 
     onWidthChanged: Flowee.windowWidth = width
     onHeightChanged: Flowee.windowHeight = height
+    onVisibleChanged: if (visible) ControlColors.applySkin(window)
 
+    menuBar: MenuBar {
+        Menu {
+            title: qsTr("&File")
+            Action {
+                text: qsTr("&Quit")
+                shortcut: StandardKey.Quit
+                onTriggered: window.close()
+            }
+        }
+        Menu {
+            title: qsTr("&Settings")
+
+            Action {
+                checkable: true
+                checked: Flowee.useDarkSkin
+                text: qsTr("&Dark Mode")
+                onTriggered: {
+                    Flowee.useDarkSkin = checked
+                    ControlColors.applySkin(window)
+                }
+            }
+        }
+    }
+    Pane {
+        anchors.fill: parent
+        ColumnLayout {
+            anchors.fill: parent
+            Label {
+                text: qsTr("Pick an account")
+            }
+            ListView {
+                width: parent.width
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                model: {
+                    if (typeof wallets === "undefined")
+                        return 0;
+                    return wallets.accounts;
+                }
+
+                delegate: ColumnLayout {
+                    width: parent.width
+                    Label {
+                        id: name
+                        text: modelData.name
+                    }
+                }
+            }
+        }
+    }
+
+    footer: Pane {
+        contentWidth: parent.width
+        contentHeight: statusBar.height
+        Label {
+            id: statusBar
+            property string message: ""
+            text: {
+                if (typeof wallets === "undefined")
+                    return qsTr("Starting up...");
+                if (message === "")
+                    return qsTr("%1 wallets").arg(wallets.accounts.length);
+                return message;
+            }
+        }
+    }
+
+    /*
     DSM.StateMachine {
         id: globalStateMachine
         initialState: splash
@@ -175,7 +247,7 @@ ApplicationWindow {
         }
 
         Rectangle {
-            // prev button
+            // prev button to go to the previous wallet
             width: 40
             height: 40
             anchors.top: walletsOverview.top
@@ -197,7 +269,7 @@ ApplicationWindow {
             }
         }
 
-        Rectangle { // next button
+        Rectangle { // next button to go to the next wallet
             width: 40
             height: 40
             anchors.right: parent.right
@@ -358,4 +430,5 @@ ApplicationWindow {
             }
         }
     }
+    */
 }

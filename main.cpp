@@ -3,6 +3,8 @@
 #include "FloweePay.h"
 #include "BitcoinValue.h"
 
+#include <primitives/key.h> // for ECC_Start()
+
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QGuiApplication>
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
             app->p2pNet()->connectionManager().peerAddressDb().addOne( // actually connect to it too.
                         EndPoint(parser.value(connect).toStdString(), 8333));
         }
-        app->p2pNet()->start(); // lets go!
+        // app->p2pNet()->start(); // lets go!
     });
 
     struct sigaction sa;

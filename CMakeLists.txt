@@ -40,14 +40,16 @@ set(CMAKE_CXX_STANDARD 11)
 find_package(Qt5 COMPONENTS Core Quick REQUIRED)
 
 set (PAY_SOURCES
+    AccountInfo.cpp
+    BitcoinValue.cpp
     FloweePay.cpp
     main.cpp
     NetDataProvider.cpp
     NetPeer.cpp
+    Payment.cpp
     PortfolioDataProvider.cpp
     Wallet.cpp
     WalletHistoryModel.cpp
-    BitcoinValue.cpp
 )
 
 if(ANDROID)
