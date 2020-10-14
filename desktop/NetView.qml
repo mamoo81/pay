@@ -16,84 +16,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.14
+import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.14
+import QtQuick.Window 2.15
 
-Item {
+ApplicationWindow {
     id: netView
+    visible: false
+    minimumWidth: 300
+    minimumHeight: 400
+    width: 500
+    height: 400
+    title: qsTr("Peers (%1)").arg(net.peers.length)
+    modality: Qt.NonModal
+    flags: Qt.Dialog
 
-    Rectangle { // TODO replace with nice button. Opens the 'net' pane
-        color: "pink";
-        width: 40
-        height: 40
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        MouseArea {
-            anchors.fill: parent
-            onClicked: peerList.x = netView.width - peerList.width
-        }
-    }
-
-    Item {
-        visible: opacity === 1
-        opacity: peerList.x == width ? 0 : 1
+    ListView {
+        id: peerList
+        model: net.peers
         anchors.fill: parent
+        anchors.margins: 10
 
-        MouseArea {
-            // to close the 'net' screen
-            anchors.fill: parent
-            onClicked: peerList.x = netView.width
-        }
+        delegate: Rectangle {
+            width: peerList.width
+            height: peerPane.height + 12
+            color: index % 2 === 0 ? netView.palette.button : netView.palette.alternateBase
+            ColumnLayout {
+                id: peerPane
+                width: peerList.width
+                y: 6
 
-
-        Rectangle {
-            id: peerList
-            width: parent.width / 2
-            height: parent.height
-            x: parent.width
-            color: "#aaffffff"
-            border.width: 3
-            border.color: "black";
-
-            Text {
-                id: netTitle
-                text: "Peers (" + net.peers.length + ")"
-                anchors.horizontalCenter: parent.horizontalCenter
-                y: 10
-            }
-
-            ListView {
-                model: net.peers
-                anchors.top: netTitle.bottom
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.margins: 6
-                clip: true
-
-                delegate: Item {
-                    id: peerPane
-                    width: peerList.width
-                    height: mainLabel.height + secondRow.height + 20
-
-                    Text {
-                        id: mainLabel
-                        font.pixelSize: 20
-                        text: modelData.userAgent
+                Label {
+                    id: mainLabel
+                    text: modelData.userAgent
+                }
+                RowLayout {
+                    id: rowLayout
+                    height: secondRow.height
+                    Label {
+                        id: secondRow
+                        text: qsTr("Start-height: %1").arg(modelData.startHeight)
                     }
-                    Row {
-                        anchors.topMargin: 10
-                        anchors.top: mainLabel.bottom
-                        spacing: 10
-                        Text {
-                            id: secondRow
-                            font.pixelSize: 18
-                            color: "#444444"
-                            text: qsTr("Start-height: %1").arg(modelData.startHeight)
-                        }
-                        Text {
-                            font.pixelSize: 18
-                            color: "#444444"
-                            text: qsTr("ban-score: %1").arg(modelData.banScore)
-                        }
+                    Label {
+                        text: qsTr("ban-score: %1").arg(modelData.banScore)
                     }
                 }
             }

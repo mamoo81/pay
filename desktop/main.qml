@@ -16,19 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.14
-//   import QtQml.StateMachine 1.14 as DSM
-//   import QtQuick.Window 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
-//   import QtQuick.Dialogs 1.3
 import Flowee.org.pay 1.0
 
 import "./ControlColors.js" as ControlColors
 
-// import QtQuick.VirtualKeyboard 2.14
-
 ApplicationWindow {
-    id: window
+    id: mainWindow
     visible: true
     width: Flowee.windowWidth == -1 ? 600 : Flowee.windowWidth
     height: Flowee.windowHeight == -1 ? 400 : Flowee.windowHeight
@@ -38,7 +33,9 @@ ApplicationWindow {
 
     onWidthChanged: Flowee.windowWidth = width
     onHeightChanged: Flowee.windowHeight = height
-    onVisibleChanged: if (visible) ControlColors.applySkin(window)
+    onVisibleChanged: if (visible) ControlColors.applySkin(mainWindow)
+
+    property bool isLoading: typeof wallets === "undefined";
 
     menuBar: MenuBar {
         Menu {
@@ -46,11 +43,11 @@ ApplicationWindow {
             Action {
                 text: qsTr("&Quit")
                 shortcut: StandardKey.Quit
-                onTriggered: window.close()
+                onTriggered: mainWindow.close()
             }
         }
         Menu {
-            title: qsTr("&Settings")
+            title: qsTr("&View")
 
             Action {
                 checkable: true
@@ -58,35 +55,36 @@ ApplicationWindow {
                 text: qsTr("&Dark Mode")
                 onTriggered: {
                     Flowee.useDarkSkin = checked
-                    ControlColors.applySkin(window)
+                    ControlColors.applySkin(mainWindow)
+                }
+            }
+            Action {
+                enabled: !mainWindow.isLoading
+                text: qsTr("Network Status")
+                onTriggered: {
+                    netView.source = "NetView.qml"
+                    netView.item.show();
                 }
             }
         }
     }
-    Pane {
-        anchors.fill: parent
-        ColumnLayout {
-            anchors.fill: parent
-            Label {
-                text: qsTr("Pick an account")
-            }
-            ListView {
-                width: parent.width
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                model: {
-                    if (typeof wallets === "undefined")
-                        return 0;
-                    return wallets.accounts;
-                }
 
-                delegate: ColumnLayout {
-                    width: parent.width
-                    Label {
-                        id: name
-                        text: modelData.name
-                    }
-                }
+    AccountSelectionPage {
+        id: accountSelectionPage
+        anchors.fill: parent
+        visible: !isLoading && wallets.current === null
+    }
+    Loader {
+        id: netView
+        onLoaded: {
+            ControlColors.applySkin(item)
+            netViewHandler.target = item
+        }
+        Connections {
+            id: netViewHandler
+            function onVisibleChanged() {
+                if (!netView.item.visible)
+                    netView.source = ""
             }
         }
     }
@@ -98,13 +96,14 @@ ApplicationWindow {
             id: statusBar
             property string message: ""
             text: {
-                if (typeof wallets === "undefined")
+                if (mainWindow.isLoading)
                     return qsTr("Starting up...");
                 if (message === "")
                     return qsTr("%1 wallets").arg(wallets.accounts.length);
                 return message;
             }
         }
+
     }
 
     /*
@@ -337,10 +336,6 @@ ApplicationWindow {
             visible: opacity !== 0
 
             Behavior on opacity { NumberAnimation { duration: 350 } }
-        }
-        NetView {
-            id: netView
-            anchors.fill: parent
         }
     }
 

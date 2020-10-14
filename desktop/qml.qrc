@@ -10,5 +10,6 @@
         <file>SendTransactionPane.qml</file>
         <file>BitcoinValueField.qml</file>
         <file>ControlColors.js</file>
+        <file>AccountSelectionPage.qml</file>
     </qresource>
 </RCC>
