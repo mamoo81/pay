@@ -13,5 +13,6 @@
         <file>AccountSelectionPage.qml</file>
         <file>ConfigItem.qml</file>
         <file>AccountPage.qml</file>
+        <file>Button2.qml</file>
     </qresource>
 </RCC>

@@ -70,28 +70,28 @@ ApplicationWindow {
             Menu {
                 title: qsTr("Unit Indicator")
                 Action {
-                    text: "mBCH"
-                    checkable: true
-                    checked: Flowee.unit === Pay.MilliBCH
-                    onTriggered: Flowee.unit = Pay.MilliBCH
-                }
-                Action {
                     text: "BCH"
                     checkable: true
                     checked: Flowee.unit === Pay.BCH
                     onTriggered: Flowee.unit = Pay.BCH
                 }
                 Action {
-                    text: "µBCH"
+                    text: "mBCH"
                     checkable: true
-                    checked: Flowee.unit === Pay.MicroBCH
-                    onTriggered: Flowee.unit = Pay.MicroBCH
+                    checked: Flowee.unit === Pay.MilliBCH
+                    onTriggered: Flowee.unit = Pay.MilliBCH
                 }
                 Action {
                     text: "Bits"
                     checkable: true
                     checked: Flowee.unit === Pay.Bits
                     onTriggered: Flowee.unit = Pay.Bits
+                }
+                Action {
+                    text: "µBCH"
+                    checkable: true
+                    checked: Flowee.unit === Pay.MicroBCH
+                    onTriggered: Flowee.unit = Pay.MicroBCH
                 }
                 Action {
                     text: "Satoshis"

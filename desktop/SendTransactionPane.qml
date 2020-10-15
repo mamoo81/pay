@@ -79,7 +79,7 @@ Pane {
             Layout.alignment: Qt.AlignRight
             Layout.columnSpan: 3
 
-            Button {
+            Button2 {
                 id: nextButton
                 text: qsTr("Next")
                 enabled: bitcoinValueField.value > 0 && destination.addressOk;
@@ -91,7 +91,7 @@ Pane {
                     checkAndSendTx.payment.approveAndSign();
                 }
             }
-            Button {
+            Button2 {
                 id: cancelbutton
                 text: qsTr("Cancel")
 

@@ -22,7 +22,7 @@ import Flowee.org.pay 1.0
 
 
 ScrollView {
-    id: accountPage
+    id: root
     contentHeight: {
         return walletHeader.height + 10
     }
@@ -55,26 +55,26 @@ ScrollView {
                 anchors.horizontalCenter: parent.horizontalCenter
                 BitcoinAmountLabel {
                     id: balance
-                    value: accountPage.wallet === null ? 0 : accountPage.wallet.balance
+                    value: root.wallet === null ? 0 : root.wallet.balance
                     colorize: false
                     textColor: mainWindow.palette.text
-                    fontPtSize: accountPage.font.pointSize * 2
+                    fontPtSize: root.font.pointSize * 2
                     includeUnit: false
                     Layout.alignment: Qt.AlignBaseline
                 }
                 Label {
                     text: Flowee.unitName
-                    font.pointSize: accountPage.font.pointSize * 1.6
+                    font.pointSize: root.font.pointSize * 1.6
                     Layout.alignment: Qt.AlignBaseline
                 }
                 Label {
                     text: "0.00"
-                    font.pointSize: accountPage.font.pointSize * 2
+                    font.pointSize: root.font.pointSize * 2
                     Layout.alignment: Qt.AlignRight | Qt.AlignBaseline
                 }
                 Label {
                     text: "Euro"
-                    font.pointSize: accountPage.font.pointSize * 1.6
+                    font.pointSize: root.font.pointSize * 1.6
                     Layout.alignment: Qt.AlignBaseline
                 }
             }
@@ -83,7 +83,7 @@ ScrollView {
             Label {
                 id: accountName
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: accountPage.wallet === null ? "" : accountPage.wallet.name
+                text: root.wallet === null ? "" : root.wallet.name
                 font.italic: true
             }
 
@@ -92,16 +92,16 @@ ScrollView {
             RowLayout {
                 id: buttons
                 anchors.horizontalCenter: parent.horizontalCenter
-                Button {
+                Button2 {
                     text: qsTr("&Send...")
                     onClicked: {
                         sendTransactionPane.reset();
                         sendTransactionPane.visible = true;
                         sendTransactionPane.focus = true;
                     }
-                    enabled: !sendTransactionPane.visible
+                    enabled: !sendTransactionPane.visible && root.wallet !== null && root.wallet.balance > 0
                 }
-                Button {
+                Button2 {
                     text: qsTr("&Receive...")
                     enabled: !sendTransactionPane.visible
                 }
@@ -115,10 +115,11 @@ ScrollView {
             }
             GradientStop {
                 position: 1
-                color: Flowee.useDarkSkin ? "#232629" : "#eeeeef"
+                color: root.palette.base
             }
         }
     }
+
     SendTransactionPane {
         id: sendTransactionPane
         width: parent.width
