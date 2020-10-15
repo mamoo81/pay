@@ -149,6 +149,8 @@ QString FloweePay::basedir() const
 
 QString FloweePay::priceToString(qint64 price) const
 {
+    if (m_unit == Satoshis)
+        return QString::number(price);
     QByteArray string(QByteArray::number(std::abs(price)));
 
     int decimals;
@@ -207,6 +209,19 @@ Wallet *FloweePay::createWallet(const QString &name)
     saveData();
     emit walletsChanged();
     return w;
+}
+
+FloweePay::UnitOfBitcoin FloweePay::unit() const
+{
+    return m_unit;
+}
+
+void FloweePay::setUnit(const UnitOfBitcoin &unit)
+{
+    if (m_unit == unit)
+        return;
+    m_unit = unit;
+    emit unitChanged();
 }
 
 bool FloweePay::darkSkin() const
@@ -298,13 +313,13 @@ QString FloweePay::unitName() const
     case FloweePay::MilliBCH:
         return QLatin1String("mBCH");
     case FloweePay::MicroBCH:
-        return QLatin1String("µBCH");
+        return QString("µBCH");
     case FloweePay::Bits:
         return QLatin1String("bits");
     case FloweePay::Satoshis:
         return QLatin1String("sats");
     default:
-        assert(false);
+        Q_ASSERT(false);
         return 0;
     }
 }
@@ -322,7 +337,7 @@ int FloweePay::unitAllowedDecimals() const
     case FloweePay::Satoshis:
         return 0;
     default:
-        assert(false);
+        Q_ASSERT(false);
         return 0;
     }
 }

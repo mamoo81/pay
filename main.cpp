@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     QGuiApplication qapp(argc, argv);
     qapp.setOrganizationName("flowee");
     qapp.setApplicationName("pay");
-    qapp.setApplicationVersion("0.2");
+    qapp.setApplicationVersion("0.3");
 
     srand((quint32) QDateTime::currentMSecsSinceEpoch());
 

@@ -36,7 +36,7 @@ class FloweePay : public QObject, WorkerThreads
     Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
     Q_PROPERTY(int unitAllowedDecimals READ unitAllowedDecimals NOTIFY unitChanged)
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
-    Q_ENUMS(UnitsOfBitcoin StringType)
+    Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
 public:
     enum StringType {
         Unknown = 0,
@@ -53,6 +53,7 @@ public:
         Bits,
         Satoshis
     };
+
     FloweePay();
     ~FloweePay();
 
@@ -94,6 +95,10 @@ public:
     bool darkSkin() const;
     void setDarkSkin(bool darkSkin);
 
+    UnitOfBitcoin unit() const;
+    void setUnit(const UnitOfBitcoin &unit);
+
+    Q_ENUM(StringType UnitOfBitcoin)
 signals:
     void loadComplete();
     /// \internal

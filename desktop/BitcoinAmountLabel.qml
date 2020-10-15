@@ -21,16 +21,28 @@ import QtQuick.Layouts 1.14
 
 RowLayout {
     id: root
-    property double value: 0
+    property double value: 5E8
     property bool colorize: true
     property bool includeUnit: true
     property color textColor: "black"
     property var fontPtSize: 8
 
-    // calcuated
-    property string amountString: Flowee.priceToString(value)
     height: main.height
     baselineOffset: main.baselineOffset
+
+    // calcuated
+    property string amountString: "";
+    Connections {
+        target: Flowee
+        function onUnitChanged(unit) {
+            root.calcString(root.value);
+        }
+    }
+    onValueChanged: calcString(value)
+    function calcString(sats) {
+        amountString = Flowee.priceToString(sats)
+
+    }
 
     Label {
         id: main

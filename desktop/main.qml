@@ -66,6 +66,40 @@ ApplicationWindow {
                     netView.item.show();
                 }
             }
+            MenuSeparator { }
+            Menu {
+                title: qsTr("Unit Indicator")
+                Action {
+                    text: "mBCH"
+                    checkable: true
+                    checked: Flowee.unit === Pay.MilliBCH
+                    onTriggered: Flowee.unit = Pay.MilliBCH
+                }
+                Action {
+                    text: "BCH"
+                    checkable: true
+                    checked: Flowee.unit === Pay.BCH
+                    onTriggered: Flowee.unit = Pay.BCH
+                }
+                Action {
+                    text: "µBCH"
+                    checkable: true
+                    checked: Flowee.unit === Pay.MicroBCH
+                    onTriggered: Flowee.unit = Pay.MicroBCH
+                }
+                Action {
+                    text: "Bits"
+                    checkable: true
+                    checked: Flowee.unit === Pay.Bits
+                    onTriggered: Flowee.unit = Pay.Bits
+                }
+                Action {
+                    text: "Satoshis"
+                    checkable: true
+                    checked: Flowee.unit === Pay.Satoshis
+                    onTriggered: Flowee.unit = Pay.Satoshis
+                }
+            }
         }
     }
 

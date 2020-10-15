@@ -21,8 +21,13 @@
 #include <QClipboard>
 #include <QGuiApplication>
 
-BitcoinValue::BitcoinValue(QObject *parent) : QObject(parent)
+BitcoinValue::BitcoinValue(QObject *parent)
+    : QObject(parent),
+      m_value(0)
 {
+    connect (FloweePay::instance(), &FloweePay::unitChanged, [this]() {
+        setStringValue(m_typedNumber);
+    });
 }
 
 qint64 BitcoinValue::value() const
