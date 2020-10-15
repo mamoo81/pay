@@ -43,7 +43,7 @@ Rectangle {
             wrapMode: Text.WordWrap
         }
     }
-    
+
     BitcoinAmountLabel {
         x: 10
         id: balance
@@ -51,7 +51,7 @@ Rectangle {
         value: root.wallet === null ? 0 : root.wallet.balance
         colorize: false
     }
-    
+
     Text {
         id: utxoRow
         anchors.top: balance.bottom

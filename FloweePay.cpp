@@ -88,10 +88,14 @@ void FloweePay::init()
         Streaming::MessageParser parser(pool.commit(dataSize));
         while (parser.next() == Streaming::FoundTag) {
             if (parser.tag() == WalletId) {
-                Wallet *w = new Wallet(m_basedir.toStdString(), parser.intData());
-                dl->addDataListener(w);
-                dl->connectionManager().addPrivacySegment(w->segment());
-                m_wallets.append(w);
+                try {
+                    Wallet *w = new Wallet(m_basedir.toStdString(), parser.intData());
+                    dl->addDataListener(w);
+                    dl->connectionManager().addPrivacySegment(w->segment());
+                    m_wallets.append(w);
+                } catch (const std::runtime_error &e) {
+                    logWarning() << "Wallet load failed:" << e;
+                }
             }
         }
     }
@@ -195,9 +199,7 @@ Wallet *FloweePay::createWallet(const QString &name)
             break;
     }
 
-    Wallet *w = new Wallet(m_basedir.toStdString(), id);
-    if (!name.isEmpty())
-        w->setName(name);
+    Wallet *w = Wallet::createWallet(m_basedir.toStdString(), id, name);
     dl->addDataListener(w);
     dl->connectionManager().addPrivacySegment(w->segment());
     m_wallets.append(w);

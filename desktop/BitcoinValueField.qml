@@ -1,11 +1,28 @@
+/*
+ * This file is part of the Flowee project
+ * Copyright (C) 2020 Tom Zander <tomz@freedommail.ch>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 import QtQuick 2.14
+import QtQuick.Controls 2.14
 import Flowee.org.pay 1.0
 
 FocusScope {
     id: root
     height: balance.height + 16
     width: balance.width + 16
-    focus: true
     activeFocusOnTab: true
 
     property alias value: privValue.value
@@ -23,7 +40,7 @@ FocusScope {
         anchors.fill: parent
         onClicked: root.focus = true
     }
-    
+
     BitcoinAmountLabel {
         id: balance
         x: 8
@@ -31,15 +48,16 @@ FocusScope {
         value: root.value
         colorize: false
         visible: !root.activeFocus
+        textColor: mainWindow.palette.text
     }
-    
-    Text {
+
+    Label {
         text: privValue.enteredString
         visible: root.activeFocus
         x: 8
         y: 8
     }
-    Text {
+    Label {
         id: unit
         text: Flowee.unitName
         y: 8
@@ -47,14 +65,14 @@ FocusScope {
         anchors.rightMargin: 8
         visible: root.activeFocus
     }
-    
-    Rectangle { // focus scope indicator
+
+    Rectangle { // focus indicator
         anchors.fill: parent
-        border.color: root.activeFocus ? "#0066ff" : "#bdbdbd"
-        border.width: 1
+        border.color: root.activeFocus ? unit.palette.highlight  : unit.palette.mid
+        border.width: 2
         color: "#00000000" // transparant
     }
-    
+
     Keys.onPressed: {
         if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
             privValue.addNumber(event.key);

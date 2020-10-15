@@ -38,6 +38,15 @@ class Wallet : public QObject, public DataListenerInterface
 {
     Q_OBJECT
 public:
+    /**
+     * Create an empty, new, wallet.
+     */
+    static Wallet *createWallet(const boost::filesystem::path &basedir, uint16_t segmentId, const QString &name = QString());
+
+    /**
+     * Load existing wallet.
+     * This throws should there not be any data found.
+     */
     Wallet(const boost::filesystem::path &basedir, uint16_t segmentId);
 
     class OutputRef {
@@ -114,6 +123,9 @@ public:
 signals:
     void utxosChanged();
     void appendedTransactions(int firstNew, int count);
+
+protected:
+    Wallet();
 
 private:
     void loadWallet();

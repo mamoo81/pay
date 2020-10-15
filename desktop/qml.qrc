@@ -11,5 +11,7 @@
         <file>BitcoinValueField.qml</file>
         <file>ControlColors.js</file>
         <file>AccountSelectionPage.qml</file>
+        <file>ConfigItem.qml</file>
+        <file>AccountPage.qml</file>
     </qresource>
 </RCC>

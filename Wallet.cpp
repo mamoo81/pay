@@ -126,6 +126,23 @@ std::deque<Tx> sortTransactions(const std::deque<Tx> &in) {
 
 }
 
+// static
+Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t segmentId, const QString &name)
+{
+    Wallet *wallet = new Wallet();
+    wallet->m_basedir = basedir / QString("wallet-%1/").arg(segmentId).toStdString();
+    wallet->m_segment.reset(new PrivacySegment(segmentId, wallet));
+    if (name.isEmpty())
+        wallet->m_name = QString("unnamed-%1").arg(segmentId);
+    else
+        wallet->m_name = name;
+
+    return wallet;
+}
+
+Wallet::Wallet()
+{
+}
 
 Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
     : m_segment(new PrivacySegment(segmentId, this)),
@@ -134,8 +151,6 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
     loadSecrets();
     loadWallet();
     rebuildBloom();
-    if (m_name.isEmpty())
-        m_name = QString("unnamed-%1").arg(segmentId);
 }
 
 void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions)
@@ -567,7 +582,7 @@ void Wallet::loadSecrets()
 {
     std::ifstream in((m_basedir / "secrets.dat").string());
     if (!in.is_open())
-        return;
+        throw std::runtime_error("Missing secrets.dat");
     QMutexLocker locker(&m_lock);
     const auto dataSize = boost::filesystem::file_size(m_basedir / "secrets.dat");
     Streaming::BufferPool pool(dataSize);
