@@ -82,7 +82,7 @@ Pane {
             Button {
                 id: nextButton
                 text: qsTr("Next")
-                // enabled: bitcoinValueField.value > 0 && destination.addressOk;
+                enabled: bitcoinValueField.value > 0 && destination.addressOk;
 
                 onClicked: {
                     checkAndSendTx.payment
