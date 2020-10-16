@@ -25,8 +25,8 @@ import "./ControlColors.js" as ControlColors
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: Flowee.windowWidth == -1 ? 600 : Flowee.windowWidth
-    height: Flowee.windowHeight == -1 ? 400 : Flowee.windowHeight
+    width: Flowee.windowWidth === -1 ? 600 : Flowee.windowWidth
+    height: Flowee.windowHeight === -1 ? 400 : Flowee.windowHeight
     minimumWidth: 300
     minimumHeight: 200
     title: "Flowee Pay"
@@ -35,11 +35,16 @@ ApplicationWindow {
     onHeightChanged: Flowee.windowHeight = height
     onVisibleChanged: if (visible) ControlColors.applySkin(mainWindow)
 
-    property bool isLoading: typeof wallets === "undefined";
+    property bool isLoading: typeof portfolio === "undefined";
 
     menuBar: MenuBar {
         Menu {
-            title: qsTr("&File")
+            title: qsTr("Flowee &Pay")
+            Action {
+                text: qsTr("Create / Import...")
+                onTriggered: newAccountDiag.source = "./NewAccountDialog.qml"
+            }
+
             Action {
                 text: qsTr("&Quit")
                 shortcut: StandardKey.Quit
@@ -106,7 +111,7 @@ ApplicationWindow {
     AccountSelectionPage {
         id: accountSelectionPage
         anchors.fill: parent
-        visible: !isLoading && wallets.current === null
+        visible: !isLoading && portfolio.current === null
     }
 
     AccountPage {
@@ -128,6 +133,21 @@ ApplicationWindow {
             }
         }
     }
+    Loader {
+        id: newAccountDiag
+        onLoaded: {
+            ControlColors.applySkin(item)
+            newAccountHandler.target = item
+        }
+        Connections {
+            id: newAccountHandler
+            function onVisibleChanged() {
+                if (!newAccountDiag.item.visible) {
+                    newAccountDiag.source = ""
+                }
+            }
+        }
+    }
 
     footer: Pane {
         contentWidth: parent.width
@@ -138,10 +158,10 @@ ApplicationWindow {
             text: {
                 if (mainWindow.isLoading)
                     return qsTr("Starting up...");
-                if (wallets.current === null)
-                    return qsTr("%1 wallets").arg(wallets.accounts.length);
+                if (portfolio.current === null)
+                    return qsTr("%1 Accounts").arg(portfolio.accounts.length);
                 if (message === "")
-                    return wallets.current.name
+                    return portfolio.current.name
                 return message;
             }
         }

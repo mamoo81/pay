@@ -14,5 +14,6 @@
         <file>ConfigItem.qml</file>
         <file>AccountPage.qml</file>
         <file>Button2.qml</file>
+        <file>NewAccountDialog.qml</file>
     </qresource>
 </RCC>

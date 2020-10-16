@@ -141,6 +141,7 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
 }
 
 Wallet::Wallet()
+    : m_walletChanged(true)
 {
 }
 

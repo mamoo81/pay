@@ -19,6 +19,10 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import Flowee.org.pay 1.0
 
+/*
+ * Similar to TextField, this is a wrapper around BitcoinAmountLabel
+ * in order to provide a background and ediing capabilities.
+ */
 FocusScope {
     id: root
     height: balance.height + 16

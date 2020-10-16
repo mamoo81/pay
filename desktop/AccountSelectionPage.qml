@@ -31,9 +31,9 @@ Pane {
             Layout.fillWidth: true
             Layout.fillHeight: true
             model: {
-                if (typeof wallets === "undefined")
+                if (typeof portfolio === "undefined")
                     return 0;
-                return wallets.accounts;
+                return portfolio.accounts;
             }
 
             delegate: Rectangle {
@@ -68,7 +68,7 @@ Pane {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: wallets.current = modelData
+                    onClicked: portfolio.current = modelData
                 }
             }
         }

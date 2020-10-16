@@ -86,7 +86,7 @@ Pane {
 
                 onClicked: {
                     checkAndSendTx.payment
-                            = wallets.startPayToAddress(destination.text, bitcoinValueField.valueObject);
+                            = portfolio.startPayToAddress(destination.text, bitcoinValueField.valueObject);
                     ControlColors.applySkin(checkAndSendTx);
                     checkAndSendTx.payment.approveAndSign();
                 }
@@ -117,7 +117,7 @@ Pane {
         modality: Qt.NonModal
         flags: Qt.Dialog
         width: header.implicitWidth + 20
-        height: 100 + minimumHeight
+        height: 20 + minimumHeight
         minimumHeight:  header.implicitHeight + table.implicitHeight + table2.implicitHeight + button.height + 60
 
         property QtObject payment: null

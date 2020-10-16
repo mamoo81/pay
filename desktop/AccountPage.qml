@@ -28,7 +28,7 @@ ScrollView {
     }
     visible: wallet !== null
 
-    property QtObject wallet: isLoading ? null : wallets.current
+    property QtObject wallet: isLoading ? null : portfolio.current
 
     Rectangle {
         id: walletHeader

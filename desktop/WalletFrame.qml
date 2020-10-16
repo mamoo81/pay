@@ -25,7 +25,7 @@ Rectangle {
     border.color: titleRow.border.color
     border.width: titleRow.border.width
 
-    property QtObject wallet: walletDetails.active ? wallets.current : null
+    property QtObject wallet: walletDetails.active ? portfolio.current : null
 
     Rectangle {
         id: titleRow

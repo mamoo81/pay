@@ -84,14 +84,14 @@ int main(int argc, char *argv[])
         NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);
         app->p2pNet()->addP2PNetListener(netData);
 
-        PortfolioDataProvider *wallets = new PortfolioDataProvider(&engine);
+        PortfolioDataProvider *portfolio = new PortfolioDataProvider(&engine);
         for (auto wallet : app->wallets()) {
-            wallets->addWalletAccount(wallet);
+            portfolio->addWalletAccount(wallet);
         }
-        wallets->selectDefaultWallet();
+        portfolio->selectDefaultWallet();
 
         engine.rootContext()->setContextProperty("net", netData);
-        engine.rootContext()->setContextProperty("wallets", wallets);
+        engine.rootContext()->setContextProperty("portfolio", portfolio);
         if (parser.isSet(connect)) {
             app->p2pNet()->connectionManager().peerAddressDb().addOne( // actually connect to it too.
                         EndPoint(parser.value(connect).toStdString(), 8333));

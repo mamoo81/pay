@@ -24,7 +24,7 @@
 
 #include <QSettings>
 
-constexpr const char *DEFAULT_WALLET = "default_wallet_type";
+constexpr const char *DEFAULT_ACCOUNT = "default_account";
 
 PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
 {
@@ -58,10 +58,10 @@ void PortfolioDataProvider::setCurrent(AccountInfo *item)
             return;
         m_currentAccount = index;
 
-        appConfig.setValue(DEFAULT_WALLET, m_accounts.at(index)->segment()->segmentId());
+        appConfig.setValue(DEFAULT_ACCOUNT, m_accounts.at(index)->segment()->segmentId());
     }
     else {
-        appConfig.remove(DEFAULT_WALLET);
+        appConfig.remove(DEFAULT_ACCOUNT);
         m_currentAccount = -1;
     }
     emit currentChanged();
@@ -85,7 +85,7 @@ QObject *PortfolioDataProvider::startPayToAddress(const QString &address, Bitcoi
 void PortfolioDataProvider::selectDefaultWallet()
 {
     QSettings appConfig;
-    const int defaultWalletSegment = appConfig.value(DEFAULT_WALLET, -1).toInt();
+    const int defaultWalletSegment = appConfig.value(DEFAULT_ACCOUNT, -1).toInt();
     if (defaultWalletSegment == -1)
         return;
     for (int i = 0; i < m_accounts.size(); ++i) {

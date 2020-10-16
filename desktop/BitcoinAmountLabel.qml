@@ -19,6 +19,10 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
 
+/**
+ * This class displays a Bitcoin value using the current settings
+ * and renders it smartly to avoid it just being a long list of digits.
+ */
 RowLayout {
     id: root
     property double value: 5E8
