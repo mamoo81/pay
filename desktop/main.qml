@@ -55,6 +55,11 @@ ApplicationWindow {
             title: qsTr("&View")
 
             Action {
+                text: qsTr("&Account List")
+                onTriggered: portfolio.current = null
+            }
+
+            Action {
                 checkable: true
                 checked: Flowee.useDarkSkin
                 text: qsTr("&Dark Mode")
