@@ -28,6 +28,7 @@
 #include <QFile>
 #include <QSet>
 
+// #define DEBUGUTXO
 
 /*
  * Fee estimation needs to know how much space is used per input.
@@ -688,6 +689,20 @@ void Wallet::loadWallet()
             }
             newTx.insert(index);
 
+#ifdef DEBUGUTXO
+            logFatal() << "Wallet has tx: " << wtx.txid << "@" << wtx.minedBlockHeight;
+            for (auto pair : wtx.outputs) {
+                logFatal() << "  ++ " << pair.first << pair.second.value << "sat";
+            }
+            for (auto pair : wtx.inputToWTX) {
+                OutputRef ref(pair.second);
+                logFatal() << "  -- " << pair.first << ref.txIndex() << ref.outputIndex();
+                auto w = m_walletTransactions.find(ref.txIndex());
+                if (w != m_walletTransactions.end())
+                    logFatal() << "     " << w->second.txid;
+            }
+#endif
+
             wtx = WalletTransaction();
             inputIndex = -1;
             outputIndex = -1;
@@ -752,11 +767,23 @@ void Wallet::loadWallet()
         // remove UTXOs this Tx spent
         for (auto i = iter->second.inputToWTX.begin(); i != iter->second.inputToWTX.end(); ++i) {
             auto utxo = m_unspentOutputs.find(i->second);
-            assert(utxo != m_unspentOutputs.end()); // Loading should be done in order to avoid this.
+            assert(utxo != m_unspentOutputs.end()); // Loading should be done in-order to avoid this.
             if (utxo != m_unspentOutputs.end())
                 m_unspentOutputs.erase(utxo);
         }
     }
+
+#ifdef DEBUGUTXO
+    for (auto output : m_unspentOutputs) {
+        OutputRef ref(output.first);
+        auto utxo = m_walletTransactions.find(ref.txIndex());
+        assert(utxo != m_walletTransactions.end());
+        auto out = utxo->second.outputs.find(ref.outputIndex());
+        assert(out != utxo->second.outputs.end());
+        assert(out->second.value == output.second);
+        logFatal() << "Unspent: " << utxo->second.txid << ref.outputIndex() << "\t->" << out->second.value << "sats";
+    }
+#endif
 
 #ifndef NDEBUG
     // sanity check: the inputs should resolve to transactions in our list.
