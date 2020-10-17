@@ -81,4 +81,6 @@ target_link_libraries(pay
     ${Boost_LIBRARIES}
     Qt5::Core Qt5::Quick)
 
+add_subdirectory(testing)
+
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/pay DESTINATION bin)

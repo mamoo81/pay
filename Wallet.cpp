@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "Wallet.h"
+#include "Wallet_p.h"
 
 #include <primitives/FastTransaction.h>
 #include <primitives/script.h>
@@ -84,7 +85,7 @@ enum SaveTags {
     WalletName
 };
 
-// helper method
+// helper method for sortTransactions
 void copyTx(size_t index, std::deque<Tx> &answer, const std::vector<QSet<int> > &order, std::vector<bool> &done, const std::deque<Tx> &in) {
     if (done.at(index))
         return;
@@ -95,10 +96,12 @@ void copyTx(size_t index, std::deque<Tx> &answer, const std::vector<QSet<int> > 
     answer.push_back(in.at(index));
 }
 
-// we may have transactions that spend outputs created within the same block.
-// this method will make sure that we sort them so those that spend others
-// are sorted after the ones they spent.
-std::deque<Tx> sortTransactions(const std::deque<Tx> &in) {
+}
+
+
+// /////////////////////////////////////////////////
+
+std::deque<Tx> WalletPriv::sortTransactions(const std::deque<Tx> &in) {
     if (in.size() < 2)
         return in;
     boost::unordered_map<uint256, int, HashShortener> txHashes;
@@ -106,7 +109,7 @@ std::deque<Tx> sortTransactions(const std::deque<Tx> &in) {
         txHashes.insert(std::make_pair(in.at(i).createHash(), int(i)));
     }
     std::vector<QSet<int> > order;
-    order.resize(in.size());
+    order.reserve(in.size());
     for (size_t i = 0; i < in.size(); ++i) {
         Tx::Iterator iter(in.at(i));
         QSet<int> depends;
@@ -116,6 +119,7 @@ std::deque<Tx> sortTransactions(const std::deque<Tx> &in) {
                 depends.insert(prev->second);
             }
         }
+        order.push_back(depends);
     }
     std::vector<bool> done(in.size(), false);
     std::deque<Tx> answer;
@@ -125,7 +129,8 @@ std::deque<Tx> sortTransactions(const std::deque<Tx> &in) {
     return answer;
 }
 
-}
+
+// ////////////////////////////////////////////////////
 
 // static
 Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t segmentId, const QString &name)
@@ -157,7 +162,7 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
 
 void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions)
 {
-    auto transactions = sortTransactions(blockTransactions);
+    auto transactions = WalletPriv::sortTransactions(blockTransactions);
     std::deque<Tx> transactionsToSave;
     int firstNewTransaction;
     {
