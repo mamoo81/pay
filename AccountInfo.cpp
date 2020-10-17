@@ -26,6 +26,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
       m_wallet(wallet)
 {
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
 }
 
 int AccountInfo::id() const
@@ -59,6 +60,13 @@ void AccountInfo::setName(const QString &name)
 QString AccountInfo::name() const
 {
     return m_wallet->name();
+}
+
+int AccountInfo::lastBlockSynched() const
+{
+    if (!m_wallet->segment())
+        return 0;
+    return m_wallet->segment()->lastBlockSynched();
 }
 
 WalletHistoryModel *AccountInfo::historyModel()

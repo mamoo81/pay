@@ -21,6 +21,7 @@
 #include <QObject>
 
 #include <DownloadManager.h>
+#include <P2PNetInterface.h>
 #include <WorkerThreads.h>
 
 #include <QList>
@@ -28,13 +29,14 @@
 
 class Wallet;
 
-class FloweePay : public QObject, WorkerThreads
+class FloweePay : public QObject, WorkerThreads, P2PNetInterface
 {
     Q_OBJECT
     Q_PROPERTY(QString unitName READ unitName NOTIFY unitChanged)
     Q_PROPERTY(int windowWidth READ windowWidth WRITE setWindowWidth NOTIFY windowWidthChanged)
     Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
     Q_PROPERTY(int unitAllowedDecimals READ unitAllowedDecimals NOTIFY unitChanged)
+    Q_PROPERTY(int headerChainHeight READ headerChainHeight NOTIFY headerChainHeightChanged)
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
 public:
@@ -98,6 +100,11 @@ public:
     UnitOfBitcoin unit() const;
     void setUnit(const UnitOfBitcoin &unit);
 
+    int headerChainHeight() const;
+
+    // P2PNetInterface interface
+    void blockchainHeightChanged(int newHeight);
+
     Q_ENUM(StringType UnitOfBitcoin)
 signals:
     void loadComplete();
@@ -110,6 +117,7 @@ signals:
 
     void windowWidthChanged();
     void windowHeightChanged();
+    void headerChainHeightChanged();
 
 private:
     void init();

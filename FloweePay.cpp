@@ -224,6 +224,18 @@ void FloweePay::setUnit(const UnitOfBitcoin &unit)
     emit unitChanged();
 }
 
+int FloweePay::headerChainHeight() const
+{
+    if (!m_downloadManager.get())
+        return 0;
+    return m_downloadManager->blockHeight();
+}
+
+void FloweePay::blockchainHeightChanged(int)
+{
+    emit headerChainHeightChanged();
+}
+
 bool FloweePay::darkSkin() const
 {
     return m_darkSkin;
@@ -349,7 +361,9 @@ QList<Wallet *> FloweePay::wallets() const
 
 DownloadManager *FloweePay::p2pNet()
 {
-    if (m_downloadManager == nullptr)
+    if (m_downloadManager == nullptr) {
         m_downloadManager.reset(new DownloadManager(ioService(), m_basedir.toStdString()));
+        emit headerChainHeightChanged();
+    }
     return m_downloadManager.get();
 }

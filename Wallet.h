@@ -84,6 +84,7 @@ public:
     void newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions) override;
     // notify about unconfirmed Tx.
     void newTransaction(const Tx &tx) override;
+    void setLastSynchedBlockHeight(int height) override;
 
     PrivacySegment *segment() const;
 
@@ -123,6 +124,7 @@ public:
 signals:
     void utxosChanged();
     void appendedTransactions(int firstNew, int count);
+    void lastBlockSynchedChanged();
 
 protected:
     Wallet();

@@ -533,6 +533,11 @@ void Wallet::newTransaction(const Tx &tx)
     Q_UNUSED(tx);
 }
 
+void Wallet::setLastSynchedBlockHeight(int)
+{
+    emit lastBlockSynchedChanged();
+}
+
 PrivacySegment * Wallet::segment() const
 {
     return m_segment.get();

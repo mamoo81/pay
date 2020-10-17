@@ -26,9 +26,9 @@ ScrollView {
     contentHeight: {
         return walletHeader.height + 10
     }
-    visible: wallet !== null
+    visible: account !== null
 
-    property QtObject wallet: isLoading ? null : portfolio.current
+    property QtObject account: isLoading ? null : portfolio.current
 
     Rectangle {
         id: walletHeader
@@ -55,7 +55,7 @@ ScrollView {
                 anchors.horizontalCenter: parent.horizontalCenter
                 BitcoinAmountLabel {
                     id: balance
-                    value: root.wallet === null ? 0 : root.wallet.balance
+                    value: root.account === null ? 0 : root.account.balance
                     colorize: false
                     textColor: mainWindow.palette.text
                     fontPtSize: root.font.pointSize * 2
@@ -83,11 +83,21 @@ ScrollView {
             Label {
                 id: accountName
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: root.wallet === null ? "" : root.wallet.name
+                text: root.account === null ? "" : root.account.name
+                font.italic: true
+            }
+            Item { width: 1; height: 10 } // spacer
+            Label {
+                id: syncIndicator
+                anchors.horizontalCenter: parent.horizontalCenter
+                property int walletSyncPos: root.account === null ? 0 : root.account.lastBlockSynched
+                property int globalPos: Flowee.headerChainHeight
+                visible: walletSyncPos != globalPos
+                text: qsTr("Synched till: %1 / %2").arg(walletSyncPos).arg(globalPos)
                 font.italic: true
             }
 
-            Item { width: 1; height: 20 } // spacer
+            Item { width: 1; height: 10 } // spacer
 
             RowLayout {
                 id: buttons
@@ -99,7 +109,7 @@ ScrollView {
                         sendTransactionPane.visible = true;
                         sendTransactionPane.focus = true;
                     }
-                    enabled: !sendTransactionPane.visible && root.wallet !== null && root.wallet.balance > 0
+                    enabled: !sendTransactionPane.visible && root.account !== null && root.account.balance > 0
                 }
                 Button2 {
                     text: qsTr("&Receive...")
