@@ -21,17 +21,15 @@ import QtQuick.Layouts 1.14
 import Flowee.org.pay 1.0
 
 
-ScrollView {
+Pane {
     id: root
-    contentHeight: {
-        return walletHeader.height + 10
-    }
     visible: account !== null
 
     property QtObject account: isLoading ? null : portfolio.current
+    // onAccountChanged: stack.push(history)
 
     Rectangle {
-        id: walletHeader
+        id: accountHeader
         width: parent.width
         height: column.height + 40
         radius: 10
@@ -105,15 +103,14 @@ ScrollView {
                 Button2 {
                     text: qsTr("&Send...")
                     onClicked: {
-                        sendTransactionPane.reset();
-                        sendTransactionPane.visible = true;
-                        sendTransactionPane.focus = true;
+                        stack.push("./SendTransactionPane.qml")
+                        stack.focus = true
                     }
-                    enabled: !sendTransactionPane.visible && root.account !== null && root.account.balance > 0
+                    enabled: stack.depth === 1 && root.account !== null && root.account.balance > 0
                 }
                 Button2 {
                     text: qsTr("&Receive...")
-                    enabled: !sendTransactionPane.visible
+                    enabled: stack.depth === 1
                 }
             }
         }
@@ -130,11 +127,24 @@ ScrollView {
         }
     }
 
-    SendTransactionPane {
-        id: sendTransactionPane
-        width: parent.width
-        anchors.top: walletHeader.bottom
-        anchors.topMargin: 10
-        visible: false
+    StackView {
+        id: stack
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: accountHeader.bottom
+        anchors.bottom: parent.bottom
+        anchors.margins: 6
+        initialItem: ListView {
+            model: root.account === null ? 0 : root.account.transactions
+            clip: true
+            delegate: WalletTransaction { width: stack.width }
+        }
+
+        // when top child sets its own visibility to false, POP it from the stack
+        onCurrentItemChanged: autoRemover.target = currentItem
+        Connections {
+            id: autoRemover
+            function onVisibleChanged() { stack.pop(); }
+        }
     }
 }

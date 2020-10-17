@@ -50,7 +50,6 @@ Pane {
 
             placeholderText: qsTr("Enter bitcoin address")
             Layout.fillWidth: true
-            text: activeFocus ? "I have active focus!" : "I do not have active focus"
             onFocusChanged: {
                 if (activeFocus || text === "")
                     color = mainWindow.palette.text

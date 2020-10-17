@@ -57,7 +57,18 @@ RowLayout {
                 removeChars -= 3; // the next text field eats those
             return s.substring(0, s.length - removeChars)
         }
-        color: root.colorize ? (root.value > 0 ? "green" : "#444446") : root.textColor
+        color: {
+            if (root.colorize) {
+                var num = root.value
+                if (num > 0)
+                    // positive value
+                    return Flowee.useDarkSkin ? "#86ffa8" : "green";
+                else if (num < 0) // negative
+                    return Flowee.useDarkSkin ? "#ffdede" : "#444446";
+                // zero is shown without color, like below.
+            }
+            return root.textColor
+        }
         Layout.alignment: Qt.AlignBaseline
         font.pointSize: root.fontPtSize
     }

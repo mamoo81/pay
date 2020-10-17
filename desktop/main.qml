@@ -120,7 +120,7 @@ ApplicationWindow {
     }
 
     AccountPage {
-        width: parent.width
+        anchors.fill: parent
     }
 
     // NetView (reachable from menu)

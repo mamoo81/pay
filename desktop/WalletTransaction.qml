@@ -23,8 +23,6 @@ Item {
     height: mainLabel.height + 10 + date.height
     width: mainLabel.width + bitcoinAmountLabel.width + 30
 
-
-
     /*
        we have
        model.fundsIn     the amount of satoshis consumed by inputs we own
@@ -35,7 +33,7 @@ Item {
        model.date
      */
 
-    Text {
+    Label {
         id: mainLabel
         text: {
             if (model.fundsIn === 0)
@@ -46,7 +44,7 @@ Item {
             return qsTr("Sent")
         }
     }
-    Text {
+    Label {
         id: date
         anchors.top: mainLabel.bottom
         text: model.date
