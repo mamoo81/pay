@@ -32,14 +32,12 @@ ApplicationWindow {
     flags: Qt.Dialog
 
     function validate() {
-        console.log("validate starts")
         if (privKeyButton.checked) {
             var typedData = Flowee.identifyString(privKey.text)
             feedback.ok = typedData === Pay.PrivateKey;
         } else {
             feedback.ok = true;
         }
-        console.log("validate " + feedback.ok)
     }
 
     Label {
