@@ -61,6 +61,18 @@ ApplicationWindow {
                         text: qsTr("ban-score: %1").arg(modelData.banScore)
                     }
                 }
+                Label {
+                    id : accountName
+                    text: {
+                        var id = modelData.segmentId;
+                        var accounts = portfolio.accounts;
+                        for (var i = 0; i < accounts.length; ++i) {
+                            if (accounts[i].id === id)
+                                return qsTr("Peer for account: %1").arg(accounts[i].name);
+                        }
+                    }
+                    visible: text !== ""
+                }
             }
         }
     }

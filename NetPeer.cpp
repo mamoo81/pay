@@ -46,6 +46,11 @@ int NetPeer::banScore() const
     return m_address.punishment();
 }
 
+uint16_t NetPeer::segmentId() const
+{
+    return m_address.segment();
+}
+
 QString NetPeer::address() const
 {
     return "TODO";

@@ -28,6 +28,7 @@ class NetPeer : public QObject
     Q_PROPERTY(int startHeight READ startHeight CONSTANT)
     Q_PROPERTY(int banScore READ banScore NOTIFY banScoreChanged)
     Q_PROPERTY(QString address READ address CONSTANT)
+    Q_PROPERTY(int segmentId READ segmentId CONSTANT)
     // TODO maybe getters for the services?
 public:
     NetPeer(int connectionId, const QString &userAgent, int startHeight, PeerAddress address, QObject *parent = nullptr);
@@ -37,6 +38,8 @@ public:
     int connectionId() const;
     int startHeight() const;
     int banScore() const;
+    /// the ID that matches us with a certain wallet
+    uint16_t segmentId() const;
 
     QString address() const; // ip address, as string
 

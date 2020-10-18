@@ -18,19 +18,17 @@
 #ifndef NETDATAPROVIDER_H
 #define NETDATAPROVIDER_H
 
-#include <QObject>
+#include "NetPeer.h"
 
 #include <p2p/P2PNetInterface.h>
 
 #include <QList>
 #include <QMutex>
 
-class NetPeer;
-
 class NetDataProvider : public QObject, public P2PNetInterface
 {
     Q_OBJECT
-    Q_PROPERTY(QList<QObject*> peers READ peers NOTIFY peerListChanged)
+    Q_PROPERTY(QList<NetPeer*> peers READ peers NOTIFY peerListChanged)
     Q_PROPERTY(int blockheight READ blockheight NOTIFY blockHeightChanged)
 public:
     explicit NetDataProvider(int initialBlockHeight, QObject *parent = nullptr);
@@ -41,7 +39,7 @@ public:
     void blockchainHeightChanged(int newHeight);
     void punishMentChanged(int peerId);
 
-    QList<QObject*> peers() const;
+    QList<NetPeer*> peers() const;
     int blockheight() const;
 
 signals:

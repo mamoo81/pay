@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "NetDataProvider.h"
-#include "NetPeer.h"
 
 NetDataProvider::NetDataProvider(int initialBlockHeight, QObject *parent)
     : QObject(parent),
@@ -66,15 +65,9 @@ void NetDataProvider::punishMentChanged(int peerId)
     }
 }
 
-QList<QObject *> NetDataProvider::peers() const
+QList<NetPeer *> NetDataProvider::peers() const
 {
-    QMutexLocker l(&m_peerMutex);
-    QList<QObject *> answer;
-    for (auto p : m_peers) {
-        answer.append(p);
-    }
-
-    return answer;
+    return m_peers;
 }
 
 int NetDataProvider::blockheight() const
