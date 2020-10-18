@@ -34,7 +34,7 @@ RowLayout {
     height: main.height
     baselineOffset: main.baselineOffset
 
-    // calcuated
+    // calculated
     property string amountString: "";
     Connections {
         target: Flowee
