@@ -81,17 +81,13 @@ Pane {
                 id: accountName
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: root.account === null ? "" : root.account.name
-                font.italic: true
+                font.bold: true
             }
             Item { width: 1; height: 10 } // spacer
-            Label {
+            SyncIndicator {
                 id: syncIndicator
+                accountBlockHeight: root.account === null ? 0 : root.account.lastBlockSynched
                 anchors.horizontalCenter: parent.horizontalCenter
-                property int walletSyncPos: root.account === null ? 0 : root.account.lastBlockSynched
-                property int globalPos: Flowee.headerChainHeight
-                visible: walletSyncPos != globalPos
-                text: qsTr("Synched till: %1 / %2").arg(walletSyncPos).arg(globalPos)
-                font.italic: true
             }
 
             Item { width: 1; height: 10 } // spacer

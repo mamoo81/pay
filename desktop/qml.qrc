@@ -17,5 +17,6 @@
         <file>NewAccountDialog.qml</file>
         <file>heart.svg</file>
         <file>heart-red.svg</file>
+        <file>SyncIndicator.qml</file>
     </qresource>
 </RCC>
