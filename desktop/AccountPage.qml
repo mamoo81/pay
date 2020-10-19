@@ -26,7 +26,6 @@ Pane {
     visible: account !== null
 
     property QtObject account: isLoading ? null : portfolio.current
-    // onAccountChanged: stack.push(history)
 
     Rectangle {
         id: accountHeader
@@ -112,6 +111,22 @@ Pane {
                     text: qsTr("&Receive...")
                     enabled: stack.depth === 1
                 }
+            }
+        }
+
+        Image {
+            anchors.top: column.top
+            anchors.left: column.left
+            anchors.margins: 30
+            width: 30
+            height: 30
+            smooth: true
+            source: (root.account !== null && root.account.isDefaultWallet)
+                    ? "qrc:///heart-red.svg" : "qrc:///heart.svg"
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: root.account.isDefaultWallet = !root.account.isDefaultWallet
             }
         }
 

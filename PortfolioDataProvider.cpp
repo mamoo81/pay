@@ -24,8 +24,6 @@
 
 #include <QSettings>
 
-constexpr const char *DEFAULT_ACCOUNT = "default_account";
-
 PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
 {
     connect (FloweePay::instance(), &FloweePay::walletsChanged, [=]() {
@@ -51,17 +49,13 @@ AccountInfo *PortfolioDataProvider::current() const
 
 void PortfolioDataProvider::setCurrent(AccountInfo *item)
 {
-    QSettings appConfig;
     if (item) {
         int index = m_accountInfos.indexOf(item);
         if (index == m_currentAccount)
             return;
         m_currentAccount = index;
-
-        appConfig.setValue(DEFAULT_ACCOUNT, m_accounts.at(index)->segment()->segmentId());
     }
     else {
-        appConfig.remove(DEFAULT_ACCOUNT);
         m_currentAccount = -1;
     }
     emit currentChanged();
@@ -84,14 +78,9 @@ QObject *PortfolioDataProvider::startPayToAddress(const QString &address, Bitcoi
 
 void PortfolioDataProvider::selectDefaultWallet()
 {
-    QSettings appConfig;
-    const int defaultWalletSegment = appConfig.value(DEFAULT_ACCOUNT, -1).toInt();
-    if (defaultWalletSegment == -1)
-        return;
     for (int i = 0; i < m_accounts.size(); ++i) {
         auto wallet = m_accounts.at(i);
-        assert(wallet->segment());
-        if (wallet->segment()->segmentId() == defaultWalletSegment) {
+        if (wallet->segment()->priority() == PrivacySegment::First) {
             m_currentAccount = i;
             emit currentChanged();
             break;

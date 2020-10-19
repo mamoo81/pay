@@ -35,6 +35,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(int lastBlockSynched READ lastBlockSynched NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(WalletHistoryModel* transactions READ historyModel CONSTANT)
+    Q_PROPERTY(bool isDefaultWallet READ isDefaultWallet WRITE setDefaultWallet NOTIFY isDefaultWalletChanged)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -56,10 +57,14 @@ public:
 
     WalletHistoryModel* historyModel();
 
+    void setDefaultWallet(bool isDefault);
+    bool isDefaultWallet();
+
 signals:
     void utxosChanged();
     void nameChanged();
     void lastBlockSynchedChanged();
+    void isDefaultWalletChanged();
 
 private:
     Wallet *m_wallet;

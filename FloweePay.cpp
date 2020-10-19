@@ -37,7 +37,8 @@ constexpr const char *WINDOW_HEIGHT = "windowHeight";
 constexpr const char *DARKSKIN = "darkSkin";
 
 enum FileTags {
-    WalletId
+    WalletId,
+    WalletPriority   // int, maps to PrivacySegment::Priority
 };
 
 FloweePay::FloweePay()
@@ -63,6 +64,8 @@ FloweePay::FloweePay()
 
 FloweePay::~FloweePay()
 {
+    saveData();
+
     qDeleteAll(m_wallets);
     QSettings appConfig;
     appConfig.setValue(WINDOW_HEIGHT, m_windowHeight);
@@ -81,6 +84,7 @@ void FloweePay::init()
     auto dl = p2pNet(); // this wil load the p2p layer.
 
     QFile in(m_basedir + "/appdata");
+    Wallet *lastOpened = nullptr;
     if (in.open(QIODevice::ReadOnly)) {
         const auto dataSize = in.size();
         Streaming::BufferPool pool(dataSize);
@@ -93,9 +97,24 @@ void FloweePay::init()
                     dl->addDataListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
                     m_wallets.append(w);
+                    lastOpened = w;
                 } catch (const std::runtime_error &e) {
                     logWarning() << "Wallet load failed:" << e;
+                    lastOpened = nullptr;
                 }
+            }
+            else if (parser.tag() == WalletPriority) {
+                if (lastOpened) {
+                    if (parser.isInt()
+                            && parser.intData() >= PrivacySegment::First
+                            && parser.intData() <= PrivacySegment::OnlyManual) {
+                        lastOpened->segment()->setPriority(static_cast<PrivacySegment::Priority>(parser.intData()));
+                    }
+                    else
+                        logWarning() << "Priority out of range";
+                }
+                else
+                    logWarning() << "Priority found, but no wallet to apply it to";
             }
         }
     }
@@ -111,6 +130,7 @@ void FloweePay::saveData()
     Streaming::MessageBuilder builder(data);
     for (auto wallet : m_wallets) {
         builder.add(WalletId, wallet->segment()->segmentId());
+        builder.add(WalletPriority, wallet->segment()->priority());
     }
     QString filebase = m_basedir + "/appdata";
     QFile out(filebase + "~");

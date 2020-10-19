@@ -75,3 +75,22 @@ WalletHistoryModel *AccountInfo::historyModel()
         m_model.reset(new WalletHistoryModel(m_wallet, this));
     return m_model.get();
 }
+
+void AccountInfo::setDefaultWallet(bool isDefault)
+{
+    auto segment =m_wallet->segment();
+    if (!segment)
+        return;
+    if (segment->priority() == isDefault ? PrivacySegment::First : PrivacySegment::Normal)
+        return;
+    segment->setPriority(isDefault ? PrivacySegment::First : PrivacySegment::Normal);
+    emit isDefaultWalletChanged();
+}
+
+bool AccountInfo::isDefaultWallet()
+{
+    auto segment =m_wallet->segment();
+    if (!segment)
+        return false;
+    return segment->priority() == PrivacySegment::First;
+}

@@ -15,5 +15,7 @@
         <file>AccountPage.qml</file>
         <file>Button2.qml</file>
         <file>NewAccountDialog.qml</file>
+        <file>heart.svg</file>
+        <file>heart-red.svg</file>
     </qresource>
 </RCC>
