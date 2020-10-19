@@ -93,6 +93,23 @@ void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
     if (m_accounts.contains(wallet))
         return;
     m_accounts.append(wallet);
-    m_accountInfos.append(new AccountInfo(wallet, this));
+    auto info = new AccountInfo(wallet, this);
+    m_accountInfos.append(info);
+    connect (info, SIGNAL(isDefaultWalletChanged()), this, SLOT(walletChangedPriority()));
     accountsChanged();
+}
+
+void PortfolioDataProvider::walletChangedPriority()
+{
+    AccountInfo *wallet = qobject_cast<AccountInfo*>(sender());
+    if (!wallet)
+        return;
+    if (wallet->isDefaultWallet()) {
+        // as this just changed, through the UI, we have to mark any other
+        // wallet that was a default wallet as no longer being one.
+        for (auto info : m_accountInfos) {
+            if (info != wallet && info->isDefaultWallet())
+                info->setDefaultWallet(false);
+        }
+    }
 }

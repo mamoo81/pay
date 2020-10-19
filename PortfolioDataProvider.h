@@ -48,6 +48,9 @@ signals:
     void accountsChanged();
     void currentChanged();
 
+private slots:
+    void walletChangedPriority();
+
 private:
     QList<Wallet*> m_accounts;
     QList<AccountInfo*> m_accountInfos;
