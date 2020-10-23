@@ -142,7 +142,7 @@ Pane {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.margins: 10
-
+            horizontalAlignment: Text.AlignHCenter
             text: qsTr("Check your values and press approve to send payment.")
             font.bold: true
             color: "white"
@@ -193,11 +193,12 @@ Pane {
             id: table2
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.margins: 10
+            anchors.margins: 20
             anchors.top: table.bottom
             columns: 2
             Label {
-                text: qsTr("More Details")
+                text: qsTr("More Details:")
+                font.italic: true
                 Layout.columnSpan: 2
             }
             Label {
@@ -212,27 +213,28 @@ Pane {
             }
 
             Label {
-                text: qsTr("Fee (total):")
+                text: qsTr("Fee:")
                 Layout.alignment: Qt.AlignRight
             }
 
             Label {
-                text: checkAndSendTx.payment === null ? 0 : checkAndSendTx.payment.assignedFee
+                text: checkAndSendTx.payment === null ? "" : qsTr("%1 sats").arg(checkAndSendTx.payment.assignedFee)
             }
             Label {
-                text: qsTr("transaction size:")
+                text: qsTr("Transaction size:")
                 Layout.alignment: Qt.AlignRight
             }
             Label {
-                text: checkAndSendTx.payment === null ? 0 : checkAndSendTx.payment.txSize
+                text: checkAndSendTx.payment === null ? "" : qsTr("%1 bytes").arg(checkAndSendTx.payment.txSize)
             }
             Label {
-                text: qsTr("Fee (per byte):")
+                text: qsTr("Fee per byte:")
                 Layout.alignment: Qt.AlignRight
             }
             Label {
-                text: checkAndSendTx.payment === null ? 0
-                                                      : (checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize).toFixed(3);
+                text: checkAndSendTx.payment === null
+                        ? "" : qsTr("%1 sat/byte")
+                                .arg((checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize).toFixed(3))
             }
         }
 
