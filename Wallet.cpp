@@ -26,6 +26,7 @@
 #include <base58.h>
 #include <cashaddr.h>
 
+#include <FloweePay.h>
 #include <QFile>
 #include <QSet>
 
@@ -420,16 +421,45 @@ CKeyID Wallet::nextChangeAddress()
 }
 
 namespace {
-struct OutputSet {
-    std::vector<Wallet::OutputRef> outputs;
-    qint64 totalSats = 0;
-    int score = 0;
-    bool isDone = false;
+struct UnspentOutput {
+    Wallet::OutputRef outputRef;
+    qint64 value = 0;       // in satoshis
+    int score = 0;          // the score gained by using this tx.
 };
 
+int scoreForSolution(size_t outputCount, int change, size_t unspentOutputCount)
+{
+    assert(unspentOutputCount > 0);
+    assert(outputCount > 0);
+    assert(change > 0);
+
+    const int resultingOutputCount = unspentOutputCount - outputCount;
+    int score = 0;
+    // aim to keep our output count between 10 and 15
+    if (resultingOutputCount > 10 && resultingOutputCount <= 15)
+        score = 1000; // perfection
+    else if (resultingOutputCount > 5 && resultingOutputCount < 15)
+        score = 250;
+    else if (resultingOutputCount < 25 && resultingOutputCount > 10)
+        score = 250;
+    else if (resultingOutputCount > 25)
+        score -= (resultingOutputCount - 25) * 10;
+    else
+        score -= (5 - resultingOutputCount) * 10; // for the 0 - 5 range
+
+    // in most cases no modifier is added due to change
+    if (change < 100)
+        score += 2000; // thats very nice (if over 0, that's for the miner)
+    else if (change < 1000) // we would create very small UTXO, not nice.
+        score -= 1000;
+    else if (change < 5000) // ditto
+        score -= 800;
+
+    return score;
+}
 }
 
-std::vector<Wallet::OutputRef> Wallet::findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const
+Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const
 {
     /*
      * The main selection criterea is the amount of outputs we have afterwards.
@@ -441,89 +471,114 @@ std::vector<Wallet::OutputRef> Wallet::findInputsFor(qint64 output, int feePerBy
      *
      *
      * As we assume the first items in the list of unspentOutputs are the oldest, all
-     * we need to do is find the combination of inputs that works best. So we just try
-     * all combinations till we get a nice set of working options to pick from.
-     *
-     * for each utxo
-     *   take outputSet
-     *    if its already reached the value, then next.
-     *    otherwise duplicate it.  Add yourself to one of the two.
-     *   add new outputset with just me.
+     * we need to do is find the combination of inputs that works best.
      */
 
-    std::deque<OutputSet> sets;
-    sets.resize(1);
+    const int currentBlockHeight = FloweePay::instance()->headerChainHeight();
 
-    const bool wantLessOutputs = m_unspentOutputs.size() > 15;
-    const bool wantMoreOutputs = m_unspentOutputs.size() < 10;
 
+    QList<UnspentOutput> unspentOutputs;
+    std::map<uint64_t, size_t> utxosBySize;
+    unspentOutputs.reserve(m_unspentOutputs.size());
     for (auto iter = m_unspentOutputs.begin(); iter != m_unspentOutputs.end(); ++iter) {
-        int isDones = 0;
-        for (auto setIter = sets.begin(); setIter != sets.end(); ++setIter) {
-            if (setIter->isDone) {
-                ++isDones;
-                continue;
-            }
-            OutputSet newSet = *setIter;
-            newSet.outputs.push_back(OutputRef(iter->first));
-            newSet.totalSats += iter->second;
+        UnspentOutput out;
+        out.value = iter->second;
+        out.outputRef = OutputRef(iter->first);
+        auto wtxIter = m_walletTransactions.find(out.outputRef.txIndex());
+        Q_ASSERT(wtxIter != m_walletTransactions.end());
 
-            const int outputCount = newSet.outputs.size();
-            const int fees = (txSize + outputCount * BYTES_PER_OUTPUT) * feePerByte;
-            const qint64 change = newSet.totalSats - output - fees;
-            if (change >= 0) {
-                newSet.isDone = true;
-                ++isDones;
-
-                // calculate score of this solution.
-                // If we wanted less outputs, the score is adjusted based on it doing so & vice-versa
-                newSet.score = 0;
-                if (wantMoreOutputs && newSet.isDone) { // so spend less
-                    if (outputCount == 1) // perfection!
-                        newSet.score = 1000;
-                    newSet.score -= 100 * outputCount;
-                }
-                else if (wantLessOutputs && newSet.isDone) {
-                    newSet.score = 100 * outputCount;
-                    newSet.score -= 100 * std::max(0, outputCount - 8); // don't go crazy now...
-                }
-
-                if (change < 100)
-                    newSet.score += 20000; // thats very nice (if over 0, that's for the miner)
-                else if (change < 1000) // too small UTXO, not nice.
-                    newSet.score -= 2000;
-                else if (change < 5000) // ditto
-                    newSet.score -= 1000;
-                // TODO for each input add a punishment if the output has lass than 2 confirmations
-            }
-
-            setIter = sets.insert(++setIter, newSet);
+        int h = wtxIter->second.minedBlockHeight;
+        if (h == -1) {
+            out.score = -10; // unconfirmed.
+        } else {
+            const int diff = currentBlockHeight - h;
+            if (diff > 4024)
+                out.score = 50;
+            else if (diff > 1008)
+                out.score = 30;
+            else if (diff > 144)
+                out.score = 10;
         }
+        utxosBySize.insert(std::make_pair(iter->second, unspentOutputs.size()));
+        unspentOutputs.push_back(out);
+    }
 
-        if (isDones > 10)
+    // First simply walk from oldest to newest until funded
+    OutputSet bestSet;
+    int bestScore = 0;
+    bestSet.fee = txSize * feePerByte;
+    for (auto iter = unspentOutputs.begin(); iter != unspentOutputs.end(); ++iter) {
+        bestSet.outputs.push_back(OutputRef(iter->outputRef));
+        bestSet.totalSats += iter->value;
+        bestSet.fee += BYTES_PER_OUTPUT * feePerByte;
+        bestScore += iter->score;
+
+        if (bestSet.totalSats - bestSet.fee >= output)
+            break;
+    }
+    if (bestSet.totalSats - bestSet.fee < output)
+        throw std::runtime_error("Not enough funds");
+
+    bestScore += scoreForSolution(bestSet.outputs.size(),
+                                     bestSet.totalSats - bestSet.fee - output, unspentOutputs.size());
+    // try a new set.
+    OutputSet current;
+    int score = 0;
+    current.fee = txSize * feePerByte;
+    auto iterBySize = utxosBySize.end();
+    while (iterBySize != utxosBySize.begin()) {
+        --iterBySize;
+        const auto &utxo = unspentOutputs.at(iterBySize->second);
+        current.outputs.push_back(utxo.outputRef);
+        current.totalSats += utxo.value;
+        current.fee += BYTES_PER_OUTPUT * feePerByte;
+        score += utxo.score;
+
+        if (current.totalSats - current.fee >= output)
             break;
     }
 
-    size_t best = 0;
-    int bestScore = 0;
-    for (size_t i = 0; i < sets.size(); ++i) {
-        const auto &set = sets[i];
-        if (set.isDone && set.score > bestScore) {
-            best = i;
-            bestScore = sets.at(i).score;
+    if (current.totalSats - current.fee >= output) {
+        score += scoreForSolution(current.outputs.size(),
+                                  current.totalSats - current.fee - output, unspentOutputs.size());
+
+        // compare with the cost of oldest to newest.
+        if (score > bestScore) {
+            bestScore = score;
+            bestSet = current;
         }
     }
 
-    if (sets.size() > best) {
-        const auto &set = sets.at(best);
-        change = set.totalSats - output;
-        change -= ((set.outputs.size() * BYTES_PER_OUTPUT) + txSize) * feePerByte;
-        assert(change >= 0);
-        return set.outputs;
+    // Last we use random sets.
+    for (int setIndex = 0; setIndex < 50; ++setIndex) {
+        current = OutputSet();
+        score = 0;
+        current.fee = txSize * feePerByte;
+        auto outputs = unspentOutputs;
+        do {
+            Q_ASSERT(!outputs.empty());
+            const int index = static_cast<int>(rand() % outputs.size());
+            Q_ASSERT(outputs.size() > index);
+            const auto &out = outputs[index];
+            current.outputs.push_back(out.outputRef);
+            current.totalSats += out.value;
+            current.fee += BYTES_PER_OUTPUT * feePerByte;
+            score += out.score;
+
+            outputs.removeAt(index); // take it.
+        } while (current.totalSats - current.fee < output);
+
+        score += scoreForSolution(current.outputs.size(),
+                                  current.totalSats - current.fee - output, unspentOutputs.size());
+        Q_ASSERT(current.totalSats - current.fee >= output);
+        if (score > bestScore) {
+            bestScore = score;
+            bestSet = current;
+        }
     }
 
-    // no result
-    return std::vector<OutputRef>();
+    change = current.totalSats - current.fee - output;
+    return current;
 }
 
 void Wallet::newTransaction(const Tx &tx)

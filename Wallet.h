@@ -108,6 +108,11 @@ public:
 
     CKeyID nextChangeAddress();
 
+    struct OutputSet {
+        std::vector<OutputRef> outputs;
+        qint64 totalSats = 0;
+        int fee = 0;
+    };
     /**
      * @brief findInputsFor UTXO fulfilment algo finding the inputs for your tx.
      * @param output The amount of satoshis you want to make available (after fee).
@@ -116,7 +121,7 @@ public:
      * @param[out] change the amount of satoshis we over-provided for the expected \a output.
      * @return The references to the outputs we suggest you fund your tx with.
      */
-    std::vector<OutputRef> findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const;
+    OutputSet findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const;
 
     bool isSingleAddressWallet() const;
     void setSingleAddressWallet(bool isSingleAddressWallet);

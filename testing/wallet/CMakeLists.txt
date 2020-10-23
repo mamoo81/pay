@@ -26,6 +26,7 @@ include_directories(
 
 add_executable(test_wallet
     TestWallet.cpp
+    ${CMAKE_SOURCE_DIR}/FloweePay.cpp
     ${CMAKE_SOURCE_DIR}/Wallet.cpp
 )
 target_link_libraries(test_wallet

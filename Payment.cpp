@@ -128,12 +128,12 @@ void Payment::approveAndSign()
 
     // find and add outputs that can be used to pay for our required output
     int64_t change = -1;
-    const auto prevOuts = m_wallet->findInputsFor(m_paymentAmount, m_fee, tx.size(), change);
-    if (prevOuts.empty())
-        throw std::runtime_error("Not enough funds");
+    const auto funding = m_wallet->findInputsFor(m_paymentAmount, m_fee, tx.size(), change);
+    // the findInputsFor method throws if we don't have sufficient funds
+    assert(!funding.outputs.empty());
     m_assignedFee = 0;
     qint64 fundsIngoing = 0;
-    for (auto ref : prevOuts) {
+    for (auto ref : funding.outputs) {
         builder.appendInput(m_wallet->txid(ref), ref.outputIndex());
         auto output = m_wallet->txOutout(ref);
         fundsIngoing += output.outputValue;
