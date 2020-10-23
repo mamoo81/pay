@@ -129,8 +129,9 @@ void Payment::approveAndSign()
     // find and add outputs that can be used to pay for our required output
     int64_t change = -1;
     const auto funding = m_wallet->findInputsFor(m_paymentAmount, m_fee, tx.size(), change);
-    // the findInputsFor method throws if we don't have sufficient funds
-    assert(!funding.outputs.empty());
+    if (funding.outputs.empty()) {// not enough funds.
+        return;
+    }
     m_assignedFee = 0;
     qint64 fundsIngoing = 0;
     for (auto ref : funding.outputs) {
@@ -154,19 +155,25 @@ void Payment::approveAndSign()
     m_tx = builder.createTransaction();
 
     // now double-check the fee since we can't predict the signature size perfectly.
-    int diff = m_tx.size() * m_fee - m_assignedFee;
-    if (diff != 0 && changeOutput != -1) {
+    while (changeOutput != -1) {
+        const int diff = m_tx.size() * m_fee - m_assignedFee;
+        if (diff <= 0)
+            break;
         // a positive diff means we underpaid fee
         builder.selectOutput(changeOutput);
         builder.setOutputValue(change - diff);
         m_assignedFee += diff;
         m_tx = builder.createTransaction();
     }
+    m_paymentOk = true;
     emit txCreated();
+    emit paymentOkChanged();
 }
 
 void Payment::sendTx()
 {
+    if (!m_paymentOk)
+        return;
     /*
      * TODO
      *  - call to wallet to mark outputs locked and save tx.
@@ -220,6 +227,11 @@ void Payment::txRejected(short reason, const QString &message)
     // reason is hinted using BroadcastTxData::RejectReason
     logCritical() << "Transaction rejected" << reason << message;
     ++m_rejectedPeerCount;
+}
+
+bool Payment::paymentOk() const
+{
+    return m_paymentOk;
 }
 
 int Payment::assignedFee() const

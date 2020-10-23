@@ -117,7 +117,12 @@ Pane {
         flags: Qt.Dialog
         width: header.implicitWidth + 20
         height: 20 + minimumHeight
-        minimumHeight:  header.implicitHeight + table.implicitHeight + table2.implicitHeight + button.height + 60
+        minimumHeight: {
+            var h = header.implicitHeight + table.implicitHeight + button.height + 60;
+            if (checkAndSendTx.payment.paymentOk)
+                h += table2.implicitHeight
+            return h;
+        }
 
         property QtObject payment: null
 
@@ -143,11 +148,12 @@ Pane {
             anchors.right: parent.right
             anchors.margins: 10
             horizontalAlignment: Text.AlignHCenter
-            text: qsTr("Check your values and press approve to send payment.")
-            font.bold: true
-            color: "white"
-            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            text: checkAndSendTx.payment.paymentOk ?
+                      qsTr("Check your values and press approve to send payment.")
+                    : qsTr("Not enough funds in account to make payment!");
 
+            font.bold: true
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         }
         GridLayout {
             id: table
@@ -191,6 +197,7 @@ Pane {
         }
         GridLayout {
             id: table2
+            visible: checkAndSendTx.payment.paymentOk
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.margins: 20
@@ -243,10 +250,14 @@ Pane {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.margins: 10
-            text: qsTr("Approve and Send")
-            onClicked:  {
-                checkAndSendTx.payment.sendTx();
-                checkAndSendTx.payment = null
+            text: checkAndSendTx.payment.paymentOk ? qsTr("Approve and Send") : qsTr("Close")
+            onClicked: {
+                if (checkAndSendTx.payment.paymentOk) {
+                    checkAndSendTx.payment.sendTx();
+                    checkAndSendTx.payment = null
+                } else {
+                    checkAndSendTx.close();
+                }
             }
         }
     }

@@ -517,7 +517,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
             break;
     }
     if (bestSet.totalSats - bestSet.fee < output)
-        throw std::runtime_error("Not enough funds");
+        return OutputSet();
 
     bestScore += scoreForSolution(bestSet.outputs.size(),
                                      bestSet.totalSats - bestSet.fee - output, unspentOutputs.size());
