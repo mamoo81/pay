@@ -61,19 +61,32 @@ void PortfolioDataProvider::setCurrent(AccountInfo *item)
     emit currentChanged();
 }
 
+Payment *PortfolioDataProvider::createPaymentObject(const QString &address, double value)
+{
+    auto p = new Payment(m_accounts.at(m_currentAccount), value);
+    try {
+        p->setTargetAddress(address);
+        return p;
+    } catch (...) {
+        logFatal() << "Got a non-validating address, can't start payment";
+        delete p;
+        return nullptr;
+    }
+
+}
+
 QObject *PortfolioDataProvider::startPayToAddress(const QString &address, BitcoinValue *bitcoinValue)
 {
     assert(bitcoinValue);
     if (m_currentAccount == -1 || bitcoinValue == nullptr)
         return nullptr;
-    auto p = new Payment(m_accounts.at(m_currentAccount), bitcoinValue->value());
-    try {
-        p->setTargetAddress(address);
-        return p;
-    } catch (...) {
-        delete p;
-        throw;
-    }
+    return createPaymentObject(address, bitcoinValue->value());
+}
+
+QObject *PortfolioDataProvider::startPayAllToAddress(const QString &address)
+{
+    // -1 is defined by the Payment::setPaymentAmount() to be the 'send all' indicator.
+    return createPaymentObject(address, -1);
 }
 
 void PortfolioDataProvider::selectDefaultWallet()

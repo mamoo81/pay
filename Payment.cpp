@@ -26,6 +26,12 @@
 #include <TransactionBuilder.h>
 #include <QTimer>
 
+// #define DEBUG_TX_CREATION
+#ifdef DEBUG_TX_CREATION
+# include <QDir>
+# include <QFile>
+#endif
+
 Payment::Payment(Wallet *wallet, qint64 amountToPay)
     : m_wallet(wallet),
       m_fee(1),
@@ -109,8 +115,15 @@ QString Payment::formattedTargetAddress()
 
 void Payment::approveAndSign()
 {
-    if (m_formattedTarget.isEmpty() || m_paymentAmount < 600)
-        throw std::runtime_error("Can not create transaction, missing data");
+    if (m_paymentAmount < 600 && m_paymentAmount != -1) {
+        logFatal() << "Payment::approveAndSign: Can not create transaction, faulty payment amount:"
+                   << m_paymentAmount;
+        return;
+    }
+    if (m_formattedTarget.isEmpty()) {
+        logFatal() << "Payment::approveAndSign: Can not create transaction, missing data";
+        return;
+    }
     TransactionBuilder builder;
     builder.appendOutput(m_paymentAmount);
     bool ok = false;
@@ -129,10 +142,9 @@ void Payment::approveAndSign()
     // find and add outputs that can be used to pay for our required output
     int64_t change = -1;
     const auto funding = m_wallet->findInputsFor(m_paymentAmount, m_fee, tx.size(), change);
-    if (funding.outputs.empty()) {// not enough funds.
+    if (funding.outputs.empty()) // not enough funds.
         return;
-    }
-    m_assignedFee = 0;
+
     qint64 fundsIngoing = 0;
     for (auto ref : funding.outputs) {
         builder.appendInput(m_wallet->txid(ref), ref.outputIndex());
@@ -141,33 +153,56 @@ void Payment::approveAndSign()
         builder.pushInputSignature(m_wallet->unlockKey(ref), output.outputScript, output.outputValue);
     }
 
-    m_assignedFee = fundsIngoing - m_paymentAmount;
+    m_assignedFee = 0;
     int changeOutput = -1;
-    if (change > 1000) {
+    if (m_paymentAmount == -1) { // if we pay everything to the one output
+        change = fundsIngoing;
+        changeOutput = builder.outputCount() - 1;
+        builder.selectOutput(changeOutput);
+        builder.setOutputValue(change); // pays no fee yet
+    } else {
+        m_assignedFee = fundsIngoing - m_paymentAmount;
+
         // notice that the findInputsFor() will try really really hard to avoid us
         // having change greater than 100 and less than 1000.
         // But if we hit that, its better to give it to the miners than to
         // create a tiny change UTXO
-        changeOutput = builder.appendOutput(change);
-        builder.pushOutputPay2Address(m_wallet->nextChangeAddress());
-        m_assignedFee -= change;
+        if (change > 1000) { // create a change-output
+            changeOutput = builder.appendOutput(change);
+            builder.pushOutputPay2Address(m_wallet->nextChangeAddress());
+            m_assignedFee -= change;
+        }
     }
     m_tx = builder.createTransaction();
 
-    // now double-check the fee since we can't predict the signature size perfectly.
+    // now double-check the fee since we can't predict the tx-size size perfectly.
     while (changeOutput != -1) {
+        // a positive diff means we underpaid fee
         const int diff = m_tx.size() * m_fee - m_assignedFee;
         if (diff <= 0)
             break;
-        // a positive diff means we underpaid fee
-        builder.selectOutput(changeOutput);
-        builder.setOutputValue(change - diff);
+        change -= diff;
         m_assignedFee += diff;
+
+        builder.selectOutput(changeOutput);
+        builder.setOutputValue(change);
         m_tx = builder.createTransaction();
     }
+    if (m_paymentAmount == -1)
+        m_paymentAmount = fundsIngoing;
+
     m_paymentOk = true;
     emit txCreated();
     emit paymentOkChanged();
+#ifdef DEBUG_TX_CREATION
+    QFile out(QDir::homePath() + "/flowee-pay-" + QString::fromStdString(m_tx.createHash().ToString()));
+    if (out.open(QIODevice::WriteOnly)) {
+        out.write(m_tx.data().begin(), m_tx.size());
+        out.close();
+
+        logCritical() << "Wrote tx to" << out.fileName();
+    }
+#endif
 }
 
 void Payment::sendTx()

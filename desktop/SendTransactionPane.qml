@@ -72,22 +72,40 @@ Pane {
         BitcoinValueField {
             id: bitcoinValueField
             Layout.columnSpan: 2
+            onValueChanged: maxSelected = false
+            property bool maxSelected: false
         }
 
         RowLayout {
-            Layout.alignment: Qt.AlignRight
+            // Layout.alignment: Qt.AlignRight
             Layout.columnSpan: 3
+
+            Button2 {
+                id: sendAll
+                text: qsTr("&Max")
+                onClicked: bitcoinValueField.maxSelected = true
+            }
+
+            Item {
+                width: 1; height: 1
+                Layout.fillWidth: true
+            }
 
             Button2 {
                 id: nextButton
                 text: qsTr("Next")
-                enabled: bitcoinValueField.value > 0 && destination.addressOk;
+                enabled: (bitcoinValueField.value > 0
+                          || bitcoinValueField.maxSelected) && destination.addressOk;
 
                 onClicked: {
-                    checkAndSendTx.payment
-                            = portfolio.startPayToAddress(destination.text, bitcoinValueField.valueObject);
+                    if (bitcoinValueField.maxSelected)
+                        var payment = portfolio.startPayAllToAddress(destination.text);
+                    else
+                        payment = portfolio.startPayToAddress(destination.text, bitcoinValueField.valueObject);
+
+                    checkAndSendTx.payment = payment;
                     ControlColors.applySkin(checkAndSendTx);
-                    checkAndSendTx.payment.approveAndSign();
+                    payment.approveAndSign();
                 }
             }
             Button2 {
@@ -119,7 +137,7 @@ Pane {
         height: 20 + minimumHeight
         minimumHeight: {
             var h = header.implicitHeight + table.implicitHeight + button.height + 60;
-            if (checkAndSendTx.payment.paymentOk)
+            if (checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk)
                 h += table2.implicitHeight
             return h;
         }
@@ -148,7 +166,7 @@ Pane {
             anchors.right: parent.right
             anchors.margins: 10
             horizontalAlignment: Text.AlignHCenter
-            text: checkAndSendTx.payment.paymentOk ?
+            text: checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk ?
                       qsTr("Check your values and press approve to send payment.")
                     : qsTr("Not enough funds in account to make payment!");
 
@@ -197,7 +215,7 @@ Pane {
         }
         GridLayout {
             id: table2
-            visible: checkAndSendTx.payment.paymentOk
+            visible: checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.margins: 20
@@ -250,7 +268,8 @@ Pane {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.margins: 10
-            text: checkAndSendTx.payment.paymentOk ? qsTr("Approve and Send") : qsTr("Close")
+            text: checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk
+                  ? qsTr("Approve and Send") : qsTr("Close")
             onClicked: {
                 if (checkAndSendTx.payment.paymentOk) {
                     checkAndSendTx.payment.sendTx();
