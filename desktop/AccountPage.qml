@@ -41,7 +41,7 @@ Pane {
             ConfigItem {
                 id: accountConfigIcon
                 anchors.right: parent.right
-                anchors.rightMargin: 10
+                anchors.rightMargin: 20
 
                 color: mainWindow.palette.text
             }
