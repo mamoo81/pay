@@ -31,6 +31,7 @@ FocusScope {
 
     property alias value: privValue.value
     property alias valueObject: privValue
+    property alias fontPtSize: balance.fontPtSize
 
     function reset() {
         privValue.enteredString = "0";

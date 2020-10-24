@@ -56,6 +56,7 @@ Item {
         id: bitcoinAmountLabel
         value: model.fundsOut - model.fundsIn
         anchors.top: mainLabel.top
+        fontPtSize: date.font.pointSize
         anchors.right: parent.right
     }
 

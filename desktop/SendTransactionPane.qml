@@ -48,7 +48,7 @@ Pane {
                 return  res === Pay.CashPKH || res === Pay.LegacyPKH;
             }
 
-            placeholderText: qsTr("Enter bitcoin address")
+            placeholderText: qsTr("Enter Bitcoin Address")
             Layout.fillWidth: true
             onFocusChanged: {
                 if (activeFocus || text === "")
@@ -71,6 +71,7 @@ Pane {
         }
         BitcoinValueField {
             id: bitcoinValueField
+            fontPtSize: checked.font.pointSize
             Layout.columnSpan: 2
         }
 
