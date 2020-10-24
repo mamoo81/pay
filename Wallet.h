@@ -116,6 +116,7 @@ public:
     /**
      * @brief findInputsFor UTXO fulfilment algo finding the inputs for your tx.
      * @param output The amount of satoshis you want to make available (after fee).
+     *          A special value of -1 indicates all outputs.
      * @param feePerByte fee per byte
      * @param txSize the size of the transaction before we add inputs
      * @param[out] change the amount of satoshis we over-provided for the expected \a output.

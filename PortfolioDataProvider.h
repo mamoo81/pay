@@ -23,6 +23,7 @@
 
 class Wallet;
 class BitcoinValue;
+class Payment;
 
 class PortfolioDataProvider : public QObject
 {
@@ -37,7 +38,8 @@ public:
     AccountInfo *current() const;
     void setCurrent(AccountInfo *item);
 
-    Q_INVOKABLE QObject* startPayToAddress(const QString &address, BitcoinValue *bitcoinValue);
+    Q_INVOKABLE QObject *startPayToAddress(const QString &address, BitcoinValue *bitcoinValue);
+    Q_INVOKABLE QObject *startPayAllToAddress(const QString &address);
 
     void selectDefaultWallet();
 
@@ -52,6 +54,8 @@ private slots:
     void walletChangedPriority();
 
 private:
+    Payment* createPaymentObject(const QString &address, double value);
+
     QList<Wallet*> m_accounts;
     QList<AccountInfo*> m_accountInfos;
 

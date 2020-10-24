@@ -43,6 +43,10 @@ public:
     void setFeePerByte(int sats);
     int feePerByte();
 
+    /**
+     * Set the amount we want to have arrive on the other side.
+     * Special value can be -1 to indicate all available outputs.
+     */
     void setPaymentAmount(double amount);
     double paymentAmount();
 

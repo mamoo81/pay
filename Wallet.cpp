@@ -476,7 +476,6 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
 
     const int currentBlockHeight = FloweePay::instance()->headerChainHeight();
 
-
     QList<UnspentOutput> unspentOutputs;
     std::map<uint64_t, size_t> utxosBySize;
     unspentOutputs.reserve(m_unspentOutputs.size());
@@ -513,8 +512,12 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         bestSet.fee += BYTES_PER_OUTPUT * feePerByte;
         bestScore += iter->score;
 
-        if (bestSet.totalSats - bestSet.fee >= output)
+        if (output != -1 && bestSet.totalSats - bestSet.fee >= output)
             break;
+    }
+    if (output == -1) { // the magic number to return all outputs
+        change = 0;
+        return bestSet;
     }
     if (bestSet.totalSats - bestSet.fee < output)
         return OutputSet();
