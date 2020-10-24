@@ -383,6 +383,7 @@ DownloadManager *FloweePay::p2pNet()
 {
     if (m_downloadManager == nullptr) {
         m_downloadManager.reset(new DownloadManager(ioService(), m_basedir.toStdString()));
+        m_downloadManager->addP2PNetListener(this);
         emit headerChainHeightChanged();
     }
     return m_downloadManager.get();
