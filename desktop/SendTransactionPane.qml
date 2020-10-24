@@ -27,8 +27,9 @@ Pane {
     id: root
     function reset() {
         // reset fields
-        bitcoinValueField.reset()
-        destination.text = ""
+        bitcoinValueField.reset();
+        bitcoinValueField.maxSelected = false;
+        destination.text = "";
     }
     opacity: visible ? 1 : 0
     GridLayout {
@@ -71,20 +72,36 @@ Pane {
         }
         BitcoinValueField {
             id: bitcoinValueField
-            fontPtSize: checked.font.pointSize
+            property bool maxSelected: false
+
+            fontPtSize: payAmount.font.pointSize
             Layout.columnSpan: 2
             onValueChanged: maxSelected = false
-            property bool maxSelected: false
         }
 
         RowLayout {
-            // Layout.alignment: Qt.AlignRight
             Layout.columnSpan: 3
 
             Button2 {
                 id: sendAll
-                text: qsTr("&Max")
-                onClicked: bitcoinValueField.maxSelected = true
+                text: qsTr("Max")
+                checkable: true
+                checked: bitcoinValueField.maxSelected
+
+                property string previousAmountString: ""
+                onClicked: {
+                    var isChecked = !bitcoinValueField.maxSelected // simply invert
+                    if (isChecked) {
+                        // backup what the user typed there, to be used if she no longer wants 'max'
+                        previousAmountString = bitcoinValueField.valueObject.enteredString;
+                        // the usage of 'account' here assumes we are under the hierarchy of the AccountPage
+                        bitcoinValueField.value = account.balance
+                    } else {
+                        bitcoinValueField.valueObject.strValue = previousAmountString
+                    }
+
+                    bitcoinValueField.maxSelected = isChecked
+                }
             }
 
             Item {
