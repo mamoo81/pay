@@ -41,9 +41,16 @@ enum FileTags {
     WalletPriority   // int, maps to PrivacySegment::Priority
 };
 
+static P2PNet::Chain s_chain = P2PNet::MainChain;
+
 FloweePay::FloweePay()
-    : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
+    : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)),
+    m_chain(s_chain)
 {
+    if (m_chain == P2PNet::Testnet4Chain)
+        m_basedir += "/testnet4";
+    boost::filesystem::create_directories(boost::filesystem::path(m_basedir.toStdString()));
+
     // make it move to the proper thread.
     connect(this, SIGNAL(loadComplete_priv()), SIGNAL(loadComplete()), Qt::QueuedConnection);
 
@@ -71,6 +78,12 @@ FloweePay::~FloweePay()
     appConfig.setValue(WINDOW_HEIGHT, m_windowHeight);
     appConfig.setValue(WINDOW_WIDTH, m_windowWidth);
     appConfig.setValue(DARKSKIN, m_darkSkin);
+}
+
+// static
+void FloweePay::selectChain(P2PNet::Chain chain)
+{
+    s_chain = chain;
 }
 
 FloweePay *FloweePay::instance()
@@ -231,6 +244,16 @@ Wallet *FloweePay::createWallet(const QString &name)
     return w;
 }
 
+P2PNet::Chain FloweePay::chain() const
+{
+    return m_chain;
+}
+
+void FloweePay::setChain(const P2PNet::Chain &chain)
+{
+    m_chain = chain;
+}
+
 FloweePay::UnitOfBitcoin FloweePay::unit() const
 {
     return m_unit;
@@ -334,7 +357,8 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
 void FloweePay::createNewWallet(const QString &walletName)
 {
     auto wallet = createWallet(walletName);
-    wallet->createNewPrivateKey(std::max(636000, m_downloadManager->blockHeight()));
+    static int minStartBlock = (s_chain == P2PNet::MainChain) ? 636000 : 13000;
+    wallet->createNewPrivateKey(std::max(minStartBlock, m_downloadManager->blockHeight()));
 }
 
 QString FloweePay::unitName() const
@@ -382,7 +406,7 @@ QList<Wallet *> FloweePay::wallets() const
 DownloadManager *FloweePay::p2pNet()
 {
     if (m_downloadManager == nullptr) {
-        m_downloadManager.reset(new DownloadManager(ioService(), m_basedir.toStdString()));
+        m_downloadManager.reset(new DownloadManager(ioService(), m_basedir.toStdString(), m_chain));
         m_downloadManager->addP2PNetListener(this);
         emit headerChainHeightChanged();
     }

@@ -59,6 +59,11 @@ public:
     FloweePay();
     ~FloweePay();
 
+    /**
+     * Select the chain that the FloweePay singleton will be created for.
+     * Only has effect if you call this before the first call to instance();
+     */
+    static void selectChain(P2PNet::Chain chain);
     static FloweePay *instance();
 
     QList<Wallet *> wallets() const;
@@ -105,6 +110,9 @@ public:
     // P2PNetInterface interface
     void blockchainHeightChanged(int newHeight);
 
+    P2PNet::Chain chain() const;
+    void setChain(const P2PNet::Chain &chain);
+
     Q_ENUM(StringType UnitOfBitcoin)
 signals:
     void loadComplete();
@@ -127,6 +135,7 @@ private:
 
     UnitOfBitcoin m_unit = BCH;
     QString m_basedir;
+    P2PNet::Chain m_chain = P2PNet::MainChain;
     std::unique_ptr<DownloadManager> m_downloadManager;
     QList<Wallet*> m_wallets;
     int m_windowWidth;

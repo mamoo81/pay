@@ -67,11 +67,13 @@ int main(int argc, char *argv[])
     QCommandLineOption verbose(QStringList() << "verbose" << "v", "Be more verbose");
     QCommandLineOption quiet(QStringList() << "quiet" << "q", "Be quiet, only errors are shown");
     QCommandLineOption connect(QStringList() << "connect", "Connect to HOST", "HOST");
+    QCommandLineOption testnet4(QStringList() << "testnet4", "Use testnet4");
     parser.addHelpOption();
     parser.addOption(debug);
     parser.addOption(verbose);
     parser.addOption(quiet);
     parser.addOption(connect);
+    parser.addOption(testnet4);
     parser.process(qapp);
 
     auto *logger = Log::Manager::instance();
@@ -88,6 +90,10 @@ int main(int argc, char *argv[])
         v = Log::FatalLevel;
     logger->clearLogLevels(v);
     logger->addConsoleChannel();
+
+    // select chain
+    if (parser.isSet(testnet4))
+        FloweePay::selectChain(P2PNet::Testnet4Chain);
 
     ECC_State crypo_state; // allows the secp256k1 to function.
     QQmlApplicationEngine engine;
