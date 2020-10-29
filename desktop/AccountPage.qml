@@ -38,13 +38,25 @@ Pane {
             width: parent.width
             y: 20
 
+            /*
             ConfigItem {
                 id: accountConfigIcon
                 anchors.right: parent.right
                 anchors.rightMargin: 20
 
                 color: mainWindow.palette.text
+
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.margins: -10
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                    onClicked: {
+                        console.log("clicked")
+                    }
+                }
             }
+            */
 
             GridLayout {
                 id: valueGrid
@@ -85,7 +97,6 @@ Pane {
             }
             Item { width: 1; height: 10 } // spacer
             SyncIndicator {
-                id: syncIndicator
                 accountBlockHeight: root.account === null ? 0 : root.account.lastBlockSynched
                 anchors.horizontalCenter: parent.horizontalCenter
             }

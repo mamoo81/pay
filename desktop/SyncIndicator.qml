@@ -10,9 +10,9 @@ Label {
     property int accountBlockHeight: 0
     property int globalPos: Flowee.headerChainHeight
 
-    visible: accountBlockHeight != globalPos
     text: {
         var diff = globalPos - accountBlockHeight
+        visible = diff !== 0;
         if (diff < 0) // we are ahead???
             return "--"
         var days = diff / 144
@@ -22,6 +22,8 @@ Label {
         var hours = diff / 6
         if (hours > 48)
             return qsTr("%1 days behind").arg(Math.ceil(days));
+        if (diff < 3)
+            return qsTr("Updating");
         return qsTr("%1 hours behind").arg(Math.ceil(hours));
     }
     font.italic: true
