@@ -132,6 +132,7 @@ private:
     void saveData();
     void saveAll();
     Wallet *createWallet(const QString &name);
+    int walletStartHeightHint() const;
 
     UnitOfBitcoin m_unit = BCH;
     QString m_basedir;

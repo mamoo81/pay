@@ -14,7 +14,7 @@ Label {
         var diff = globalPos - accountBlockHeight
         visible = diff !== 0;
         if (diff < 0) // we are ahead???
-            return "--"
+            return "--" + diff;
         var days = diff / 144
         var weeks = diff / 1008
         if (days > 10)
@@ -27,4 +27,10 @@ Label {
         return qsTr("%1 hours behind").arg(Math.ceil(hours));
     }
     font.italic: true
+
+    Text {
+        color: "red"
+        x: 200
+        text: syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
+    }
 }

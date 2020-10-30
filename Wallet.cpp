@@ -625,7 +625,7 @@ bool Wallet::addPrivateKey(const QString &privKey, int startBlockHeight)
     CBase58Data encodedData;
     auto bytes = privKey.toLatin1();
     encodedData.SetString(bytes.constData());
-    if (encodedData.isMainnetPrivKey()) {
+    if (encodedData.isMainnetPrivKey() || encodedData.isTestnetPrivKey()) {
         WalletSecret secret;
         secret.privKey.Set(encodedData.data().begin(), encodedData.data().begin() + 32,
                 encodedData.data().size() > 32 && encodedData.data()[32] == 1);

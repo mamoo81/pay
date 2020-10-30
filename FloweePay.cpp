@@ -322,11 +322,23 @@ void FloweePay::setWindowWidth(int windowWidth)
     // appSettings.setValue(WINDOW_WIDTH, windowWidth);
 }
 
+int FloweePay::walletStartHeightHint() const
+{
+    static int minStartBlock = [] {
+        switch (s_chain) {
+        case P2PNet::MainChain: return 636000;
+        case P2PNet::Testnet4Chain: return 13000;
+        default: return 0;
+        }
+    }();
+    return std::max(minStartBlock, m_downloadManager->blockHeight());
+}
+
 void FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)
 {
     auto wallet = createWallet(walletName);
     // TODO add a lookup to an indexer to tell us the oldest use of the resulting address
-    wallet->addPrivateKey(privateKey, 500000);
+    wallet->addPrivateKey(privateKey, walletStartHeightHint());
 }
 
 FloweePay::StringType FloweePay::identifyString(const QString &string) const
@@ -335,15 +347,25 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
 
     CBase58Data legacy;
     if (legacy.SetString(s)) {
-        if (legacy.isMainnetSh())
-            return LegacySH;
-        if (legacy.isMainnetPkh())
+        if ((m_chain == P2PNet::MainChain && legacy.isMainnetPkh())
+            || (m_chain == P2PNet::Testnet4Chain && legacy.isTestnetPkh()))
             return LegacyPKH;
-        if (legacy.isMainnetPrivKey())
+        if ((m_chain == P2PNet::MainChain && legacy.isMainnetSh())
+            || (m_chain == P2PNet::Testnet4Chain && legacy.isTestnetSh()))
+            return LegacySH;
+        if ((m_chain == P2PNet::MainChain && legacy.isMainnetPrivKey())
+            || (m_chain == P2PNet::Testnet4Chain && legacy.isTestnetPrivKey()))
             return PrivateKey;
     }
 
-    CashAddress::Content c = CashAddress::decodeCashAddrContent(s, "bitcoincash");
+    static const char *prefix = [] {
+        switch (s_chain) {
+        case P2PNet::MainChain: return "bitcoincash";
+        case P2PNet::Testnet4Chain:
+        default: return "bchtest";
+        }
+    }();
+    CashAddress::Content c = CashAddress::decodeCashAddrContent(s, prefix);
     if (!c.hash.empty()) {
         if (c.type == CashAddress::PUBKEY_TYPE)
             return CashPKH;
@@ -357,14 +379,7 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
 void FloweePay::createNewWallet(const QString &walletName)
 {
     auto wallet = createWallet(walletName);
-    static int minStartBlock = [] {
-        switch (s_chain) {
-        case P2PNet::MainChain: return 636000;
-        case P2PNet::Testnet4Chain: return 13000;
-        default: return 0;
-        }
-    }();
-    wallet->createNewPrivateKey(std::max(minStartBlock, m_downloadManager->blockHeight()));
+    wallet->createNewPrivateKey(walletStartHeightHint());
 }
 
 QString FloweePay::unitName() const
