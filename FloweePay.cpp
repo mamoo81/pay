@@ -357,7 +357,13 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
 void FloweePay::createNewWallet(const QString &walletName)
 {
     auto wallet = createWallet(walletName);
-    static int minStartBlock = (s_chain == P2PNet::MainChain) ? 636000 : 13000;
+    static int minStartBlock = [] {
+        switch (s_chain) {
+        case P2PNet::MainChain: return 636000;
+        case P2PNet::Testnet4Chain: return 13000;
+        default: return 0;
+        }
+    }();
     wallet->createNewPrivateKey(std::max(minStartBlock, m_downloadManager->blockHeight()));
 }
 
