@@ -43,7 +43,6 @@ constexpr int BYTES_PER_OUTPUT = 149;
 /*
  * TODO
  *
- * - Make the mempool based addTransaction also do something.
  * - the wallet should allow a simple encryption of the private keys based on a passphrase
  *   The loading would then skip over the private keys, we need a separate loading for when we need signing.
  *
@@ -83,7 +82,16 @@ enum SaveTags {
     KeyStoreIndex, // int that refers to the index of the privkey.
 
     LastSynchedBlock,
-    WalletName
+    WalletName,
+
+    /// Used after InputIndex to mark the lock-state of an input.
+    InputLockState // positive number, see InputLockStateEnum
+};
+
+enum InputLockStateEnum {
+    Unlocked = 0, // default value when not saved
+    AutoLocked,   // Locked due to it being spent. Locked until mined.
+    UserLocked    // User locked this output
 };
 
 // helper method for sortTransactions
@@ -161,6 +169,100 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
     rebuildBloom();
 }
 
+Wallet::~Wallet()
+{
+    // these return instantly if nothing has to be saved.
+    saveSecrets();
+    saveWallet();
+}
+
+Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid)
+{
+    WalletTransaction wtx;
+    wtx.txid = txid;
+
+    OutputRef prevTx;
+    int inputIndex = -1;
+    int outputIndex = -1;
+    Output output;
+    logDebug() << "new tx." << wtx.txid;
+    Tx::Iterator iter(tx);
+    while (iter.next() != Tx::End) {
+        if (iter.tag() == Tx::PrevTxHash) {
+            ++inputIndex;
+            auto i = m_txidCash.find(iter.uint256Data());
+            prevTx.setTxIndex((i != m_txidCash.end()) ? i->second : 0);
+            if (i != m_txidCash.end())
+                logDebug() << "  Input:" << inputIndex << "prevTx:" << iter.uint256Data() << Log::Hex << i->second << prevTx.encoded();
+        } else  if (iter.tag() == Tx::PrevTxIndex) {
+            if (prevTx.txIndex() > 0) { // we know the prevTx
+                assert(iter.longData() < 0xFFFF); // it would break our scheme
+                prevTx.setOutputIndex(iter.intData());
+
+                auto utxo = m_unspentOutputs.find(prevTx.encoded());
+                if (utxo != m_unspentOutputs.end()) {
+                    // input is spending one of our UTXOs
+                    logDebug() << "   -> spent UTXO";
+                    wtx.inputToWTX.insert(std::make_pair(inputIndex, prevTx.encoded()));
+                }
+            }
+        }
+        else if (iter.tag() == Tx::OutputValue) {
+            ++outputIndex;
+            output.value = iter.longData();
+        }
+        else if (iter.tag() == Tx::OutputScript) {
+            output.walletSecretId = findSecretFor(iter.byteData());
+            if (output.walletSecretId > 0) {
+                logDebug() << "   output"<< outputIndex << "pays to wallet id" << output.walletSecretId;
+                wtx.outputs.insert(std::make_pair(outputIndex, output));
+            }
+        }
+    }
+    return wtx;
+}
+
+void Wallet::newTransaction(const Tx &tx)
+{
+    {
+        QMutexLocker locker(&m_lock);
+        const uint256 txid = tx.createHash();
+        if (m_txidCash.find(txid) != m_txidCash.end()) // already known
+            return;
+
+        WalletTransaction wtx = createWalletTransactionFromTx(tx, txid);
+        if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
+            // no connection to our UTXOs
+            if (--m_bloomScore < 25)
+                rebuildBloom();
+            return;
+        }
+        wtx.minedBlockHeight = -1;
+
+        // Mark UTXOs locked that this tx spent to avoid double spending them.
+        for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
+            m_autoLockedOutputs.insert(i->second);
+        }
+
+        // insert new UTXOs
+        for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
+            uint64_t key = m_nextWalletTransactionId;
+            key <<= 16;
+            key += i->first;
+            logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
+            m_unspentOutputs.insert(std::make_pair(key, i->second.value));
+        }
+
+        // and remember the transaction
+        m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
+        m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
+        m_walletChanged = true;
+
+        logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "[unconfirmed]";
+    } // mutex scope
+    saveTransaction(tx);
+}
+
 void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions)
 {
     auto transactions = WalletPriv::sortTransactions(blockTransactions);
@@ -170,106 +272,95 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
         for (auto tx: transactions) {
+            const uint256 txid = tx.createHash();
             WalletTransaction wtx;
-            wtx.txid = tx.createHash();
+
+            auto oldTx = m_txidCash.find(txid);
+            if (oldTx == m_txidCash.end()) {
+                wtx = createWalletTransactionFromTx(tx, txid);
+                if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
+                    // no connection to our UTXOs
+                    if (--m_bloomScore < 25)
+                        rebuildBloom();
+                    continue;
+                }
+            } else {
+                // we already seen it before.
+                wtx = m_walletTransactions.find(oldTx->second)->second;
+                // check if the one we saw was unconfirmed or not.
+                if (wtx.minedBlockHeight >= 0)
+                    continue;
+            }
+            const bool wasUnconfirmed = wtx.minedBlockHeight == -1;
             wtx.minedBlock = header.createHash();
             wtx.minedBlockHeight = blockHeight;
 
-            Tx::Iterator iter(tx);
-            uint256 prevTxHash;
-            if (m_txidCash.find(wtx.txid) != m_txidCash.end()) // already known
-                continue;
-
-            OutputRef prevTx;
-            int inputIndex = -1;
-            int outputIndex = -1;
-            Output output;
-            logDebug() << "new tx." << wtx.txid;
-            while (iter.next() != Tx::End) {
-                if (iter.tag() == Tx::PrevTxHash) {
-                    ++inputIndex;
-                    auto i = m_txidCash.find(iter.uint256Data());
-                    prevTx.setTxIndex((i != m_txidCash.end()) ? i->second : 0);
-                    if (i != m_txidCash.end())
-                        logDebug() << "  Input:" << inputIndex << "prevTx:" << iter.uint256Data() << Log::Hex << i->second << prevTx.encoded();
-                } else  if (iter.tag() == Tx::PrevTxIndex) {
-                    if (prevTx.txIndex() > 0) { // we know the prevTx
-                        assert(iter.longData() < 0xFFFF); // it would break our scheme
-                        prevTx.setOutputIndex(iter.intData());
-
-                        auto utxo = m_unspentOutputs.find(prevTx.encoded());
-                        if (utxo != m_unspentOutputs.end()) {
-                            // input is spending one of our UTXOs
-                            logDebug() << "   -> spent UTXO";
-                            wtx.inputToWTX.insert(std::make_pair(inputIndex, prevTx.encoded()));
-                        }
-                    }
-                }
-                else if (iter.tag() == Tx::OutputValue) {
-                    ++outputIndex;
-                    output.value = iter.longData();
-                }
-                else if (iter.tag() == Tx::OutputScript) {
-                    output.walletSecretId = findSecretFor(iter.byteData());
-                    if (output.walletSecretId > 0) {
-                        logDebug() << "   output"<< outputIndex << "pays to wallet id" << output.walletSecretId;
-                        wtx.outputs.insert(std::make_pair(outputIndex, output));
-                    }
-                }
-            }
-
-            if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
-                // no connection to our UTXOs
-                if (--m_bloomScore < 25)
-                    rebuildBloom();
-                continue;
-            }
             // remove UTXOs this Tx spent
             for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
                 auto iter = m_unspentOutputs.find(i->second);
                 assert(iter != m_unspentOutputs.end()); // a double spend? With checked merkle-block? Thats...odd.
                 if (iter != m_unspentOutputs.end())
                     m_unspentOutputs.erase(iter);
-            }
 
-            for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
-                uint64_t key = m_nextWalletTransactionId;
-                key <<= 16;
-                key += i->first;
-                logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
-                m_unspentOutputs.insert(std::make_pair(key, i->second.value));
+                // unlock UTXOs
+                auto lockedIter = m_autoLockedOutputs.find(i->second);
+                if (lockedIter != m_autoLockedOutputs.end())
+                    m_autoLockedOutputs.erase(lockedIter);
             }
+            // TODO detect conflicting transactions here.
+            //    we need to then remove the outputs of that conflicting transaction.
+            //    maybe nice to remember it as "double-spent by txid"
+
+            if (!wasUnconfirmed) { // unconfirmed transactions already had their outputs added
+                // insert new UTXOs
+                for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
+                    uint64_t key = m_nextWalletTransactionId;
+                    key <<= 16;
+                    key += i->first;
+                    logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
+                    m_unspentOutputs.insert(std::make_pair(key, i->second.value));
+                }
+            }
+            // and remember the transaction
             m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
             m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
             m_walletChanged = true;
 
             logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "@" << blockHeight;
             transactionsToSave.push_back(tx);
+
         }
         assert(m_nextWalletTransactionId - firstNewTransaction == int(transactionsToSave.size()));
-    }
+    } // mutex scope
     if (!transactionsToSave.empty()) {
         emit utxosChanged();
         emit appendedTransactions(firstNewTransaction, transactionsToSave.size());
     }
 
     for (auto tx : transactionsToSave) { // save the Tx to disk.
-        QString dir("%1/%2/");
-        dir = dir.arg(QString::fromStdString(m_basedir.string()));
-        try {
-            const QString txid = QString::fromStdString(tx.createHash().ToString());
-            QString localdir = dir.arg(txid.left(2));
-            boost::filesystem::create_directories(localdir.toStdString());
-            QString filename = txid.mid(2);
-
-            std::ofstream txSaver;
-            txSaver.open((localdir + filename).toStdString());
-            txSaver.write(tx.data().begin(), tx.size());
-        } catch (const std::exception &e) {
-            logFatal() << "Could not store transaction" << e.what();
-        }
+        saveTransaction(tx);
     }
 }
+
+void Wallet::saveTransaction(const Tx &tx)
+{
+
+    QString dir("%1/%2/");
+    dir = dir.arg(QString::fromStdString(m_basedir.string()));
+    try {
+        const QString txid = QString::fromStdString(tx.createHash().ToString());
+        QString localdir = dir.arg(txid.left(2));
+        boost::filesystem::create_directories(localdir.toStdString());
+        QString filename = txid.mid(2);
+
+        std::ofstream txSaver;
+        txSaver.open((localdir + filename).toStdString());
+        txSaver.write(tx.data().begin(), tx.size());
+    } catch (const std::exception &e) {
+        logFatal() << "Could not store transaction" << e.what();
+    }
+}
+
 
 int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript)
 {
@@ -480,6 +571,8 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
     std::map<uint64_t, size_t> utxosBySize;
     unspentOutputs.reserve(m_unspentOutputs.size());
     for (auto iter = m_unspentOutputs.begin(); iter != m_unspentOutputs.end(); ++iter) {
+        if (m_autoLockedOutputs.find(iter->first) != m_autoLockedOutputs.end())
+            continue;
         UnspentOutput out;
         out.value = iter->second;
         out.outputRef = OutputRef(iter->first);
@@ -582,13 +675,6 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
 
     change = current.totalSats - current.fee - output;
     return current;
-}
-
-void Wallet::newTransaction(const Tx &tx)
-{
-    QMutexLocker locker(&m_lock);
-    // TODO
-    Q_UNUSED(tx);
 }
 
 void Wallet::setLastSynchedBlockHeight(int)
@@ -740,6 +826,7 @@ void Wallet::loadWallet()
     int inputIndex = -1;
     int outputIndex = -1;
     int tmp = 0;
+    InputLockStateEnum inputLock = Unlocked;
     Output output;
     QSet<int> newTx;
     while (parser.next() == Streaming::FoundTag) {
@@ -792,6 +879,11 @@ void Wallet::loadWallet()
         else if (parser.tag() == InputIndex) {
             inputIndex = parser.intData();
         }
+            // if (m_autoLockedOutputs.find(key) != m_autoLockedOutputs.end())
+        else if (parser.tag() == InputLockState) {
+            if (parser.intData() == AutoLocked || parser.intData() == UserLocked)
+                inputLock = static_cast<InputLockStateEnum>(parser.intData());
+        }
         else if (parser.tag() == InputSpendsTx) {
             tmp = parser.intData();
         }
@@ -801,7 +893,10 @@ void Wallet::loadWallet()
             assert(parser.longData() < 0xFFFF);
             OutputRef ref(tmp, parser.intData());
             wtx.inputToWTX.insert(std::make_pair(inputIndex, ref.encoded()));
+            if (inputLock == AutoLocked)
+                m_autoLockedOutputs.insert(ref.encoded());
             tmp = 0;
+            inputLock = Unlocked;
         }
         else if (parser.tag() == OutputIndex) {
             outputIndex = parser.intData();
@@ -832,6 +927,11 @@ void Wallet::loadWallet()
         auto iter = m_walletTransactions.find(index);
         assert(iter != m_walletTransactions.end());
 
+        if (iter->second.minedBlockHeight == -1) {
+            // this indicates it has not been mined
+            // Instead of removing the utxos, we lock them.
+
+        }
         // remove UTXOs this Tx spent
         for (auto i = iter->second.inputToWTX.begin(); i != iter->second.inputToWTX.end(); ++i) {
             auto utxo = m_unspentOutputs.find(i->second);
@@ -890,6 +990,8 @@ void Wallet::saveWallet()
             uint64_t key = i->second;
             int outIndex = static_cast<int>(key & 0xFF);
             key = key >> 16;
+            if (m_autoLockedOutputs.find(key) != m_autoLockedOutputs.end())
+                builder.add(InputLockState, AutoLocked);
 
             builder.add(InputSpendsTx, key);
             builder.add(InputSpendsOutput, outIndex);
@@ -926,7 +1028,8 @@ qint64 Wallet::balance() const
     QMutexLocker locker(&m_lock);
     uint64_t amount = 0;
     for (auto utxo : m_unspentOutputs) {
-        amount += utxo.second;
+        if (m_autoLockedOutputs.find(utxo.first) == m_autoLockedOutputs.end())
+            amount += utxo.second;
     }
     return amount;
 }

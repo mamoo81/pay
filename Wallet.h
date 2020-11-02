@@ -48,6 +48,7 @@ public:
      * This throws should there not be any data found.
      */
     Wallet(const boost::filesystem::path &basedir, uint16_t segmentId);
+    ~Wallet();
 
     class OutputRef {
     public:
@@ -94,6 +95,9 @@ public:
 
     /// return the current balance
     qint64 balance() const;
+
+    // ^ TODO split into confirmed and unconfirmend
+
     /// return the amount of UTXOs that hold money
     int unspentOutputCount() const;
     /// return the amount of UTXOs ever created for this account.
@@ -179,6 +183,9 @@ private:
         std::map<int, Output> outputs; // output-index to Output (only ones we can/could spend)
     };
 
+    WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid);
+    void saveTransaction(const Tx &tx);
+
     std::map<int, WalletTransaction> m_walletTransactions;
 
     typedef boost::unordered_map<uint256, int, HashShortener> TxIdCash;
@@ -186,6 +193,8 @@ private:
 
     // cache
     std::map<uint64_t, uint64_t> m_unspentOutputs; // composited output -> value (in sat).
+    // composited outputs that have been used in a transaction and should not be spent again.
+    std::set<uint64_t> m_autoLockedOutputs;
     boost::filesystem::path m_basedir;
 
     friend class WalletHistoryModel;

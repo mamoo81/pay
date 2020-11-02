@@ -20,11 +20,30 @@
 
 #include <QObject>
 
+#include <utils/primitives/key.h>
+
+struct ECC_State {
+    ECC_State() { ECC_Start(); }
+    ~ECC_State() { ECC_Stop(); }
+};
+
+class Wallet;
+
 class TestWallet : public QObject
 {
     Q_OBJECT
+
 private slots:
+    void cleanup(); // called after each testcase.
     void transactionOrdering();
+    void addingTransactions();
+    void saveTransaction();
+
+private:
+    std::unique_ptr<Wallet> createWallet();
+    std::unique_ptr<Wallet> openWallet();
+    QString m_dir;
+    const ECC_State m_state;
 };
 
 #endif
