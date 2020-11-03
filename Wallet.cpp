@@ -85,13 +85,20 @@ enum SaveTags {
     WalletName,
 
     /// Used after InputIndex to mark the lock-state of an input.
-    InputLockState // positive number, see InputLockStateEnum
+    InputLockState, // positive number, see InputLockStateEnum
+    InputLockAutoSpender // the tx that locked an output (index in m_walletTransactions
 };
 
 enum InputLockStateEnum {
     Unlocked = 0, // default value when not saved
     AutoLocked,   // Locked due to it being spent. Locked until mined.
     UserLocked    // User locked this output
+};
+
+enum SpecialBlockHeight {
+    Genesis = 0,
+    Unconfirmed = -1,   // a tx marked with this height is waiting to get confirmed
+    Rejected = -2       // a tx marked with this height can no longer be mined
 };
 
 // helper method for sortTransactions
@@ -237,11 +244,11 @@ void Wallet::newTransaction(const Tx &tx)
                 rebuildBloom();
             return;
         }
-        wtx.minedBlockHeight = -1;
+        wtx.minedBlockHeight = Unconfirmed;
 
         // Mark UTXOs locked that this tx spent to avoid double spending them.
         for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
-            m_autoLockedOutputs.insert(i->second);
+            m_autoLockedOutputs.insert(std::make_pair(i->second, m_nextWalletTransactionId));
         }
 
         // insert new UTXOs
@@ -267,6 +274,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
 {
     auto transactions = WalletPriv::sortTransactions(blockTransactions);
     std::deque<Tx> transactionsToSave;
+    std::set<int> ejectedTransactions;
     int firstNewTransaction;
     {
         QMutexLocker locker(&m_lock);
@@ -276,6 +284,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             WalletTransaction wtx;
 
             auto oldTx = m_txidCash.find(txid);
+            int walletTransactionId = m_nextWalletTransactionId;
             if (oldTx == m_txidCash.end()) {
                 wtx = createWalletTransactionFromTx(tx, txid);
                 if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
@@ -290,8 +299,9 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 // check if the one we saw was unconfirmed or not.
                 if (wtx.minedBlockHeight >= 0)
                     continue;
+                walletTransactionId = oldTx->second;
             }
-            const bool wasUnconfirmed = wtx.minedBlockHeight == -1;
+            const bool wasUnconfirmed = wtx.minedBlockHeight == Unconfirmed;
             wtx.minedBlock = header.createHash();
             wtx.minedBlockHeight = blockHeight;
 
@@ -304,12 +314,17 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
 
                 // unlock UTXOs
                 auto lockedIter = m_autoLockedOutputs.find(i->second);
-                if (lockedIter != m_autoLockedOutputs.end())
+                if (lockedIter != m_autoLockedOutputs.end()) {
+                    if (lockedIter->second != walletTransactionId) {
+                        // if this output was locked by another transaction then that means
+                        // that other transaction was rejected (double spent) since the
+                        // tx we are now processing made it into a block.
+                        // remember so we can process ejected transactions below.
+                        ejectedTransactions.insert(lockedIter->second);
+                    }
                     m_autoLockedOutputs.erase(lockedIter);
+                }
             }
-            // TODO detect conflicting transactions here.
-            //    we need to then remove the outputs of that conflicting transaction.
-            //    maybe nice to remember it as "double-spent by txid"
 
             if (!wasUnconfirmed) { // unconfirmed transactions already had their outputs added
                 // insert new UTXOs
@@ -322,15 +337,46 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 }
             }
             // and remember the transaction
-            m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
-            m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
+            if (oldTx == m_txidCash.end()) {
+                Q_ASSERT(walletTransactionId == m_nextWalletTransactionId);
+                m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
+                m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
+                transactionsToSave.push_back(tx);
+            }
             m_walletChanged = true;
 
             logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "@" << blockHeight;
-            transactionsToSave.push_back(tx);
-
         }
         assert(m_nextWalletTransactionId - firstNewTransaction == int(transactionsToSave.size()));
+
+        // In processing the transactions from a block we might find that one of our
+        // unconfirmed transactions ended up being rejected due to double spend.
+        // We need to update our internal book keeping and eject the transaction.
+        // We actually mark it Rejected (in the blockHeight).
+        for (auto ejectedTx : ejectedTransactions) {
+            auto tx = m_walletTransactions.find(ejectedTx);
+            Q_ASSERT(tx != m_walletTransactions.end());
+            logDebug() << "Confirmed transaction(s) in block" << blockHeight <<
+                          "made invalid transaction:" << ejectedTx << tx->second.txid;
+            auto &wtx = tx->second;
+            wtx.minedBlockHeight = Rejected;
+            // Any outputs we locked need to be unlocked
+            for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
+                auto iter = m_autoLockedOutputs.find(i->second);
+                if (iter != m_autoLockedOutputs.end() && iter->second == ejectedTx)
+                    m_autoLockedOutputs.erase(iter);
+            }
+            // Any UTXOs we created for this rejected Tx need to be removed
+            for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
+                uint64_t key = ejectedTx;
+                key <<= 16;
+                key += i->first;
+                auto utxo = m_unspentOutputs.find(key);
+                if (utxo != m_unspentOutputs.end())
+                    m_unspentOutputs.erase(utxo);
+            }
+        }
+
     } // mutex scope
     if (!transactionsToSave.empty()) {
         emit utxosChanged();
@@ -580,7 +626,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         Q_ASSERT(wtxIter != m_walletTransactions.end());
 
         int h = wtxIter->second.minedBlockHeight;
-        if (h == -1) {
+        if (h == Unconfirmed) {
             out.score = -10; // unconfirmed.
         } else {
             const int diff = currentBlockHeight - h;
@@ -827,6 +873,7 @@ void Wallet::loadWallet()
     int outputIndex = -1;
     int tmp = 0;
     InputLockStateEnum inputLock = Unlocked;
+    int autoLockId = -1;
     Output output;
     QSet<int> newTx;
     while (parser.next() == Streaming::FoundTag) {
@@ -879,10 +926,12 @@ void Wallet::loadWallet()
         else if (parser.tag() == InputIndex) {
             inputIndex = parser.intData();
         }
-            // if (m_autoLockedOutputs.find(key) != m_autoLockedOutputs.end())
         else if (parser.tag() == InputLockState) {
             if (parser.intData() == AutoLocked || parser.intData() == UserLocked)
                 inputLock = static_cast<InputLockStateEnum>(parser.intData());
+        }
+        else if (parser.tag() == InputLockAutoSpender) {
+            autoLockId = parser.intData();
         }
         else if (parser.tag() == InputSpendsTx) {
             tmp = parser.intData();
@@ -893,8 +942,8 @@ void Wallet::loadWallet()
             assert(parser.longData() < 0xFFFF);
             OutputRef ref(tmp, parser.intData());
             wtx.inputToWTX.insert(std::make_pair(inputIndex, ref.encoded()));
-            if (inputLock == AutoLocked)
-                m_autoLockedOutputs.insert(ref.encoded());
+            if (inputLock == AutoLocked && autoLockId != -1)
+                m_autoLockedOutputs.insert(std::make_pair(ref.encoded(), autoLockId));
             tmp = 0;
             inputLock = Unlocked;
         }
@@ -927,9 +976,17 @@ void Wallet::loadWallet()
         auto iter = m_walletTransactions.find(index);
         assert(iter != m_walletTransactions.end());
 
-        if (iter->second.minedBlockHeight == -1) {
+        if (iter->second.minedBlockHeight == Unconfirmed) {
             // this indicates it has not been mined
             // Instead of removing the utxos, we lock them.
+
+
+
+
+
+
+
+
 
         }
         // remove UTXOs this Tx spent
@@ -990,8 +1047,11 @@ void Wallet::saveWallet()
             uint64_t key = i->second;
             int outIndex = static_cast<int>(key & 0xFF);
             key = key >> 16;
-            if (m_autoLockedOutputs.find(key) != m_autoLockedOutputs.end())
+            auto lock = m_autoLockedOutputs.find(key);
+            if (lock != m_autoLockedOutputs.end()) {
                 builder.add(InputLockState, AutoLocked);
+                builder.add(InputLockAutoSpender, lock->second);
+            }
 
             builder.add(InputSpendsTx, key);
             builder.add(InputSpendsOutput, outIndex);

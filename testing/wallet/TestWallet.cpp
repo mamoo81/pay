@@ -91,6 +91,7 @@ void TestWallet::addingTransactions()
 
     // create a new transaction spending the above output and creating 3 outputs,
     // 2 for me one to a random address.
+    //   1000000 -> 200000, 500000 [and 290000 we send elsewhere]
     TransactionBuilder b2;
     b2.appendOutput(200000);
     b2.pushOutputPay2Address(wallet->nextChangeAddress());
@@ -113,7 +114,7 @@ void TestWallet::addingTransactions()
     QCOMPARE(wallet->balance(), 1000000);
     // add as unconfirmed
     wallet->newTransaction(t2);
-    QCOMPARE(wallet->balance(), 700000);
+    QCOMPARE(wallet->balance(), 200000 + 500000);
 
     // try to spend it again, if its properly locked, it will not get funded.
     funding = wallet->findInputsFor(990000, 1, t2.size(), change);
@@ -144,7 +145,8 @@ void TestWallet::addingTransactions()
     auto ref = funding.outputs.front();
     b4.appendInput(wallet->txid(ref), ref.outputIndex());
     auto output = wallet->txOutout(ref);
-    b4.appendOutput(output.outputValue - 10000);
+    QCOMPARE(output.outputValue, 200000);
+    b4.appendOutput(output.outputValue - 1673);
     b4.pushOutputPay2Address(wallet->nextChangeAddress());
     Tx t4 = b4.createTransaction(&pool);
 
@@ -154,7 +156,8 @@ void TestWallet::addingTransactions()
     list.clear();
     list.push_back(t4);
     wallet->newTransactions(dummyHeader, 2, list);
-    QCOMPARE(wallet->balance(), 490001 + 200000);
+    QCOMPARE(wallet->balance(), 200000 - 1673 // output from b4
+             + 500000);
 }
 
 void TestWallet::saveTransaction()

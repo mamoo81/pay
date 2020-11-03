@@ -194,7 +194,8 @@ private:
     // cache
     std::map<uint64_t, uint64_t> m_unspentOutputs; // composited output -> value (in sat).
     // composited outputs that have been used in a transaction and should not be spent again.
-    std::set<uint64_t> m_autoLockedOutputs;
+    // the 'value' is the WalletTransaction index that actually was responsible for locking it.
+    std::map<uint64_t, int> m_autoLockedOutputs;
     boost::filesystem::path m_basedir;
 
     friend class WalletHistoryModel;
