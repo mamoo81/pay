@@ -38,7 +38,6 @@ Pane {
             width: parent.width
             y: 20
 
-            /*
             ConfigItem {
                 id: accountConfigIcon
                 anchors.right: parent.right
@@ -51,12 +50,21 @@ Pane {
                     anchors.margins: -10
                     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                    onClicked: {
-                        console.log("clicked")
+                    onClicked: contextMenu.popup()
+
+                    Menu {
+                        id: contextMenu
+                        MenuItem {
+                            text: qsTr("Details")
+                            onTriggered: accountDetailsDialog.source = "./AccountDetails.qml";
+                        }
+                        /*
+                        MenuItem {
+                            text: qsTr("Rename")
+                        } */
                     }
                 }
             }
-            */
 
             GridLayout {
                 id: valueGrid

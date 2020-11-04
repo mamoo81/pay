@@ -153,6 +153,22 @@ ApplicationWindow {
             }
         }
     }
+    Loader {
+        id: accountDetailsDialog
+        onLoaded: {
+            item.account = portfolio.current
+            ControlColors.applySkin(item)
+            accountDetailsHandler.target = item
+        }
+        Connections {
+            id: accountDetailsHandler
+            function onVisibleChanged() {
+                if (!accountDetailsDialog.item.visible) {
+                    accountDetailsDialog.source = ""
+                }
+            }
+        }
+    }
 
     footer: Pane {
         contentWidth: parent.width

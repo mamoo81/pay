@@ -27,10 +27,4 @@ Label {
         return qsTr("%1 hours behind").arg(Math.ceil(hours));
     }
     font.italic: true
-
-    Text {
-        color: "red"
-        x: 200
-        text: syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
-    }
 }
