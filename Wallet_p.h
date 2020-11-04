@@ -15,15 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FLOWEE_WALLET_P_H
-#define FLOWEE_WALLET_P_H
+#ifndef WALLET_P_H
+#define WALLET_P_H
 
-#include <primitives/FastTransaction.h>
+#include <BroadcastTxData.h>
 
+#include <QObject>
 #include <QSet>
 #include <deque>
 #include <vector>
 
+class Wallet;
 
 namespace WalletPriv
 {
@@ -31,6 +33,33 @@ namespace WalletPriv
     // this method will make sure that we sort them so those that spend others
     // are sorted after the ones they spent.
     std::deque<Tx> sortTransactions(const std::deque<Tx> &in);
+}
+
+// this is used to broadcast transactions
+// see ConnectionManager::broadcastTransaction()
+class WalletInfoObject : public QObject, public BroadcastTxData
+{
+    Q_OBJECT
+public:
+    WalletInfoObject(Wallet *parent, int txIndex, const Tx &tx);
+    void txRejected(RejectReason reason, const std::string &message);
+    void sentOne();
+    uint16_t privSegment() const;
+
+    int txIndex() const;
+
+private slots:
+    // called 5 seonds after every request from a peer for data
+    void checkState();
+
+signals:
+    void finished(int txIndex, bool success);
+
+private:
+    const Wallet *m_wallet;
+    const int m_txIndex;
+    short m_sentPeerCount = 0;
+    short m_rejectedPeerCount = 0;
 };
 
 #endif

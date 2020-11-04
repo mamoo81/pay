@@ -33,6 +33,7 @@
 #include <QObject>
 
 class WalletUnspentOutputsModel;
+class WalletInfoObject;
 
 class Wallet : public QObject, public DataListenerInterface
 {
@@ -131,6 +132,9 @@ public:
     bool isSingleAddressWallet() const;
     void setSingleAddressWallet(bool isSingleAddressWallet);
 
+private slots:
+    void broadcastTxFinished(int txIndex, bool success);
+
 signals:
     void utxosChanged();
     void appendedTransactions(int firstNew, int count);
@@ -185,6 +189,7 @@ private:
 
     WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid);
     void saveTransaction(const Tx &tx);
+    Tx loadTransaction(const uint256 &txid, Streaming::BufferPool *pool = nullptr);
 
     std::map<int, WalletTransaction> m_walletTransactions;
 
@@ -201,6 +206,8 @@ private:
     friend class WalletHistoryModel;
 
     bool m_singleAddressWallet = false;
+
+    QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
 };
 
 #endif

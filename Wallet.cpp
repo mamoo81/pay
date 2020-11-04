@@ -29,6 +29,7 @@
 #include <FloweePay.h>
 #include <QFile>
 #include <QSet>
+#include <QTimer>
 
 // #define DEBUGUTXO
 
@@ -395,7 +396,6 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
 
 void Wallet::saveTransaction(const Tx &tx)
 {
-
     QString dir("%1/%2/");
     dir = dir.arg(QString::fromStdString(m_basedir.string()));
     try {
@@ -409,7 +409,25 @@ void Wallet::saveTransaction(const Tx &tx)
         txSaver.write(tx.data().begin(), tx.size());
     } catch (const std::exception &e) {
         logFatal() << "Could not store transaction" << e.what();
+        throw;
     }
+}
+
+Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool *pool)
+{
+    Q_ASSERT(pool);
+    QString path = QString::fromStdString(txid.ToString());
+    path.insert(2, '/');
+    path = QString::fromStdString(m_basedir.string()) + "/" + path;
+
+    QFile reader(path);
+    if (reader.open(QIODevice::ReadOnly)) {
+        pool->reserve(reader.size());
+        reader.read(pool->begin(), reader.size());
+        return Tx(pool->commit(reader.size()));
+    }
+    // return empty tx
+    return Tx();
 }
 
 
@@ -470,6 +488,17 @@ bool Wallet::isSingleAddressWallet() const
 void Wallet::setSingleAddressWallet(bool singleAddressWallet)
 {
     m_singleAddressWallet = singleAddressWallet;
+}
+
+void Wallet::broadcastTxFinished(int txIndex, bool success)
+{
+    for (int i = 0; i < m_broadcastingTransactions.size(); ++i) {
+        if (m_broadcastingTransactions.at(i)->txIndex() == txIndex) {
+            m_broadcastingTransactions.removeAt(i);
+            // TODO process the 'success' bool.
+            return;
+        }
+    }
 }
 
 QString Wallet::name() const
@@ -728,10 +757,40 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
     return current;
 }
 
-void Wallet::setLastSynchedBlockHeight(int)
+void Wallet::setLastSynchedBlockHeight(int height)
 {
     emit lastBlockSynchedChanged();
+
+    if (height == FloweePay::instance()->headerChainHeight()) {
+logCritical() << "Check if there are any transactions to rebroadcast";
+        // we are (again) up-to-date.
+        // Lets broadcast any transactions that have not yet been confirmed.
+        m_broadcastingTransactions.clear();
+        Streaming::BufferPool *pool = nullptr;
+
+        for (auto iter = m_walletTransactions.begin();
+             iter != m_walletTransactions.end(); ++iter) {
+
+            if (iter->second.minedBlockHeight == Unconfirmed) {
+                if (pool == nullptr) {
+                    logCritical() << "Starting to rebroadcast transactions";
+                    pool = new Streaming::BufferPool();
+                }
+
+                auto tx = loadTransaction(iter->second.txid, pool);
+                if (tx.data().size() > 64) {
+                    auto bc = std::make_shared<WalletInfoObject>(this, iter->first, tx);
+                    m_broadcastingTransactions.append(bc);
+                    FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(bc);
+                }
+                else {
+                    logCritical() << "Unconfirmed transaction could not be found on disk!";
+                }
+            }
+        }
+    }
 }
+
 
 PrivacySegment * Wallet::segment() const
 {
@@ -1139,4 +1198,50 @@ uint64_t Wallet::OutputRef::encoded() const
     answer <<= 16;
     answer += m_outputIndex;
     return answer;
+}
+
+
+// //////////////////////////////////////////////////
+
+WalletInfoObject::WalletInfoObject(Wallet *wallet, int txIndex, const Tx &tx)
+    : BroadcastTxData(tx),
+      m_wallet(wallet),
+      m_txIndex(txIndex)
+{
+    connect(this, SIGNAL(finished(int,bool)),
+            m_wallet, SLOT(broadcastTxFinished(int,bool)), Qt::QueuedConnection);
+}
+
+void WalletInfoObject::txRejected(RejectReason reason, const std::string &message)
+{
+    // reason is hinted using BroadcastTxData::RejectReason
+    logCritical() << "Transaction rejected" << reason << message;
+    ++m_rejectedPeerCount;
+}
+
+void WalletInfoObject::sentOne()
+{
+    if (++m_sentPeerCount >= 2) {
+        // if two peers requested the tx, then wait a bit and check on the status
+        QTimer::singleShot(5 * 1000, this, SLOT(checkState()));
+    }
+}
+
+void WalletInfoObject::checkState()
+{
+    if (m_sentPeerCount > 2) {
+        emit finished(m_txIndex, m_sentPeerCount - m_rejectedPeerCount >= 1);
+    }
+}
+
+int WalletInfoObject::txIndex() const
+{
+    return m_txIndex;
+}
+
+uint16_t WalletInfoObject::privSegment() const
+{
+    assert(m_wallet);
+    assert(m_wallet->segment());
+    return m_wallet->segment()->segmentId();
 }
