@@ -140,8 +140,6 @@ Pane {
         /*
           TODO;
            - have a fiat value input.
-
-           - Have an "Use all Available Funds (15 EUR)" button
         */
     }
 

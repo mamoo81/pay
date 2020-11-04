@@ -231,8 +231,10 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
 
 void Wallet::newTransaction(const Tx &tx)
 {
+    int firstNewTransaction;
     {
         QMutexLocker locker(&m_lock);
+        firstNewTransaction = m_nextWalletTransactionId;
         const uint256 txid = tx.createHash();
         if (m_txidCash.find(txid) != m_txidCash.end()) // already known
             return;
@@ -268,6 +270,9 @@ void Wallet::newTransaction(const Tx &tx)
         logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "[unconfirmed]";
     } // mutex scope
     saveTransaction(tx);
+
+    emit utxosChanged();
+    emit appendedTransactions(firstNewTransaction, 1);
 }
 
 void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions)

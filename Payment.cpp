@@ -78,7 +78,7 @@ void Payment::setTargetAddress(const QString &address)
         CBase58Data legacy;
         auto ok = legacy.SetString(m_address.toStdString());
         assert(ok);
-        assert(legacy.isMainnetPkh());
+        assert(legacy.isMainnetPkh() || legacy.isTestnetPkh());
         CashAddress::Content c;
         c.hash = legacy.data();
         c.type = CashAddress::PUBKEY_TYPE;
@@ -209,21 +209,15 @@ void Payment::sendTx()
 {
     if (!m_paymentOk)
         return;
-    /*
-     * TODO
-     *  - call to wallet to mark outputs locked and save tx.
-     */
 
     /*
      * Wallet:
-     *  * Add unspent-output as 'locked' when its spent but not confirmed.
-     *  * Have a new map for transactions we created (with outputs that are now locked)
-     *    and the blockheight we actually created it at.
      *  * Make the AccountInfo able to show these unconfirmed transactions so we
      *    can cancel one to free up the utxos.
-     *  * make sure that after a block came in we remove any transactions in that list
-     *    which can no longer confirm.
      */
+
+    // call to wallet to mark outputs locked and save tx.
+    m_wallet->newTransaction(m_tx);
 
     m_infoObject = std::make_shared<PaymentInfoObject>(this, m_tx);
     FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(m_infoObject);

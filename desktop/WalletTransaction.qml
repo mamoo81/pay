@@ -47,7 +47,12 @@ Item {
     Label {
         id: date
         anchors.top: mainLabel.bottom
-        text: model.date
+        text: {
+            var dat = model.date;
+            if (typeof dat === "undefined")
+                return qsTr("unconfirmed")
+            return dat
+        }
         opacity: 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8
     }

@@ -57,6 +57,8 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
     case MinedHeight:
         return QVariant(item.minedBlockHeight);
     case MinedDate: {
+        if (item.minedBlockHeight <= 0)
+            return QVariant();
         auto header = FloweePay::instance()->p2pNet()->blockchain().block(item.minedBlockHeight);
         auto format = QLocale::system().dateFormat(QLocale::ShortFormat);
         return QVariant(QDateTime::fromTime_t(header.nTime).toString(format));
