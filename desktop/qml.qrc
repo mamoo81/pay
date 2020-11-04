@@ -2,10 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>WalletTransaction.qml</file>
-        <file>WalletsOverview.qml</file>
         <file>NetView.qml</file>
         <file>BitcoinAmountLabel.qml</file>
-        <file>WalletFrame.qml</file>
         <file alias="FloweePay.png">../images/FloweePay.png</file>
         <file>SendTransactionPane.qml</file>
         <file>BitcoinValueField.qml</file>
