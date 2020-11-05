@@ -107,6 +107,7 @@ void FloweePay::init()
             if (parser.tag() == WalletId) {
                 try {
                     Wallet *w = new Wallet(m_basedir.toStdString(), parser.intData());
+                    w->moveToThread(thread());
                     dl->addDataListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
                     m_wallets.append(w);

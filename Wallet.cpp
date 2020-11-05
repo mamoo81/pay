@@ -30,6 +30,7 @@
 #include <QFile>
 #include <QSet>
 #include <QTimer>
+#include <QThread>
 
 // #define DEBUGUTXO
 
@@ -348,6 +349,11 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
                 m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
                 transactionsToSave.push_back(tx);
+            }
+            else { // update the old one with the new data.
+                auto wtxIter = m_walletTransactions.find(oldTx->second);
+                assert(wtxIter != m_walletTransactions.end());
+                wtxIter->second = wtx;
             }
             m_walletChanged = true;
 
