@@ -49,6 +49,8 @@ public:
     int txIndex() const;
 
 private slots:
+    // scheduled from a non-Qt thread to start a timer.
+    void startCheckState();
     // called 5 seonds after every request from a peer for data
     void checkState();
 

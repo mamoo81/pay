@@ -134,6 +134,8 @@ public:
 
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
+    /// find all not-yet-confirmed transactions and start a broadcast
+    void broadcastUnconfirmed();
 
 signals:
     void utxosChanged();
@@ -165,6 +167,7 @@ private:
 
     int m_nextWalletSecretId = 1;
     int m_nextWalletTransactionId = 1;
+    int m_lastBlockHeightSeen = 0;
     short m_bloomScore = 0;
     std::map<int, WalletSecret> m_walletSecrets;
 
@@ -189,7 +192,7 @@ private:
 
     WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid);
     void saveTransaction(const Tx &tx);
-    Tx loadTransaction(const uint256 &txid, Streaming::BufferPool *pool = nullptr);
+    Tx loadTransaction(const uint256 &txid, Streaming::BufferPool &pool);
 
     std::map<int, WalletTransaction> m_walletTransactions;
 

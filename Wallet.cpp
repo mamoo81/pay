@@ -419,23 +419,21 @@ void Wallet::saveTransaction(const Tx &tx)
     }
 }
 
-Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool *pool)
+Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool)
 {
-    Q_ASSERT(pool);
     QString path = QString::fromStdString(txid.ToString());
     path.insert(2, '/');
     path = QString::fromStdString(m_basedir.string()) + "/" + path;
 
     QFile reader(path);
     if (reader.open(QIODevice::ReadOnly)) {
-        pool->reserve(reader.size());
-        reader.read(pool->begin(), reader.size());
-        return Tx(pool->commit(reader.size()));
+        pool.reserve(reader.size());
+        reader.read(pool.begin(), reader.size());
+        return Tx(pool.commit(reader.size()));
     }
     // return empty tx
     return Tx();
 }
-
 
 int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript)
 {
@@ -498,10 +496,19 @@ void Wallet::setSingleAddressWallet(bool singleAddressWallet)
 
 void Wallet::broadcastTxFinished(int txIndex, bool success)
 {
+    QMutexLocker locker(&m_lock);
     for (int i = 0; i < m_broadcastingTransactions.size(); ++i) {
         if (m_broadcastingTransactions.at(i)->txIndex() == txIndex) {
             m_broadcastingTransactions.removeAt(i);
-            // TODO process the 'success' bool.
+
+            if (!success) {
+                auto wtx = m_walletTransactions.find(txIndex);
+                if (wtx != m_walletTransactions.end()) {
+                    logCritical() << "Marking transaction invalid";
+
+                    wtx->second.minedBlockHeight = Rejected;
+                }
+            }
             return;
         }
     }
@@ -765,38 +772,49 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
 
 void Wallet::setLastSynchedBlockHeight(int height)
 {
+    if (m_lastBlockHeightSeen == height)
+        return;
+    m_walletChanged = true;
+    m_lastBlockHeightSeen = height;
     emit lastBlockSynchedChanged();
 
     if (height == FloweePay::instance()->headerChainHeight()) {
-logCritical() << "Check if there are any transactions to rebroadcast";
-        // we are (again) up-to-date.
-        // Lets broadcast any transactions that have not yet been confirmed.
-        m_broadcastingTransactions.clear();
-        Streaming::BufferPool *pool = nullptr;
+        // start this in my own thread and free of mutex-locks
+        QTimer::singleShot(0, this, SLOT(broadcastUnconfirmed()));
+    }
+}
 
-        for (auto iter = m_walletTransactions.begin();
-             iter != m_walletTransactions.end(); ++iter) {
+void Wallet::broadcastUnconfirmed()
+{
+    Q_ASSERT(thread() == QThread::currentThread());
 
-            if (iter->second.minedBlockHeight == Unconfirmed) {
-                if (pool == nullptr) {
-                    logCritical() << "Starting to rebroadcast transactions";
-                    pool = new Streaming::BufferPool();
-                }
+    // we are (again) up-to-date.
+    // Lets broadcast any transactions that have not yet been confirmed.
+    QMutexLocker locker(&m_lock);
+    m_broadcastingTransactions.clear();
+    std::unique_ptr<Streaming::BufferPool> pool;
 
-                auto tx = loadTransaction(iter->second.txid, pool);
-                if (tx.data().size() > 64) {
-                    auto bc = std::make_shared<WalletInfoObject>(this, iter->first, tx);
-                    m_broadcastingTransactions.append(bc);
-                    FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(bc);
-                }
-                else {
-                    logCritical() << "Unconfirmed transaction could not be found on disk!";
-                }
+    for (auto iter = m_walletTransactions.begin();
+         iter != m_walletTransactions.end(); ++iter) {
+
+        if (iter->second.minedBlockHeight == Unconfirmed) {
+            if (pool.get() == nullptr)
+                pool.reset(new Streaming::BufferPool());
+
+            auto tx = loadTransaction(iter->second.txid, *pool);
+            if (tx.data().size() > 64) {
+                auto bc = std::make_shared<WalletInfoObject>(this, iter->first, tx);
+                bc->moveToThread(thread());
+                logDebug() << "  broadcasting transaction" << tx.createHash() << tx.size();
+                m_broadcastingTransactions.append(bc);
+                FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(bc);
+            }
+            else {
+                logCritical() << "Unconfirmed transaction could not be found on disk!";
             }
         }
     }
 }
-
 
 PrivacySegment * Wallet::segment() const
 {
@@ -1052,7 +1070,7 @@ void Wallet::loadWallet()
         if (iter->second.minedBlockHeight == Unconfirmed) {
             // this indicates it has not been mined
             // Instead of removing the utxos, we lock them.
-
+            // TODO
 
 
 
@@ -1231,14 +1249,23 @@ void WalletInfoObject::txRejected(RejectReason reason, const std::string &messag
 void WalletInfoObject::sentOne()
 {
     if (++m_sentPeerCount >= 2) {
-        // if two peers requested the tx, then wait a bit and check on the status
-        QTimer::singleShot(5 * 1000, this, SLOT(checkState()));
+        // Two stage singleshots. First (Qt requires that to be zero ms) to move
+        // to a thread that Qt owns.
+        // Second (in startCheckState()) to actually wait several seconds.
+        QTimer::singleShot(0, this, SLOT(startCheckState()));
     }
+}
+
+void WalletInfoObject::startCheckState()
+{
+    Q_ASSERT(thread() == QThread::currentThread());
+    QTimer::singleShot(5 * 1000, this, SLOT(checkState()));
 }
 
 void WalletInfoObject::checkState()
 {
-    if (m_sentPeerCount > 2) {
+    Q_ASSERT(thread() == QThread::currentThread());
+    if (m_sentPeerCount >= 2) {
         emit finished(m_txIndex, m_sentPeerCount - m_rejectedPeerCount >= 1);
     }
 }
