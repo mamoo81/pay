@@ -107,6 +107,7 @@ Pane {
             SyncIndicator {
                 accountBlockHeight: root.account === null ? 0 : root.account.lastBlockSynched
                 anchors.horizontalCenter: parent.horizontalCenter
+                visible: globalPos !== accountBlockHeight
             }
 
             Item { width: 1; height: 10 } // spacer
