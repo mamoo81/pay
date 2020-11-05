@@ -946,6 +946,7 @@ void Wallet::loadWallet()
     int autoLockId = -1;
     Output output;
     QSet<int> newTx;
+    int highestBlockHeight = 0;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == Separator) {
             assert(index > 0);
@@ -991,7 +992,7 @@ void Wallet::loadWallet()
         }
         else if (parser.tag() == BlockHeight) {
             wtx.minedBlockHeight = parser.intData();
-            m_segment->blockSynched(wtx.minedBlockHeight);
+            highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
         else if (parser.tag() == InputIndex) {
             inputIndex = parser.intData();
@@ -1035,10 +1036,12 @@ void Wallet::loadWallet()
             m_name = QString::fromUtf8(parser.stringData().c_str(), parser.dataLength());
         }
         else if (parser.tag() == LastSynchedBlock) {
-            logFatal() << "last Block Sync" << parser.intData();
-            m_segment->blockSynched(parser.intData());
-            m_segment->blockSynched(parser.intData()); // yes, twice.
+            highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
+    }
+    if (highestBlockHeight > 0) {
+        m_segment->blockSynched(highestBlockHeight);
+        m_segment->blockSynched(highestBlockHeight); // yes, twice.
     }
 
     // after inserting all outputs during load, now remove all inputs these tx's spent.
