@@ -957,25 +957,14 @@ void Wallet::loadWallet()
         auto iter = m_walletTransactions.find(index);
         assert(iter != m_walletTransactions.end());
 
-        if (iter->second.minedBlockHeight == WalletPriv::Unconfirmed) {
-            // this indicates it has not been mined
-            // Instead of removing the utxos, we lock them.
-            // TODO
-
-
-
-
-
-
-
-
-        }
-        // remove UTXOs this Tx spent
-        for (auto i = iter->second.inputToWTX.begin(); i != iter->second.inputToWTX.end(); ++i) {
-            auto utxo = m_unspentOutputs.find(i->second);
-            assert(utxo != m_unspentOutputs.end()); // Loading should be done in-order to avoid this.
-            if (utxo != m_unspentOutputs.end())
-                m_unspentOutputs.erase(utxo);
+        if (iter->second.minedBlockHeight != WalletPriv::Unconfirmed) {
+            // remove UTXOs this Tx spent
+            for (auto i = iter->second.inputToWTX.begin(); i != iter->second.inputToWTX.end(); ++i) {
+                auto utxo = m_unspentOutputs.find(i->second);
+                assert(utxo != m_unspentOutputs.end()); // Loading should be done in-order to avoid this.
+                if (utxo != m_unspentOutputs.end())
+                    m_unspentOutputs.erase(utxo);
+            }
         }
     }
 
