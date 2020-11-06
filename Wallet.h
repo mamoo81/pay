@@ -32,7 +32,6 @@
 #include <QString>
 #include <QObject>
 
-class WalletUnspentOutputsModel;
 class WalletInfoObject;
 
 class Wallet : public QObject, public DataListenerInterface

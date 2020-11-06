@@ -49,6 +49,7 @@ set (PAY_SOURCES
     Payment.cpp
     PortfolioDataProvider.cpp
     Wallet.cpp
+    Wallet_support.cpp
     WalletHistoryModel.cpp
 )
 

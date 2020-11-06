@@ -29,10 +29,53 @@ class Wallet;
 
 namespace WalletPriv
 {
-    // we may have transactions that spend outputs created within the same block.
-    // this method will make sure that we sort them so those that spend others
-    // are sorted after the ones they spent.
-    std::deque<Tx> sortTransactions(const std::deque<Tx> &in);
+// we may have transactions that spend outputs created within the same block.
+// this method will make sure that we sort them so those that spend others
+// are sorted after the ones they spent.
+std::deque<Tx> sortTransactions(const std::deque<Tx> &in);
+
+enum SaveTags {
+    Separator = 0,
+    Index,
+    PrivKey,
+    PrivKeyEncrypted,
+    PubKeyHash,
+    HeightCreated, // for an address / privkey this is used to check which blocks to query
+
+    IsSingleAddressWallet, // bool
+
+    TxId = 15,
+    BlockHash,
+    BlockHeight,
+
+    InputIndex,
+    InputSpendsTx, // int that refers to index of the WTX it spends
+    InputSpendsOutput, // input that refers to the output in the WTX it spends
+
+    OutputIndex,
+    OutputValue, // in Satoshi
+    KeyStoreIndex, // int that refers to the index of the privkey.
+
+    LastSynchedBlock,
+    WalletName,
+
+    /// Used after InputIndex to mark the lock-state of an input.
+    InputLockState, // positive number, see InputLockStateEnum
+    InputLockAutoSpender // the tx that locked an output (index in m_walletTransactions
+};
+
+enum InputLockStateEnum {
+    Unlocked = 0, // default value when not saved
+    AutoLocked,   // Locked due to it being spent. Locked until mined.
+    UserLocked    // User locked this output
+};
+
+enum SpecialBlockHeight {
+    Genesis = 0,
+    Unconfirmed = -1,   // a tx marked with this height is waiting to get confirmed
+    Rejected = -2       // a tx marked with this height can no longer be mined
+};
+
 }
 
 // this is used to broadcast transactions

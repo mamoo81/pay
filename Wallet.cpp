@@ -17,16 +17,14 @@
  */
 #include "Wallet.h"
 #include "Wallet_p.h"
+#include "FloweePay.h"
 
-#include <primitives/FastTransaction.h>
 #include <primitives/script.h>
 #include <streaming/BufferPool.h>
 #include <streaming/MessageBuilder.h>
 #include <streaming/MessageParser.h>
 #include <base58.h>
-#include <cashaddr.h>
 
-#include <FloweePay.h>
 #include <QFile>
 #include <QSet>
 #include <QTimer>
@@ -38,117 +36,9 @@
  * Fee estimation needs to know how much space is used per input.
  * 32 + 4 for the prevTx
  * Then 72 + 33 bytes for the signature and pub-key (+-1).
- * Using schnorr we can gain 8 bytes for the signature.
+ * Using schnorr we can gain 8 bytes for the signature (not included here).
  */
 constexpr int BYTES_PER_OUTPUT = 149;
-
-/*
- * TODO
- *
- * - the wallet should allow a simple encryption of the private keys based on a passphrase
- *   The loading would then skip over the private keys, we need a separate loading for when we need signing.
- *
- * - Saving should be done more log-file style so we are not too dependent on keeping things in memory.
- *   The fileformat means we can just save dozens of files each saving a series of transactions.
- *   Please note that order is still relevant for the UTXO!
- *
- * - each wallet should have some booleans
- *    - allow lookup through indexing-servers (i.e. introduce privacy-leak)
- *    - auto-create new addresses (i.e. user doesn't expect us to be restricted to one priv-key)
- *    - use HD wallet.  (i.e. we generate new addresses from one priv key only)
- *    - sign using schnorr
- */
-
-namespace {
-
-enum SaveTags {
-    Separator = 0,
-    Index,
-    PrivKey,
-    PrivKeyEncrypted,
-    PubKeyHash,
-    HeightCreated, // for an address / privkey this is used to check which blocks to query
-
-    IsSingleAddressWallet, // bool
-
-    TxId = 15,
-    BlockHash,
-    BlockHeight,
-
-    InputIndex,
-    InputSpendsTx, // int that refers to index of the WTX it spends
-    InputSpendsOutput, // input that refers to the output in the WTX it spends
-
-    OutputIndex,
-    OutputValue, // in Satoshi
-    KeyStoreIndex, // int that refers to the index of the privkey.
-
-    LastSynchedBlock,
-    WalletName,
-
-    /// Used after InputIndex to mark the lock-state of an input.
-    InputLockState, // positive number, see InputLockStateEnum
-    InputLockAutoSpender // the tx that locked an output (index in m_walletTransactions
-};
-
-enum InputLockStateEnum {
-    Unlocked = 0, // default value when not saved
-    AutoLocked,   // Locked due to it being spent. Locked until mined.
-    UserLocked    // User locked this output
-};
-
-enum SpecialBlockHeight {
-    Genesis = 0,
-    Unconfirmed = -1,   // a tx marked with this height is waiting to get confirmed
-    Rejected = -2       // a tx marked with this height can no longer be mined
-};
-
-// helper method for sortTransactions
-void copyTx(size_t index, std::deque<Tx> &answer, const std::vector<QSet<int> > &order, std::vector<bool> &done, const std::deque<Tx> &in) {
-    if (done.at(index))
-        return;
-    done[index] = true;
-    for (auto dependencies : order.at(index)) {
-        copyTx(dependencies, answer, order, done, in);
-    }
-    answer.push_back(in.at(index));
-}
-
-}
-
-
-// /////////////////////////////////////////////////
-
-std::deque<Tx> WalletPriv::sortTransactions(const std::deque<Tx> &in) {
-    if (in.size() < 2)
-        return in;
-    boost::unordered_map<uint256, int, HashShortener> txHashes;
-    for (size_t i = 0; i < in.size(); ++i) {
-        txHashes.insert(std::make_pair(in.at(i).createHash(), int(i)));
-    }
-    std::vector<QSet<int> > order;
-    order.reserve(in.size());
-    for (size_t i = 0; i < in.size(); ++i) {
-        Tx::Iterator iter(in.at(i));
-        QSet<int> depends;
-        for (auto input : Tx::findInputs(iter)) {
-            auto prev = txHashes.find(input.txid);
-            if (prev != txHashes.end()) {
-                depends.insert(prev->second);
-            }
-        }
-        order.push_back(depends);
-    }
-    std::vector<bool> done(in.size(), false);
-    std::deque<Tx> answer;
-    for (size_t i = 0; i < in.size(); ++i) {
-        copyTx(i, answer, order, done, in);
-    }
-    return answer;
-}
-
-
-// ////////////////////////////////////////////////////
 
 // static
 Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t segmentId, const QString &name)
@@ -248,7 +138,7 @@ void Wallet::newTransaction(const Tx &tx)
                 rebuildBloom();
             return;
         }
-        wtx.minedBlockHeight = Unconfirmed;
+        wtx.minedBlockHeight = WalletPriv::Unconfirmed;
 
         // Mark UTXOs locked that this tx spent to avoid double spending them.
         for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
@@ -308,7 +198,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                     continue;
                 walletTransactionId = oldTx->second;
             }
-            const bool wasUnconfirmed = wtx.minedBlockHeight == Unconfirmed;
+            const bool wasUnconfirmed = wtx.minedBlockHeight == WalletPriv::Unconfirmed;
             wtx.minedBlock = header.createHash();
             wtx.minedBlockHeight = blockHeight;
 
@@ -371,7 +261,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             logDebug() << "Confirmed transaction(s) in block" << blockHeight <<
                           "made invalid transaction:" << ejectedTx << tx->second.txid;
             auto &wtx = tx->second;
-            wtx.minedBlockHeight = Rejected;
+            wtx.minedBlockHeight = WalletPriv::Rejected;
             // Any outputs we locked need to be unlocked
             for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
                 auto iter = m_autoLockedOutputs.find(i->second);
@@ -506,7 +396,7 @@ void Wallet::broadcastTxFinished(int txIndex, bool success)
                 if (wtx != m_walletTransactions.end()) {
                     logCritical() << "Marking transaction invalid";
 
-                    wtx->second.minedBlockHeight = Rejected;
+                    wtx->second.minedBlockHeight = WalletPriv::Rejected;
                 }
             }
             return;
@@ -673,7 +563,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         Q_ASSERT(wtxIter != m_walletTransactions.end());
 
         int h = wtxIter->second.minedBlockHeight;
-        if (h == Unconfirmed) {
+        if (h == WalletPriv::Unconfirmed) {
             out.score = -10; // unconfirmed.
         } else {
             const int diff = currentBlockHeight - h;
@@ -797,7 +687,7 @@ void Wallet::broadcastUnconfirmed()
     for (auto iter = m_walletTransactions.begin();
          iter != m_walletTransactions.end(); ++iter) {
 
-        if (iter->second.minedBlockHeight == Unconfirmed) {
+        if (iter->second.minedBlockHeight == WalletPriv::Unconfirmed) {
             if (pool.get() == nullptr)
                 pool.reset(new Streaming::BufferPool());
 
@@ -881,28 +771,28 @@ void Wallet::loadSecrets()
     WalletSecret secret;
     int index = 0;
     while (parser.next() == Streaming::FoundTag) {
-        if (parser.tag() == Separator) {
+        if (parser.tag() == WalletPriv::Separator) {
             if (index > 0 && secret.address.size() > 0) {
                 m_walletSecrets.insert(std::make_pair(index, secret));
                 m_nextWalletSecretId = std::max(m_nextWalletSecretId, index);
             }
             secret = WalletSecret();
         }
-        else if (parser.tag() == Index) {
+        else if (parser.tag() == WalletPriv::Index) {
             index = parser.intData();
         }
-        else if (parser.tag() == PrivKey) {
+        else if (parser.tag() == WalletPriv::PrivKey) {
             auto d = parser.unsignedBytesData();
             secret.privKey.Set(d.begin(), d.end(), true);
         }
-        else if (parser.tag() == PubKeyHash) {
+        else if (parser.tag() == WalletPriv::PubKeyHash) {
             auto d = parser.bytesDataBuffer();
             secret.address = CKeyID(d.begin());
         }
-        else if (parser.tag() == HeightCreated) {
+        else if (parser.tag() == WalletPriv::HeightCreated) {
             secret.initialHeight = parser.intData();
         }
-        else if (parser.tag() == IsSingleAddressWallet) {
+        else if (parser.tag() == WalletPriv::IsSingleAddressWallet) {
             m_singleAddressWallet = parser.boolData();
         }
     }
@@ -918,16 +808,16 @@ void Wallet::saveSecrets()
     Streaming::BufferPool pool(m_walletSecrets.size() * 70);
     Streaming::MessageBuilder builder(pool);
     for (const auto &item : m_walletSecrets) {
-        builder.add(Index, item.first);
-        builder.addByteArray(PrivKey, item.second.privKey.begin(), item.second.privKey.size());
-        builder.addByteArray(PubKeyHash, item.second.address.begin(), item.second.address.size());
+        builder.add(WalletPriv::Index, item.first);
+        builder.addByteArray(WalletPriv::PrivKey, item.second.privKey.begin(), item.second.privKey.size());
+        builder.addByteArray(WalletPriv::PubKeyHash, item.second.address.begin(), item.second.address.size());
         if (item.second.initialHeight > 0)
-            builder.add(HeightCreated, item.second.initialHeight);
+            builder.add(WalletPriv::HeightCreated, item.second.initialHeight);
 
-        builder.add(Separator, true);
+        builder.add(WalletPriv::Separator, true);
     }
     if (m_singleAddressWallet)
-        builder.add(IsSingleAddressWallet, true);
+        builder.add(WalletPriv::IsSingleAddressWallet, true);
     auto data = builder.buffer();
 
     try {
@@ -960,13 +850,13 @@ void Wallet::loadWallet()
     int inputIndex = -1;
     int outputIndex = -1;
     int tmp = 0;
-    InputLockStateEnum inputLock = Unlocked;
+    WalletPriv::InputLockStateEnum inputLock = WalletPriv::Unlocked;
     int autoLockId = -1;
     Output output;
     QSet<int> newTx;
     int highestBlockHeight = 0;
     while (parser.next() == Streaming::FoundTag) {
-        if (parser.tag() == Separator) {
+        if (parser.tag() == WalletPriv::Separator) {
             assert(index > 0);
             assert(m_walletTransactions.find(index) == m_walletTransactions.end());
             assert(!wtx.inputToWTX.empty() || !wtx.outputs.empty());
@@ -999,61 +889,61 @@ void Wallet::loadWallet()
             outputIndex = -1;
             output = Output();
         }
-        else if (parser.tag() == Index) {
+        else if (parser.tag() == WalletPriv::Index) {
             index = parser.intData();
         }
-        else if (parser.tag() == TxId) {
+        else if (parser.tag() == WalletPriv::TxId) {
             wtx.txid = parser.uint256Data();
         }
-        else if (parser.tag() == BlockHash) {
+        else if (parser.tag() == WalletPriv::BlockHash) {
             wtx.minedBlock = parser.uint256Data();
         }
-        else if (parser.tag() == BlockHeight) {
+        else if (parser.tag() == WalletPriv::BlockHeight) {
             wtx.minedBlockHeight = parser.intData();
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
-        else if (parser.tag() == InputIndex) {
+        else if (parser.tag() == WalletPriv::InputIndex) {
             inputIndex = parser.intData();
         }
-        else if (parser.tag() == InputLockState) {
-            if (parser.intData() == AutoLocked || parser.intData() == UserLocked)
-                inputLock = static_cast<InputLockStateEnum>(parser.intData());
+        else if (parser.tag() == WalletPriv::InputLockState) {
+            if (parser.intData() == WalletPriv::AutoLocked || parser.intData() == WalletPriv::UserLocked)
+                inputLock = static_cast<WalletPriv::InputLockStateEnum>(parser.intData());
         }
-        else if (parser.tag() == InputLockAutoSpender) {
+        else if (parser.tag() == WalletPriv::InputLockAutoSpender) {
             autoLockId = parser.intData();
         }
-        else if (parser.tag() == InputSpendsTx) {
+        else if (parser.tag() == WalletPriv::InputSpendsTx) {
             tmp = parser.intData();
         }
-        else if (parser.tag() == InputSpendsOutput) {
+        else if (parser.tag() == WalletPriv::InputSpendsOutput) {
             assert(inputIndex >= 0);
             assert(tmp != 0);
             assert(parser.longData() < 0xFFFF);
             OutputRef ref(tmp, parser.intData());
             wtx.inputToWTX.insert(std::make_pair(inputIndex, ref.encoded()));
-            if (inputLock == AutoLocked && autoLockId != -1)
+            if (inputLock == WalletPriv::AutoLocked && autoLockId != -1)
                 m_autoLockedOutputs.insert(std::make_pair(ref.encoded(), autoLockId));
             tmp = 0;
-            inputLock = Unlocked;
+            inputLock = WalletPriv::Unlocked;
         }
-        else if (parser.tag() == OutputIndex) {
+        else if (parser.tag() == WalletPriv::OutputIndex) {
             outputIndex = parser.intData();
         }
-        else if (parser.tag() == OutputValue) {
+        else if (parser.tag() == WalletPriv::OutputValue) {
             output.value = parser.longData();
         }
-        else if (parser.tag() == KeyStoreIndex) {
+        else if (parser.tag() == WalletPriv::KeyStoreIndex) {
             assert(outputIndex >= 0);
             assert(output.value > 0);
             output.walletSecretId = parser.intData();
             wtx.outputs.insert(std::make_pair(outputIndex, output));
             outputIndex = -1;
         }
-        else if (parser.tag() == WalletName) {
+        else if (parser.tag() == WalletPriv::WalletName) {
             assert(parser.isString());
             m_name = QString::fromUtf8(parser.stringData().c_str(), parser.dataLength());
         }
-        else if (parser.tag() == LastSynchedBlock) {
+        else if (parser.tag() == WalletPriv::LastSynchedBlock) {
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
     }
@@ -1067,7 +957,7 @@ void Wallet::loadWallet()
         auto iter = m_walletTransactions.find(index);
         assert(iter != m_walletTransactions.end());
 
-        if (iter->second.minedBlockHeight == Unconfirmed) {
+        if (iter->second.minedBlockHeight == WalletPriv::Unconfirmed) {
             // this indicates it has not been mined
             // Instead of removing the utxos, we lock them.
             // TODO
@@ -1129,33 +1019,33 @@ void Wallet::saveWallet()
     Streaming::BufferPool pool(m_walletTransactions.size() * 110 + m_name.size() * 3 + 100);
     Streaming::MessageBuilder builder(pool);
     for (const auto &item : m_walletTransactions) {
-        builder.add(Index, item.first);
-        builder.add(TxId, item.second.txid);
-        builder.add(BlockHash, item.second.minedBlock);
-        builder.add(BlockHeight, item.second.minedBlockHeight);
+        builder.add(WalletPriv::Index, item.first);
+        builder.add(WalletPriv::TxId, item.second.txid);
+        builder.add(WalletPriv::BlockHash, item.second.minedBlock);
+        builder.add(WalletPriv::BlockHeight, item.second.minedBlockHeight);
         for (auto i = item.second.inputToWTX.begin(); i != item.second.inputToWTX.end(); ++i) {
-            builder.add(InputIndex, i->first);
+            builder.add(WalletPriv::InputIndex, i->first);
             uint64_t key = i->second;
             int outIndex = static_cast<int>(key & 0xFF);
             key = key >> 16;
             auto lock = m_autoLockedOutputs.find(key);
             if (lock != m_autoLockedOutputs.end()) {
-                builder.add(InputLockState, AutoLocked);
-                builder.add(InputLockAutoSpender, lock->second);
+                builder.add(WalletPriv::InputLockState, WalletPriv::AutoLocked);
+                builder.add(WalletPriv::InputLockAutoSpender, lock->second);
             }
 
-            builder.add(InputSpendsTx, key);
-            builder.add(InputSpendsOutput, outIndex);
+            builder.add(WalletPriv::InputSpendsTx, key);
+            builder.add(WalletPriv::InputSpendsOutput, outIndex);
         }
         for (auto i = item.second.outputs.begin(); i != item.second.outputs.end(); ++i) {
-            builder.add(OutputIndex, i->first);
-            builder.add(OutputValue, i->second.value);
-            builder.add(KeyStoreIndex, i->second.walletSecretId);
+            builder.add(WalletPriv::OutputIndex, i->first);
+            builder.add(WalletPriv::OutputValue, i->second.value);
+            builder.add(WalletPriv::KeyStoreIndex, i->second.walletSecretId);
         }
-        builder.add(Separator, true);
+        builder.add(WalletPriv::Separator, true);
     }
-    builder.add(LastSynchedBlock, m_segment->lastBlockSynched());
-    builder.add(WalletName, m_name.toUtf8().toStdString());
+    builder.add(WalletPriv::LastSynchedBlock, m_segment->lastBlockSynched());
+    builder.add(WalletPriv::WalletName, m_name.toUtf8().toStdString());
 
     auto data = builder.buffer();
 
@@ -1199,85 +1089,4 @@ int Wallet::historicalOutputCount() const
         count += wtx.second.outputs.size();
     }
     return count;
-}
-
-Wallet::OutputRef::OutputRef(uint64_t encoded)
-{
-    m_outputIndex = encoded & 0xFFFF;
-    encoded >>= 16;
-    assert(encoded < 0xEFFFFFFF);
-    m_txid = encoded;
-    assert(m_txid >= 0);
-}
-
-Wallet::OutputRef::OutputRef(int txIndex, int outputIndex)
-    : m_txid(txIndex),
-      m_outputIndex(outputIndex)
-{
-    assert(txIndex >= 0); // zero is the 'invalid' state, which is valid here...
-    assert(outputIndex >= 0);
-    assert(outputIndex < 0XFFFF);
-}
-
-uint64_t Wallet::OutputRef::encoded() const
-{
-    uint64_t answer = m_txid;
-    answer <<= 16;
-    answer += m_outputIndex;
-    return answer;
-}
-
-
-// //////////////////////////////////////////////////
-
-WalletInfoObject::WalletInfoObject(Wallet *wallet, int txIndex, const Tx &tx)
-    : BroadcastTxData(tx),
-      m_wallet(wallet),
-      m_txIndex(txIndex)
-{
-    connect(this, SIGNAL(finished(int,bool)),
-            m_wallet, SLOT(broadcastTxFinished(int,bool)), Qt::QueuedConnection);
-}
-
-void WalletInfoObject::txRejected(RejectReason reason, const std::string &message)
-{
-    // reason is hinted using BroadcastTxData::RejectReason
-    logCritical() << "Transaction rejected" << reason << message;
-    ++m_rejectedPeerCount;
-}
-
-void WalletInfoObject::sentOne()
-{
-    if (++m_sentPeerCount >= 2) {
-        // Two stage singleshots. First (Qt requires that to be zero ms) to move
-        // to a thread that Qt owns.
-        // Second (in startCheckState()) to actually wait several seconds.
-        QTimer::singleShot(0, this, SLOT(startCheckState()));
-    }
-}
-
-void WalletInfoObject::startCheckState()
-{
-    Q_ASSERT(thread() == QThread::currentThread());
-    QTimer::singleShot(5 * 1000, this, SLOT(checkState()));
-}
-
-void WalletInfoObject::checkState()
-{
-    Q_ASSERT(thread() == QThread::currentThread());
-    if (m_sentPeerCount >= 2) {
-        emit finished(m_txIndex, m_sentPeerCount - m_rejectedPeerCount >= 1);
-    }
-}
-
-int WalletInfoObject::txIndex() const
-{
-    return m_txIndex;
-}
-
-uint16_t WalletInfoObject::privSegment() const
-{
-    assert(m_wallet);
-    assert(m_wallet->segment());
-    return m_wallet->segment()->segmentId();
 }
