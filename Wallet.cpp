@@ -39,6 +39,7 @@
  * Using schnorr we can gain 8 bytes for the signature (not included here).
  */
 constexpr int BYTES_PER_OUTPUT = 149;
+const int MATURATION_AGE  = 100; // the amount of blocks a coinbase takes before we can spend it
 
 // static
 Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t segmentId, const QString &name)
@@ -75,7 +76,7 @@ Wallet::~Wallet()
     saveWallet();
 }
 
-Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid)
+Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid) const
 {
     WalletTransaction wtx;
     wtx.txid = txid;
@@ -88,11 +89,16 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
     Tx::Iterator iter(tx);
     while (iter.next() != Tx::End) {
         if (iter.tag() == Tx::PrevTxHash) {
-            ++inputIndex;
-            auto i = m_txidCash.find(iter.uint256Data());
-            prevTx.setTxIndex((i != m_txidCash.end()) ? i->second : 0);
-            if (i != m_txidCash.end())
-                logDebug() << "  Input:" << inputIndex << "prevTx:" << iter.uint256Data() << Log::Hex << i->second << prevTx.encoded();
+            const uint256 prevTxhash = iter.uint256Data();
+            if (++inputIndex == 0)
+                wtx.isCoinbase = prevTxhash.IsNull();
+            if (!wtx.isCoinbase) {
+                auto i = m_txidCash.find(prevTxhash);
+                prevTx.setTxIndex((i != m_txidCash.end()) ? i->second : 0);
+                if (i != m_txidCash.end())
+                    logDebug() << "  Input:" << inputIndex << "prevTx:" << prevTxhash
+                               << Log::Hex << i->second << prevTx.encoded();
+            }
         } else  if (iter.tag() == Tx::PrevTxIndex) {
             if (prevTx.txIndex() > 0) { // we know the prevTx
                 assert(iter.longData() < 0xFFFF); // it would break our scheme
@@ -132,6 +138,7 @@ void Wallet::newTransaction(const Tx &tx)
             return;
 
         WalletTransaction wtx = createWalletTransactionFromTx(tx, txid);
+        Q_ASSERT(wtx.isCoinbase == false);
         if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
             // no connection to our UTXOs
             if (--m_bloomScore < 25)
@@ -325,7 +332,7 @@ Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool)
     return Tx();
 }
 
-int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript)
+int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
 {
     std::vector<std::vector<uint8_t> > vSolutions;
     Script::TxnOutType whichType;
@@ -543,7 +550,6 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
      * on medium-heavy usage.
      *
      *
-     *
      * As we assume the first items in the list of unspentOutputs are the oldest, all
      * we need to do is find the combination of inputs that works best.
      */
@@ -565,6 +571,10 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         int h = wtxIter->second.minedBlockHeight;
         if (h == WalletPriv::Unconfirmed) {
             out.score = -10; // unconfirmed.
+        } else if (wtxIter->second.isCoinbase
+                   && h + MATURATION_AGE >= m_lastBlockHeightSeen) {
+            // don't spend an immature coinbase
+            continue;
         } else {
             const int diff = currentBlockHeight - h;
             if (diff > 4024)
@@ -667,6 +677,7 @@ void Wallet::setLastSynchedBlockHeight(int height)
     m_walletChanged = true;
     m_lastBlockHeightSeen = height;
     emit lastBlockSynchedChanged();
+    emit utxosChanged(); // in case there was an immature coinbase, this updates the balance
 
     if (height == FloweePay::instance()->headerChainHeight()) {
         // start this in my own thread and free of mutex-locks
@@ -888,6 +899,7 @@ void Wallet::loadWallet()
             inputIndex = -1;
             outputIndex = -1;
             output = Output();
+            index = -1;
         }
         else if (parser.tag() == WalletPriv::Index) {
             index = parser.intData();
@@ -901,6 +913,9 @@ void Wallet::loadWallet()
         else if (parser.tag() == WalletPriv::BlockHeight) {
             wtx.minedBlockHeight = parser.intData();
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
+        }
+        else if (parser.tag() == WalletPriv::OutputFromCoinbase) {
+            wtx.isCoinbase = parser.boolData();
         }
         else if (parser.tag() == WalletPriv::InputIndex) {
             inputIndex = parser.intData();
@@ -1012,6 +1027,8 @@ void Wallet::saveWallet()
         builder.add(WalletPriv::TxId, item.second.txid);
         builder.add(WalletPriv::BlockHash, item.second.minedBlock);
         builder.add(WalletPriv::BlockHeight, item.second.minedBlockHeight);
+        if (item.second.isCoinbase)
+            builder.add(WalletPriv::OutputFromCoinbase, true);
         for (auto i = item.second.inputToWTX.begin(); i != item.second.inputToWTX.end(); ++i) {
             builder.add(WalletPriv::InputIndex, i->first);
             uint64_t key = i->second;
@@ -1057,7 +1074,13 @@ qint64 Wallet::balance() const
 {
     QMutexLocker locker(&m_lock);
     uint64_t amount = 0;
+    logFatal() << "balanace";
     for (auto utxo : m_unspentOutputs) {
+        auto wtx = m_walletTransactions.find(OutputRef(utxo.first).txIndex());
+        Q_ASSERT(wtx != m_walletTransactions.end());
+        if (wtx->second.isCoinbase
+                && wtx->second.minedBlockHeight + MATURATION_AGE > m_lastBlockHeightSeen)
+            continue;
         if (m_autoLockedOutputs.find(utxo.first) == m_autoLockedOutputs.end())
             amount += utxo.second;
     }

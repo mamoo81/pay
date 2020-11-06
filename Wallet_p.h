@@ -34,7 +34,7 @@ namespace WalletPriv
 // are sorted after the ones they spent.
 std::deque<Tx> sortTransactions(const std::deque<Tx> &in);
 
-enum SaveTags {
+enum PrivateSaveTags {
     Separator = 0,
     Index,
     PrivKey,
@@ -42,26 +42,32 @@ enum SaveTags {
     PubKeyHash,
     HeightCreated, // for an address / privkey this is used to check which blocks to query
 
-    IsSingleAddressWallet, // bool
+    IsSingleAddressWallet // bool
+};
 
-    TxId = 15,
+enum WalletDataSaveTags {
+    // Separator = 0
+    // Index = 1
+    LastSynchedBlock = 2,
+    WalletName,
+
+    // per tx-data
+    TxId = 10,
     BlockHash,
     BlockHeight,
 
     InputIndex,
-    InputSpendsTx, // int that refers to index of the WTX it spends
-    InputSpendsOutput, // input that refers to the output in the WTX it spends
-
-    OutputIndex,
-    OutputValue, // in Satoshi
-    KeyStoreIndex, // int that refers to the index of the privkey.
-
-    LastSynchedBlock,
-    WalletName,
+    InputSpendsTx,          // int that refers to index of the WTX it spends
+    InputSpendsOutput,      // input that refers to the output in the WTX it spends
 
     /// Used after InputIndex to mark the lock-state of an input.
-    InputLockState, // positive number, see InputLockStateEnum
-    InputLockAutoSpender // the tx that locked an output (index in m_walletTransactions
+    InputLockState,         // positive number, see InputLockStateEnum
+    InputLockAutoSpender,   // the tx that locked an output (index in m_walletTransactions
+
+    OutputIndex = 30,
+    OutputValue,            // in Satoshi
+    OutputFromCoinbase,     // bool
+    KeyStoreIndex,          // int that refers to the index of the privkey.
 };
 
 enum InputLockStateEnum {

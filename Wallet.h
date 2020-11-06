@@ -85,12 +85,16 @@ public:
     void newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions) override;
     // notify about unconfirmed Tx.
     void newTransaction(const Tx &tx) override;
+    /// Let the wallet know that it is up-to-date to \a height
     void setLastSynchedBlockHeight(int height) override;
 
     PrivacySegment *segment() const;
 
+    /// Create a new private key.
     void createNewPrivateKey(int currentBlockheight);
+    /// import an existing private key.
     bool addPrivateKey(const QString &privKey, int startBlockHeight);
+    /// Save changed in historical wallet
     void saveWallet();
 
     /// return the current balance
@@ -103,13 +107,19 @@ public:
     /// return the amount of UTXOs ever created for this account.
     int historicalOutputCount() const;
 
+    /// the user-visible name for the wallet.
     QString name() const;
+    /// set the user-visible name for the wallet.
     void setName(const QString &name);
 
+    /// Fetch UTXO txid
     const uint256 &txid(OutputRef ref) const;
+    /// Fetch UTXO output
     Tx::Output txOutout(OutputRef ref) const;
+    /// Fetch UTXO key
     const CKey &unlockKey(OutputRef ref) const;
 
+    /// Return the bitcoin address (160 bits ripe key) for change.
     CKeyID nextChangeAddress();
 
     struct OutputSet {
@@ -149,7 +159,7 @@ private:
     void loadSecrets();
     void saveSecrets();
 
-    int findSecretFor(const Streaming::ConstBuffer &outputScript);
+    int findSecretFor(const Streaming::ConstBuffer &outputScript) const;
 
     void rebuildBloom();
 
@@ -181,6 +191,7 @@ private:
         uint256 txid;
         uint256 minedBlock;
         int minedBlockHeight = 0;
+        bool isCoinbase = false;
 
         // One entry for inputs that spent outputs in this wallet.
         // The key is the input. They value is a composition of the output-index (lower 2 bytes)
@@ -189,7 +200,7 @@ private:
         std::map<int, Output> outputs; // output-index to Output (only ones we can/could spend)
     };
 
-    WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid);
+    WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid) const;
     void saveTransaction(const Tx &tx);
     Tx loadTransaction(const uint256 &txid, Streaming::BufferPool &pool);
 
