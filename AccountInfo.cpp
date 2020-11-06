@@ -26,6 +26,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
       m_wallet(wallet)
 {
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(balanceChanged()), this, SIGNAL(balanceChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
 }
 
@@ -34,9 +35,19 @@ int AccountInfo::id() const
     return m_wallet->segment()->segmentId();
 }
 
-double AccountInfo::balance() const
+double AccountInfo::balanceConfirmed() const
 {
-    return static_cast<double>(m_wallet->balance());
+    return static_cast<double>(m_wallet->balanceConfirmed());
+}
+
+double AccountInfo::balanceUnconfirmed() const
+{
+    return static_cast<double>(m_wallet->balanceUnconfirmed());
+}
+
+double AccountInfo::balanceImmature() const
+{
+    return static_cast<double>(m_wallet->balanceImmature());
 }
 
 int AccountInfo::unspentOutputCount() const

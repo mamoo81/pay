@@ -28,7 +28,9 @@ class AccountInfo : public QObject
 {
     Q_OBJECT
     /// The wallet amount
-    Q_PROPERTY(double balance READ balance NOTIFY utxosChanged)
+    Q_PROPERTY(double balanceConfirmed READ balanceConfirmed NOTIFY balanceChanged)
+    Q_PROPERTY(double balanceUnconfirmed READ balanceUnconfirmed NOTIFY balanceChanged)
+    Q_PROPERTY(double balanceImmature READ balanceImmature NOTIFY balanceChanged)
     Q_PROPERTY(int unspentOutputCount READ unspentOutputCount NOTIFY utxosChanged)
     Q_PROPERTY(int historicalOutputCount READ historicalOutputCount NOTIFY utxosChanged)
     Q_PROPERTY(int id READ id CONSTANT)
@@ -42,8 +44,14 @@ public:
     /// the wallet-ID (aka the privacysegments segment-id). Application-unique.
     int id() const;
 
-    /// return the current balance
-    double balance() const;
+    /// return the current balance, but only confirmed and spendable
+    double balanceConfirmed() const;
+
+    /// return the unconfirmed balance, only not yet confirmed outputs are counted
+    double balanceUnconfirmed() const;
+
+    /// Return the balanace of coinbases we are not allowed to spend yet
+    double balanceImmature() const;
 
     /// return the amount of UTXOs that hold money
     int unspentOutputCount() const;
@@ -61,6 +69,7 @@ public:
     bool isDefaultWallet();
 
 signals:
+    void balanceChanged();
     void utxosChanged();
     void nameChanged();
     void lastBlockSynchedChanged();

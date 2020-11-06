@@ -61,6 +61,24 @@ ApplicationWindow {
             onAccepted:  root.account.name = text
         }
         Label {
+            text: qsTr("Balance unconfirmed:")
+        }
+        Label {
+            text: root.account.balanceUnconfirmed
+        }
+        Label {
+            text: qsTr("Balance immature:")
+        }
+        Label {
+            text: root.account.balanceImmature
+        }
+        Label {
+            text: qsTr("Balance other:")
+        }
+        Label {
+            text: root.account.balanceConfirmed
+        }
+        Label {
             text: qsTr("Unspent coins:")
         }
         Label {

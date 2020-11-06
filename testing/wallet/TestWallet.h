@@ -38,6 +38,7 @@ private slots:
     void transactionOrdering();
     void addingTransactions();
     void saveTransaction();
+    void saveTransaction2();
 
 private:
     std::unique_ptr<Wallet> createWallet();

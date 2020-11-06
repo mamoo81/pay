@@ -72,13 +72,19 @@ void TestWallet::addingTransactions()
     b1.pushOutputPay2Address(wallet->nextChangeAddress());
     Streaming::BufferPool pool;
     Tx t1 = b1.createTransaction(&pool);
-    QCOMPARE(wallet->balance(), 0);
+    QCOMPARE(wallet->balanceConfirmed(), 0);
+    QCOMPARE(wallet->balanceUnconfirmed(), 0);
+    QCOMPARE(wallet->balanceImmature(), 0);
     wallet->newTransaction(t1);
-    QCOMPARE(wallet->balance(), 1000000);
+    QCOMPARE(wallet->balanceConfirmed(), 0);
+    QCOMPARE(wallet->balanceUnconfirmed(), 1000000);
+    QCOMPARE(wallet->balanceImmature(), 0);
 
     // adding again is ignored.
     wallet->newTransaction(t1);
-    QCOMPARE(wallet->balance(), 1000000);
+    QCOMPARE(wallet->balanceConfirmed(), 0);
+    QCOMPARE(wallet->balanceUnconfirmed(), 1000000);
+    QCOMPARE(wallet->balanceImmature(), 0);
 
     // now confirm it.
     std::deque<Tx> list;
@@ -86,7 +92,9 @@ void TestWallet::addingTransactions()
     BlockHeader dummyHeader;
     dummyHeader.hashMerkleRoot = uint256S("111"); // it needs to be non-zero
     wallet->newTransactions(dummyHeader, 1, list);
-    QCOMPARE(wallet->balance(), 1000000);
+    QCOMPARE(wallet->balanceConfirmed(), 1000000);
+    QCOMPARE(wallet->balanceUnconfirmed(), 0);
+    QCOMPARE(wallet->balanceImmature(), 0);
 
 
     // create a new transaction spending the above output and creating 3 outputs,
@@ -111,10 +119,14 @@ void TestWallet::addingTransactions()
         b2.pushInputSignature(wallet->unlockKey(ref), output.outputScript, output.outputValue);
     }
     Tx t2 = b2.createTransaction(&pool);
-    QCOMPARE(wallet->balance(), 1000000);
+    QCOMPARE(wallet->balanceConfirmed(), 1000000);
+    QCOMPARE(wallet->balanceUnconfirmed(), 0);
+    QCOMPARE(wallet->balanceImmature(), 0);
     // add as unconfirmed
     wallet->newTransaction(t2);
-    QCOMPARE(wallet->balance(), 200000 + 500000);
+    QCOMPARE(wallet->balanceConfirmed(), 0);
+    QCOMPARE(wallet->balanceUnconfirmed(), 200000 + 500000);
+    QCOMPARE(wallet->balanceImmature(), 0);
 
     // try to spend it again, if its properly locked, it will not get funded.
     funding = wallet->findInputsFor(990000, 1, t2.size(), change);
@@ -134,10 +146,14 @@ void TestWallet::addingTransactions()
     }
     Tx t3 = b3.createTransaction(&pool);
 
-    QCOMPARE(wallet->balance(), 700000);
+    QCOMPARE(wallet->balanceConfirmed(), 0);
+    QCOMPARE(wallet->balanceUnconfirmed(), 200000 + 500000);
+    QCOMPARE(wallet->balanceImmature(), 0);
     // add as unconfirmed
     wallet->newTransaction(t3);
-    QCOMPARE(wallet->balance(), 698700);
+    QCOMPARE(wallet->balanceConfirmed(), 0);
+    QCOMPARE(wallet->balanceUnconfirmed(), 698700);
+    QCOMPARE(wallet->balanceImmature(), 0);
 
     // Create a double spending transaction and spend one of the two UTXOs only
     TransactionBuilder b4;
@@ -152,12 +168,15 @@ void TestWallet::addingTransactions()
 
     // then add the double spend as confirmed.
     //   This should replace the previous one.
-    QCOMPARE(wallet->balance(), 698700);
+    QCOMPARE(wallet->balanceConfirmed(), 0);
+    QCOMPARE(wallet->balanceUnconfirmed(), 698700);
+    QCOMPARE(wallet->balanceImmature(), 0);
     list.clear();
     list.push_back(t4);
     wallet->newTransactions(dummyHeader, 2, list);
-    QCOMPARE(wallet->balance(), 200000 - 1673 // output from b4
-             + 500000);
+    QCOMPARE(wallet->balanceConfirmed(), 200000 - 1673); // output from b4 is confirmed
+    QCOMPARE(wallet->balanceImmature(), 0);
+    QCOMPARE(wallet->balanceUnconfirmed(), 500000);
 }
 
 void TestWallet::saveTransaction()
@@ -172,16 +191,22 @@ void TestWallet::saveTransaction()
         b1.appendOutput(1000000);
         b1.pushOutputPay2Address(wallet->nextChangeAddress());
         Tx t1 = b1.createTransaction(&pool);
-        QCOMPARE(wallet->balance(), 0);
+        QCOMPARE(wallet->balanceConfirmed(), 0);
+        QCOMPARE(wallet->balanceUnconfirmed(), 0);
+        QCOMPARE(wallet->balanceImmature(), 0);
         wallet->newTransaction(t1);
-        QCOMPARE(wallet->balance(), 1000000);
+        QCOMPARE(wallet->balanceConfirmed(), 0);
+        QCOMPARE(wallet->balanceUnconfirmed(), 1000000);
+        QCOMPARE(wallet->balanceImmature(), 0);
     }
 
     // check it saved (we have balance) and then
     // add an unconfirmed transaction spending our single UTXO
     {
         auto wallet = openWallet();
-        QCOMPARE(wallet->balance(), 1000000);
+        QCOMPARE(wallet->balanceConfirmed(), 0);
+        QCOMPARE(wallet->balanceUnconfirmed(), 1000000);
+        QCOMPARE(wallet->balanceImmature(), 0);
 
         TransactionBuilder b2;
         b2.appendOutput(200000);
@@ -199,17 +224,77 @@ void TestWallet::saveTransaction()
         b2.pushInputSignature(wallet->unlockKey(ref), output.outputScript, output.outputValue);
         Tx t2 = b2.createTransaction(&pool);
 
-        QCOMPARE(wallet->balance(), 1000000);
+        QCOMPARE(wallet->balanceConfirmed(), 0);
+        QCOMPARE(wallet->balanceUnconfirmed(), 1000000);
+        QCOMPARE(wallet->balanceImmature(), 0);
         // add as unconfirmed
         wallet->newTransaction(t2);
-        QCOMPARE(wallet->balance(), 200000);
+        QCOMPARE(wallet->balanceConfirmed(), 0);
+        QCOMPARE(wallet->balanceUnconfirmed(), 200000);
+        QCOMPARE(wallet->balanceImmature(), 0);
     }
 
     // we likely have both transactions, the question is if the output from the first,
-    // that is spent by the second, is locked and thus not counted in balance()
+    // that is spent by the second, is locked and thus not counted in balances
     {
         auto wallet = openWallet();
-        QCOMPARE(wallet->balance(), 200000);
+        QCOMPARE(wallet->balanceConfirmed(), 0);
+        QCOMPARE(wallet->balanceUnconfirmed(), 200000);
+        QCOMPARE(wallet->balanceImmature(), 0);
+    }
+}
+
+void TestWallet::saveTransaction2()
+{
+    Streaming::BufferPool pool;
+    // add a simple transaction and see if it saves.
+    {
+        auto wallet = createWallet();
+        TransactionBuilder b1;
+        b1.appendInput(uint256(), 0); // coinbase
+        b1.appendOutput(50);
+        b1.pushOutputPay2Address(wallet->nextChangeAddress());
+        Tx t1 = b1.createTransaction(&pool);
+        std::deque<Tx> list;
+        list.push_back(t1);
+        BlockHeader dummyHeader;
+        dummyHeader.hashMerkleRoot = uint256S("111"); // it needs to be non-zero
+        wallet->newTransactions(dummyHeader, 10, list);
+        QCOMPARE(wallet->balanceConfirmed(), 0);
+        QCOMPARE(wallet->balanceUnconfirmed(), 0);
+        QCOMPARE(wallet->balanceImmature(), 50);
+
+        TransactionBuilder b2;
+        b2.appendInput(uint256(), 0); // coinbase
+        b2.appendOutput(51);
+        b2.pushOutputPay2Address(wallet->nextChangeAddress());
+        Tx t2 = b2.createTransaction(&pool);
+        list[0] = t2;
+        wallet->newTransactions(dummyHeader, 50, list);
+        QCOMPARE(wallet->balanceConfirmed(), 0);
+        QCOMPARE(wallet->balanceUnconfirmed(), 0);
+        QCOMPARE(wallet->balanceImmature(), 101);
+
+        TransactionBuilder b3;
+        b3.appendInput(t1.createHash(), 0);
+        b3.appendOutput(40);
+        b3.pushOutputPay2Address(wallet->nextChangeAddress());
+        b3.appendOutput(10);
+        CKeyID id("666");
+        b3.pushOutputPay2Address(id);
+        Tx t3 = b3.createTransaction(&pool);
+        list[0] = t3;
+        wallet->newTransactions(dummyHeader, 140, list);
+        QCOMPARE(wallet->balanceConfirmed(), 40);
+        QCOMPARE(wallet->balanceUnconfirmed(), 0);
+        QCOMPARE(wallet->balanceImmature(), 51);
+    }
+
+    {
+        auto wallet = openWallet();
+        QCOMPARE(wallet->balanceConfirmed(), 40);
+        QCOMPARE(wallet->balanceUnconfirmed(), 0);
+        QCOMPARE(wallet->balanceImmature(), 51);
     }
 }
 

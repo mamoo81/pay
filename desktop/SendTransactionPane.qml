@@ -95,7 +95,7 @@ Pane {
                         // backup what the user typed there, to be used if she no longer wants 'max'
                         previousAmountString = bitcoinValueField.valueObject.enteredString;
                         // the usage of 'account' here assumes we are under the hierarchy of the AccountPage
-                        bitcoinValueField.value = account.balance
+                        bitcoinValueField.value = account.balanceConfirmed + account.balanceUnconfirmed
                     } else {
                         bitcoinValueField.valueObject.strValue = previousAmountString
                     }

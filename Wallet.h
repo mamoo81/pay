@@ -28,7 +28,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem.hpp>
 
-#include <QMutex>
+#include <QRecursiveMutex>
 #include <QString>
 #include <QObject>
 
@@ -97,10 +97,15 @@ public:
     /// Save changed in historical wallet
     void saveWallet();
 
-    /// return the current balance
-    qint64 balance() const;
-
-    // ^ TODO split into confirmed and unconfirmend
+    qint64 balanceConfirmed() const {
+        return m_balanceConfirmed;
+    }
+    qint64 balanceImmature() const {
+        return m_balanceImmature;
+    }
+    qint64 balanceUnconfirmed() const {
+        return m_balanceUnconfirmed;
+    }
 
     /// return the amount of UTXOs that hold money
     int unspentOutputCount() const;
@@ -145,8 +150,10 @@ private slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
     void broadcastUnconfirmed();
+    void recalculateBalance();
 
 signals:
+    void balanceChanged();
     void utxosChanged();
     void appendedTransactions(int firstNew, int count);
     void lastBlockSynchedChanged();
@@ -164,7 +171,7 @@ private:
     void rebuildBloom();
 
     std::unique_ptr<PrivacySegment> m_segment;
-    mutable QMutex m_lock;
+    mutable QRecursiveMutex m_lock;
     bool m_walletChanged = false;
     bool m_secretsChanged = false;
 
@@ -215,6 +222,10 @@ private:
     // the 'value' is the WalletTransaction index that actually was responsible for locking it.
     std::map<uint64_t, int> m_autoLockedOutputs;
     boost::filesystem::path m_basedir;
+
+    qint64 m_balanceConfirmed = 0;
+    qint64 m_balanceImmature = 0;
+    qint64 m_balanceUnconfirmed = 0;
 
     friend class WalletHistoryModel;
 

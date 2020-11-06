@@ -51,7 +51,7 @@ Pane {
                         Layout.fillWidth: true
                     }
                     Label {
-                        text: Flowee.priceToString(modelData.balance)
+                        text: Flowee.priceToString(modelData.balanceUnconfirmed + modelData.balanceConfirmed + modelData.balanceImmature)
                         Layout.alignment: Qt.AlignRight
                     }
                     Label {

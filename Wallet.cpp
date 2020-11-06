@@ -169,6 +169,7 @@ void Wallet::newTransaction(const Tx &tx)
         logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "[unconfirmed]";
     } // mutex scope
     saveTransaction(tx);
+    recalculateBalance();
 
     emit utxosChanged();
     emit appendedTransactions(firstNewTransaction, 1);
@@ -285,16 +286,16 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                     m_unspentOutputs.erase(utxo);
             }
         }
-
     } // mutex scope
+
     if (!transactionsToSave.empty()) {
         emit utxosChanged();
         emit appendedTransactions(firstNewTransaction, transactionsToSave.size());
+        for (auto tx : transactionsToSave) { // save the Tx to disk.
+            saveTransaction(tx);
+        }
     }
-
-    for (auto tx : transactionsToSave) { // save the Tx to disk.
-        saveTransaction(tx);
-    }
+    recalculateBalance();
 }
 
 void Wallet::saveTransaction(const Tx &tx)
@@ -677,6 +678,8 @@ void Wallet::setLastSynchedBlockHeight(int height)
     m_walletChanged = true;
     m_lastBlockHeightSeen = height;
     emit lastBlockSynchedChanged();
+
+    recalculateBalance();
     emit utxosChanged(); // in case there was an immature coinbase, this updates the balance
 
     if (height == FloweePay::instance()->headerChainHeight()) {
@@ -962,10 +965,6 @@ void Wallet::loadWallet()
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
     }
-    if (highestBlockHeight > 0) {
-        m_segment->blockSynched(highestBlockHeight);
-        m_segment->blockSynched(highestBlockHeight); // yes, twice.
-    }
 
     // after inserting all outputs during load, now remove all inputs these tx's spent.
     for (auto index : newTx) {
@@ -981,6 +980,13 @@ void Wallet::loadWallet()
                     m_unspentOutputs.erase(utxo);
             }
         }
+    }
+    if (highestBlockHeight > 0) {
+        m_segment->blockSynched(highestBlockHeight);
+        m_segment->blockSynched(highestBlockHeight); // yes, twice.
+    } else {
+        // otherwise the blockSynced() implicitly calls this.
+        recalculateBalance();
     }
 
 #ifdef DEBUGUTXO
@@ -1031,22 +1037,20 @@ void Wallet::saveWallet()
             builder.add(WalletPriv::OutputFromCoinbase, true);
         for (auto i = item.second.inputToWTX.begin(); i != item.second.inputToWTX.end(); ++i) {
             builder.add(WalletPriv::InputIndex, i->first);
-            uint64_t key = i->second;
-            int outIndex = static_cast<int>(key & 0xFF);
-            key = key >> 16;
-            auto lock = m_autoLockedOutputs.find(key);
-            if (lock != m_autoLockedOutputs.end()) {
-                builder.add(WalletPriv::InputLockState, WalletPriv::AutoLocked);
-                builder.add(WalletPriv::InputLockAutoSpender, lock->second);
-            }
-
-            builder.add(WalletPriv::InputSpendsTx, key);
-            builder.add(WalletPriv::InputSpendsOutput, outIndex);
+            const OutputRef ref(i->second);
+            builder.add(WalletPriv::InputSpendsTx, ref.txIndex());
+            builder.add(WalletPriv::InputSpendsOutput, ref.outputIndex());
         }
         for (auto i = item.second.outputs.begin(); i != item.second.outputs.end(); ++i) {
             builder.add(WalletPriv::OutputIndex, i->first);
             builder.add(WalletPriv::OutputValue, i->second.value);
             builder.add(WalletPriv::KeyStoreIndex, i->second.walletSecretId);
+
+            auto lock = m_autoLockedOutputs.find(OutputRef(item.first, i->first).encoded());
+            if (lock != m_autoLockedOutputs.end()) {
+                builder.add(WalletPriv::InputLockState, WalletPriv::AutoLocked);
+                builder.add(WalletPriv::InputLockAutoSpender, lock->second);
+            }
         }
         builder.add(WalletPriv::Separator, true);
     }
@@ -1070,21 +1074,36 @@ void Wallet::saveWallet()
     m_walletChanged = false;
 }
 
-qint64 Wallet::balance() const
+
+void Wallet::recalculateBalance()
 {
     QMutexLocker locker(&m_lock);
-    uint64_t amount = 0;
-    logFatal() << "balanace";
+    qint64 balanceConfirmed = 0;
+    qint64 balanceImmature = 0;
+    qint64 balanceUnconfirmed = 0;
     for (auto utxo : m_unspentOutputs) {
         auto wtx = m_walletTransactions.find(OutputRef(utxo.first).txIndex());
         Q_ASSERT(wtx != m_walletTransactions.end());
-        if (wtx->second.isCoinbase
-                && wtx->second.minedBlockHeight + MATURATION_AGE > m_lastBlockHeightSeen)
+        const int h = wtx->second.minedBlockHeight;
+        if (h == WalletPriv::Rejected)
             continue;
-        if (m_autoLockedOutputs.find(utxo.first) == m_autoLockedOutputs.end())
-            amount += utxo.second;
+        else if (m_autoLockedOutputs.find(utxo.first) != m_autoLockedOutputs.end())
+            continue;
+        else if (h == WalletPriv::Unconfirmed)
+            balanceUnconfirmed += utxo.second;
+        else if (wtx->second.isCoinbase && h + MATURATION_AGE > m_lastBlockHeightSeen)
+            balanceImmature += utxo.second;
+        else
+            balanceConfirmed += utxo.second;
     }
-    return amount;
+    if (m_balanceConfirmed == balanceConfirmed
+            && m_balanceImmature == balanceImmature
+            && m_balanceUnconfirmed == balanceUnconfirmed)
+        return;
+    m_balanceConfirmed = balanceConfirmed;
+    m_balanceImmature = balanceImmature;
+    m_balanceUnconfirmed = balanceUnconfirmed;
+    emit balanceChanged();
 }
 
 int Wallet::unspentOutputCount() const

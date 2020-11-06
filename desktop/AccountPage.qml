@@ -72,7 +72,8 @@ Pane {
                 anchors.horizontalCenter: parent.horizontalCenter
                 BitcoinAmountLabel {
                     id: balance
-                    value: root.account === null ? 0 : root.account.balance
+                    value: root.account === null ? 0 :
+                               root.account.balanceConfirmed + root.account.balanceUnconfirmed
                     colorize: false
                     textColor: mainWindow.palette.text
                     fontPtSize: root.font.pointSize * 2
@@ -80,6 +81,22 @@ Pane {
                     Layout.alignment: Qt.AlignBaseline
                 }
                 Label {
+                    text: Flowee.unitName
+                    font.pointSize: root.font.pointSize * 1.6
+                    Layout.alignment: Qt.AlignBaseline
+                }
+                BitcoinAmountLabel {
+                    id: balanceImmature
+                    value: root.account === null ? 0 : root.account.balanceImmature
+                    colorize: false
+                    textColor: mainWindow.palette.text
+                    fontPtSize: root.font.pointSize * 2
+                    includeUnit: false
+                    Layout.alignment: Qt.AlignBaseline
+                    visible: value > 0
+                }
+                Label {
+                    visible: balanceImmature.visible
                     text: Flowee.unitName
                     font.pointSize: root.font.pointSize * 1.6
                     Layout.alignment: Qt.AlignBaseline
@@ -121,7 +138,8 @@ Pane {
                         stack.push("./SendTransactionPane.qml")
                         stack.focus = true
                     }
-                    enabled: stack.depth === 1 && root.account !== null && root.account.balance > 0
+                    enabled: stack.depth === 1 && root.account !== null &&
+                             root.account.balanceUnconfirmed + root.account.balanceConfirmed > 0
                 }
                 Button2 {
                     text: qsTr("&Receive...")
