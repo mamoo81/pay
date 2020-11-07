@@ -1017,7 +1017,6 @@ void Wallet::loadWallet()
 
     m_walletChanged = false;
     ++m_nextWalletTransactionId;
-    rebuildBloom();
     emit utxosChanged();
 }
 
