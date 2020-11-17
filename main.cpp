@@ -122,12 +122,15 @@ int main(int argc, char *argv[])
         app->p2pNet()->start(); // lets go!
     });
 
+    // Clean shutdown on SIGTERM
     struct sigaction sa;
     sa.sa_handler = HandleSigTerm;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGTERM, &sa, nullptr);
     sigaction(SIGINT, &sa, nullptr);
+    // Ignore SIGPIPE
+    signal(SIGPIPE, SIG_IGN);
 
     return qapp.exec();
 }
