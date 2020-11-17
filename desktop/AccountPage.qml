@@ -105,11 +105,13 @@ Pane {
                     text: "0.00"
                     font.pointSize: root.font.pointSize * 2
                     Layout.alignment: Qt.AlignRight | Qt.AlignBaseline
+                    visible: Flowee.isMainChain
                 }
                 Label {
                     text: "Euro"
                     font.pointSize: root.font.pointSize * 1.6
                     Layout.alignment: Qt.AlignBaseline
+                    visible: Flowee.isMainChain
                 }
             }
             Item { width: 1; height: 20 } // spacer

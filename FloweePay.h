@@ -38,6 +38,7 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(int unitAllowedDecimals READ unitAllowedDecimals NOTIFY unitChanged)
     Q_PROPERTY(int headerChainHeight READ headerChainHeight NOTIFY headerChainHeightChanged)
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
+    Q_PROPERTY(bool isMainChain READ isMainChain CONSTANT)
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
 public:
     enum StringType {
@@ -110,6 +111,9 @@ public:
     // P2PNetInterface interface
     void blockchainHeightChanged(int newHeight);
 
+    bool isMainChain() const {
+        return m_chain == P2PNet::MainChain;
+    }
     P2PNet::Chain chain() const;
     void setChain(const P2PNet::Chain &chain);
 
