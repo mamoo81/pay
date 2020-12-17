@@ -18,6 +18,7 @@
 #include "AccountInfo.h"
 #include "Wallet.h"
 #include "WalletHistoryModel.h"
+#include "FloweePay.h"
 
 #include <p2p/PrivacySegment.h>
 
@@ -104,4 +105,12 @@ bool AccountInfo::isDefaultWallet()
     if (!segment)
         return false;
     return segment->priority() == PrivacySegment::First;
+}
+
+TransactionInfo* AccountInfo::txInfo(int walletIndex, QObject *parent)
+{
+    Q_ASSERT(parent);
+    auto info = new TransactionInfo(parent);
+    m_wallet->fetchTransactionInfo(info, walletIndex);
+    return info;
 }

@@ -20,9 +20,11 @@
 
 #include <QObject>
 #include "WalletHistoryModel.h"
+#include "TransactionInfo.h"
 #include <memory>
 
 class Wallet;
+class TransactionInfo;
 
 class AccountInfo : public QObject
 {
@@ -67,6 +69,8 @@ public:
 
     void setDefaultWallet(bool isDefault);
     bool isDefaultWallet();
+
+    Q_INVOKABLE TransactionInfo* txInfo(int walletIndex, QObject *parent);
 
 signals:
     void balanceChanged();

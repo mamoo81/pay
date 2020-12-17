@@ -17,5 +17,6 @@
         <file>heart-red.svg</file>
         <file>SyncIndicator.qml</file>
         <file>AccountDetails.qml</file>
+        <file>WalletTransactionDetails.qml</file>
     </qresource>
 </RCC>

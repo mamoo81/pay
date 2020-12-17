@@ -27,6 +27,11 @@
 #include <QList>
 #include <QString>
 
+const std::string &chainPrefix();
+
+namespace Streaming {
+    class BufferPool;
+}
 class Wallet;
 
 class FloweePay : public QObject, WorkerThreads, P2PNetInterface
@@ -70,6 +75,9 @@ public:
     QList<Wallet *> wallets() const;
 
     DownloadManager* p2pNet();
+
+    // return a pool for the current thread;
+    static Streaming::BufferPool &pool(int reserveSize);
 
     /// return the app data location
     QString basedir() const;
@@ -116,6 +124,7 @@ public:
     }
     P2PNet::Chain chain() const;
     void setChain(const P2PNet::Chain &chain);
+    const std::string &chainPrefix() const { return m_chainPrefix; }
 
     Q_ENUM(StringType UnitOfBitcoin)
 signals:
@@ -141,6 +150,7 @@ private:
     UnitOfBitcoin m_unit = BCH;
     QString m_basedir;
     P2PNet::Chain m_chain = P2PNet::MainChain;
+    std::string m_chainPrefix;
     std::unique_ptr<DownloadManager> m_downloadManager;
     QList<Wallet*> m_wallets;
     int m_windowWidth;

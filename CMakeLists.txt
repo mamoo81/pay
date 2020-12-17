@@ -48,6 +48,7 @@ set (PAY_SOURCES
     NetPeer.cpp
     Payment.cpp
     PortfolioDataProvider.cpp
+    TransactionInfo.cpp
     Wallet.cpp
     Wallet_support.cpp
     WalletHistoryModel.cpp

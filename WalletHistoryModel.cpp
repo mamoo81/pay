@@ -86,9 +86,8 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
         }
         return QVariant(double(value));
     }
-    case Unspent:
-        // TODO
-        return QVariant(false);
+    case WalletIndex:
+        return QVariant(m_rowsProxy.at(index.row()));
     }
 
     return QVariant();
@@ -103,7 +102,7 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
     answer[MinedDate] = "date";
     answer[FundsIn] = "fundsIn";
     answer[FundsOut] = "fundsOut";
-    answer[Unspent] = "unspent";
+    answer[WalletIndex] = "walletIndex";
     // answer[Comment] = "comment";
     // answer[SavedFiatRate] = "savedFiatRate";
 

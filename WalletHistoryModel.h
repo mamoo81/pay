@@ -33,9 +33,9 @@ public:
         TxId = Qt::UserRole,
         MinedHeight,  ///< int, height of block this tx was mined at.
         MinedDate,    ///< the timestamp (since epoch) of the block this was mined in.
-        FundsIn, ///< value (in sats) of the funds we own being spent
-        FundsOut,///< value (in sats) of the outputs created we own
-        Unspent, ///< bool, true if unspent.
+        FundsIn,      ///< value (in sats) of the funds we own being spent
+        FundsOut,     ///< value (in sats) of the outputs created we own
+        WalletIndex,  ///< wallet-internal index for this transaction.
 
         Comment, // TODO (also: make editable)
         SavedFiatRate, // TODO

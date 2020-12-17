@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
         FloweePay::selectChain(P2PNet::Testnet4Chain);
 
     ECC_State crypo_state; // allows the secp256k1 to function.
+    qmlRegisterType<TransactionInfo>("org.flowee", 1, 0, "TransactionInfo");
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     engine.rootContext()->setContextProperty("Flowee", FloweePay::instance());

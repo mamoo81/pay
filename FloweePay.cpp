@@ -47,8 +47,12 @@ FloweePay::FloweePay()
     : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)),
     m_chain(s_chain)
 {
-    if (m_chain == P2PNet::Testnet4Chain)
+    if (m_chain == P2PNet::Testnet4Chain) {
         m_basedir += "/testnet4";
+        m_chainPrefix = "bchtest";
+    } else {
+        m_chainPrefix = "bitcoincash";
+    }
     boost::filesystem::create_directories(boost::filesystem::path(m_basedir.toStdString()));
 
     // make it move to the proper thread.
@@ -359,14 +363,7 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
             return PrivateKey;
     }
 
-    static const char *prefix = [] {
-        switch (s_chain) {
-        case P2PNet::MainChain: return "bitcoincash";
-        case P2PNet::Testnet4Chain:
-        default: return "bchtest";
-        }
-    }();
-    CashAddress::Content c = CashAddress::decodeCashAddrContent(s, prefix);
+    CashAddress::Content c = CashAddress::decodeCashAddrContent(s, m_chainPrefix);
     if (!c.hash.empty()) {
         if (c.type == CashAddress::PUBKEY_TYPE)
             return CashPKH;
@@ -433,4 +430,15 @@ DownloadManager *FloweePay::p2pNet()
         emit headerChainHeightChanged();
     }
     return m_downloadManager.get();
+}
+
+// static
+Streaming::BufferPool &FloweePay::pool(int reserveSize)
+{
+    return FloweePay::instance()->p2pNet()->connectionManager().pool(reserveSize);
+}
+
+const std::string &chainPrefix()
+{
+    return FloweePay::instance()->chainPrefix();
 }

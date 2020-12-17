@@ -18,6 +18,7 @@
 #include "Wallet.h"
 #include "Wallet_p.h"
 #include "FloweePay.h"
+#include "TransactionInfo.h"
 
 #include <primitives/script.h>
 #include <streaming/BufferPool.h>
@@ -29,6 +30,7 @@
 #include <QSet>
 #include <QTimer>
 #include <QThread>
+#include <cashaddr.h>
 
 // #define DEBUGUTXO
 
@@ -317,7 +319,7 @@ void Wallet::saveTransaction(const Tx &tx)
     }
 }
 
-Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool)
+Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) const
 {
     QString path = QString::fromStdString(txid.ToString());
     path.insert(2, '/');
@@ -331,6 +333,65 @@ Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool)
     }
     // return empty tx
     return Tx();
+}
+
+namespace {
+QString renderAddress(const CKeyID &pubkeyhash)
+{
+    CashAddress::Content c;
+    c.type = CashAddress::PUBKEY_TYPE;
+    c.hash = std::vector<uint8_t>(pubkeyhash.begin(), pubkeyhash.end());
+    auto s = CashAddress::encodeCashAddr(chainPrefix(), c);
+    return QString::fromStdString(s);
+}
+}
+
+void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
+{
+    Q_ASSERT(info);
+    QMutexLocker locker(&m_lock);
+    auto iter = m_walletTransactions.find(txIndex);
+    if (m_walletTransactions.end() == iter)
+        throw std::runtime_error("Invalid tx-index");
+
+    Tx tx = loadTransaction(iter->second.txid, FloweePay::pool(0));
+    info->m_txSize = tx.size();
+
+    // find out how many inputs and how many outputs there are.
+    Tx::Iterator txIter(tx);
+    do {
+        switch (txIter.next(Tx::PrevTxHash | Tx::OutputValue)) {
+        case Tx::PrevTxHash: info->m_inputs.append(nullptr); break;
+        case Tx::OutputValue: info->m_outputs.append(nullptr); break;
+        default: break; // silence compiler warnings
+        }
+    } while (txIter.tag() != Tx::End);
+
+    // probably only a couple of the inputs and outputs I have knowledge about,
+    // since only those that use our addresses are stored in the wallet.
+    // We find those and put the info objects in the assigned places.
+    for (auto pair : iter->second.inputToWTX) {
+        OutputRef ref(pair.second);
+        auto w = m_walletTransactions.find(ref.txIndex());
+        assert(w != m_walletTransactions.end());
+        auto prevOut = w->second.outputs.find(ref.outputIndex());
+        assert(prevOut != w->second.outputs.end());
+
+        auto in = new TransactionInputInfo(info);
+        in->setValue(prevOut->second.value);
+        auto secret = m_walletSecrets.find(prevOut->second.walletSecretId);
+        in->setAddress(renderAddress(secret->second.address));
+        info->m_inputs[pair.first] = in;
+    }
+    // same for outputs
+    for (auto o : iter->second.outputs) {
+        auto out = new TransactionOutputInfo(info);
+        out->setValue(o.second.value);
+        auto secret = m_walletSecrets.find(o.second.walletSecretId);
+        out->setAddress(renderAddress(secret->second.address));
+        out->setSpent(m_unspentOutputs.find(OutputRef(txIndex, o.first).encoded()) == m_unspentOutputs.end());
+        info->m_outputs[o.first] = out;
+    }
 }
 
 int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
@@ -424,39 +485,29 @@ void Wallet::setName(const QString &name)
     m_walletChanged = true;
 }
 
-const uint256 &Wallet::txid(Wallet::OutputRef ref) const
+const uint256 &Wallet::txid(int txIndex) const
 {
     QMutexLocker locker(&m_lock);
-    auto iter = m_walletTransactions.find(ref.txIndex());
+    auto iter = m_walletTransactions.find(txIndex);
     if (m_walletTransactions.end() == iter)
-        throw std::runtime_error("Invalid ref");
+        throw std::runtime_error("Invalid tx-index");
     return iter->second.txid;
 }
 
 Tx::Output Wallet::txOutout(Wallet::OutputRef ref) const
 {
-    QString txid;
+    uint256 txid;
     {
         QMutexLocker locker(&m_lock);
         auto iter = m_walletTransactions.find(ref.txIndex());
         if (m_walletTransactions.end() == iter)
             throw std::runtime_error("Invalid ref");
-        txid = QString::fromStdString(iter->second.txid.ToString());
+        txid = iter->second.txid;
     }
 
-    QString filename("%1/%2/%3");
-    filename = filename.arg(QString::fromStdString(m_basedir.string()));
-    filename = filename.arg(txid.left(2));
-    filename = filename.arg(txid.mid(2));
-
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly))
+    Tx tx = loadTransaction(txid, FloweePay::pool(0));
+    if (tx.size() == 0)
         throw std::runtime_error("missing data");
-
-    const int fileSize = file.size();
-    Streaming::BufferPool pool(fileSize);
-    file.read(pool.begin(), fileSize);
-    Tx tx(pool.commit(fileSize));
     return tx.output(ref.outputIndex());
 }
 
@@ -696,16 +747,12 @@ void Wallet::broadcastUnconfirmed()
     // Lets broadcast any transactions that have not yet been confirmed.
     QMutexLocker locker(&m_lock);
     m_broadcastingTransactions.clear();
-    std::unique_ptr<Streaming::BufferPool> pool;
 
     for (auto iter = m_walletTransactions.begin();
          iter != m_walletTransactions.end(); ++iter) {
 
         if (iter->second.minedBlockHeight == WalletPriv::Unconfirmed) {
-            if (pool.get() == nullptr)
-                pool.reset(new Streaming::BufferPool());
-
-            auto tx = loadTransaction(iter->second.txid, *pool);
+            auto tx = loadTransaction(iter->second.txid, FloweePay::pool(0));
             if (tx.data().size() > 64) {
                 auto bc = std::make_shared<WalletInfoObject>(this, iter->first, tx);
                 bc->moveToThread(thread());

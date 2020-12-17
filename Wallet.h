@@ -33,6 +33,7 @@
 #include <QObject>
 
 class WalletInfoObject;
+class TransactionInfo;
 
 class Wallet : public QObject, public DataListenerInterface
 {
@@ -118,7 +119,11 @@ public:
     void setName(const QString &name);
 
     /// Fetch UTXO txid
-    const uint256 &txid(OutputRef ref) const;
+    inline const uint256 &txid(OutputRef ref) const {
+        return txid(ref.txIndex());
+    }
+    /// Fetch UTXO txid
+    const uint256 &txid(int txIndex) const;
     /// Fetch UTXO output
     Tx::Output txOutout(OutputRef ref) const;
     /// Fetch UTXO key
@@ -145,6 +150,8 @@ public:
 
     bool isSingleAddressWallet() const;
     void setSingleAddressWallet(bool isSingleAddressWallet);
+
+    void fetchTransactionInfo(TransactionInfo *info, int txIndex);
 
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
@@ -209,7 +216,12 @@ private:
 
     WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid) const;
     void saveTransaction(const Tx &tx);
-    Tx loadTransaction(const uint256 &txid, Streaming::BufferPool &pool);
+    /**
+     * returns a Tx if this txid was saved in this wallet.
+     *
+     * pool.reserve() is called by this method with the actual tx size.
+     */
+    Tx loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) const;
 
     std::map<int, WalletTransaction> m_walletTransactions;
 

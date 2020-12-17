@@ -82,16 +82,16 @@ void Payment::setTargetAddress(const QString &address)
         CashAddress::Content c;
         c.hash = legacy.data();
         c.type = CashAddress::PUBKEY_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr("bitcoincash", c));
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
 
         emit targetAddressChanged();
         break;
     }
     case FloweePay::CashPKH: {
         m_address = address.trimmed();
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), "bitcoincash");
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
         assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr("bitcoincash", c));
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
         emit targetAddressChanged();
         break;
     }
@@ -127,7 +127,7 @@ void Payment::approveAndSign()
     TransactionBuilder builder;
     builder.appendOutput(m_paymentAmount);
     bool ok = false;
-    CashAddress::Content c = CashAddress::decodeCashAddrContent(m_formattedTarget.toStdString(), "bitcoincash");
+    CashAddress::Content c = CashAddress::decodeCashAddrContent(m_formattedTarget.toStdString(), chainPrefix());
     assert(!c.hash.empty());
     if (c.type == CashAddress::PUBKEY_TYPE) {
         builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));

@@ -19,8 +19,12 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 
 Item {
-    id: walletTransaction
-    height: mainLabel.height + 10 + date.height
+    height: {
+        var rc = mainLabel.height + 10 + date.height
+        if (detailsPane.item !== null)
+            rc += detailsPane.item.height + 10;
+        return rc;
+    }
     width: mainLabel.width + bitcoinAmountLabel.width + 30
 
     /*
@@ -74,4 +78,20 @@ Item {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 5
     }
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: detailsPane.source = (detailsPane.source == "") ? "./WalletTransactionDetails.qml" : ""
+    }
+
+    Loader {
+        id: detailsPane
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
+        x: 20 // indent it
+        width: parent.width - 20
+        onLoaded: item.infoObject = root.account.txInfo(model.walletIndex, item)
+    }
+
+    Behavior on height { NumberAnimation { duration: 100 } }
 }
