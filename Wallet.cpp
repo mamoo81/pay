@@ -342,7 +342,7 @@ QString renderAddress(const CKeyID &pubkeyhash)
     c.type = CashAddress::PUBKEY_TYPE;
     c.hash = std::vector<uint8_t>(pubkeyhash.begin(), pubkeyhash.end());
     auto s = CashAddress::encodeCashAddr(chainPrefix(), c);
-    return QString::fromStdString(s);
+    return QString::fromStdString(s).mid(chainPrefix().size() + 1);
 }
 }
 

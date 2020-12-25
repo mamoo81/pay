@@ -88,8 +88,8 @@ Item {
         id: detailsPane
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
-        x: 20 // indent it
-        width: parent.width - 20
+        x: 10 // indent it
+        width: parent.width - 10
         onLoaded: item.infoObject = root.account.txInfo(model.walletIndex, item)
     }
 
