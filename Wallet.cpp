@@ -186,7 +186,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
     {
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
-        for (auto tx: transactions) {
+        for (auto &tx: transactions) {
             const uint256 txid = tx.createHash();
             WalletTransaction wtx;
 
@@ -293,7 +293,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
     if (!transactionsToSave.empty()) {
         emit utxosChanged();
         emit appendedTransactions(firstNewTransaction, transactionsToSave.size());
-        for (auto tx : transactionsToSave) { // save the Tx to disk.
+        for (auto &tx : transactionsToSave) { // save the Tx to disk.
             saveTransaction(tx);
         }
     }
@@ -430,7 +430,7 @@ int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
 void Wallet::rebuildBloom()
 {
     auto lock = m_segment->clearFilter();
-    for (auto priv : m_walletSecrets) {
+    for (auto &priv : m_walletSecrets) {
         if (priv.second.initialHeight > 0)
             m_segment->addKeyToFilter(priv.second.address, priv.second.initialHeight);
     }
@@ -1050,7 +1050,7 @@ void Wallet::loadWallet()
 
 #ifndef NDEBUG
     // sanity check: the inputs should resolve to transactions in our list.
-    for (auto tx : m_walletTransactions) {
+    for (auto &tx : m_walletTransactions) {
         for (auto in : tx.second.inputToWTX) {
             auto key = in.second;
             int outputIndex = key & 0xFFFF;
@@ -1162,7 +1162,7 @@ int Wallet::historicalOutputCount() const
 {
     QMutexLocker locker(&m_lock);
     int count = 0;
-    for (auto wtx : m_walletTransactions) {
+    for (auto &wtx : m_walletTransactions) {
         count += wtx.second.outputs.size();
     }
     return count;

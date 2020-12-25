@@ -198,7 +198,7 @@ private:
 
     struct Output {
         int walletSecretId = -1;
-        uint64_t value;
+        uint64_t value = 0;
     };
 
     struct WalletTransaction {

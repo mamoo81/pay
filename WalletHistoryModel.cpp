@@ -129,7 +129,7 @@ void WalletHistoryModel::createMap()
 
     // the simplest form; reverse order. This assumes the last entry is the newest one
     int i = m_rowsProxy.size() - 1;
-    for (auto iter : m_wallet->m_walletTransactions) {
+    for (const auto &iter : m_wallet->m_walletTransactions) {
         assert(i >= 0);
         m_rowsProxy[i--] = iter.first;
     }

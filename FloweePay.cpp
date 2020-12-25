@@ -153,7 +153,7 @@ void FloweePay::saveData()
 {
     Streaming::BufferPool data;
     Streaming::MessageBuilder builder(data);
-    for (auto wallet : m_wallets) {
+    for (auto &wallet : m_wallets) {
         builder.add(WalletId, wallet->segment()->segmentId());
         builder.add(WalletPriority, wallet->segment()->priority());
     }
@@ -182,7 +182,7 @@ void FloweePay::saveData()
 
 void FloweePay::saveAll()
 {
-    for (auto wallet : m_wallets) {
+    for (auto &wallet : m_wallets) {
         wallet->saveWallet();
     }
 }
@@ -242,7 +242,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     while (true) {
         id = rand();
         QString dir = QString("/wallet-%1").arg(id);
-        if (!QFileInfo(m_basedir + dir).exists())
+        if (!QFileInfo::exists(m_basedir + dir))
             break;
     }
 

@@ -38,7 +38,7 @@ void NetDataProvider::newPeer(int peerId, const std::string &userAgent, int star
 void NetDataProvider::lostPeer(int peerId)
 {
     QMutexLocker l(&m_peerMutex);
-    for (auto p : m_peers) {
+    for (auto &p : m_peers) {
         if (p->connectionId() == peerId) {
             m_peers.removeAll(p);
             p->deleteLater();
@@ -57,7 +57,7 @@ void NetDataProvider::blockchainHeightChanged(int newHeight)
 void NetDataProvider::punishMentChanged(int peerId)
 {
     QMutexLocker l(&m_peerMutex);
-    for (auto p : m_peers) {
+    for (auto &p : m_peers) {
         if (p->connectionId() == peerId) {
             p->notifyPunishmentChanged();
             break;

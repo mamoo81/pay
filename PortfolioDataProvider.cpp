@@ -27,7 +27,7 @@
 PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
 {
     connect (FloweePay::instance(), &FloweePay::walletsChanged, [=]() {
-        for (auto w : FloweePay::instance()->wallets()) {
+        for (auto &w : FloweePay::instance()->wallets()) {
             if (!m_accounts.contains(w)) {
                 addWalletAccount(w);
             }
@@ -109,7 +109,7 @@ void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
     auto info = new AccountInfo(wallet, this);
     m_accountInfos.append(info);
     connect (info, SIGNAL(isDefaultWalletChanged()), this, SLOT(walletChangedPriority()));
-    accountsChanged();
+    emit accountsChanged();
 }
 
 void PortfolioDataProvider::walletChangedPriority()
@@ -120,7 +120,7 @@ void PortfolioDataProvider::walletChangedPriority()
     if (wallet->isDefaultWallet()) {
         // as this just changed, through the UI, we have to mark any other
         // wallet that was a default wallet as no longer being one.
-        for (auto info : m_accountInfos) {
+        for (auto &info : m_accountInfos) {
             if (info != wallet && info->isDefaultWallet())
                 info->setDefaultWallet(false);
         }

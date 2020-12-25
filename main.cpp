@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
         app->p2pNet()->addP2PNetListener(netData);
 
         PortfolioDataProvider *portfolio = new PortfolioDataProvider(&engine);
-        for (const auto &wallet : app->wallets()) {
+        for (auto &wallet : app->wallets()) {
             portfolio->addWalletAccount(wallet);
         }
         portfolio->selectDefaultWallet();
