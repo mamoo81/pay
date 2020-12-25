@@ -31,10 +31,11 @@
 #include <base58.h>
 #include <cashaddr.h>
 
-constexpr const char *UNIT_TYPE = "UNIT_TYPE";
-constexpr const char *WINDOW_WIDTH = "windowWidth";
-constexpr const char *WINDOW_HEIGHT = "windowHeight";
+constexpr const char *UNIT_TYPE = "general/unit";
+constexpr const char *WINDOW_WIDTH = "window/width";
+constexpr const char *WINDOW_HEIGHT = "window/height";
 constexpr const char *DARKSKIN = "darkSkin";
+constexpr const char *USERAGENT = "net/useragent";
 
 enum FileTags {
     WalletId,
@@ -66,11 +67,17 @@ FloweePay::FloweePay()
     // start creation of downloadmanager and loading of data in a different thread
     ioService().post(std::bind(&FloweePay::init, this));
 
+    QSettings defaultConfig(":/defaults.ini", QSettings::IniFormat);
+    m_unit = static_cast<UnitOfBitcoin>(defaultConfig.value(UNIT_TYPE, BCH).toInt());
+    m_windowHeight = defaultConfig.value(WINDOW_HEIGHT, -1).toInt();
+    m_windowWidth = defaultConfig.value(WINDOW_WIDTH, -1).toInt();
+    m_darkSkin = defaultConfig.value(DARKSKIN, true).toBool();
+
     QSettings appConfig;
-    m_unit = static_cast<UnitOfBitcoin>(appConfig.value(UNIT_TYPE, BCH).toInt());
-    m_windowHeight = appConfig.value(WINDOW_HEIGHT, -1).toInt();
-    m_windowWidth = appConfig.value(WINDOW_WIDTH, -1).toInt();
-    m_darkSkin = appConfig.value(DARKSKIN, true).toBool();
+    m_unit = static_cast<UnitOfBitcoin>(appConfig.value(UNIT_TYPE, m_unit).toInt());
+    m_windowHeight = appConfig.value(WINDOW_HEIGHT, m_windowHeight).toInt();
+    m_windowWidth = appConfig.value(WINDOW_WIDTH, m_windowWidth).toInt();
+    m_darkSkin = appConfig.value(DARKSKIN, m_darkSkin).toBool();
 }
 
 FloweePay::~FloweePay()
@@ -427,6 +434,10 @@ DownloadManager *FloweePay::p2pNet()
     if (m_downloadManager == nullptr) {
         m_downloadManager.reset(new DownloadManager(ioService(), m_basedir.toStdString(), m_chain));
         m_downloadManager->addP2PNetListener(this);
+
+        QSettings defaultConfig(":/defaults.ini", QSettings::IniFormat);
+        QString useragent = defaultConfig.value(USERAGENT, "Flowee Pay Wallet").toString();
+        m_downloadManager->connectionManager().setUserAgent(useragent.toStdString());
         emit headerChainHeightChanged();
     }
     return m_downloadManager.get();

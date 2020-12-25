@@ -18,5 +18,6 @@
         <file>SyncIndicator.qml</file>
         <file>AccountDetails.qml</file>
         <file>WalletTransactionDetails.qml</file>
+        <file>defaults.ini</file>
     </qresource>
 </RCC>
