@@ -25,6 +25,7 @@
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QGuiApplication>
+#include <QIcon>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QStandardPaths>
@@ -50,12 +51,12 @@ struct ECC_State
 
 int main(int argc, char *argv[])
 {
-    // qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication qapp(argc, argv);
     qapp.setOrganizationName("flowee");
     qapp.setApplicationName("pay");
     qapp.setApplicationVersion("0.3");
+    qapp.setWindowIcon(QIcon(":/FloweePay.png"));
 
     srand((quint32) QDateTime::currentMSecsSinceEpoch());
 
