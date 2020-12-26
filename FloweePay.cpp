@@ -415,15 +415,30 @@ QString FloweePay::unitName() const
 {
     switch (m_unit) {
     case FloweePay::BCH:
-        return QLatin1String("BCH");
+        if (s_chain == P2PNet::MainChain)
+            return QLatin1String("BCH");
+        else
+            return QLatin1String("tBCH");
     case FloweePay::MilliBCH:
-        return QLatin1String("mBCH");
+        if (s_chain == P2PNet::MainChain)
+            return QLatin1String("mBCH");
+        else
+            return QLatin1String("m-tBCH");
     case FloweePay::MicroBCH:
-        return QString("µBCH");
+        if (s_chain == P2PNet::MainChain)
+            return QString("µBCH");
+        else
+            return QString("µ-tBCH");
     case FloweePay::Bits:
-        return QLatin1String("bits");
+        if (s_chain == P2PNet::MainChain)
+            return QLatin1String("bits");
+        else
+            return QLatin1String("tbits");
     case FloweePay::Satoshis:
-        return QLatin1String("sats");
+        if (s_chain == P2PNet::MainChain)
+            return QLatin1String("sats");
+        else
+            return QLatin1String("tsats");
     default:
         Q_ASSERT(false);
         return 0;
