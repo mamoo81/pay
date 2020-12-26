@@ -373,8 +373,8 @@ int FloweePay::walletStartHeightHint() const
 void FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)
 {
     auto wallet = createWallet(walletName);
-    // TODO add a lookup to an indexer to tell us the oldest use of the resulting address
     wallet->addPrivateKey(privateKey, walletStartHeightHint());
+    wallet->setSingleAddressWallet(true);
 }
 
 FloweePay::StringType FloweePay::identifyString(const QString &string) const
