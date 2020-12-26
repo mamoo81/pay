@@ -25,7 +25,7 @@ import Flowee.org.pay 1.0
 Label {
     id: syncIndicator
     property int accountBlockHeight: 0
-    property int globalPos: Flowee.headerChainHeight
+    property int globalPos: Flowee.chainHeight
 
     text: {
         var diff = globalPos - accountBlockHeight

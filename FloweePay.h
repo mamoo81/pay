@@ -42,6 +42,8 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
     Q_PROPERTY(int unitAllowedDecimals READ unitAllowedDecimals NOTIFY unitChanged)
     Q_PROPERTY(int headerChainHeight READ headerChainHeight NOTIFY headerChainHeightChanged)
+    Q_PROPERTY(int expectedChainHeight READ expectedChainHeight NOTIFY expectedChainHeightChanged)
+    Q_PROPERTY(int chainHeight READ chainHeight NOTIFY chainHeightChanged)
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
     Q_PROPERTY(bool isMainChain READ isMainChain CONSTANT)
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
@@ -114,7 +116,29 @@ public:
     UnitOfBitcoin unit() const;
     void setUnit(const UnitOfBitcoin &unit);
 
+    /**
+     * Return the chain-height of validated headers.
+     * When we connect to some peers we get updated headers and thus the first
+     * indication of the world status is the header chain height.
+     */
     int headerChainHeight() const;
+
+    /**
+     * Return the chain-height that based on the date/time we expect
+     * to be at.
+     */
+    int expectedChainHeight() const;
+
+    /**
+     * The best known chainHeight.
+     * On startup the headerChainHeight is likely going to be outdated
+     * as much as our accountBlockHeight is. Which would result in bad info.
+     * For the time we have not yet gotten the headers therefore we will
+     * use the mathematically determined expectedChainHeight. We stop using
+     * that as soon as we get some movement in the headers one as the expected
+     * one may be off by several blocks.
+     */
+    int chainHeight();
 
     // P2PNetInterface interface
     void blockchainHeightChanged(int newHeight);
@@ -139,6 +163,8 @@ signals:
     void windowWidthChanged();
     void windowHeightChanged();
     void headerChainHeightChanged();
+    void expectedChainHeightChanged();
+    void chainHeightChanged();
 
 private:
     void init();
@@ -155,6 +181,7 @@ private:
     QList<Wallet*> m_wallets;
     int m_windowWidth;
     int m_windowHeight;
+    int m_initialHeaderChainHeight = 0;
     bool m_darkSkin;
 };
 

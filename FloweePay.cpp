@@ -30,6 +30,7 @@
 #include <QFileInfo>
 #include <base58.h>
 #include <cashaddr.h>
+#include <QTimer>
 
 constexpr const char *UNIT_TYPE = "general/unit";
 constexpr const char *WINDOW_WIDTH = "window/width";
@@ -78,6 +79,12 @@ FloweePay::FloweePay()
     m_windowHeight = appConfig.value(WINDOW_HEIGHT, m_windowHeight).toInt();
     m_windowWidth = appConfig.value(WINDOW_WIDTH, m_windowWidth).toInt();
     m_darkSkin = appConfig.value(DARKSKIN, m_darkSkin).toBool();
+
+    // Update expected chain-height ever 5 minutes
+    QTimer *timer = new QTimer(this);
+    timer->setTimerType(Qt::VeryCoarseTimer);
+    timer->start(5 * 60 * 1000);
+    connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
 }
 
 FloweePay::~FloweePay()
@@ -286,9 +293,26 @@ int FloweePay::headerChainHeight() const
     return m_downloadManager->blockHeight();
 }
 
+int FloweePay::expectedChainHeight() const
+{
+    if (!m_downloadManager.get())
+        return 0;
+    return m_downloadManager->blockchain().expectedBlockHeight();
+}
+
+int FloweePay::chainHeight()
+{
+    if (m_initialHeaderChainHeight <= 0)
+        m_initialHeaderChainHeight = headerChainHeight();
+    if (m_initialHeaderChainHeight == headerChainHeight())
+        return expectedChainHeight();
+    return headerChainHeight();
+}
+
 void FloweePay::blockchainHeightChanged(int)
 {
     emit headerChainHeightChanged();
+    emit chainHeightChanged();
 }
 
 bool FloweePay::darkSkin() const
@@ -439,6 +463,8 @@ DownloadManager *FloweePay::p2pNet()
         QString useragent = defaultConfig.value(USERAGENT, "Flowee Pay Wallet").toString();
         m_downloadManager->connectionManager().setUserAgent(useragent.toStdString());
         emit headerChainHeightChanged();
+        emit expectedChainHeightChanged();
+        emit chainHeightChanged();
     }
     return m_downloadManager.get();
 }
