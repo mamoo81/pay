@@ -94,3 +94,13 @@ void TransactionOutputInfo::setSpent(bool spent)
 {
     m_spent = spent;
 }
+
+bool TransactionOutputInfo::forMe() const
+{
+    return m_forMe;
+}
+
+void TransactionOutputInfo::setForMe(bool forMe)
+{
+    m_forMe = forMe;
+}

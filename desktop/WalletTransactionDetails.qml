@@ -165,7 +165,7 @@ GridLayout {
                     }
                     Rectangle {
                         color: "yellow"
-                        visible: outAddress.visible
+                        visible: modelData !== null && modelData.forMe
                         x: outAddress.x - 3
                         y: outAddress.y -3
                         height: outAddress.height + 6
@@ -188,6 +188,7 @@ GridLayout {
                         id: outAmount
                         visible: modelData !== null
                         value: modelData === null ? 0 : modelData.value
+                        colorize: modelData !== null && modelData.forMe
                         fontPtSize: date.font.pointSize
                         anchors.right: parent.right
                         anchors.bottom: outArrowLine.top

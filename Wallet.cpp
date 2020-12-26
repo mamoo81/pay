@@ -344,6 +344,29 @@ QString renderAddress(const CKeyID &pubkeyhash)
     auto s = CashAddress::encodeCashAddr(chainPrefix(), c);
     return QString::fromStdString(s).mid(chainPrefix().size() + 1);
 }
+
+QString renderAddress(const Streaming::ConstBuffer &outputScript)
+{
+    std::vector<std::vector<uint8_t> > vSolutions;
+    Script::TxnOutType whichType;
+    if (!Script::solver(outputScript, whichType, vSolutions))
+        return QString();
+
+    CKeyID keyID;
+    switch (whichType)
+    {
+    case Script::TX_PUBKEY:
+        keyID = CPubKey(vSolutions[0]).GetID();
+        break;
+    case Script::TX_PUBKEYHASH:
+        keyID = CKeyID(uint160(vSolutions[0]));
+        break;
+    default:
+        return QString();
+    }
+
+    return renderAddress(keyID);
+}
 }
 
 void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
@@ -359,10 +382,29 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
 
     // find out how many inputs and how many outputs there are.
     Tx::Iterator txIter(tx);
+    // If we created this transaction (we have inputs in it anyway) then
+    // also look up all the outputs from the file.
+    const bool createdByUs = !iter->second.inputToWTX.empty();
     do {
-        switch (txIter.next(Tx::PrevTxHash | Tx::OutputValue)) {
+        switch (txIter.next(Tx::PrevTxHash | Tx::OutputValue | Tx::OutputScript)) {
         case Tx::PrevTxHash: info->m_inputs.append(nullptr); break;
-        case Tx::OutputValue: info->m_outputs.append(nullptr); break;
+        case Tx::OutputValue: {
+            TransactionOutputInfo *out = nullptr;
+            if (createdByUs) {
+                out = new TransactionOutputInfo(info);
+                out->setForMe(false);
+                out->setValue(txIter.longData());
+            }
+            info->m_outputs.append(out);
+            break;
+        }
+        case Tx::OutputScript:
+            assert(!info->m_outputs.isEmpty());
+            if (createdByUs) {
+                assert(info->m_outputs.back());
+                info->m_outputs.back()->setAddress(renderAddress(txIter.byteData()));
+            }
+            break;
         default: break; // silence compiler warnings
         }
     } while (txIter.tag() != Tx::End);
@@ -385,10 +427,17 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     }
     // same for outputs
     for (auto o : iter->second.outputs) {
-        auto out = new TransactionOutputInfo(info);
-        out->setValue(o.second.value);
         auto secret = m_walletSecrets.find(o.second.walletSecretId);
-        out->setAddress(renderAddress(secret->second.address));
+        TransactionOutputInfo *out;
+        if (createdByUs) { // reuse the one we created before from the raw Td.
+            out = info->m_outputs[o.first];
+            out->setForMe(true);
+        }
+        else {
+            out = new TransactionOutputInfo(info);
+            out->setValue(o.second.value);
+            out->setAddress(renderAddress(secret->second.address));
+        }
         out->setSpent(m_unspentOutputs.find(OutputRef(txIndex, o.first).encoded()) == m_unspentOutputs.end());
         info->m_outputs[o.first] = out;
     }

@@ -47,6 +47,7 @@ class TransactionOutputInfo : public QObject
     Q_PROPERTY(QString address READ address CONSTANT)
     Q_PROPERTY(qint64 value READ value CONSTANT)
     Q_PROPERTY(bool spent READ spent CONSTANT)
+    Q_PROPERTY(bool forMe READ forMe CONSTANT)
 public:
     TransactionOutputInfo(QObject *parent) : QObject(parent) {}
     QString address() const;
@@ -58,10 +59,15 @@ public:
     bool spent() const;
     void setSpent(bool spent);
 
+    /// output matches an address owned by the wallet.
+    bool forMe() const;
+    void setForMe(bool forMe);
+
 private:
     QString m_address;
     qint64 m_value;
-    bool m_spent;
+    bool m_spent = false;
+    bool m_forMe = true;
 };
 
 class TransactionInfo : public QObject
