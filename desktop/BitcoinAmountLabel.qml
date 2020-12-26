@@ -28,7 +28,7 @@ RowLayout {
     property double value: 5E8
     property bool colorize: true
     property bool includeUnit: true
-    property color textColor: "black"
+    property color textColor: Flowee.useDarkSkin ? "#fcfcfc" :"black"
     property var fontPtSize: 8
 
     height: main.height

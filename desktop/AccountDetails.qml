@@ -63,20 +63,23 @@ ApplicationWindow {
         Label {
             text: qsTr("Balance unconfirmed:")
         }
-        Label {
-            text: root.account.balanceUnconfirmed
+        BitcoinAmountLabel {
+            value: root.account.balanceUnconfirmed
+            colorize: false
         }
         Label {
             text: qsTr("Balance immature:")
         }
-        Label {
-            text: root.account.balanceImmature
+        BitcoinAmountLabel {
+            value: root.account.balanceImmature
+            colorize: false
         }
         Label {
             text: qsTr("Balance other:")
         }
-        Label {
-            text: root.account.balanceConfirmed
+        BitcoinAmountLabel {
+            value: root.account.balanceConfirmed
+            colorize: false
         }
         Label {
             text: qsTr("Unspent coins:")
@@ -102,14 +105,20 @@ ApplicationWindow {
             text: syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
         }
 
-        DialogButtonBox {
-            standardButtons: DialogButtonBox.Close
-            // onAccepted: root.visible = false
-            onRejected: root.visible = false
+        Item {
             Layout.columnSpan: 2
+            width: closeButton.width
+            height: closeButton.height
             Layout.fillHeight: true
             Layout.fillWidth: true
 
+            Button {
+                id: closeButton
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                text: qsTr("Close")
+                onClicked: root.visible = false
+            }
         }
     }
 }
