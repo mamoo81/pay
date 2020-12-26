@@ -223,7 +223,14 @@ Pane {
                 text: "Value:"
             }
             BitcoinAmountLabel {
-                value: checkAndSendTx.payment === null ? 0 : checkAndSendTx.payment.paymentAmount
+                value: {
+                    if (checkAndSendTx.payment === null)
+                        return 0;
+                    var val = checkAndSendTx.payment.paymentAmount;
+                    if (val === -1)
+                        return account.balanceConfirmed + account.balanceUnconfirmed;
+                    return val;
+                }
                 fontPtSize: origText.font.pointSize
                 colorize: false
                 textColor: mainWindow.palette.text
