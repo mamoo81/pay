@@ -37,6 +37,7 @@ target_link_libraries(test_wallet
     ${OPENSSL_LIBRARIES}
     ${Boost_LIBRARIES}
     Qt5::Test
+    Qt5::Gui
 )
 
 add_test(NAME Pay_test_wallet COMMAND test_wallet)

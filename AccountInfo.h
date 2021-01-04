@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tomz@freedommail.ch>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include <QObject>
 #include "WalletHistoryModel.h"
 #include "TransactionInfo.h"
+#include <PaymentRequest.h>
 #include <memory>
 
 class Wallet;
@@ -71,6 +72,7 @@ public:
     bool isDefaultWallet();
 
     Q_INVOKABLE TransactionInfo* txInfo(int walletIndex, QObject *parent);
+    Q_INVOKABLE QObject* createPaymentRequest(QObject *parent);
 
 signals:
     void balanceChanged();

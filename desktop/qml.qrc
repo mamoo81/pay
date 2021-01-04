@@ -3,22 +3,23 @@
         <file alias="FloweePay.png">../images/FloweePay.png</file>
         <file>heart.svg</file>
         <file>heart-red.svg</file>
-        <file>main.qml</file>
-        <file>WalletTransaction.qml</file>
-        <file>NetView.qml</file>
-        <file>BitcoinAmountLabel.qml</file>
-        <file>SendTransactionPane.qml</file>
-        <file>BitcoinValueField.qml</file>
-        <file>ControlColors.js</file>
-        <file>AccountSelectionPage.qml</file>
-        <file>ConfigItem.qml</file>
-        <file>AccountPage.qml</file>
-        <file>Button2.qml</file>
-        <file>NewAccountDialog.qml</file>
-        <file>SyncIndicator.qml</file>
-        <file>AccountDetails.qml</file>
-        <file>WalletTransactionDetails.qml</file>
         <file>defaults.ini</file>
+        <file>AccountDetails.qml</file>
+        <file>AccountPage.qml</file>
+        <file>AccountSelectionPage.qml</file>
         <file>ArrowPoint.qml</file>
+        <file>BitcoinAmountLabel.qml</file>
+        <file>BitcoinValueField.qml</file>
+        <file>Button2.qml</file>
+        <file>ConfigItem.qml</file>
+        <file>ControlColors.js</file>
+        <file>main.qml</file>
+        <file>NetView.qml</file>
+        <file>NewAccountDialog.qml</file>
+        <file>ReceiveTransactionPane.qml</file>
+        <file>SendTransactionPane.qml</file>
+        <file>SyncIndicator.qml</file>
+        <file>WalletTransactionDetails.qml</file>
+        <file>WalletTransaction.qml</file>
     </qresource>
 </RCC>

@@ -23,6 +23,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
 # Check http://doc.qt.io/qt-5/deployment-android.html for more information.
@@ -38,6 +39,7 @@ set(CMAKE_CXX_STANDARD 11)
 #endif()
 
 find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+find_package(QREncode REQUIRED)
 
 set (PAY_SOURCES
     AccountInfo.cpp
@@ -47,11 +49,13 @@ set (PAY_SOURCES
     NetDataProvider.cpp
     NetPeer.cpp
     Payment.cpp
+    PaymentRequest.cpp
     PortfolioDataProvider.cpp
+    QRCreator.cpp
     TransactionInfo.cpp
     Wallet.cpp
-    Wallet_support.cpp
     WalletHistoryModel.cpp
+    Wallet_support.cpp
 )
 
 if(ANDROID)
@@ -81,7 +85,7 @@ target_link_libraries(pay
     flowee_p2p
     ${OPENSSL_LIBRARIES}
     ${Boost_LIBRARIES}
-    Qt5::Core Qt5::Quick)
+    Qt5::Core Qt5::Quick ${QREncode_LIBRARIES})
 
 add_subdirectory(testing)
 

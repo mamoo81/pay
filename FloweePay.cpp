@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tomz@freedommail.ch>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@
 #include <streaming/MessageBuilder.h>
 
 #include <QStandardPaths>
-#include <QCoreApplication>
+#include <QGuiApplication>
+#include <QClipboard>
 #include <QLocale>
 #include <QSettings>
 #include <QFile>
@@ -271,6 +272,11 @@ P2PNet::Chain FloweePay::chain() const
 void FloweePay::setChain(const P2PNet::Chain &chain)
 {
     m_chain = chain;
+}
+
+void FloweePay::copyToClipboard(const QString &text)
+{
+    QGuiApplication::clipboard()->setText(text);
 }
 
 FloweePay::UnitOfBitcoin FloweePay::unit() const

@@ -146,6 +146,9 @@ Pane {
                 Button2 {
                     text: qsTr("&Receive...")
                     enabled: stack.depth === 1
+                    onClicked: {
+                        stack.push("./ReceiveTransactionPane.qml")
+                    }
                 }
             }
         }

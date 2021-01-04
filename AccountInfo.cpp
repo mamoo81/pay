@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tomz@freedommail.ch>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,4 +113,9 @@ TransactionInfo* AccountInfo::txInfo(int walletIndex, QObject *parent)
     auto info = new TransactionInfo(parent);
     m_wallet->fetchTransactionInfo(info, walletIndex);
     return info;
+}
+
+QObject *AccountInfo::createPaymentRequest(QObject *parent)
+{
+    return new PaymentRequest(m_wallet, parent);
 }

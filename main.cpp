@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "BitcoinValue.h"
+#include "FloweePay.h"
 #include "NetDataProvider.h"
 #include "PortfolioDataProvider.h"
-#include "FloweePay.h"
-#include "BitcoinValue.h"
+#include "QRCreator.h"
 
 #include <primitives/key.h> // for ECC_Start()
 
@@ -97,8 +98,10 @@ int main(int argc, char *argv[])
         FloweePay::selectChain(P2PNet::Testnet4Chain);
 
     ECC_State crypo_state; // allows the secp256k1 to function.
-    qmlRegisterType<TransactionInfo>("org.flowee", 1, 0, "TransactionInfo");
+    qmlRegisterType<TransactionInfo>("org.flowee.pay", 1, 0, "TransactionInfo");
     QQmlApplicationEngine engine;
+    engine.addImageProvider(QLatin1String("qr"), new QRCreator());
+
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     engine.rootContext()->setContextProperty("Flowee", FloweePay::instance());
     engine.load(url);
