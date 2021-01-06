@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,8 +42,13 @@ FocusScope {
         id: privValue
     }
     MouseArea {
+        cursorShape: Qt.IBeamCursor
         anchors.fill: parent
-        onClicked: root.focus = true
+        onClicked: {
+            root.focus = true
+            root.forceActiveFocus()
+        }
+
     }
 
     BitcoinAmountLabel {
