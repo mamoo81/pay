@@ -1,5 +1,5 @@
 # This file is part of the Flowee project
-# Copyright (C) 2020 Tom Zander <tom@flowee.org>
+# Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ include_directories(
 add_executable(test_wallet
     TestWallet.cpp
     ${CMAKE_SOURCE_DIR}/FloweePay.cpp
+    ${CMAKE_SOURCE_DIR}/PaymentRequest.cpp
     ${CMAKE_SOURCE_DIR}/Wallet.cpp
     ${CMAKE_SOURCE_DIR}/TransactionInfo.cpp
     ${CMAKE_SOURCE_DIR}/Wallet_support.cpp

@@ -115,6 +115,13 @@ Pane {
                 Layout.fillWidth: true
             }
             Button {
+                text: qsTr("Remember", "payment request")
+                onClicked: {
+                    receivePane.request.rememberPaymentRequest();
+                    receivePane.visible = false;
+                }
+            }
+            Button {
                 text: qsTr("Cancel")
                 onClicked: receivePane.visible = false
             }

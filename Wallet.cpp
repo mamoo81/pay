@@ -18,6 +18,7 @@
 #include "Wallet.h"
 #include "Wallet_p.h"
 #include "FloweePay.h"
+#include "PaymentRequest.h"
 #include "TransactionInfo.h"
 
 #include <primitives/script.h>
@@ -441,6 +442,18 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
         out->setSpent(m_unspentOutputs.find(OutputRef(txIndex, o.first).encoded()) == m_unspentOutputs.end());
         info->m_outputs[o.first] = out;
     }
+}
+
+void Wallet::addPaymentRequest(PaymentRequest *pr)
+{
+    m_paymentRequests.append(pr);
+    m_walletChanged = true;
+}
+
+void Wallet::removePaymentRequest(PaymentRequest *pr)
+{
+    m_paymentRequests.removeAll(pr);
+    m_walletChanged = true;
 }
 
 int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
@@ -987,6 +1000,7 @@ void Wallet::loadWallet()
     Output output;
     QSet<int> newTx;
     int highestBlockHeight = 0;
+    PaymentRequest *pr = nullptr;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
             assert(index > 0);
@@ -1082,6 +1096,27 @@ void Wallet::loadWallet()
         else if (parser.tag() == WalletPriv::LastSynchedBlock) {
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
+        else if (parser.tag() == WalletPriv::PaymentRequestType) {
+            pr = new PaymentRequest(this, -1);
+            m_paymentRequests.append(pr);
+        }
+        else if (parser.tag() == WalletPriv::PaymentRequestAddress) {
+            assert(pr);
+            pr->m_privKeyId = parser.intData();
+        }
+        else if (parser.tag() == WalletPriv::PaymentRequestMessage) {
+            assert(pr);
+            auto data = parser.bytesDataBuffer();
+            pr->m_message = QString::fromUtf8(data.begin(), data.size());
+        }
+        else if (parser.tag() == WalletPriv::PaymentRequestAmount) {
+            assert(pr);
+            pr->m_amountRequested = parser.longData();
+        }
+        else if (parser.tag() == WalletPriv::PaymentRequestOldAddress) {
+            assert(pr);
+            pr->m_useLegacyAddressFormat = parser.boolData();
+        }
     }
 
     // after inserting all outputs during load, now remove all inputs these tx's spent.
@@ -1173,6 +1208,18 @@ void Wallet::saveWallet()
     }
     builder.add(WalletPriv::LastSynchedBlock, m_segment->lastBlockSynched());
     builder.add(WalletPriv::WalletName, m_name.toUtf8().toStdString());
+
+    for (auto pr : m_paymentRequests) {
+        builder.add(WalletPriv::PaymentRequestType, 0); // bip21 is the only one supported right now
+        builder.add(WalletPriv::PaymentRequestAddress, pr->m_privKeyId);
+        if (!pr->m_message.isEmpty())
+            builder.add(WalletPriv::PaymentRequestMessage, pr->m_message.toUtf8().constData());
+        assert(pr->m_amountRequested >= 0); // never negative
+        if (pr->m_amountRequested > 0)
+            builder.add(WalletPriv::PaymentRequestAmount, (uint64_t) pr->m_amountRequested);
+        if (pr->m_useLegacyAddressFormat)
+            builder.add(WalletPriv::PaymentRequestOldAddress, true);
+    }
 
     auto data = builder.buffer();
 

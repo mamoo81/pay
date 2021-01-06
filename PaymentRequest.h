@@ -75,11 +75,17 @@ public:
     bool useLegacyAddress();
     void setUseLegacyAddress(bool on);
 
+    Q_INVOKABLE void rememberPaymentRequest();
+
 signals:
     void messageChanged();
     void qrCodeStringChanged();
     void amountChanged();
     void legacyChanged();
+
+protected:
+    friend class Wallet;
+    explicit PaymentRequest(Wallet *wallet, int paymentType);
 
 private:
     Wallet * const m_wallet;
@@ -90,7 +96,6 @@ private:
     bool m_useLegacyAddressFormat = false;
     State m_state = Unpaid;
     qint64 m_amountRequested = 0;
-    qint64 m_amountReceived = 0;
 };
 
 #endif

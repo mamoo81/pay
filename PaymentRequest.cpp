@@ -29,13 +29,25 @@ PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
 {
     Q_ASSERT(m_wallet);
     m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
+    m_wallet->addPaymentRequest(this);
+}
+
+// constructor used to 'load' a request, already owned by the wallet.
+PaymentRequest::PaymentRequest(Wallet *wallet, int /* type */)
+    : QObject(wallet),
+      m_wallet(wallet)
+{
+    // TODO remember type when we start to support more than just BIP21
+    m_unusedRequest = false;
 }
 
 PaymentRequest::~PaymentRequest()
 {
     // free address again, if the ownership hasn't moved to be the wallet itself.
-    if (m_unusedRequest)
+    if (m_unusedRequest) {
+        m_wallet->removePaymentRequest(this);
         m_wallet->unreserveAddress(m_privKeyId);
+    }
 }
 
 QString PaymentRequest::message() const
@@ -138,4 +150,12 @@ void PaymentRequest::setUseLegacyAddress(bool on)
     m_useLegacyAddressFormat = on;
     emit legacyChanged();
     emit qrCodeStringChanged();
+}
+
+void PaymentRequest::rememberPaymentRequest()
+{
+    if (!m_unusedRequest)
+        return;
+    m_unusedRequest = true;
+    setParent(m_wallet);
 }

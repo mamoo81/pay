@@ -34,6 +34,7 @@
 
 class WalletInfoObject;
 class TransactionInfo;
+class PaymentRequest;
 
 class Wallet : public QObject, public DataListenerInterface
 {
@@ -159,6 +160,9 @@ public:
 
     void fetchTransactionInfo(TransactionInfo *info, int txIndex);
 
+    void addPaymentRequest(PaymentRequest *pr);
+    void removePaymentRequest(PaymentRequest *pr);
+
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
@@ -252,6 +256,8 @@ private:
     bool m_singleAddressWallet = false;
 
     QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
+
+    QList<PaymentRequest*> m_paymentRequests;
 };
 
 #endif

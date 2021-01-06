@@ -68,6 +68,14 @@ enum WalletDataSaveTags {
     OutputValue,            // in Satoshi
     OutputFromCoinbase,     // bool
     KeyStoreIndex,          // int that refers to the index of the privkey.
+
+    // PaymentRequests
+    PaymentRequestType = 40,// int, BIP21 or other
+    PaymentRequestAddress,  // int, the ID of the private-key
+    PaymentRequestMessage,  // string
+    PaymentRequestAmount,   // long, num satoshis
+    PaymentRequestOldAddress,// bool (default false)
+
 };
 
 enum InputLockStateEnum {
