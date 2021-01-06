@@ -17,17 +17,25 @@
  */
 #include "PaymentRequest.h"
 #include "FloweePay.h"
+#include "Wallet.h"
+
+#include <QUrl>
+#include <base58.h>
+#include <cashaddr.h>
 
 PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
   : QObject(parent),
   m_wallet(wallet)
 {
-    // reserve address here.
+    Q_ASSERT(m_wallet);
+    m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
 }
 
 PaymentRequest::~PaymentRequest()
 {
-     // free address again, if the ownership hasn't moved to be the wallet itself.
+    // free address again, if the ownership hasn't moved to be the wallet itself.
+    if (m_unusedRequest)
+        m_wallet->unreserveAddress(m_privKeyId);
 }
 
 QString PaymentRequest::message() const
@@ -76,15 +84,58 @@ void PaymentRequest::setState(const State &state)
 
 QString PaymentRequest::qrCodeString() const
 {
-    // TODO use QURL
-    QString rc = QString::fromStdString(FloweePay::instance()->chainPrefix());
-    rc += ":";
-    // TODO add address
-    if (!m_message.isEmpty()) {
-        rc += QString("&message=%1").arg(m_message);
+    QString rc;
+    // add address
+    if (m_useLegacyAddressFormat) {
+        CBase58Data legacy;
+        legacy.setData(m_address, CBase58Data::PubkeyType,
+                       FloweePay::instance()->chain() == P2PNet::MainChain
+                       ? CBase58Data::Mainnet : CBase58Data::Testnet);
+        rc += QString::fromStdString(legacy.ToString());
     }
+    else {
+        CashAddress::Content c;
+        c.hash = std::vector<uint8_t>(m_address.begin(), m_address.end());
+        c.type = CashAddress::PUBKEY_TYPE;
+        rc += QString::fromStdString(CashAddress::encodeCashAddr(FloweePay::instance()->chainPrefix(), c));
+    }
+
+    bool separatorInserted = false; // the questionmark.
     if (m_amountRequested > 0) {
-        rc += QString("&amount=%1").arg(m_amountRequested);
+        // Amount is in whole BCHs
+        QString price = FloweePay::priceToString(m_amountRequested, FloweePay::BCH);
+        int length = price.size() - 1;
+        // we strip trailing zero's
+        while (length >= 0) {
+            if (price.at(length) != '0' && price.at(length) != '.')
+                break;
+            --length;
+        }
+        rc += QString("?amount=%1").arg(price.left(length + 1));
+        separatorInserted = true;
+    }
+    if (!m_message.isEmpty()) {
+        if (separatorInserted)
+            rc += "&";
+        else
+            rc += "?";
+        rc += QString("message=%1").arg(m_message);
+        QUrl url(rc);
+        rc = QString::fromLatin1(url.toEncoded());
     }
     return rc;
+}
+
+bool PaymentRequest::useLegacyAddress()
+{
+    return m_useLegacyAddressFormat;
+}
+
+void PaymentRequest::setUseLegacyAddress(bool on)
+{
+    if (on == m_useLegacyAddressFormat)
+        return;
+    m_useLegacyAddressFormat = on;
+    emit legacyChanged();
+    emit qrCodeStringChanged();
 }

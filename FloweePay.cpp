@@ -200,14 +200,15 @@ QString FloweePay::basedir() const
     return m_basedir;
 }
 
-QString FloweePay::priceToString(qint64 price) const
+// static
+QString FloweePay::priceToString(qint64 price, UnitOfBitcoin unit)
 {
-    if (m_unit == Satoshis)
+    if (unit == Satoshis)
         return QString::number(price);
     QByteArray string(QByteArray::number(std::abs(price)));
 
     int decimals;
-    switch (m_unit) {
+    switch (unit) {
     default:
         decimals = 8;
         break;

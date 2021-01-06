@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -574,32 +574,54 @@ const CKey &Wallet::unlockKey(Wallet::OutputRef ref) const
     return iter3->second.privKey;
 }
 
-CKeyID Wallet::nextChangeAddress()
+CKeyID Wallet::nextUnusedAddress()
+{
+    CKeyID answer;
+    reserveUnusedAddress(answer);
+    return answer;
+}
+
+int Wallet::reserveUnusedAddress(CKeyID &keyId)
 {
     QMutexLocker locker(&m_lock);
     for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
-        if (m_singleAddressWallet)
-            return i->second.address; // just return the first then.
-        if (i->second.initialHeight == -1) // is change address.
-            return i->second.address;
+        if (m_singleAddressWallet) {
+            keyId = i->second.address;
+            return i->first; // just return the first then.
+        }
+        if (i->second.initialHeight == -1 && !i->second.reserved) { // is unused address.
+            i->second.reserved = true;
+            keyId = i->second.address;
+            return i->first;
+        }
     }
 
-    // no change addresses, lets make some.
-    CKeyID answer;
+    // no unused addresses, lets make some.
+    int answer;
     for (int i = 0; i < 50; ++i) {
         WalletSecret secret;
         secret.privKey.MakeNewKey();
 
         const CPubKey pubkey = secret.privKey.GetPubKey();
         secret.address = pubkey.GetID();
-        if (i == 0)
-            answer = secret.address;
+        if (i == 0) {
+            answer = m_nextWalletSecretId;
+            keyId = secret.address;
+        }
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
     }
     m_secretsChanged = true;
     saveSecrets();
 
     return answer;
+}
+
+void Wallet::unreserveAddress(int index)
+{
+    QMutexLocker locker(&m_lock);
+    auto f = m_walletSecrets.find(index);
+    if (f != m_walletSecrets.end())
+        f->second.reserved = false;
 }
 
 namespace {

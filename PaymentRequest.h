@@ -20,6 +20,8 @@
 
 #include <QObject>
 
+#include <primitives/pubkey.h>
+
 class Wallet;
 
 /**
@@ -33,6 +35,7 @@ class PaymentRequest : public QObject
     Q_PROPERTY(QString message READ message WRITE setMessage NOTIFY messageChanged)
     Q_PROPERTY(QString qr READ qrCodeString NOTIFY qrCodeStringChanged)
     Q_PROPERTY(double amount READ amountFP WRITE setAmountFP NOTIFY amountChanged)
+    Q_PROPERTY(bool legacy READ useLegacyAddress WRITE setUseLegacyAddress NOTIFY legacyChanged)
 public:
     enum State {
         Unpaid,
@@ -64,22 +67,28 @@ public:
     double amountFP() const;
     qint64 amount() const;
 
-
     State state() const;
     void setState(const State &state);
 
     QString qrCodeString() const;
 
+    bool useLegacyAddress();
+    void setUseLegacyAddress(bool on);
+
 signals:
     void messageChanged();
     void qrCodeStringChanged();
     void amountChanged();
+    void legacyChanged();
 
 private:
-    const Wallet *m_wallet;
+    Wallet * const m_wallet;
     QString m_message;
-    State m_state = Unpaid;
+    CKeyID m_address;
     int m_privKeyId = -1; // refers to the Wallets list of private keys
+    bool m_unusedRequest = true; ///< true as long as the user did not decide to save the request
+    bool m_useLegacyAddressFormat = false;
+    State m_state = Unpaid;
     qint64 m_amountRequested = 0;
     qint64 m_amountReceived = 0;
 };

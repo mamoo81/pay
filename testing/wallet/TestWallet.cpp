@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ void TestWallet::addingTransactions()
     uint256 prevTxId = uint256S("0x12830924807308721309128309128");
     b1.appendInput(prevTxId, 0);
     b1.appendOutput(1000000);
-    b1.pushOutputPay2Address(wallet->nextChangeAddress());
+    b1.pushOutputPay2Address(wallet->nextUnusedAddress());
     Streaming::BufferPool pool;
     Tx t1 = b1.createTransaction(&pool);
     QCOMPARE(wallet->balanceConfirmed(), 0);
@@ -102,9 +102,9 @@ void TestWallet::addingTransactions()
     //   1000000 -> 200000, 500000 [and 290000 we send elsewhere]
     TransactionBuilder b2;
     b2.appendOutput(200000);
-    b2.pushOutputPay2Address(wallet->nextChangeAddress());
+    b2.pushOutputPay2Address(wallet->nextUnusedAddress());
     b2.appendOutput(500000);
-    b2.pushOutputPay2Address(wallet->nextChangeAddress());
+    b2.pushOutputPay2Address(wallet->nextUnusedAddress());
     b2.appendOutput(290000);
     CKeyID id("99999999999999999999");
     b2.pushOutputPay2Address(id);
@@ -136,7 +136,7 @@ void TestWallet::addingTransactions()
     // UTXOs in the wallet.
     TransactionBuilder b3;
     b3.appendOutput(698700);
-    b3.pushOutputPay2Address(wallet->nextChangeAddress());
+    b3.pushOutputPay2Address(wallet->nextUnusedAddress());
     funding = wallet->findInputsFor(698700, 1, b3.createTransaction(&pool).size(), change);
     QCOMPARE(funding.outputs.size(), 2L);
     for (auto ref : funding.outputs) {
@@ -163,7 +163,7 @@ void TestWallet::addingTransactions()
     auto output = wallet->txOutout(ref);
     QCOMPARE(output.outputValue, 200000);
     b4.appendOutput(output.outputValue - 1673);
-    b4.pushOutputPay2Address(wallet->nextChangeAddress());
+    b4.pushOutputPay2Address(wallet->nextUnusedAddress());
     Tx t4 = b4.createTransaction(&pool);
 
     // then add the double spend as confirmed.
@@ -189,7 +189,7 @@ void TestWallet::saveTransaction()
         uint256 prevTxId = uint256S("0x12830924807308721309128309128");
         b1.appendInput(prevTxId, 0);
         b1.appendOutput(1000000);
-        b1.pushOutputPay2Address(wallet->nextChangeAddress());
+        b1.pushOutputPay2Address(wallet->nextUnusedAddress());
         Tx t1 = b1.createTransaction(&pool);
         QCOMPARE(wallet->balanceConfirmed(), 0);
         QCOMPARE(wallet->balanceUnconfirmed(), 0);
@@ -210,7 +210,7 @@ void TestWallet::saveTransaction()
 
         TransactionBuilder b2;
         b2.appendOutput(200000);
-        b2.pushOutputPay2Address(wallet->nextChangeAddress());
+        b2.pushOutputPay2Address(wallet->nextUnusedAddress());
         b2.appendOutput(790000);
         CKeyID id("99999999999999999999");
         b2.pushOutputPay2Address(id);
@@ -253,7 +253,7 @@ void TestWallet::saveTransaction2()
         TransactionBuilder b1;
         b1.appendInput(uint256(), 0); // coinbase
         b1.appendOutput(50);
-        b1.pushOutputPay2Address(wallet->nextChangeAddress());
+        b1.pushOutputPay2Address(wallet->nextUnusedAddress());
         Tx t1 = b1.createTransaction(&pool);
         std::deque<Tx> list;
         list.push_back(t1);
@@ -267,7 +267,7 @@ void TestWallet::saveTransaction2()
         TransactionBuilder b2;
         b2.appendInput(uint256(), 0); // coinbase
         b2.appendOutput(51);
-        b2.pushOutputPay2Address(wallet->nextChangeAddress());
+        b2.pushOutputPay2Address(wallet->nextUnusedAddress());
         Tx t2 = b2.createTransaction(&pool);
         list[0] = t2;
         wallet->newTransactions(dummyHeader, 50, list);
@@ -278,7 +278,7 @@ void TestWallet::saveTransaction2()
         TransactionBuilder b3;
         b3.appendInput(t1.createHash(), 0);
         b3.appendOutput(40);
-        b3.pushOutputPay2Address(wallet->nextChangeAddress());
+        b3.pushOutputPay2Address(wallet->nextUnusedAddress());
         b3.appendOutput(10);
         CKeyID id("666");
         b3.pushOutputPay2Address(id);

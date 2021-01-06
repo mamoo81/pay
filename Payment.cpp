@@ -169,7 +169,7 @@ void Payment::approveAndSign()
         // create a tiny change UTXO
         if (change > 1000) { // create a change-output
             changeOutput = builder.appendOutput(change);
-            builder.pushOutputPay2Address(m_wallet->nextChangeAddress());
+            builder.pushOutputPay2Address(m_wallet->nextUnusedAddress());
             m_assignedFee -= change;
         }
     }

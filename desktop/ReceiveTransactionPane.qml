@@ -36,13 +36,41 @@ Pane {
         smooth: false
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: 40
+        anchors.topMargin: 20
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
                 Flowee.copyToClipboard(receivePane.request.qr)
-                // TODO show feedback
+                feedback.opacity = 1
+            }
+        }
+
+        Rectangle {
+            id: feedback
+            opacity: 0
+            width: 200
+            height: feedbackText.height + 20
+            radius: 10
+            color: Flowee.useDarkSkin ? "#333" : "#ddd"
+            anchors.centerIn: parent
+
+            Label {
+                id: feedbackText
+                width: parent.width - 20
+                x: 10
+                y: 10
+                text: qsTr("Copied to clipboard")
+                wrapMode: Text.WordWrap
+            }
+
+            Behavior on opacity { OpacityAnimator {} }
+
+            /// after 10 seconds, remove feedback.
+            Timer {
+                interval: 10000
+                running: feedback.opacity === 1
+                onTriggered: feedback.opacity = 0
             }
         }
     }
@@ -52,7 +80,7 @@ Pane {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: qrCode.bottom
-        anchors.topMargin: 20
+        anchors.topMargin: 30
         columns: 2
         Label {
             text: qsTr("Description:")
@@ -62,29 +90,34 @@ Pane {
             Layout.fillWidth: true
             onTextChanged: receivePane.request.message = text
         }
-        // next row
+
         Label {
             id: payAmount
-            text: "Amount:"
+            text: qsTr("Amount:")
         }
         BitcoinValueField {
             id: bitcoinValueField
             fontPtSize: payAmount.font.pointSize
             onValueChanged: receivePane.request.amount = value
         }
+
+        CheckBox {
+            id: legacyAddress
+            Layout.columnSpan: 2
+            text: qsTr("Legacy address")
+            onCheckStateChanged: receivePane.request.legacy = checked
+        }
+
+        RowLayout {
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
+            Pane {
+                Layout.fillWidth: true
+            }
+            Button {
+                text: qsTr("Cancel")
+                onClicked: receivePane.visible = false
+            }
+        }
     }
-
-    /*
-      Destination address:
-        - if this is a single address wallet, than this is simple.
-        - have a right-click-on-address menu for everywhere else
-          which has copy but also has "request payment to...".
-          This address should be possible to show here too.
-
-       Description
-       Amount
-
-       BIP70 style receiving
-       New style receiving.
-     */
 }

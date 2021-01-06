@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,8 +129,14 @@ public:
     /// Fetch UTXO key
     const CKey &unlockKey(OutputRef ref) const;
 
-    /// Return the bitcoin address (160 bits ripe key) for change.
-    CKeyID nextChangeAddress();
+    /// Return a bitcoin address (160 bits ripe key) for deposit.
+    CKeyID nextUnusedAddress();
+
+    /// Return a private-key-index for deposits and reserve it from re-use.
+    int reserveUnusedAddress(CKeyID &keyId);
+
+    /// The opposite of reserveUnusedAddress, free for usage an address.
+    void unreserveAddress(int index);
 
     struct OutputSet {
         std::vector<OutputRef> outputs;
@@ -186,6 +192,8 @@ private:
         CKey privKey;
         CKeyID address;
         int initialHeight = -1;
+        /// if true, this address has been reseved to receive funds on
+        bool reserved = false; // in-mem-only
     };
 
     int m_nextWalletSecretId = 1;
