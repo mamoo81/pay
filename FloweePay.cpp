@@ -93,10 +93,6 @@ FloweePay::~FloweePay()
     saveData();
 
     qDeleteAll(m_wallets);
-    QSettings appConfig;
-    appConfig.setValue(WINDOW_HEIGHT, m_windowHeight);
-    appConfig.setValue(WINDOW_WIDTH, m_windowWidth);
-    appConfig.setValue(DARKSKIN, m_darkSkin);
 }
 
 // static
@@ -333,6 +329,8 @@ void FloweePay::setDarkSkin(bool darkSkin)
         return;
     m_darkSkin = darkSkin;
     emit darkSkinChanged();
+    QSettings appConfig;
+    appConfig.setValue(DARKSKIN, m_darkSkin);
 }
 
 int FloweePay::windowHeight() const
@@ -345,6 +343,8 @@ void FloweePay::setWindowHeight(int windowHeight)
     if (m_windowHeight == windowHeight)
         return;
     m_windowHeight = windowHeight;
+    QSettings appConfig;
+    appConfig.setValue(WINDOW_HEIGHT, m_windowHeight);
     emit windowHeightChanged();
 }
 
@@ -361,8 +361,8 @@ void FloweePay::setWindowWidth(int windowWidth)
         return;
     m_windowWidth = windowWidth;
     emit windowWidthChanged();
-    // QSettings appSettings;
-    // appSettings.setValue(WINDOW_WIDTH, windowWidth);
+    QSettings appConfig;
+    appConfig.setValue(WINDOW_WIDTH, m_windowWidth);
 }
 
 int FloweePay::walletStartHeightHint() const
