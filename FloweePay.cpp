@@ -351,8 +351,6 @@ void FloweePay::setWindowHeight(int windowHeight)
 int FloweePay::windowWidth() const
 {
     return m_windowWidth;
-    // QSettings appSettings;
-    // return appSettings.value(WINDOW_WIDTH, 800).toInt();
 }
 
 void FloweePay::setWindowWidth(int windowWidth)
