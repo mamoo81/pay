@@ -336,6 +336,11 @@ Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) con
     return Tx();
 }
 
+QList<PaymentRequest *> Wallet::paymentRequests() const
+{
+    return m_paymentRequests;
+}
+
 namespace {
 QString renderAddress(const CKeyID &pubkeyhash)
 {
@@ -448,12 +453,14 @@ void Wallet::addPaymentRequest(PaymentRequest *pr)
 {
     m_paymentRequests.append(pr);
     m_walletChanged = true;
+    emit paymentRequestsChanged();
 }
 
 void Wallet::removePaymentRequest(PaymentRequest *pr)
 {
     m_paymentRequests.removeAll(pr);
     m_walletChanged = true;
+    emit paymentRequestsChanged();
 }
 
 int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
@@ -1097,12 +1104,18 @@ void Wallet::loadWallet()
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
         else if (parser.tag() == WalletPriv::PaymentRequestType) {
-            pr = new PaymentRequest(this, -1);
+            pr = new PaymentRequest(this, parser.intData());
             m_paymentRequests.append(pr);
         }
         else if (parser.tag() == WalletPriv::PaymentRequestAddress) {
             assert(pr);
             pr->m_privKeyId = parser.intData();
+            auto i = m_walletSecrets.find(pr->m_privKeyId);
+            if (i != m_walletSecrets.end()) {
+                i->second.reserved = true;
+            } else {
+                logFatal() << "PaymentRequest refers to non-existing wallet-secret!";
+            }
         }
         else if (parser.tag() == WalletPriv::PaymentRequestMessage) {
             assert(pr);

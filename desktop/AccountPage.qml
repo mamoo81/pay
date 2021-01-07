@@ -204,4 +204,41 @@ Pane {
             function onVisibleChanged() { stack.pop(); }
         }
     }
+
+    Flow {
+        width: parent.width
+        anchors.bottom: parent.bottom
+        spacing: 10
+        Repeater {
+            model: root.account.paymentRequests
+            delegate: Rectangle {
+                width: 70
+                height: width
+                radius: 25
+                border.width: 6
+                border.color: {
+                    var state = modelData.state;
+                    if (state === PaymentRequest.Unpaid)
+                        return "#888888"
+                    if (state === PaymentRequest.PaymentSeen)
+                        return "yellow"
+                    if (state === PaymentRequest.PaymentSeenOk
+                            || state === PaymentRequest.Confirmed)
+                        return "yellow"
+                    if (state === PaymentRequest.DoubleSpentSeen)
+                        return "red"
+                    console.log("unknown payment state")
+                    return "blue";
+                }
+
+                // don't show the ones we are editing
+                visible: modelData.saveState === PaymentRequest.Saved
+
+                Text {
+                    anchors.centerIn: parent
+                    text: modelData.message
+                }
+            }
+        }
+    }
 }

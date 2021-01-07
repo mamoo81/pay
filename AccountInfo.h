@@ -41,6 +41,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(WalletHistoryModel* transactions READ historyModel CONSTANT)
     Q_PROPERTY(bool isDefaultWallet READ isDefaultWallet WRITE setDefaultWallet NOTIFY isDefaultWalletChanged)
+    Q_PROPERTY(QList<QObject*> paymentRequests READ paymentRequests NOTIFY paymentRequestsChanged)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -71,7 +72,15 @@ public:
     void setDefaultWallet(bool isDefault);
     bool isDefaultWallet();
 
+    /**
+     * All payment requests that are created for this account.
+     */
+    QList<QObject*> paymentRequests() const;
+
     Q_INVOKABLE TransactionInfo* txInfo(int walletIndex, QObject *parent);
+    /**
+     * Start a new payment-request
+     */
     Q_INVOKABLE QObject* createPaymentRequest(QObject *parent);
 
 signals:
@@ -80,6 +89,7 @@ signals:
     void nameChanged();
     void lastBlockSynchedChanged();
     void isDefaultWalletChanged();
+    void paymentRequestsChanged();
 
 private:
     Wallet *m_wallet;

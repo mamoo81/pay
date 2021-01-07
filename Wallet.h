@@ -163,6 +163,8 @@ public:
     void addPaymentRequest(PaymentRequest *pr);
     void removePaymentRequest(PaymentRequest *pr);
 
+    QList<PaymentRequest *> paymentRequests() const;
+
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
@@ -174,6 +176,7 @@ signals:
     void utxosChanged();
     void appendedTransactions(int firstNew, int count);
     void lastBlockSynchedChanged();
+    void paymentRequestsChanged();
 
 protected:
     Wallet();

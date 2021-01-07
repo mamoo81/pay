@@ -36,13 +36,26 @@ class PaymentRequest : public QObject
     Q_PROPERTY(QString qr READ qrCodeString NOTIFY qrCodeStringChanged)
     Q_PROPERTY(double amount READ amountFP WRITE setAmountFP NOTIFY amountChanged)
     Q_PROPERTY(bool legacy READ useLegacyAddress WRITE setUseLegacyAddress NOTIFY legacyChanged)
+    Q_PROPERTY(SaveState saveState READ saveState WRITE setSaveState NOTIFY saveStateChanged)
+    Q_PROPERTY(PaymentState state READ paymentState WRITE setPaymentState NOTIFY paymentStateChanged)
 public:
-    enum State {
-        Unpaid,
-        PaymentSeen,
-        DoubleSpentSeen,
-        Confirmed
+    /// The state of this payment
+    enum PaymentState {
+        Unpaid,         //< we have not seen any payment yet.
+        PaymentSeen,    //< A payment has been seen, there is still risk.
+        PaymentSeenOk,  //< A payment has been seen, we waited and no DSP came.
+        DoubleSpentSeen,//< We have seen a double-spend-proof (DSP). This is bad.
+        Confirmed       //< We got paid.
     };
+    enum SaveState {
+        Unsaved,
+        Saved,
+        OpenForEditing
+    };
+    Q_ENUM(SaveState PaymentState)
+
+    /// Dummy constructor.
+    PaymentRequest(QObject *parent = nullptr);
     explicit PaymentRequest(Wallet *wallet, QObject *parent = nullptr);
     ~PaymentRequest();
 
@@ -67,8 +80,8 @@ public:
     double amountFP() const;
     qint64 amount() const;
 
-    State state() const;
-    void setState(const State &state);
+    PaymentState state() const;
+    void setState(const PaymentState &state);
 
     QString qrCodeString() const;
 
@@ -77,11 +90,19 @@ public:
 
     Q_INVOKABLE void rememberPaymentRequest();
 
+    SaveState saveState() const;
+    void setSaveState(const SaveState &saveState);
+
+    PaymentState paymentState() const;
+    void setPaymentState(const PaymentState &paymentState);
+
 signals:
     void messageChanged();
     void qrCodeStringChanged();
     void amountChanged();
     void legacyChanged();
+    void saveStateChanged();
+    void paymentStateChanged();
 
 protected:
     friend class Wallet;
@@ -94,8 +115,10 @@ private:
     int m_privKeyId = -1; // refers to the Wallets list of private keys
     bool m_unusedRequest = true; ///< true as long as the user did not decide to save the request
     bool m_useLegacyAddressFormat = false;
-    State m_state = Unpaid;
+    PaymentState m_state = Unpaid;
     qint64 m_amountRequested = 0;
+    SaveState m_saveState = Unsaved;
+    PaymentState m_paymentState = Unpaid;
 };
 
 #endif

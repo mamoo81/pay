@@ -23,6 +23,13 @@
 #include <base58.h>
 #include <cashaddr.h>
 
+PaymentRequest::PaymentRequest(QObject *parent)
+    : m_wallet(nullptr)
+{
+    // we need this constructor to allow the QML system to see it.
+    assert(false);
+}
+
 PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
   : QObject(parent),
   m_wallet(wallet)
@@ -35,10 +42,34 @@ PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
 // constructor used to 'load' a request, already owned by the wallet.
 PaymentRequest::PaymentRequest(Wallet *wallet, int /* type */)
     : QObject(wallet),
-      m_wallet(wallet)
+      m_wallet(wallet),
+    m_saveState(Saved)
 {
     // TODO remember type when we start to support more than just BIP21
     m_unusedRequest = false;
+}
+
+PaymentRequest::PaymentState PaymentRequest::paymentState() const
+{
+    return m_paymentState;
+}
+
+void PaymentRequest::setPaymentState(const PaymentState &paymentState)
+{
+    m_paymentState = paymentState;
+}
+
+PaymentRequest::SaveState PaymentRequest::saveState() const
+{
+    return m_saveState;
+}
+
+void PaymentRequest::setSaveState(const SaveState &saveState)
+{
+    if (m_saveState == saveState)
+        return;
+    m_saveState = saveState;
+    emit saveStateChanged();
 }
 
 PaymentRequest::~PaymentRequest()
@@ -84,12 +115,12 @@ qint64 PaymentRequest::amount() const
     return m_amountRequested;
 }
 
-PaymentRequest::State PaymentRequest::state() const
+PaymentRequest::PaymentState PaymentRequest::state() const
 {
     return m_state;
 }
 
-void PaymentRequest::setState(const State &state)
+void PaymentRequest::setState(const PaymentState &state)
 {
     m_state = state;
 }
@@ -158,4 +189,5 @@ void PaymentRequest::rememberPaymentRequest()
         return;
     m_unusedRequest = true;
     setParent(m_wallet);
+    setSaveState(Saved);
 }

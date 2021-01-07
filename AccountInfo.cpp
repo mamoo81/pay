@@ -29,6 +29,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(balanceChanged()), this, SIGNAL(balanceChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
 }
 
 int AccountInfo::id() const
@@ -105,6 +106,15 @@ bool AccountInfo::isDefaultWallet()
     if (!segment)
         return false;
     return segment->priority() == PrivacySegment::First;
+}
+
+QList<QObject *> AccountInfo::paymentRequests() const
+{
+    QList<QObject*> answer;
+    for (const auto pr : m_wallet->paymentRequests()) {
+        answer.append(pr);
+    }
+    return answer;
 }
 
 TransactionInfo* AccountInfo::txInfo(int walletIndex, QObject *parent)
