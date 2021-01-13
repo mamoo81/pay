@@ -155,13 +155,19 @@ void Wallet::newTransaction(const Tx &tx)
             m_autoLockedOutputs.insert(std::make_pair(i->second, m_nextWalletTransactionId));
         }
 
-        // insert new UTXOs
+        // insert new UTXOs and update possible hits in the paymentRequests
         for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
             uint64_t key = m_nextWalletTransactionId;
             key <<= 16;
             key += i->first;
             logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
             m_unspentOutputs.insert(std::make_pair(key, i->second.value));
+
+            const int privKeyId = i->second.walletSecretId;
+            for (auto pr : m_paymentRequests) {
+                if (pr->m_privKeyId == privKeyId)
+                    pr->addPayment(key, i->second.value);
+            }
         }
 
         // and remember the transaction
@@ -184,6 +190,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
     std::deque<Tx> transactionsToSave;
     std::set<int> ejectedTransactions;
     int firstNewTransaction;
+    bool needNewBloom = false;
     {
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
@@ -234,14 +241,27 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 }
             }
 
-            if (!wasUnconfirmed) { // unconfirmed transactions already had their outputs added
-                // insert new UTXOs
-                for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
-                    uint64_t key = m_nextWalletTransactionId;
-                    key <<= 16;
-                    key += i->first;
+            // process new UTXOs
+            for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
+                uint64_t key = m_nextWalletTransactionId;
+                key <<= 16;
+                key += i->first;
+                if (!wasUnconfirmed) { // unconfirmed transactions already had their outputs added
                     logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
                     m_unspentOutputs.insert(std::make_pair(key, i->second.value));
+                }
+
+                // check the payment requests
+                const int privKeyId = i->second.walletSecretId;
+                auto ws = m_walletSecrets.find(privKeyId);
+                if (ws != m_walletSecrets.end() && ws->second.initialHeight == -1) {
+                    ws->second.initialHeight = blockHeight;
+                    needNewBloom = true; // make sure we let the remote know about our 'gap' addresses
+                }
+
+                for (auto pr : m_paymentRequests) {
+                    if (pr->m_privKeyId == privKeyId)
+                        pr->addPayment(key, i->second.value, blockHeight);
                 }
             }
             // and remember the transaction
@@ -287,6 +307,13 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 auto utxo = m_unspentOutputs.find(key);
                 if (utxo != m_unspentOutputs.end())
                     m_unspentOutputs.erase(utxo);
+
+                // check the payment requests
+                const int privKeyId = i->second.walletSecretId;
+                for (auto pr : m_paymentRequests) {
+                    if (pr->m_privKeyId == privKeyId)
+                        pr->paymentRejected(key, i->second.value);
+                }
             }
         }
     } // mutex scope
@@ -299,6 +326,8 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
         }
     }
     recalculateBalance();
+    if (needNewBloom)
+        rebuildBloom();
 }
 
 void Wallet::saveTransaction(const Tx &tx)
@@ -338,6 +367,7 @@ Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) con
 
 QList<PaymentRequest *> Wallet::paymentRequests() const
 {
+    QMutexLocker locker(&m_lock);
     return m_paymentRequests;
 }
 
@@ -451,6 +481,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
 {
+    QMutexLocker locker(&m_lock);
     m_paymentRequests.append(pr);
     m_walletChanged = true;
     emit paymentRequestsChanged();
@@ -458,6 +489,7 @@ void Wallet::addPaymentRequest(PaymentRequest *pr)
 
 void Wallet::removePaymentRequest(PaymentRequest *pr)
 {
+    QMutexLocker locker(&m_lock);
     m_paymentRequests.removeAll(pr);
     m_walletChanged = true;
     emit paymentRequestsChanged();
@@ -499,8 +531,17 @@ int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
 void Wallet::rebuildBloom()
 {
     auto lock = m_segment->clearFilter();
+    int numRegistredUnused = 0;
     for (auto &priv : m_walletSecrets) {
-        if (priv.second.initialHeight > 0)
+        bool use = priv.second.initialHeight > 0;
+        if (!use && priv.second.reserved)
+            use = true;
+        if (!use) {
+            // also listen to the first 10 unused addresses.
+            use = ++numRegistredUnused <= 10;
+        }
+
+        if (use)
             m_segment->addKeyToFilter(priv.second.address, priv.second.initialHeight);
     }
     for (auto utxo : m_unspentOutputs) {
@@ -612,6 +653,7 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId)
         if (i->second.initialHeight == -1 && !i->second.reserved) { // is unused address.
             i->second.reserved = true;
             keyId = i->second.address;
+            rebuildBloom(); // make sure that we actually observe changes on this address
             return i->first;
         }
     }

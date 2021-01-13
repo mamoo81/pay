@@ -49,6 +49,11 @@ PaymentRequest::PaymentRequest(Wallet *wallet, int /* type */)
     m_unusedRequest = false;
 }
 
+qint64 PaymentRequest::amountSeen() const
+{
+    return m_amountSeen;
+}
+
 PaymentRequest::PaymentState PaymentRequest::paymentState() const
 {
     return m_paymentState;
@@ -57,6 +62,39 @@ PaymentRequest::PaymentState PaymentRequest::paymentState() const
 void PaymentRequest::setPaymentState(const PaymentState &paymentState)
 {
     m_paymentState = paymentState;
+}
+
+void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
+{
+    logFatal() << value << blockHeight;
+    assert(value > 0);
+    if (m_incomingOutputRefs.contains(ref)) {
+        if (m_state >= PaymentSeen && blockHeight != -1) {
+            m_state = Confirmed;
+            emit paymentStateChanged();
+        }
+        return;
+    }
+    m_incomingOutputRefs.append(ref);
+    m_amountSeen += value;
+
+    if (m_state == Unpaid && m_amountSeen >= m_amountRequested) {
+        m_state = PaymentSeen;
+        emit paymentStateChanged();
+    }
+    emit amountSeenChanged();
+}
+
+void PaymentRequest::paymentRejected(uint64_t ref, int64_t value)
+{
+    if (!m_incomingOutputRefs.contains(ref))
+        return;
+    m_amountSeen -= value;
+    if (m_state >= PaymentSeen && m_amountSeen < m_amountRequested) {
+        m_state = Unpaid;
+        emit paymentStateChanged();
+    }
+    emit amountSeenChanged();
 }
 
 PaymentRequest::SaveState PaymentRequest::saveState() const
@@ -108,6 +146,11 @@ void PaymentRequest::setAmountFP(double amount)
 double PaymentRequest::amountFP() const
 {
     return m_amountRequested;
+}
+
+double PaymentRequest::amountSeenFP() const
+{
+    return m_amountSeen;
 }
 
 qint64 PaymentRequest::amount() const
@@ -187,7 +230,16 @@ void PaymentRequest::rememberPaymentRequest()
 {
     if (!m_unusedRequest)
         return;
-    m_unusedRequest = true;
+    m_unusedRequest = false;
     setParent(m_wallet);
     setSaveState(Saved);
+}
+
+void PaymentRequest::forgetPaymentRequest()
+{
+    if (m_unusedRequest)
+        return;
+    m_unusedRequest = true;
+    m_wallet->removePaymentRequest(this);
+    deleteLater();
 }

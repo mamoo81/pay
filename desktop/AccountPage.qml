@@ -222,13 +222,10 @@ Pane {
                         return "#888888"
                     if (state === PaymentRequest.PaymentSeen)
                         return "yellow"
-                    if (state === PaymentRequest.PaymentSeenOk
-                            || state === PaymentRequest.Confirmed)
-                        return "yellow"
                     if (state === PaymentRequest.DoubleSpentSeen)
                         return "red"
-                    console.log("unknown payment state")
-                    return "blue";
+                    // in all other cases:
+                    return "green"
                 }
 
                 // don't show the ones we are editing
@@ -237,6 +234,19 @@ Pane {
                 Text {
                     anchors.centerIn: parent
                     text: modelData.message
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: paymentContextMenu.popup()
+                    Menu {
+                        id: paymentContextMenu
+                        MenuItem {
+                            text: qsTr("Delete")
+                            onTriggered: modelData.forgetPaymentRequest()
+                        }
+                    }
                 }
             }
         }

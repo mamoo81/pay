@@ -35,6 +35,7 @@ class PaymentRequest : public QObject
     Q_PROPERTY(QString message READ message WRITE setMessage NOTIFY messageChanged)
     Q_PROPERTY(QString qr READ qrCodeString NOTIFY qrCodeStringChanged)
     Q_PROPERTY(double amount READ amountFP WRITE setAmountFP NOTIFY amountChanged)
+    Q_PROPERTY(double amountSeen READ amountSeenFP NOTIFY amountSeenChanged)
     Q_PROPERTY(bool legacy READ useLegacyAddress WRITE setUseLegacyAddress NOTIFY legacyChanged)
     Q_PROPERTY(SaveState saveState READ saveState WRITE setSaveState NOTIFY saveStateChanged)
     Q_PROPERTY(PaymentState state READ paymentState WRITE setPaymentState NOTIFY paymentStateChanged)
@@ -42,9 +43,9 @@ public:
     /// The state of this payment
     enum PaymentState {
         Unpaid,         //< we have not seen any payment yet.
+        DoubleSpentSeen,//< We have seen a double-spend-proof (DSP). This is bad.
         PaymentSeen,    //< A payment has been seen, there is still risk.
         PaymentSeenOk,  //< A payment has been seen, we waited and no DSP came.
-        DoubleSpentSeen,//< We have seen a double-spend-proof (DSP). This is bad.
         Confirmed       //< We got paid.
     };
     enum SaveState {
@@ -61,24 +62,17 @@ public:
 
     QString message() const;
     void setMessage(const QString &message);
-    /*
-     * I need a getter for a paymentId, which is the bip21 url, or the bip70 url etc.
-     * A call to copy it to the clipboard and something to build a QR image based on it
-     * are needed to (sounds like I want to add those as utility methods elsewhere, though).
-     *
-     * Make State be set by the wallet, as such make Wallet have a list of requests
-     * that it pushes incoming transactions to.
-     * Ditto for double-spend proofs.
-     *
-     * Have both an amount and a paid-amount field.
-     *
-     * Remember creation date and sort the requests.
-     * This means that the wallet needs to save these items in its wallet.dat file.
-     */
 
+    /// Set the amount requested (as floating point) in sats.
     void setAmountFP(double amount);
+    /// return the amount requested (in sats)
     double amountFP() const;
+    /// return the amount received (in sats)
+    double amountSeenFP() const;
+    /// return the amount requested (in sats)
     qint64 amount() const;
+    /// return the amount received (in sats)
+    qint64 amountSeen() const;
 
     PaymentState state() const;
     void setState(const PaymentState &state);
@@ -88,18 +82,36 @@ public:
     bool useLegacyAddress();
     void setUseLegacyAddress(bool on);
 
-    Q_INVOKABLE void rememberPaymentRequest();
-
     SaveState saveState() const;
     void setSaveState(const SaveState &saveState);
 
     PaymentState paymentState() const;
     void setPaymentState(const PaymentState &paymentState);
 
+    /**
+     * Add a payment made towards fulfilling the request.
+     * @param ref the Wallet reference to the payment.
+     * @param value the amount paid, in satoshis.
+     * @param blockHeight or -1 when not mined yet
+     */
+    void addPayment(uint64_t ref, int64_t value, int blockHeight = -1);
+    /**
+     * Mark a payment as rejected (typically double-spent).
+     * @param ref the Wallet reference to the payment.
+     * @param value the amount paid, in satoshis.
+     */
+    void paymentRejected(uint64_t ref, int64_t value);
+
+    /// Mark payment request as one to save until fulfilled or deleted
+    Q_INVOKABLE void rememberPaymentRequest();
+    /// Mark payment request to be deleted.
+    Q_INVOKABLE void forgetPaymentRequest();
+
 signals:
     void messageChanged();
     void qrCodeStringChanged();
     void amountChanged();
+    void amountSeenChanged();
     void legacyChanged();
     void saveStateChanged();
     void paymentStateChanged();
@@ -117,8 +129,11 @@ private:
     bool m_useLegacyAddressFormat = false;
     PaymentState m_state = Unpaid;
     qint64 m_amountRequested = 0;
+    qint64 m_amountSeen = 0;
     SaveState m_saveState = Unsaved;
     PaymentState m_paymentState = Unpaid;
+
+    QList<uint64_t> m_incomingOutputRefs; // see Wallet::OutputRef
 };
 
 #endif
