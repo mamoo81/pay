@@ -80,6 +80,7 @@ public:
     Q_INVOKABLE TransactionInfo* txInfo(int walletIndex, QObject *parent);
     /**
      * Start a new payment-request
+     * QML callers should pass a panel as parent, preferably one that is loaded.
      */
     Q_INVOKABLE QObject* createPaymentRequest(QObject *parent);
 
