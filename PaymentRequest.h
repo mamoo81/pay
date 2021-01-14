@@ -38,7 +38,7 @@ class PaymentRequest : public QObject
     Q_PROPERTY(double amountSeen READ amountSeenFP NOTIFY amountSeenChanged)
     Q_PROPERTY(bool legacy READ useLegacyAddress WRITE setUseLegacyAddress NOTIFY legacyChanged)
     Q_PROPERTY(SaveState saveState READ saveState WRITE setSaveState NOTIFY saveStateChanged)
-    Q_PROPERTY(PaymentState state READ paymentState WRITE setPaymentState NOTIFY paymentStateChanged)
+    Q_PROPERTY(PaymentState state READ paymentState NOTIFY paymentStateChanged)
 public:
     /// The state of this payment
     enum PaymentState {
@@ -74,9 +74,6 @@ public:
     /// return the amount received (in sats)
     qint64 amountSeen() const;
 
-    PaymentState state() const;
-    void setState(const PaymentState &state);
-
     QString qrCodeString() const;
 
     bool useLegacyAddress();
@@ -86,7 +83,6 @@ public:
     void setSaveState(const SaveState &saveState);
 
     PaymentState paymentState() const;
-    void setPaymentState(const PaymentState &paymentState);
 
     /**
      * Add a payment made towards fulfilling the request.
@@ -127,7 +123,6 @@ private:
     int m_privKeyId = -1; // refers to the Wallets list of private keys
     bool m_unusedRequest = true; ///< true as long as the user did not decide to save the request
     bool m_useLegacyAddressFormat = false;
-    PaymentState m_state = Unpaid;
     qint64 m_amountRequested = 0;
     qint64 m_amountSeen = 0;
     SaveState m_saveState = Unsaved;

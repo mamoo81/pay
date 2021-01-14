@@ -59,18 +59,13 @@ PaymentRequest::PaymentState PaymentRequest::paymentState() const
     return m_paymentState;
 }
 
-void PaymentRequest::setPaymentState(const PaymentState &paymentState)
-{
-    m_paymentState = paymentState;
-}
-
 void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
 {
     logFatal() << value << blockHeight;
     assert(value > 0);
     if (m_incomingOutputRefs.contains(ref)) {
-        if (m_state >= PaymentSeen && blockHeight != -1) {
-            m_state = Confirmed;
+        if (m_paymentState >= PaymentSeen && blockHeight != -1) {
+            m_paymentState = Confirmed;
             emit paymentStateChanged();
         }
         return;
@@ -78,8 +73,8 @@ void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
     m_incomingOutputRefs.append(ref);
     m_amountSeen += value;
 
-    if (m_state == Unpaid && m_amountSeen >= m_amountRequested) {
-        m_state = PaymentSeen;
+    if (m_paymentState == Unpaid && m_amountSeen >= m_amountRequested) {
+        m_paymentState = PaymentSeen;
         emit paymentStateChanged();
     }
     emit amountSeenChanged();
@@ -90,8 +85,8 @@ void PaymentRequest::paymentRejected(uint64_t ref, int64_t value)
     if (!m_incomingOutputRefs.contains(ref))
         return;
     m_amountSeen -= value;
-    if (m_state >= PaymentSeen && m_amountSeen < m_amountRequested) {
-        m_state = Unpaid;
+    if (m_paymentState >= PaymentSeen && m_amountSeen < m_amountRequested) {
+        m_paymentState = Unpaid;
         emit paymentStateChanged();
     }
     emit amountSeenChanged();
@@ -156,16 +151,6 @@ double PaymentRequest::amountSeenFP() const
 qint64 PaymentRequest::amount() const
 {
     return m_amountRequested;
-}
-
-PaymentRequest::PaymentState PaymentRequest::state() const
-{
-    return m_state;
-}
-
-void PaymentRequest::setState(const PaymentState &state)
-{
-    m_state = state;
 }
 
 QString PaymentRequest::qrCodeString() const
