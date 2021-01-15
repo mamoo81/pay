@@ -228,8 +228,8 @@ Pane {
                     return "green"
                 }
 
-                // don't show the ones we are editing
-                visible: modelData.saveState === PaymentRequest.Saved
+                // don't show the one we are editing
+                visible: modelData.saveState === PaymentRequest.Remembered
 
                 Text {
                     anchors.centerIn: parent

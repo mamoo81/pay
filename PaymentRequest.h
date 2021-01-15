@@ -49,9 +49,8 @@ public:
         Confirmed       //< We got paid.
     };
     enum SaveState {
-        Unsaved,
-        Saved,
-        OpenForEditing
+        Temporary,
+        Remembered
     };
     Q_ENUM(SaveState PaymentState)
 
@@ -123,9 +122,10 @@ private:
     int m_privKeyId = -1; // refers to the Wallets list of private keys
     bool m_unusedRequest = true; ///< true as long as the user did not decide to save the request
     bool m_useLegacyAddressFormat = false;
+    bool m_dirty = true; // true is state changed and we need saving.
     qint64 m_amountRequested = 0;
     qint64 m_amountSeen = 0;
-    SaveState m_saveState = Unsaved;
+    SaveState m_saveState = Temporary;
     PaymentState m_paymentState = Unpaid;
 
     QList<uint64_t> m_incomingOutputRefs; // see Wallet::OutputRef

@@ -43,7 +43,7 @@ PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
 PaymentRequest::PaymentRequest(Wallet *wallet, int /* type */)
     : QObject(wallet),
       m_wallet(wallet),
-    m_saveState(Saved)
+    m_saveState(Remembered)
 {
     // TODO remember type when we start to support more than just BIP21
     m_unusedRequest = false;
@@ -61,17 +61,18 @@ PaymentRequest::PaymentState PaymentRequest::paymentState() const
 
 void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
 {
-    logFatal() << value << blockHeight;
     assert(value > 0);
     if (m_incomingOutputRefs.contains(ref)) {
         if (m_paymentState >= PaymentSeen && blockHeight != -1) {
             m_paymentState = Confirmed;
+            m_dirty = true;
             emit paymentStateChanged();
         }
         return;
     }
     m_incomingOutputRefs.append(ref);
     m_amountSeen += value;
+    m_dirty = true;
 
     if (m_paymentState == Unpaid && m_amountSeen >= m_amountRequested) {
         m_paymentState = PaymentSeen;
@@ -85,6 +86,7 @@ void PaymentRequest::paymentRejected(uint64_t ref, int64_t value)
     if (!m_incomingOutputRefs.contains(ref))
         return;
     m_amountSeen -= value;
+    m_dirty = true;
     if (m_paymentState >= PaymentSeen && m_amountSeen < m_amountRequested) {
         m_paymentState = Unpaid;
         emit paymentStateChanged();
@@ -102,6 +104,7 @@ void PaymentRequest::setSaveState(const SaveState &saveState)
     if (m_saveState == saveState)
         return;
     m_saveState = saveState;
+    m_dirty = true;
     emit saveStateChanged();
 }
 
@@ -124,6 +127,7 @@ void PaymentRequest::setMessage(const QString &message)
     if (m_message == message)
         return;
     m_message = message;
+    m_dirty = true;
     emit messageChanged();
     emit qrCodeStringChanged();
 }
@@ -217,7 +221,7 @@ void PaymentRequest::rememberPaymentRequest()
         return;
     m_unusedRequest = false;
     setParent(m_wallet);
-    setSaveState(Saved);
+    setSaveState(Remembered);
 }
 
 void PaymentRequest::forgetPaymentRequest()

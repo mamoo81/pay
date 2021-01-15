@@ -64,17 +64,24 @@ enum WalletDataSaveTags {
     InputLockState,         // positive number, see InputLockStateEnum
     InputLockAutoSpender,   // the tx that locked an output (index in m_walletTransactions
 
+    // per tx metadata
+    UserComment,            // string
+
     OutputIndex = 30,
     OutputValue,            // in Satoshi
     OutputFromCoinbase,     // bool
     KeyStoreIndex,          // int that refers to the index of the privkey.
 
     // PaymentRequests
-    PaymentRequestType = 40,// int, BIP21 or other
-    PaymentRequestAddress,  // int, the ID of the private-key
-    PaymentRequestMessage,  // string
-    PaymentRequestAmount,   // long, num satoshis
-    PaymentRequestOldAddress,// bool (default false)
+    PaymentRequestType = 40,   // int, BIP21 or other
+    PaymentRequestAddress,     // int, the ID of the private-key
+    PaymentRequestMessage,     // string
+    PaymentRequestAmount,      // long, num satoshis
+    PaymentRequestOldAddress,  // bool (default false)
+
+    PaymentRequestPaid,        // long, num satoshis received
+    PaymentRequestTxIndex,     // int, index in m_walletTransactions
+    PaymentRequestOutputIndex, // int. Together with prev makes an OutputRef
 
 };
 

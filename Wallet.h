@@ -221,6 +221,7 @@ private:
         uint256 minedBlock;
         int minedBlockHeight = 0;
         bool isCoinbase = false;
+        QString userComment;
 
         // One entry for inputs that spent outputs in this wallet.
         // The key is the input. They value is a composition of the output-index (lower 2 bytes)
