@@ -67,6 +67,7 @@ void NetDataProvider::punishMentChanged(int peerId)
 
 QList<NetPeer *> NetDataProvider::peers() const
 {
+    QMutexLocker l(&m_peerMutex);
     return m_peers;
 }
 
