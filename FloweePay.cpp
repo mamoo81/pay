@@ -495,6 +495,11 @@ Streaming::BufferPool &FloweePay::pool(int reserveSize)
     return FloweePay::instance()->p2pNet()->connectionManager().pool(reserveSize);
 }
 
+int FloweePay::dspTimeout()
+{
+    return FloweePay::instance()->m_dspTimeout;
+}
+
 const std::string &chainPrefix()
 {
     return FloweePay::instance()->chainPrefix();

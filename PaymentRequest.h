@@ -116,6 +116,9 @@ protected:
     explicit PaymentRequest(Wallet *wallet, int paymentType);
 
 private:
+    void setPaymentState(PaymentState newState);
+
+
     Wallet * const m_wallet;
     QString m_message;
     CKeyID m_address;

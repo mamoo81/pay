@@ -19,6 +19,7 @@
 #include "FloweePay.h"
 #include "Wallet.h"
 
+#include <QTimer>
 #include <QUrl>
 #include <base58.h>
 #include <cashaddr.h>
@@ -49,6 +50,16 @@ PaymentRequest::PaymentRequest(Wallet *wallet, int /* type */)
     m_unusedRequest = false;
 }
 
+void PaymentRequest::setPaymentState(PaymentState newState)
+{
+    if (newState == m_paymentState)
+        return;
+
+    m_paymentState = newState;
+    m_dirty = true;
+    emit paymentStateChanged();
+}
+
 qint64 PaymentRequest::amountSeen() const
 {
     return m_amountSeen;
@@ -63,11 +74,8 @@ void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
 {
     assert(value > 0);
     if (m_incomingOutputRefs.contains(ref)) {
-        if (m_paymentState >= PaymentSeen && blockHeight != -1) {
-            m_paymentState = Confirmed;
-            m_dirty = true;
-            emit paymentStateChanged();
-        }
+        if (m_paymentState >= PaymentSeen && blockHeight != -1)
+            setPaymentState(Confirmed);
         return;
     }
     m_incomingOutputRefs.append(ref);
@@ -75,8 +83,15 @@ void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
     m_dirty = true;
 
     if (m_paymentState == Unpaid && m_amountSeen >= m_amountRequested) {
-        m_paymentState = PaymentSeen;
-        emit paymentStateChanged();
+        if (blockHeight == -1)  {
+            setPaymentState(PaymentSeen);
+            QTimer::singleShot(FloweePay::dspTimeout(), [=]() {
+                if (m_paymentState == PaymentSeen)
+                    setPaymentState(PaymentSeenOk);
+            });
+        } else {
+            setPaymentState(Confirmed);
+        }
     }
     emit amountSeenChanged();
 }
@@ -87,10 +102,8 @@ void PaymentRequest::paymentRejected(uint64_t ref, int64_t value)
         return;
     m_amountSeen -= value;
     m_dirty = true;
-    if (m_paymentState >= PaymentSeen && m_amountSeen < m_amountRequested) {
-        m_paymentState = Unpaid;
-        emit paymentStateChanged();
-    }
+    if (m_paymentState >= PaymentSeen && m_amountSeen < m_amountRequested)
+        setPaymentState(Unpaid);
     emit amountSeenChanged();
 }
 

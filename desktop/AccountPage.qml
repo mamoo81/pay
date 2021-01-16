@@ -215,6 +215,7 @@ Pane {
                 width: 70
                 height: width
                 radius: 25
+                clip: true
                 border.width: 6
                 border.color: {
                     var state = modelData.state;

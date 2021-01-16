@@ -78,8 +78,11 @@ public:
 
     DownloadManager* p2pNet();
 
-    // return a pool for the current thread;
+    /// return a pool for the current thread;
     static Streaming::BufferPool &pool(int reserveSize);
+
+    /// return the amount of milli-seconds we wait for a double-spent-proof
+    static int dspTimeout();
 
     /// return the app data location
     QString basedir() const;
@@ -185,6 +188,7 @@ private:
     std::string m_chainPrefix;
     std::unique_ptr<DownloadManager> m_downloadManager;
     QList<Wallet*> m_wallets;
+    int m_dspTimeout = 3000;
     int m_windowWidth;
     int m_windowHeight;
     int m_initialHeaderChainHeight = 0;
