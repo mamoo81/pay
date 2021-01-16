@@ -38,6 +38,7 @@ constexpr const char *WINDOW_WIDTH = "window/width";
 constexpr const char *WINDOW_HEIGHT = "window/height";
 constexpr const char *DARKSKIN = "darkSkin";
 constexpr const char *USERAGENT = "net/useragent";
+constexpr const char *DSPTIMEOUT = "payment/dsp-timeout";
 
 enum FileTags {
     WalletId,
@@ -74,12 +75,14 @@ FloweePay::FloweePay()
     m_windowHeight = defaultConfig.value(WINDOW_HEIGHT, -1).toInt();
     m_windowWidth = defaultConfig.value(WINDOW_WIDTH, -1).toInt();
     m_darkSkin = defaultConfig.value(DARKSKIN, true).toBool();
+    m_dspTimeout = defaultConfig.value(DSPTIMEOUT, 3000).toInt();
 
     QSettings appConfig;
     m_unit = static_cast<UnitOfBitcoin>(appConfig.value(UNIT_TYPE, m_unit).toInt());
     m_windowHeight = appConfig.value(WINDOW_HEIGHT, m_windowHeight).toInt();
     m_windowWidth = appConfig.value(WINDOW_WIDTH, m_windowWidth).toInt();
     m_darkSkin = appConfig.value(DARKSKIN, m_darkSkin).toBool();
+    m_dspTimeout = appConfig.value(DSPTIMEOUT, m_dspTimeout).toInt();
 
     // Update expected chain-height ever 5 minutes
     QTimer *timer = new QTimer(this);
@@ -495,9 +498,19 @@ Streaming::BufferPool &FloweePay::pool(int reserveSize)
     return FloweePay::instance()->p2pNet()->connectionManager().pool(reserveSize);
 }
 
-int FloweePay::dspTimeout()
+int FloweePay::dspTimeout() const
 {
-    return FloweePay::instance()->m_dspTimeout;
+    return m_dspTimeout;
+}
+
+void FloweePay::setDspTimeout(int milliseconds)
+{
+    if (milliseconds == m_dspTimeout)
+        return;
+    m_dspTimeout = milliseconds;
+    emit dspTimeoutChanged();
+    QSettings appConfig;
+    appConfig.setValue(DSPTIMEOUT, m_dspTimeout);
 }
 
 const std::string &chainPrefix()

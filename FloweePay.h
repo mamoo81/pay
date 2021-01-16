@@ -47,6 +47,7 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
     Q_PROPERTY(bool isMainChain READ isMainChain CONSTANT)
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
+    Q_PROPERTY(int dspTimeout READ dspTimeout WRITE setDspTimeout NOTIFY dspTimeoutChanged)
 public:
     enum StringType {
         Unknown = 0,
@@ -82,7 +83,8 @@ public:
     static Streaming::BufferPool &pool(int reserveSize);
 
     /// return the amount of milli-seconds we wait for a double-spent-proof
-    static int dspTimeout();
+    int dspTimeout() const;
+    void setDspTimeout(int milliseconds);
 
     /// return the app data location
     QString basedir() const;
@@ -174,6 +176,7 @@ signals:
     void headerChainHeightChanged();
     void expectedChainHeightChanged();
     void chainHeightChanged();
+    void dspTimeoutChanged();
 
 private:
     void init();
@@ -188,7 +191,7 @@ private:
     std::string m_chainPrefix;
     std::unique_ptr<DownloadManager> m_downloadManager;
     QList<Wallet*> m_wallets;
-    int m_dspTimeout = 3000;
+    int m_dspTimeout;
     int m_windowWidth;
     int m_windowHeight;
     int m_initialHeaderChainHeight = 0;
