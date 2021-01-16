@@ -32,10 +32,10 @@ Pane {
         destination.text = "";
     }
     opacity: visible ? 1 : 0
+    padding: 0
     GridLayout {
         id: grid
-        width: parent.width - 20
-        x: 10
+        width: parent.width
         columns: 3
 
         Label {

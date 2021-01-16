@@ -187,7 +187,6 @@ Pane {
         anchors.right: parent.right
         anchors.top: accountHeader.bottom
         anchors.bottom: parent.bottom
-        anchors.margins: 6
         initialItem: ListView {
             model: root.account === null ? 0 : root.account.transactions
             clip: true

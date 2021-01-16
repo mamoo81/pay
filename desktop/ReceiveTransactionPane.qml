@@ -23,6 +23,8 @@ import Flowee.org.pay 1.0
 
 Pane {
     id: receivePane
+    padding: 0
+
     height: qrCode.height + grid.height
 
     property QtObject account: root.account
