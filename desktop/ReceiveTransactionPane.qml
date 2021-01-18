@@ -18,6 +18,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
+import QtQuick.Shapes 1.15 // for shape-path
 
 import Flowee.org.pay 1.0
 
@@ -39,17 +40,18 @@ Pane {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: 20
+        opacity: receivePane.request.state === PaymentRequest.Unpaid ? 1: 0
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
                 Flowee.copyToClipboard(receivePane.request.qr)
-                feedback.opacity = 1
+                clipoardFeedback.opacity = 1
             }
         }
 
         Rectangle {
-            id: feedback
+            id: clipboardFeedback
             opacity: 0
             width: 200
             height: feedbackText.height + 20
@@ -71,12 +73,114 @@ Pane {
             /// after 10 seconds, remove feedback.
             Timer {
                 interval: 10000
-                running: feedback.opacity === 1
-                onTriggered: feedback.opacity = 0
+                running: clipboardFeedback.opacity === 1
+                onTriggered: clipboardFeedback.opacity = 0
             }
         }
+
+        Behavior on opacity { OpacityAnimator {} }
     }
 
+    // the "payment received" screen.
+    Rectangle {
+        anchors.top: parent.top
+        anchors.topMargin: 20
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: qrCode.bottom
+        radius: 10
+        gradient: Gradient {
+            GradientStop {
+                position: 0.6
+                color: {
+                    var state = receivePane.request.state;
+                    if (state === PaymentRequest.PaymentSeen || state === PaymentRequest.Unpaid)
+                        return receivePane.palette.base
+                    if (state === PaymentRequest.DoubleSpentSeen)
+                        return "#640e0f" // red
+                    return "#3e8b4e" // in all other cases: green
+                }
+                Behavior on color { ColorAnimation {} }
+            }
+            GradientStop {
+                position: 0.1
+                color: root.palette.base
+            }
+        }
+        opacity: receivePane.request.state === PaymentRequest.Unpaid ? 0: 1
+
+        // animating timer to indicate our checking the security of the transaction.
+        // (i.e. waiting for the double spent proof)
+        Item {
+            id: feedback
+            width: 160
+            height: 160
+            y: (parent.height - height) / 3 * 2
+            visible: receivePane.request.state !== PaymentRequest.DoubleSpentSeen
+            Shape {
+                id: circleShape
+                anchors.fill: parent
+                opacity: progressCircle.sweepAngle === 340 ? 0 : 1
+                x: 40
+                ShapePath {
+                    strokeWidth: 20
+                    strokeColor: "#9ea0b0"
+                    fillColor: "transparent"
+                    capStyle: ShapePath.RoundCap
+                    startX: 100; startY: 10
+
+                    PathAngleArc {
+                        id: progressCircle
+                        centerX: 80
+                        centerY: 80
+                        radiusX: 70; radiusY: 70
+                        startAngle: -80
+                        sweepAngle: receivePane.request.state === PaymentRequest.Unpaid ? 0: 340
+
+                        Behavior on sweepAngle {  NumberAnimation { duration: Flowee.dspTimeout } }
+                    }
+                }
+
+                Label {
+                    anchors.centerIn: parent
+                    text: qsTr("Checking") // checking security
+                }
+                Behavior on opacity { OpacityAnimator {} }
+            }
+
+            Label {
+                color: "green"
+                text: "✔"
+                opacity: 1 - circleShape.opacity
+                font.pixelSize: 130
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right
+            }
+        }
+
+        Label {
+            text: {
+                var s = receivePane.request.state;
+                if (s === PaymentRequest.DoubleSpentSeen)
+                    return qsTr("Customer fraud detected")
+                if (s === PaymentRequest.PaymentSeen)
+                    return qsTr("Payment Seen")
+                if (s === PaymentRequest.PaymentSeenOk)
+                    return qsTr("Payment Accepted")
+                if (s === PaymentRequest.Confirmed)
+                    return qsTr("Payment Settled")
+                return "INTERNAL ERROR Unknown payment state";
+            }
+            anchors.verticalCenter: feedback.verticalCenter
+            anchors.left: feedback.visible ? feedback.right : parent.left
+            anchors.leftMargin: 20
+            font.pointSize: 20
+        }
+
+        Behavior on opacity { OpacityAnimator {} }
+    }
+
+    // entry-fields
     GridLayout {
         id: grid
         anchors.left: parent.left
@@ -90,6 +194,7 @@ Pane {
         TextField {
             id: description
             Layout.fillWidth: true
+            enabled: receivePane.request.state === PaymentRequest.Unpaid
             onTextChanged: receivePane.request.message = text
         }
 
@@ -100,6 +205,7 @@ Pane {
         BitcoinValueField {
             id: bitcoinValueField
             fontPtSize: payAmount.font.pointSize
+            enabled: receivePane.request.state === PaymentRequest.Unpaid
             onValueChanged: receivePane.request.amount = value
         }
 
@@ -107,6 +213,7 @@ Pane {
             id: legacyAddress
             Layout.columnSpan: 2
             text: qsTr("Legacy address")
+            enabled: receivePane.request.state === PaymentRequest.Unpaid
             onCheckStateChanged: receivePane.request.legacy = checked
         }
 
@@ -118,13 +225,15 @@ Pane {
             }
             Button {
                 text: qsTr("Remember", "payment request")
+                visible: receivePane.request.state === PaymentRequest.Unpaid
                 onClicked: {
                     receivePane.request.rememberPaymentRequest();
                     receivePane.visible = false;
                 }
             }
             Button {
-                text: qsTr("Cancel")
+                text:
+                receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Cancel") : qsTr("Close")
                 onClicked: receivePane.visible = false
             }
         }

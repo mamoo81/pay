@@ -32,6 +32,12 @@ FocusScope {
     property alias value: privValue.value
     property alias valueObject: privValue
     property alias fontPtSize: balance.fontPtSize
+    property bool enabled: true
+
+    onEnabledChanged: {
+        if (!enabled)
+            root.focus = false
+    }
 
     function reset() {
         privValue.enteredString = "0";
@@ -44,6 +50,7 @@ FocusScope {
     MouseArea {
         cursorShape: Qt.IBeamCursor
         anchors.fill: parent
+        enabled: root.enabled
         onClicked: {
             root.focus = true
             root.forceActiveFocus()
