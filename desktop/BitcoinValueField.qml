@@ -86,7 +86,7 @@ FocusScope {
     Rectangle { // focus indicator
         anchors.fill: parent
         border.color: root.activeFocus ? unit.palette.highlight  : unit.palette.mid
-        border.width: 2
+        border.width: 1
         color: "#00000000" // transparant
     }
 
