@@ -38,12 +38,12 @@ QImage QRCreator::requestImage(const QString &id, QSize *size, const QSize &requ
     Q_UNUSED(requestedSize)
 #ifdef USE_QRCODE
     QRcode *code = QRcode_encodeString(id.toLatin1().constData(), 0, QR_ECLEVEL_L, QR_MODE_8, 1);
-    QImage result = QImage(code->width, code->width, QImage::Format_RGB32);
+    QImage result = QImage(code->width + 8, code->width + 8, QImage::Format_RGB32);
     result.fill(0xffffff);
     unsigned char *p = code->data;
     for (int y = 0; y < code->width; y++) {
         for (int x = 0; x < code->width; x++) {
-            result.setPixel(x, y, ((*p & 1) ? 0x0 : 0xffffff));
+            result.setPixel(x + 4, y + 4, ((*p & 1) ? 0x0 : 0xffffff));
             ++p;
         }
     }
