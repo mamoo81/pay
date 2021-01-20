@@ -159,22 +159,33 @@ Pane {
         }
 
         Label {
+            id: feedbackLabel
             text: {
                 var s = receivePane.request.state;
                 if (s === PaymentRequest.DoubleSpentSeen)
-                    return qsTr("Customer fraud detected")
+                    // double-spent-proof received
+                    return qsTr("Transaction high risk")
                 if (s === PaymentRequest.PaymentSeen)
                     return qsTr("Payment Seen")
                 if (s === PaymentRequest.PaymentSeenOk)
                     return qsTr("Payment Accepted")
                 if (s === PaymentRequest.Confirmed)
                     return qsTr("Payment Settled")
-                return "INTERNAL ERROR Unknown payment state";
+                return "INTERNAL ERROR";
             }
             anchors.verticalCenter: feedback.verticalCenter
             anchors.left: feedback.visible ? feedback.right : parent.left
             anchors.leftMargin: 20
             font.pointSize: 20
+        }
+        Label {
+            visible: receivePane.request.state === PaymentRequest.DoubleSpentSeen
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            width: parent.width * 2 / 3
+            anchors.top: feedbackLabel.bottom
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            text: qsTr("Instant payment failed. Wait for confirmation. (double spent proof received)")
         }
 
         Behavior on opacity { OpacityAnimator {} }
