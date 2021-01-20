@@ -236,7 +236,7 @@ Pane {
             }
             Button {
                 text: qsTr("Remember", "payment request")
-                visible: receivePane.request.state === PaymentRequest.Unpaid
+                visible: receivePane.request.state === PaymentRequest.Unpaid || receivePane.request.state === PaymentRequest.DoubleSpentSeen
                 onClicked: {
                     receivePane.request.rememberPaymentRequest();
                     receivePane.visible = false;
