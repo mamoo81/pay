@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,10 @@ public:
 signals:
     void peerListChanged();
     void blockHeightChanged();
+    void peerDeleted(int id);
+
+private slots:
+    void deleteNetPeer(int id);
 
 private:
     mutable QMutex m_peerMutex;

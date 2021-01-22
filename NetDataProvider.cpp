@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,13 @@
  */
 #include "NetDataProvider.h"
 
+#include <QThread>
+
 NetDataProvider::NetDataProvider(int initialBlockHeight, QObject *parent)
     : QObject(parent),
       m_blockHeight(initialBlockHeight)
 {
+    connect (this, SIGNAL(peerDeleted(int)), this, SLOT(deleteNetPeer(int)), Qt::QueuedConnection);
 }
 
 
@@ -37,12 +40,18 @@ void NetDataProvider::newPeer(int peerId, const std::string &userAgent, int star
 
 void NetDataProvider::lostPeer(int peerId)
 {
+    emit peerDeleted(peerId);
+}
+
+void NetDataProvider::deleteNetPeer(int peerId)
+{
+    Q_ASSERT(QThread::currentThread() == thread()); // make sure we have no threading issues
     QMutexLocker l(&m_peerMutex);
     for (auto &p : m_peers) {
         if (p->connectionId() == peerId) {
             m_peers.removeAll(p);
-            p->deleteLater();
             emit peerListChanged();
+            p->deleteLater();
             return;
         }
     }
