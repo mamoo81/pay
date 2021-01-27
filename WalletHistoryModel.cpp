@@ -32,6 +32,7 @@ WalletHistoryModel::WalletHistoryModel(Wallet *wallet, QObject *parent)
     createMap();
 
     connect(wallet, SIGNAL(appendedTransactions(int,int)), SLOT(appendTransactions(int,int)), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(transactionConfirmed(int)), SLOT(transactionConfirmed(int)), Qt::QueuedConnection);
 }
 
 int WalletHistoryModel::rowCount(const QModelIndex &parent) const
@@ -116,6 +117,16 @@ void WalletHistoryModel::appendTransactions(int firstNew, int count)
     for (auto i = firstNew; i < firstNew + count; ++i) {
         m_rowsProxy.insert(0, i);
     }
+    endInsertRows();
+}
+
+void WalletHistoryModel::transactionConfirmed(int txIndex)
+{
+    const int row = m_rowsProxy.indexOf(txIndex);
+    // update row, the 'minedHeight' went from unset to an actual value
+    beginRemoveRows(QModelIndex(), row, row);
+    endRemoveRows();
+    beginInsertRows(QModelIndex(), row, row);
     endInsertRows();
 }
 

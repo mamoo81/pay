@@ -178,6 +178,8 @@ signals:
     void lastBlockSynchedChanged();
     void paymentRequestsChanged();
 
+    void transactionConfirmed(int txIndex);
+
 protected:
     Wallet();
 

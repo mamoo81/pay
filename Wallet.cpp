@@ -283,6 +283,8 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             m_walletChanged = true;
 
             logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "@" << blockHeight;
+            if (wasUnconfirmed)
+                emit transactionConfirmed(walletTransactionId);
         }
         assert(m_nextWalletTransactionId - firstNewTransaction == int(transactionsToSave.size()));
 

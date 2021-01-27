@@ -49,6 +49,7 @@ public:
 
 private slots:
     void appendTransactions(int firstNew, int count);
+    void transactionConfirmed(int txIndex);
 
 private:
     void createMap();
