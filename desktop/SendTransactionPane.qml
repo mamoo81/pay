@@ -40,6 +40,7 @@ Pane {
 
         Label {
             text: "Destination:"
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop
         }
         TextField {
             id: destination
