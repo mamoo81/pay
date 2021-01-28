@@ -15,38 +15,38 @@
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="56"/>
-        <source>Name:</source>
-        <translation>Nazwa:</translation>
+        <source>Name</source>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="64"/>
-        <source>Balance unconfirmed:</source>
-        <translation>Saldo niepotwierdzone:</translation>
+        <source>Balance unconfirmed</source>
+        <translation>Saldo niepotwierdzone</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="71"/>
-        <source>Balance immature:</source>
-        <translation type="unfinished">Balance immature:</translation>
+        <source>Balance immature</source>
+        <translation type="unfinished">Balance immature</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="78"/>
-        <source>Balance other:</source>
-        <translation type="unfinished">Balance other:</translation>
+        <source>Balance other</source>
+        <translation type="unfinished">Balance other</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="85"/>
-        <source>Unspent coins:</source>
-        <translation>Niewykorzystane monety:</translation>
+        <source>Unspent coins</source>
+        <translation>Niewykorzystane monety</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="91"/>
-        <source>Historical coins:</source>
-        <translation type="unfinished">Historical coins:</translation>
+        <source>Historical coins</source>
+        <translation type="unfinished">Historical coins</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="97"/>
-        <source>Sync status:</source>
-        <translation>Status synchronizacji:</translation>
+        <source>Sync status</source>
+        <translation>Status synchronizacji</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="119"/>
@@ -81,8 +81,8 @@
     <name>AccountSelectionPage</name>
     <message>
         <location filename="../AccountSelectionPage.qml" line="27"/>
-        <source>Pick an account:</source>
-        <translation>Wybierz konto:</translation>
+        <source>Pick an account</source>
+        <translation>Wybierz konto</translation>
     </message>
 </context>
 <context>
@@ -117,13 +117,13 @@
     </message>
     <message>
         <location filename="../NewAccountDialog.qml" line="45"/>
-        <source>Please check which kind of account you want to create:</source>
-        <translation>Sprawdź, jaki rodzaj konta chcesz utworzyć:</translation>
+        <source>Please check which kind of account you want to create</source>
+        <translation>Sprawdź, jaki rodzaj konta chcesz utworzyć</translation>
     </message>
     <message>
         <location filename="../NewAccountDialog.qml" line="68"/>
-        <source>Name:</source>
-        <translation>Nazwa:</translation>
+        <source>Name</source>
+        <translation>Nazwa</translation>
     </message>
     <message>
         <location filename="../NewAccountDialog.qml" line="79"/>
@@ -185,13 +185,13 @@
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="203"/>
-        <source>Description:</source>
-        <translation>Opis:</translation>
+        <source>Description</source>
+        <translation>Opis</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="214"/>
-        <source>Amount:</source>
-        <translation>Kwota:</translation>
+        <source>Amount</source>
+        <translation>Kwota</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="226"/>
@@ -254,28 +254,28 @@
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="201"/>
-        <source>Destination:</source>
-        <translation type="unfinished">Destination:</translation>
+        <source>Destination</source>
+        <translation type="unfinished">Destination</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="211"/>
-        <source>Was:</source>
-        <translation type="unfinished">Was:</translation>
+        <source>Was</source>
+        <translation type="unfinished">Was</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="249"/>
-        <source>More Details:</source>
-        <translation>Więcej szczegółów:</translation>
+        <source>More Details</source>
+        <translation>Więcej szczegółów</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="254"/>
-        <source>TxId:</source>
-        <translation>TxId:</translation>
+        <source>TxId</source>
+        <translation>TxId</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="265"/>
-        <source>Fee:</source>
-        <translation>Opłata:</translation>
+        <source>Fee</source>
+        <translation>Opłata</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="270"/>
@@ -284,8 +284,8 @@
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="273"/>
-        <source>Transaction size:</source>
-        <translation>Rozmiar transakcji:</translation>
+        <source>Transaction size</source>
+        <translation>Rozmiar transakcji</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="277"/>
@@ -294,8 +294,8 @@
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="280"/>
-        <source>Fee per byte:</source>
-        <translation>Opłata za bajt:</translation>
+        <source>Fee per byte</source>
+        <translation>Opłata za bajt</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="285"/>
@@ -368,8 +368,8 @@
     <name>WalletTransactionDetails</name>
     <message>
         <location filename="../WalletTransactionDetails.qml" line="34"/>
-        <source>Status:</source>
-        <translation>Status:</translation>
+        <source>Status</source>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="../WalletTransactionDetails.qml" line="41"/>
@@ -383,8 +383,8 @@
     </message>
     <message>
         <location filename="../WalletTransactionDetails.qml" line="54"/>
-        <source>Size:</source>
-        <translation>Rozmiar:</translation>
+        <source>Size</source>
+        <translation>Rozmiar</translation>
     </message>
     <message>
         <location filename="../WalletTransactionDetails.qml" line="57"/>
@@ -393,13 +393,13 @@
     </message>
     <message>
         <location filename="../WalletTransactionDetails.qml" line="60"/>
-        <source>Inputs:</source>
-        <translation type="unfinished">Inputs:</translation>
+        <source>Inputs</source>
+        <translation type="unfinished">Inputs</translation>
     </message>
     <message>
         <location filename="../WalletTransactionDetails.qml" line="129"/>
-        <source>Outputs:</source>
-        <translation type="unfinished">Outputs:</translation>
+        <source>Outputs</source>
+        <translation type="unfinished">Outputs</translation>
     </message>
 </context>
 <context>
