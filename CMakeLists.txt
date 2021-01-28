@@ -66,6 +66,7 @@ else()
     qt5_create_translation(QM_FILES
         desktop
         desktop/i18n/floweepay_nl.ts
+        desktop/i18n/floweepay_pl.ts
     )
     # The qm files are generated in the build tree, but the qrc file is inside the
     # source directory and the path to resources are relative to the location of
