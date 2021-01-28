@@ -184,17 +184,27 @@ protected:
     Wallet();
 
 private:
+    /// see also saveWallet()
     void loadWallet();
     void loadSecrets();
     void saveSecrets();
 
+    /**
+     * Pass in an outputscript (scriptPubKey) and return the
+     * wallet-secret ID that can unlock it.
+     *
+     * @return the wallet-secret-id or -1 if none match.
+     */
     int findSecretFor(const Streaming::ConstBuffer &outputScript) const;
 
+    /// Fill the bloom filter with all the unspent transactions and addresses we handle.
     void rebuildBloom();
 
     std::unique_ptr<PrivacySegment> m_segment;
     mutable QRecursiveMutex m_lock;
+    /// used to determine if we need to persist the wallet
     bool m_walletChanged = false;
+    /// used to determine if we need to persist the private keys
     bool m_secretsChanged = false;
 
     struct WalletSecret {
