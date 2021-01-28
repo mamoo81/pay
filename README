@@ -48,5 +48,11 @@ following variable in case the build wasn't found in the 'cmake' line above.
 followed with again the call to cmake and make like above.
 
 
+DEVS
+
+Hacking, and not already experienced with QML? Here is a video explaining
+the tech: https://www.youtube.com/playlist?list=PL6CJYn40gN6h3usMQY3BSZJs08isz3jqa
+
+
 Upstream; https://gitlab.com/FloweeTheHub/pay
 Website: https://flowee.org
