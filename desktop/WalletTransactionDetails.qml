@@ -45,7 +45,7 @@ GridLayout {
     }
 
     Label {
-        text: mainLabel.text
+        text: mainLabel.text + ":"
     }
     BitcoinAmountLabel {
         value: model.fundsOut - model.fundsIn
