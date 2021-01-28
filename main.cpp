@@ -30,6 +30,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QStandardPaths>
+#include <QTranslator>
 
 #include <signal.h>
 
@@ -92,6 +93,11 @@ int main(int argc, char *argv[])
         v = Log::FatalLevel;
     logger->clearLogLevels(v);
     logger->addConsoleChannel();
+
+    QTranslator translator;
+    qDebug() << QLocale();
+    if (translator.load(QLocale(), QLatin1String("floweepay"), QLatin1String("_"), QLatin1String(":/i18n")))
+        QCoreApplication::installTranslator(&translator);
 
     // select chain
     if (parser.isSet(testnet4))

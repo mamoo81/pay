@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/i18n">
+        <file>floweepay_nl.qm</file>
+    </qresource>
+</RCC>

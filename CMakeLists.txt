@@ -38,7 +38,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 #    endif()
 #endif()
 
-find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+find_package(Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
 find_package(QREncode REQUIRED)
 
 set (PAY_SOURCES
@@ -63,9 +63,21 @@ if(ANDROID)
         ${PAY_SOURCES}
     )
 else()
+    qt5_create_translation(QM_FILES
+        desktop
+        desktop/i18n/floweepay_nl.ts
+    )
+    # The qm files are generated in the build tree, but the qrc file is inside the
+    # source directory and the path to resources are relative to the location of
+    # the qrc file itself. We use configure_file() to copy the qrc file in the build
+    # directory such that it can find the qm translations files. The qrc file is
+    # copied if it doesn't exist in the destination or if it is modified.
+    configure_file(desktop/i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
     add_executable(pay
         ${PAY_SOURCES}
+        ${QM_FILES}
         desktop/qml.qrc
+        i18n.qrc
     )
 endif()
 
