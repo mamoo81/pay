@@ -17,7 +17,6 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-message ("${CMAKE_SOURCE_DIR}")
 include_directories(
     ${CMAKE_SOURCE_DIR}
     ${Qt5Core_INCLUDE_DIRS}
