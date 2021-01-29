@@ -95,7 +95,6 @@ int main(int argc, char *argv[])
     logger->addConsoleChannel();
 
     QTranslator translator;
-    qDebug() << QLocale();
     if (translator.load(QLocale(), QLatin1String("floweepay"), QLatin1String("_"), QLatin1String(":/i18n")))
         QCoreApplication::installTranslator(&translator);
 

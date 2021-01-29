@@ -42,7 +42,7 @@
  * Using schnorr we can gain 8 bytes for the signature (not included here).
  */
 constexpr int BYTES_PER_OUTPUT = 149;
-const int MATURATION_AGE  = 100; // the amount of blocks a coinbase takes before we can spend it
+constexpr int MATURATION_AGE  = 100; // the amount of blocks a coinbase takes before we can spend it
 
 // static
 Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t segmentId, const QString &name)
