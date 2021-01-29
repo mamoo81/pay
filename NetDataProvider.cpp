@@ -47,11 +47,11 @@ void NetDataProvider::deleteNetPeer(int peerId)
 {
     Q_ASSERT(QThread::currentThread() == thread()); // make sure we have no threading issues
     QMutexLocker l(&m_peerMutex);
-    for (auto &p : m_peers) {
-        if (p->connectionId() == peerId) {
-            m_peers.removeAll(p);
+    for (int i = 0; i < m_peers.size(); ++i) {
+        if (m_peers.at(i)->connectionId() == peerId) {
+            auto oldPeer = m_peers.takeAt(i);
             emit peerListChanged();
-            p->deleteLater();
+            oldPeer->deleteLater();
             return;
         }
     }
