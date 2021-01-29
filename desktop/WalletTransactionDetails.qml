@@ -31,7 +31,7 @@ GridLayout {
         font.pointSize: 7
     }
     Label {
-        text: qsTr("Status:")
+        text: qsTr("Status") + ":"
     }
     Label {
         id: rightColumn
@@ -51,13 +51,13 @@ GridLayout {
         value: model.fundsOut - model.fundsIn
     }
     Label {
-        text: qsTr("Size:")
+        text: qsTr("Size") + ":"
     }
     Label {
-        text: qsTr("%1 bytes").arg(infoObject.size)
+        text: qsTr("%1 bytes", "", infoObject.size).arg(infoObject.size)
     }
     Label {
-        text: qsTr("Inputs:")
+        text: qsTr("Inputs") + ":"
         Layout.alignment: Qt.AlignTop
     }
     ColumnLayout {
@@ -126,7 +126,7 @@ GridLayout {
         }
     }
     Label {
-        text: qsTr("Outputs:")
+        text: qsTr("Outputs") + ":"
         Layout.alignment: Qt.AlignTop
     }
     ColumnLayout {

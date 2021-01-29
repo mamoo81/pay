@@ -39,7 +39,7 @@ Pane {
         columns: 3
 
         Label {
-            text: "Destination:"
+            text: qsTr("Destination") + ":"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
         }
         TextField {
@@ -69,7 +69,7 @@ Pane {
         // next row
         Label {
             id: payAmount
-            text: "Amount:"
+            text: qsTr("Amount") + ":"
         }
         BitcoinValueField {
             id: bitcoinValueField
@@ -198,7 +198,7 @@ Pane {
             anchors.top: header.bottom
             columns: 2
             Label {
-                text: qsTr("Destination:")
+                text: qsTr("Destination") + ":"
                 Layout.alignment: Qt.AlignRight
             }
             Label {
@@ -208,7 +208,7 @@ Pane {
             }
             Label {
                 id: origText
-                text: qsTr("Was:")
+                text: qsTr("Was", "user-entered-format") + ":"
                 Layout.alignment: Qt.AlignRight
                 visible: checkAndSendTx.payment !== null
                          && checkAndSendTx.payment.targetAddress !== checkAndSendTx.payment.formattedTargetAddress
@@ -221,7 +221,7 @@ Pane {
 
             Label {
                 Layout.alignment: Qt.AlignRight
-                text: "Value:"
+                text: qsTr("Amount") + ":"
             }
             BitcoinAmountLabel {
                 value: {
@@ -246,12 +246,13 @@ Pane {
             anchors.top: table.bottom
             columns: 2
             Label {
-                text: qsTr("More Details:")
+                text: qsTr("More Details") + ":"
                 font.italic: true
                 Layout.columnSpan: 2
             }
             Label {
-                text: qsTr("TxId:")
+                // no need translating this one.
+                text: "TxId:"
                 Layout.alignment: Qt.AlignRight | Qt.AlignTop
             }
 
@@ -262,7 +263,7 @@ Pane {
             }
 
             Label {
-                text: qsTr("Fee:")
+                text: qsTr("Fee") + ":"
                 Layout.alignment: Qt.AlignRight
             }
 
@@ -270,20 +271,29 @@ Pane {
                 text: checkAndSendTx.payment === null ? "" : qsTr("%1 sats").arg(checkAndSendTx.payment.assignedFee)
             }
             Label {
-                text: qsTr("Transaction size:")
+                text: qsTr("Transaction size") + ":"
                 Layout.alignment: Qt.AlignRight
             }
             Label {
-                text: checkAndSendTx.payment === null ? "" : qsTr("%1 bytes").arg(checkAndSendTx.payment.txSize)
+                text: {
+                    if (checkAndSendTx.payment === null)
+                        return "";
+                    var rc = checkAndSendTx.payment.txSize;
+                    return qsTr("%1 bytes", "", rc).arg(rc)
+                }
             }
             Label {
-                text: qsTr("Fee per byte:")
+                text: qsTr("Fee per byte") + ":"
                 Layout.alignment: Qt.AlignRight
             }
             Label {
-                text: checkAndSendTx.payment === null
-                        ? "" : qsTr("%1 sat/byte")
-                                .arg((checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize).toFixed(3))
+                text: {
+                    if (checkAndSendTx.payment === null)
+                        return "";
+                    var rc = checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize;
+
+                    return qsTr("%1 sat/byte", "fee", rc).arg((rc).toFixed(3))
+                }
             }
         }
 
@@ -293,7 +303,7 @@ Pane {
             anchors.bottom: parent.bottom
             anchors.margins: 10
             text: checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk
-                  ? qsTr("Approve and Send") : qsTr("Close")
+                  ? qsTr("Approve and Send", "button") : qsTr("Close", "button")
             onClicked: {
                 if (checkAndSendTx.payment.paymentOk) {
                     checkAndSendTx.payment.sendTx();

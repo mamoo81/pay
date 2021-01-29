@@ -42,7 +42,7 @@ ApplicationWindow {
 
     Label {
         id: header
-        text: qsTr("Please check which kind of account you want to create:")
+        text: qsTr("Please check which kind of account you want to create") + ":"
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         anchors.top: parent.top
         anchors.left: parent.left
@@ -65,7 +65,7 @@ ApplicationWindow {
             }
         }
 
-        Label { text: qsTr("Name:") }
+        Label { text: qsTr("Name") + ":" }
         TextField {
             id: accountName
             focus: true
@@ -76,14 +76,14 @@ ApplicationWindow {
         RadioButton {
             id: emptyAccountButton
             Layout.columnSpan: 3
-            text: qsTr("New, Empty Account")
+            text: qsTr("New Empty Account")
             onCheckedChanged: root.validate()
             checked: true
         }
         RadioButton {
             id: privKeyButton
             Layout.columnSpan: 3
-            text: qsTr("Imported Private Key")
+            text: qsTr("Existing Private Key")
             onCheckedChanged: root.validate()
         }
         Pane { Layout.fillWidth: false }

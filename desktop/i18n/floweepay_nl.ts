@@ -6,12 +6,12 @@
     <message>
         <location filename="../AccountDetails.qml" line="29"/>
         <source>Account Details</source>
-        <translation type="unfinished">Account Details</translation>
+        <translation>Accountgegevens</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="51"/>
         <source>This account is a single-address wallet.</source>
-        <translation type="unfinished">This account is a single-address wallet.</translation>
+        <translation>Dit account heeft enkel 1 adres.</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="56"/>
@@ -21,32 +21,40 @@
     <message>
         <location filename="../AccountDetails.qml" line="64"/>
         <source>Balance unconfirmed</source>
-        <translation type="unfinished">Balance unconfirmed</translation>
+        <translation>Saldo niet bevestigd</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="71"/>
         <source>Balance immature</source>
-        <translation type="unfinished">Balance immature</translation>
+        <translation>Saldo onvolwassen</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="78"/>
         <source>Balance other</source>
-        <translation type="unfinished">Balance other</translation>
+        <translation>Saldo ander</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../AccountDetails.qml" line="85"/>
         <source>Unspent coins</source>
-        <translation type="unfinished">Unspent coins</translation>
+        <comment>currently spendable coins</comment>
+        <translation>
+            <numerusform>Munt</numerusform>
+            <numerusform>Munten</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../AccountDetails.qml" line="91"/>
         <source>Historical coins</source>
-        <translation type="unfinished">Historical coins</translation>
+        <comment>total coins ever seen</comment>
+        <translation>
+            <numerusform>Historische munt</numerusform>
+            <numerusform>Historische munten</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="97"/>
         <source>Sync status</source>
-        <translation type="unfinished">Sync status</translation>
+        <translation>Synchronisatie status</translation>
     </message>
     <message>
         <location filename="../AccountDetails.qml" line="119"/>
@@ -64,12 +72,12 @@
     <message>
         <location filename="../AccountPage.qml" line="138"/>
         <source>&amp;Send...</source>
-        <translation type="unfinished">&amp;Send...</translation>
+        <translation>&amp;Zend...</translation>
     </message>
     <message>
         <location filename="../AccountPage.qml" line="147"/>
         <source>&amp;Receive...</source>
-        <translation type="unfinished">&amp;Receive...</translation>
+        <translation>&amp;Ontvang...</translation>
     </message>
     <message>
         <location filename="../AccountPage.qml" line="246"/>
@@ -82,30 +90,33 @@
     <message>
         <location filename="../AccountSelectionPage.qml" line="27"/>
         <source>Pick an account</source>
-        <translation type="unfinished">Pick an account</translation>
+        <translation>Kies account</translation>
     </message>
 </context>
 <context>
     <name>NetView</name>
-    <message>
+    <message numerus="yes">
         <location filename="../NetView.qml" line="30"/>
         <source>Peers (%1)</source>
-        <translation type="unfinished">Peers (%1)</translation>
+        <translation>
+            <numerusform>Peer (%1)</numerusform>
+            <numerusform>Peers (%1)</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../NetView.qml" line="58"/>
         <source>Start-height: %1</source>
-        <translation type="unfinished">Start-height: %1</translation>
+        <translation>Beginhoogte: %1</translation>
     </message>
     <message>
         <location filename="../NetView.qml" line="61"/>
         <source>ban-score: %1</source>
-        <translation type="unfinished">ban-score: %1</translation>
+        <translation>ban-score: %1</translation>
     </message>
     <message>
         <location filename="../NetView.qml" line="71"/>
         <source>Peer for account: %1</source>
-        <translation type="unfinished">Peer for account: %1</translation>
+        <translation>Peer voor account: %1</translation>
     </message>
 </context>
 <context>
@@ -113,12 +124,12 @@
     <message>
         <location filename="../NewAccountDialog.qml" line="30"/>
         <source>Create New Account</source>
-        <translation type="unfinished">Create New Account</translation>
+        <translation>Maak nieuw account</translation>
     </message>
     <message>
         <location filename="../NewAccountDialog.qml" line="45"/>
         <source>Please check which kind of account you want to create</source>
-        <translation type="unfinished">Please check which kind of account you want to create</translation>
+        <translation>Selecteer het account type dat u wilt maken</translation>
     </message>
     <message>
         <location filename="../NewAccountDialog.qml" line="68"/>
@@ -127,13 +138,13 @@
     </message>
     <message>
         <location filename="../NewAccountDialog.qml" line="79"/>
-        <source>New, Empty Account</source>
-        <translation type="unfinished">New, Empty Account</translation>
+        <source>New Empty Account</source>
+        <translation>Nieuwe leeg account</translation>
     </message>
     <message>
         <location filename="../NewAccountDialog.qml" line="86"/>
-        <source>Imported Private Key</source>
-        <translation type="unfinished">Imported Private Key</translation>
+        <source>Existing Private Key</source>
+        <translation>Bestaande privésleutel</translation>
     </message>
     <message>
         <location filename="../NewAccountDialog.qml" line="111"/>
@@ -143,7 +154,7 @@
     <message>
         <location filename="../NewAccountDialog.qml" line="131"/>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancel</translation>
+        <translation>&amp;Annuleren</translation>
     </message>
 </context>
 <context>
@@ -151,7 +162,7 @@
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="67"/>
         <source>Copied to clipboard</source>
-        <translation type="unfinished">Copied to clipboard</translation>
+        <translation>Gekopieerd naar klembord</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="146"/>
@@ -161,48 +172,48 @@
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="167"/>
         <source>Transaction high risk</source>
-        <translation type="unfinished">Transaction high risk</translation>
+        <translation>Transactie met hoog risico</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="169"/>
         <source>Payment Seen</source>
-        <translation type="unfinished">Payment Seen</translation>
+        <translation>Betaling gezien</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="171"/>
         <source>Payment Accepted</source>
-        <translation type="unfinished">Payment Accepted</translation>
+        <translation>Betaling geaccepteerd</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="173"/>
         <source>Payment Settled</source>
-        <translation type="unfinished">Payment Settled</translation>
+        <translation>Betaling Afgewikkeld</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="188"/>
         <source>Instant payment failed. Wait for confirmation. (double spent proof received)</source>
-        <translation type="unfinished">Instant payment failed. Wait for confirmation. (double spent proof received)</translation>
+        <translation>Directe betaling is mislukt. Wacht op bevestiging. (dubbel uitgegeven bewijs ontvangen)</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="203"/>
         <source>Description</source>
-        <translation type="unfinished">Description</translation>
+        <translation>Omschrijving</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="214"/>
         <source>Amount</source>
-        <translation type="unfinished">Amount</translation>
+        <translation>Bedrag</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="226"/>
         <source>Legacy address</source>
-        <translation type="unfinished">Legacy address</translation>
+        <translation>Oud adrestype</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="238"/>
         <source>Remember</source>
         <comment>payment request</comment>
-        <translation type="unfinished">Remember</translation>
+        <translation>Onthoud</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="247"/>
@@ -218,14 +229,20 @@
 <context>
     <name>SendTransactionPane</name>
     <message>
+        <location filename="../SendTransactionPane.qml" line="42"/>
+        <location filename="../SendTransactionPane.qml" line="201"/>
+        <source>Destination</source>
+        <translation>Bestemming</translation>
+    </message>
+    <message>
         <location filename="../SendTransactionPane.qml" line="53"/>
         <source>Enter Bitcoin Address</source>
-        <translation type="unfinished">Enter Bitcoin Address</translation>
+        <translation>Voer Bitcoin adres in</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="88"/>
         <source>Max</source>
-        <translation type="unfinished">Max</translation>
+        <translation>Max</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="115"/>
@@ -240,27 +257,29 @@
     <message>
         <location filename="../SendTransactionPane.qml" line="150"/>
         <source>Validate and Send Transaction</source>
-        <translation type="unfinished">Validate and Send Transaction</translation>
+        <translation>Valideer en verzend transactie</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="187"/>
         <source>Check your values and press approve to send payment.</source>
-        <translation type="unfinished">Check your values and press approve to send payment.</translation>
+        <translation>Controleer uw waarden en druk op goedkeuren om de betaling te verzenden.</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="188"/>
         <source>Not enough funds in account to make payment!</source>
-        <translation type="unfinished">Not enough funds in account to make payment!</translation>
-    </message>
-    <message>
-        <location filename="../SendTransactionPane.qml" line="201"/>
-        <source>Destination</source>
-        <translation type="unfinished">Destination</translation>
+        <translation>Niet genoeg saldo in account om te betalen!</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="211"/>
         <source>Was</source>
+        <comment>user-entered-format</comment>
         <translation>Was</translation>
+    </message>
+    <message>
+        <location filename="../SendTransactionPane.qml" line="72"/>
+        <location filename="../SendTransactionPane.qml" line="224"/>
+        <source>Amount</source>
+        <translation>Bedrag</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="249"/>
@@ -268,77 +287,90 @@
         <translation>Meer Details</translation>
     </message>
     <message>
-        <location filename="../SendTransactionPane.qml" line="254"/>
-        <source>TxId</source>
-        <translation>TxId</translation>
-    </message>
-    <message>
-        <location filename="../SendTransactionPane.qml" line="265"/>
+        <location filename="../SendTransactionPane.qml" line="266"/>
         <source>Fee</source>
-        <translation type="unfinished">Fee</translation>
+        <translation>Transactiekosten</translation>
     </message>
     <message>
-        <location filename="../SendTransactionPane.qml" line="270"/>
+        <location filename="../SendTransactionPane.qml" line="271"/>
         <source>%1 sats</source>
-        <translation type="unfinished">%1 sats</translation>
+        <translation>%1 sats</translation>
     </message>
     <message>
-        <location filename="../SendTransactionPane.qml" line="273"/>
+        <location filename="../SendTransactionPane.qml" line="274"/>
         <source>Transaction size</source>
-        <translation type="unfinished">Transaction size</translation>
+        <translation>Transactie grootte</translation>
     </message>
-    <message>
-        <location filename="../SendTransactionPane.qml" line="277"/>
+    <message numerus="yes">
+        <location filename="../SendTransactionPane.qml" line="282"/>
         <source>%1 bytes</source>
-        <translation type="unfinished">%1 bytes</translation>
+        <translation>
+            <numerusform>%1 byte</numerusform>
+            <numerusform>%1 bytes</numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../SendTransactionPane.qml" line="280"/>
+        <location filename="../SendTransactionPane.qml" line="286"/>
         <source>Fee per byte</source>
-        <translation type="unfinished">Fee per byte</translation>
+        <translation>Transactiekosten per byte</translation>
     </message>
-    <message>
-        <location filename="../SendTransactionPane.qml" line="285"/>
+    <message numerus="yes">
+        <location filename="../SendTransactionPane.qml" line="295"/>
         <source>%1 sat/byte</source>
-        <translation type="unfinished">%1 sat/byte</translation>
+        <comment>fee</comment>
+        <translation>
+            <numerusform>%1 sat/byte</numerusform>
+            <numerusform>%1 sats/byte</numerusform>
+        </translation>
     </message>
     <message>
-        <location filename="../SendTransactionPane.qml" line="296"/>
+        <location filename="../SendTransactionPane.qml" line="306"/>
         <source>Approve and Send</source>
-        <translation type="unfinished">Approve and Send</translation>
+        <comment>button</comment>
+        <translation>Goedkeuren en verzenden</translation>
     </message>
     <message>
-        <location filename="../SendTransactionPane.qml" line="296"/>
+        <location filename="../SendTransactionPane.qml" line="306"/>
         <source>Close</source>
-        <translation type="unfinished">Close</translation>
+        <comment>button</comment>
+        <translation>Sluiten</translation>
     </message>
 </context>
 <context>
     <name>SyncIndicator</name>
-    <message>
+    <message numerus="yes">
         <location filename="../SyncIndicator.qml" line="37"/>
         <source>%1 weeks behind</source>
-        <translation type="unfinished">%1 weeks behind</translation>
+        <translation>
+            <numerusform>%1 week achter</numerusform>
+            <numerusform>%1 weken achter</numerusform>
+        </translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../SyncIndicator.qml" line="40"/>
         <source>%1 days behind</source>
-        <translation type="unfinished">%1 days behind</translation>
+        <translation>
+            <numerusform>%1 dag achter</numerusform>
+            <numerusform>%1 dagen achter</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../SyncIndicator.qml" line="42"/>
         <source>Synched</source>
-        <translation type="unfinished">Synched</translation>
+        <translation>Gesynchroniseerd</translation>
     </message>
     <message>
         <location filename="../SyncIndicator.qml" line="44"/>
         <source>Updating</source>
-        <translation type="unfinished">Updating</translation>
+        <translation>Bijwerken</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../SyncIndicator.qml" line="45"/>
         <source>%1 hours behind</source>
-        <translation type="unfinished">%1 hours behind</translation>
+        <translation>
+            <numerusform>%1 uur achter</numerusform>
+            <numerusform>%1 uren achter</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -346,7 +378,7 @@
     <message>
         <location filename="../WalletTransaction.qml" line="44"/>
         <source>Received</source>
-        <translation type="unfinished">Received</translation>
+        <translation>Ontvangen</translation>
     </message>
     <message>
         <location filename="../WalletTransaction.qml" line="47"/>
@@ -386,15 +418,18 @@
         <source>Size</source>
         <translation>Grootte</translation>
     </message>
-    <message>
+    <message numerus="yes">
         <location filename="../WalletTransactionDetails.qml" line="57"/>
         <source>%1 bytes</source>
-        <translation>%1 bytes</translation>
+        <translation>
+            <numerusform>%1 byte</numerusform>
+            <numerusform>%1 bytes</numerusform>
+        </translation>
     </message>
     <message>
         <location filename="../WalletTransactionDetails.qml" line="60"/>
         <source>Inputs</source>
-        <translation>Invoer</translation>
+        <translation>In</translation>
     </message>
     <message>
         <location filename="../WalletTransactionDetails.qml" line="129"/>
@@ -427,7 +462,7 @@
     <message>
         <location filename="../main.qml" line="58"/>
         <source>&amp;Account List</source>
-        <translation type="unfinished">&amp;Account List</translation>
+        <translation>&amp;Account Lijst</translation>
     </message>
     <message>
         <location filename="../main.qml" line="65"/>
@@ -452,7 +487,7 @@
     <message>
         <location filename="../main.qml" line="183"/>
         <source>%1 Accounts</source>
-        <translation type="unfinished">%1 Accounts</translation>
+        <translation>%1 Accounts</translation>
     </message>
 </context>
 </TS>

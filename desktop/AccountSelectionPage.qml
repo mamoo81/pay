@@ -24,7 +24,7 @@ Pane {
     ColumnLayout {
         anchors.fill: parent
         Label {
-            text: qsTr("Pick an account:")
+            text: qsTr("Pick an account") + ":"
         }
         ListView {
             width: parent.width

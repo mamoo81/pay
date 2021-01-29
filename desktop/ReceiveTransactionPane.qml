@@ -200,7 +200,7 @@ Pane {
         anchors.topMargin: 30
         columns: 2
         Label {
-            text: qsTr("Description:")
+            text: qsTr("Description") + ":"
         }
         TextField {
             id: description
@@ -211,7 +211,7 @@ Pane {
 
         Label {
             id: payAmount
-            text: qsTr("Amount:")
+            text: qsTr("Amount") + ":"
         }
         BitcoinValueField {
             id: bitcoinValueField

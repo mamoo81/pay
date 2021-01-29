@@ -27,7 +27,7 @@ ApplicationWindow {
     minimumHeight: 400
     width: 500
     height: 400
-    title: qsTr("Peers (%1)").arg(net.peers.length)
+    title: qsTr("Peers (%1)", "", net.peers.length).arg(net.peers.length)
     modality: Qt.NonModal
     flags: Qt.Dialog
 

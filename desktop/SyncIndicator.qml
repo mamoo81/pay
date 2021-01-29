@@ -34,15 +34,15 @@ Label {
         var days = diff / 144
         var weeks = diff / 1008
         if (days > 10)
-            return qsTr("%1 weeks behind").arg(Math.ceil(weeks));
+            return qsTr("%1 weeks behind", "", Math.ceil(weeks)).arg(Math.ceil(weeks));
         var hours = diff / 6
         if (hours > 48)
-            return qsTr("%1 days behind").arg(Math.ceil(days));
+            return qsTr("%1 days behind", "", Math.ceil(days)).arg(Math.ceil(days));
         if (diff === 0)
             return qsTr("Synched")
         if (diff < 3)
             return qsTr("Updating");
-        return qsTr("%1 hours behind").arg(Math.ceil(hours));
+        return qsTr("%1 hours behind", "", Math.ceil(hours)).arg(Math.ceil(hours));
     }
     font.italic: true
 }

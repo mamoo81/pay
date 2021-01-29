@@ -29,7 +29,7 @@ ApplicationWindow {
     title: qsTr("Account Details")
     modality: Qt.NonModal
     flags: Qt.Dialog
-    
+
     property QtObject account: null
 
     GridLayout {
@@ -52,8 +52,8 @@ ApplicationWindow {
             }
             Layout.columnSpan: 2
         }
-        
-        Label { text: qsTr("Name:") }
+
+        Label { text: qsTr("Name") + ":" }
         TextField {
             text: root.account.name
             focus: true
@@ -61,40 +61,40 @@ ApplicationWindow {
             onAccepted:  root.account.name = text
         }
         Label {
-            text: qsTr("Balance unconfirmed:")
+            text: qsTr("Balance unconfirmed") + ":"
         }
         BitcoinAmountLabel {
             value: root.account.balanceUnconfirmed
             colorize: false
         }
         Label {
-            text: qsTr("Balance immature:")
+            text: qsTr("Balance immature") + ":"
         }
         BitcoinAmountLabel {
             value: root.account.balanceImmature
             colorize: false
         }
         Label {
-            text: qsTr("Balance other:")
+            text: qsTr("Balance other") + ":"
         }
         BitcoinAmountLabel {
             value: root.account.balanceConfirmed
             colorize: false
         }
         Label {
-            text: qsTr("Unspent coins:")
+            text: qsTr("Unspent coins", "currently spendable coins", root.account.unspentOutputCount) + ":"
         }
         Label {
             text: root.account.unspentOutputCount
         }
         Label {
-            text: qsTr("Historical coins:")
+            text: qsTr("Historical coins", "total coins ever seen", root.account.historicalOutputCount) + ":"
         }
         Label {
             text: root.account.historicalOutputCount
         }
         Label {
-            text: qsTr("Sync status:")
+            text: qsTr("Sync status") + ":"
         }
         SyncIndicator {
             id: syncIndicator
