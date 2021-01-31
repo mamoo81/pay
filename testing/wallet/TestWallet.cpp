@@ -298,6 +298,21 @@ void TestWallet::saveTransaction2()
     }
 }
 
+void TestWallet::findInputs()
+{
+    auto wallet = createWallet();
+    wallet->addTestTransactions();
+
+    int64_t change = 0;
+    // Test that we prefer a simple solution over one with multiple aged coins
+    auto walletSet =  wallet->findInputsFor(4000000, 1, 1, change);
+    QCOMPARE(walletSet.outputs.size(), 1);
+    QCOMPARE(walletSet.totalSats, 5000000);
+    QCOMPARE(walletSet.fee, 150);
+    QCOMPARE(change, 999850);
+
+}
+
 std::unique_ptr<Wallet> TestWallet::createWallet()
 {
     if (m_dir.isEmpty()) {

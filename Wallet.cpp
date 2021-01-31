@@ -377,6 +377,62 @@ QList<PaymentRequest *> Wallet::paymentRequests() const
     return m_paymentRequests;
 }
 
+#ifdef IN_TESTS
+// called and compiled in unit tests only
+void Wallet::addTestTransactions()
+{
+    QMutexLocker locker(&m_lock);
+    while (m_walletSecrets.size() < 10) {
+        createNewPrivateKey(0);
+    }
+
+    uint64_t total = 0;
+    for (int i = 0; i < 6; ++i) {
+        WalletTransaction wtx;
+        wtx.minedBlockHeight = 10;
+        Output output;
+        output.value = 1000000;
+        int outputIndex = 3;
+        switch (i) {
+        case 0:
+            output.walletSecretId = 1;
+            output.value = 100000;
+            wtx.minedBlockHeight = 1;
+            break;
+        case 1:
+            output.walletSecretId = 2;
+            output.value = 5000000;
+            wtx.minedBlockHeight = 10;
+            break;
+        case 2:
+            output.walletSecretId = 10;
+            // fall-through
+        case 3:
+            output.value = 400000;
+            wtx.minedBlockHeight = 20;
+            break;
+        case 4:
+            output.walletSecretId = 4;
+            output.value = 1000000;
+            wtx.minedBlockHeight = 25;
+            break;
+        case 5:
+            output.walletSecretId = 5;
+            output.value = 6000000;
+            wtx.minedBlockHeight = 35;
+            break;
+        }
+        total += output.value;
+        wtx.outputs.insert(std::make_pair(outputIndex, output));
+        m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId, wtx));
+        m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
+        m_unspentOutputs.insert(std::make_pair(OutputRef(m_nextWalletTransactionId, outputIndex).encoded(), output.value));
+        ++m_nextWalletTransactionId;
+    }
+    logCritical() << "Total dummy outputs deposited" << total << "sats";
+}
+#endif
+
 namespace {
 QString renderAddress(const CKeyID &pubkeyhash)
 {

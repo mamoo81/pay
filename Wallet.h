@@ -165,6 +165,13 @@ public:
 
     QList<PaymentRequest *> paymentRequests() const;
 
+#ifdef IN_TESTS
+    /**
+     * Unit tests can call this to populate a wallet with some dummy transactions.
+     */
+    void addTestTransactions();
+#endif
+
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
