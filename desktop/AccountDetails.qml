@@ -82,13 +82,13 @@ ApplicationWindow {
             colorize: false
         }
         Label {
-            text: qsTr("Unspent coins", "currently spendable coins", root.account.unspentOutputCount) + ":"
+            text: qsTr("Available coins") + ":"
         }
         Label {
             text: root.account.unspentOutputCount
         }
         Label {
-            text: qsTr("Historical coins", "total coins ever seen", root.account.historicalOutputCount) + ":"
+            text: qsTr("Historical coins") + ":"
         }
         Label {
             text: root.account.historicalOutputCount

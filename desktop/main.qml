@@ -180,7 +180,7 @@ ApplicationWindow {
                 if (mainWindow.isLoading)
                     return qsTr("Starting up...");
                 if (portfolio.current === null)
-                    return qsTr("%1 Accounts").arg(portfolio.accounts.length);
+                    return qsTr("%1 Accounts", "", portfolio.accounts.length).arg(portfolio.accounts.length);
                 if (message === "")
                     return portfolio.current.name
                 return message;

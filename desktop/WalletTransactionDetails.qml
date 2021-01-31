@@ -39,8 +39,9 @@ GridLayout {
         text: {
             if (typeof  model.date === "undefined")
                 return qsTr("unconfirmed")
-            return qsTr("%1 confirmations (mined in block %2)")
-                .arg(Flowee.headerChainHeight - model.height).arg(model.height);
+            var confirmations = Flowee.headerChainHeight - model.height;
+            return qsTr("%1 confirmations (mined in block %2)", "", confirmations)
+                .arg(confirmations).arg(model.height);
         }
     }
 

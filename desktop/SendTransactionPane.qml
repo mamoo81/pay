@@ -40,7 +40,7 @@ Pane {
 
         Label {
             text: qsTr("Destination") + ":"
-            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+            Layout.alignment: Qt.AlignRight | Qt.AlignBaseline
         }
         TextField {
             id: destination
