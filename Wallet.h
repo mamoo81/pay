@@ -28,7 +28,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem.hpp>
 
-#include <QRecursiveMutex>
+#include <QMutex>
 #include <QString>
 #include <QObject>
 
@@ -208,7 +208,7 @@ private:
     void rebuildBloom();
 
     std::unique_ptr<PrivacySegment> m_segment;
-    mutable QRecursiveMutex m_lock;
+    mutable QMutex m_lock;
     /// used to determine if we need to persist the wallet
     bool m_walletChanged = false;
     /// used to determine if we need to persist the private keys

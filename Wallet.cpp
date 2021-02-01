@@ -59,12 +59,14 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
 }
 
 Wallet::Wallet()
-    : m_walletChanged(true)
+    : m_lock(QMutex::Recursive),
+    m_walletChanged(true)
 {
 }
 
 Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
     : m_segment(new PrivacySegment(segmentId, this)),
+      m_lock(QMutex::Recursive),
       m_basedir(basedir / QString("wallet-%1/").arg(segmentId).toStdString())
 {
     loadSecrets();
