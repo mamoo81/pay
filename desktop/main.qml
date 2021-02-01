@@ -37,6 +37,13 @@ ApplicationWindow {
 
     property bool isLoading: typeof portfolio === "undefined";
 
+    Image {
+        anchors.centerIn: parent
+        source: Flowee.useDarkSkin ? "FloweePay-light.svg" : "FloweePay.svg"
+        width: parent.width / 10 * 9
+        height: width * 77 / 449
+    }
+
     menuBar: MenuBar {
         Menu {
             title: qsTr("Flowee &Pay")

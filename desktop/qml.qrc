@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file alias="FloweePay.png">../images/FloweePay.png</file>
+        <file alias="FloweePay.svg">../images/FloweePay.svg</file>
+        <file alias="FloweePay-light.svg">../images/FloweePay-light.svg</file>
         <file>heart.svg</file>
         <file>heart-red.svg</file>
         <file>defaults.ini</file>
