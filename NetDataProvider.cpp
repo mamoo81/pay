@@ -47,11 +47,13 @@ void NetDataProvider::deleteNetPeer(int peerId)
 {
     Q_ASSERT(QThread::currentThread() == thread()); // make sure we have no threading issues
     QMutexLocker l(&m_peerMutex);
-    for (int i = 0; i < m_peers.size(); ++i) {
-        if (m_peers.at(i)->connectionId() == peerId) {
-            auto oldPeer = m_peers.takeAt(i);
+    QList<NetPeer *> peers(m_peers);
+    for (int i = 0; i < peers.size(); ++i) {
+        if (peers.at(i)->connectionId() == peerId) {
+            auto oldPeer = peers.takeAt(i);
             emit peerListChanged();
             oldPeer->deleteLater();
+            m_peers = peers;
             return;
         }
     }
@@ -66,7 +68,8 @@ void NetDataProvider::blockchainHeightChanged(int newHeight)
 void NetDataProvider::punishMentChanged(int peerId)
 {
     QMutexLocker l(&m_peerMutex);
-    for (auto &p : m_peers) {
+    QList<NetPeer *> peers(m_peers);
+    for (auto &p : peers) {
         if (p->connectionId() == peerId) {
             p->notifyPunishmentChanged();
             break;
@@ -76,7 +79,6 @@ void NetDataProvider::punishMentChanged(int peerId)
 
 QList<NetPeer *> NetDataProvider::peers() const
 {
-    QMutexLocker l(&m_peerMutex);
     return m_peers;
 }
 
