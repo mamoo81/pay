@@ -34,10 +34,10 @@ public:
     explicit NetDataProvider(int initialBlockHeight, QObject *parent = nullptr);
 
     // P2PNetInterface
-    void newPeer(int peerId, const std::string &userAgent, int startHeight, PeerAddress address);
-    void lostPeer(int peerId);
-    void blockchainHeightChanged(int newHeight);
-    void punishMentChanged(int peerId);
+    void newPeer(int peerId, const std::string &userAgent, int startHeight, PeerAddress address) override;
+    void lostPeer(int peerId) override;
+    void blockchainHeightChanged(int newHeight) override;
+    void punishMentChanged(int peerId) override;
 
     QList<NetPeer*> peers() const;
     int blockheight() const;
