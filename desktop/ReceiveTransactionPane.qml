@@ -173,17 +173,20 @@ Pane {
                     return qsTr("Payment Settled")
                 return "INTERNAL ERROR";
             }
+            width: parent.width - 40
             anchors.verticalCenter: feedback.verticalCenter
             anchors.left: feedback.visible ? feedback.right : parent.left
             anchors.leftMargin: 20
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             font.pointSize: 20
         }
         Label {
             visible: receivePane.request.state === PaymentRequest.DoubleSpentSeen
-            anchors.right: parent.right
-            anchors.rightMargin: 20
-            width: parent.width * 2 / 3
             anchors.top: feedbackLabel.bottom
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            width: parent.width - 20
+            horizontalAlignment: Qt.AlignRight
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             text: qsTr("Instant payment failed. Wait for confirmation. (double spent proof received)")
         }
