@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ ApplicationWindow {
         id: peerList
         model: net.peers
         anchors.fill: parent
-        anchors.margins: 10
 
         delegate: Rectangle {
             width: peerList.width
@@ -43,12 +42,16 @@ ApplicationWindow {
             color: index % 2 === 0 ? netView.palette.button : netView.palette.alternateBase
             ColumnLayout {
                 id: peerPane
-                width: peerList.width
+                width: peerList.width - 20
+                x: 10
                 y: 6
 
                 Label {
                     id: mainLabel
                     text: modelData.userAgent
+                }
+                Label {
+                    text: qsTr("Address:", "network address (IP)") + " " + modelData.address
                 }
                 RowLayout {
                     id: rowLayout
@@ -63,6 +66,7 @@ ApplicationWindow {
                 }
                 Label {
                     id : accountName
+                    font.bold: true
                     text: {
                         var id = modelData.segmentId;
                         var accounts = portfolio.accounts;
@@ -70,6 +74,7 @@ ApplicationWindow {
                             if (accounts[i].id === id)
                                 return qsTr("Peer for account: %1").arg(accounts[i].name);
                         }
+                        return ""; // not peered yet
                     }
                     visible: text !== ""
                 }

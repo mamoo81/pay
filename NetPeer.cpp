@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,14 @@ uint16_t NetPeer::segmentId() const
 
 QString NetPeer::address() const
 {
-    return "TODO";
+    QString answer;
+    const auto &ep = m_address.peerAddress();
+    if (ep.ipAddress.is_unspecified())
+        answer = QString::fromStdString(ep.hostname);
+    else
+       answer = QString::fromStdString(ep.ipAddress.to_string());
+    answer += QString(":%1").arg(ep.announcePort);
+    return answer;
 }
 
 void NetPeer::notifyPunishmentChanged()

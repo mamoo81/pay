@@ -51,9 +51,9 @@ void NetDataProvider::deleteNetPeer(int peerId)
     for (int i = 0; i < peers.size(); ++i) {
         if (peers.at(i)->connectionId() == peerId) {
             auto oldPeer = peers.takeAt(i);
+            m_peers = peers;
             emit peerListChanged();
             oldPeer->deleteLater();
-            m_peers = peers;
             return;
         }
     }
