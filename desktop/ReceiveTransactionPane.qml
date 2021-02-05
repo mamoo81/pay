@@ -46,7 +46,7 @@ Pane {
             anchors.fill: parent
             onClicked: {
                 Flowee.copyToClipboard(receivePane.request.qr)
-                clipoardFeedback.opacity = 1
+                clipboardFeedback.opacity = 1
             }
         }
 
