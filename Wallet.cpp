@@ -173,7 +173,7 @@ void Wallet::newTransaction(const Tx &tx)
             m_unspentOutputs.insert(std::make_pair(key, i->second.value));
 
             const int privKeyId = i->second.walletSecretId;
-            for (auto pr : m_paymentRequests) {
+            for (auto pr : qAsConst(m_paymentRequests)) {
                 if (pr->m_privKeyId == privKeyId) {
                     pr->addPayment(key, i->second.value);
                     wtx.userComment = pr->message();
@@ -274,7 +274,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                     needNewBloom = true; // make sure we let the remote know about our 'gap' addresses
                 }
 
-                for (auto pr : m_paymentRequests) {
+                for (auto pr : qAsConst(m_paymentRequests)) {
                     if (pr->m_privKeyId == privKeyId) {
                         pr->addPayment(key, i->second.value, blockHeight);
                         wtx.userComment = pr->message();
@@ -331,7 +331,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
 
                 // check the payment requests
                 const int privKeyId = i->second.walletSecretId;
-                for (auto pr : m_paymentRequests) {
+                for (auto pr : qAsConst(m_paymentRequests)) {
                     if (pr->m_privKeyId == privKeyId)
                         pr->paymentRejected(key, i->second.value);
                 }
@@ -1233,6 +1233,10 @@ void Wallet::loadWallet()
             paymentRequestRef = OutputRef();
         }
         else if (parser.tag() == WalletPriv::PaymentRequestAddress) {
+            // we assert on pr being null here and below based on the idea that the loaded file
+            // is private and trusted. The asserts are here to make sure that the saving code
+            // matches the loading, in production there is then no need to doubt the correctness
+            // of the loaded data.
             assert(pr);
             pr->m_privKeyId = parser.intData();
             auto i = m_walletSecrets.find(pr->m_privKeyId);
@@ -1260,9 +1264,11 @@ void Wallet::loadWallet()
         }
         else if (parser.tag() == WalletPriv::PaymentRequestOutputIndex) {
             paymentRequestRef.setOutputIndex(parser.intData());
+            assert(pr);
             pr->m_incomingOutputRefs.append(paymentRequestRef.encoded());
         }
         else if (parser.tag() == WalletPriv::PaymentRequestPaid) {
+            assert(pr);
             pr->m_amountSeen = parser.longData();
             if (pr->m_amountSeen >= pr->m_amountRequested)
                 pr->m_paymentState = PaymentRequest::PaymentSeenOk;
@@ -1367,7 +1373,7 @@ void Wallet::saveWallet()
     builder.add(WalletPriv::LastSynchedBlock, m_segment->lastBlockSynched());
     builder.add(WalletPriv::WalletName, m_name.toUtf8().toStdString());
 
-    for (auto pr : m_paymentRequests) {
+    for (auto pr : qAsConst(m_paymentRequests)) {
         builder.add(WalletPriv::PaymentRequestType, 0); // bip21 is the only one supported right now
         builder.add(WalletPriv::PaymentRequestAddress, pr->m_privKeyId);
         if (!pr->m_message.isEmpty())
@@ -1378,7 +1384,7 @@ void Wallet::saveWallet()
         if (pr->m_useLegacyAddressFormat)
             builder.add(WalletPriv::PaymentRequestOldAddress, true);
 
-        for (auto outRefNum : pr->m_incomingOutputRefs) {
+        for (auto outRefNum : qAsConst(pr->m_incomingOutputRefs)) {
             OutputRef outRef(outRefNum);
             builder.add(WalletPriv::PaymentRequestTxIndex, outRef.txIndex());
             builder.add(WalletPriv::PaymentRequestOutputIndex, outRef.outputIndex());

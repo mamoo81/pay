@@ -111,7 +111,7 @@ bool AccountInfo::isDefaultWallet()
 QList<QObject *> AccountInfo::paymentRequests() const
 {
     QList<QObject*> answer;
-    for (const auto pr : m_wallet->paymentRequests()) {
+    for (const auto &pr : m_wallet->paymentRequests()) {
         answer.append(pr);
     }
     return answer;

@@ -108,7 +108,7 @@ public:
     Q_INVOKABLE void createImportedWallet(const QString &privateKey, const QString &walletName);
 
     /// take a bitcoin-address and identify the type.
-    Q_INVOKABLE StringType identifyString(const QString &string) const;
+    Q_INVOKABLE FloweePay::StringType identifyString(const QString &string) const;
 
     /// returns the unit of our prices. BCH, for instance.
     QString unitName() const;
