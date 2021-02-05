@@ -38,6 +38,16 @@ PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
     Q_ASSERT(m_wallet);
     m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
     m_wallet->addPaymentRequest(this);
+#if 0
+    // by enabling this you can simulate the payment request being fulfilled
+    QTimer::singleShot(5000, [=]() {
+        setPaymentState(PaymentSeen);
+        QTimer::singleShot(3000, [=]() {
+            // setPaymentState(PaymentSeenOk);
+            setPaymentState(DoubleSpentSeen);
+        });
+    });
+#endif
 }
 
 // constructor used to 'load' a request, already owned by the wallet.
