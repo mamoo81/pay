@@ -48,6 +48,7 @@ set (PAY_SOURCES
     main.cpp
     NetDataProvider.cpp
     NetPeer.cpp
+    NotificationManager.cpp
     Payment.cpp
     PaymentRequest.cpp
     PortfolioDataProvider.cpp

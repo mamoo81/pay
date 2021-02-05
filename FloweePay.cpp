@@ -481,6 +481,7 @@ DownloadManager *FloweePay::p2pNet()
     if (m_downloadManager == nullptr) {
         m_downloadManager.reset(new DownloadManager(ioService(), m_basedir.toStdString(), m_chain));
         m_downloadManager->addP2PNetListener(this);
+        m_downloadManager->notifications().addListener(&m_notifications);
 
         QSettings defaultConfig(":/defaults.ini", QSettings::IniFormat);
         QString useragent = defaultConfig.value(USERAGENT, "Flowee Pay Wallet").toString();

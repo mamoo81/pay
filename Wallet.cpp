@@ -21,6 +21,7 @@
 #include "PaymentRequest.h"
 #include "TransactionInfo.h"
 
+#include <NotificationListener.h>
 #include <primitives/script.h>
 #include <streaming/BufferPool.h>
 #include <streaming/MessageBuilder.h>
@@ -81,7 +82,7 @@ Wallet::~Wallet()
     saveWallet();
 }
 
-Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid) const
+Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, P2PNet::Notification *change) const
 {
     WalletTransaction wtx;
     wtx.txid = txid;
@@ -114,6 +115,8 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                     // input is spending one of our UTXOs
                     logDebug() << "   -> spent UTXO";
                     wtx.inputToWTX.insert(std::make_pair(inputIndex, prevTx.encoded()));
+                    if (change)
+                        change->spent += utxo->second;
                 }
             }
         }
@@ -126,6 +129,8 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
             if (output.walletSecretId > 0) {
                 logDebug() << "   output"<< outputIndex << "pays to wallet id" << output.walletSecretId;
                 wtx.outputs.insert(std::make_pair(outputIndex, output));
+                if (change)
+                    change->deposited += output.value;
             }
         }
     }
@@ -135,6 +140,8 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
 void Wallet::newTransaction(const Tx &tx)
 {
     int firstNewTransaction;
+    P2PNet::Notification notification;
+    notification.privacySegment = int(m_segment->segmentId());
     {
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
@@ -142,7 +149,7 @@ void Wallet::newTransaction(const Tx &tx)
         if (m_txidCash.find(txid) != m_txidCash.end()) // already known
             return;
 
-        WalletTransaction wtx = createWalletTransactionFromTx(tx, txid);
+        WalletTransaction wtx = createWalletTransactionFromTx(tx, txid, &notification);
         Q_ASSERT(wtx.isCoinbase == false);
         if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
             // no connection to our UTXOs
@@ -186,6 +193,7 @@ void Wallet::newTransaction(const Tx &tx)
 
     emit utxosChanged();
     emit appendedTransactions(firstNewTransaction, 1);
+    FloweePay::instance()->p2pNet()->notifications().notifyNewTransaction(notification);
 }
 
 void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions)
@@ -204,8 +212,11 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
 
             auto oldTx = m_txidCash.find(txid);
             int walletTransactionId = m_nextWalletTransactionId;
+            P2PNet::Notification notification;
+            notification.privacySegment = int(m_segment->segmentId());
             if (oldTx == m_txidCash.end()) {
-                wtx = createWalletTransactionFromTx(tx, txid);
+                wtx = createWalletTransactionFromTx(tx, txid, &notification);
+                notification.blockHeight = blockHeight;
                 if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
                     // no connection to our UTXOs
                     if (--m_bloomScore < 25)
@@ -287,6 +298,8 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "@" << blockHeight;
             if (wasUnconfirmed)
                 emit transactionConfirmed(walletTransactionId);
+            if (notification.blockHeight > 0)
+                FloweePay::instance()->p2pNet()->notifications().notifyNewTransaction(notification);
         }
         assert(m_nextWalletTransactionId - firstNewTransaction == int(transactionsToSave.size()));
 

@@ -18,6 +18,8 @@
 #ifndef FLOWEEPAY_H
 #define FLOWEEPAY_H
 
+#include "NotificationManager.h"
+
 #include <QObject>
 
 #include <DownloadManager.h>
@@ -185,11 +187,13 @@ private:
     Wallet *createWallet(const QString &name);
     int walletStartHeightHint() const;
 
+
     UnitOfBitcoin m_unit = BCH;
     QString m_basedir;
     P2PNet::Chain m_chain = P2PNet::MainChain;
     std::string m_chainPrefix;
     std::unique_ptr<DownloadManager> m_downloadManager;
+    NotificationManager m_notifications;
     QList<Wallet*> m_wallets;
     int m_dspTimeout;
     int m_windowWidth;

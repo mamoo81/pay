@@ -29,6 +29,7 @@ add_executable(test_wallet
     ${CMAKE_SOURCE_DIR}/PaymentRequest.cpp
     ${CMAKE_SOURCE_DIR}/Wallet.cpp
     ${CMAKE_SOURCE_DIR}/TransactionInfo.cpp
+    ${CMAKE_SOURCE_DIR}/NotificationManager.cpp
     ${CMAKE_SOURCE_DIR}/Wallet_support.cpp
 )
 target_link_libraries(test_wallet

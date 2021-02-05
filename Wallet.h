@@ -36,6 +36,10 @@ class WalletInfoObject;
 class TransactionInfo;
 class PaymentRequest;
 
+namespace P2PNet {
+struct Notification;
+}
+
 class Wallet : public QObject, public DataListenerInterface
 {
     Q_OBJECT
@@ -249,7 +253,7 @@ private:
         std::map<int, Output> outputs; // output-index to Output (only ones we can/could spend)
     };
 
-    WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid) const;
+    WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, P2PNet::Notification *change = nullptr) const;
     void saveTransaction(const Tx &tx);
     /**
      * returns a Tx if this txid was saved in this wallet.
