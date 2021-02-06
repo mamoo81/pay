@@ -45,7 +45,7 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(int unitAllowedDecimals READ unitAllowedDecimals NOTIFY unitChanged)
     Q_PROPERTY(int headerChainHeight READ headerChainHeight NOTIFY headerChainHeightChanged)
     Q_PROPERTY(int expectedChainHeight READ expectedChainHeight NOTIFY expectedChainHeightChanged)
-    Q_PROPERTY(int chainHeight READ chainHeight NOTIFY chainHeightChanged)
+    Q_PROPERTY(int chainHeight READ chainHeight NOTIFY headerChainHeightChanged)
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
     Q_PROPERTY(bool isMainChain READ isMainChain CONSTANT)
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
@@ -177,7 +177,6 @@ signals:
     void windowHeightChanged();
     void headerChainHeightChanged();
     void expectedChainHeightChanged();
-    void chainHeightChanged();
     void dspTimeoutChanged();
 
 private:

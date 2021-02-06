@@ -310,15 +310,20 @@ int FloweePay::chainHeight()
 {
     if (m_initialHeaderChainHeight <= 0)
         m_initialHeaderChainHeight = headerChainHeight();
-    if (m_initialHeaderChainHeight == headerChainHeight())
-        return expectedChainHeight();
+
+    const int hch = headerChainHeight();
+    if (m_initialHeaderChainHeight == headerChainHeight()) {
+        const int expected = expectedChainHeight();
+        const int behind = expected - hch; // num blocks we are behind theoretical height
+        if (behind > 3) // don't report expected when variance could explain the diff
+            return expected;
+    }
     return headerChainHeight();
 }
 
 void FloweePay::blockchainHeightChanged(int)
 {
     emit headerChainHeightChanged();
-    emit chainHeightChanged();
 }
 
 bool FloweePay::darkSkin() const
@@ -488,7 +493,6 @@ DownloadManager *FloweePay::p2pNet()
         m_downloadManager->connectionManager().setUserAgent(useragent.toStdString());
         emit headerChainHeightChanged();
         emit expectedChainHeightChanged();
-        emit chainHeightChanged();
     }
     return m_downloadManager.get();
 }
