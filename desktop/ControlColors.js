@@ -28,7 +28,7 @@ function applyDarkSkin(item) {
     item.palette.windowText = "#fcfcfc"
 }
 function applyLightSkin(item) {
-    item.palette.alternateBase = "#31363b";
+    item.palette.alternateBase = "#b2bfd0";
     item.palette.base = "#ffffff";
     item.palette.brightText = "#ffffff";
     item.palette.button = "#e0e0e0";

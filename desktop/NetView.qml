@@ -39,7 +39,7 @@ ApplicationWindow {
         delegate: Rectangle {
             width: peerList.width
             height: peerPane.height + 12
-            color: index % 2 === 0 ? netView.palette.button : netView.palette.alternateBase
+            color: index % 2 === 0 ? netView.palette.button : netView.palette.base
             ColumnLayout {
                 id: peerPane
                 width: peerList.width - 20

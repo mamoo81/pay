@@ -39,7 +39,7 @@ Pane {
             delegate: Rectangle {
                 width: parent.width
                 height: grid.height
-                color: index % 2 === 0 ? mainWindow.palette.button : mainWindow.palette.alternateBase
+                color: index % 2 === 0 ? mainWindow.palette.button : mainWindow.palette.base
                 GridLayout {
                     width: parent.width
                     id: grid
