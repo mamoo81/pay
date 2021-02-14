@@ -66,6 +66,7 @@ if(ANDROID)
 else()
     qt5_create_translation(QM_FILES
         desktop
+        desktop/i18n/floweepay_en.ts
         desktop/i18n/floweepay_nl.ts
         desktop/i18n/floweepay_pl.ts
     )
