@@ -269,11 +269,6 @@ P2PNet::Chain FloweePay::chain() const
     return m_chain;
 }
 
-void FloweePay::setChain(const P2PNet::Chain &chain)
-{
-    m_chain = chain;
-}
-
 void FloweePay::copyToClipboard(const QString &text)
 {
     QGuiApplication::clipboard()->setText(text);

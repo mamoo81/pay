@@ -154,11 +154,18 @@ public:
     // P2PNetInterface interface
     void blockchainHeightChanged(int newHeight);
 
+    /**
+     *  Returns true if this is the mainchain.
+     *  \see selectChain()
+     */
     bool isMainChain() const {
         return m_chain == P2PNet::MainChain;
     }
+    /**
+     *  Returns the chain this Pay was created with.
+     *  \see selectChain()
+     */
     P2PNet::Chain chain() const;
-    void setChain(const P2PNet::Chain &chain);
     const std::string &chainPrefix() const { return m_chainPrefix; }
 
     Q_INVOKABLE void copyToClipboard(const QString &text);
