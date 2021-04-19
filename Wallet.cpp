@@ -474,7 +474,7 @@ QString renderAddress(const Streaming::ConstBuffer &outputScript)
     switch (whichType)
     {
     case Script::TX_PUBKEY:
-        keyID = CPubKey(vSolutions[0]).GetID();
+        keyID = CPubKey(vSolutions[0]).getKeyId();
         break;
     case Script::TX_PUBKEYHASH:
         keyID = CKeyID(uint160(vSolutions[0]));
@@ -588,7 +588,7 @@ int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
     switch (whichType)
     {
     case Script::TX_PUBKEY:
-        keyID = CPubKey(vSolutions[0]).GetID();
+        keyID = CPubKey(vSolutions[0]).getKeyId();
         break;
     case Script::TX_PUBKEYHASH:
         keyID = CKeyID(uint160(vSolutions[0]));
@@ -747,7 +747,7 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId)
         secret.privKey.MakeNewKey();
 
         const CPubKey pubkey = secret.privKey.GetPubKey();
-        secret.address = pubkey.GetID();
+        secret.address = pubkey.getKeyId();
         if (i == 0) {
             answer = m_nextWalletSecretId;
             keyId = secret.address;
@@ -996,13 +996,13 @@ void Wallet::createNewPrivateKey(int currentBlockheight)
     secret.privKey.MakeNewKey();
 
     const CPubKey pubkey = secret.privKey.GetPubKey();
-    secret.address = pubkey.GetID();
+    secret.address = pubkey.getKeyId();
     secret.initialHeight = currentBlockheight;
     m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
     m_secretsChanged = true;
     saveSecrets();
 
-    m_segment->addKeyToFilter(pubkey.GetID(), currentBlockheight);
+    m_segment->addKeyToFilter(pubkey.getKeyId(), currentBlockheight);
 
     rebuildBloom();
 }
@@ -1021,13 +1021,13 @@ bool Wallet::addPrivateKey(const QString &privKey, int startBlockHeight)
         // TODO loop over secrets and avoid adding one privkey twice.
 
         const CPubKey pubkey = secret.privKey.GetPubKey();
-        secret.address = pubkey.GetID();
+        secret.address = pubkey.getKeyId();
         secret.initialHeight = startBlockHeight;
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
         m_secretsChanged = true;
         saveSecrets();
 
-        m_segment->addKeyToFilter(pubkey.GetID(), startBlockHeight);
+        m_segment->addKeyToFilter(pubkey.getKeyId(), startBlockHeight);
 
         rebuildBloom();
         return true;
