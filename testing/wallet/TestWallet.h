@@ -18,6 +18,7 @@
 #ifndef TEST_WALLET_H
 #define TEST_WALLET_H
 
+#include <BlockHeader.h>
 #include <QObject>
 
 #include <utils/primitives/key.h>
@@ -27,12 +28,16 @@ struct ECC_State {
     ~ECC_State() { ECC_Stop(); }
 };
 
+struct MockBlockHeader : public BlockHeader
+{
+    MockBlockHeader();
+};
+
 class Wallet;
 
 class TestWallet : public QObject
 {
     Q_OBJECT
-
 private slots:
     void cleanup(); // called after each testcase.
     void transactionOrdering();
@@ -40,6 +45,7 @@ private slots:
     void saveTransaction();
     void saveTransaction2();
     void findInputs();
+    void unconfirmed();
 
 private:
     std::unique_ptr<Wallet> createWallet();
