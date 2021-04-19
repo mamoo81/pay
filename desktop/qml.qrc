@@ -23,5 +23,6 @@
         <file>SyncIndicator.qml</file>
         <file>WalletTransactionDetails.qml</file>
         <file>WalletTransaction.qml</file>
+        <file>PayTabButton.qml</file>
     </qresource>
 </RCC>

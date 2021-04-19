@@ -1,0 +1,78 @@
+/*
+ * This file is part of the Flowee project
+ * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+import QtQuick 2.14
+import Flowee.org.pay 1.0
+
+Item {
+    id: payTabButton
+    height: payTabButtonText.height + 30
+    width: 100
+    property bool isActive: false
+    property alias text: payTabButtonText.text
+    property string icon: ""
+
+    Row {
+        height: parent.height
+        anchors.horizontalCenter: parent.horizontalCenter
+        spacing: 10
+        Image {
+            visible: payTabButton.icon !== ""
+            source: payTabButton.icon
+            width: 32
+            height: 32
+        }
+        Text {
+            id: payTabButtonText
+            anchors.verticalCenter: parent.verticalCenter
+            color: "white"
+            font.bold: payTabButton.isActive
+        }
+    }
+
+    Rectangle {
+        id: highlight
+        width: parent.width - 6
+        x: 3
+        height: 3
+        anchors.bottom: parent.bottom
+        property bool hover: false
+        color: {
+            var active = payTabButton.isActive
+            if (Flowee.useDarkSkin) {
+                if (active)
+                    return mainWindow.floweeGreen
+                if (hover)
+                    return mainWindow.floweeSalmon
+                return "#EEE"
+            }
+            // light skin
+            if (active)
+                return mainWindow.floweeBlue
+            if (hover)
+                return mainWindow.floweeSalmon
+            return "#111"
+        }
+
+    }
+    MouseArea {
+        hoverEnabled: true
+        anchors.fill: parent
+        onEntered: highlight.hover = true
+        onExited: highlight.hover = false
+    }
+}

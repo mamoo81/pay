@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  */
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-import QtQuick.Layouts 1.14
+// import QtQuick.Layouts 1.14
 import Flowee.org.pay 1.0
 
 import "./ControlColors.js" as ControlColors
@@ -25,10 +25,10 @@ import "./ControlColors.js" as ControlColors
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: Flowee.windowWidth === -1 ? 600 : Flowee.windowWidth
-    height: Flowee.windowHeight === -1 ? 400 : Flowee.windowHeight
-    minimumWidth: 300
-    minimumHeight: 200
+    width: Flowee.windowWidth === -1 ? 750 : Flowee.windowWidth
+    height: Flowee.windowHeight === -1 ? 500 : Flowee.windowHeight
+    minimumWidth: 600
+    minimumHeight: 500
     title: "Flowee Pay"
 
     onWidthChanged: Flowee.windowWidth = width
@@ -37,13 +37,227 @@ ApplicationWindow {
 
     property bool isLoading: typeof portfolio === "undefined";
 
+    property color floweeSalmon: "#ff9d94"
+    property color floweeBlue: "#0b1088"
+    property color floweeGreen: "#90e4b5"
+
+    header: Rectangle {
+        color: mainWindow.floweeBlue
+        width: parent.width
+        height: {
+            var h = mainWindow.height;
+            if (h > 700)
+                return 120;
+            return h / 700 * 120;
+        }
+
+        Image {
+            anchors.verticalCenter: parent.verticalCenter
+            x: 20
+            smooth: true
+            source: "FloweePay-light.svg"
+            // ratio: 77 / 449
+            height: (parent.height - 20) * 7 / 10
+            width: height * 449 / 77
+        }
+        Label {
+            y: parent.height / 3 * 2 - height
+            anchors.right: parent.right
+            anchors.rightMargin: 30
+            text: "BCH: " + "€1000"
+            visible: Flowee.isMainChain
+            font.pixelSize: 18
+        }
+    }
+
+    Pane {
+        id: mainScreen
+        anchors.fill: parent
+
+        Item {
+            id: tabbedPane
+            height: parent.height
+            width: parent.width / 100 * 65
+            anchors.right: parent.right
+
+            Rectangle {
+                anchors.fill: parent
+                opacity: 0.2
+                color: "black"
+            }
+            Row {
+                width: parent.width
+                height: activityButton.height
+                PayTabButton {
+                    id: activityButton
+                    text: qsTr("Activity")
+                    width: parent.width / 4
+                }
+                PayTabButton {
+                    text: qsTr("Send")
+                    width: parent.width / 4
+                }
+                PayTabButton {
+                    text: qsTr("Receive")
+                    width: parent.width / 4
+                    isActive: true
+                }
+                PayTabButton {
+                    text: qsTr("Settings")
+                    width: parent.width / 4
+                }
+            }
+        }
+
+        Column {
+            id: leftColumn
+            y: 40
+            width: parent.width - tabbedPane.width
+            height: parent.height
+            Label {
+                text: qsTr("Balance");
+                height: implicitHeight / 10 * 7
+            }
+            BitcoinAmountLabel {
+                id: balance
+                value: {
+                    if (isLoading)
+                        return 0;
+                    var account = portfolio.current;
+                    if (account === null)
+                        return 0;
+                    return account.balanceConfirmed + account.balanceUnconfirmed
+                }
+                colorize: false
+                textColor: mainWindow.palette.text
+                fontPtSize: mainWindow.font.pointSize * 3
+            }
+            Label {
+                text: qsTr("0.00 EUR"); // TODO
+                visible: Flowee.isMainChain
+                opacity: 0.3
+            }
+            Item { // spacer
+                width: 10
+                height: 20
+            }
+            Label {
+                id: totalBalenceLabel
+                text: qsTr("Total balance");
+                height: implicitHeight / 10 * 9
+            }
+            BitcoinAmountLabel {
+                value: {
+                    if (isLoading)
+                        return 0;
+                    return 1; // TODO
+                    // return portfolio.totalBalance
+                }
+                colorize: false
+                fontPtSize: mainWindow.font.pointSize * 2
+            }
+            Label {
+                text: qsTr("0.00 EUR"); // TODO
+                visible: Flowee.isMainChain
+                opacity: 0.3
+            }
+            Item { // spacer
+                width: 10
+                height: 40
+            }
+            Label {
+                text: qsTr("Network status")
+                opacity: 0.3
+            }
+            Label {
+                text: qsTr("Synchronizing")
+            }
+            Item { // spacer
+                width: 10
+                height: 60
+            }
+            Repeater {
+                width: parent.width
+                // Layout.fillWidth: true
+                // Layout.fillHeight: true
+                model: {
+                    if (typeof portfolio === "undefined")
+                        return 0;
+                    return portfolio.accounts;
+                }
+                delegate: Rectangle {
+                    width: leftColumn.width
+                    // height: grid.height
+                    height: 30
+                    color: index % 2 === 0 ? mainWindow.palette.button : mainWindow.palette.base
+                    Label {
+                        id: name
+                        font.bold: true
+                        text: modelData.name
+                    }
+                    /*
+                    GridLayout {
+                        width: parent.width
+                        id: grid
+                        columns: 3
+                        Label {
+                            id: name
+                            font.bold: true
+                            text: modelData.name
+                            Layout.fillWidth: true
+                        }
+                        Label {
+                            text: Flowee.priceToString(modelData.balanceUnconfirmed + modelData.balanceConfirmed + modelData.balanceImmature)
+                            Layout.alignment: Qt.AlignRight
+                        }
+                        Label {
+                            text: Flowee.unitName
+                        }
+                        Item { width: 1; height: 1} // spacer
+                        Label {
+                            text: "0.00"
+                            Layout.alignment: Qt.AlignRight
+                        }
+                        Label {
+                            text: "Euro"
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: portfolio.current = modelData
+                    }
+                    */
+                }
+            }
+            Rectangle {
+                color: mainWindow.floweeGreen
+                radius: 10
+                width: balance.width
+                height: buttonLabel.height + 30
+                // anchors.bottom: parent.bottom
+                // anchors.bottomMargin: 30
+                Text {
+                    id: buttonLabel
+                    anchors.centerIn: parent
+                    width: parent.width - 20
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    text: "Import your Bitcoin Cash wallet"
+                }
+            }
+        }
+    }
+
+/*
+
     Image {
         anchors.centerIn: parent
         source: Flowee.useDarkSkin ? "FloweePay-light.svg" : "FloweePay.svg"
         width: parent.width / 10 * 9
         height: width * 77 / 449
     }
+*/
 
+/*
     menuBar: MenuBar {
         Menu {
             title: qsTr("Flowee &Pay")
@@ -119,18 +333,25 @@ ApplicationWindow {
             }
         }
     }
+*/
 
+/*
     AccountSelectionPage {
         id: accountSelectionPage
         anchors.fill: parent
         visible: !isLoading && portfolio.current === null
     }
+*/
 
+/*
     AccountPage {
         anchors.fill: parent
     }
+*/
 
     // NetView (reachable from menu)
+
+/*
     Loader {
         id: netView
         onLoaded: {
@@ -176,7 +397,9 @@ ApplicationWindow {
             }
         }
     }
+*/
 
+/*
     footer: Pane {
         contentWidth: parent.width
         contentHeight: statusBar.height
@@ -193,6 +416,6 @@ ApplicationWindow {
                 return message;
             }
         }
-
     }
+*/
 }
