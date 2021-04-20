@@ -28,7 +28,7 @@ Pane {
 
     height: qrCode.height + grid.height
 
-    property QtObject account: root.account
+    property QtObject account: portfolio.current
     property QtObject request: account.createPaymentRequest(receivePane)
 
     Image {

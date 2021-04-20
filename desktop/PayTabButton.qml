@@ -16,11 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.14
+import QtQuick.Controls 2.14
 import Flowee.org.pay 1.0
 
 Item {
     id: root
-    height: payTabButtonText.height + 30
+    height: payTabButtonText.height + 20
     width: 100
     property bool isActive: false
     property alias text: payTabButtonText.text
@@ -39,9 +40,6 @@ Item {
         return -1;
     }
 
-    onParentChanged: {
-    }
-
     Row {
         height: parent.height
         anchors.horizontalCenter: parent.horizontalCenter
@@ -52,11 +50,11 @@ Item {
             width: 32
             height: 32
         }
-        Text {
+        Label {
             id: payTabButtonText
             anchors.verticalCenter: parent.verticalCenter
-            color: "white"
-            font.bold: root.isActive
+            // color: Flowee.useDarkSkin ? "white" : "black"
+            font.bold: true
         }
     }
 
@@ -64,21 +62,19 @@ Item {
         id: highlight
         width: parent.width - 6
         x: 3
-        height: 3
+        height: 4
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: 1
         property bool hover: false
         color: {
-            var active = root.isActive
+            if (root.isActive)
+                return mainWindow.floweeGreen
             if (Flowee.useDarkSkin) {
-                if (active)
-                    return mainWindow.floweeGreen
                 if (hover)
                     return mainWindow.floweeSalmon
                 return "#EEE"
             }
             // light skin
-            if (active)
-                return mainWindow.floweeBlue
             if (hover)
                 return mainWindow.floweeSalmon
             return "#111"

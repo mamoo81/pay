@@ -37,6 +37,19 @@ ApplicationWindow {
 
     property bool isLoading: typeof portfolio === "undefined";
 
+    onIsLoadingChanged: {
+        if (!isLoading) {
+            if (portfolio.current === null) { // move to 'receive' tab if there is no wallet.
+                tabbar.currentIndex = 2;
+            }
+            else {
+                tabbar.currentIndex = 0;
+            }
+
+            receivePane.source = "./ReceiveTransactionPane.qml"
+        }
+    }
+
     property color floweeSalmon: "#ff9d94"
     property color floweeBlue: "#0b1088"
     property color floweeGreen: "#90e4b5"
@@ -73,6 +86,7 @@ ApplicationWindow {
     Pane {
         id: mainScreen
         anchors.fill: parent
+        focus: true
 
         Item {
             id: tabbedPane
@@ -85,7 +99,7 @@ ApplicationWindow {
                 opacity: 0.2
                 anchors.margins: -5
                 radius: 5
-                color: "black"
+                color: Flowee.useDarkSkin ? "black" : "white"
             }
             FloweeTabBar {
                 id: tabbar
@@ -115,22 +129,39 @@ ApplicationWindow {
                 }
             }
             StackLayout {
+                id: stack
                 width: parent.width
                 anchors.top: tabbar.bottom
                 anchors.bottom: parent.bottom
                 currentIndex: tabbar.currentIndex
 
-                Label {
-                    text: "one"
+                ListView {
+                    model: isLoading || portfolio.current === null ? 0 : portfolio.current.transactions
+                    clip: true
+                    delegate: WalletTransaction { width: stack.width }
                 }
-                Label {
-                    text: "2"
-                }
-                Label {
-                    text: "3"
-                }
-                Label {
-                    text: "4"
+                SendTransactionPane { }
+                Loader { id: receivePane }
+                Pane {
+                    id: settingsPane
+
+                    GridLayout {
+                        columns: 2
+
+                        CheckBox {
+                            text: "Night mode:"
+                            checked: Flowee.useDarkSkin
+                            onClicked: {
+                                Flowee.useDarkSkin = !Flowee.useDarkSkin
+                                ControlColors.applySkin(mainWindow);
+                            }
+                        }
+
+                        /*
+                          TODO:
+                          unit-name selection
+                        */
+                    }
                 }
             }
         }
@@ -176,7 +207,7 @@ ApplicationWindow {
                     height: 20
                 }
                 Label {
-                    id: totalBalenceLabel
+                    id: totalBalance
                     visible: mainWindow.isLoading || portfolio.accounts.Length > 1
                     text: qsTr("Total balance");
                     height: implicitHeight / 10 * 9
@@ -188,17 +219,17 @@ ApplicationWindow {
                         return 1; // TODO
                         // return portfolio.totalBalance
                     }
-                    visible: totalBalenceLabel.visible
+                    visible: totalBalance.visible
                     colorize: false
                     fontPtSize: mainWindow.font.pointSize * 2
                 }
                 Label {
                     text: qsTr("0.00 EUR"); // TODO
-                    visible: totalBalenceLabel.visible && Flowee.isMainChain
+                    visible: totalBalance.visible && Flowee.isMainChain
                     opacity: 0.3
                 }
                 Item { // spacer
-                    visible: totalBalenceLabel.visible
+                    visible: totalBalance.visible
                     width: 10
                     height: 40
                 }
@@ -206,8 +237,9 @@ ApplicationWindow {
                     text: qsTr("Network status")
                     opacity: 0.3
                 }
-                Label {
-                    text: qsTr("Synchronizing")
+                SyncIndicator {
+                    accountBlockHeight: isLoading || portfolio.current === null ? 0 : portfolio.current.lastBlockSynched
+                    visible: !isLoading && portfolio.current !== null && globalPos !== accountBlockHeight
                 }
                 Item { // spacer
                     width: 10
@@ -236,7 +268,7 @@ ApplicationWindow {
                             border.width: 3
                             border.color: {
                                 if (portfolio.current === modelData)
-                                    return Flowee.useDarkSkin ? mainWindow.floweeGreen : mainWindow.floweeBlue;
+                                    return mainWindow.floweeGreen
                                 if (hover)
                                     return mainWindow.floweeSalmon;
                                 return Flowee.useDarkSkin ? "#EEE" : "#111"
@@ -301,177 +333,13 @@ ApplicationWindow {
 
             Behavior on opacity { NumberAnimation { duration: 300 } }
         }
-    }
 
-/*
-
-    Image {
-        anchors.centerIn: parent
-        source: Flowee.useDarkSkin ? "FloweePay-light.svg" : "FloweePay.svg"
-        width: parent.width / 10 * 9
-        height: width * 77 / 449
-    }
-*/
-
-/*
-    menuBar: MenuBar {
-        Menu {
-            title: qsTr("Flowee &Pay")
-            Action {
-                text: qsTr("Create / Import...")
-                onTriggered: newAccountDiag.source = "./NewAccountDialog.qml"
-            }
-
-            Action {
-                text: qsTr("&Quit")
-                shortcut: StandardKey.Quit
-                onTriggered: mainWindow.close()
-            }
-        }
-        Menu {
-            title: qsTr("&View")
-
-            Action {
-                text: qsTr("&Account List")
-                onTriggered: portfolio.current = null
-            }
-
-            Action {
-                checkable: true
-                checked: Flowee.useDarkSkin
-                text: qsTr("&Dark Mode")
-                onTriggered: {
-                    Flowee.useDarkSkin = checked
-                    ControlColors.applySkin(mainWindow)
-                }
-            }
-            Action {
-                enabled: !mainWindow.isLoading
-                text: qsTr("Network Status")
-                onTriggered: {
-                    netView.source = "NetView.qml"
-                    netView.item.show();
-                }
-            }
-            MenuSeparator { }
-            Menu {
-                title: qsTr("Unit Indicator")
-                Action {
-                    text: "BCH"
-                    checkable: true
-                    checked: Flowee.unit === Pay.BCH
-                    onTriggered: Flowee.unit = Pay.BCH
-                }
-                Action {
-                    text: "mBCH"
-                    checkable: true
-                    checked: Flowee.unit === Pay.MilliBCH
-                    onTriggered: Flowee.unit = Pay.MilliBCH
-                }
-                Action {
-                    text: "Bits"
-                    checkable: true
-                    checked: Flowee.unit === Pay.Bits
-                    onTriggered: Flowee.unit = Pay.Bits
-                }
-                Action {
-                    text: "µBCH"
-                    checkable: true
-                    checked: Flowee.unit === Pay.MicroBCH
-                    onTriggered: Flowee.unit = Pay.MicroBCH
-                }
-                Action {
-                    text: "Satoshis"
-                    checkable: true
-                    checked: Flowee.unit === Pay.Satoshis
-                    onTriggered: Flowee.unit = Pay.Satoshis
+        Keys.onPressed: {
+            if ((event.modifiers & Qt.ControlModifier) !== 0) {
+                if (event.key === Qt.Key_Q) {
+                    mainWindow.close()
                 }
             }
         }
     }
-*/
-
-/*
-    AccountSelectionPage {
-        id: accountSelectionPage
-        anchors.fill: parent
-        visible: !isLoading && portfolio.current === null
-    }
-*/
-
-/*
-    AccountPage {
-        anchors.fill: parent
-    }
-*/
-
-    // NetView (reachable from menu)
-
-/*
-    Loader {
-        id: netView
-        onLoaded: {
-            ControlColors.applySkin(item)
-            netViewHandler.target = item
-        }
-        Connections {
-            id: netViewHandler
-            function onVisibleChanged() {
-                if (!netView.item.visible)
-                    netView.source = ""
-            }
-        }
-    }
-    Loader {
-        id: newAccountDiag
-        onLoaded: {
-            ControlColors.applySkin(item)
-            newAccountHandler.target = item
-        }
-        Connections {
-            id: newAccountHandler
-            function onVisibleChanged() {
-                if (!newAccountDiag.item.visible) {
-                    newAccountDiag.source = ""
-                }
-            }
-        }
-    }
-    Loader {
-        id: accountDetailsDialog
-        onLoaded: {
-            item.account = portfolio.current
-            ControlColors.applySkin(item)
-            accountDetailsHandler.target = item
-        }
-        Connections {
-            id: accountDetailsHandler
-            function onVisibleChanged() {
-                if (!accountDetailsDialog.item.visible) {
-                    accountDetailsDialog.source = ""
-                }
-            }
-        }
-    }
-*/
-
-/*
-    footer: Pane {
-        contentWidth: parent.width
-        contentHeight: statusBar.height
-        Label {
-            id: statusBar
-            property string message: ""
-            text: {
-                if (mainWindow.isLoading)
-                    return qsTr("Starting up...");
-                if (portfolio.current === null)
-                    return qsTr("%1 Accounts", "", portfolio.accounts.length).arg(portfolio.accounts.length);
-                if (message === "")
-                    return portfolio.current.name
-                return message;
-            }
-        }
-    }
-*/
 }

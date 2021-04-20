@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,7 @@ Pane {
         bitcoinValueField.maxSelected = false;
         destination.text = "";
     }
-    opacity: visible ? 1 : 0
-    padding: 0
+
     GridLayout {
         id: grid
         width: parent.width
@@ -96,7 +95,7 @@ Pane {
                         // backup what the user typed there, to be used if she no longer wants 'max'
                         previousAmountString = bitcoinValueField.valueObject.enteredString;
                         // the usage of 'account' here assumes we are under the hierarchy of the AccountPage
-                        bitcoinValueField.value = account.balanceConfirmed + account.balanceUnconfirmed
+                        bitcoinValueField.value = portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
                     } else {
                         bitcoinValueField.valueObject.strValue = previousAmountString
                     }
@@ -128,13 +127,8 @@ Pane {
                 }
             }
             Button2 {
-                id: cancelbutton
-                text: qsTr("Cancel")
-
-                onClicked: {
-                    root.visible = false;
-                    root.reset();
-                }
+                text: qsTr("Reset")
+                onClicked: root.reset();
             }
         }
 
@@ -229,7 +223,7 @@ Pane {
                         return 0;
                     var val = checkAndSendTx.payment.paymentAmount;
                     if (val === -1)
-                        return account.balanceConfirmed + account.balanceUnconfirmed;
+                        return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed;
                     return val;
                 }
                 fontPtSize: origText.font.pointSize
