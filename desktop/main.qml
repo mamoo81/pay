@@ -17,7 +17,7 @@
  */
 import QtQuick 2.14
 import QtQuick.Controls 2.14
-// import QtQuick.Layouts 1.14
+import QtQuick.Layouts 1.14
 import Flowee.org.pay 1.0
 
 import "./ControlColors.js" as ControlColors
@@ -83,28 +83,54 @@ ApplicationWindow {
             Rectangle {
                 anchors.fill: parent
                 opacity: 0.2
+                anchors.margins: -5
+                radius: 5
                 color: "black"
             }
-            Row {
-                width: parent.width
+            FloweeTabBar {
+                id: tabbar
                 height: activityButton.height
+                width: parent.width
+
                 PayTabButton {
                     id: activityButton
                     text: qsTr("Activity")
                     width: parent.width / 4
+                    onActivated: tabbar.currentIndex = getIndex()
                 }
                 PayTabButton {
                     text: qsTr("Send")
                     width: parent.width / 4
+                    onActivated: tabbar.currentIndex = getIndex()
                 }
                 PayTabButton {
                     text: qsTr("Receive")
                     width: parent.width / 4
-                    isActive: true
+                    onActivated: tabbar.currentIndex = getIndex()
                 }
                 PayTabButton {
                     text: qsTr("Settings")
                     width: parent.width / 4
+                    onActivated: tabbar.currentIndex = getIndex()
+                }
+            }
+            StackLayout {
+                width: parent.width
+                anchors.top: tabbar.bottom
+                anchors.bottom: parent.bottom
+                currentIndex: tabbar.currentIndex
+
+                Label {
+                    text: "one"
+                }
+                Label {
+                    text: "2"
+                }
+                Label {
+                    text: "3"
+                }
+                Label {
+                    text: "4"
                 }
             }
         }
@@ -172,6 +198,7 @@ ApplicationWindow {
                     opacity: 0.3
                 }
                 Item { // spacer
+                    visible: totalBalenceLabel.visible
                     width: 10
                     height: 40
                 }

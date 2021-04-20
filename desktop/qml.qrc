@@ -24,5 +24,6 @@
         <file>WalletTransactionDetails.qml</file>
         <file>WalletTransaction.qml</file>
         <file>PayTabButton.qml</file>
+        <file>FloweeTabBar.qml</file>
     </qresource>
 </RCC>

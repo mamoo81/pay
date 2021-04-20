@@ -19,20 +19,36 @@ import QtQuick 2.14
 import Flowee.org.pay 1.0
 
 Item {
-    id: payTabButton
+    id: root
     height: payTabButtonText.height + 30
     width: 100
     property bool isActive: false
     property alias text: payTabButtonText.text
     property string icon: ""
 
+    signal activated;
+
+    function getIndex() {
+        var index = 0;
+        var children = parent.children
+        for (let i in children) {
+            if (children[i] === root)
+                return index;
+            ++index;
+        }
+        return -1;
+    }
+
+    onParentChanged: {
+    }
+
     Row {
         height: parent.height
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 10
         Image {
-            visible: payTabButton.icon !== ""
-            source: payTabButton.icon
+            visible: root.icon !== ""
+            source: root.icon
             width: 32
             height: 32
         }
@@ -40,7 +56,7 @@ Item {
             id: payTabButtonText
             anchors.verticalCenter: parent.verticalCenter
             color: "white"
-            font.bold: payTabButton.isActive
+            font.bold: root.isActive
         }
     }
 
@@ -52,7 +68,7 @@ Item {
         anchors.bottom: parent.bottom
         property bool hover: false
         color: {
-            var active = payTabButton.isActive
+            var active = root.isActive
             if (Flowee.useDarkSkin) {
                 if (active)
                     return mainWindow.floweeGreen
@@ -67,12 +83,12 @@ Item {
                 return mainWindow.floweeSalmon
             return "#111"
         }
-
     }
     MouseArea {
         hoverEnabled: true
         anchors.fill: parent
         onEntered: highlight.hover = true
         onExited: highlight.hover = false
+        onClicked: root.activated()
     }
 }
