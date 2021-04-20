@@ -148,10 +148,14 @@ ApplicationWindow {
                 anchors.bottom: parent.bottom
                 currentIndex: tabbar.currentIndex
 
-                ListView {
-                    model: isLoading || portfolio.current === null ? 0 : portfolio.current.transactions
-                    clip: true
-                    delegate: WalletTransaction { width: stack.width }
+                Pane {
+                    ListView {
+                        id: activityView
+                        model: isLoading || portfolio.current === null ? 0 : portfolio.current.transactions
+                        clip: true
+                        delegate: WalletTransaction { width: activityView.width }
+                        anchors.fill: parent
+                    }
                 }
                 SendTransactionPane { }
                 Loader { id: receivePane }
