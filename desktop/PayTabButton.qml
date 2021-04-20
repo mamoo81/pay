@@ -77,7 +77,7 @@ Item {
             // light skin
             if (hover)
                 return mainWindow.floweeSalmon
-            return "#111"
+            return mainWindow.floweeBlue
         }
     }
     MouseArea {

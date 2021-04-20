@@ -55,13 +55,25 @@ ApplicationWindow {
     property color floweeGreen: "#90e4b5"
 
     header: Rectangle {
-        color: mainWindow.floweeBlue
+        color: Flowee.useDarkSkin ? "#00000000" : mainWindow.floweeBlue
         width: parent.width
         height: {
             var h = mainWindow.height;
             if (h > 700)
                 return 120;
             return h / 700 * 120;
+        }
+
+        Rectangle {
+            color: mainWindow.floweeBlue
+            opacity: Flowee.useDarkSkin ? 1 : 0
+
+            width: parent.height / 5 * 4
+            height: width
+            radius: width / 2
+            x: 2
+            y: 8
+            Behavior on opacity { NumberAnimation { duration: 300 } }
         }
 
         Image {
@@ -73,13 +85,14 @@ ApplicationWindow {
             height: (parent.height - 20) * 7 / 10
             width: height * 449 / 77
         }
-        Label {
+        Text {
             y: parent.height / 3 * 2 - height
             anchors.right: parent.right
             anchors.rightMargin: 30
             text: "BCH: " + "€1000"
             visible: Flowee.isMainChain
             font.pixelSize: 18
+            color: "white"
         }
     }
 
@@ -208,7 +221,7 @@ ApplicationWindow {
                 }
                 Label {
                     id: totalBalance
-                    visible: mainWindow.isLoading || portfolio.accounts.Length > 1
+                    visible: mainWindow.isLoading || portfolio.accounts.length > 1
                     text: qsTr("Total balance");
                     height: implicitHeight / 10 * 9
                 }
@@ -271,16 +284,15 @@ ApplicationWindow {
                                     return mainWindow.floweeGreen
                                 if (hover)
                                     return mainWindow.floweeSalmon;
-                                return Flowee.useDarkSkin ? "#EEE" : "#111"
+                                return Flowee.useDarkSkin ? "#EEE" : mainWindow.floweeBlue
                             }
 
-                            Text {
+                            Label {
                                 id: name
                                 font.bold: true
                                 x: 10
                                 y: 10
                                 text: modelData.name
-                                color: parent.border.color
                             }
                             MouseArea {
                                 anchors.fill: parent

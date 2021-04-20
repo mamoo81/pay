@@ -43,7 +43,6 @@ function applyLightSkin(item) {
     item.palette.midlight = "#e4e4e4";
     item.palette.shadow = "#28282a";
     item.palette.text = "#353637";
-    item.palette.text = "#353637";
     item.palette.toolTipBase = "#ffffff";
     item.palette.toolTipText = "#000000";
     item.palette.window = "#ffffff";
