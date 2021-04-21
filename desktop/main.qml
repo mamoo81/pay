@@ -39,13 +39,14 @@ ApplicationWindow {
 
     onIsLoadingChanged: {
         if (!isLoading) {
-            if (portfolio.current === null) { // move to 'receive' tab if there is no wallet.
+            if (!portfolio.current.isUserOwned) { // Open on receive tab if the wallet is effectively empty
                 tabbar.currentIndex = 2;
             }
             else {
                 tabbar.currentIndex = 0;
             }
 
+            // delay loading to avoid errors due to not having a portfolio
             receivePane.source = "./ReceiveTransactionPane.qml"
         }
     }
@@ -264,8 +265,6 @@ ApplicationWindow {
                 }
                 Repeater {
                     width: parent.width
-                    // Layout.fillWidth: true
-                    // Layout.fillHeight: true
                     model: {
                         if (typeof portfolio === "undefined")
                             return 0;
@@ -274,6 +273,7 @@ ApplicationWindow {
                     delegate: Item {
                         width: leftColumn.width
                         height: name.height + 20 + 30
+                        visible: modeData.isUserOwned
 
                         Rectangle {
                             property bool hover: false

@@ -206,6 +206,7 @@ private:
     int m_windowHeight;
     int m_initialHeaderChainHeight = 0;
     bool m_darkSkin;
+    bool m_createStartWallet = false;
 };
 
 #endif

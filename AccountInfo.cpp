@@ -108,10 +108,15 @@ bool AccountInfo::isDefaultWallet()
     return segment->priority() == PrivacySegment::First;
 }
 
+bool AccountInfo::userOwnedWallet()
+{
+    return m_wallet->userOwnedWallet();
+}
+
 QList<QObject *> AccountInfo::paymentRequests() const
 {
     QList<QObject*> answer;
-    for (const auto &pr : m_wallet->paymentRequests()) {
+    for (auto *pr : m_wallet->paymentRequests()) {
         answer.append(pr);
     }
     return answer;

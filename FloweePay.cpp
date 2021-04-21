@@ -33,7 +33,8 @@
 #include <cashaddr.h>
 #include <QTimer>
 
-constexpr const char *UNIT_TYPE = "general/unit";
+constexpr const char *UNIT_TYPE = "unit";
+constexpr const char *CREATE_START_WALLET = "create-start-wallet";
 constexpr const char *WINDOW_WIDTH = "window/width";
 constexpr const char *WINDOW_HEIGHT = "window/height";
 constexpr const char *DARKSKIN = "darkSkin";
@@ -62,7 +63,7 @@ FloweePay::FloweePay()
     // make it move to the proper thread.
     connect(this, SIGNAL(loadComplete_priv()), SIGNAL(loadComplete()), Qt::QueuedConnection);
 
-    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, [=]() {
+    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, [=]() {
         p2pNet()->shutdown();
         saveAll();
     });
@@ -76,6 +77,7 @@ FloweePay::FloweePay()
     m_windowWidth = defaultConfig.value(WINDOW_WIDTH, -1).toInt();
     m_darkSkin = defaultConfig.value(DARKSKIN, true).toBool();
     m_dspTimeout = defaultConfig.value(DSPTIMEOUT, 3000).toInt();
+    m_createStartWallet = defaultConfig.value(CREATE_START_WALLET, false).toBool();
 
     QSettings appConfig;
     m_unit = static_cast<UnitOfBitcoin>(appConfig.value(UNIT_TYPE, m_unit).toInt());
@@ -151,8 +153,10 @@ void FloweePay::init()
         }
     }
 
-    if (m_wallets.isEmpty())
+    if (m_wallets.isEmpty() && m_createStartWallet) {
         createNewWallet();
+        m_wallets.at(0)->setUserOwnedWallet(false);
+    }
     emit loadComplete_priv();
 }
 

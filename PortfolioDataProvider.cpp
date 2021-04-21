@@ -26,7 +26,7 @@
 
 PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
 {
-    connect (FloweePay::instance(), &FloweePay::walletsChanged, [=]() {
+    connect (FloweePay::instance(), &FloweePay::walletsChanged, this, [=]() {
         for (auto &w : FloweePay::instance()->wallets()) {
             if (!m_accounts.contains(w)) {
                 addWalletAccount(w);
@@ -91,6 +91,7 @@ QObject *PortfolioDataProvider::startPayAllToAddress(const QString &address)
 
 void PortfolioDataProvider::selectDefaultWallet()
 {
+    int fallback = -1;
     for (int i = 0; i < m_accounts.size(); ++i) {
         auto wallet = m_accounts.at(i);
         if (wallet->segment()->priority() == PrivacySegment::First) {
@@ -98,6 +99,14 @@ void PortfolioDataProvider::selectDefaultWallet()
             emit currentChanged();
             break;
         }
+        if (!wallet->userOwnedWallet()) {
+            fallback = i;
+        }
+    }
+    // when the app went and made an empty wallet, select that so we have at least something selected.
+    if (m_currentAccount == -1 && fallback >= 0) {
+        m_currentAccount = fallback;
+        emit currentChanged();
     }
 }
 
