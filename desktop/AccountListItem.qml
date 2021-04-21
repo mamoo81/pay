@@ -96,6 +96,7 @@ Item {
             anchors.fill: parent
             anchors.margins: -15
             hoverEnabled: true // to make sure we eat them and avoid the hover feedback.
+            acceptedButtons: Qt.RightButton | Qt.LeftButton
             onClicked: contextMenu.popup()
 
             Menu {

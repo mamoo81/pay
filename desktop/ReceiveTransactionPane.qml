@@ -257,6 +257,7 @@ Pane {
                 visible: receivePane.request.state === PaymentRequest.Unpaid || receivePane.request.state === PaymentRequest.DoubleSpentSeen
                 onClicked: {
                     receivePane.request.rememberPaymentRequest();
+                    reset();
                 }
             }
             Button {
@@ -300,7 +301,7 @@ Pane {
 
                 MouseArea {
                     anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
+                    acceptedButtons: Qt.RightButton | Qt.LeftButton
                     onClicked: paymentContextMenu.popup()
                     Menu {
                         id: paymentContextMenu
