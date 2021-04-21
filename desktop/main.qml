@@ -117,39 +117,11 @@ ApplicationWindow {
             }
             FloweeTabBar {
                 id: tabbar
-                height: activityButton.height
-                width: parent.width
-
-                PayTabButton {
-                    id: activityButton
-                    text: qsTr("Activity")
-                    width: parent.width / 4
-                    onActivated: tabbar.currentIndex = getIndex()
-                }
-                PayTabButton {
-                    text: qsTr("Send")
-                    width: parent.width / 4
-                    onActivated: tabbar.currentIndex = getIndex()
-                }
-                PayTabButton {
-                    text: qsTr("Receive")
-                    width: parent.width / 4
-                    onActivated: tabbar.currentIndex = getIndex()
-                }
-                PayTabButton {
-                    text: qsTr("Settings")
-                    width: parent.width / 4
-                    onActivated: tabbar.currentIndex = getIndex()
-                }
-            }
-            StackLayout {
-                id: stack
-                width: parent.width
-                anchors.top: tabbar.bottom
-                anchors.bottom: parent.bottom
-                currentIndex: tabbar.currentIndex
+                anchors.fill: parent
 
                 Pane {
+                    property string title: qsTr("Activity")
+                    anchors.fill: parent
                     ListView {
                         id: activityView
                         model: isLoading || portfolio.current === null ? 0 : portfolio.current.transactions
@@ -158,10 +130,19 @@ ApplicationWindow {
                         anchors.fill: parent
                     }
                 }
-                SendTransactionPane { }
-                Loader { id: receivePane }
+                SendTransactionPane {
+                    anchors.fill: parent
+                    property string title: qsTr("Send")
+                }
+                Loader {
+                    id: receivePane
+                    anchors.fill: parent
+                    property string title: qsTr("Receive")
+                }
                 Pane {
                     id: settingsPane
+                    anchors.fill: parent
+                    property string title: qsTr("Settings")
 
                     GridLayout {
                         columns: 2
@@ -175,10 +156,7 @@ ApplicationWindow {
                             }
                         }
 
-                        /*
-                          TODO:
-                          unit-name selection
-                        */
+                        // TODO: unit-name selection
                     }
                 }
             }
@@ -273,7 +251,7 @@ ApplicationWindow {
                     delegate: Item {
                         width: leftColumn.width
                         height: name.height + 20 + 30
-                        visible: modeData.isUserOwned
+                        visible: modelData.isUserOwned
 
                         Rectangle {
                             property bool hover: false
@@ -318,8 +296,6 @@ ApplicationWindow {
                     radius: 10
                     width: balance.width
                     height: buttonLabel.height + 30
-                    // anchors.bottom: parent.bottom
-                    // anchors.bottomMargin: 30
                     Text {
                         id: buttonLabel
                         anchors.centerIn: parent
