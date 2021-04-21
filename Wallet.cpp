@@ -581,7 +581,6 @@ void Wallet::addPaymentRequest(PaymentRequest *pr)
     QMutexLocker locker(&m_lock);
     m_paymentRequests.append(pr);
     m_walletChanged = true;
-    m_userOwnedWallet = true;
     emit paymentRequestsChanged();
 }
 

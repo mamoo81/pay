@@ -28,16 +28,38 @@ Pane {
     height: qrCode.height + grid.height
 
     property QtObject account: portfolio.current
-    property QtObject request: account.createPaymentRequest(receivePane)
+    property QtObject request: null
+    onAccountChanged: {
+        if (account === null)
+            return;
+        if (request === null)
+            request = account.createPaymentRequest(receivePane)
+        else
+            request.switchAccount(portfolio.current);
+    }
+
+    Label {
+        id: topUpLabel
+        text: qsTr("Top up")
+        y: 30
+    }
+    Label {
+        id: instructions
+        anchors.top: topUpLabel.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 20
+        text: qsTr("Share your QR or copy address to receive")
+        opacity: 0.3
+    }
 
     Image {
         id: qrCode
-        width: 300
-        height: 300
+        width: 256
+        height: 256
         source: "image://qr/" + receivePane.request.qr
         smooth: false
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
+        anchors.top: instructions.bottom
         anchors.topMargin: 20
         opacity: receivePane.request.state === PaymentRequest.Unpaid ? 1: 0
 
@@ -103,7 +125,7 @@ Pane {
             }
             GradientStop {
                 position: 0.1
-                color: root.palette.base
+                color: receivePane.palette.base
             }
         }
         opacity: receivePane.request.state === PaymentRequest.Unpaid ? 0: 1
@@ -222,14 +244,6 @@ Pane {
             onValueChanged: receivePane.request.amount = value
         }
 
-        CheckBox {
-            id: legacyAddress
-            Layout.columnSpan: 2
-            text: qsTr("Legacy address")
-            enabled: receivePane.request.state === PaymentRequest.Unpaid
-            onCheckStateChanged: receivePane.request.legacy = checked
-        }
-
         RowLayout {
             Layout.columnSpan: 2
             Layout.fillWidth: true
@@ -241,13 +255,10 @@ Pane {
                 visible: receivePane.request.state === PaymentRequest.Unpaid || receivePane.request.state === PaymentRequest.DoubleSpentSeen
                 onClicked: {
                     receivePane.request.rememberPaymentRequest();
-                    receivePane.visible = false;
                 }
             }
             Button {
-                text:
-                receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Cancel") : qsTr("Close")
-                onClicked: receivePane.visible = false
+                text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Reset") : qsTr("Start New")
             }
         }
     }

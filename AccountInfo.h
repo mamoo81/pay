@@ -88,6 +88,10 @@ public:
      */
     Q_INVOKABLE QObject* createPaymentRequest(QObject *parent);
 
+    Wallet *wallet() const {
+        return m_wallet;
+    }
+
 signals:
     void balanceChanged();
     void utxosChanged();

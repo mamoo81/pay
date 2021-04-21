@@ -23,6 +23,7 @@
 #include <primitives/pubkey.h>
 
 class Wallet;
+class AccountInfo;
 
 /**
  * This is a user-created request for payment to a specific wallet/address.
@@ -101,6 +102,9 @@ public:
     Q_INVOKABLE void rememberPaymentRequest();
     /// Mark payment request to be deleted.
     Q_INVOKABLE void forgetPaymentRequest();
+    Q_INVOKABLE void switchAccount(AccountInfo *ai);
+
+    void setWallet(Wallet *wallet);
 
 signals:
     void messageChanged();
@@ -110,6 +114,7 @@ signals:
     void legacyChanged();
     void saveStateChanged();
     void paymentStateChanged();
+    void walletChanged();
 
 protected:
     friend class Wallet;
@@ -119,7 +124,7 @@ private:
     void setPaymentState(PaymentState newState);
 
 
-    Wallet * const m_wallet;
+    Wallet *m_wallet;
     QString m_message;
     CKeyID m_address;
     int m_privKeyId = -1; // refers to the Wallets list of private keys

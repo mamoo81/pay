@@ -18,6 +18,7 @@
 #include "PaymentRequest.h"
 #include "FloweePay.h"
 #include "Wallet.h"
+#include "AccountInfo.h"
 
 #include <QTimer>
 #include <QUrl>
@@ -25,19 +26,17 @@
 #include <cashaddr.h>
 
 PaymentRequest::PaymentRequest(QObject *parent)
-    : m_wallet(nullptr)
+    : QObject(parent),
+    m_wallet(nullptr)
 {
-    // we need this constructor to allow the QML system to see it.
-    assert(false);
 }
 
 PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
   : QObject(parent),
-  m_wallet(wallet)
+  m_wallet(nullptr)
 {
-    Q_ASSERT(m_wallet);
-    m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
-    m_wallet->addPaymentRequest(this);
+    assert(wallet);
+    setWallet(wallet);
 #if 0
     // by enabling this you can simulate the payment request being fulfilled
     QTimer::singleShot(5000, [=]() {
@@ -60,6 +59,14 @@ PaymentRequest::PaymentRequest(Wallet *wallet, int /* type */)
     m_unusedRequest = false;
 }
 
+PaymentRequest::~PaymentRequest()
+{
+    // free address again, if the ownership hasn't moved to be the wallet itself.
+    if (m_unusedRequest)
+        setWallet(nullptr);
+}
+
+
 void PaymentRequest::setPaymentState(PaymentState newState)
 {
     if (newState == m_paymentState)
@@ -68,6 +75,30 @@ void PaymentRequest::setPaymentState(PaymentState newState)
     m_paymentState = newState;
     m_dirty = true;
     emit paymentStateChanged();
+}
+
+void PaymentRequest::setWallet(Wallet *wallet)
+{
+    if (m_wallet == wallet)
+        return;
+    if (!m_unusedRequest) {
+        logFatal() << "Can't change a wallet on an already saved payment request";
+        assert(m_unusedRequest);
+        return;
+    }
+
+    if (m_wallet) {
+        m_wallet->removePaymentRequest(this);
+        m_wallet->unreserveAddress(m_privKeyId);
+    }
+    m_wallet = wallet;
+    if (m_wallet) {
+        m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
+        m_wallet->addPaymentRequest(this);
+    }
+
+    emit walletChanged();
+    emit qrCodeStringChanged();
 }
 
 qint64 PaymentRequest::amountSeen() const
@@ -95,7 +126,7 @@ void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
     if (m_paymentState == Unpaid && m_amountSeen >= m_amountRequested) {
         if (blockHeight == -1)  {
             setPaymentState(PaymentSeen);
-            QTimer::singleShot(FloweePay::instance()->dspTimeout(), [=]() {
+            QTimer::singleShot(FloweePay::instance()->dspTimeout(), this, [=]() {
                 if (m_paymentState == PaymentSeen)
                     setPaymentState(PaymentSeenOk);
             });
@@ -129,15 +160,6 @@ void PaymentRequest::setSaveState(const SaveState &saveState)
     m_saveState = saveState;
     m_dirty = true;
     emit saveStateChanged();
-}
-
-PaymentRequest::~PaymentRequest()
-{
-    // free address again, if the ownership hasn't moved to be the wallet itself.
-    if (m_unusedRequest) {
-        m_wallet->removePaymentRequest(this);
-        m_wallet->unreserveAddress(m_privKeyId);
-    }
 }
 
 QString PaymentRequest::message() const
@@ -254,4 +276,10 @@ void PaymentRequest::forgetPaymentRequest()
     m_unusedRequest = true;
     m_wallet->removePaymentRequest(this);
     deleteLater();
+}
+
+void PaymentRequest::switchAccount(AccountInfo *ai)
+{
+    assert(ai);
+    setWallet(ai->wallet());
 }
