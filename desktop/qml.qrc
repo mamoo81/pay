@@ -7,8 +7,6 @@
         <file>heart-red.svg</file>
         <file>defaults.ini</file>
         <file>AccountDetails.qml</file>
-        <file>AccountPage.qml</file>
-        <file>AccountSelectionPage.qml</file>
         <file>ArrowPoint.qml</file>
         <file>BitcoinAmountLabel.qml</file>
         <file>BitcoinValueField.qml</file>
@@ -24,5 +22,6 @@
         <file>WalletTransactionDetails.qml</file>
         <file>WalletTransaction.qml</file>
         <file>FloweeTabBar.qml</file>
+        <file>AccountListItem.qml</file>
     </qresource>
 </RCC>

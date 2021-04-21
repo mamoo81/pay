@@ -73,8 +73,6 @@ GridLayout {
                         id: arrowPoint
                         anchors.bottom: parent.bottom
                         color: arrowLine.color
-                        width: 10
-                        height: 20
                     }
                     Rectangle {
                         id: arrowLine
@@ -153,8 +151,6 @@ GridLayout {
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
                         color: outArrowLine.color
-                        width: 10
-                        height: 20
                     }
                     Label {
                         id: outIndex

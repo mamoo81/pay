@@ -25,8 +25,6 @@ import Flowee.org.pay 1.0
 Pane {
     id: receivePane
 
-    height: qrCode.height + grid.height
-
     property QtObject account: portfolio.current
     property QtObject request: null
     onAccountChanged: {
@@ -46,13 +44,7 @@ Pane {
     }
 
     Label {
-        id: topUpLabel
-        text: qsTr("Top up")
-        y: 30
-    }
-    Label {
         id: instructions
-        anchors.top: topUpLabel.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 20
         text: qsTr("Share your QR or copy address to receive")
@@ -61,8 +53,11 @@ Pane {
 
     Image {
         id: qrCode
-        width: 256
-        height: 256
+        width: height
+        height: {
+            var h = parent.height - 220;
+            return Math.min(h, 256)
+        }
         source: "image://qr/" + receivePane.request.qr
         smooth: false
         anchors.horizontalCenter: parent.horizontalCenter
@@ -267,6 +262,54 @@ Pane {
             Button {
                 text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Reset") : qsTr("Start New")
                 onClicked: reset();
+            }
+        }
+    }
+
+    Flow {
+        width: parent.width
+        anchors.bottom: parent.bottom
+        spacing: 10
+        Repeater {
+            model: portfolio.current.paymentRequests
+            delegate: Rectangle {
+                width: 70
+                height: width
+                radius: 25
+                clip: true
+                border.width: 6
+                border.color: {
+                    var state = modelData.state;
+                    if (state === PaymentRequest.Unpaid)
+                        return "#888888"
+                    if (state === PaymentRequest.PaymentSeen)
+                        return "yellow"
+                    if (state === PaymentRequest.DoubleSpentSeen)
+                        return "red"
+                    // in all other cases:
+                    return "green"
+                }
+
+                // don't show the one we are editing
+                visible: modelData.saveState === PaymentRequest.Remembered
+
+                Text {
+                    anchors.centerIn: parent
+                    text: modelData.message
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: paymentContextMenu.popup()
+                    Menu {
+                        id: paymentContextMenu
+                        MenuItem {
+                            text: qsTr("Delete")
+                            onTriggered: modelData.forgetPaymentRequest()
+                        }
+                    }
+                }
             }
         }
     }

@@ -27,8 +27,8 @@ ApplicationWindow {
     visible: true
     width: Flowee.windowWidth === -1 ? 750 : Flowee.windowWidth
     height: Flowee.windowHeight === -1 ? 500 : Flowee.windowHeight
-    minimumWidth: 600
-    minimumHeight: 500
+    minimumWidth: 800
+    minimumHeight: 600
     title: "Flowee Pay"
 
     onWidthChanged: Flowee.windowWidth = width
@@ -203,7 +203,7 @@ ApplicationWindow {
                 Label {
                     text: qsTr("0.00 EUR"); // TODO
                     visible: Flowee.isMainChain
-                    opacity: 0.3
+                    opacity: 0.6
                 }
                 Item { // spacer
                     width: 10
@@ -229,7 +229,7 @@ ApplicationWindow {
                 Label {
                     text: qsTr("0.00 EUR"); // TODO
                     visible: totalBalance.visible && Flowee.isMainChain
-                    opacity: 0.3
+                    opacity: 0.6
                 }
                 Item { // spacer
                     visible: totalBalance.visible
@@ -238,7 +238,7 @@ ApplicationWindow {
                 }
                 Label {
                     text: qsTr("Network status")
-                    opacity: 0.3
+                    opacity: 0.6
                 }
                 SyncIndicator {
                     accountBlockHeight: isLoading || portfolio.current === null ? 0 : portfolio.current.lastBlockSynched
@@ -248,49 +248,12 @@ ApplicationWindow {
                     width: 10
                     height: 60
                 }
-                Repeater {
+                Repeater { // the portfolio listing our accounts
                     width: parent.width
-                    model: {
-                        if (typeof portfolio === "undefined")
-                            return 0;
-                        return portfolio.accounts;
-                    }
-                    delegate: Item {
+                    model: (typeof portfolio === "undefined") ? 0 : portfolio.accounts;
+                    delegate: AccountListItem {
                         width: leftColumn.width
-                        height: name.height + 20 + 30
-                        visible: modelData.isUserOwned
-
-                        Rectangle {
-                            property bool hover: false
-                            anchors.fill: parent
-                            anchors.margins: 15
-                            radius: 10
-                            color: "#00000000" // transparant
-
-                            border.width: 3
-                            border.color: {
-                                if (portfolio.current === modelData)
-                                    return mainWindow.floweeGreen
-                                if (hover)
-                                    return mainWindow.floweeSalmon;
-                                return Flowee.useDarkSkin ? "#EEE" : mainWindow.floweeBlue
-                            }
-
-                            Label {
-                                id: name
-                                font.bold: true
-                                x: 10
-                                y: 10
-                                text: modelData.name
-                            }
-                            MouseArea {
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onClicked: portfolio.current = modelData
-                                onEntered: parent.hover = true
-                                onExited: parent.hover = false
-                            }
-                        }
+                        account: modelData
                     }
                 }
                 Item { // spacer
@@ -301,7 +264,7 @@ ApplicationWindow {
                 Rectangle {
                     color: mainWindow.floweeGreen
                     radius: 10
-                    width: balance.width
+                    width: Math.min(balance.width, leftColumn.width)
                     height: buttonLabel.height + 30
                     Text {
                         id: buttonLabel
@@ -337,6 +300,36 @@ ApplicationWindow {
             if ((event.modifiers & Qt.ControlModifier) !== 0) {
                 if (event.key === Qt.Key_Q) {
                     mainWindow.close()
+                }
+            }
+        }
+
+        Loader {
+            id: accountDetailsDialog
+            property QtObject account: null
+            function open(account_) {
+                account = account_;
+                if (item) {
+                    item.account = accountDetailsDialog.account;
+                    item.raise();
+                } else {
+                    source = "./AccountDetails.qml";
+                }
+            }
+
+            onLoaded: {
+                item.account = accountDetailsDialog.account
+                ControlColors.applySkin(item)
+                accountDetailsHandler.target = item
+            }
+            Connections {
+                id: accountDetailsHandler
+                function onVisibleChanged() {
+                    if (!accountDetailsDialog.item.visible) {
+                        accountDetailsDialog.source = ""
+                        accountDetailsDialog.account = null
+                        accountDetailsDialog.openDiag = null
+                    }
                 }
             }
         }

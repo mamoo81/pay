@@ -308,6 +308,4 @@ Pane {
             }
         }
     }
-
-    Behavior on opacity { NumberAnimation { duration: 350 } }
 }
