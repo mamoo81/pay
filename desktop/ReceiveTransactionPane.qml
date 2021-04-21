@@ -38,6 +38,13 @@ Pane {
             request.switchAccount(portfolio.current);
     }
 
+    function reset() {
+        if (request.saveState === PaymentRequest.Remembered)
+            request = account.createPaymentRequest(receivePane)
+        description.text = "";
+        bitcoinValueField.value = 0;
+    }
+
     Label {
         id: topUpLabel
         text: qsTr("Top up")
@@ -259,6 +266,7 @@ Pane {
             }
             Button {
                 text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Reset") : qsTr("Start New")
+                onClicked: reset();
             }
         }
     }

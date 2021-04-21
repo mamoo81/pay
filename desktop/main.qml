@@ -147,16 +147,23 @@ ApplicationWindow {
                     GridLayout {
                         columns: 2
 
+                        Label {
+                            text: qsTr("Night mode") + ":"
+                        }
                         CheckBox {
-                            text: "Night mode:"
                             checked: Flowee.useDarkSkin
                             onClicked: {
                                 Flowee.useDarkSkin = !Flowee.useDarkSkin
                                 ControlColors.applySkin(mainWindow);
                             }
                         }
+                        Label {
+                            text: qsTr("Unit") + ":"
+                        }
 
                         // TODO: unit-name selection
+                        Pane {}
+
                     }
                 }
             }
