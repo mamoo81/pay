@@ -23,7 +23,7 @@ import QtQuick.Window 2.14
 import Flowee.org.pay 1.0
 import "./ControlColors.js" as ControlColors
 
-Pane {
+Rectangle {
     id: root
     function reset() {
         // reset fields
@@ -31,57 +31,71 @@ Pane {
         bitcoinValueField.maxSelected = false;
         destination.text = "";
     }
+    color: mainWindow.palette.window
 
-    GridLayout {
-        id: grid
-        width: parent.width
-        columns: 3
-
+    Column {
+        x: 10
+        y: 10
+        spacing: 10
+        width: parent.width - 20
         Label {
             text: qsTr("Destination") + ":"
-            Layout.alignment: Qt.AlignRight | Qt.AlignBaseline
-        }
-        TextField {
-            id: destination
-            focus: true
-            property bool addressOk: {
-                let res = Flowee.identifyString(text);
-                return  res === Pay.CashPKH || res === Pay.LegacyPKH;
-            }
-
-            placeholderText: qsTr("Enter Bitcoin Address")
-            Layout.fillWidth: true
-            onFocusChanged: {
-                if (activeFocus || text === "")
-                    color = mainWindow.palette.text
-                else if (!addressOk)
-                    color = Flowee.useDarkSkin ? "#ff6568" : "red"
-            }
-        }
-        Label {
-            id: checked
-            color: "green"
-            font.pixelSize: 24
-            text: destination.addressOk ? "✔" : " "
-        }
-
-        // next row
-        Label {
-            id: payAmount
-            text: qsTr("Amount") + ":"
-        }
-        BitcoinValueField {
-            id: bitcoinValueField
-            property bool maxSelected: false
-
-            fontPtSize: payAmount.font.pointSize
             Layout.columnSpan: 2
-            onValueChanged: maxSelected = false
+        }
+        RowLayout {
+            width: parent.width
+            TextField {
+                id: destination
+                focus: true
+                property bool addressOk: addressType === Pay.CashPKH || (forceLegacyOk && addressType === Pay.LegacyPKH)
+                property var addressType: Flowee.identifyString(text);
+                property bool forceLegacyOk: false
+
+                placeholderText: qsTr("Enter Bitcoin Cash Address")
+                Layout.fillWidth: true
+                Layout.columnSpan: 3
+                onFocusChanged: {
+                    if (activeFocus || text === "")
+                        color = mainWindow.palette.text
+                    else if (!addressOk)
+                        color = Flowee.useDarkSkin ? "#ff6568" : "red"
+                }
+            }
+            Label {
+                id: checked
+                color: "green"
+                font.pixelSize: 24
+                text: destination.addressOk ? "✔" : " "
+            }
+            Label {
+                // TODO make button to override and set forceLegacyOk to true
+                text: "!"
+                visible: destination.addressType === Pay.LegacyPKH;
+            }
         }
 
-        RowLayout {
-            Layout.columnSpan: 3
+        GridLayout {
+            columns: 3
+            Label {
+                text: qsTr("Amount %1").arg("EUR") + ":"
+            }
+            TextField {
+                text: "0.0 EUR"
+            }
+            FloweeCheckBox {
+                id: amountSelector
+            }
+            Label {
+                id: payAmount
+                text: qsTr("Amount") + ":"
+            }
+            BitcoinValueField {
+                id: bitcoinValueField
+                property bool maxSelected: false
 
+                fontPtSize: payAmount.font.pointSize
+                onValueChanged: maxSelected = false
+            }
             Button2 {
                 id: sendAll
                 text: qsTr("Max")
@@ -103,6 +117,10 @@ Pane {
                     bitcoinValueField.maxSelected = isChecked
                 }
             }
+        }
+        RowLayout {
+            width: parent.width
+            Layout.columnSpan: 3
 
             Item {
                 width: 1; height: 1
@@ -111,7 +129,7 @@ Pane {
 
             Button2 {
                 id: nextButton
-                text: qsTr("Next")
+                text: qsTr("Sign")
                 enabled: (bitcoinValueField.value > 0
                           || bitcoinValueField.maxSelected) && destination.addressOk;
 
@@ -131,13 +149,31 @@ Pane {
                 onClicked: root.reset();
             }
         }
+        FloweeGroupBox {
+            id: txDetails
+            Layout.columnSpan: 4
+            title: "Transaction Details"
+            isCollapsed: true
+            width: parent.width
+            // y: 10
+            height:  Math.max(implicitHeight, button.height + 15)
+            Button2 {
+                id: button
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                y: 10
+                text: "Send"
+            }
 
-        /*
-          TODO;
-           - have a fiat value input.
-        */
+            content: Rectangle {
+                width: 100
+                height: 200
+                color: "red"
+            }
+        }
     }
 
+    /*
     ApplicationWindow {
         id: checkAndSendTx
         visible: false
@@ -308,4 +344,5 @@ Pane {
             }
         }
     }
+    */
 }

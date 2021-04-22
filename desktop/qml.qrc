@@ -24,5 +24,6 @@
         <file>FloweeTabBar.qml</file>
         <file>AccountListItem.qml</file>
         <file>FloweeCheckBox.qml</file>
+        <file>FloweeGroupBox.qml</file>
     </qresource>
 </RCC>
