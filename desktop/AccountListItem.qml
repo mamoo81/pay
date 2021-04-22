@@ -105,6 +105,12 @@ Item {
                     text: qsTr("Details")
                     onTriggered: accountDetailsDialog.open(root.account)
                 }
+                MenuItem {
+                    checked: root.account.isDefaultWallet
+                    checkable: true
+                    text: qsTr("Main Account")
+                    onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
+                }
             }
         }
     }

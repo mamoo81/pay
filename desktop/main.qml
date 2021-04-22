@@ -384,7 +384,6 @@ ApplicationWindow {
                     if (!accountDetailsDialog.item.visible) {
                         accountDetailsDialog.source = ""
                         accountDetailsDialog.account = null
-                        accountDetailsDialog.openDiag = null
                     }
                 }
             }
