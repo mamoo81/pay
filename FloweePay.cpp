@@ -425,7 +425,12 @@ void FloweePay::createNewWallet(const QString &walletName)
 
 QString FloweePay::unitName() const
 {
-    switch (m_unit) {
+    return  nameOfUnit(m_unit);
+}
+
+QString FloweePay::nameOfUnit(FloweePay::UnitOfBitcoin unit) const
+{
+    switch (unit) {
     case FloweePay::BCH:
         if (s_chain == P2PNet::MainChain)
             return QLatin1String("BCH");
@@ -452,8 +457,7 @@ QString FloweePay::unitName() const
         else
             return QLatin1String("tsats");
     default:
-        Q_ASSERT(false);
-        return 0;
+        return QString();
     }
 }
 

@@ -18,10 +18,9 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
-import QtQuick.Window 2.15
 
 ApplicationWindow {
-    id: netView
+    id: root
     visible: false
     minimumWidth: 300
     minimumHeight: 400
@@ -31,53 +30,81 @@ ApplicationWindow {
     modality: Qt.NonModal
     flags: Qt.Dialog
 
-    ListView {
-        id: peerList
-        model: net.peers
+    GridLayout {
+        id: grid
+        columns: 2
         anchors.fill: parent
+        anchors.margins: 10
 
-        delegate: Rectangle {
-            width: peerList.width
-            height: peerPane.height + 12
-            color: index % 2 === 0 ? netView.palette.button : netView.palette.base
-            ColumnLayout {
-                id: peerPane
-                width: peerList.width - 20
-                x: 10
-                y: 6
+        focus: true
+        Keys.onPressed: {
+            if (event.key === Qt.Key_Escape) {
+                root.visible = false;
+                event.accepted = true
+            }
+        }
+        ListView {
+            id: peerList
+            model: net.peers
 
-                Label {
-                    id: mainLabel
-                    text: modelData.userAgent
-                }
-                Label {
-                    text: qsTr("Address:", "network address (IP)") + " " + modelData.address
-                }
-                RowLayout {
-                    id: rowLayout
-                    height: secondRow.height
+            delegate: Rectangle {
+                width: peerList.width
+                height: peerPane.height + 12
+                color: index % 2 === 0 ? root.palette.button : root.palette.base
+                ColumnLayout {
+                    id: peerPane
+                    width: peerList.width - 20
+                    x: 10
+                    y: 6
+
                     Label {
-                        id: secondRow
-                        text: qsTr("Start-height: %1").arg(modelData.startHeight)
+                        id: mainLabel
+                        text: modelData.userAgent
                     }
                     Label {
-                        text: qsTr("ban-score: %1").arg(modelData.banScore)
+                        text: qsTr("Address:", "network address (IP)") + " " + modelData.address
                     }
-                }
-                Label {
-                    id : accountName
-                    font.bold: true
-                    text: {
-                        var id = modelData.segmentId;
-                        var accounts = portfolio.accounts;
-                        for (var i = 0; i < accounts.length; ++i) {
-                            if (accounts[i].id === id)
-                                return qsTr("Peer for account: %1").arg(accounts[i].name);
+                    RowLayout {
+                        id: rowLayout
+                        height: secondRow.height
+                        Label {
+                            id: secondRow
+                            text: qsTr("Start-height: %1").arg(modelData.startHeight)
                         }
-                        return ""; // not peered yet
+                        Label {
+                            text: qsTr("ban-score: %1").arg(modelData.banScore)
+                        }
                     }
-                    visible: text !== ""
+                    Label {
+                        id : accountName
+                        font.bold: true
+                        text: {
+                            var id = modelData.segmentId;
+                            var accounts = portfolio.accounts;
+                            for (var i = 0; i < accounts.length; ++i) {
+                                if (accounts[i].id === id)
+                                    return qsTr("Peer for account: %1").arg(accounts[i].name);
+                            }
+                            return ""; // not peered yet
+                        }
+                        visible: text !== ""
+                    }
                 }
+            }
+        }
+        Item {
+            Layout.columnSpan: 2
+            width: closeButton.width
+            height: closeButton.height
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+
+            Button {
+                id: closeButton
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                text: qsTr("Close")
+                onClicked: root.visible = false
             }
         }
     }

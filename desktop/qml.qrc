@@ -23,5 +23,6 @@
         <file>WalletTransaction.qml</file>
         <file>FloweeTabBar.qml</file>
         <file>AccountListItem.qml</file>
+        <file>FloweeCheckBox.qml</file>
     </qresource>
 </RCC>

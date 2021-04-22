@@ -110,6 +110,8 @@ public:
     /// take a bitcoin-address and identify the type.
     Q_INVOKABLE FloweePay::StringType identifyString(const QString &string) const;
 
+    Q_INVOKABLE QString nameOfUnit(FloweePay::UnitOfBitcoin unit) const;
+
     /// returns the unit of our prices. BCH, for instance.
     QString unitName() const;
     /// returns the amount of digits allowed behind the decimal-separator.

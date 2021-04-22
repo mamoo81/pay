@@ -145,25 +145,81 @@ ApplicationWindow {
                     property string title: qsTr("Settings")
 
                     GridLayout {
-                        columns: 2
+                        columns: 3
+                        // rowSpacing: 6
+                        // columnSpacing: 6
 
                         Label {
                             text: qsTr("Night mode") + ":"
                         }
-                        CheckBox {
+                        FloweeCheckBox {
+                            Layout.columnSpan: 2
                             checked: Flowee.useDarkSkin
                             onClicked: {
                                 Flowee.useDarkSkin = !Flowee.useDarkSkin
                                 ControlColors.applySkin(mainWindow);
                             }
                         }
+
                         Label {
                             text: qsTr("Unit") + ":"
                         }
+                        ComboBox {
+                            width: 210
+                            model: {
+                                var answer = [];
+                                for (let i = 0; i < 5; ++i) {
+                                    answer[i] = Flowee.nameOfUnit(i);
+                                }
+                                return answer;
+                            }
+                            currentIndex: Flowee.unit
+                            onCurrentIndexChanged: {
+                                Flowee.unit = currentIndex
+                            }
+                        }
 
-                        // TODO: unit-name selection
-                        Pane {}
+                        Rectangle {
+                            color: "#00000000"
+                            radius: 6
+                            border.color: mainWindow.palette.button
+                            border.width: 2
 
+                            implicitHeight: units.height + 10
+                            implicitWidth: units.width + 10
+
+                            GridLayout {
+                                id: units
+                                columns: 3
+                                x: 5; y: 5
+                                rowSpacing: 0
+                                Label {
+                                    text: {
+                                        var answer = "1";
+                                        for (let i = Flowee.unitAllowedDecimals; i < 8; ++i) {
+                                            answer += "0";
+                                        }
+                                        return answer + " " + Flowee.unitName;
+                                    }
+                                    Layout.alignment: Qt.AlignRight
+                                }
+                                Label { text: "=" }
+                                Label { text: "1 Bitcoin Cash" }
+
+//                               Label { text: "1 mBCH"; Layout.alignment: Qt.AlignRight}
+//                               Label { text: "=" }
+//                               Label { text: "1 USD" }
+                            }
+                        }
+                    }
+
+                    Button {
+                        anchors.right: parent.right
+                        text: qsTr("Network Status")
+                        onClicked: {
+                            netView.source = "./NetView.qml"
+                            netView.item.show();
+                        }
                     }
                 }
             }
@@ -333,5 +389,21 @@ ApplicationWindow {
                 }
             }
         }
+        // NetView (reachable from settings)
+        Loader {
+            id: netView
+            onLoaded: {
+                ControlColors.applySkin(item)
+                netViewHandler.target = item
+            }
+            Connections {
+                id: netViewHandler
+                function onVisibleChanged() {
+                    if (!netView.item.visible)
+                        netView.source = ""
+                }
+            }
+        }
+
     }
 }
