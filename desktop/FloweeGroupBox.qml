@@ -27,6 +27,7 @@ Item {
     property bool isCollapsed: false
     property string title: ""
     property alias content: child.children
+    property alias columns: child.columns
     clip: true
 
     width: implicitWidth
@@ -104,7 +105,6 @@ Item {
 
         Grid {
             id: child
-            x: 10
         }
     }
 

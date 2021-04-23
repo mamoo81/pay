@@ -146,8 +146,6 @@ ApplicationWindow {
 
                     GridLayout {
                         columns: 3
-                        // rowSpacing: 6
-                        // columnSpacing: 6
 
                         Label {
                             text: qsTr("Night mode") + ":"

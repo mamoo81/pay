@@ -48,6 +48,9 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: parent.clicked()
+        onClicked: {
+            parent.checked = !parent.checked
+            parent.clicked()
+        }
     }
 }
