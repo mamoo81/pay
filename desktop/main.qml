@@ -47,7 +47,9 @@ ApplicationWindow {
             }
 
             // delay loading to avoid errors due to not having a portfolio
+            // portfolio is only initialized after a second or so.
             receivePane.source = "./ReceiveTransactionPane.qml"
+            sendTransactionPane.source = "./SendTransactionPane.qml"
         }
     }
 
@@ -130,7 +132,8 @@ ApplicationWindow {
                         anchors.fill: parent
                     }
                 }
-                SendTransactionPane {
+                Loader {
+                    id: sendTransactionPane
                     anchors.fill: parent
                     property string title: qsTr("Send")
                 }

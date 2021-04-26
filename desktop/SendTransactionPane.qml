@@ -30,6 +30,8 @@ Rectangle {
         bitcoinValueField.reset();
         bitcoinValueField.maxSelected = false;
         destination.text = "";
+        delete root.payment;
+        root.payment = null;
     }
     color: mainWindow.palette.window
 
@@ -82,18 +84,41 @@ Rectangle {
             text: qsTr("Amount") + ":"
         }
         RowLayout {
+            /* TODO hook this up when we add fiat support.
             TextField {
                 text: "0.0 EUR"
             }
             FloweeCheckBox {
                 id: amountSelector
             }
+            */
             BitcoinValueField {
                 id: bitcoinValueField
                 property bool maxSelected: false
+                property string previousAmountString: ""
 
                 fontPtSize: payAmount.font.pointSize
                 onValueChanged: maxSelected = false
+
+                function update(setToMax) {
+                    if (setToMax) {
+                        // backup what the user typed there, to be used if she no longer wants 'max'
+                        previousAmountString = bitcoinValueField.valueObject.enteredString;
+                        value = portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
+                    } else {
+                        valueObject.strValue = previousAmountString
+                    }
+                }
+                Connections {
+                    target: portfolio
+                    function onCurrentChanged() {
+                        var setToMax = bitcoinValueField.maxSelected
+                        if (setToMax) {
+                            bitcoinValueField.update(setToMax);
+                            bitcoinValueField.maxSelected = setToMax; // undo any changes in the button
+                        }
+                    }
+                }
             }
             Button2 {
                 id: sendAll
@@ -101,18 +126,9 @@ Rectangle {
                 checkable: true
                 checked: bitcoinValueField.maxSelected
 
-                property string previousAmountString: ""
                 onClicked: {
                     var isChecked = !bitcoinValueField.maxSelected // simply invert
-                    if (isChecked) {
-                        // backup what the user typed there, to be used if she no longer wants 'max'
-                        previousAmountString = bitcoinValueField.valueObject.enteredString;
-                        // the usage of 'account' here assumes we are under the hierarchy of the AccountPage
-                        bitcoinValueField.value = portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
-                    } else {
-                        bitcoinValueField.valueObject.strValue = previousAmountString
-                    }
-
+                    bitcoinValueField.update(isChecked);
                     bitcoinValueField.maxSelected = isChecked
                 }
             }
@@ -121,9 +137,11 @@ Rectangle {
 
         RowLayout {
             width: parent.width
+            /* TODO future feature.
             Button2 {
-                text: qsTr("Add...")
+                text: qsTr("Add Advanced Option...")
             }
+            */
 
             Item {
                 width: 1; height: 1
@@ -140,7 +158,7 @@ Rectangle {
                         var payment = portfolio.startPayAllToAddress(destination.text);
                     else
                         payment = portfolio.startPayToAddress(destination.text, bitcoinValueField.valueObject);
-
+                    delete root.payment;
                     root.payment = payment;
                     payment.approveAndSign();
                 }
@@ -185,6 +203,7 @@ Rectangle {
 
                 Label {
                     text: root.payment === null ? "" : qsTr("%1 sats").arg(root.payment.assignedFee)
+                    // change the Fee to be displayed in current unit.
                 }
                 Label {
                     text: qsTr("Transaction size") + ":"
@@ -208,7 +227,9 @@ Rectangle {
                             return "";
                         var rc = root.payment.assignedFee / root.payment.txSize;
 
-                        return qsTr("%1 sat/byte", "fee", rc).arg((rc).toFixed(3))
+                        var fee = rc.toFixed(3); // no more than 3 numbers behind the separator
+                        fee = (fee * 1.0).toString(); // remove trailing zero's (1.000 => 1)
+                        return qsTr("%1 sat/byte", "fee", rc).arg(fee);
                     }
                 }
             }
@@ -227,12 +248,9 @@ Rectangle {
                 text: qsTr("Send")
                 enabled: root.payment !== null && root.payment.paymentOk;
                 onClicked: {
-                    if (root.payment.paymentOk) {
-                        root.payment.sendTx();
-                        root.payment = null
-                    } else {
-                        root.close();
-                    }
+                    root.payment.sendTx();
+                    root.payment = null
+                    reset();
                 }
             }
             Button2 {
