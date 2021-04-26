@@ -29,7 +29,9 @@ Rectangle {
         // reset fields
         bitcoinValueField.reset();
         bitcoinValueField.maxSelected = false;
+        destination.forceLegacyOk = false;
         destination.text = "";
+        destination.updateColor();
         delete root.payment;
         root.payment = null;
     }
@@ -58,12 +60,17 @@ Rectangle {
                 placeholderText: qsTr("Enter Bitcoin Cash Address")
                 Layout.fillWidth: true
                 Layout.columnSpan: 3
-                onFocusChanged: {
-                    if (activeFocus || text === "")
-                        color = mainWindow.palette.text
-                    else if (!addressOk)
+
+                onFocusChanged: updateColor();
+                onAddressOkChanged: updateColor()
+
+                function updateColor() {
+                    if (!activeFocus && text !== "" && !addressOk)
                         color = Flowee.useDarkSkin ? "#ff6568" : "red"
+                    else
+                        color = mainWindow.palette.text
                 }
+
             }
             Label {
                 id: checked
@@ -71,11 +78,6 @@ Rectangle {
 
                 font.pixelSize: 24
                 text: destination.addressOk ? "✔" : " "
-            }
-            Label {
-                // TODO make button to override and set forceLegacyOk to true
-                text: "!"
-                visible: destination.addressType === Pay.LegacyPKH;
             }
         }
 
@@ -263,6 +265,76 @@ Rectangle {
                 onClicked: root.reset();
             }
         }
+    }
+    Item {
+        // overlay item
+        anchors.fill: parent
+        Item {
+            // BTC address warning.
+            visible: destination.addressType === Pay.LegacyPKH && destination.forceLegacyOk === false;
+            onVisibleChanged: {
+                var pos = parent.mapFromItem(destination, 0, destination.height);
+                // console.log("xxxx " + pos.x + ", " + pos.y);
+                x = pos.x + 20
+                y = pos.y + 20
+            }
 
+            width: destination.width - 40
+            height: warningColumn.height + 20
+            Rectangle {
+                anchors.fill: warningColumn
+                anchors.margins: -10
+                color: warning.palette.window
+                border.width: 3
+                border.color: "red"
+                radius: 10
+            }
+            ArrowPoint {
+                x: 40
+                anchors.bottom: warningColumn.top
+                anchors.bottomMargin: 5
+                rotation: -90
+                color: "red"
+            }
+
+            Column {
+                id: warningColumn
+                x: 10
+                width: parent.width - 20
+                spacing: 10
+                Label {
+                    font.bold: true
+                    font.pixelSize: warning.font.pixelSize * 1.2
+                    text: qsTr("Warning")
+                }
+                Label {
+                    id: warning
+                    width: parent.width
+                    text: qsTr("This is a request to pay to a BTC address, an incompatible coin. Your funds could get lost. Are you certain about the destination?")
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                }
+
+                RowLayout {
+
+                    width: parent.width
+                    Item {
+                        width: 1; height: 1
+                        Layout.fillWidth: true
+                    }
+
+                    Button {
+                        text: qsTr("I am Certain")
+                        onClicked: destination.forceLegacyOk = true
+                    }
+                    Button {
+                        text: qsTr("No")
+                        onClicked: {
+                            destination.text = ""
+                            destination.updateColor()
+                        }
+                    }
+                }
+            }
+        }
     }
 }
