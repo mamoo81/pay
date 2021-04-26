@@ -149,9 +149,12 @@ Rectangle {
             }
 
             Button2 {
+                id: prepareButton
                 text: qsTr("Prepare")
                 enabled: (bitcoinValueField.value > 0
                           || bitcoinValueField.maxSelected) && destination.addressOk;
+
+                property QtObject portfolioUsed: null
 
                 onClicked: {
                     if (bitcoinValueField.maxSelected)
@@ -161,6 +164,7 @@ Rectangle {
                     delete root.payment;
                     root.payment = payment;
                     payment.approveAndSign();
+                    portfolioUsed = portfolio.current
                 }
             }
         }
@@ -246,7 +250,8 @@ Rectangle {
             Button2 {
                 id: button
                 text: qsTr("Send")
-                enabled: root.payment !== null && root.payment.paymentOk;
+                enabled: root.payment !== null && root.payment.paymentOk
+                            && prepareButton.portfolioUsed === portfolio.current // also make sure we prepared for the current portfolio.
                 onClicked: {
                     root.payment.sendTx();
                     root.payment = null
