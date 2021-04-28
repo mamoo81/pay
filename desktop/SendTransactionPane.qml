@@ -276,7 +276,7 @@ Rectangle {
                 var pos = parent.mapFromItem(destination, 0, destination.height);
                 // console.log("xxxx " + pos.x + ", " + pos.y);
                 x = pos.x + 20
-                y = pos.y + 20
+                y = pos.y + 25
             }
 
             width: destination.width - 40
@@ -310,7 +310,7 @@ Rectangle {
                 Label {
                     id: warning
                     width: parent.width
-                    text: qsTr("This is a request to pay to a BTC address, an incompatible coin. Your funds could get lost. Are you certain about the destination?")
+                    text: qsTr("This is a request to pay to a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure you want to pay to this BTC address?")
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 }
 
@@ -323,7 +323,7 @@ Rectangle {
                     }
 
                     Button {
-                        text: qsTr("I am Certain")
+                        text: qsTr("Yes, I am sure")
                         onClicked: destination.forceLegacyOk = true
                     }
                     Button {
