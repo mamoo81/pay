@@ -134,7 +134,6 @@ Rectangle {
                     bitcoinValueField.maxSelected = isChecked
                 }
             }
-
         }
 
         RowLayout {
@@ -170,45 +169,52 @@ Rectangle {
                 }
             }
         }
+        Label {
+            text: qsTr("Not enough funds in account to make payment!")
+            visible: root.payment !== null && !root.payment.paymentOk
+        }
+
         FloweeGroupBox {
             id: txDetails
             Layout.columnSpan: 4
             title: qsTr("Transaction Details")
             width: parent.width
 
+
             content: GridLayout {
                 columns: 2
+                property bool txOk: root.payment !== null && root.payment.paymentOk
 
-            Label {
-                text: qsTr("Destination") + ":"
-                Layout.alignment: Qt.AlignRight
-                visible: finalDestination.visible
-            }
-            Label {
-                id: finalDestination
-                text: root.payment === null ? "" : root.payment.formattedTargetAddress
-                wrapMode: Text.WrapAnywhere
-                Layout.fillWidth: true
-                visible: text !== "" && text != destination.text
-            }
-            Label {
-                // no need translating this one.
-                text: "TxId:"
-                Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            }
+                Label {
+                    text: qsTr("Destination") + ":"
+                    Layout.alignment: Qt.AlignRight
+                    visible: finalDestination.visible
+                }
+                Label {
+                    id: finalDestination
+                    text: root.payment === null ? "" : root.payment.formattedTargetAddress
+                    wrapMode: Text.WrapAnywhere
+                    Layout.fillWidth: true
+                    visible: text !== "" && text != destination.text
+                }
+                Label {
+                    // no need translating this one.
+                    text: "TxId:"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                }
 
-            Label {
-                text: root.payment === null ? qsTr("Not prepared yet") : root.payment.txid
-                wrapMode: Text.WrapAnywhere
-                Layout.fillWidth: true
-            }
+                Label {
+                    text: root.payment === null ? qsTr("Not prepared yet") : root.payment.txid
+                    wrapMode: Text.WrapAnywhere
+                    Layout.fillWidth: true
+                }
                 Label {
                     text: qsTr("Fee") + ":"
                     Layout.alignment: Qt.AlignRight
                 }
 
                 Label {
-                    text: root.payment === null ? "" : qsTr("%1 sats").arg(root.payment.assignedFee)
+                    text: !parent.txOk ? "" : qsTr("%1 sats").arg(root.payment.assignedFee)
                     // change the Fee to be displayed in current unit.
                 }
                 Label {
@@ -217,7 +223,7 @@ Rectangle {
                 }
                 Label {
                     text: {
-                        if (root.payment === null)
+                        if (!parent.txOk)
                             return "";
                         var rc = root.payment.txSize;
                         return qsTr("%1 bytes", "", rc).arg(rc)
@@ -229,7 +235,7 @@ Rectangle {
                 }
                 Label {
                     text: {
-                        if (root.payment === null)
+                        if (!parent.txOk)
                             return "";
                         var rc = root.payment.assignedFee / root.payment.txSize;
 
