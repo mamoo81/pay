@@ -30,6 +30,7 @@ class PortfolioDataProvider : public QObject
     Q_OBJECT
     Q_PROPERTY(QList<AccountInfo*> accounts READ accounts NOTIFY accountsChanged)
     Q_PROPERTY(AccountInfo* current READ current WRITE setCurrent NOTIFY currentChanged)
+    Q_PROPERTY(double totalBalance READ totalBalance NOTIFY totalBalanceChanged)
 public:
     explicit PortfolioDataProvider(QObject *parent = nullptr);
 
@@ -43,12 +44,15 @@ public:
 
     void selectDefaultWallet();
 
+    double totalBalance() const;
+
 public slots:
     void addWalletAccount(Wallet *wallet);
 
 signals:
     void accountsChanged();
     void currentChanged();
+    void totalBalanceChanged();
 
 private slots:
     void walletChangedPriority();

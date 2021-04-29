@@ -145,6 +145,7 @@ void Wallet::newTransaction(const Tx &tx)
     {
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
+        setUserOwnedWallet(true);
         const uint256 txid = tx.createHash();
         if (m_txidCash.find(txid) != m_txidCash.end()) // already known
             return;
@@ -208,6 +209,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
     {
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
+        setUserOwnedWallet(true);
         for (auto &tx: transactions) {
             const uint256 txid = tx.createHash();
             WalletTransaction wtx;
@@ -389,6 +391,19 @@ Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) con
     }
     // return empty tx
     return Tx();
+}
+
+bool Wallet::userOwnedWallet() const
+{
+    return m_userOwnedWallet;
+}
+
+void Wallet::setUserOwnedWallet(bool userOwnedWallet)
+{
+    if (m_userOwnedWallet == userOwnedWallet)
+        return;
+    m_userOwnedWallet = userOwnedWallet;
+    emit userOwnedChanged();
 }
 
 QList<PaymentRequest *> Wallet::paymentRequests() const
@@ -1073,6 +1088,9 @@ void Wallet::loadSecrets()
         else if (parser.tag() == WalletPriv::IsSingleAddressWallet) {
             m_singleAddressWallet = parser.boolData();
         }
+        else if (parser.tag() == WalletPriv::UserOwnedWallet) {
+            m_userOwnedWallet = parser.boolData();
+        }
     }
     m_secretsChanged = false;
     ++m_nextWalletSecretId;
@@ -1096,6 +1114,8 @@ void Wallet::saveSecrets()
     }
     if (m_singleAddressWallet)
         builder.add(WalletPriv::IsSingleAddressWallet, true);
+    if (!m_userOwnedWallet)
+        builder.add(WalletPriv::UserOwnedWallet, false);
     auto data = builder.buffer();
 
     try {

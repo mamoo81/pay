@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,87 +23,127 @@ import QtQuick.Window 2.14
 import Flowee.org.pay 1.0
 import "./ControlColors.js" as ControlColors
 
-Pane {
+Rectangle {
     id: root
     function reset() {
         // reset fields
         bitcoinValueField.reset();
         bitcoinValueField.maxSelected = false;
+        destination.forceLegacyOk = false;
         destination.text = "";
+        destination.updateColor();
+        delete root.payment;
+        root.payment = null;
     }
-    opacity: visible ? 1 : 0
-    padding: 0
-    GridLayout {
-        id: grid
-        width: parent.width
-        columns: 3
+    color: mainWindow.palette.window
 
+    property QtObject payment: null
+
+    Column {
+        x: 10
+        y: 10
+        spacing: 10
+        width: parent.width - 20
         Label {
             text: qsTr("Destination") + ":"
-            Layout.alignment: Qt.AlignRight | Qt.AlignBaseline
+            Layout.columnSpan: 2
         }
-        TextField {
-            id: destination
-            focus: true
-            property bool addressOk: {
-                let res = Flowee.identifyString(text);
-                return  res === Pay.CashPKH || res === Pay.LegacyPKH;
-            }
+        RowLayout {
+            width: parent.width
+            TextField {
+                id: destination
+                focus: true
+                property bool addressOk: addressType === Pay.CashPKH || (forceLegacyOk && addressType === Pay.LegacyPKH)
+                property var addressType: Flowee.identifyString(text);
+                property bool forceLegacyOk: false
 
-            placeholderText: qsTr("Enter Bitcoin Address")
-            Layout.fillWidth: true
-            onFocusChanged: {
-                if (activeFocus || text === "")
-                    color = mainWindow.palette.text
-                else if (!addressOk)
-                    color = Flowee.useDarkSkin ? "#ff6568" : "red"
+                placeholderText: qsTr("Enter Bitcoin Cash Address")
+                Layout.fillWidth: true
+                Layout.columnSpan: 3
+
+                onFocusChanged: updateColor();
+                onAddressOkChanged: updateColor()
+
+                function updateColor() {
+                    if (!activeFocus && text !== "" && !addressOk)
+                        color = Flowee.useDarkSkin ? "#ff6568" : "red"
+                    else
+                        color = mainWindow.palette.text
+                }
+
+            }
+            Label {
+                id: checked
+                color: "green"
+
+                font.pixelSize: 24
+                text: destination.addressOk ? "✔" : " "
             }
         }
-        Label {
-            id: checked
-            color: "green"
-            font.pixelSize: 24
-            text: destination.addressOk ? "✔" : " "
-        }
 
-        // next row
         Label {
             id: payAmount
             text: qsTr("Amount") + ":"
         }
-        BitcoinValueField {
-            id: bitcoinValueField
-            property bool maxSelected: false
-
-            fontPtSize: payAmount.font.pointSize
-            Layout.columnSpan: 2
-            onValueChanged: maxSelected = false
-        }
-
         RowLayout {
-            Layout.columnSpan: 3
+            /* TODO hook this up when we add fiat support.
+            TextField {
+                text: "0.0 EUR"
+            }
+            FloweeCheckBox {
+                id: amountSelector
+            }
+            */
+            BitcoinValueField {
+                id: bitcoinValueField
+                property bool maxSelected: false
+                property string previousAmountString: ""
 
+                fontPtSize: payAmount.font.pointSize
+                onValueChanged: maxSelected = false
+
+                function update(setToMax) {
+                    if (setToMax) {
+                        // backup what the user typed there, to be used if she no longer wants 'max'
+                        previousAmountString = bitcoinValueField.valueObject.enteredString;
+                        value = portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
+                    } else {
+                        valueObject.strValue = previousAmountString
+                    }
+                }
+                Connections {
+                    target: portfolio
+                    function onCurrentChanged() {
+                        var setToMax = bitcoinValueField.maxSelected
+                        if (setToMax) {
+                            bitcoinValueField.update(setToMax);
+                            bitcoinValueField.maxSelected = setToMax; // undo any changes in the button
+                        }
+                    }
+                }
+            }
             Button2 {
                 id: sendAll
                 text: qsTr("Max")
                 checkable: true
                 checked: bitcoinValueField.maxSelected
 
-                property string previousAmountString: ""
                 onClicked: {
                     var isChecked = !bitcoinValueField.maxSelected // simply invert
-                    if (isChecked) {
-                        // backup what the user typed there, to be used if she no longer wants 'max'
-                        previousAmountString = bitcoinValueField.valueObject.enteredString;
-                        // the usage of 'account' here assumes we are under the hierarchy of the AccountPage
-                        bitcoinValueField.value = account.balanceConfirmed + account.balanceUnconfirmed
-                    } else {
-                        bitcoinValueField.valueObject.strValue = previousAmountString
-                    }
-
+                    bitcoinValueField.update(isChecked);
                     bitcoinValueField.maxSelected = isChecked
                 }
             }
+
+        }
+
+        RowLayout {
+            width: parent.width
+            /* TODO future feature.
+            Button2 {
+                text: qsTr("Add Advanced Option...")
+            }
+            */
 
             Item {
                 width: 1; height: 1
@@ -111,144 +151,45 @@ Pane {
             }
 
             Button2 {
-                id: nextButton
-                text: qsTr("Next")
+                id: prepareButton
+                text: qsTr("Prepare")
                 enabled: (bitcoinValueField.value > 0
                           || bitcoinValueField.maxSelected) && destination.addressOk;
+
+                property QtObject portfolioUsed: null
 
                 onClicked: {
                     if (bitcoinValueField.maxSelected)
                         var payment = portfolio.startPayAllToAddress(destination.text);
                     else
                         payment = portfolio.startPayToAddress(destination.text, bitcoinValueField.valueObject);
-
-                    checkAndSendTx.payment = payment;
-                    ControlColors.applySkin(checkAndSendTx);
+                    delete root.payment;
+                    root.payment = payment;
                     payment.approveAndSign();
-                }
-            }
-            Button2 {
-                id: cancelbutton
-                text: qsTr("Cancel")
-
-                onClicked: {
-                    root.visible = false;
-                    root.reset();
+                    portfolioUsed = portfolio.current
                 }
             }
         }
+        FloweeGroupBox {
+            id: txDetails
+            Layout.columnSpan: 4
+            title: qsTr("Transaction Details")
+            width: parent.width
 
-        /*
-          TODO;
-           - have a fiat value input.
-        */
-    }
+            content: GridLayout {
+                columns: 2
 
-    ApplicationWindow {
-        id: checkAndSendTx
-        visible: false
-        title: qsTr("Validate and Send Transaction")
-        modality: Qt.NonModal
-        flags: Qt.Dialog
-        width: header.implicitWidth + 20
-        height: 20 + minimumHeight
-        minimumHeight: {
-            var h = header.implicitHeight + table.implicitHeight + button.height + 60;
-            if (checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk)
-                h += table2.implicitHeight
-            return h;
-        }
-
-        property QtObject payment: null
-
-        onPaymentChanged: visible = payment !== null
-        onVisibleChanged: {
-            if (!visible) {
-                if (payment !== null) {
-                    console.log("user closed the window")
-                    payment = null
-                }
-                else {
-                    console.log("user accepted the payment")
-                    root.visible = false;
-                    root.reset();
-                }
-            }
-        }
-
-        Label {
-            id: header
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.margins: 10
-            horizontalAlignment: Text.AlignHCenter
-            text: checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk ?
-                      qsTr("Check your values and press approve to send payment.")
-                    : qsTr("Not enough funds in account to make payment!");
-
-            font.bold: true
-            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-        }
-        GridLayout {
-            id: table
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.margins: 10
-            anchors.top: header.bottom
-            columns: 2
             Label {
                 text: qsTr("Destination") + ":"
                 Layout.alignment: Qt.AlignRight
+                visible: finalDestination.visible
             }
             Label {
-                text: checkAndSendTx.payment === null ? "waiting" : checkAndSendTx.payment.formattedTargetAddress
+                id: finalDestination
+                text: root.payment === null ? "" : root.payment.formattedTargetAddress
                 wrapMode: Text.WrapAnywhere
                 Layout.fillWidth: true
-            }
-            Label {
-                id: origText
-                text: qsTr("Was", "user-entered-format") + ":"
-                Layout.alignment: Qt.AlignRight
-                visible: checkAndSendTx.payment !== null
-                         && checkAndSendTx.payment.targetAddress !== checkAndSendTx.payment.formattedTargetAddress
-            }
-            Label {
-                visible: origText.visible
-                text: checkAndSendTx.payment === null ? "" : checkAndSendTx.payment.targetAddress
-                wrapMode: Text.WrapAnywhere
-            }
-
-            Label {
-                Layout.alignment: Qt.AlignRight
-                text: qsTr("Amount") + ":"
-            }
-            BitcoinAmountLabel {
-                value: {
-                    if (checkAndSendTx.payment === null)
-                        return 0;
-                    var val = checkAndSendTx.payment.paymentAmount;
-                    if (val === -1)
-                        return account.balanceConfirmed + account.balanceUnconfirmed;
-                    return val;
-                }
-                fontPtSize: origText.font.pointSize
-                colorize: false
-                textColor: mainWindow.palette.text
-            }
-        }
-        GridLayout {
-            id: table2
-            visible: checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.margins: 20
-            anchors.top: table.bottom
-            columns: 2
-            Label {
-                text: qsTr("More Details") + ":"
-                font.italic: true
-                Layout.columnSpan: 2
+                visible: text !== "" && text != destination.text
             }
             Label {
                 // no need translating this one.
@@ -257,63 +198,143 @@ Pane {
             }
 
             Label {
-                text: checkAndSendTx.payment === null ? "" : checkAndSendTx.payment.txid
+                text: root.payment === null ? qsTr("Not prepared yet") : root.payment.txid
                 wrapMode: Text.WrapAnywhere
                 Layout.fillWidth: true
             }
-
-            Label {
-                text: qsTr("Fee") + ":"
-                Layout.alignment: Qt.AlignRight
-            }
-
-            Label {
-                text: checkAndSendTx.payment === null ? "" : qsTr("%1 sats").arg(checkAndSendTx.payment.assignedFee)
-            }
-            Label {
-                text: qsTr("Transaction size") + ":"
-                Layout.alignment: Qt.AlignRight
-            }
-            Label {
-                text: {
-                    if (checkAndSendTx.payment === null)
-                        return "";
-                    var rc = checkAndSendTx.payment.txSize;
-                    return qsTr("%1 bytes", "", rc).arg(rc)
+                Label {
+                    text: qsTr("Fee") + ":"
+                    Layout.alignment: Qt.AlignRight
                 }
-            }
-            Label {
-                text: qsTr("Fee per byte") + ":"
-                Layout.alignment: Qt.AlignRight
-            }
-            Label {
-                text: {
-                    if (checkAndSendTx.payment === null)
-                        return "";
-                    var rc = checkAndSendTx.payment.assignedFee / checkAndSendTx.payment.txSize;
 
-                    return qsTr("%1 sat/byte", "fee", rc).arg((rc).toFixed(3))
+                Label {
+                    text: root.payment === null ? "" : qsTr("%1 sats").arg(root.payment.assignedFee)
+                    // change the Fee to be displayed in current unit.
+                }
+                Label {
+                    text: qsTr("Transaction size") + ":"
+                    Layout.alignment: Qt.AlignRight
+                }
+                Label {
+                    text: {
+                        if (root.payment === null)
+                            return "";
+                        var rc = root.payment.txSize;
+                        return qsTr("%1 bytes", "", rc).arg(rc)
+                    }
+                }
+                Label {
+                    text: qsTr("Fee per byte") + ":"
+                    Layout.alignment: Qt.AlignRight
+                }
+                Label {
+                    text: {
+                        if (root.payment === null)
+                            return "";
+                        var rc = root.payment.assignedFee / root.payment.txSize;
+
+                        var fee = rc.toFixed(3); // no more than 3 numbers behind the separator
+                        fee = (fee * 1.0).toString(); // remove trailing zero's (1.000 => 1)
+                        return qsTr("%1 sat/byte", "fee", rc).arg(fee);
+                    }
                 }
             }
         }
 
-        Button {
-            id: button
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.margins: 10
-            text: checkAndSendTx.payment !== null && checkAndSendTx.payment.paymentOk
-                  ? qsTr("Approve and Send", "button") : qsTr("Close", "button")
-            onClicked: {
-                if (checkAndSendTx.payment.paymentOk) {
-                    checkAndSendTx.payment.sendTx();
-                    checkAndSendTx.payment = null
-                } else {
-                    checkAndSendTx.close();
+        RowLayout {
+            width: parent.width
+
+            Item {
+                width: 1; height: 1
+                Layout.fillWidth: true
+            }
+
+            Button2 {
+                id: button
+                text: qsTr("Send")
+                enabled: root.payment !== null && root.payment.paymentOk
+                            && prepareButton.portfolioUsed === portfolio.current // also make sure we prepared for the current portfolio.
+                onClicked: {
+                    root.payment.sendTx();
+                    root.payment = null
+                    reset();
+                }
+            }
+            Button2 {
+                text: qsTr("Cancel")
+                onClicked: root.reset();
+            }
+        }
+    }
+    Item {
+        // overlay item
+        anchors.fill: parent
+        Item {
+            // BTC address warning.
+            visible: destination.addressType === Pay.LegacyPKH && destination.forceLegacyOk === false;
+            onVisibleChanged: {
+                var pos = parent.mapFromItem(destination, 0, destination.height);
+                // console.log("xxxx " + pos.x + ", " + pos.y);
+                x = pos.x + 20
+                y = pos.y + 25
+            }
+
+            width: destination.width - 40
+            height: warningColumn.height + 20
+            Rectangle {
+                anchors.fill: warningColumn
+                anchors.margins: -10
+                color: warning.palette.window
+                border.width: 3
+                border.color: "red"
+                radius: 10
+            }
+            ArrowPoint {
+                x: 40
+                anchors.bottom: warningColumn.top
+                anchors.bottomMargin: 5
+                rotation: -90
+                color: "red"
+            }
+
+            Column {
+                id: warningColumn
+                x: 10
+                width: parent.width - 20
+                spacing: 10
+                Label {
+                    font.bold: true
+                    font.pixelSize: warning.font.pixelSize * 1.2
+                    text: qsTr("Warning")
+                }
+                Label {
+                    id: warning
+                    width: parent.width
+                    text: qsTr("This is a request to pay to a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure you want to pay to this BTC address?")
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                }
+
+                RowLayout {
+
+                    width: parent.width
+                    Item {
+                        width: 1; height: 1
+                        Layout.fillWidth: true
+                    }
+
+                    Button {
+                        text: qsTr("Yes, I am sure")
+                        onClicked: destination.forceLegacyOk = true
+                    }
+                    Button {
+                        text: qsTr("No")
+                        onClicked: {
+                            destination.text = ""
+                            destination.updateColor()
+                        }
+                    }
                 }
             }
         }
     }
-
-    Behavior on opacity { NumberAnimation { duration: 350 } }
 }

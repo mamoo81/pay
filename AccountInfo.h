@@ -41,6 +41,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(WalletHistoryModel* transactions READ historyModel CONSTANT)
     Q_PROPERTY(bool isDefaultWallet READ isDefaultWallet WRITE setDefaultWallet NOTIFY isDefaultWalletChanged)
+    Q_PROPERTY(bool isUserOwned READ userOwnedWallet NOTIFY userOwnedChanged)
     Q_PROPERTY(QList<QObject*> paymentRequests READ paymentRequests NOTIFY paymentRequestsChanged)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
@@ -72,6 +73,9 @@ public:
     void setDefaultWallet(bool isDefault);
     bool isDefaultWallet();
 
+    // maps to Wallet::userOwnedWallet
+    bool userOwnedWallet();
+
     /**
      * All payment requests that are created for this account.
      */
@@ -84,6 +88,10 @@ public:
      */
     Q_INVOKABLE QObject* createPaymentRequest(QObject *parent);
 
+    Wallet *wallet() const {
+        return m_wallet;
+    }
+
 signals:
     void balanceChanged();
     void utxosChanged();
@@ -91,6 +99,7 @@ signals:
     void lastBlockSynchedChanged();
     void isDefaultWalletChanged();
     void paymentRequestsChanged();
+    void userOwnedChanged();
 
 private:
     Wallet *m_wallet;

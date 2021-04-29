@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ Item {
             var dat = model.date;
             if (typeof dat === "undefined")
                 return qsTr("unconfirmed")
-            return dat
+            return Qt.formatDateTime(dat, Qt.SystemLocaleShortDate);
         }
         opacity: 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8
@@ -90,7 +90,7 @@ Item {
         anchors.bottomMargin: 10
         x: 10 // indent it
         width: parent.width - 10
-        onLoaded: item.infoObject = root.account.txInfo(model.walletIndex, item)
+        onLoaded: item.infoObject = portfolio.current.txInfo(model.walletIndex, item)
     }
 
     Behavior on height { NumberAnimation { duration: 100 } }

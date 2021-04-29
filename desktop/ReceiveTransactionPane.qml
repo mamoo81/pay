@@ -24,21 +24,44 @@ import Flowee.org.pay 1.0
 
 Pane {
     id: receivePane
-    padding: 0
 
-    height: qrCode.height + grid.height
+    property QtObject account: portfolio.current
+    property QtObject request: null
+    onAccountChanged: {
+        if (account === null)
+            return;
+        if (request === null)
+            request = account.createPaymentRequest(receivePane)
+        else
+            request.switchAccount(portfolio.current);
+    }
 
-    property QtObject account: root.account
-    property QtObject request: account.createPaymentRequest(receivePane)
+    function reset() {
+        if (request.saveState === PaymentRequest.Remembered)
+            request = account.createPaymentRequest(receivePane)
+        description.text = "";
+        bitcoinValueField.value = 0;
+    }
+
+    Label {
+        id: instructions
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 20
+        text: qsTr("Share your QR or copy address to receive")
+        opacity: 0.3
+    }
 
     Image {
         id: qrCode
-        width: 300
-        height: 300
+        width: height
+        height: {
+            var h = parent.height - 220;
+            return Math.min(h, 256)
+        }
         source: "image://qr/" + receivePane.request.qr
         smooth: false
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
+        anchors.top: instructions.bottom
         anchors.topMargin: 20
         opacity: receivePane.request.state === PaymentRequest.Unpaid ? 1: 0
 
@@ -57,7 +80,9 @@ Pane {
             height: feedbackText.height + 20
             radius: 10
             color: Flowee.useDarkSkin ? "#333" : "#ddd"
-            anchors.centerIn: parent
+            anchors.top: parent.bottom
+            anchors.topMargin: -13
+            anchors.horizontalCenter: parent.horizontalCenter
 
             Label {
                 id: feedbackText
@@ -104,7 +129,7 @@ Pane {
             }
             GradientStop {
                 position: 0.1
-                color: root.palette.base
+                color: receivePane.palette.base
             }
         }
         opacity: receivePane.request.state === PaymentRequest.Unpaid ? 0: 1
@@ -223,14 +248,6 @@ Pane {
             onValueChanged: receivePane.request.amount = value
         }
 
-        CheckBox {
-            id: legacyAddress
-            Layout.columnSpan: 2
-            text: qsTr("Legacy address")
-            enabled: receivePane.request.state === PaymentRequest.Unpaid
-            onCheckStateChanged: receivePane.request.legacy = checked
-        }
-
         RowLayout {
             Layout.columnSpan: 2
             Layout.fillWidth: true
@@ -242,13 +259,60 @@ Pane {
                 visible: receivePane.request.state === PaymentRequest.Unpaid || receivePane.request.state === PaymentRequest.DoubleSpentSeen
                 onClicked: {
                     receivePane.request.rememberPaymentRequest();
-                    receivePane.visible = false;
+                    reset();
                 }
             }
             Button {
-                text:
-                receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Cancel") : qsTr("Close")
-                onClicked: receivePane.visible = false
+                text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Reset") : qsTr("Start New")
+                onClicked: reset();
+            }
+        }
+    }
+
+    Flow {
+        width: parent.width
+        anchors.bottom: parent.bottom
+        spacing: 10
+        Repeater {
+            model: portfolio.current.paymentRequests
+            delegate: Rectangle {
+                width: 70
+                height: width
+                radius: 25
+                clip: true
+                border.width: 6
+                border.color: {
+                    var state = modelData.state;
+                    if (state === PaymentRequest.Unpaid)
+                        return "#888888"
+                    if (state === PaymentRequest.PaymentSeen)
+                        return "yellow"
+                    if (state === PaymentRequest.DoubleSpentSeen)
+                        return "red"
+                    // in all other cases:
+                    return "green"
+                }
+
+                // don't show the one we are editing
+                visible: modelData.saveState === PaymentRequest.Remembered
+
+                Text {
+                    anchors.centerIn: parent
+                    text: modelData.message
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton | Qt.LeftButton
+                    onClicked: paymentContextMenu.popup()
+                    Menu {
+                        id: paymentContextMenu
+                        MenuItem {
+                            text: qsTr("Delete")
+                            onTriggered: modelData.forgetPaymentRequest()
+                        }
+                    }
+                }
             }
         }
     }

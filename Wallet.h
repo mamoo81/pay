@@ -176,6 +176,16 @@ public:
     void addTestTransactions();
 #endif
 
+    /**
+     * WHen true, then this wallet is the result of a user-initiated action.
+     * Otherwise it was created by the system for some reason and is empty.
+     */
+    bool userOwnedWallet() const;
+    /**
+     * Changes a wallet to be user-owned or not.
+     */
+    void setUserOwnedWallet(bool userOwnedWallet);
+
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
@@ -188,6 +198,7 @@ signals:
     void appendedTransactions(int firstNew, int count);
     void lastBlockSynchedChanged();
     void paymentRequestsChanged();
+    void userOwnedChanged();
 
     void transactionConfirmed(int txIndex);
 
@@ -281,6 +292,7 @@ private:
     friend class WalletHistoryModel;
 
     bool m_singleAddressWallet = false;
+    bool m_userOwnedWallet = true;
 
     QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
 

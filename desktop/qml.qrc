@@ -2,13 +2,18 @@
     <qresource prefix="/">
         <file alias="FloweePay.png">../images/FloweePay.png</file>
         <file alias="FloweePay.svg">../images/FloweePay.svg</file>
+        <file alias="FloweePay.svg">../images/FloweePay.svg</file>
         <file alias="FloweePay-light.svg">../images/FloweePay-light.svg</file>
-        <file>heart.svg</file>
-        <file>heart-red.svg</file>
+        <file>sendIcon.png</file>
+        <file>sendIcon-light.png</file>
+        <file>receiveIcon.png</file>
+        <file>settingsIcon.png</file>
+        <file>settingsIcon-light.png</file>
+        <file>activityIcon.png</file>
+        <file>activityIcon-light.png</file>
+
         <file>defaults.ini</file>
         <file>AccountDetails.qml</file>
-        <file>AccountPage.qml</file>
-        <file>AccountSelectionPage.qml</file>
         <file>ArrowPoint.qml</file>
         <file>BitcoinAmountLabel.qml</file>
         <file>BitcoinValueField.qml</file>
@@ -23,5 +28,9 @@
         <file>SyncIndicator.qml</file>
         <file>WalletTransactionDetails.qml</file>
         <file>WalletTransaction.qml</file>
+        <file>FloweeTabBar.qml</file>
+        <file>AccountListItem.qml</file>
+        <file>FloweeCheckBox.qml</file>
+        <file>FloweeGroupBox.qml</file>
     </qresource>
 </RCC>
