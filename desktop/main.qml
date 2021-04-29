@@ -355,7 +355,7 @@ ApplicationWindow {
             color: "#FFFFFF"
             anchors.fill: parent
             Text {
-                text: "Preparing..."
+                text: qsTr("Preparing...")
                 anchors.centerIn: parent
                 font.pointSize: 20
             }
