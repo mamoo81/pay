@@ -76,7 +76,7 @@ Pane {
         Rectangle {
             id: clipboardFeedback
             opacity: 0
-            width: 200
+            width: feedbackText.width + 20
             height: feedbackText.height + 20
             radius: 10
             color: Flowee.useDarkSkin ? "#333" : "#ddd"
@@ -86,7 +86,6 @@ Pane {
 
             Label {
                 id: feedbackText
-                width: parent.width - 20
                 x: 10
                 y: 10
                 text: qsTr("Copied to clipboard")
