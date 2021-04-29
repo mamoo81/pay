@@ -80,7 +80,9 @@ Pane {
             height: feedbackText.height + 20
             radius: 10
             color: Flowee.useDarkSkin ? "#333" : "#ddd"
-            anchors.centerIn: parent
+            anchors.top: parent.bottom
+            anchors.topMargin: -13
+            anchors.horizontalCenter: parent.horizontalCenter
 
             Label {
                 id: feedbackText
