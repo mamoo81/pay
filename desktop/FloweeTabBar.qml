@@ -53,8 +53,8 @@ Item {
                     Image {
                         visible: source != ""
                         source: stack.children[index].icon
-                        width: 32
-                        height: 32
+                        anchors.bottom: payTabButtonText.baseline
+                        anchors.bottomMargin: -2
                     }
                     Label {
                         id: payTabButtonText

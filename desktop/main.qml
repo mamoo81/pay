@@ -123,6 +123,7 @@ ApplicationWindow {
 
                 Pane {
                     property string title: qsTr("Activity")
+                    property string icon: Flowee.useDarkSkin ? "activityIcon-light.png" : "activityIcon.png"
                     anchors.fill: parent
                     ListView {
                         id: activityView
@@ -136,16 +137,19 @@ ApplicationWindow {
                     id: sendTransactionPane
                     anchors.fill: parent
                     property string title: qsTr("Send")
+                    property string icon: Flowee.useDarkSkin ? "sendIcon-light.png" : "sendIcon.png"
                 }
                 Loader {
                     id: receivePane
                     anchors.fill: parent
+                    property string icon: "receiveIcon.png"
                     property string title: qsTr("Receive")
                 }
                 Pane {
                     id: settingsPane
                     anchors.fill: parent
                     property string title: qsTr("Settings")
+                    property string icon: Flowee.useDarkSkin ? "settingsIcon-light.png" : "settingsIcon.png"
 
                     GridLayout {
                         columns: 3
