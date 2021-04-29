@@ -23,7 +23,6 @@ import Flowee.org.pay 1.0
  * A simple label that shows the amount of time a pair of block-heights are apart.
  */
 Label {
-    id: syncIndicator
     property int accountBlockHeight: 0
     property int globalPos: Flowee.chainHeight
 
@@ -39,7 +38,7 @@ Label {
         if (hours > 48)
             return qsTr("%1 days behind", "", Math.ceil(days)).arg(Math.ceil(days));
         if (diff === 0)
-            return qsTr("Synched")
+            return qsTr("Up to date")
         if (diff < 3)
             return qsTr("Updating");
         return qsTr("%1 hours behind", "", Math.ceil(hours)).arg(Math.ceil(hours));

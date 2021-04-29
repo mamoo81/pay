@@ -299,7 +299,7 @@ ApplicationWindow {
                 }
                 SyncIndicator {
                     accountBlockHeight: isLoading || portfolio.current === null ? 0 : portfolio.current.lastBlockSynched
-                    visible: !isLoading && portfolio.current !== null && globalPos !== accountBlockHeight
+                    visible: !isLoading && portfolio.current !== null
                 }
                 Item { // spacer
                     width: 10
