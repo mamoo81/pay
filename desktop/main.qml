@@ -321,14 +321,19 @@ ApplicationWindow {
                 Rectangle {
                     color: mainWindow.floweeGreen
                     radius: 10
-                    width: Math.min(balance.width, leftColumn.width)
+                    width: leftColumn.width
                     height: buttonLabel.height + 30
                     Text {
                         id: buttonLabel
                         anchors.centerIn: parent
                         width: parent.width - 20
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        text: "Import your Bitcoin Cash wallet"
+                        text: qsTr("Import your Bitcoin Cash wallet")
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: newAccountDiag.source = "./NewAccountDialog.qml"
                     }
                 }
                 Item { // spacer
@@ -404,6 +409,20 @@ ApplicationWindow {
                 }
             }
         }
-
+        Loader {
+            id: newAccountDiag
+            onLoaded: {
+                ControlColors.applySkin(item)
+                newAccountHandler.target = item
+            }
+            Connections {
+                id: newAccountHandler
+                function onVisibleChanged() {
+                    if (!newAccountDiag.item.visible) {
+                        newAccountDiag.source = ""
+                    }
+                }
+            }
+        }
     }
 }
