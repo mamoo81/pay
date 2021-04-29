@@ -276,8 +276,7 @@ ApplicationWindow {
                     value: {
                         if (isLoading)
                             return 0;
-                        return 1; // TODO
-                        // return portfolio.totalBalance
+                        return portfolio.totalBalance
                     }
                     visible: totalBalance.visible
                     colorize: false

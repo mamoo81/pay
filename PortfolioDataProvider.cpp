@@ -110,6 +110,18 @@ void PortfolioDataProvider::selectDefaultWallet()
     }
 }
 
+double PortfolioDataProvider::totalBalance() const
+{
+    double rc = 0;
+    for (int i = 0; i < m_accounts.size(); ++i) {
+        auto wallet = m_accounts.at(i);
+        rc += wallet->balanceConfirmed();
+        rc += wallet->balanceImmature();
+        rc += wallet->balanceUnconfirmed();
+    }
+    return rc;
+}
+
 void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
 {
     if (m_accounts.contains(wallet))
@@ -118,6 +130,7 @@ void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
     auto info = new AccountInfo(wallet, this);
     m_accountInfos.append(info);
     connect (info, SIGNAL(isDefaultWalletChanged()), this, SLOT(walletChangedPriority()));
+    connect (info, SIGNAL(balanceChanged()), this, SIGNAL(totalBalanceChanged()));
     emit accountsChanged();
 }
 
