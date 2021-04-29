@@ -41,6 +41,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 find_package(Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
 find_package(QREncode REQUIRED)
 
+# starting with Qt5.15 we have a lot of deprecation warnings,
+# likely to make porting to Qt6 easier.
+# as long as we require linking to older Qt versions those warnings
+# are clutter. Remove this define when we start porting to Qt6.
+add_definitions(-DQT_NO_DEPRECATED_WARNINGS)
+
+
 set (PAY_SOURCES
     AccountInfo.cpp
     BitcoinValue.cpp
