@@ -93,7 +93,7 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.rightMargin: 30
             text: "BCH: " + "€1000"
-            visible: Flowee.isMainChain
+            visible: false; // Flowee.isMainChain
             font.pixelSize: 18
             color: "white"
         }
