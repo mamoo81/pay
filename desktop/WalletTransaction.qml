@@ -55,7 +55,7 @@ Item {
             var dat = model.date;
             if (typeof dat === "undefined")
                 return qsTr("unconfirmed")
-            return dat
+            return Qt.formatDateTime(dat, Qt.SystemLocaleShortDate);
         }
         opacity: 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8

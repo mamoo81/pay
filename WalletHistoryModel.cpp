@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,8 +61,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
         if (item.minedBlockHeight <= 0)
             return QVariant();
         auto header = FloweePay::instance()->p2pNet()->blockchain().block(item.minedBlockHeight);
-        auto format = QLocale::system().dateFormat(QLocale::ShortFormat);
-        return QVariant(QDateTime::fromTime_t(header.nTime).toString(format));
+        return QVariant(QDateTime::fromTime_t(header.nTime)); // .toString(format));
     }
     case FundsIn: {
         qint64 value = 0;
