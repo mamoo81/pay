@@ -259,7 +259,11 @@ ApplicationWindow {
                     }
                     colorize: false
                     textColor: mainWindow.palette.text
-                    fontPtSize: mainWindow.font.pointSize * 3
+                    fontPtSize: {
+                        if (leftColumn.width < 300)
+                            return mainWindow.font.pointSize * 2
+                        return mainWindow.font.pointSize * 3
+                    }
                 }
                 Label {
                     text: qsTr("0.00 EUR"); // TODO
