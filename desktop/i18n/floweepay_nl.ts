@@ -146,8 +146,8 @@
     <name>ReceiveTransactionPane</name>
     <message>
       <location filename="../ReceiveTransactionPane.qml" line="50"/>
-      <source>Share your QR or copy address to receive</source>
-      <translation>Deel uw QR of kopieer adres om te ontvangen</translation>
+      <source>Share your QR code or copy address to receive</source>
+      <translation>Deel uw QR code of kopieer het adres waarop uw Bitcoin Cash kan ontvangen</translation>
     </message>
     <message>
       <location filename="../ReceiveTransactionPane.qml" line="91"/>
@@ -202,13 +202,13 @@
     </message>
     <message>
       <location filename="../ReceiveTransactionPane.qml" line="265"/>
-      <source>Reset</source>
-      <translation>Reset</translation>
+      <source>Clear</source>
+      <translation>Wissen</translation>
     </message>
     <message>
       <location filename="../ReceiveTransactionPane.qml" line="265"/>
-      <source>Start New</source>
-      <translation>Start nieuwe</translation>
+      <source>Start New Payment</source>
+      <translation>Nieuwe betaling starten</translation>
     </message>
     <message>
       <location filename="../ReceiveTransactionPane.qml" line="310"/>

@@ -47,8 +47,8 @@ Pane {
         id: instructions
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 20
-        text: qsTr("Share your QR or copy address to receive")
-        opacity: 0.3
+        text: qsTr("Share your QR code or copy address to receive")
+        opacity: 0.5
     }
 
     Image {
@@ -262,7 +262,7 @@ Pane {
                 }
             }
             Button {
-                text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Reset") : qsTr("Start New")
+                text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Start New Payment")
                 onClicked: reset();
             }
         }
