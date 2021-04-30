@@ -25,17 +25,18 @@ ApplicationWindow {
     minimumWidth: 300
     minimumHeight: 400
     width: 500
-    height: 400
+    height: 600
     title: qsTr("Peers (%1)", "", net.peers.length).arg(net.peers.length)
     modality: Qt.NonModal
     flags: Qt.Dialog
 
-    GridLayout {
-        id: grid
-        columns: 2
-        anchors.fill: parent
-        anchors.margins: 10
 
+    ListView {
+        id: listView
+        model: net.peers
+        clip: true
+
+        anchors.fill: parent
         focus: true
         Keys.onPressed: {
             if (event.key === Qt.Key_Escape) {
@@ -43,69 +44,62 @@ ApplicationWindow {
                 event.accepted = true
             }
         }
-        ListView {
-            id: peerList
-            model: net.peers
 
-            delegate: Rectangle {
-                width: peerList.width
-                height: peerPane.height + 12
-                color: index % 2 === 0 ? root.palette.button : root.palette.base
-                ColumnLayout {
-                    id: peerPane
-                    width: peerList.width - 20
-                    x: 10
-                    y: 6
+        delegate: Rectangle {
+            width: listView.width
+            height: peerPane.height + 12
+            color: index % 2 === 0 ? secondRow.palette.button : secondRow.palette.base
+            ColumnLayout {
+                id: peerPane
+                width: listView.width - 20
+                x: 10
+                y: 6
 
+                Label {
+                    text: modelData.userAgent
+                }
+                Label {
+                    text: qsTr("Address:", "network address (IP)") + " " + modelData.address
+                }
+                RowLayout {
+                    height: secondRow.height
                     Label {
-                        id: mainLabel
-                        text: modelData.userAgent
-                    }
-                    Label {
-                        text: qsTr("Address:", "network address (IP)") + " " + modelData.address
-                    }
-                    RowLayout {
-                        id: rowLayout
-                        height: secondRow.height
-                        Label {
-                            id: secondRow
-                            text: qsTr("Start-height: %1").arg(modelData.startHeight)
-                        }
-                        Label {
-                            text: qsTr("ban-score: %1").arg(modelData.banScore)
-                        }
+                        id: secondRow
+                        text: qsTr("Start-height: %1").arg(modelData.startHeight)
                     }
                     Label {
-                        id : accountName
-                        font.bold: true
-                        text: {
-                            var id = modelData.segmentId;
-                            var accounts = portfolio.accounts;
-                            for (var i = 0; i < accounts.length; ++i) {
-                                if (accounts[i].id === id)
-                                    return qsTr("Peer for account: %1").arg(accounts[i].name);
-                            }
-                            return ""; // not peered yet
-                        }
-                        visible: text !== ""
+                        text: qsTr("ban-score: %1").arg(modelData.banScore)
                     }
+                }
+                Label {
+                    id : accountName
+                    font.bold: true
+                    text: {
+                        var id = modelData.segmentId;
+                        var accounts = portfolio.accounts;
+                        for (var i = 0; i < accounts.length; ++i) {
+                            if (accounts[i].id === id)
+                                return qsTr("Peer for account: %1").arg(accounts[i].name);
+                        }
+                        return ""; // not peered yet
+                    }
+                    visible: text !== ""
                 }
             }
         }
-        Item {
-            Layout.columnSpan: 2
-            width: closeButton.width
-            height: closeButton.height
-            Layout.fillHeight: true
-            Layout.fillWidth: true
+    }
 
-            Button {
-                id: closeButton
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                text: qsTr("Close")
-                onClicked: root.visible = false
-            }
+    footer: Item {
+        width: parent.width
+        height: closeButton.height + 20
+
+        Button {
+            id: closeButton
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: 10
+            text: qsTr("Close")
+            onClicked: root.visible = false
         }
     }
 }
