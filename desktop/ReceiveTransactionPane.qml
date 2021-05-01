@@ -40,7 +40,7 @@ Pane {
         if (request.saveState === PaymentRequest.Remembered)
             request = account.createPaymentRequest(receivePane)
         description.text = "";
-        bitcoinValueField.value = 0;
+        bitcoinValueField.reset();
     }
 
     Label {
