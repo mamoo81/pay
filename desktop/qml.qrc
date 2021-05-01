@@ -11,7 +11,6 @@
         <file>settingsIcon-light.png</file>
         <file>activityIcon.png</file>
         <file>activityIcon-light.png</file>
-
         <file>defaults.ini</file>
         <file>AccountDetails.qml</file>
         <file>ArrowPoint.qml</file>
@@ -32,5 +31,6 @@
         <file>AccountListItem.qml</file>
         <file>FloweeCheckBox.qml</file>
         <file>FloweeGroupBox.qml</file>
+        <file>LabelWithClipboard.qml</file>
     </qresource>
 </RCC>

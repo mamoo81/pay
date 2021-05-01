@@ -17,6 +17,7 @@
  */
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.14
 
 import Flowee.org.pay 1.0
 
@@ -30,10 +31,10 @@ Item {
     property alias columns: child.columns
     clip: true
 
-    width: implicitWidth
+    width: 100 // should be changed by user
     height: implicitHeight
     implicitWidth: {
-        var w = childItem.width // even if its hidden, it takes horizontal space
+        var w = child.width // even if its hidden, it takes horizontal space
         if (titleArea.visible) {
             var headerWidth = titleArea.width
             if (arrowPoint.visible)
@@ -41,7 +42,7 @@ Item {
         }
         return w;
     }
-    implicitHeight: arrowPoint.height + (isCollapsed ? 0 : childItem.height)
+    implicitHeight: arrowPoint.height + (isCollapsed ? 0 : child.height + 10)
 
     Rectangle { // the outline
         width: parent.width
@@ -68,7 +69,7 @@ Item {
         anchors.left: arrowPoint.right
         Label {
             id: title
-            x: 8
+            x: 12
             text: root.title
         }
     }
@@ -77,7 +78,7 @@ Item {
         id: arrowPoint
         visible: parent.collapsable
         color: title.palette.window
-        width: point.width + 8
+        width: point.width + 12
         height: point.height + 2
         x: 6
         y: 2
@@ -90,22 +91,15 @@ Item {
 
             Behavior on rotation { NumberAnimation {} }
         }
-
     }
 
-    Item { // user set content
-        id: childItem
+    GridLayout { // user set content
+        id: child
         x: 6
         y: titleArea.height
-        implicitWidth: child.width + 12
-        implicitHeight: child.height + 4
-        width: implicitWidth
+        width: root.width - 12
         height: implicitHeight
         visible: !root.isCollapsed
-
-        Grid {
-            id: child
-        }
     }
 
     Behavior on height { NumberAnimation { } }

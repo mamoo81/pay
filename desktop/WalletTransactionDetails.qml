@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ GridLayout {
     property QtObject infoObject: null
 
     columns: 2
-    Label {
+    LabelWithClipboard {
         Layout.columnSpan: 2
         text: model.txid
         font.pointSize: 7
@@ -33,7 +33,7 @@ GridLayout {
     Label {
         text: qsTr("Status") + ":"
     }
-    Label {
+    LabelWithClipboard {
         id: rightColumn
         Layout.fillWidth: true
         text: {
@@ -43,6 +43,7 @@ GridLayout {
             return qsTr("%1 confirmations (mined in block %2)", "", confirmations)
                 .arg(confirmations).arg(model.height);
         }
+        clipboardText: model.height
     }
 
     Label {
@@ -102,16 +103,15 @@ GridLayout {
                         radius: height / 3
                         opacity: 0.2
                     }
-                    Label {
+                    LabelWithClipboard {
                         id: inAddress
                         text: modelData === null ? "" : modelData.address
                         visible: modelData !== null
-                        elide: Text.ElideMiddle
+                        anchors.bottom: arrowLine.top
                         anchors.left: inIndex.right
                         anchors.leftMargin: 10
-                        anchors.rightMargin: 20
                         anchors.right: amount.left
-                        anchors.bottom: arrowLine.top
+                        anchors.rightMargin: 20
                     }
                     BitcoinAmountLabel {
                         id: amount
@@ -170,7 +170,7 @@ GridLayout {
                         radius: height / 3
                         opacity: 0.2
                     }
-                    Label {
+                    LabelWithClipboard {
                         id: outAddress
                         visible: modelData !== null
                         elide: Text.ElideMiddle

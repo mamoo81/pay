@@ -203,9 +203,8 @@ Rectangle {
                     Layout.alignment: Qt.AlignRight | Qt.AlignTop
                 }
 
-                Label {
+                LabelWithClipboard {
                     text: root.payment === null ? qsTr("Not prepared yet") : root.payment.txid
-                    wrapMode: Text.WrapAnywhere
                     Layout.fillWidth: true
                 }
                 Label {
