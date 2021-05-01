@@ -48,6 +48,7 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(int chainHeight READ chainHeight NOTIFY headerChainHeightChanged)
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
     Q_PROPERTY(bool isMainChain READ isMainChain CONSTANT)
+    Q_PROPERTY(bool hideBalance READ hideBalance WRITE setHideBalance NOTIFY hideBalanceChanged)
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
     Q_PROPERTY(int dspTimeout READ dspTimeout WRITE setDspTimeout NOTIFY dspTimeoutChanged)
 public:
@@ -170,9 +171,19 @@ public:
     P2PNet::Chain chain() const;
     const std::string &chainPrefix() const { return m_chainPrefix; }
 
+    /**
+     * return if the user engaged the hide-balance feature to avoid people seeing the balance on-screen.
+     */
+    bool hideBalance() const;
+    /**
+     * Set the hide-balance on or off.
+     */
+    void setHideBalance(bool hideBalance);
+
     Q_INVOKABLE void copyToClipboard(const QString &text);
 
     Q_ENUM(StringType UnitOfBitcoin)
+
 signals:
     void loadComplete();
     /// \internal
@@ -187,6 +198,7 @@ signals:
     void headerChainHeightChanged();
     void expectedChainHeightChanged();
     void dspTimeoutChanged();
+    void hideBalanceChanged();
 
 private:
     void init();
@@ -203,12 +215,13 @@ private:
     std::unique_ptr<DownloadManager> m_downloadManager;
     NotificationManager m_notifications;
     QList<Wallet*> m_wallets;
-    int m_dspTimeout;
-    int m_windowWidth;
-    int m_windowHeight;
+    int m_dspTimeout = 5000;
+    int m_windowWidth = 500;
+    int m_windowHeight = 500;
     int m_initialHeaderChainHeight = 0;
-    bool m_darkSkin;
+    bool m_darkSkin = true;
     bool m_createStartWallet = false;
+    bool m_hideBalance = false;
 };
 
 #endif

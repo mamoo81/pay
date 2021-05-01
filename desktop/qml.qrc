@@ -11,6 +11,11 @@
         <file>settingsIcon-light.png</file>
         <file>activityIcon.png</file>
         <file>activityIcon-light.png</file>
+        <file>eye-closed-light.png</file>
+        <file>eye-closed.png</file>
+        <file>eye-open-light.png</file>
+        <file>eye-open.png</file>
+
         <file>defaults.ini</file>
         <file>AccountDetails.qml</file>
         <file>ArrowPoint.qml</file>

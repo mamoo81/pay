@@ -18,6 +18,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
+import QtGraphicalEffects 1.0
 import Flowee.org.pay 1.0
 
 import "./ControlColors.js" as ControlColors
@@ -243,60 +244,113 @@ ApplicationWindow {
                 y: 40
                 width: overviewPane.width - 60
 
-                Label {
-                    text: qsTr("Balance");
-                    height: implicitHeight / 10 * 7
-                }
-                BitcoinAmountLabel {
-                    id: balance
-                    value: {
-                        if (isLoading)
-                            return 0;
-                        var account = portfolio.current;
-                        if (account === null)
-                            return 0;
-                        return account.balanceConfirmed + account.balanceUnconfirmed
+                Item {
+                    height: balanceLabel.height
+                    width: parent.width
+                    Label {
+                        id: balanceLabel
+                        text: qsTr("Balance");
+                        height: implicitHeight / 10 * 7
                     }
-                    colorize: false
-                    textColor: mainWindow.palette.text
-                    fontPtSize: {
-                        if (leftColumn.width < 300)
-                            return mainWindow.font.pointSize * 2
-                        return mainWindow.font.pointSize * 3
+                    Image {
+                        anchors.right: parent.right
+                        source: {
+                            if (Flowee.hideBalance)
+                                return Flowee.useDarkSkin ? "eye-closed-light.png" : "eye-closed.png"
+                            return Flowee.useDarkSkin ? "eye-open-light.png" : "eye-open.png"
+                        }
+                        smooth: true
+                        opacity: 0.5
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: Flowee.hideBalance = !Flowee.hideBalance
+                        }
                     }
                 }
+
+                Item {
+                    height: balance.height
+                    width: balance.width
+                    BitcoinAmountLabel {
+                        id: balance
+                        opacity: blurredBalance.visible ? 0 : 1
+                        value: {
+                            if (isLoading)
+                                return 0;
+                            var account = portfolio.current;
+                            if (account === null)
+                                return 0;
+                            if (Flowee.hideBalance)
+                                return 88888888;
+                            return account.balanceConfirmed + account.balanceUnconfirmed
+                        }
+                        colorize: false
+                        textColor: mainWindow.palette.text
+                        fontPtSize: {
+                            if (leftColumn.width < 300)
+                                return mainWindow.font.pointSize * 2
+                            return mainWindow.font.pointSize * 3
+                        }
+                    }
+                    FastBlur {
+                        id: blurredBalance
+                        anchors.fill: parent
+                        anchors.margins: -5
+                        visible: Flowee.hideBalance
+                        source: balance
+                        radius: 58
+                    }
+                }
+                /*
                 Label {
-                    text: qsTr("0.00 EUR"); // TODO
+                    text: "0.00 EUR"; // TODO
                     visible: Flowee.isMainChain
                     opacity: 0.6
                 }
+                */
                 Item { // spacer
                     width: 10
                     height: 20
                 }
                 Label {
-                    id: totalBalance
+                    id: totalBalanceLabel
                     visible: mainWindow.isLoading || portfolio.accounts.length > 1
                     text: qsTr("Total balance");
                     height: implicitHeight / 10 * 9
                 }
-                BitcoinAmountLabel {
-                    value: {
-                        if (isLoading)
-                            return 0;
-                        return portfolio.totalBalance
+                Item {
+                    visible: totalBalanceLabel.visible
+                    width: totalBalance.width
+                    height: totalBalance.height
+                    BitcoinAmountLabel {
+                        id: totalBalance
+                        value: {
+                            if (isLoading)
+                                return 0;
+                            if (Flowee.hideBalance)
+                                return 88888888;
+                            return portfolio.totalBalance
+                        }
+                        colorize: false
+                        fontPtSize: mainWindow.font.pointSize * 2
+                        opacity: blurredTotalBalance.visible ? 0 : 1
                     }
-                    visible: totalBalance.visible
-                    colorize: false
-                    fontPtSize: mainWindow.font.pointSize * 2
+                    FastBlur {
+                        id: blurredTotalBalance
+                        anchors.fill: parent
+                        anchors.margins: -5
+                        visible: Flowee.hideBalance
+                        source: totalBalance
+                        radius: 58
+                    }
                 }
                 Label {
                     text: qsTr("0.00 EUR"); // TODO
-                    visible: totalBalance.visible && Flowee.isMainChain
+                    visible: totalBalanceLabel.visible && Flowee.isMainChain
                     opacity: 0.6
                 }
                 Item { // spacer
-                    visible: totalBalance.visible
+                    visible: totalBalanceLabel.visible
                     width: 10
                     height: 40
                 }

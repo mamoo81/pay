@@ -38,8 +38,11 @@ constexpr const char *CREATE_START_WALLET = "create-start-wallet";
 constexpr const char *WINDOW_WIDTH = "window/width";
 constexpr const char *WINDOW_HEIGHT = "window/height";
 constexpr const char *DARKSKIN = "darkSkin";
+constexpr const char *HIDEBALANCE = "hideBalance";
 constexpr const char *USERAGENT = "net/useragent";
 constexpr const char *DSPTIMEOUT = "payment/dsp-timeout";
+
+constexpr const char *appdataFilename = "/appdata";
 
 enum FileTags {
     WalletId,
@@ -85,6 +88,7 @@ FloweePay::FloweePay()
     m_windowWidth = appConfig.value(WINDOW_WIDTH, m_windowWidth).toInt();
     m_darkSkin = appConfig.value(DARKSKIN, m_darkSkin).toBool();
     m_dspTimeout = appConfig.value(DSPTIMEOUT, m_dspTimeout).toInt();
+    m_hideBalance = appConfig.value(HIDEBALANCE, false).toBool();
 
     // Update expected chain-height ever 5 minutes
     QTimer *timer = new QTimer(this);
@@ -116,7 +120,7 @@ void FloweePay::init()
 {
     auto dl = p2pNet(); // this wil load the p2p layer.
 
-    QFile in(m_basedir + "/appdata");
+    QFile in(m_basedir + appdataFilename);
     Wallet *lastOpened = nullptr;
     if (in.open(QIODevice::ReadOnly)) {
         const auto dataSize = in.size();
@@ -168,7 +172,7 @@ void FloweePay::saveData()
         builder.add(WalletId, wallet->segment()->segmentId());
         builder.add(WalletPriority, wallet->segment()->priority());
     }
-    QString filebase = m_basedir + "/appdata";
+    QString filebase = m_basedir + appdataFilename;
     QFile out(filebase + "~");
     out.remove(); // avoid overwrite issues.
     if (out.open(QIODevice::WriteOnly)) {
@@ -380,6 +384,21 @@ int FloweePay::walletStartHeightHint() const
         }
     }();
     return std::max(minStartBlock, m_downloadManager->blockHeight());
+}
+
+bool FloweePay::hideBalance() const
+{
+    return m_hideBalance;
+}
+
+void FloweePay::setHideBalance(bool hideBalance)
+{
+    if (m_hideBalance == hideBalance)
+        return;
+    m_hideBalance = hideBalance;
+    emit hideBalanceChanged();
+    QSettings appConfig;
+    appConfig.setValue(HIDEBALANCE, m_hideBalance);
 }
 
 void FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)
