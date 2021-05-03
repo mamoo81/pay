@@ -1372,8 +1372,19 @@ void Wallet::loadWallet()
         }
     }
 #endif
-
     m_walletChanged = false;
+    // correct for bad input in wallet file
+    for (auto i = m_lockedOutputs.begin(); i != m_lockedOutputs.end();) {
+        auto utxoIter = m_unspentOutputs.find(i->first);
+        if (utxoIter == m_unspentOutputs.end()) {
+            logCritical() << "Found failty 'locked' output-ref, dropping";
+            i = m_lockedOutputs.erase(i); // this should never happen, cleanup
+            m_walletChanged = true;
+        } else {
+            ++i;
+        }
+    }
+
     ++m_nextWalletTransactionId;
     emit utxosChanged();
 }
