@@ -303,7 +303,11 @@ ApplicationWindow {
                 }
                 /*
                 Label {
-                    text: "0.00 EUR"; // TODO
+                    text: {
+                        if (Flowee.hideBalance)
+                            return "-- EUR"
+                        return "0.00 EUR"; // TODO
+                    }
                     visible: Flowee.isMainChain
                     opacity: 0.6
                 }
@@ -344,11 +348,17 @@ ApplicationWindow {
                         radius: 58
                     }
                 }
+                /*
                 Label {
-                    text: qsTr("0.00 EUR"); // TODO
+                    text: {
+                        if (Flowee.hideBalance)
+                            return "-- EUR"
+                        return "0.00 EUR"; // TODO
+                    }
                     visible: totalBalanceLabel.visible && Flowee.isMainChain
                     opacity: 0.6
                 }
+                */
                 Item { // spacer
                     visible: totalBalanceLabel.visible
                     width: 10
