@@ -246,9 +246,14 @@ private:
         bool isCoinbase = false;
         QString userComment;
 
-        // One entry for inputs that spent outputs in this wallet.
-        // The key is the input. They value is a composition of the output-index (lower 2 bytes)
-        // and the int-key in m_walletTransactions is the middle 4 bytes.
+        /*
+         * To keep track of chained transactions we store for an input a field should it come
+         * from an output also under this wallets control.
+         * Notice that we store in this map a key-value pair only when the input
+         * actually is spent from our own UTXO.
+         * They value is a composition of the output-index (lower 2 bytes)
+         * and the int-key in m_walletTransactions is the middle 4 bytes.
+         */
         std::map<int, uint64_t> inputToWTX;
         std::map<int, Output> outputs; // output-index to Output (only ones we can/could spend)
     };
@@ -267,11 +272,20 @@ private:
     typedef boost::unordered_map<uint256, int, HashShortener> TxIdCash;
     TxIdCash m_txidCash; // txid -> m_walletTransactions-id
 
-    // cache
-    std::map<uint64_t, uint64_t> m_unspentOutputs; // composited output -> value (in sat).
-    // composited outputs that have been used in a transaction and should not be spent again.
-    // the 'value' is the WalletTransaction index that actually was responsible for locking it.
-    std::map<uint64_t, int> m_autoLockedOutputs;
+    /*
+     * Our little UTXO.
+     * OutputRef -> value (in sat)
+     */
+    std::map<uint64_t, uint64_t> m_unspentOutputs;
+    /*
+     * Unspent outputs can be 'locked' from spending for several reasons. User decided or
+     * simply because an unconfirmed tx spent it.
+     * We remember those here, where the 'key-value' pair follows the same concept for the
+     * key as the m_unspentoUutputs and
+     * the 'value' is the WalletTransaction index that actually was responsible for locking it.
+     * or it is 0 if the locking was user-decided.
+     */
+    std::map<uint64_t, int> m_lockedOutputs;
     boost::filesystem::path m_basedir;
 
     qint64 m_balanceConfirmed = 0;

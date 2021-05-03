@@ -61,8 +61,8 @@ enum WalletDataSaveTags {
     InputSpendsOutput,      // input that refers to the output in the WTX it spends
 
     /// Used after InputIndex to mark the lock-state of an input.
-    InputLockState,         // positive number, see InputLockStateEnum
-    InputLockAutoSpender,   // the tx that locked an output (index in m_walletTransactions
+    OutputLockState,         // positive number, see OutputLockStateEnum
+    OutputLockAutoSpender,   // the tx that locked an output (index in m_walletTransactions
 
     // per tx metadata
     UserComment,            // string
@@ -85,7 +85,7 @@ enum WalletDataSaveTags {
 
 };
 
-enum InputLockStateEnum {
+enum OutputLockStateEnum {
     Unlocked = 0, // default value when not saved
     AutoLocked,   // Locked due to it being spent. Locked until mined.
     UserLocked    // User locked this output
