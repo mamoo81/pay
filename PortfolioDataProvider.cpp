@@ -64,6 +64,8 @@ void PortfolioDataProvider::setCurrent(AccountInfo *item)
 Payment *PortfolioDataProvider::createPaymentObject(const QString &address, double value)
 {
     auto p = new Payment(m_accounts.at(m_currentAccount), value);
+    p->setPreferSchnorr(FloweePay::instance()->preferSchnorr());
+
     try {
         p->setTargetAddress(address);
         return p;

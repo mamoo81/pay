@@ -150,7 +150,14 @@ void Payment::approveAndSign()
         builder.appendInput(m_wallet->txid(ref), ref.outputIndex());
         auto output = m_wallet->txOutout(ref);
         fundsIngoing += output.outputValue;
-        builder.pushInputSignature(m_wallet->unlockKey(ref), output.outputScript, output.outputValue);
+        auto priv = m_wallet->unlockKey(ref);
+        if (priv.sigType == Wallet::NotUsedYet) {
+            priv.sigType = m_preferSchnorr ? Wallet::SignedAsSchnorr : Wallet::SignedAsEcdsa;
+            m_wallet->updateSignatureType(priv); // remember the signing type for next time.
+        }
+        TransactionBuilder::SignatureType typeToUse =
+                (priv.sigType == Wallet::SignedAsEcdsa) ? TransactionBuilder::ECDSA : TransactionBuilder::Schnorr;
+        builder.pushInputSignature(priv.key, output.outputScript, output.outputValue, typeToUse);
     }
 
     m_assignedFee = 0;
@@ -256,6 +263,20 @@ void Payment::txRejected(short reason, const QString &message)
     // reason is hinted using BroadcastTxData::RejectReason
     logCritical() << "Transaction rejected" << reason << message;
     ++m_rejectedPeerCount;
+}
+
+bool Payment::preferSchnorr() const
+{
+    return m_preferSchnorr;
+}
+
+void Payment::setPreferSchnorr(bool preferSchnorr)
+{
+    if (m_preferSchnorr == preferSchnorr)
+        return;
+
+    m_preferSchnorr = preferSchnorr;
+    emit preferSchnorrChanged();
 }
 
 bool Payment::paymentOk() const

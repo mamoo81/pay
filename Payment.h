@@ -37,6 +37,7 @@ class Payment : public QObject
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
     Q_PROPERTY(bool paymentOk READ paymentOk NOTIFY paymentOkChanged);
+    Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
 public:
     Payment(Wallet *wallet, qint64 amountToPay);
 
@@ -68,6 +69,9 @@ public:
 
     Wallet *wallet() const;
 
+    bool preferSchnorr() const;
+    void setPreferSchnorr(bool preferSchnorr);
+
 private slots:
     void sentToPeer();
     void txRejected(short reason, const QString &message);
@@ -82,10 +86,12 @@ signals:
     void txCreated();
 
     void paymentOkChanged();
+    void preferSchnorrChanged();
 
 private:
     Wallet *m_wallet;
     bool m_paymentOk = false;
+    bool m_preferSchnorr = true;
     Tx m_tx;
     int m_fee = 1; // in sats per byte
     int m_assignedFee = 0;

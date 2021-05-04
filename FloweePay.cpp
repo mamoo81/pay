@@ -386,6 +386,20 @@ int FloweePay::walletStartHeightHint() const
     return std::max(minStartBlock, m_downloadManager->blockHeight());
 }
 
+bool FloweePay::preferSchnorr() const
+{
+    return m_preferSchnorr;
+}
+
+void FloweePay::setPreferSchnorr(bool preferSchnorr)
+{
+    if (m_preferSchnorr == preferSchnorr)
+        return;
+
+    m_preferSchnorr = preferSchnorr;
+    emit preferSchnorrChanged();
+}
+
 bool FloweePay::hideBalance() const
 {
     return m_hideBalance;

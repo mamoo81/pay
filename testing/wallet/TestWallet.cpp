@@ -115,7 +115,7 @@ void TestWallet::addingTransactions()
     for (auto ref : funding.outputs) {
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutout(ref);
-        b2.pushInputSignature(wallet->unlockKey(ref), output.outputScript, output.outputValue);
+        b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
     Tx t2 = b2.createTransaction(&pool);
     QCOMPARE(wallet->balanceConfirmed(), 1000000);
@@ -141,7 +141,7 @@ void TestWallet::addingTransactions()
     for (auto ref : funding.outputs) {
         b3.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutout(ref);
-        b3.pushInputSignature(wallet->unlockKey(ref), output.outputScript, output.outputValue);
+        b3.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
     Tx t3 = b3.createTransaction(&pool);
 
@@ -220,7 +220,7 @@ void TestWallet::saveTransaction()
         auto ref = funding.outputs.front();
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutout(ref);
-        b2.pushInputSignature(wallet->unlockKey(ref), output.outputScript, output.outputValue);
+        b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
         Tx t2 = b2.createTransaction(&pool);
 
         QCOMPARE(wallet->balanceConfirmed(), 0);
@@ -354,7 +354,7 @@ void TestWallet::unconfirmed()
         auto ref = funding.outputs.front();
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutout(ref);
-        b2.pushInputSignature(wallet->unlockKey(ref), output.outputScript, output.outputValue);
+        b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
         Tx t2 = b2.createTransaction(&pool);
 
         QCOMPARE(wallet->balanceConfirmed(), 1000000);

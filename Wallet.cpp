@@ -82,7 +82,7 @@ Wallet::~Wallet()
     saveWallet();
 }
 
-Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, P2PNet::Notification *change) const
+Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, P2PNet::Notification *notifier) const
 {
     WalletTransaction wtx;
     wtx.txid = txid;
@@ -115,8 +115,8 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                     // input is spending one of our UTXOs
                     logDebug() << "   -> spent UTXO";
                     wtx.inputToWTX.insert(std::make_pair(inputIndex, prevTx.encoded()));
-                    if (change)
-                        change->spent += utxo->second;
+                    if (notifier)
+                        notifier->spent += utxo->second;
                 }
             }
         }
@@ -129,8 +129,8 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
             if (output.walletSecretId > 0) {
                 logDebug() << "   output"<< outputIndex << "pays to wallet id" << output.walletSecretId;
                 wtx.outputs.insert(std::make_pair(outputIndex, output));
-                if (change)
-                    change->deposited += output.value;
+                if (notifier)
+                    notifier->deposited += output.value;
             }
         }
     }
@@ -718,7 +718,7 @@ Tx::Output Wallet::txOutout(Wallet::OutputRef ref) const
     return tx.output(ref.outputIndex());
 }
 
-const CKey &Wallet::unlockKey(Wallet::OutputRef ref) const
+Wallet::PrivKeyData Wallet::unlockKey(Wallet::OutputRef ref) const
 {
     QMutexLocker locker(&m_lock);
     auto iter = m_walletTransactions.find(ref.txIndex());
@@ -729,7 +729,21 @@ const CKey &Wallet::unlockKey(Wallet::OutputRef ref) const
         throw std::runtime_error("Invalid ref(2)");
     auto iter3 = m_walletSecrets.find(iter2->second.walletSecretId);
     assert(iter3 != m_walletSecrets.end());
-    return iter3->second.privKey;
+    PrivKeyData rc;
+    rc.sigType = iter3->second.signatureType;
+    rc.privKeyId = iter3->first;
+    rc.key = iter3->second.privKey;
+    return rc;
+}
+
+void Wallet::updateSignatureType(const PrivKeyData &data)
+{
+    QMutexLocker locker(&m_lock);
+    auto iter = m_walletSecrets.find(data.privKeyId);
+    if (iter == m_walletSecrets.end())
+        throw std::runtime_error("Invalid key-id");
+
+    iter->second.signatureType = data.sigType;
 }
 
 CKeyID Wallet::nextUnusedAddress()
@@ -1091,6 +1105,9 @@ void Wallet::loadSecrets()
         else if (parser.tag() == WalletPriv::UserOwnedWallet) {
             m_userOwnedWallet = parser.boolData();
         }
+        else if (parser.tag() == WalletPriv::SignatureType) {
+            secret.signatureType = static_cast<SignatureType>(parser.intData());
+        }
     }
     m_secretsChanged = false;
     ++m_nextWalletSecretId;
@@ -1109,7 +1126,8 @@ void Wallet::saveSecrets()
         builder.addByteArray(WalletPriv::PubKeyHash, item.second.address.begin(), item.second.address.size());
         if (item.second.initialHeight > 0)
             builder.add(WalletPriv::HeightCreated, item.second.initialHeight);
-
+        if (item.second.signatureType != NotUsedYet)
+            builder.add(WalletPriv::SignatureType, item.second.signatureType);
         builder.add(WalletPriv::Separator, true);
     }
     if (m_singleAddressWallet)

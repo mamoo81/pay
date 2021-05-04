@@ -49,6 +49,7 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
     Q_PROPERTY(bool isMainChain READ isMainChain CONSTANT)
     Q_PROPERTY(bool hideBalance READ hideBalance WRITE setHideBalance NOTIFY hideBalanceChanged)
+    Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
     Q_PROPERTY(int dspTimeout READ dspTimeout WRITE setDspTimeout NOTIFY dspTimeoutChanged)
 public:
@@ -184,6 +185,9 @@ public:
 
     Q_ENUM(StringType UnitOfBitcoin)
 
+    bool preferSchnorr() const;
+    void setPreferSchnorr(bool preferSchnorr);
+
 signals:
     void loadComplete();
     /// \internal
@@ -199,6 +203,7 @@ signals:
     void expectedChainHeightChanged();
     void dspTimeoutChanged();
     void hideBalanceChanged();
+    void preferSchnorrChanged();
 
 private:
     void init();
@@ -222,6 +227,7 @@ private:
     bool m_darkSkin = true;
     bool m_createStartWallet = false;
     bool m_hideBalance = false;
+    bool m_preferSchnorr = true;
 };
 
 #endif

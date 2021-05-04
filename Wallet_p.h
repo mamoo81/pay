@@ -44,6 +44,8 @@ enum PrivateSaveTags {
 
     IsSingleAddressWallet, // bool
     UserOwnedWallet,       // bool (defaults to true)
+
+    SignatureType,       // See the enum Wallet::WalletSecret::SignatureType
 };
 
 enum WalletDataSaveTags {

@@ -82,6 +82,12 @@ public:
         uint16_t m_outputIndex = 0;
     };
 
+    enum SignatureType {
+        SignedAsEcdsa = 0,
+        SignedAsSchnorr,
+        NotUsedYet,
+    };
+
     /**
      * @brief newTransactions announces a list of transactions pushed to us from a peer.
      * @param header the block header these transactions appeared in.
@@ -131,8 +137,16 @@ public:
     const uint256 &txid(int txIndex) const;
     /// Fetch UTXO output
     Tx::Output txOutout(OutputRef ref) const;
+
+    struct PrivKeyData {
+        int privKeyId = 0;
+        CKey key;
+        SignatureType sigType;
+    };
     /// Fetch UTXO key
-    const CKey &unlockKey(OutputRef ref) const;
+    PrivKeyData unlockKey(OutputRef ref) const;
+
+    void updateSignatureType(const PrivKeyData &data);
 
     /// Return a bitcoin address (160 bits ripe key) for deposit.
     CKeyID nextUnusedAddress();
@@ -233,6 +247,7 @@ private:
         CKey privKey;
         CKeyID address;
         int initialHeight = -1;
+        SignatureType signatureType = NotUsedYet;
         /// if true, this address has been reseved to receive funds on
         bool reserved = false; // in-mem-only
     };
