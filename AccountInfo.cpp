@@ -134,3 +134,8 @@ QObject *AccountInfo::createPaymentRequest(QObject *parent)
 {
     return new PaymentRequest(m_wallet, parent);
 }
+
+bool AccountInfo::isSingleAddressAccount() const
+{
+    return m_wallet->isSingleAddressWallet();
+}

@@ -42,6 +42,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(WalletHistoryModel* transactions READ historyModel CONSTANT)
     Q_PROPERTY(bool isDefaultWallet READ isDefaultWallet WRITE setDefaultWallet NOTIFY isDefaultWalletChanged)
     Q_PROPERTY(bool isUserOwned READ userOwnedWallet NOTIFY userOwnedChanged)
+    Q_PROPERTY(bool isSingleAddressAccount READ isSingleAddressAccount CONSTANT)
     Q_PROPERTY(QList<QObject*> paymentRequests READ paymentRequests NOTIFY paymentRequestsChanged)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
@@ -91,6 +92,8 @@ public:
     Wallet *wallet() const {
         return m_wallet;
     }
+
+    bool isSingleAddressAccount() const;
 
 signals:
     void balanceChanged();
