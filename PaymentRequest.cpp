@@ -89,7 +89,8 @@ void PaymentRequest::setWallet(Wallet *wallet)
 
     if (m_wallet) {
         m_wallet->removePaymentRequest(this);
-        m_wallet->unreserveAddress(m_privKeyId);
+        if (m_paymentState == Unpaid)
+            m_wallet->unreserveAddress(m_privKeyId);
     }
     m_wallet = wallet;
     if (m_wallet) {

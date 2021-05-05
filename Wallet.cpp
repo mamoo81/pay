@@ -1226,7 +1226,7 @@ void Wallet::loadWallet()
             inputIndex = parser.intData();
         }
 
-        // chaining of transactions, we always expect a pair of INputSpentsTx and InputSpendsOuptut
+        // chaining of transactions, we always expect a pair of InputSpentsTx and InputSpendsOutput
         else if (parser.tag() == WalletPriv::InputSpendsTx) {
             tmp = parser.intData();
         }
@@ -1238,7 +1238,6 @@ void Wallet::loadWallet()
             wtx.inputToWTX.insert(std::make_pair(inputIndex, ref.encoded()));
             tmp = 0;
         }
-
         else if (parser.tag() == WalletPriv::OutputIndex) {
             outputIndex = parser.intData();
         }
@@ -1246,7 +1245,7 @@ void Wallet::loadWallet()
             output.value = parser.longData();
         }
 
-        // an ouput can get locked.
+        // an ouput can get locked, stopping the user from spending it.
         else if (parser.tag() == WalletPriv::OutputLockState) {
             WalletPriv::OutputLockStateEnum inputLock = static_cast<WalletPriv::OutputLockStateEnum>(parser.intData());
             if (inputLock == WalletPriv::UserLocked) { // we handle the 'auto-locked' case in the OutputLockAutoSpender
@@ -1266,6 +1265,18 @@ void Wallet::loadWallet()
             assert(output.value > 0);
             output.walletSecretId = parser.intData();
             wtx.outputs.insert(std::make_pair(outputIndex, output));
+
+            if (wtx.minedBlockHeight == -1) {
+                /*
+                 * Unconfirmed transactions may be received ones for an address we shared in a previous
+                 * session. In that case we want to mark the address as 'reserved' in order to avoid
+                 * a new paymentRequest using the same address.
+                 */
+                auto i = m_walletSecrets.find(output.walletSecretId);
+                assert(i != m_walletSecrets.end());
+                if (i != m_walletSecrets.end()) // sanity check, don't completely trust loading.
+                    i->second.reserved = true;
+            }
         }
         else if (parser.tag() == WalletPriv::WalletName) {
             assert(parser.isString());

@@ -73,7 +73,7 @@ enum WalletDataSaveTags {
     OutputIndex = 30,
     OutputValue,            // in Satoshi
     OutputFromCoinbase,     // bool
-    KeyStoreIndex,          // int that refers to the index of the privkey.
+    KeyStoreIndex,          // int that refers to the index of the privkey for the current tx-output.
 
     // PaymentRequests
     PaymentRequestType = 40,   // int, BIP21 or other

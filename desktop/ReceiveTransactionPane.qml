@@ -311,10 +311,7 @@ Pane {
                         id: paymentContextMenu
                         MenuItem {
                             text: qsTr("Delete")
-                            onTriggered: {
-                                modelData.stored = false;
-                                modelData.destroy();
-                            }
+                            onTriggered: modelData.stored = false;
                         }
                     }
                 }
