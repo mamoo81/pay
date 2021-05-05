@@ -53,7 +53,7 @@ PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
 PaymentRequest::PaymentRequest(Wallet *wallet, int /* type */)
     : QObject(wallet),
       m_wallet(wallet),
-    m_saveState(Remembered)
+    m_saveState(Stored)
 {
     // TODO remember type when we start to support more than just BIP21
     m_unusedRequest = false;
@@ -148,12 +148,32 @@ void PaymentRequest::paymentRejected(uint64_t ref, int64_t value)
     emit amountSeenChanged();
 }
 
+bool PaymentRequest::stored() const
+{
+    return !m_unusedRequest;
+}
+
+void PaymentRequest::setStored(bool on)
+{
+    if (on != m_unusedRequest)
+        return;
+    m_unusedRequest = !on;
+    setParent(m_wallet);
+    setSaveState(on ? Stored : Temporary);
+    if (!on) {
+        m_wallet->removePaymentRequest(this);
+        // deleteLater(); // possible memory leak, but better than crashes
+    }
+
+    emit storedChanged();
+}
+
 PaymentRequest::SaveState PaymentRequest::saveState() const
 {
     return m_saveState;
 }
 
-void PaymentRequest::setSaveState(const SaveState &saveState)
+void PaymentRequest::setSaveState(SaveState saveState)
 {
     if (m_saveState == saveState)
         return;
@@ -258,24 +278,6 @@ void PaymentRequest::setUseLegacyAddress(bool on)
     m_useLegacyAddressFormat = on;
     emit legacyChanged();
     emit qrCodeStringChanged();
-}
-
-void PaymentRequest::rememberPaymentRequest()
-{
-    if (!m_unusedRequest)
-        return;
-    m_unusedRequest = false;
-    setParent(m_wallet);
-    setSaveState(Remembered);
-}
-
-void PaymentRequest::forgetPaymentRequest()
-{
-    if (m_unusedRequest)
-        return;
-    m_unusedRequest = true;
-    m_wallet->removePaymentRequest(this);
-    deleteLater();
 }
 
 void PaymentRequest::switchAccount(AccountInfo *ai)

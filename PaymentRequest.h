@@ -40,6 +40,7 @@ class PaymentRequest : public QObject
     Q_PROPERTY(bool legacy READ useLegacyAddress WRITE setUseLegacyAddress NOTIFY legacyChanged)
     Q_PROPERTY(SaveState saveState READ saveState WRITE setSaveState NOTIFY saveStateChanged)
     Q_PROPERTY(PaymentState state READ paymentState NOTIFY paymentStateChanged)
+    Q_PROPERTY(bool stored READ stored WRITE setStored NOTIFY storedChanged)
 public:
     /// The state of this payment
     enum PaymentState {
@@ -51,7 +52,7 @@ public:
     };
     enum SaveState {
         Temporary,
-        Remembered
+        Stored
     };
     Q_ENUM(SaveState PaymentState)
 
@@ -80,7 +81,7 @@ public:
     void setUseLegacyAddress(bool on);
 
     SaveState saveState() const;
-    void setSaveState(const SaveState &saveState);
+    void setSaveState(PaymentRequest::SaveState saveState);
 
     PaymentState paymentState() const;
 
@@ -98,10 +99,10 @@ public:
      */
     void paymentRejected(uint64_t ref, int64_t value);
 
-    /// Mark payment request as one to save until fulfilled or deleted
-    Q_INVOKABLE void rememberPaymentRequest();
-    /// Mark payment request to be deleted.
-    Q_INVOKABLE void forgetPaymentRequest();
+    bool stored() const;
+    /// if /a on, mark payment request as one to store and keep around until fulfilled or deleted
+    void setStored(bool on);
+
     Q_INVOKABLE void switchAccount(AccountInfo *ai);
 
     void setWallet(Wallet *wallet);
@@ -115,6 +116,7 @@ signals:
     void saveStateChanged();
     void paymentStateChanged();
     void walletChanged();
+    void storedChanged();
 
 protected:
     friend class Wallet;

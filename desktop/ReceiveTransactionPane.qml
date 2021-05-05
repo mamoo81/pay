@@ -37,8 +37,9 @@ Pane {
     }
 
     function reset() {
-        if (request.saveState === PaymentRequest.Remembered)
-            request = account.createPaymentRequest(receivePane)
+        if (request.saveState !== PaymentRequest.Stored)
+            request.destroy();
+        request = account.createPaymentRequest(receivePane)
         description.text = "";
         bitcoinValueField.reset();
     }
@@ -257,13 +258,15 @@ Pane {
                 text: qsTr("Remember", "payment request")
                 visible: receivePane.request.state === PaymentRequest.Unpaid || receivePane.request.state === PaymentRequest.DoubleSpentSeen
                 onClicked: {
-                    receivePane.request.rememberPaymentRequest();
+                    receivePane.request.stored = true
                     reset();
                 }
             }
             Button {
-                text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Start New Payment")
-                onClicked: reset();
+                text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Done")
+                onClicked: {
+                    reset();
+                }
             }
         }
     }
@@ -293,7 +296,7 @@ Pane {
                 }
 
                 // don't show the one we are editing
-                visible: modelData.saveState === PaymentRequest.Remembered
+                visible: modelData.saveState === PaymentRequest.Stored
 
                 Text {
                     anchors.centerIn: parent
@@ -308,7 +311,10 @@ Pane {
                         id: paymentContextMenu
                         MenuItem {
                             text: qsTr("Delete")
-                            onTriggered: modelData.forgetPaymentRequest()
+                            onTriggered: {
+                                modelData.stored = false;
+                                modelData.destroy();
+                            }
                         }
                     }
                 }
