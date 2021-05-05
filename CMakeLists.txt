@@ -89,6 +89,15 @@ else()
         desktop/qml.qrc
         i18n.qrc
     )
+    install(PROGRAMS desktop/org.flowee.pay.desktop DESTINATION share/applications)
+    set (ICONIN desktop/icons/hicolor/)
+    set (ICONOUT share/icons/hicolor/)
+    install(PROGRAMS ${ICONIN}16x16/apps/org.flowee.pay.png DESTINATION ${ICONOUT}16x16/apps)
+    install(PROGRAMS ${ICONIN}22x22/apps/org.flowee.pay.png DESTINATION ${ICONOUT}22x22/apps)
+    install(PROGRAMS ${ICONIN}24x24/apps/org.flowee.pay.png DESTINATION ${ICONOUT}24x24/apps)
+    install(PROGRAMS ${ICONIN}32x32/apps/org.flowee.pay.png DESTINATION ${ICONOUT}32x32/apps)
+    install(PROGRAMS ${ICONIN}48x48/apps/org.flowee.pay.png DESTINATION ${ICONOUT}48x48/apps)
+    install(PROGRAMS ${ICONIN}256x256/apps/org.flowee.pay.png DESTINATION ${ICONOUT}256x256/apps)
 endif()
 
 find_package(Boost 1.56.0

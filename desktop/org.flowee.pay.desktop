@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+[Desktop Entry]
+Version=1.0
+Name=Flowee Pay
+GenericName=Bitcoin Cash Payment Solution
+X-GNOME-FullName=Bitcoin Cash Payment Solution
+Comment=Transact on the Bitcoin Cash network, payments and more
+Keywords=wallet;bitcoin;bitcoincash;financial;
+Type=Application
+Categories=Qt;KDE;Office;
+MimeType=;
+Exec=pay
+Terminal=false
+StartupNotify=true
+Icon=org.flowee.pay
+X-Ayatana-Desktop-Shortcuts=Drawing
