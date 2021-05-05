@@ -66,7 +66,7 @@ ApplicationWindow {
         }
 
         Label { text: qsTr("Name") + ":" }
-        TextField {
+        FloweeTextField {
             id: accountName
             focus: true
             Layout.fillWidth: true
@@ -87,7 +87,7 @@ ApplicationWindow {
             onCheckedChanged: root.validate()
         }
         Pane { Layout.fillWidth: false }
-        TextField {
+        FloweeTextField {
             id: privKey
             enabled: privKeyButton.checked
             placeholderText: "L5bxhjPeQqVFgCLALiFaJYpptdX6Nf6R9TuKgHaAikcNwg32Q4aL"

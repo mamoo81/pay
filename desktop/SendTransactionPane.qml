@@ -50,7 +50,7 @@ Rectangle {
         }
         RowLayout {
             width: parent.width
-            TextField {
+            FloweeTextField {
                 id: destination
                 focus: true
                 property bool addressOk: addressType === Pay.CashPKH || (forceLegacyOk && addressType === Pay.LegacyPKH)
@@ -87,7 +87,7 @@ Rectangle {
         }
         RowLayout {
             /* TODO hook this up when we add fiat support.
-            TextField {
+            FloweeTextField {
                 text: "0.0 EUR"
             }
             FloweeCheckBox {

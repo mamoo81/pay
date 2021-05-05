@@ -15,7 +15,6 @@
         <file>eye-closed.png</file>
         <file>eye-open-light.png</file>
         <file>eye-open.png</file>
-
         <file>defaults.ini</file>
         <file>AccountDetails.qml</file>
         <file>ArrowPoint.qml</file>
@@ -37,5 +36,6 @@
         <file>FloweeCheckBox.qml</file>
         <file>FloweeGroupBox.qml</file>
         <file>LabelWithClipboard.qml</file>
+        <file>FloweeTextField.qml</file>
     </qresource>
 </RCC>

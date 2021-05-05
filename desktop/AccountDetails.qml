@@ -54,7 +54,7 @@ ApplicationWindow {
         }
 
         Label { text: qsTr("Name") + ":" }
-        TextField {
+        FloweeTextField {
             text: root.account.name
             focus: true
             Layout.fillWidth: true
