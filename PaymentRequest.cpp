@@ -245,10 +245,16 @@ QString PaymentRequest::qrCodeString() const
     if (m_amountRequested > 0) {
         // Amount is in whole BCHs
         QString price = FloweePay::priceToString(m_amountRequested, FloweePay::BCH);
+        // in case locale states we use commas:
+        price.replace(',', '.');
         int length = price.size() - 1;
         // we strip trailing zero's
         while (length >= 0) {
-            if (price.at(length) != '0' && price.at(length) != '.')
+            if (price.at(length) == '.') {
+                --length;
+                break;
+            }
+            if (price.at(length) != '0')
                 break;
             --length;
         }
