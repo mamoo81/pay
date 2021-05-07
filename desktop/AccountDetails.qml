@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,106 +22,106 @@ import QtQuick.Layouts 1.14
 ApplicationWindow {
     id: root
     visible: true
-    minimumWidth: 300
+    minimumWidth: grid.implicitWidth + 20
     minimumHeight: 400
-    width: 400
-    height: grid.height + 20
     title: qsTr("Account Details")
     modality: Qt.NonModal
     flags: Qt.Dialog
 
     property QtObject account: null
 
-    GridLayout {
-        id: grid
-        columns: 2
+    Pane {
+        id: rootPane
+        focus: true
         anchors.fill: parent
-        anchors.margins: 10
+        GridLayout {
+            id: grid
+            columns: 2
+            width: root.width - 20
 
+            Label {
+                text: {
+                    if (root.account.isSingleAddressAccount)
+                        return qsTr("This account is a single-address wallet.")
+
+                     // ok we only have one more type so far, so this is rather simple...
+                    return qsTr("This account is a simple multiple-address wallet.")
+                }
+                Layout.columnSpan: 2
+                wrapMode: Text.WordWrap
+            }
+
+            Label { text: qsTr("Name") + ":" }
+            FloweeTextField {
+                text: root.account.name
+                focus: true
+                Layout.fillWidth: true
+                onAccepted:  root.account.name = text
+            }
+            Label {
+                text: qsTr("Balance unconfirmed") + ":"
+            }
+            BitcoinAmountLabel {
+                value: root.account.balanceUnconfirmed
+                colorize: false
+            }
+            Label {
+                text: qsTr("Balance immature") + ":"
+            }
+            BitcoinAmountLabel {
+                value: root.account.balanceImmature
+                colorize: false
+            }
+            Label {
+                text: qsTr("Balance other") + ":"
+            }
+            BitcoinAmountLabel {
+                value: root.account.balanceConfirmed
+                colorize: false
+            }
+            Label {
+                text: qsTr("Available coins") + ":"
+            }
+            Label {
+                text: root.account.unspentOutputCount
+            }
+            Label {
+                text: qsTr("Historical coins") + ":"
+            }
+            Label {
+                text: root.account.historicalOutputCount
+            }
+            Label {
+                text: qsTr("Sync status") + ":"
+            }
+            SyncIndicator {
+                id: syncIndicator
+                accountBlockHeight: root.account === null ? 0 : root.account.lastBlockSynched
+            }
+            Pane {}
+            Label {
+                text: syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
+            }
+        }
         Keys.onPressed: {
             if (event.key === Qt.Key_Escape) {
                 root.visible = false;
                 event.accepted = true
             }
         }
-        Label {
-            id: header
-            text: {
-                if (root.account.isSingleAddressAccount)
-                    return qsTr("This account is a single-address wallet.")
+    }
 
-                 // ok we only have one more type so far, so this is rather simple...
-                return qsTr("This account is a simple multiple-address wallet.")
-            }
-            Layout.columnSpan: 2
-        }
+    footer: Item {
+        width: parent.width
+        height: closeButton.height + 20
 
-        Label { text: qsTr("Name") + ":" }
-        FloweeTextField {
-            text: root.account.name
-            focus: true
-            Layout.fillWidth: true
-            onAccepted:  root.account.name = text
-        }
-        Label {
-            text: qsTr("Balance unconfirmed") + ":"
-        }
-        BitcoinAmountLabel {
-            value: root.account.balanceUnconfirmed
-            colorize: false
-        }
-        Label {
-            text: qsTr("Balance immature") + ":"
-        }
-        BitcoinAmountLabel {
-            value: root.account.balanceImmature
-            colorize: false
-        }
-        Label {
-            text: qsTr("Balance other") + ":"
-        }
-        BitcoinAmountLabel {
-            value: root.account.balanceConfirmed
-            colorize: false
-        }
-        Label {
-            text: qsTr("Available coins") + ":"
-        }
-        Label {
-            text: root.account.unspentOutputCount
-        }
-        Label {
-            text: qsTr("Historical coins") + ":"
-        }
-        Label {
-            text: root.account.historicalOutputCount
-        }
-        Label {
-            text: qsTr("Sync status") + ":"
-        }
-        SyncIndicator {
-            id: syncIndicator
-            accountBlockHeight: root.account === null ? 0 : root.account.lastBlockSynched
-        }
-        Pane {}
-        Label {
-            text: syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
-        }
-
-        Item {
-            Layout.columnSpan: 2
-            width: closeButton.width
-            height: closeButton.height
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-
-            Button {
-                id: closeButton
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                text: qsTr("Close")
-                onClicked: root.visible = false
-            }
+        Button {
+            id: closeButton
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: 10
+            text: qsTr("Close")
+            onClicked: root.visible = false
         }
     }
 }
