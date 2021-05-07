@@ -241,11 +241,19 @@ Pane {
             id: payAmount
             text: qsTr("Amount") + ":"
         }
-        BitcoinValueField {
-            id: bitcoinValueField
-            fontPtSize: payAmount.font.pointSize
-            enabled: receivePane.request.state === PaymentRequest.Unpaid
-            onValueChanged: receivePane.request.amount = value
+        RowLayout {
+            spacing: 10
+            BitcoinValueField {
+                id: bitcoinValueField
+                fontPtSize: payAmount.font.pointSize
+                enabled: receivePane.request.state === PaymentRequest.Unpaid
+                onValueChanged: receivePane.request.amount = value
+            }
+            Label {
+                Layout.alignment: Qt.AlignBaseline
+                anchors.baselineOffset: bitcoinValueField.baselineOffset
+                text: Fiat.formattedPrice(bitcoinValueField.value, Fiat.price)
+            }
         }
 
         RowLayout {

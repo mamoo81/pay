@@ -18,6 +18,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
+import Flowee.org.pay 1.0
 
 /**
  * This class displays a Bitcoin value using the current settings
@@ -28,6 +29,7 @@ RowLayout {
     property double value: 5E8
     property bool colorize: true
     property bool includeUnit: true
+    property bool showFiat: true
     property color textColor: Flowee.useDarkSkin ? "#fcfcfc" :"black"
     property alias fontPtSize: main.font.pointSize
 
@@ -102,5 +104,11 @@ RowLayout {
         color: main.color
         visible: parent.includeUnit
         Layout.alignment: Qt.AlignBaseline
+    }
+
+    Label {
+        visible: parent.showFiat //&& Flowee.isMainChain
+        Layout.alignment: Qt.AlignBaseline
+        text: Fiat.formattedPrice(root.value, Fiat.price)
     }
 }

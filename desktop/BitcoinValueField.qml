@@ -33,6 +33,7 @@ FocusScope {
     property alias valueObject: privValue
     property alias fontPtSize: balance.fontPtSize
     property bool enabled: true
+    property double baselineOffset: balance.baselineOffset + balance.y
 
     onEnabledChanged: {
         if (!enabled)
@@ -55,7 +56,6 @@ FocusScope {
             root.focus = true
             root.forceActiveFocus()
         }
-
     }
 
     BitcoinAmountLabel {
@@ -66,6 +66,7 @@ FocusScope {
         colorize: false
         visible: !root.activeFocus
         textColor: mainWindow.palette.text
+        showFiat: false
     }
 
     Label {

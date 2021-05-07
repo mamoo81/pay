@@ -27,6 +27,7 @@ class PriceDataProvider : public QObject
     Q_OBJECT
     Q_PROPERTY(int price READ price NOTIFY priceChanged)
     Q_PROPERTY(QString currencySymbol READ currencySymbol NOTIFY currencySymbolChanged)
+    Q_PROPERTY(QString currencyName READ currencyName NOTIFY currencySymbolChanged)
 public:
     explicit PriceDataProvider(QObject *parent = nullptr);
 
@@ -35,11 +36,21 @@ public:
     QString currencySymbol() const {
         return m_currencySymbol;
     }
+    QString currencyName() const {
+        return m_currency;
+    }
 
     // current price in cents
     int price() const {
         return m_currentPrice.price;
     }
+
+    /**
+     * Return a formatted string with the locale-defined price of the amount of \a sats.
+     * This takes the BCH amount (in sats) and renders it into a price as the current locale defines,
+     * based on \a price.
+     */
+    Q_INVOKABLE QString formattedPrice(double amountSats, int price) const;
 
 signals:
     void priceChanged();

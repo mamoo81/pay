@@ -93,7 +93,7 @@ ApplicationWindow {
             y: parent.height / 3 * 2 - height
             anchors.right: parent.right
             anchors.rightMargin: 30
-            text: "BCH: " + Fiat.currencySymbol + (Fiat.price / 100).toFixed(2);
+            text: "BCH: " + Fiat.formattedPrice(100000000, Fiat.price)
             visible: Flowee.isMainChain
             font.pixelSize: 18
             color: "white"
@@ -212,9 +212,18 @@ ApplicationWindow {
                                 Label { text: "=" }
                                 Label { text: "1 Bitcoin Cash" }
 
-//                               Label { text: "1 mBCH"; Layout.alignment: Qt.AlignRight}
-//                               Label { text: "=" }
-//                               Label { text: "1 USD" }
+                                Label { text: "1 " + Flowee.unitName; Layout.alignment: Qt.AlignRight; visible: Flowee.isMainChain}
+                                Label { text: "="; visible: Flowee.isMainChain}
+                                Label {
+                                    text: {
+                                        var amount = 1;
+                                        for (let i = 0; i < Flowee.unitAllowedDecimals; ++i) {
+                                            amount = amount * 10;
+                                        }
+                                        return Fiat.formattedPrice(amount, Fiat.price);
+                                    }
+                                    visible: Flowee.isMainChain
+                                }
                             }
                         }
                     }
@@ -285,6 +294,7 @@ ApplicationWindow {
                             return account.balanceConfirmed + account.balanceUnconfirmed
                         }
                         colorize: false
+                        showFiat: false
                         textColor: mainWindow.palette.text
                         fontPtSize: {
                             if (leftColumn.width < 300)
@@ -301,17 +311,14 @@ ApplicationWindow {
                         radius: 58
                     }
                 }
-                /*
                 Label {
                     text: {
                         if (Flowee.hideBalance)
-                            return "-- EUR"
-                        return "0.00 EUR"; // TODO
+                            return "-- " + Fiat.currencyName
+                        return Fiat.formattedPrice(balance.value, Fiat.price)
                     }
-                    visible: Flowee.isMainChain
                     opacity: 0.6
                 }
-                */
                 Item { // spacer
                     width: 10
                     height: 20
@@ -336,6 +343,7 @@ ApplicationWindow {
                             return portfolio.totalBalance
                         }
                         colorize: false
+                        showFiat: false
                         fontPtSize: mainWindow.font.pointSize * 2
                         opacity: blurredTotalBalance.visible ? 0 : 1
                     }
@@ -348,17 +356,15 @@ ApplicationWindow {
                         radius: 58
                     }
                 }
-                /*
                 Label {
                     text: {
                         if (Flowee.hideBalance)
-                            return "-- EUR"
-                        return "0.00 EUR"; // TODO
+                            return "-- " + Fiat.currencyName
+                        return Fiat.formattedPrice(totalBalance.value, Fiat.price)
                     }
-                    visible: totalBalanceLabel.visible && Flowee.isMainChain
+                    visible: totalBalanceLabel.visible
                     opacity: 0.6
                 }
-                */
                 Item { // spacer
                     visible: totalBalanceLabel.visible
                     width: 10

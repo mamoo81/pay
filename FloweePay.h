@@ -116,7 +116,12 @@ public:
 
     /// returns the unit of our prices. BCH, for instance.
     QString unitName() const;
-    /// returns the amount of digits allowed behind the decimal-separator.
+    /**
+     * Returns the amount of digits allowed behind the decimal-separator.
+     * The 'unit' the user pics (BCH/milli-bch/micro-bch) just moves the decimal separator
+     * and we measure that by the amount of digits we still allow behind the separator.
+     * For the "BCH" unit this is 8, for sats this is zero.
+     */
     int unitAllowedDecimals() const;
 
     int windowWidth() const;
