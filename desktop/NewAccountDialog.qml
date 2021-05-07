@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,6 +76,7 @@ ApplicationWindow {
         RadioButton {
             id: emptyAccountButton
             Layout.columnSpan: 3
+            Layout.fillWidth: true
             text: qsTr("New Empty Account")
             onCheckedChanged: root.validate()
             checked: true
@@ -83,6 +84,7 @@ ApplicationWindow {
         RadioButton {
             id: privKeyButton
             Layout.columnSpan: 3
+            Layout.fillWidth: true
             text: qsTr("Existing Private Key")
             onCheckedChanged: root.validate()
         }
@@ -90,20 +92,22 @@ ApplicationWindow {
         FloweeTextField {
             id: privKey
             enabled: privKeyButton.checked
-            placeholderText: "L5bxhjPeQqVFgCLALiFaJYpptdX6Nf6R9TuKgHaAikcNwg32Q4aL"
+            placeholderText: qsTr("Example; %1", "placeholder text").arg("L5bxhjPeQqVFgCLALiFaJYpptdX6Nf6R9TuKgHaAikcNwg32Q4aL")
             Layout.fillWidth: true
             onTextChanged: root.validate()
         }
         Label {
             id: feedback
             property bool ok: false
-            text: ok ?  "✔" : " "
+            text: ok && privKeyButton.checked ?  "✔" : " "
             color: "green"
             font.pixelSize: 24
         }
         Pane {
             Layout.columnSpan: 3
             Layout.alignment: Qt.AlignRight | Qt.AlignBottom
+            padding: 0
+            topPadding: 10
 
             RowLayout {
                 Button2 {
