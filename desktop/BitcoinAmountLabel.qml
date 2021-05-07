@@ -29,7 +29,7 @@ RowLayout {
     property bool colorize: true
     property bool includeUnit: true
     property color textColor: Flowee.useDarkSkin ? "#fcfcfc" :"black"
-    property var fontPtSize: 8
+    property alias fontPtSize: main.font.pointSize
 
     height: main.height
     baselineOffset: main.baselineOffset
@@ -70,7 +70,6 @@ RowLayout {
             return root.textColor
         }
         Layout.alignment: Qt.AlignBaseline
-        font.pointSize: root.fontPtSize
     }
 
     Label {
