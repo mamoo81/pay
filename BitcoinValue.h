@@ -48,9 +48,7 @@ public:
     QString stringForValue() const;
     void setStringValue(const QString &value);
 
-    inline QString enteredString() const {
-        return m_typedNumber;
-    }
+    QString enteredString() const;
     void setEnteredString(const QString &s);
 
 signals:

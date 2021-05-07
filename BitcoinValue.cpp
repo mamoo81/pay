@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ BitcoinValue::BitcoinValue(QObject *parent)
     : QObject(parent),
       m_value(0)
 {
-    connect (FloweePay::instance(), &FloweePay::unitChanged, [this]() {
+    connect (FloweePay::instance(), &FloweePay::unitChanged, this, [this]() {
         setStringValue(m_typedNumber);
     });
 }
@@ -124,6 +124,17 @@ void BitcoinValue::setStringValue(const QString &value)
 
     newVal += after.toInt();
     setValue(newVal);
+}
+
+QString BitcoinValue::enteredString() const
+{
+    const char decimalPoint = QLocale::system().decimalPoint().unicode();
+    if (decimalPoint != '.') { // make the user-visible one always use the locale-aware decimalpoint.
+        QString answer(m_typedNumber);
+        answer.replace('.', decimalPoint);
+        return answer;
+    }
+    return m_typedNumber;
 }
 
 void BitcoinValue::setEnteredString(const QString &s)
