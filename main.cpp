@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "FloweePay.h"
 #include "NetDataProvider.h"
 #include "PortfolioDataProvider.h"
+#include "PriceDataProvider.h"
 #include "QRCreator.h"
 
 #include <primitives/key.h> // for ECC_Start()
@@ -98,9 +99,12 @@ int main(int argc, char *argv[])
     if (translator.load(QLocale(), QLatin1String("floweepay"), QLatin1String("_"), QLatin1String(":/i18n")))
         QCoreApplication::installTranslator(&translator);
 
+    PriceDataProvider prices;
     // select chain
     if (parser.isSet(testnet4))
         FloweePay::selectChain(P2PNet::Testnet4Chain);
+    else
+        prices.start();
 
     ECC_State crypo_state; // allows the secp256k1 to function.
     qmlRegisterType<TransactionInfo>("Flowee.org.pay", 1, 0, "TransactionInfo");
@@ -110,9 +114,10 @@ int main(int argc, char *argv[])
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     engine.rootContext()->setContextProperty("Flowee", FloweePay::instance());
+    engine.rootContext()->setContextProperty("Fiat", &prices);
     engine.load(url);
 
-    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, [&engine, &parser, &connect]() {
+    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect]() {
         FloweePay *app = FloweePay::instance();
 
         NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);

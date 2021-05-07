@@ -93,8 +93,8 @@ ApplicationWindow {
             y: parent.height / 3 * 2 - height
             anchors.right: parent.right
             anchors.rightMargin: 30
-            text: "BCH: " + "€1000"
-            visible: false; // Flowee.isMainChain
+            text: "BCH: " + Fiat.currencySymbol + (Fiat.price / 100).toFixed(2);
+            visible: Flowee.isMainChain
             font.pixelSize: 18
             color: "white"
         }
