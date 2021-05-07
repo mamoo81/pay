@@ -212,9 +212,9 @@ Rectangle {
                     Layout.alignment: Qt.AlignRight
                 }
 
-                Label {
-                    text: !parent.txOk ? "" : qsTr("%1 sats").arg(root.payment.assignedFee)
-                    // change the Fee to be displayed in current unit.
+                BitcoinAmountLabel {
+                    value: !parent.txOk ? 0 : root.payment.assignedFee
+                    colorize: false
                 }
                 Label {
                     text: qsTr("Transaction size") + ":"
