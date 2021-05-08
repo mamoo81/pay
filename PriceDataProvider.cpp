@@ -23,7 +23,7 @@
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
- #include <QStringBuilder>
+#include <QStringBuilder>
 
 // CoinGecko
 static const char *CoinGeckoURL = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=%1";
