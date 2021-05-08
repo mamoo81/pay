@@ -22,8 +22,8 @@ import QtQuick.Layouts 1.14
 ApplicationWindow {
     id: root
     visible: true
-    minimumWidth: grid.implicitWidth + 20
-    minimumHeight: 400
+    minimumWidth: grid.implicitWidth + 50
+    minimumHeight: rootPane.implicitHeight + footer.height
     title: qsTr("Account Details")
     modality: Qt.NonModal
     flags: Qt.Dialog
@@ -34,22 +34,26 @@ ApplicationWindow {
         id: rootPane
         focus: true
         anchors.fill: parent
+        implicitHeight: walletType.implicitHeight + 10 + grid.implicitHeight
+
+        Label {
+            id: walletType
+            width: parent.width
+            text: {
+                if (root.account.isSingleAddressAccount)
+                    return qsTr("This account is a single-address wallet.")
+
+                 // ok we only have one more type so far, so this is rather simple...
+                return qsTr("This account is a simple multiple-address wallet.")
+            }
+            wrapMode: Text.WordWrap
+        }
         GridLayout {
             id: grid
             columns: 2
+            anchors.top: walletType.bottom
             width: root.width - 20
 
-            Label {
-                text: {
-                    if (root.account.isSingleAddressAccount)
-                        return qsTr("This account is a single-address wallet.")
-
-                     // ok we only have one more type so far, so this is rather simple...
-                    return qsTr("This account is a simple multiple-address wallet.")
-                }
-                Layout.columnSpan: 2
-                wrapMode: Text.WordWrap
-            }
 
             Label { text: qsTr("Name") + ":" }
             FloweeTextField {
