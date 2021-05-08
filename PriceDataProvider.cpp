@@ -90,6 +90,8 @@ void PriceDataProvider::finishedDownload()
 {
     assert(m_reply);
     auto data = m_reply->readAll();
+    m_reply->deleteLater();
+    m_reply = nullptr;
     try {
         QJsonDocument doc = QJsonDocument::fromJson(data);
         if (doc.isEmpty())
@@ -99,6 +101,15 @@ void PriceDataProvider::finishedDownload()
         // coingecko
         auto section = root.value(CoinGeckoJSONRoot).toObject();
         auto price = section.value(m_currency.toLower());
+        if (price.isUndefined()) { // our provider does not support this coin.
+            if (m_currency != "USD") {
+                m_currency = "USD";
+                m_currencySymbolPost.clear();
+                m_currencySymbolPrefix = "$";
+                fetch();
+            }
+            return;
+        }
         m_currentPrice.price = price.toDouble() * 100;
         m_currentPrice.timestamp = time(nullptr);
         emit priceChanged();
@@ -106,7 +117,5 @@ void PriceDataProvider::finishedDownload()
         qWarning() << error.what();
         qWarning() << QString::fromUtf8(data);
     }
-    m_reply->deleteLater();
-    m_reply = nullptr;
     logInfo() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
 }
