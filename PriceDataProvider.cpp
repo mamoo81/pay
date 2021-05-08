@@ -40,8 +40,10 @@ PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
 
 void PriceDataProvider::start()
 {
-    m_timer.start();
-    fetch();
+    // m_timer.start();
+    // fetch();
+    m_currentPrice.price = 116818;
+    m_currentPrice.timestamp = time(nullptr);
 }
 
 QString PriceDataProvider::formattedPrice(double amountSats, int price) const
@@ -49,7 +51,7 @@ QString PriceDataProvider::formattedPrice(double amountSats, int price) const
     if (price == 0)
         return QString();
     qint64 fiatValue = amountSats * price;
-    fiatValue = (fiatValue + 5) / qint64(100000000);
+    fiatValue = (fiatValue + 50000000) / qint64(100000000);
 
     // convert cheaply (low number of mallocs) to a price.
     // since our fiat is in cents, we assume we may add up to two leading zeros.
