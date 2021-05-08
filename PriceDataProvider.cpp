@@ -32,18 +32,29 @@ static const char *CoinGeckoJSONRoot = "bitcoin-cash";
 
 PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
 {
-    m_currency = QLocale::system().currencySymbol(QLocale::CurrencyIsoCode);
-    m_currencySymbol = QLocale::system().currencySymbol(QLocale::CurrencySymbol);
+    QLocale here(QLocale::system());
+    m_currency = here.currencySymbol(QLocale::CurrencyIsoCode);
+    m_currencySymbolPrefix = here.currencySymbol(QLocale::CurrencySymbol);
+    if (m_currency == QLatin1String("AZN")
+            || m_currency == QLatin1String("ILS")
+            || m_currency == QLatin1String("IRR")
+            || m_currency == QLatin1String("KHR")
+            || m_currency == QLatin1String("KZT")
+            || m_currency == QLatin1String("PLN")
+            || m_currency == QLatin1String("PYG")
+            || m_currency == QLatin1String("RUB")
+            || m_currency == QLatin1String("VND")) {
+        // these currencies format the symbol after the numbers part.
+        std::swap(m_currencySymbolPost, m_currencySymbolPrefix);
+    }
     m_timer.setInterval(5 * 60 * 1000);
     QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetch()));
 }
 
 void PriceDataProvider::start()
 {
-    // m_timer.start();
-    // fetch();
-    m_currentPrice.price = 116818;
-    m_currentPrice.timestamp = time(nullptr);
+    m_timer.start();
+    fetch();
 }
 
 QString PriceDataProvider::formattedPrice(double amountSats, int price) const
@@ -59,11 +70,12 @@ QString PriceDataProvider::formattedPrice(double amountSats, int price) const
     QString centsPrice = priceTemplate.arg(std::abs(fiatValue));
     const int offset = std::min(2, centsPrice.length() - 3); // number of those zeros to cut off again.
 
-    return m_currencySymbol
+    return m_currencySymbolPrefix
             % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
             % centsPrice.mid(offset, centsPrice.length() - 2 - offset)
             % QLocale::system().decimalPoint()
-            % centsPrice.right(2);
+            % centsPrice.right(2)
+            % m_currencySymbolPost;
 }
 
 void PriceDataProvider::fetch()
@@ -96,5 +108,5 @@ void PriceDataProvider::finishedDownload()
     }
     m_reply->deleteLater();
     m_reply = nullptr;
-    logInfo() << "Current fiat price: " << m_currencySymbol << m_currentPrice.price;
+    logInfo() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
 }

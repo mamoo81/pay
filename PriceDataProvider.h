@@ -26,16 +26,12 @@ class PriceDataProvider : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int price READ price NOTIFY priceChanged)
-    Q_PROPERTY(QString currencySymbol READ currencySymbol NOTIFY currencySymbolChanged)
     Q_PROPERTY(QString currencyName READ currencyName NOTIFY currencySymbolChanged)
 public:
     explicit PriceDataProvider(QObject *parent = nullptr);
 
     void start();
 
-    QString currencySymbol() const {
-        return m_currencySymbol;
-    }
     QString currencyName() const {
         return m_currency;
     }
@@ -69,7 +65,8 @@ private:
     Price m_currentPrice;
     QNetworkAccessManager m_network;
     QNetworkReply *m_reply = nullptr;
-    QString m_currency, m_currencySymbol;
+    QString m_currency;
+    QString m_currencySymbolPrefix, m_currencySymbolPost;
     QTimer m_timer;
 };
 
