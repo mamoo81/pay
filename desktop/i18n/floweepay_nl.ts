@@ -4,52 +4,57 @@
 <context>
     <name>AccountDetails</name>
     <message>
-        <location filename="../AccountDetails.qml" line="29"/>
+        <location filename="../AccountDetails.qml" line="27"/>
         <source>Account Details</source>
-        <translation>Accountgegevens</translation>
+        <translation>Accountinformatie</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="51"/>
+        <location filename="../AccountDetails.qml" line="44"/>
         <source>This account is a single-address wallet.</source>
         <translation>Dit account heeft enkel 1 adres.</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="56"/>
+        <location filename="../AccountDetails.qml" line="47"/>
+        <source>This account is a simple multiple-address wallet.</source>
+        <translation>Dit account is een simpele diverse-addressen portefeuille.</translation>
+    </message>
+    <message>
+        <location filename="../AccountDetails.qml" line="58"/>
         <source>Name</source>
         <translation>Naam</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="64"/>
+        <location filename="../AccountDetails.qml" line="66"/>
         <source>Balance unconfirmed</source>
         <translation>Saldo niet bevestigd</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="71"/>
+        <location filename="../AccountDetails.qml" line="73"/>
         <source>Balance immature</source>
         <translation>Saldo onvolwassen</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="78"/>
+        <location filename="../AccountDetails.qml" line="80"/>
         <source>Balance other</source>
         <translation>Saldo rest</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="85"/>
+        <location filename="../AccountDetails.qml" line="87"/>
         <source>Available coins</source>
         <translation>Beschikbare munten</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="91"/>
+        <location filename="../AccountDetails.qml" line="93"/>
         <source>Historical coins</source>
         <translation>Historische munten</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="97"/>
+        <location filename="../AccountDetails.qml" line="99"/>
         <source>Sync status</source>
         <translation>Synchronisatie status</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="119"/>
+        <location filename="../AccountDetails.qml" line="127"/>
         <source>Close</source>
         <translation>Sluiten</translation>
     </message>
@@ -130,22 +135,28 @@
         <translation>Naam</translation>
     </message>
     <message>
-        <location filename="../NewAccountDialog.qml" line="79"/>
+        <location filename="../NewAccountDialog.qml" line="80"/>
         <source>New Empty Account</source>
         <translation>Nieuwe leeg account</translation>
     </message>
     <message>
-        <location filename="../NewAccountDialog.qml" line="86"/>
+        <location filename="../NewAccountDialog.qml" line="88"/>
         <source>Existing Private Key</source>
         <translation>Bestaande privésleutel</translation>
     </message>
     <message>
-        <location filename="../NewAccountDialog.qml" line="111"/>
+        <location filename="../NewAccountDialog.qml" line="95"/>
+        <source>Example; %1</source>
+        <comment>placeholder text</comment>
+        <translation>Voorbeeld: %1</translation>
+    </message>
+    <message>
+        <location filename="../NewAccountDialog.qml" line="115"/>
         <source>&amp;Ok</source>
         <translation>&amp;Ok</translation>
     </message>
     <message>
-        <location filename="../NewAccountDialog.qml" line="131"/>
+        <location filename="../NewAccountDialog.qml" line="135"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Annuleren</translation>
     </message>
@@ -153,73 +164,73 @@
 <context>
     <name>ReceiveTransactionPane</name>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="50"/>
+        <location filename="../ReceiveTransactionPane.qml" line="51"/>
         <source>Share your QR code or copy address to receive</source>
         <translation>Deel uw QR code of kopieer het adres waarop uw Bitcoin Cash kan ontvangen</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="91"/>
+        <location filename="../ReceiveTransactionPane.qml" line="92"/>
         <source>Copied to clipboard</source>
         <translation>Gekopieerd naar klembord</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="170"/>
+        <location filename="../ReceiveTransactionPane.qml" line="171"/>
         <source>Checking</source>
         <translation>Controleren</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="191"/>
+        <location filename="../ReceiveTransactionPane.qml" line="192"/>
         <source>Transaction high risk</source>
         <translation>Transactie met hoog risico</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="193"/>
+        <location filename="../ReceiveTransactionPane.qml" line="194"/>
         <source>Payment Seen</source>
         <translation>Betaling gezien</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="195"/>
+        <location filename="../ReceiveTransactionPane.qml" line="196"/>
         <source>Payment Accepted</source>
         <translation>Betaling geaccepteerd</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="197"/>
+        <location filename="../ReceiveTransactionPane.qml" line="198"/>
         <source>Payment Settled</source>
         <translation>Betaling Afgewikkeld</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="215"/>
+        <location filename="../ReceiveTransactionPane.qml" line="216"/>
         <source>Instant payment failed. Wait for confirmation. (double spent proof received)</source>
         <translation>Directe betaling is mislukt. Wacht op bevestiging. (dubbel uitgegeven bewijs ontvangen)</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="230"/>
+        <location filename="../ReceiveTransactionPane.qml" line="231"/>
         <source>Description</source>
         <translation>Omschrijving</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="241"/>
+        <location filename="../ReceiveTransactionPane.qml" line="242"/>
         <source>Amount</source>
         <translation>Bedrag</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="257"/>
+        <location filename="../ReceiveTransactionPane.qml" line="266"/>
         <source>Remember</source>
         <comment>payment request</comment>
         <translation>Onthoud</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="265"/>
+        <location filename="../ReceiveTransactionPane.qml" line="274"/>
         <source>Clear</source>
         <translation>Wissen</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="265"/>
-        <source>Start New Payment</source>
-        <translation>Nieuwe betaling starten</translation>
+        <location filename="../ReceiveTransactionPane.qml" line="274"/>
+        <source>Done</source>
+        <translation>Klaar</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="310"/>
+        <location filename="../ReceiveTransactionPane.qml" line="321"/>
         <source>Delete</source>
         <translation>Verwijder</translation>
     </message>
@@ -271,11 +282,6 @@
         <location filename="../SendTransactionPane.qml" line="211"/>
         <source>Fee</source>
         <translation>Transactiekosten</translation>
-    </message>
-    <message>
-        <location filename="../SendTransactionPane.qml" line="216"/>
-        <source>%1 sats</source>
-        <translation>%1 sats</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="220"/>
@@ -472,32 +478,32 @@
         <translation>Eenheid</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="224"/>
+        <location filename="../main.qml" line="233"/>
         <source>Network Status</source>
         <translation>Netwerk Status</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="252"/>
+        <location filename="../main.qml" line="261"/>
         <source>Balance</source>
         <translation>Saldo</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="322"/>
+        <location filename="../main.qml" line="329"/>
         <source>Total balance</source>
         <translation>Totale saldo</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="368"/>
+        <location filename="../main.qml" line="374"/>
         <source>Network status</source>
         <translation>Netwerkstatus</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="402"/>
+        <location filename="../main.qml" line="408"/>
         <source>Import your Bitcoin Cash wallet</source>
         <translation>Importeer uw Bitcoin Cash portemonnee</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="422"/>
+        <location filename="../main.qml" line="428"/>
         <source>Preparing...</source>
         <translation>Voorbereiden...</translation>
     </message>
