@@ -171,7 +171,7 @@ Rectangle {
         }
         Label {
             text: qsTr("Not enough funds in account to make payment!")
-            visible: root.payment !== null && !root.payment.paymentOk
+            visible: root.payment != null && !root.payment.paymentOk
         }
 
         FloweeGroupBox {
@@ -183,7 +183,7 @@ Rectangle {
 
             content: GridLayout {
                 columns: 2
-                property bool txOk: root.payment !== null && root.payment.paymentOk
+                property bool txOk: root.payment != null && root.payment.paymentOk
 
                 Label {
                     text: qsTr("Destination") + ":"
@@ -192,7 +192,7 @@ Rectangle {
                 }
                 Label {
                     id: finalDestination
-                    text: root.payment === null ? "" : root.payment.formattedTargetAddress
+                    text: root.payment == null ? "" : root.payment.formattedTargetAddress
                     wrapMode: Text.WrapAnywhere
                     Layout.fillWidth: true
                     visible: text !== "" && text != destination.text
@@ -204,7 +204,7 @@ Rectangle {
                 }
 
                 LabelWithClipboard {
-                    text: root.payment === null ? qsTr("Not prepared yet") : root.payment.txid
+                    text: root.payment == null ? qsTr("Not prepared yet") : root.payment.txid
                     Layout.fillWidth: true
                 }
                 Label {
@@ -257,7 +257,7 @@ Rectangle {
             Button2 {
                 id: button
                 text: qsTr("Send")
-                enabled: root.payment !== null && root.payment.paymentOk
+                enabled: root.payment != null && root.payment.paymentOk
                             && prepareButton.portfolioUsed === portfolio.current // also make sure we prepared for the current portfolio.
                 onClicked: {
                     root.payment.sendTx();
