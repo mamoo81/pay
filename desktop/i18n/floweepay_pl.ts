@@ -4,52 +4,57 @@
 <context>
     <name>AccountDetails</name>
     <message>
-        <location filename="../AccountDetails.qml" line="29"/>
+        <location filename="../AccountDetails.qml" line="27"/>
         <source>Account Details</source>
         <translation>Szczegóły konta</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="51"/>
+        <location filename="../AccountDetails.qml" line="44"/>
         <source>This account is a single-address wallet.</source>
         <translation>To konto jest portfelem z jednym adresem.</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="56"/>
+        <location filename="../AccountDetails.qml" line="47"/>
+        <source>This account is a simple multiple-address wallet.</source>
+        <translation>To konto jest prostym portfelem wieloadresowym.</translation>
+    </message>
+    <message>
+        <location filename="../AccountDetails.qml" line="58"/>
         <source>Name</source>
         <translation>Nazwa</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="64"/>
+        <location filename="../AccountDetails.qml" line="66"/>
         <source>Balance unconfirmed</source>
         <translation>Saldo niepotwierdzone</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="71"/>
+        <location filename="../AccountDetails.qml" line="73"/>
         <source>Balance immature</source>
         <translation>Niedojrzałe saldo</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="78"/>
+        <location filename="../AccountDetails.qml" line="80"/>
         <source>Balance other</source>
         <translation>Pozostałe saldo</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="85"/>
+        <location filename="../AccountDetails.qml" line="87"/>
         <source>Available coins</source>
         <translation>Dostępne monety</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="91"/>
+        <location filename="../AccountDetails.qml" line="93"/>
         <source>Historical coins</source>
         <translation>Monety historyczne</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="97"/>
+        <location filename="../AccountDetails.qml" line="99"/>
         <source>Sync status</source>
         <translation>Status synchronizacji</translation>
     </message>
     <message>
-        <location filename="../AccountDetails.qml" line="119"/>
+        <location filename="../AccountDetails.qml" line="127"/>
         <source>Close</source>
         <translation>Zamknij</translation>
     </message>
@@ -131,22 +136,28 @@
         <translation>Nazwa</translation>
     </message>
     <message>
-        <location filename="../NewAccountDialog.qml" line="79"/>
+        <location filename="../NewAccountDialog.qml" line="80"/>
         <source>New Empty Account</source>
         <translation>Nowe puste konto</translation>
     </message>
     <message>
-        <location filename="../NewAccountDialog.qml" line="86"/>
+        <location filename="../NewAccountDialog.qml" line="88"/>
         <source>Existing Private Key</source>
         <translation>Istniejący klucz prywatny</translation>
     </message>
     <message>
-        <location filename="../NewAccountDialog.qml" line="111"/>
+        <location filename="../NewAccountDialog.qml" line="95"/>
+        <source>Example; %1</source>
+        <comment>placeholder text</comment>
+        <translation>Przykład: %1</translation>
+    </message>
+    <message>
+        <location filename="../NewAccountDialog.qml" line="115"/>
         <source>&amp;Ok</source>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="../NewAccountDialog.qml" line="131"/>
+        <location filename="../NewAccountDialog.qml" line="135"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Anuluj</translation>
     </message>
@@ -154,73 +165,73 @@
 <context>
     <name>ReceiveTransactionPane</name>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="50"/>
+        <location filename="../ReceiveTransactionPane.qml" line="51"/>
         <source>Share your QR code or copy address to receive</source>
         <translation>Udostępnij kod QR lub skopiuj adres, aby otrzymać wpłatę</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="91"/>
+        <location filename="../ReceiveTransactionPane.qml" line="92"/>
         <source>Copied to clipboard</source>
         <translation>Skopiowano do schowka</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="170"/>
+        <location filename="../ReceiveTransactionPane.qml" line="171"/>
         <source>Checking</source>
         <translation>Sprawdzanie</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="191"/>
+        <location filename="../ReceiveTransactionPane.qml" line="192"/>
         <source>Transaction high risk</source>
         <translation>Transakcja o wysokim poziomie ryzyka</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="193"/>
+        <location filename="../ReceiveTransactionPane.qml" line="194"/>
         <source>Payment Seen</source>
         <translation>Wykryto płatność</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="195"/>
+        <location filename="../ReceiveTransactionPane.qml" line="196"/>
         <source>Payment Accepted</source>
         <translation>Płatność zaakceptowana</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="197"/>
+        <location filename="../ReceiveTransactionPane.qml" line="198"/>
         <source>Payment Settled</source>
         <translation>Płatność rozliczona</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="215"/>
+        <location filename="../ReceiveTransactionPane.qml" line="216"/>
         <source>Instant payment failed. Wait for confirmation. (double spent proof received)</source>
         <translation>Płatność błyskawiczna nie powiodła się. Poczekaj na potwierdzenie. (otrzymano dowód podwójnej płatności)</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="230"/>
+        <location filename="../ReceiveTransactionPane.qml" line="231"/>
         <source>Description</source>
         <translation>Opis</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="241"/>
+        <location filename="../ReceiveTransactionPane.qml" line="242"/>
         <source>Amount</source>
         <translation>Kwota</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="257"/>
+        <location filename="../ReceiveTransactionPane.qml" line="266"/>
         <source>Remember</source>
         <comment>payment request</comment>
         <translation>Zapisz</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="265"/>
+        <location filename="../ReceiveTransactionPane.qml" line="274"/>
         <source>Clear</source>
         <translation>Wyczyść</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="265"/>
-        <source>Start New Payment</source>
-        <translation>Rozpocznij nową płatność</translation>
+        <location filename="../ReceiveTransactionPane.qml" line="274"/>
+        <source>Done</source>
+        <translation>Gotowe</translation>
     </message>
     <message>
-        <location filename="../ReceiveTransactionPane.qml" line="310"/>
+        <location filename="../ReceiveTransactionPane.qml" line="321"/>
         <source>Delete</source>
         <translation>Usuń</translation>
     </message>
@@ -272,11 +283,6 @@
         <location filename="../SendTransactionPane.qml" line="211"/>
         <source>Fee</source>
         <translation>Opłata</translation>
-    </message>
-    <message>
-        <location filename="../SendTransactionPane.qml" line="216"/>
-        <source>%1 sats</source>
-        <translation>%1 sats</translation>
     </message>
     <message>
         <location filename="../SendTransactionPane.qml" line="220"/>
@@ -480,32 +486,32 @@
         <translation>Jednostka</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="224"/>
+        <location filename="../main.qml" line="233"/>
         <source>Network Status</source>
         <translation>Stan sieci</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="252"/>
+        <location filename="../main.qml" line="261"/>
         <source>Balance</source>
         <translation>Saldo</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="322"/>
+        <location filename="../main.qml" line="329"/>
         <source>Total balance</source>
         <translation>Wszystkie środki</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="368"/>
+        <location filename="../main.qml" line="374"/>
         <source>Network status</source>
         <translation>Status sieci</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="402"/>
+        <location filename="../main.qml" line="408"/>
         <source>Import your Bitcoin Cash wallet</source>
         <translation>Importuj portfel Bitcoin Cash</translation>
     </message>
     <message>
-        <location filename="../main.qml" line="422"/>
+        <location filename="../main.qml" line="428"/>
         <source>Preparing...</source>
         <translation>Przygotowuję…</translation>
     </message>

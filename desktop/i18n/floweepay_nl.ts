@@ -166,7 +166,7 @@
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="51"/>
         <source>Share your QR code or copy address to receive</source>
-        <translation>Deel uw QR code of kopieer het adres waarop uw Bitcoin Cash kan ontvangen</translation>
+        <translation>Deel uw QR code of kopieer het adres waarop u Bitcoin Cash kan ontvangen</translation>
     </message>
     <message>
         <location filename="../ReceiveTransactionPane.qml" line="92"/>
