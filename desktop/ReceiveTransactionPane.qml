@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Layouts 1.14
-import QtQuick.Shapes 1.15 // for shape-path
+import QtQuick 2.11
+import QtQuick.Controls 2.11
+import QtQuick.Layouts 1.11
+import QtQuick.Shapes 1.11 // for shape-path
 
 import Flowee.org.pay 1.0
 
