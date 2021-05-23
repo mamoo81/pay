@@ -403,6 +403,7 @@ void Wallet::setUserOwnedWallet(bool userOwnedWallet)
     if (m_userOwnedWallet == userOwnedWallet)
         return;
     m_userOwnedWallet = userOwnedWallet;
+    m_secretsChanged = true;
     emit userOwnedChanged();
 }
 

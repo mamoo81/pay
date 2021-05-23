@@ -102,12 +102,16 @@ void PortfolioDataProvider::selectDefaultWallet()
             break;
         }
         if (!wallet->userOwnedWallet()) {
+// TODO after one restart my userOwnedWallet goes from false to true.
             fallback = i;
         }
     }
     // when the app went and made an empty wallet, select that so we have at least something selected.
-    if (m_currentAccount == -1 && fallback >= 0) {
-        m_currentAccount = fallback;
+    if (m_currentAccount == -1) {
+        if (fallback >= 0)
+            m_currentAccount = fallback;
+        else if (!m_accounts.isEmpty())
+            m_currentAccount = 0;;
         emit currentChanged();
     }
 }
