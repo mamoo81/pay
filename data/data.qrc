@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/data">
+        <file>blockheaders</file>
+    </qresource>
+</RCC>

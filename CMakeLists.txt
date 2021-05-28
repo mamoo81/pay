@@ -67,6 +67,10 @@ set (PAY_SOURCES
     Wallet_support.cpp
 )
 
+if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
+    list (APPEND PAY_SOURCES data/data.qrc)
+endif()
+
 if(ANDROID)
     add_library(PAY SHARED
         ${PAY_SOURCES}
