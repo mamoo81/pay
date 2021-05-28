@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@ Label {
     property int globalPos: Flowee.chainHeight
 
     text: {
+        if (accountBlockHeight <= 0) // For accounts that only expect tx in the future.
+            return qsTr("Up to date")
         var diff = globalPos - accountBlockHeight
         if (diff < 0) // we are ahead???
             return "--"

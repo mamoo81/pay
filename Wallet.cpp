@@ -273,7 +273,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 // check the payment requests
                 const int privKeyId = i->second.walletSecretId;
                 auto ws = m_walletSecrets.find(privKeyId);
-                if (ws != m_walletSecrets.end() && ws->second.initialHeight == -1) {
+                if (ws != m_walletSecrets.end() && ws->second.initialHeight == 0) {
                     ws->second.initialHeight = blockHeight;
                     needNewBloom = true; // make sure we let the remote know about our 'gap' addresses
                 }
@@ -631,7 +631,7 @@ void Wallet::rebuildBloom()
     auto lock = m_segment->clearFilter();
     int numRegistredUnused = 0;
     for (auto &priv : m_walletSecrets) {
-        bool use = priv.second.initialHeight > 0;
+        bool use = priv.second.initialHeight > 0 && priv.second.initialHeight < 10000000;
         if (!use && priv.second.reserved)
             use = true;
         if (!use) {
@@ -762,7 +762,7 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId)
             keyId = i->second.address;
             return i->first; // just return the first then.
         }
-        if (i->second.initialHeight == -1 && !i->second.reserved) { // is unused address.
+        if (i->second.initialHeight == 0 && !i->second.reserved) { // is unused address.
             i->second.reserved = true;
             keyId = i->second.address;
             rebuildBloom(); // make sure that we actually observe changes on this address
@@ -984,6 +984,31 @@ void Wallet::setLastSynchedBlockHeight(int height)
     }
 }
 
+void Wallet::headerSyncComplete()
+{
+    /*
+     * Private keys could have been added that do not have a start-blockheight
+     * because the chain was not yet synched.
+     * They will have a 'blockheight' that is in reality a timestamp. Trivial to
+     * differentiate since that is above 1 trillion, whereas blocks will be around a million.
+     *
+     * If we have any such private keys, we can fix this.
+     *   Find the matching block and update the bloom filter.
+     */
+
+    for (auto iter = m_walletSecrets.begin(); iter != m_walletSecrets.end(); ++iter) {
+        if (iter->second.initialHeight > 10000000) {
+            // this is a time based height, lets resolve it to a real height.
+            const Blockchain &blockchain = FloweePay::instance()->p2pNet()->blockchain();
+            iter->second.initialHeight = blockchain.blockHeightAtTime(iter->second.initialHeight);
+            m_secretsChanged = true;
+
+            m_segment->addKeyToFilter(iter->second.address, iter->second.initialHeight);
+            rebuildBloom();
+        }
+    }
+}
+
 void Wallet::broadcastUnconfirmed()
 {
     Q_ASSERT(thread() == QThread::currentThread());
@@ -1019,7 +1044,7 @@ PrivacySegment * Wallet::segment() const
     return m_segment.get();
 }
 
-void Wallet::createNewPrivateKey(int currentBlockheight)
+void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
 {
     QMutexLocker locker(&m_lock);
     WalletSecret secret;
@@ -1032,12 +1057,15 @@ void Wallet::createNewPrivateKey(int currentBlockheight)
     m_secretsChanged = true;
     saveSecrets();
 
-    m_segment->addKeyToFilter(pubkey.getKeyId(), currentBlockheight);
+    if (currentBlockheight < 10000000) {
+        // if its out of this range, likely its a timestamp (headers are not yet synched)
 
-    rebuildBloom();
+        m_segment->addKeyToFilter(pubkey.getKeyId(), currentBlockheight);
+        rebuildBloom();
+    }
 }
 
-bool Wallet::addPrivateKey(const QString &privKey, int startBlockHeight)
+bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
 {
     QMutexLocker locker(&m_lock);
     CBase58Data encodedData;
@@ -1057,9 +1085,10 @@ bool Wallet::addPrivateKey(const QString &privKey, int startBlockHeight)
         m_secretsChanged = true;
         saveSecrets();
 
-        m_segment->addKeyToFilter(pubkey.getKeyId(), startBlockHeight);
-
-        rebuildBloom();
+        if (startBlockHeight < 10000000) {
+            m_segment->addKeyToFilter(pubkey.getKeyId(), startBlockHeight);
+            rebuildBloom();
+        }
         return true;
     }
     logFatal() << "ERROR. Wallet: added string is not a private key";
@@ -1098,7 +1127,10 @@ void Wallet::loadSecrets()
             secret.address = CKeyID(d.begin());
         }
         else if (parser.tag() == WalletPriv::HeightCreated) {
-            secret.initialHeight = parser.intData();
+            if (parser.intData() == -1) // legacy 'unused' value. (changed in 2021.05)
+                secret.initialHeight = 0;
+            else
+                secret.initialHeight = parser.longData();
         }
         else if (parser.tag() == WalletPriv::IsSingleAddressWallet) {
             m_singleAddressWallet = parser.boolData();
@@ -1126,7 +1158,7 @@ void Wallet::saveSecrets()
         builder.addByteArray(WalletPriv::PrivKey, item.second.privKey.begin(), item.second.privKey.size());
         builder.addByteArray(WalletPriv::PubKeyHash, item.second.address.begin(), item.second.address.size());
         if (item.second.initialHeight > 0)
-            builder.add(WalletPriv::HeightCreated, item.second.initialHeight);
+            builder.add(WalletPriv::HeightCreated, (uint64_t) item.second.initialHeight);
         if (item.second.signatureType != NotUsedYet)
             builder.add(WalletPriv::SignatureType, item.second.signatureType);
         builder.add(WalletPriv::Separator, true);

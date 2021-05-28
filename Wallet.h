@@ -99,13 +99,14 @@ public:
     void newTransaction(const Tx &tx) override;
     /// Let the wallet know that it is up-to-date to \a height
     void setLastSynchedBlockHeight(int height) override;
+    void headerSyncComplete();
 
     PrivacySegment *segment() const;
 
     /// Create a new private key.
-    void createNewPrivateKey(int currentBlockheight);
+    void createNewPrivateKey(uint32_t currentBlockheight);
     /// import an existing private key.
-    bool addPrivateKey(const QString &privKey, int startBlockHeight);
+    bool addPrivateKey(const QString &privKey, uint32_t startBlockHeight);
     /// Save changed in historical wallet
     void saveWallet();
 
@@ -246,7 +247,7 @@ private:
     struct WalletSecret {
         CKey privKey;
         CKeyID address;
-        int initialHeight = -1;
+        uint32_t initialHeight = 0;
         SignatureType signatureType = NotUsedYet;
         /// if true, this address has been reseved to receive funds on
         bool reserved = false; // in-mem-only

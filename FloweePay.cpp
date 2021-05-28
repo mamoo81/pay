@@ -375,16 +375,15 @@ void FloweePay::setWindowWidth(int windowWidth)
     appConfig.setValue(WINDOW_WIDTH, m_windowWidth);
 }
 
-int FloweePay::walletStartHeightHint() const
+uint32_t FloweePay::walletStartHeightHint() const
 {
-    static int minStartBlock = [] {
-        switch (s_chain) {
-        case P2PNet::MainChain: return 636000;
-        case P2PNet::Testnet4Chain: return 13000;
-        default: return 0;
-        }
-    }();
-    return std::max(minStartBlock, m_downloadManager->blockHeight());
+    if (m_downloadManager->isChainUpToDate())
+        return m_downloadManager->blockHeight();
+
+    // return a massively too high number that the wallet will
+    // interpret as seconds and match it to the block time to resolve a
+    // hight when the headers are synched.
+    return time(nullptr);
 }
 
 bool FloweePay::preferSchnorr() const
