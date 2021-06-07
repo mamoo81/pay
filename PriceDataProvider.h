@@ -67,6 +67,7 @@ private:
     QNetworkReply *m_reply = nullptr;
     QString m_currency;
     QString m_currencySymbolPrefix, m_currencySymbolPost;
+    bool m_dispayCents = true; // if true, display 2 digits behind the unit-separator
     QTimer m_timer;
 };
 

@@ -47,6 +47,9 @@ PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
         // these currencies format the symbol after the numbers part.
         std::swap(m_currencySymbolPost, m_currencySymbolPrefix);
     }
+    // drop the '.00' behind the prices as this country doesn't traditionlly do that
+    m_dispayCents = !(m_currency == QLatin1String("JPY")
+                   || m_currency == QLatin1String("JPY"));
     m_timer.setInterval(5 * 60 * 1000);
     QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetch()));
 }
@@ -70,12 +73,20 @@ QString PriceDataProvider::formattedPrice(double amountSats, int price) const
     QString centsPrice = priceTemplate.arg(std::abs(fiatValue));
     const int offset = std::min(2, centsPrice.length() - 3); // number of those zeros to cut off again.
 
-    return m_currencySymbolPrefix
-            % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
-            % centsPrice.mid(offset, centsPrice.length() - 2 - offset)
-            % QLocale::system().decimalPoint()
-            % centsPrice.right(2)
-            % m_currencySymbolPost;
+    if (m_dispayCents) {
+        return m_currencySymbolPrefix
+                % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
+                % centsPrice.mid(offset, centsPrice.length() - 2 - offset)
+                % QLocale::system().decimalPoint()
+                % centsPrice.right(2)
+                % m_currencySymbolPost;
+    }
+    else {
+        return m_currencySymbolPrefix
+                % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
+                % centsPrice.mid(offset, centsPrice.length() - 2 - offset)
+                % m_currencySymbolPost;
+    }
 }
 
 void PriceDataProvider::fetch()
