@@ -89,15 +89,6 @@ ApplicationWindow {
             height: (parent.height - 20) * 7 / 10
             width: height * 449 / 77
         }
-        Text {
-            y: parent.height / 3 * 2 - height
-            anchors.right: parent.right
-            anchors.rightMargin: 30
-            text: "BCH: " + Fiat.formattedPrice(100000000, Fiat.price)
-            visible: Flowee.isMainChain
-            font.pixelSize: 18
-            color: "white"
-        }
     }
 
     Pane {
@@ -364,6 +355,17 @@ ApplicationWindow {
                     }
                     visible: totalBalanceLabel.visible
                     opacity: 0.6
+                }
+                Item { // spacer
+                    visible: fiatValue.visible
+                    width: 10
+                    height: 20
+                }
+                Label {
+                    id: fiatValue
+                    text: qsTr("1 BCH is: %1").arg(Fiat.formattedPrice(100000000, Fiat.price))
+                    visible: Flowee.isMainChain
+                    font.pixelSize: 18
                 }
                 Item { // spacer
                     visible: totalBalanceLabel.visible
