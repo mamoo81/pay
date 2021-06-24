@@ -293,6 +293,8 @@ void FloweePay::setUnit(const UnitOfBitcoin &unit)
     if (m_unit == unit)
         return;
     m_unit = unit;
+    QSettings appConfig;
+    appConfig.setValue(UNIT_TYPE, m_unit);
     emit unitChanged();
 }
 
