@@ -68,7 +68,7 @@ set (PAY_SOURCES
 )
 
 if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
-    list (APPEND PAY_SOURCES data/data.qrc)
+    install(FILES ${CMAKE_SOURCE_DIR}/data/blockheaders DESTINATION floweepay)
 endif()
 
 if(ANDROID)

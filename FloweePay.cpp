@@ -520,9 +520,6 @@ QList<Wallet *> FloweePay::wallets() const
 DownloadManager *FloweePay::p2pNet()
 {
     if (m_downloadManager == nullptr) {
-        QResource r(m_chain == P2PNet::MainChain ? ":/data/blockheaders" : ":/data/blockheaders-testnet4");
-        if (r.isValid())
-            Blockchain::setStaticChain(r.data(), r.size());
         m_downloadManager.reset(new DownloadManager(ioService(), m_basedir.toStdString(), m_chain));
         m_downloadManager->addP2PNetListener(this);
         m_downloadManager->notifications().addListener(&m_notifications);

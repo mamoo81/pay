@@ -26,6 +26,7 @@
 
 #include <QCommandLineParser>
 #include <QDateTime>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QQmlApplicationEngine>
@@ -78,6 +79,12 @@ int main(int argc, char *argv[])
     parser.addOption(quiet);
     parser.addOption(connect);
     parser.addOption(testnet4);
+#ifndef NDEBUG
+    // to protect people from the bad effect of having and later not having headers we only allow this
+    // override in debug mode.
+    QCommandLineOption headers(QStringList() << "headers", "Override location of blockheaders", "PATH");
+    parser.addOption(headers);
+#endif
     parser.process(qapp);
 
     auto *logger = Log::Manager::instance();
@@ -101,10 +108,44 @@ int main(int argc, char *argv[])
 
     PriceDataProvider prices;
     // select chain
+    auto chain = P2PNet::MainChain;
     if (parser.isSet(testnet4))
-        FloweePay::selectChain(P2PNet::Testnet4Chain);
+        chain = P2PNet::Testnet4Chain;
     else
         prices.start();
+    FloweePay::selectChain(chain);
+
+    std::unique_ptr<QFile> blockheaders; // pointer to own the memmapped blockheaders file.
+    // lets try by default to open the path /usr/share/floweepay/*
+    blockheaders.reset(new QFile(QString("/usr/share/floweepay/")
+                                 + (chain == P2PNet::MainChain ? "blockheaders" : "blockheaders-testnet4")));
+#ifndef NDEBUG
+    // override only available in debug mode
+    if (parser.isSet(headers)) {
+        QFileInfo info(parser.value(headers));
+        if (info.exists()) {
+            if (info.isDir())
+                blockheaders.reset(new QFile(info.absoluteFilePath()
+                                             + (chain == P2PNet::MainChain ? "/blockheaders" : "/blockheaders-testnet4")));
+            else
+                blockheaders.reset(new QFile(info.absoluteFilePath()));
+        }
+        else {
+            // do not load if pointing to invalid path.
+            logWarning() << "Headers disabled by cli option";
+            blockheaders.reset();
+        }
+    }
+#endif
+    if (blockheaders) {
+       if (!blockheaders->open(QIODevice::ReadOnly)) { // can't be opened for reading.
+            blockheaders.reset();
+       }
+       else {
+           Blockchain::setStaticChain(blockheaders->map(0, blockheaders->size()), blockheaders->size());
+           blockheaders->close();
+       }
+    }
 
     ECC_State crypo_state; // allows the secp256k1 to function.
     qmlRegisterType<TransactionInfo>("Flowee.org.pay", 1, 0, "TransactionInfo");
