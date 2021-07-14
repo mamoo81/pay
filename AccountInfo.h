@@ -71,7 +71,11 @@ public:
 
     WalletHistoryModel* historyModel();
 
+    /**
+     * Sets a wallet to be the first to open (aka default) wallet.
+     */
     void setDefaultWallet(bool isDefault);
+    /// returns if a wallet is the main, first, wallet
     bool isDefaultWallet();
 
     // maps to Wallet::userOwnedWallet
