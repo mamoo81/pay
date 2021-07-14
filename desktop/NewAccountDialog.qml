@@ -38,6 +38,7 @@ ApplicationWindow {
         } else {
             feedback.ok = true;
         }
+        privKey.text = privKey.text.trim();
     }
 
     Label {
