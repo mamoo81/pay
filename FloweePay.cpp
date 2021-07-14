@@ -420,7 +420,8 @@ void FloweePay::setHideBalance(bool hideBalance)
 void FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)
 {
     auto wallet = createWallet(walletName);
-    wallet->addPrivateKey(privateKey, walletStartHeightHint());
+    // TODO check with a search engine what the start-height is of the key.
+    wallet->addPrivateKey(privateKey, 520000);
     wallet->setSingleAddressWallet(true);
 }
 
