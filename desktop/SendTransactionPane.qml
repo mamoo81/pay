@@ -53,7 +53,8 @@ Rectangle {
             FloweeTextField {
                 id: destination
                 focus: true
-                property bool addressOk: addressType === Pay.CashPKH || (forceLegacyOk && addressType === Pay.LegacyPKH)
+                property bool addressOk: (addressType === Pay.CashPKH || addressType === Pay.CashSH)
+                                         || (forceLegacyOk && (addressType === Pay.LegacySH || addressType === Pay.LegacyPKH))
                 property var addressType: Flowee.identifyString(text);
                 property bool forceLegacyOk: false
 
@@ -276,7 +277,8 @@ Rectangle {
         anchors.fill: parent
         Item {
             // BTC address warning.
-            visible: destination.addressType === Pay.LegacyPKH && destination.forceLegacyOk === false;
+            visible: (destination.addressType === Pay.LegacySH || destination.addressType === Pay.LegacyPKH)
+                     && destination.forceLegacyOk === false;
             onVisibleChanged: {
                 var pos = parent.mapFromItem(destination, 0, destination.height);
                 // console.log("xxxx " + pos.x + ", " + pos.y);

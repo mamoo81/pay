@@ -95,9 +95,26 @@ void Payment::setTargetAddress(const QString &address)
         emit targetAddressChanged();
         break;
     }
-    case FloweePay::CashSH:
-    case FloweePay::LegacySH:
-        throw std::runtime_error("Unsupported at this time");
+    case FloweePay::LegacySH: {
+        m_address = address.trimmed();
+        CBase58Data legacy;
+        auto ok = legacy.SetString(m_address.toStdString());
+        assert(ok);
+        assert(legacy.isMainnetSh() || legacy.isTestnetSh());
+        CashAddress::Content c;
+        c.hash = legacy.data();
+        c.type = CashAddress::SCRIPT_TYPE;
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        break;
+    }
+    case FloweePay::CashSH: {
+        m_address = address.trimmed();
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
+        assert (!c.hash.empty() && c.type == CashAddress::SCRIPT_TYPE);
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        emit targetAddressChanged();
+        break;
+    }
     default:
         throw std::runtime_error("Address not recognized");
     }
@@ -133,8 +150,10 @@ void Payment::approveAndSign()
         builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));
         ok = true;
     }
-    // else if (c.type == CashAddress::SCRIPT_TYPE)
-    // TODO p2sh must be added in transactionbuilder first
+    else if (c.type == CashAddress::SCRIPT_TYPE) {
+        builder.pushOutputPay2Script(CScriptID(reinterpret_cast<const char*>(c.hash.data())));
+        ok = true;
+    }
     assert(ok); // mismatch between setPayTo and this method...
 
     auto tx = builder.createTransaction();
