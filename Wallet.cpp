@@ -27,12 +27,12 @@
 #include <streaming/MessageBuilder.h>
 #include <streaming/MessageParser.h>
 #include <base58.h>
+#include <cashaddr.h>
 
 #include <QFile>
 #include <QSet>
 #include <QTimer>
 #include <QThread>
-#include <cashaddr.h>
 
 // #define DEBUGUTXO
 
@@ -1112,6 +1112,14 @@ void Wallet::loadSecrets()
             if (index > 0 && secret.address.size() > 0) {
                 m_walletSecrets.insert(std::make_pair(index, secret));
                 m_nextWalletSecretId = std::max(m_nextWalletSecretId, index);
+#if 0
+                CashAddress::Content c;
+                c.hash.resize(20);
+                memcpy(c.hash.data(), secret.address.begin(), 20);
+                c.type = CashAddress::PUBKEY_TYPE;
+                auto ad = CashAddress::encodeCashAddr("bitcoincash", c);
+                logCritical() << "Loaded" << index << ad;
+#endif
             }
             secret = WalletSecret();
         }
