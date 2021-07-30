@@ -403,6 +403,8 @@ void Wallet::setUserOwnedWallet(bool userOwnedWallet)
     if (m_userOwnedWallet == userOwnedWallet)
         return;
     m_userOwnedWallet = userOwnedWallet;
+    if (m_userOwnedWallet && m_segment->priority() == PrivacySegment::Last) // user-owned changed from false to true
+        m_segment->setPriority(PrivacySegment::Normal);
     m_secretsChanged = true;
     emit userOwnedChanged();
 }

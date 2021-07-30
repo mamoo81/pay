@@ -161,6 +161,7 @@ void FloweePay::init()
     if (m_wallets.isEmpty() && m_createStartWallet) {
         createNewWallet();
         m_wallets.at(0)->setUserOwnedWallet(false);
+        m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
     }
     emit loadComplete_priv();
 }
