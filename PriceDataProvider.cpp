@@ -72,19 +72,41 @@ QString PriceDataProvider::formattedPrice(double amountSats, int price) const
     static const QString priceTemplate("00%1");
     QString centsPrice = priceTemplate.arg(std::abs(fiatValue));
     const int offset = std::min(2, centsPrice.length() - 3); // number of those zeros to cut off again.
+    const int length = centsPrice.length() - 2 - offset;
+
+    QStringRef actualPrice = centsPrice.midRef(offset, length);
+
+    QString dummy; // used when we inserted thousand separators. QStringRef needs the thing it refers to to outlive it.
+    // group size is 3
+    if (length > 3 && length <= 15) {
+        // lets insert some thousands separators.
+        char buf[21];
+        memset(buf, 0, sizeof(buf));
+        int add = 0;
+        for (int i = 0; i < actualPrice.length(); ++i) {
+            // insert thousands separators.
+            if (i > 0 && actualPrice.length() % 3  == i % 3)
+                buf[i + add++] = QLocale::system().groupSeparator().toLatin1();
+
+            assert(actualPrice.at(i).unicode() < 127); // only digits
+            buf[i + add] = actualPrice.at(i).unicode();
+        }
+        dummy = QString(buf);
+        actualPrice = dummy.leftRef(dummy.size());
+    }
 
     if (m_dispayCents) {
-        return m_currencySymbolPrefix
-                % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
-                % centsPrice.mid(offset, centsPrice.length() - 2 - offset)
+        return (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
+                % m_currencySymbolPrefix
+                % actualPrice
                 % QLocale::system().decimalPoint()
                 % centsPrice.right(2)
                 % m_currencySymbolPost;
     }
     else {
-        return m_currencySymbolPrefix
-                % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
-                % centsPrice.mid(offset, centsPrice.length() - 2 - offset)
+        return (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
+                % m_currencySymbolPrefix
+                % actualPrice
                 % m_currencySymbolPost;
     }
 }
