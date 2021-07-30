@@ -94,7 +94,7 @@ GridLayout {
                         anchors.bottom: arrowLine.top
                     }
                     Rectangle {
-                        color: "yellow"
+                        color: Flowee.useDarkSkin ? "#4fb2e7" : "yellow"
                         visible: inAddress.visible
                         x: inAddress.x - 3
                         y: inAddress.y -3
@@ -161,7 +161,7 @@ GridLayout {
                         anchors.bottom: outArrowLine.top
                     }
                     Rectangle {
-                        color: "yellow"
+                        color: Flowee.useDarkSkin ? "#4fb2e7" : "yellow"
                         visible: modelData !== null && modelData.forMe
                         x: outAddress.x - 3
                         y: outAddress.y -3

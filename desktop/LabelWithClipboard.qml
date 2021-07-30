@@ -25,8 +25,8 @@ Label {
 
     MouseArea {
         anchors.fill: parent
-        acceptedButtons: Qt.RightButton
-        onClicked:  menu.start(parent);
+        acceptedButtons: Qt.RightButton | Qt.LeftButton
+        onClicked: menu.start(parent);
 
         Menu {
             id: menu

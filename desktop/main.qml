@@ -58,7 +58,7 @@ ApplicationWindow {
     property color floweeBlue: "#0b1088"
     property color floweeGreen: "#90e4b5"
 
-    Pane {
+    Item {
         id: mainScreen
         anchors.fill: parent
         focus: true
@@ -108,7 +108,8 @@ ApplicationWindow {
             Rectangle {
                 anchors.fill: parent
                 opacity: 0.2
-                anchors.margins: -5
+                anchors.topMargin: -5
+                anchors.leftMargin: -5
                 radius: 5
                 color: Flowee.useDarkSkin ? "black" : "white"
             }
@@ -248,6 +249,7 @@ ApplicationWindow {
             Column {
                 id: leftColumn
                 y: 40
+                x: 10
                 width: overviewPane.width - 60
 
                 Item {
