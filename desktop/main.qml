@@ -58,49 +58,52 @@ ApplicationWindow {
     property color floweeBlue: "#0b1088"
     property color floweeGreen: "#90e4b5"
 
-    header: Rectangle {
-        color: Flowee.useDarkSkin ? "#00000000" : mainWindow.floweeBlue
-        width: parent.width
-        height: {
-            var h = mainWindow.height;
-            if (h > 700)
-                return 120;
-            return h / 700 * 120;
-        }
-
-        Rectangle {
-            color: mainWindow.floweeBlue
-            opacity: Flowee.useDarkSkin ? 1 : 0
-
-            width: parent.height / 5 * 4
-            height: width
-            radius: width / 2
-            x: 2
-            y: 8
-            Behavior on opacity { NumberAnimation { duration: 300 } }
-        }
-
-        Image {
-            anchors.verticalCenter: parent.verticalCenter
-            x: 20
-            smooth: true
-            source: "FloweePay-light.svg"
-            // ratio: 77 / 449
-            height: (parent.height - 20) * 7 / 10
-            width: height * 449 / 77
-        }
-    }
-
     Pane {
         id: mainScreen
         anchors.fill: parent
         focus: true
 
+        Rectangle {
+            id: header
+            color: Flowee.useDarkSkin ? "#00000000" : mainWindow.floweeBlue
+            width: parent.width
+            height: {
+                var h = mainWindow.height;
+                if (h > 800)
+                    return 120;
+                return h / 800 * 120;
+            }
+
+            Rectangle {
+                color: mainWindow.floweeBlue
+                opacity: Flowee.useDarkSkin ? 1 : 0
+
+                width: parent.height / 5 * 4
+                height: width
+                radius: width / 2
+                x: 2
+                y: 8
+                Behavior on opacity { NumberAnimation { duration: 300 } }
+            }
+
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                x: 20
+                smooth: true
+                source: "FloweePay-light.svg"
+                // ratio: 77 / 449
+                height: (parent.height - 20) * 7 / 10
+                width: height * 449 / 77
+            }
+        }
+
         Item {
             id: tabbedPane
-            height: parent.height
             width: parent.width * 65 / 100
             anchors.right: parent.right
+            anchors.top: header.bottom
+            anchors.topMargin: -1 * tabbar.headerHeight
+            anchors.bottom: parent.bottom
 
             Rectangle {
                 anchors.fill: parent
@@ -115,7 +118,7 @@ ApplicationWindow {
 
                 Pane {
                     property string title: qsTr("Activity")
-                    property string icon: Flowee.useDarkSkin ? "activityIcon-light.png" : "activityIcon.png"
+                    property string icon: "activityIcon-light.png"
                     anchors.fill: parent
                     ListView {
                         id: activityView
@@ -129,7 +132,7 @@ ApplicationWindow {
                     id: sendTransactionPane
                     anchors.fill: parent
                     property string title: qsTr("Send")
-                    property string icon: Flowee.useDarkSkin ? "sendIcon-light.png" : "sendIcon.png"
+                    property string icon: "sendIcon-light.png"
                 }
                 Loader {
                     id: receivePane
@@ -141,7 +144,7 @@ ApplicationWindow {
                     id: settingsPane
                     anchors.fill: parent
                     property string title: qsTr("Settings")
-                    property string icon: Flowee.useDarkSkin ? "settingsIcon-light.png" : "settingsIcon.png"
+                    property string icon: "settingsIcon-light.png"
 
                     GridLayout {
                         columns: 3
@@ -233,11 +236,14 @@ ApplicationWindow {
 
         Flickable {
             id: overviewPane
-            width: parent.width - tabbedPane.width
-            height: parent.height
+            anchors.left: parent.left
+            anchors.right: tabbedPane.left
+            anchors.bottom: parent.bottom
+            anchors.top: header.bottom
             contentWidth: leftColumn.width
             contentHeight: leftColumn.height
             flickableDirection: Flickable.VerticalFlick
+            clip: true
 
             Column {
                 id: leftColumn

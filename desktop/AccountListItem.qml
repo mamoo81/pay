@@ -41,6 +41,8 @@ Item {
             x: 20
             text: root.account.name
             font.bold: true
+            width: parent.width - 55
+            clip: true
         }
         /* TODO
         Flow {

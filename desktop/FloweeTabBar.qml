@@ -24,6 +24,7 @@ Item {
     // This trick  means any child items the FloweeTabBar are actually added to the 'stack' item's children.
     default property alias content: stack.children
     property int currentIndex: 0
+    property alias headerHeight: header.height
     onCurrentIndexChanged: setOpacities()
     Component.onCompleted: setOpacities()
 
@@ -60,6 +61,7 @@ Item {
                         id: payTabButtonText
                         anchors.verticalCenter: parent.verticalCenter
                         font.bold: true
+                        color: "white"
                         text: stack.children[index].title
                     }
                 }
