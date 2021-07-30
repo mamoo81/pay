@@ -16,14 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "NetDataProvider.h"
+#include "NetPeer.h"
+#include "FloweePay.h"
+#include <ConnectionManager.h>
+#include <Peer.h>
 
 #include <QThread>
+#include <QTimer>
 
 NetDataProvider::NetDataProvider(int initialBlockHeight, QObject *parent)
     : QObject(parent),
       m_blockHeight(initialBlockHeight)
 {
-    connect (this, SIGNAL(peerDeleted(int)), this, SLOT(deleteNetPeer(int)), Qt::QueuedConnection);
+    connect (this, SIGNAL(peerDeleted(int)), this, SLOT(deleteNetPeer(int)), Qt::QueuedConnection); // Make this thread-safe
 }
 
 
@@ -36,10 +41,14 @@ void NetDataProvider::newPeer(int peerId, const std::string &userAgent, int star
     newPeer->setParent(this);
     m_peers.append(newPeer);
     emit peerListChanged();
+
+    if (m_refreshTimer)
+        QTimer::singleShot(0, m_refreshTimer, SLOT(start()));
 }
 
 void NetDataProvider::lostPeer(int peerId)
 {
+    // this callback is not guarenteed to be made in our thread.
     emit peerDeleted(peerId);
 }
 
@@ -57,6 +66,25 @@ void NetDataProvider::deleteNetPeer(int peerId)
             return;
         }
     }
+}
+
+void NetDataProvider::updatePeers()
+{
+    auto &conMan = FloweePay::instance()->p2pNet()->connectionManager();
+    QMutexLocker l(&m_peerMutex);
+    QList<NetPeer *> peers(m_peers);
+    bool stopTimer = true;
+    for (auto &p : peers) {
+        auto peer = conMan.peer(p->connectionId());
+        // update 'p' with up to date data from the peer.
+        p->setRelaysTransactions(peer->relaysTransactions());
+        p->setHeadersReceived(peer->receivedHeaders());
+
+        if (peer->privacySegment() == nullptr)
+            stopTimer = false;
+    }
+    if (stopTimer)
+        m_refreshTimer->stop();
 }
 
 void NetDataProvider::blockchainHeightChanged(int newHeight)
@@ -85,4 +113,18 @@ QList<NetPeer *> NetDataProvider::peers() const
 int NetDataProvider::blockheight() const
 {
     return m_blockHeight.loadAcquire();
+}
+
+void NetDataProvider::startRefreshTimer()
+{
+    /*
+     * Start a timer that checks every second if the peer has changed one of the not-broadcast status.
+     * When a segment is assigned we can stop the timer.
+     */
+    QMutexLocker l(&m_peerMutex);
+    assert(m_refreshTimer == nullptr); // can be called only once
+    m_refreshTimer = new QTimer(this);
+    connect(m_refreshTimer, SIGNAL(timeout()), this, SLOT(updatePeers()));
+    m_refreshTimer->setTimerType(Qt::VeryCoarseTimer);
+    m_refreshTimer->setInterval(950);
 }

@@ -25,6 +25,8 @@
 #include <QList>
 #include <QMutex>
 
+class QTimer;
+
 class NetDataProvider : public QObject, public P2PNetInterface
 {
     Q_OBJECT
@@ -42,6 +44,8 @@ public:
     QList<NetPeer*> peers() const;
     int blockheight() const;
 
+    void startRefreshTimer();
+
 signals:
     void peerListChanged();
     void blockHeightChanged();
@@ -49,11 +53,14 @@ signals:
 
 private slots:
     void deleteNetPeer(int id);
+    void updatePeers();
 
 private:
     mutable QMutex m_peerMutex;
     QList<NetPeer*> m_peers;
     QAtomicInt m_blockHeight;
+
+    QTimer *m_refreshTimer = nullptr;
 };
 
 #endif

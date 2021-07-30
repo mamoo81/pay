@@ -29,7 +29,9 @@ class NetPeer : public QObject
     Q_PROPERTY(int banScore READ banScore NOTIFY banScoreChanged)
     Q_PROPERTY(QString address READ address CONSTANT)
     Q_PROPERTY(int segmentId READ segmentId CONSTANT)
-    // TODO maybe getters for the services?
+    Q_PROPERTY(QStringList services READ services CONSTANT)
+    Q_PROPERTY(bool headersReceived READ headersReceived NOTIFY headersReceivedChanged)
+    Q_PROPERTY(bool relaysTransactions READ relaysTransactions NOTIFY relaysTransactionsChanged)
 public:
     NetPeer(int connectionId, const QString &userAgent, int startHeight, PeerAddress address, QObject *parent = nullptr);
 
@@ -45,14 +47,30 @@ public:
 
     void notifyPunishmentChanged();
 
+    void setHeadersReceived(bool received);
+    bool headersReceived() const;
+
+    bool relaysTransactions() const;
+    void setRelaysTransactions(bool newRelaysTransactions);
+
+    QStringList services() const;
+    void setServices(uint64_t services);
+
 signals:
     void banScoreChanged();
+    void headersReceivedChanged();
+    void relaysTransactionsChanged();
+    void servicesChanged();
 
 private:
     const QString m_userAgent;
     const int m_connectionId;
     const int m_startHeight;
     PeerAddress m_address;
+
+    bool m_headersReceived = false;
+    bool m_relaysTransactions = false;
+    uint64_t m_services = 0;
 };
 
 #endif

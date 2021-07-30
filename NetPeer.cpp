@@ -67,3 +67,57 @@ void NetPeer::notifyPunishmentChanged()
 {
     emit banScoreChanged();
 }
+
+void NetPeer::setHeadersReceived(bool received)
+{
+    if (received == m_headersReceived)
+        return;
+    m_headersReceived = received;
+    emit headersReceivedChanged();
+}
+
+bool NetPeer::headersReceived() const
+{
+    return m_headersReceived;
+}
+
+bool NetPeer::relaysTransactions() const
+{
+    return m_relaysTransactions;
+}
+
+void NetPeer::setRelaysTransactions(bool newRelaysTransactions)
+{
+    if (m_relaysTransactions == newRelaysTransactions)
+        return;
+    m_relaysTransactions = newRelaysTransactions;
+    emit relaysTransactionsChanged();
+}
+
+QStringList NetPeer::services() const
+{
+    QStringList answer;
+    if (m_services & 1)
+        answer << QLatin1String("NETWORK");
+    if (m_services & (1 << 2))
+        answer << QLatin1String("BLOOM");
+    if (m_services & (1 << 4))
+        answer << QLatin1String("XTHIN");
+    if (m_services & (1 << 5))
+        answer << QLatin1String("CASH");
+    if (m_services & (1 << 8))
+        answer << QLatin1String("CF");
+    if (m_services & (1 << 10))
+        answer << QLatin1String("NETWORK_LIMITED");
+    if (m_services & (1 << 11)) // obsolete, but still used
+        answer << QLatin1String("EXTVERSION");
+    return answer;
+}
+
+void NetPeer::setServices(uint64_t services)
+{
+    if (m_services == services)
+        return;
+    m_services = services;
+    emit servicesChanged();
+}

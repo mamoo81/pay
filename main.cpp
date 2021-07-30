@@ -163,6 +163,7 @@ int main(int argc, char *argv[])
 
         NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);
         app->p2pNet()->addP2PNetListener(netData);
+        netData->startRefreshTimer();
 
         PortfolioDataProvider *portfolio = new PortfolioDataProvider(&engine);
         for (auto &wallet : app->wallets()) {

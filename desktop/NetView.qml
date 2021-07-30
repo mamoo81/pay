@@ -72,18 +72,32 @@ ApplicationWindow {
                     }
                 }
                 Label {
-                    id : accountName
+                    id : accountStatus
                     font.bold: true
                     text: {
                         var id = modelData.segmentId;
+                        if (id === 0) {
+                            // not peered yet.
+                            if (modelData.services.Length === 0)
+                                return qsTr("initializing connection")
+                            if (!modelData.headersReceived)
+                                return qsTr("Verifying peer")
+                            return qsTr("Assigning..")
+                        }
                         var accounts = portfolio.accounts;
                         for (var i = 0; i < accounts.length; ++i) {
                             if (accounts[i].id === id)
                                 return qsTr("Peer for account: %1").arg(accounts[i].name);
                         }
-                        return ""; // not peered yet
+                        return "ERROR";
                     }
                     visible: text !== ""
+                }
+                Flow {
+                    Repeater {
+                        model: modelData.services
+                        delegate: Label { text: modelData }
+                    }
                 }
             }
         }
