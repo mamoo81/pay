@@ -16,7 +16,6 @@
         <file>eye-open-light.png</file>
         <file>eye-open.png</file>
         <file>defaults.ini</file>
-        <file>AccountDetails.qml</file>
         <file>ArrowPoint.qml</file>
         <file>BitcoinAmountLabel.qml</file>
         <file>BitcoinValueField.qml</file>
@@ -37,5 +36,6 @@
         <file>FloweeGroupBox.qml</file>
         <file>LabelWithClipboard.qml</file>
         <file>FloweeTextField.qml</file>
+        <file>AccountDetails.qml</file>
     </qresource>
 </RCC>

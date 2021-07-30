@@ -233,6 +233,34 @@ ApplicationWindow {
                     }
                 }
             }
+            Behavior on opacity { NumberAnimation { } }
+            visible: opacity > 0
+        }
+
+        Loader {
+            id: accountDetails
+            anchors.bottom: parent.bottom
+            anchors.left: overviewPane.right
+            anchors.right: parent.right
+            anchors.top: parent.top
+            opacity: 0
+            Behavior on opacity { NumberAnimation { } }
+
+            states: [
+                State {
+                    name: "showTransactions"
+                    PropertyChanges { target: tabbedPane; opacity: 1 }
+                    PropertyChanges { target: accountDetails; opacity: 0 }
+                    PropertyChanges { target: accountDetails; source: "" }
+                },
+                State {
+                    name: "accountDetails"
+                    PropertyChanges { target: accountDetails; source: "./AccountDetails.qml" }
+                    PropertyChanges { target: accountDetails; opacity: 1 }
+                    PropertyChanges { target: tabbedPane; opacity: 0 }
+                }
+            ]
+            state: "showTransactions"
         }
 
         Flickable {
@@ -453,34 +481,6 @@ ApplicationWindow {
             }
         }
 
-        Loader {
-            id: accountDetailsDialog
-            property QtObject account: null
-            function open(account_) {
-                account = account_;
-                if (item) {
-                    item.account = accountDetailsDialog.account;
-                    item.raise();
-                } else {
-                    source = "./AccountDetails.qml";
-                }
-            }
-
-            onLoaded: {
-                item.account = accountDetailsDialog.account
-                ControlColors.applySkin(item)
-                accountDetailsHandler.target = item
-            }
-            Connections {
-                id: accountDetailsHandler
-                function onVisibleChanged() {
-                    if (!accountDetailsDialog.item.visible) {
-                        accountDetailsDialog.source = ""
-                        accountDetailsDialog.account = null
-                    }
-                }
-            }
-        }
         // NetView (reachable from settings)
         Loader {
             id: netView

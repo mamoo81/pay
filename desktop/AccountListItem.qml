@@ -18,8 +18,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 
-import "./ControlColors.js" as ControlColors
-
 Item {
     id: root
     property QtObject account: null
@@ -105,7 +103,7 @@ Item {
                 id: contextMenu
                 MenuItem {
                     text: qsTr("Details")
-                    onTriggered: accountDetailsDialog.open(root.account)
+                    onTriggered: accountDetails.state = "accountDetails";
                 }
                 MenuItem {
                     checked: root.account.isDefaultWallet

@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,25 +17,21 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
-import QtQuick.Layouts 1.11
+// import QtQuick.Layouts 1.11
+import Flowee.org.pay 1.0
 
-ApplicationWindow {
+Item {
     id: root
-    visible: true
-    minimumWidth: grid.implicitWidth + 50
-    minimumHeight: rootPane.implicitHeight + footer.height
-    title: qsTr("Account Details")
-    modality: Qt.NonModal
-    flags: Qt.Dialog
+    property QtObject account: portfolio.current
 
-    property QtObject account: null
-
-    Pane {
-        id: rootPane
-        focus: true
+    Rectangle {
         anchors.fill: parent
-        implicitHeight: walletType.implicitHeight + 10 + grid.implicitHeight
+        color: "green"
+    }
 
+    Column {
+        x: 20
+        y: 10
         Label {
             id: walletType
             width: parent.width
@@ -48,84 +44,26 @@ ApplicationWindow {
             }
             wrapMode: Text.WordWrap
         }
-        GridLayout {
-            id: grid
-            columns: 2
-            anchors.top: walletType.bottom
-            width: root.width - 20
-
-
-            Label { text: qsTr("Name") + ":" }
-            FloweeTextField {
-                text: root.account.name
-                focus: true
-                Layout.fillWidth: true
-                onAccepted:  root.account.name = text
-            }
-            Label {
-                text: qsTr("Balance unconfirmed") + ":"
-            }
-            BitcoinAmountLabel {
-                value: root.account.balanceUnconfirmed
-                colorize: false
-            }
-            Label {
-                text: qsTr("Balance immature") + ":"
-            }
-            BitcoinAmountLabel {
-                value: root.account.balanceImmature
-                colorize: false
-            }
-            Label {
-                text: qsTr("Balance other") + ":"
-            }
-            BitcoinAmountLabel {
-                value: root.account.balanceConfirmed
-                colorize: false
-            }
-            Label {
-                text: qsTr("Available coins") + ":"
-            }
-            Label {
-                text: root.account.unspentOutputCount
-            }
-            Label {
-                text: qsTr("Historical coins") + ":"
-            }
-            Label {
-                text: root.account.historicalOutputCount
-            }
-            Label {
-                text: qsTr("Sync status") + ":"
-            }
-            SyncIndicator {
-                id: syncIndicator
-                accountBlockHeight: root.account === null ? 0 : root.account.lastBlockSynched
-            }
-            Pane {}
-            Label {
-                text: syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
-            }
-        }
-        Keys.onPressed: {
-            if (event.key === Qt.Key_Escape) {
-                root.visible = false;
-                event.accepted = true
-            }
+        FloweeTextField {
+            text: root.account.name
+            focus: true
+            // Layout.fillWidth: true
+            onAccepted:  root.account.name = text
         }
     }
 
-    footer: Item {
-        width: parent.width
-        height: closeButton.height + 20
-
-        Button {
-            id: closeButton
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.margins: 10
-            text: qsTr("Close")
-            onClicked: root.visible = false
+    Rectangle {
+        id: closeIcon
+        width: 30
+        height: 30
+        color: "red"
+        anchors.right: parent.right
+        anchors.margins: 20
+        MouseArea {
+            anchors.fill: parent
+            onClicked: accountDetails.state = "showTransactions"
         }
     }
+
+
 }
