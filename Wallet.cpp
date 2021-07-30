@@ -73,6 +73,8 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
     loadSecrets();
     loadWallet();
     rebuildBloom();
+
+    connect (this, SIGNAL(startDelayedSave()), this, SLOT(delayedSave()), Qt::QueuedConnection); // ensure right thread calls us.
 }
 
 Wallet::~Wallet()
@@ -191,6 +193,7 @@ void Wallet::newTransaction(const Tx &tx)
     } // mutex scope
     saveTransaction(tx);
     recalculateBalance();
+    emit startDelayedSave();
 
     emit utxosChanged();
     emit appendedTransactions(firstNewTransaction, 1);
@@ -352,6 +355,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
         for (auto &tx : transactionsToSave) { // save the Tx to disk.
             saveTransaction(tx);
         }
+        emit startDelayedSave();
     }
     recalculateBalance();
     if (needNewBloom)
@@ -1197,6 +1201,15 @@ void Wallet::saveSecrets()
     m_secretsChanged = false;
 }
 
+void Wallet::delayedSave()
+{
+    if (m_saveStarted)
+        return;
+    m_saveStarted = true;
+
+    QTimer::singleShot(1200, this, SLOT(delayedSaveTimeout()));
+}
+
 void Wallet::loadWallet()
 {
     std::ifstream in((m_basedir / "wallet.dat").string());
@@ -1579,6 +1592,12 @@ void Wallet::recalculateBalance()
     m_balanceImmature = balanceImmature;
     m_balanceUnconfirmed = balanceUnconfirmed;
     emit balanceChanged();
+}
+
+void Wallet::delayedSaveTimeout()
+{
+    m_saveStarted = false;
+    saveWallet();
 }
 
 int Wallet::unspentOutputCount() const

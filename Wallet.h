@@ -206,6 +206,8 @@ private slots:
     /// find all not-yet-confirmed transactions and start a broadcast
     void broadcastUnconfirmed();
     void recalculateBalance();
+    void delayedSave();
+    void delayedSaveTimeout();
 
 signals:
     void balanceChanged();
@@ -216,6 +218,9 @@ signals:
     void userOwnedChanged();
 
     void transactionConfirmed(int txIndex);
+
+    // \internal
+    void startDelayedSave();
 
 protected:
     Wallet();
@@ -321,8 +326,12 @@ private:
 
     friend class WalletHistoryModel;
 
+    // user settings
     bool m_singleAddressWallet = false;
     bool m_userOwnedWallet = true;
+
+    // operational
+    bool m_saveStarted = false;
 
     QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
 
