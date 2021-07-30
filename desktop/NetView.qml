@@ -89,7 +89,7 @@ ApplicationWindow {
                             if (accounts[i].id === id)
                                 return qsTr("Peer for account: %1").arg(accounts[i].name);
                         }
-                        return "ERROR";
+                        return qsTr("Peer for initial account");
                     }
                     visible: text !== ""
                 }
