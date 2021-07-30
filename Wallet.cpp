@@ -807,7 +807,7 @@ struct UnspentOutput {
     int score = 0;          // the score gained by using this tx.
 };
 
-int scoreForSolution(size_t outputCount, int change, size_t unspentOutputCount)
+int scoreForSolution(size_t outputCount, int64_t change, size_t unspentOutputCount)
 {
     assert(unspentOutputCount > 0);
     assert(outputCount > 0);
@@ -957,7 +957,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         } while (current.totalSats - current.fee < output);
 
         score += scoreForSolution(current.outputs.size(),
-                                  current.totalSats - current.fee - output, unspentOutputs.size());
+                                  (current.totalSats - current.fee) - output, unspentOutputs.size());
         Q_ASSERT(current.totalSats - current.fee >= output);
         if (score > bestScore) {
             bestScore = score;
