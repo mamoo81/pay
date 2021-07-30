@@ -422,8 +422,8 @@ void FloweePay::createImportedWallet(const QString &privateKey, const QString &w
 {
     auto wallet = createWallet(walletName);
     // TODO check with a search engine what the start-height is of the key.
-    wallet->addPrivateKey(privateKey, 520000);
     wallet->setSingleAddressWallet(true);
+    wallet->addPrivateKey(privateKey, 520000);
 }
 
 FloweePay::StringType FloweePay::identifyString(const QString &string) const

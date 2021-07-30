@@ -660,7 +660,10 @@ bool Wallet::isSingleAddressWallet() const
 
 void Wallet::setSingleAddressWallet(bool singleAddressWallet)
 {
+    if (m_singleAddressWallet == singleAddressWallet)
+        return;
     m_singleAddressWallet = singleAddressWallet;
+    m_secretsChanged = true;
 }
 
 void Wallet::broadcastTxFinished(int txIndex, bool success)
