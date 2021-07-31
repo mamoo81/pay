@@ -4,6 +4,8 @@
         <file alias="FloweePay.svg">../images/FloweePay.svg</file>
         <file alias="FloweePay.svg">../images/FloweePay.svg</file>
         <file alias="FloweePay-light.svg">../images/FloweePay-light.svg</file>
+        <file>images/gear.svg</file>
+        <file>images/gear-white.svg</file>
         <file>sendIcon.png</file>
         <file>sendIcon-light.png</file>
         <file>receiveIcon.png</file>

@@ -242,7 +242,8 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: overviewPane.right
             anchors.right: parent.right
-            anchors.top: parent.top
+            anchors.top: header.bottom
+            anchors.topMargin: -1 * tabbar.headerHeight
             opacity: 0
             Behavior on opacity { NumberAnimation { } }
 
