@@ -26,9 +26,10 @@ Item {
 
     Label {
         id: walletDetailsLabel
-        text: qsTr("Wallet Details")
+        text: qsTr("Advanced Wallet Details")
         font.pointSize: 18
         color: "white"
+        anchors.horizontalCenter: parent.horizontalCenter
     }
 
     Item {
@@ -79,7 +80,7 @@ Item {
             RowLayout {
                 Layout.columnSpan: 3
                 Label {
-                    text: qsTr("Name:")
+                    text: qsTr("Name") + ":"
                 }
                 FloweeTextField {
                     id: accountNameEdit
@@ -88,13 +89,19 @@ Item {
                     Layout.fillWidth: true
                 }
             }
-/*
+            Label {
+                text: qsTr("Sync Status") + ":"
+            }
+            Label {
+                text: syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
+            }
+
+/* TODO, features to add;
             Label {
                 text: qsTr("Security:")
                 Layout.columnSpan: 3
                 font.italic: true
             }
-*/
     
             FloweeCheckBox {
                 id: schnorr
@@ -109,7 +116,6 @@ Item {
                 Layout.fillWidth: true
                 Layout.rowSpan: 5
             }
-    /* TODO, features to add;
             FloweeCheckBox {
                 id: pinToTray
                 checked: false
@@ -196,7 +202,7 @@ Item {
                     }
                 }
                 Repeater {
-                    model: 0
+                    model: root.account.walletSecrets
                     delegate: Rectangle {
                         color: (index % 2) == 0 ? mainWindow.palette.base : mainWindow.palette.alternateBase
                         width: root.width
@@ -204,22 +210,56 @@ Item {
 
                         Label {
                             id: id
-                            text: index + 1
+                            text: modelData.id
                             x: 10
                         }
                         LabelWithClipboard {
                             x: 40
-                            text: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
+                            text: modelData.address
                         }
 
+                        Label {
+                            text: qsTr("unused")
+                            anchors.right: button.left
+                            anchors.rightMargin: 10
+                            visible: !bitcoinAmountLabel.visible
+                        }
                         BitcoinAmountLabel {
                             id: bitcoinAmountLabel
-                            value: 54415412
+                            value: modelData.saldo
                             colorize: false
-                            anchors.right: parent.right
+                            visible: modelData.used || modelData.saldo > 0 // we either signed or we have UTXOs
+                            anchors.right: button.left
                             anchors.rightMargin: 10
                         }
-                        // TODO add button with menu
+                        ConfigItem {
+                            id: button
+                            anchors.right: parent.right
+                            anchors.rightMargin: 10
+                            wide: true
+                            MouseArea {
+                                anchors.fill: parent
+                                anchors.margins: -3
+                                onClicked: contextMenu.popup()
+
+                                Menu {
+                                    id: contextMenu
+                                    MenuItem {
+                                        text: qsTr("Copy Address")
+                                        onTriggered: Flowee.copyToClipboard(modelData.address)
+                                    }
+                                    MenuItem {
+                                        text: qsTr("Copy Private Key")
+                                        onTriggered: Flowee.copyToClipboard(modelData.fetchPrivateKey())
+                                    }
+                                    /*
+                                    MenuItem {
+                                        text: qsTr("Move to New Wallet")
+                                        onTriggered: ;
+                                    } */
+                                }
+                            }
+                        }
                     }
                 }
             }

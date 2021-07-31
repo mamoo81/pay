@@ -414,6 +414,7 @@ ApplicationWindow {
                     opacity: 0.6
                 }
                 SyncIndicator {
+                    id: syncIndicator
                     accountBlockHeight: isLoading || portfolio.current === null ? 0 : portfolio.current.lastBlockSynched
                     visible: !isLoading && portfolio.current !== null
                 }

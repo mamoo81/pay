@@ -413,6 +413,31 @@ void Wallet::setUserOwnedWallet(bool userOwnedWallet)
     emit userOwnedChanged();
 }
 
+std::map<int, Wallet::WalletSecret> Wallet::walletSecrets() const
+{
+    QMutexLocker locker(&m_lock);
+    return m_walletSecrets;
+}
+
+int64_t Wallet::saldoForPrivateKey(int privKeyId) const
+{
+    QMutexLocker locker(&m_lock);
+    int64_t amount = 0;
+    for (const auto &row : m_walletTransactions) {
+        const WalletTransaction &wt = row.second;
+        for (auto i = wt.outputs.begin(); i != wt.outputs.end(); ++i) {
+            if (i->second.walletSecretId == privKeyId) {
+                OutputRef ref(row.first, i->first);
+                auto utxo = m_unspentOutputs.find(ref.encoded());
+                if (utxo != m_unspentOutputs.end()) {
+                    amount += utxo->second;
+                }
+            }
+        }
+    }
+    return amount;
+}
+
 QList<PaymentRequest *> Wallet::paymentRequests() const
 {
     QMutexLocker locker(&m_lock);

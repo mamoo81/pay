@@ -20,9 +20,10 @@ import Flowee.org.pay 1.0
 
 Item {
     id: root
-    width: 3
+    width: wide ? 14 : 3
     height: column.height
     property color color: Flowee.useDarkSkin ? "white" : "black"
+    property bool wide: false
     Column {
         id: column
         spacing: 3
@@ -31,7 +32,7 @@ Item {
             model: 4
             delegate: Rectangle {
                 color: root.color
-                width: 3
+                width: root.wide ? 14 : 3
                 height: 3
                 radius: 3
             }

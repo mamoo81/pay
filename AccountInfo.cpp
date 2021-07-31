@@ -16,11 +16,124 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "AccountInfo.h"
-#include "Wallet.h"
 #include "WalletHistoryModel.h"
 #include "FloweePay.h"
 
 #include <p2p/PrivacySegment.h>
+
+#include <base58.h>
+#include <primitives/key.h>
+#include <cashaddr.h>
+
+
+WalletSecret::WalletSecret(int id, QObject *parent)
+    : QObject(parent),
+      m_id(id)
+{
+}
+
+int WalletSecret::id() const
+{
+    return m_id;
+}
+
+bool WalletSecret::used() const
+{
+    return m_used;
+}
+
+void WalletSecret::setUsed(bool newUsed)
+{
+    if (m_used == newUsed)
+        return;
+    m_used = newUsed;
+    emit usedChanged();
+}
+
+bool WalletSecret::usedSchnorr() const
+{
+    return m_usedSchnorr;
+}
+
+void WalletSecret::setUsedSchnorr(bool newUsedSchnorr)
+{
+    if (m_usedSchnorr == newUsedSchnorr)
+        return;
+    m_usedSchnorr = newUsedSchnorr;
+    emit usedSchnorrChanged();
+}
+
+const QString &WalletSecret::address() const
+{
+    return m_address;
+}
+
+void WalletSecret::setAddress(const QString &newAddress)
+{
+    if (m_address == newAddress)
+        return;
+    m_address = newAddress;
+    emit addressChanged();
+}
+
+qint64 WalletSecret::saldo() const
+{
+    return m_saldo;
+}
+
+void WalletSecret::setSaldo(qint64 newSaldo)
+{
+    if (m_saldo == newSaldo)
+        return;
+    m_saldo = newSaldo;
+    emit saldoChanged();
+}
+
+void WalletSecret::populate(const Wallet::WalletSecret &secret, qint64 saldo)
+{
+    CashAddress::Content c;
+    c.hash.resize(20);
+    memcpy(c.hash.data(), secret.address.begin(), 20);
+    c.type = CashAddress::PUBKEY_TYPE;
+    auto prefix = FloweePay::instance()->chainPrefix();
+    auto ad = CashAddress::encodeCashAddr(prefix, c);
+    setAddress(QString::fromStdString(ad).mid(prefix.size() + 1));
+
+    switch (secret.signatureType) {
+    case Wallet::SignedAsEcdsa:
+        setUsed(true);
+        setUsedSchnorr(false);
+        break;
+    case Wallet::SignedAsSchnorr:
+        setUsed(true);
+        setUsedSchnorr(true);
+        break;
+    case Wallet::NotUsedYet:
+        setUsed(false);
+        setUsedSchnorr(true);
+        break;
+    }
+
+    if (saldo >= 0)
+        setSaldo(saldo);
+}
+
+QString WalletSecret::fetchPrivateKey() const
+{
+    AccountInfo *ai = qobject_cast<AccountInfo*>(parent());
+    assert(ai);
+    const auto secrets = ai->m_wallet->walletSecrets();
+    auto iter = secrets.find(m_id);
+    assert(iter != secrets.end());
+
+    CBase58Data d;
+    d.setData(iter->second.privKey, FloweePay::instance()->chain() == P2PNet::MainChain ? CBase58Data::Mainnet : CBase58Data::Testnet);
+    return QString::fromStdString(d.ToString());
+}
+
+
+// --------------------------------------------------------------------------
+
 
 AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     : QObject(parent),
@@ -30,6 +143,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     connect(wallet, SIGNAL(balanceChanged()), this, SIGNAL(balanceChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(walletSecretChanged(int)), this, SLOT(updateWalletSecret(int)), Qt::QueuedConnection);
 }
 
 int AccountInfo::id() const
@@ -138,4 +252,33 @@ QObject *AccountInfo::createPaymentRequest(QObject *parent)
 bool AccountInfo::isSingleAddressAccount() const
 {
     return m_wallet->isSingleAddressWallet();
+}
+
+const QList<WalletSecret *> &AccountInfo::walletSecrets()
+{
+    if (m_walletSecrets.isEmpty()) {
+        // lazy Initialize
+        const auto secrets = m_wallet->walletSecrets();
+        for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+            WalletSecret *s = new WalletSecret(i->first, this);
+            s->populate(i->second, m_wallet->saldoForPrivateKey(i->first));
+            m_walletSecrets.append(s);
+        }
+    }
+    return m_walletSecrets;
+}
+
+void AccountInfo::updateWalletSecret(int id)
+{
+    if (m_walletSecrets.isEmpty())
+        return;
+
+    for (auto ws : m_walletSecrets) {
+        if (ws->id() == id) {
+            auto map = m_wallet->walletSecrets();
+            auto iter = map.find(id);
+            assert(iter != map.end());
+            ws->populate(iter->second, -1);
+        }
+    }
 }

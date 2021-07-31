@@ -201,6 +201,20 @@ public:
      */
     void setUserOwnedWallet(bool userOwnedWallet);
 
+    struct WalletSecret {
+        CKey privKey;
+        CKeyID address;
+        uint32_t initialHeight = 0;
+        SignatureType signatureType = NotUsedYet;
+        /// if true, this address has been reseved to receive funds on
+        bool reserved = false; // in-mem-only
+    };
+
+    /// Return the private keys and details owned by this wallet.
+    std::map<int, WalletSecret> walletSecrets() const;
+
+    int64_t saldoForPrivateKey(int privKeyId) const;
+
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
@@ -218,6 +232,8 @@ signals:
     void userOwnedChanged();
 
     void transactionConfirmed(int txIndex);
+
+    void walletSecretChanged(int secretId);
 
     // \internal
     void startDelayedSave();
@@ -248,15 +264,6 @@ private:
     bool m_walletChanged = false;
     /// used to determine if we need to persist the private keys
     bool m_secretsChanged = false;
-
-    struct WalletSecret {
-        CKey privKey;
-        CKeyID address;
-        uint32_t initialHeight = 0;
-        SignatureType signatureType = NotUsedYet;
-        /// if true, this address has been reseved to receive funds on
-        bool reserved = false; // in-mem-only
-    };
 
     int m_nextWalletSecretId = 1;
     int m_nextWalletTransactionId = 1;
