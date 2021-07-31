@@ -66,9 +66,10 @@ Item {
         anchors.top: walletDetailsLabel.bottom
         anchors.topMargin: 10
         anchors.bottom: parent.bottom
-        width: parent.width
+        width: parent.width - 16
         contentHeight: gridlayout.height + keysTable.height + 20
         clip: true
+        x: 8
 
         GridLayout {
             id: gridlayout
