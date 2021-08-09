@@ -277,7 +277,7 @@ void TestWallet::saveTransaction2()
         b3.appendOutput(40);
         b3.pushOutputPay2Address(wallet->nextUnusedAddress());
         b3.appendOutput(10);
-        CKeyID id("666");
+        CKeyID id("66666666666666666666");
         b3.pushOutputPay2Address(id);
         Tx t3 = b3.createTransaction(&pool);
         list[0] = t3;
