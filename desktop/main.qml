@@ -306,8 +306,9 @@ ApplicationWindow {
                 }
 
                 Item {
-                    height: balance.height
+                    property bool showDetails: false
                     width: balance.width
+                    height: balance.height + (showDetails ? extraBalances.height + 20 : 0)
                     BitcoinAmountLabel {
                         id: balance
                         opacity: blurredBalance.visible ? 0 : 1
@@ -338,6 +339,48 @@ ApplicationWindow {
                         source: balance
                         radius: 58
                     }
+                    Grid {
+                        id: extraBalances
+                        visible: parent.showDetails
+                        width: parent.width - 30
+                        anchors.top: balance.bottom
+                        anchors.topMargin: 10
+                        spacing: 10
+                        columns: 2
+                        x: 25
+
+                        property QtObject account: mainWindow.isLoading ? null : portfolio.current
+                        Label {
+                            text: qsTr("Unconfirmed") + ":"
+                        }
+                        BitcoinAmountLabel {
+                            value: extraBalances.account == null ? 0 : extraBalances.account.balanceUnconfirmed
+                            colorize: false
+                            showFiat: false
+                        }
+                        Label {
+                            text: qsTr("Immature") + ":"
+                        }
+                        BitcoinAmountLabel {
+                            value: extraBalances.account == null ? 0 : extraBalances.account.balanceImmature
+                            colorize: false
+                            showFiat: false
+                        }
+                        Label {
+                            text: qsTr("Other") + ":"
+                        }
+                        BitcoinAmountLabel {
+                            value: extraBalances.account == null ? 0 : extraBalances.account.balanceConfirmed
+                            colorize: false
+                            showFiat: false
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: parent.showDetails = !parent.showDetails
+                    }
+
+                    Behavior on height { NumberAnimation {} }
                 }
                 Label {
                     text: {
