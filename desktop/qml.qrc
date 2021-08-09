@@ -39,5 +39,6 @@
         <file>LabelWithClipboard.qml</file>
         <file>FloweeTextField.qml</file>
         <file>AccountDetails.qml</file>
+        <file>SettingsPane.qml</file>
     </qresource>
 </RCC>

@@ -21,6 +21,7 @@
 #include <streaming/MessageParser.h>
 #include <streaming/BufferPool.h>
 #include <streaming/MessageBuilder.h>
+#include <config/flowee-config.h>
 
 #include <QStandardPaths>
 #include <QGuiApplication>
@@ -401,6 +402,19 @@ void FloweePay::setPreferSchnorr(bool preferSchnorr)
 
     m_preferSchnorr = preferSchnorr;
     emit preferSchnorrChanged();
+}
+
+QString FloweePay::version() const
+{
+    return QCoreApplication::instance()->applicationVersion();
+}
+
+QString FloweePay::libsVersion() const
+{
+    return QString("%1.%2.%3")
+            .arg(CLIENT_VERSION_MAJOR)
+            .arg(QString::number(CLIENT_VERSION_MINOR), 2, '0')
+            .arg(CLIENT_VERSION_REVISION);
 }
 
 bool FloweePay::hideBalance() const

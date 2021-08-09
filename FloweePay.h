@@ -40,6 +40,8 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
 {
     Q_OBJECT
     Q_PROPERTY(QString unitName READ unitName NOTIFY unitChanged)
+    Q_PROPERTY(QString version READ version CONSTANT)
+    Q_PROPERTY(QString libsVersion READ libsVersion CONSTANT)
     Q_PROPERTY(int windowWidth READ windowWidth WRITE setWindowWidth NOTIFY windowWidthChanged)
     Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
     Q_PROPERTY(int unitAllowedDecimals READ unitAllowedDecimals NOTIFY unitChanged)
@@ -192,6 +194,9 @@ public:
 
     bool preferSchnorr() const;
     void setPreferSchnorr(bool preferSchnorr);
+
+    QString version() const;
+    QString libsVersion() const;
 
 signals:
     void loadComplete();
