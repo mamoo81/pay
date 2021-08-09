@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     QGuiApplication qapp(argc, argv);
     qapp.setOrganizationName("flowee");
     qapp.setApplicationName("pay");
-    qapp.setApplicationVersion("0.3");
+    qapp.setApplicationVersion("2021.05");
     qapp.setWindowIcon(QIcon(":/FloweePay.png"));
 
     srand((quint32) QDateTime::currentMSecsSinceEpoch());
