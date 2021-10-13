@@ -99,7 +99,7 @@ public:
     void newTransaction(const Tx &tx) override;
     /// Let the wallet know that it is up-to-date to \a height
     void setLastSynchedBlockHeight(int height) override;
-    void headerSyncComplete();
+    void headerSyncComplete() override;
 
     PrivacySegment *segment() const;
 
