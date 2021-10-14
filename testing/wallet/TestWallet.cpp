@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "TestWallet.h"
+#include <utils/cashaddr.h>
 #include <Wallet.h>
 #include <Wallet_p.h>
 #include <FloweePay.h>
@@ -23,6 +24,7 @@
 #include <QtTest/QtTest>
 #include <QStandardPaths>
 #include <TransactionBuilder.h>
+
 
 void TestWallet::transactionOrdering()
 {
@@ -376,6 +378,47 @@ void TestWallet::unconfirmed()
         QCOMPARE(wallet->balanceImmature(), 0);
     }
 
+}
+
+void TestWallet::hierarchicallyDeterministic()
+{
+    const QString southMonkey("south monkey fire corn link estate burger lucky bronze pet chapter lamp");
+    {
+        auto wallet = createWallet();
+        QVERIFY(!wallet->isHDWallet());
+        QCOMPARE(wallet->hdWalletMnemonic(), QString());
+        QCOMPARE(wallet->hdWalletMnemonicPwd(), QString());
+        QCOMPARE(wallet->derivationPath(), QString());
+
+        std::vector<uint32_t> derivationPath = { HDMasterKey::Hardened + 44,  HDMasterKey::Hardened + 145, HDMasterKey::Hardened };
+        wallet->createHDMasterKey(southMonkey, QString(), derivationPath);
+
+        QVERIFY(wallet->isHDWallet());
+        QCOMPARE(wallet->hdWalletMnemonic(), southMonkey);
+        QCOMPARE(wallet->hdWalletMnemonicPwd(), QString());
+        QCOMPARE(wallet->derivationPath(), QString("m/44'/145'/0'"));
+    }
+    {
+        auto wallet = openWallet();
+        QVERIFY(wallet->isHDWallet());
+        QCOMPARE(wallet->hdWalletMnemonic(), southMonkey);
+        QCOMPARE(wallet->hdWalletMnemonicPwd(), QString());
+        QCOMPARE(wallet->derivationPath(), QString("m/44'/145'/0'"));
+
+        CKeyID id;
+        int num = wallet->reserveUnusedAddress(id);
+        QCOMPARE(num, 1); // the first maps to the non-HD one created in our unit-test below (in createWallet())
+
+        // Create a new HD wallet, which should use base derivation plus "/0/0" appended.
+        num = wallet->reserveUnusedAddress(id);
+        QCOMPARE(num, 2);
+
+        QVERIFY(!id.IsNull());
+        auto address = CashAddress::encodeCashAddr("bitcoincash",
+                { CashAddress::PUBKEY_TYPE, std::vector<uint8_t>(id.begin(), id.end())});
+        QCOMPARE(QString::fromStdString(address), "bitcoincash:qrg0jddykyfeal70xduvyeathd3ulhm7hv22m3t7na");
+        QCOMPARE(wallet->derivationPath(), QString("m/44'/145'/0'"));
+    }
 }
 
 std::unique_ptr<Wallet> TestWallet::createWallet()

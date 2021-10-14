@@ -46,6 +46,10 @@ enum PrivateSaveTags {
     UserOwnedWallet,       // bool (defaults to true)
 
     SignatureType,       // See the enum Wallet::WalletSecret::SignatureType
+
+    HDWalletMnemonic,         // string
+    HDWalletMnemonicPassword, // string
+    HDWalletPathItem,         // int, one part of the derivation path. (typically 5 are give in a row)
 };
 
 enum WalletDataSaveTags {

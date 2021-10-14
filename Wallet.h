@@ -31,6 +31,7 @@
 #include <QMutex>
 #include <QString>
 #include <QObject>
+#include <HDMasterKey.h>
 
 class WalletInfoObject;
 class TransactionInfo;
@@ -215,6 +216,24 @@ public:
 
     int64_t saldoForPrivateKey(int privKeyId) const;
 
+    /// Returns true if this wallet is backed by a Hierarchically Deterministic seed.
+    bool isHDWallet() const;
+    /// Provided that this is a HD wallet, return the seed-words (aka mnemonic)
+    QString hdWalletMnemonic() const;
+    /// Provided that this is a HD wallet, return the seed-words (aka mnemonic) passphrase
+    QString hdWalletMnemonicPwd() const;
+    /// Provided that this is a HD wallet, return the derivation path used for this wallet.
+    QString derivationPath() const;
+    /**
+     * Create a HD masterkey that will be used for future creation of new private keys
+     *
+     * @param mnemonic The seed-string. Please validate the mnemonic before you pass it in here! This method assumes it is valid.
+     * @param pwd the password that was created with the seed-phrase. Can be empty.
+     * @param derivationPath the derivation steps. We will add 2 ints to this internally, so typically this vector has 3 fields.
+     */
+    void createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath);
+
+
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
@@ -270,6 +289,16 @@ private:
     int m_lastBlockHeightSeen = 0;
     short m_bloomScore = 0;
     std::map<int, WalletSecret> m_walletSecrets;
+
+    struct HierarchicallyDeterministicWalletData {
+        /// the strings should have utf8 encoded text.
+        HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::string &pwd = std::string());
+        HDMasterKey masterKey;
+        QString walletMnemonic;
+        QString walletMnemonicPwd;
+        std::vector<uint32_t> derivationPath; // contains the last created privkey.
+    };
+    std::unique_ptr<HierarchicallyDeterministicWalletData> m_hdData;
 
     QString m_name;
 

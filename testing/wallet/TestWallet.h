@@ -47,6 +47,8 @@ private slots:
     void findInputs();
     void unconfirmed();
 
+    void  hierarchicallyDeterministic();
+
 private:
     std::unique_ptr<Wallet> createWallet();
     std::unique_ptr<Wallet> openWallet();

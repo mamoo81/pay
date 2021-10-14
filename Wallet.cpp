@@ -438,6 +438,67 @@ int64_t Wallet::saldoForPrivateKey(int privKeyId) const
     return amount;
 }
 
+bool Wallet::isHDWallet() const
+{
+    return m_hdData.get() != nullptr;
+}
+
+QString Wallet::hdWalletMnemonic() const
+{
+    if (m_hdData.get())
+        return m_hdData->walletMnemonic;
+    return QString();
+}
+
+QString Wallet::hdWalletMnemonicPwd() const
+{
+    if (m_hdData.get())
+        return m_hdData->walletMnemonicPwd;
+    return QString();
+}
+
+QString Wallet::derivationPath() const
+{
+    if (m_hdData.get()) {
+        QString answer("m");
+        assert(m_hdData->derivationPath.size() >= 2); //
+        for (size_t i = 0; i < m_hdData->derivationPath.size() - 2; ++i) {
+            uint32_t value = m_hdData->derivationPath.at(i);
+            const bool hardened = value & HDMasterKey::Hardened;
+            answer += QString("/%1").arg(value & 0x7FFFFFFF);
+            if (hardened)
+                answer += '\'';
+        }
+        return answer;
+    }
+    return QString();
+}
+
+void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath)
+{
+    assert(m_hdData.get() == nullptr);
+    if (m_hdData.get()) {
+        logFatal() << "Refusing to replace HDMasterkey with new one";
+        return;
+    }
+    // we only convert here in order to be 100% certain that the input from the user is
+    // encoded properly, regardless of the underlying OS settings.
+
+    // Explicitly use utf8 encoding.
+    std::string m(mnemonic.toUtf8().constData());
+    std::string p(pwd.toUtf8().constData());
+    m_hdData.reset(new HierarchicallyDeterministicWalletData(m, p));
+    m_hdData->derivationPath = derivationPath;
+    // normal wallets add to the derivation path 2 items, the first is typically used
+    // to indicate 0=receive-keys, 1=change-keys
+    // the seconed is typically a sequential list of keys we give out on reservation.
+    m_hdData->derivationPath.push_back(0);
+    m_hdData->derivationPath.push_back(-1);
+
+    m_secretsChanged = true;
+    saveSecrets();
+}
+
 QList<PaymentRequest *> Wallet::paymentRequests() const
 {
     QMutexLocker locker(&m_lock);
@@ -808,7 +869,14 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId)
     int answer;
     for (int i = 0; i < 50; ++i) {
         WalletSecret secret;
-        secret.privKey.MakeNewKey();
+        if (m_hdData.get()) {
+            assert(!m_hdData->derivationPath.empty());
+            ++m_hdData->derivationPath.back();
+            secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
+        }
+        else {
+            secret.privKey.MakeNewKey();
+        }
 
         const CPubKey pubkey = secret.privKey.GetPubKey();
         secret.address = pubkey.getKeyId();
@@ -1082,8 +1150,14 @@ void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
 {
     QMutexLocker locker(&m_lock);
     WalletSecret secret;
-    secret.privKey.MakeNewKey();
-
+    if (m_hdData.get()) {
+        assert(!m_hdData->derivationPath.empty());
+        ++m_hdData->derivationPath.back();
+        secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
+    }
+    else {
+        secret.privKey.MakeNewKey();
+    }
     const CPubKey pubkey = secret.privKey.GetPubKey();
     secret.address = pubkey.getKeyId();
     secret.initialHeight = currentBlockheight;
@@ -1140,6 +1214,8 @@ void Wallet::loadSecrets()
     in.read(pool.begin(), dataSize);
     Streaming::MessageParser parser(pool.commit(dataSize));
     WalletSecret secret;
+    std::string mnemonic, mnemonicpwd;
+    std::vector<uint32_t> derivationPath;
     int index = 0;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
@@ -1183,7 +1259,29 @@ void Wallet::loadSecrets()
         else if (parser.tag() == WalletPriv::SignatureType) {
             secret.signatureType = static_cast<SignatureType>(parser.intData());
         }
+        else if (parser.tag() == WalletPriv::HDWalletMnemonic) {
+            mnemonic = parser.stringData();
+        }
+        else if (parser.tag() == WalletPriv::HDWalletMnemonicPassword) {
+            mnemonicpwd = parser.stringData();
+        }
+        else if (parser.tag() == WalletPriv::HDWalletPathItem) {
+            derivationPath.push_back(static_cast<uint32_t>(parser.longData()));
+        }
     }
+
+    if (mnemonic.empty() != derivationPath.empty()) {
+        logFatal() << "Found incomplete data for HD wallet";
+    } else if (!mnemonic.empty()) {
+        assert(m_hdData.get() == nullptr);
+        try {
+            m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, mnemonicpwd));
+            m_hdData->derivationPath = derivationPath;
+        } catch (const std::exception &e) {
+            logFatal() << "Failed loading the HD wallet due to:" << e;
+        }
+    }
+
     m_secretsChanged = false;
     ++m_nextWalletSecretId;
 }
@@ -1193,8 +1291,25 @@ void Wallet::saveSecrets()
     // mutex already locked
     if (!m_secretsChanged)
         return;
-    Streaming::BufferPool pool(m_walletSecrets.size() * 70);
+    int hdDataSize = 0;
+    if (m_hdData.get()) {
+        assert (!m_hdData->walletMnemonic.isEmpty());
+        assert (m_hdData->masterKey.isValid());
+        // Reserve enough space. Notice that string-length and encoded length may be different.
+        hdDataSize = m_hdData->walletMnemonic.length() * 5 + m_hdData->walletMnemonicPwd.length() * 5;
+        hdDataSize += m_hdData->walletMnemonicPwd.length() * 5;
+        hdDataSize += m_hdData->derivationPath.size() * 6;
+    }
+    Streaming::BufferPool pool(m_walletSecrets.size() * 70 + hdDataSize);
     Streaming::MessageBuilder builder(pool);
+    if (m_hdData.get()) {
+        builder.add(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic.toUtf8().constData());
+        if (!m_hdData->walletMnemonicPwd.isEmpty())
+            builder.add(WalletPriv::HDWalletMnemonicPassword, m_hdData->walletMnemonicPwd.toUtf8().constData());
+        for (const uint32_t item : m_hdData->derivationPath) {
+            builder.add(WalletPriv::HDWalletPathItem,  static_cast<uint64_t>(item));
+        }
+    }
     for (const auto &item : m_walletSecrets) {
         builder.add(WalletPriv::Index, item.first);
         builder.addByteArray(WalletPriv::PrivKey, item.second.privKey.begin(), item.second.privKey.size());
@@ -1639,4 +1754,14 @@ int Wallet::historicalOutputCount() const
         count += wtx.second.outputs.size();
     }
     return count;
+}
+
+
+// ///////////////////////////////////////////////////////////////////////////////////////////
+
+Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::string &pwd)
+    : masterKey(HDMasterKey::fromMnemonic(seedWords, pwd))
+{
+    walletMnemonic = QString::fromUtf8(seedWords.c_str());
+    walletMnemonicPwd = QString::fromUtf8(pwd.c_str());
 }
