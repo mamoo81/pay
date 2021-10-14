@@ -251,19 +251,28 @@ ApplicationWindow {
                         source: balance
                         radius: 58
                     }
-                    Grid {
+                    GridLayout {
                         id: extraBalances
                         visible: parent.showDetails
                         width: parent.width - 30
                         anchors.top: balance.bottom
                         anchors.topMargin: 10
-                        spacing: 10
                         columns: 2
                         x: 25
 
                         property QtObject account: mainWindow.isLoading ? null : portfolio.current
                         Label {
+                            text: qsTr("Main") + ":"
+                            Layout.alignment: Qt.AlignRight
+                        }
+                        BitcoinAmountLabel {
+                            value: extraBalances.account == null ? 0 : extraBalances.account.balanceConfirmed
+                            colorize: false
+                            showFiat: false
+                        }
+                        Label {
                             text: qsTr("Unconfirmed") + ":"
+                            Layout.alignment: Qt.AlignRight
                         }
                         BitcoinAmountLabel {
                             value: extraBalances.account == null ? 0 : extraBalances.account.balanceUnconfirmed
@@ -272,17 +281,10 @@ ApplicationWindow {
                         }
                         Label {
                             text: qsTr("Immature") + ":"
+                            Layout.alignment: Qt.AlignRight
                         }
                         BitcoinAmountLabel {
                             value: extraBalances.account == null ? 0 : extraBalances.account.balanceImmature
-                            colorize: false
-                            showFiat: false
-                        }
-                        Label {
-                            text: qsTr("Other") + ":"
-                        }
-                        BitcoinAmountLabel {
-                            value: extraBalances.account == null ? 0 : extraBalances.account.balanceConfirmed
                             colorize: false
                             showFiat: false
                         }
