@@ -40,5 +40,8 @@
         <file>FloweeTextField.qml</file>
         <file>AccountDetails.qml</file>
         <file>SettingsPane.qml</file>
+        <file>NewAccountPane.qml</file>
+        <file>AccountTypeSelector.qml</file>
+        <file>NewAccountCreateBasicAccount.qml</file>
     </qresource>
 </RCC>

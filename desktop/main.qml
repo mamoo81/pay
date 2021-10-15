@@ -407,7 +407,7 @@ ApplicationWindow {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: newAccountDiag.source = "./NewAccountDialog.qml"
+                        onClicked: newAccountPane.source = "./NewAccountPane.qml"
                     }
                 }
                 Item { // spacer
@@ -455,17 +455,16 @@ ApplicationWindow {
                 }
             }
         }
+        // new accounts pane, corresponding to the big green button
         Loader {
-            id: newAccountDiag
-            onLoaded: {
-                ControlColors.applySkin(item)
-                newAccountHandler.target = item
-            }
+            id: newAccountPane
+            anchors.fill: parent
+            onLoaded:  newAccountHandler.target = item // to unload on hide
             Connections {
                 id: newAccountHandler
                 function onVisibleChanged() {
-                    if (!newAccountDiag.item.visible) {
-                        newAccountDiag.source = ""
+                    if (!newAccountPane.item.visible) {
+                        newAccountPane.source = ""
                     }
                 }
             }
