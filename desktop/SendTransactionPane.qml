@@ -181,8 +181,7 @@ Rectangle {
             title: qsTr("Transaction Details")
             width: parent.width
 
-
-            content: GridLayout {
+            GridLayout {
                 columns: 2
                 property bool txOk: root.payment != null && root.payment.paymentOk
 

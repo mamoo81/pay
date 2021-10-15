@@ -27,8 +27,9 @@ Item {
     property bool collapsable: true
     property bool isCollapsed: false
     property string title: ""
-    property alias content: child.children
+    default property alias content: child.children
     property alias columns: child.columns
+    activeFocusOnTab: true
     clip: true
 
     width: 100 // should be changed by user
@@ -42,7 +43,7 @@ Item {
         }
         return w;
     }
-    implicitHeight: arrowPoint.height + (isCollapsed ? 0 : child.height + 10)
+    implicitHeight: arrowPoint.height + (isCollapsed ? 0 : child.height + 25) // 25 = 15 top, 5 bottom of content area
 
     Rectangle { // the outline
         width: parent.width
@@ -57,7 +58,7 @@ Item {
         width: parent.width
         height: 20
         enabled: root.collapsable
-        onClicked:  root.isCollapsed = !root.isCollapsed
+        onClicked: root.isCollapsed = !root.isCollapsed
     }
 
     Rectangle {
@@ -71,6 +72,16 @@ Item {
             id: title
             x: 12
             text: root.title
+
+            Rectangle {
+               anchors.fill: parent
+               anchors.leftMargin: -2
+               anchors.rightMargin: -2
+               color: "#00000000"
+               border.color: parent.palette.highlight
+               border.width: 2
+               visible: root.activeFocus
+            }
         }
     }
 
@@ -95,12 +106,19 @@ Item {
 
     GridLayout { // user set content
         id: child
-        x: 6
-        y: titleArea.height
-        width: root.width - 12
+        x: 10
+        y: titleArea.height + 10
+        width: root.width - 20
         height: implicitHeight
         visible: !root.isCollapsed
     }
 
     Behavior on height { NumberAnimation { } }
+    Keys.onPressed: {
+        if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+            if (root.collapsable) {
+                root.isCollapsed = !root.isCollapsed
+            }
+        }
+    }
 }
