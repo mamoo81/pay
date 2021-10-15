@@ -16,41 +16,90 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
+import QtQuick.Controls 2.11
 
 Item {
-    id: floweeCheckBox
+    id: root
     property bool checked: false
+    property alias text: title.text
+    property string tooltipText: ""
     signal clicked;
+    implicitWidth: slider.width + 6 + title.width + (tooltipText === "" ? 0 : (questionMarkIcon.width + 16))
+    implicitHeight: Math.max(slider.implicitHeight, title.implicitHeight)
+    clip: true
 
-    width: implicitWidth
-    height: implicitHeight
-    implicitWidth: 60
-    implicitHeight: 27
+    Item {
+        id: slider
+        width: implicitWidth
+        height: implicitHeight
+        implicitWidth: 60
+        implicitHeight: 27
 
-    Rectangle {
-        anchors.fill: parent
-        radius: parent.height / 3
-        color: mainWindow.palette.window
-        border.color: mainWindow.palette.button
-        border.width: 2
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.height / 3
+            color: mainWindow.palette.window
+            border.color: mainWindow.palette.button
+            border.width: 2
 
-    }
-    Rectangle {
-        width: parent.height / 5 * 4
-        height: width
-        radius: width
-        x: parent.checked ? parent.width - width - 3 : 3
-        anchors.verticalCenter: parent.verticalCenter
-        color: mainWindow.palette.highlight
+        }
+        Rectangle {
+            width: parent.height / 5 * 4
+            height: width
+            radius: width
+            x: root.checked ? parent.width - width - 3 : 3
+            anchors.verticalCenter: parent.verticalCenter
+            color: mainWindow.palette.highlight
 
-        Behavior on x { NumberAnimation {}}
+            Behavior on x { NumberAnimation {}}
+        }
     }
 
     MouseArea {
-        anchors.fill: parent
+        id: mousy
+        width: slider.width + 6 + title.width
+        height: parent.height
         onClicked: {
-            parent.checked = !parent.checked
-            parent.clicked()
+            root.checked = !root.checked
+            root.clicked()
+        }
+        hoverEnabled: true
+
+        ToolTip {
+            parent: root
+            text: root.tooltipText
+            delay: 500
+            // timeout: 5000
+            visible: mousy.containsMouse
+        }
+    }
+    Label {
+        id: title
+        anchors.left: slider.right
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.leftMargin: 6
+    }
+
+    Rectangle {
+        id: questionMarkIcon
+        visible: root.tooltipText !== ""
+        width: q.width + 14
+        height: width
+        anchors.left: title.right
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.leftMargin: 16
+        radius: width
+        color: q.palette.text
+        Label {
+            id: q
+            text: "?"
+            color: palette.base
+            anchors.centerIn: parent
+            MouseArea {
+                anchors.fill: parent
+                id: clicky
+                onClicked: ToolTip.show(root.tooltipText, 15000);
+            }
         }
     }
 }

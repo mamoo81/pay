@@ -71,15 +71,12 @@ Item {
         clip: true
         x: 8
 
-        GridLayout {
+        ColumnLayout {
             id: gridlayout
-            columns: 3
-            columnSpacing: 6
-            rowSpacing: 10
+            spacing: 10
             width: parent.width
 
             RowLayout {
-                Layout.columnSpan: 3
                 Label {
                     text: qsTr("Name") + ":"
                 }
@@ -91,10 +88,7 @@ Item {
                 }
             }
             Label {
-                text: qsTr("Sync Status") + ":"
-            }
-            Label {
-                text: syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
+                text: qsTr("Sync Status") + ":" + syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
             }
 
 /* TODO, features to add;
@@ -107,51 +101,31 @@ Item {
             FloweeCheckBox {
                 id: schnorr
                 checked: true
-            }
-            Label {
                 text: qsTr("Use Schnorr signatures");
-            }
-            Item { // spacer
-                width: 1
-                height: 1
-                Layout.fillWidth: true
-                Layout.rowSpan: 5
             }
             FloweeCheckBox {
                 id: pinToTray
                 checked: false
-            }
-            Label {
                 text: qsTr("Pin to Pay");
             }
             FloweeCheckBox {
                 id: pinToOpen
                 checked: false
-            }
-            Label {
                 text: qsTr("Pin to Open");
             }
             FloweeCheckBox {
                 id: syncOnStart
                 checked: false
-            }
-            Label {
                 text: qsTr("Sync on Start");
             }
             FloweeCheckBox {
                 id: useIndexServer
                 checked: false
-            }
-            RowLayout {
-                Label {
-                    text: qsTr("Use Indexing Server");
-                }
-                Label { text: "?" }
+                text: qsTr("Use Indexing Server");
             }
 */
     
             RowLayout {
-                Layout.columnSpan: 3
                 Label {
                     id: walletType
                     text: {
