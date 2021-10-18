@@ -18,7 +18,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 
-Item {
+FocusScope {
     id: floweeTabBar
 
     // This trick  means any child items the FloweeTabBar are actually added to the 'stack' item's children.

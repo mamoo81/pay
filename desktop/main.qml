@@ -459,12 +459,17 @@ ApplicationWindow {
         Loader {
             id: newAccountPane
             anchors.fill: parent
-            onLoaded:  newAccountHandler.target = item // to unload on hide
+            onLoaded: {
+                tabbar.enabled = false // avoid it taking focus on tab
+                newAccountHandler.target = item // to unload on hide
+            }
             Connections {
                 id: newAccountHandler
                 function onVisibleChanged() {
                     if (!newAccountPane.item.visible) {
                         newAccountPane.source = ""
+                        tabbar.enabled = true // reenable
+                        tabbar.focus = true;
                     }
                 }
             }
