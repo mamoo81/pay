@@ -7,7 +7,6 @@ import Flowee.org.pay 1.0
 import "./ControlColors.js" as ControlColors
 
 Pane {
-    id: settingsPane
     property string title: qsTr("Settings")
     property string icon: "settingsIcon-light.png"
 
