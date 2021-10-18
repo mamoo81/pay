@@ -118,6 +118,7 @@ Item {
         if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
             if (root.collapsable) {
                 root.isCollapsed = !root.isCollapsed
+                event.accepted = true
             }
         }
     }

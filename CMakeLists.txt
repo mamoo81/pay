@@ -117,6 +117,7 @@ find_package(Flowee REQUIRED flowee_p2p)
 target_compile_definitions(pay
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(pay
+    flowee_apputils
     flowee_utils
     flowee_p2p
     ${OPENSSL_LIBRARIES}
@@ -126,3 +127,4 @@ target_link_libraries(pay
 add_subdirectory(testing)
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/pay DESTINATION bin)
+install(FILES ${CMAKE_SOURCE_DIR}/data/bip39-english DESTINATION floweepay)

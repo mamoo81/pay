@@ -34,6 +34,7 @@
 #include <cashaddr.h>
 #include <QTimer>
 #include <QResource>
+#include <QDir>
 
 constexpr const char *UNIT_TYPE = "unit";
 constexpr const char *CREATE_START_WALLET = "create-start-wallet";
@@ -97,6 +98,13 @@ FloweePay::FloweePay()
     timer->setTimerType(Qt::VeryCoarseTimer);
     timer->start(5 * 60 * 1000);
     connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
+
+    QFileInfo me(QCoreApplication::arguments().first());
+    QDir base(me.absoluteDir().absolutePath() + "/../floweepay/");
+    if (base.exists()) {
+        // add Mnemonic (BIP39) dictionaries.
+        m_hdSeedValidator.registerWordList("en", base.absoluteFilePath("bip39-english"));
+    }
 }
 
 FloweePay::~FloweePay()
@@ -440,9 +448,20 @@ void FloweePay::createImportedWallet(const QString &privateKey, const QString &w
     wallet->addPrivateKey(privateKey, 520000);
 }
 
+void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName)
+{
+    assert(false);
+    // TODO
+}
+
 FloweePay::StringType FloweePay::identifyString(const QString &string) const
 {
-    std::string s = string.trimmed().toStdString();
+    const QString string_ = string.trimmed();
+    const std::string s = string_.toStdString();
+    if (string_.isEmpty()) {
+        m_hdSeedValidator.clearSelectedLanguage();
+        return Unknown;
+    }
 
     CBase58Data legacy;
     if (legacy.SetString(s)) {
@@ -465,6 +484,20 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
             return CashSH;
     }
 
+    try {
+        const int space = string_.indexOf(' ');
+        auto word = string_.mid(0, space);
+        int index = m_hdSeedValidator.findWord(word);
+        if (index != -1) {
+            auto validity = m_hdSeedValidator.validateMnemonic(string_, index);
+            if (validity == Mnemonic::Valid)
+                return CorrectMnemonic;
+            return PartialMnemonic;
+        }
+    } catch (const std::exception &e) {
+        // probably deployment issues (faulty word list)
+        logFatal() << e;
+    }
     return Unknown;
 }
 

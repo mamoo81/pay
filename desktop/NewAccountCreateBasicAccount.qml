@@ -23,7 +23,7 @@ import Flowee.org.pay 1.0
 Item {
     Label {
         id: title
-        text: qsTr("This creates a new empty account with simple multi-address capability")
+        text: qsTr("This creates a new empty wallet with simple multi-address capability")
         width: parent.width
     }
     RowLayout {
@@ -34,7 +34,7 @@ Item {
             text: qsTr("Name:");
             Layout.alignment: Qt.AlignBaseline
         }
-        TextField {
+        FloweeTextField {
             id: accountName
         }
     }
@@ -60,7 +60,7 @@ Item {
     }
 
     FloweeGroupBox {
-        title: "Advanced Options"
+        title: qsTr("Advanced Options")
         anchors.top: button.bottom
         anchors.topMargin: 10
         width: parent.width
@@ -70,12 +70,12 @@ Item {
         FloweeCheckBox {
             id: singleAddress
             text: qsTr("Force Single Address");
-            tooltipText: qsTr("This account will have one address to receive on and used for change coins")
+            tooltipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
         }
         FloweeCheckBox {
             id: schnorr
             text: qsTr("Default to signing using ECDSA");
-            tooltipText: qsTr("Newer style Schnorr signatures will by default not be used")
+            tooltipText: qsTr("When enabled, newer style Schnorr signatures are not set as default for this wallet.")
         }
     }
 }

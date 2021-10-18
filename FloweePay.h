@@ -26,6 +26,7 @@
 #include <P2PNetInterface.h>
 #include <WorkerThreads.h>
 
+#include <Mnemonic.h>
 #include <QList>
 #include <QString>
 
@@ -61,7 +62,9 @@ public:
         CashPKH,
         CashSH,
         LegacyPKH,
-        LegacySH
+        LegacySH,
+        PartialMnemonic,
+        CorrectMnemonic
     };
     enum UnitOfBitcoin {
         BCH,
@@ -110,6 +113,17 @@ public:
     Q_INVOKABLE void createNewWallet(const QString &walletName = QString());
     /// swipe a paper wallet with an optional name
     Q_INVOKABLE void createImportedWallet(const QString &privateKey, const QString &walletName);
+
+    /**
+     * Import a mnemonics based (BIP39)  wallet.
+     * Warning; will throw if the mnemonic is invalid
+     *
+     * @param mnemonic, the list of words (validated!) in the BIP39 format.
+     * @param password, the optional password that goes with a BIP39 wallet.
+     * @param derivationPath the path that turns this mnemonic into a hierarchically deterministic wallet.
+     * @param walletName the name the user knows this wallet as.
+     */
+    Q_INVOKABLE void createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName);
 
     /// take a bitcoin-address and identify the type.
     Q_INVOKABLE FloweePay::StringType identifyString(const QString &string) const;
@@ -222,6 +236,7 @@ private:
     Wallet *createWallet(const QString &name);
     uint32_t walletStartHeightHint() const;
 
+    mutable Mnemonic m_hdSeedValidator;
 
     UnitOfBitcoin m_unit = BCH;
     QString m_basedir;

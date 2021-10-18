@@ -27,6 +27,8 @@ Item {
     implicitWidth: slider.width + 6 + title.width + (tooltipText === "" ? 0 : (questionMarkIcon.width + 16))
     implicitHeight: Math.max(slider.implicitHeight, title.implicitHeight)
     clip: true
+    activeFocusOnTab: true
+    focus: true
 
     Item {
         id: slider
@@ -39,9 +41,8 @@ Item {
             anchors.fill: parent
             radius: parent.height / 3
             color: mainWindow.palette.window
-            border.color: mainWindow.palette.button
+            border.color: root.activeFocus ? (Flowee.useDarkSkin ? "white" : "black") : mainWindow.palette.button
             border.width: 2
-
         }
         Rectangle {
             width: parent.height / 5 * 4
@@ -68,7 +69,7 @@ Item {
         ToolTip {
             parent: root
             text: root.tooltipText
-            delay: 500
+            delay: 1500
             // timeout: 5000
             visible: mousy.containsMouse
         }
@@ -100,6 +101,20 @@ Item {
                 id: clicky
                 onClicked: ToolTip.show(root.tooltipText, 15000);
             }
+        }
+    }
+    Keys.onPressed: {
+        if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+            root.checked = !root.checked
+            event.accepted = true
+        }
+        else if (root.checked && event.key === Qt.Key_Left) {
+            root.checked = false;
+            event.accepted = true
+        }
+        else if (!root.checked && event.key === Qt.Key_Right) {
+            root.checked = true;
+            event.accepted = true
         }
     }
 }

@@ -54,13 +54,15 @@ FocusScope {
             width: contentArea.width
             y: 10
             Label {
-                text: qsTr("Select Account Options")
+                text: qsTr("New Bitcoin Cash Wallet")
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pointSize: 14
             }
             Flow {
                 id: optionsRow
                 anchors.horizontalCenter: parent.horizontalCenter
+                activeFocusOnTab: true
+                focus: true
                 height: 320
                 spacing: 20
                 width: Math.min(contentArea.width - 30, 900) // smaller is OK, wider not
@@ -114,9 +116,9 @@ FocusScope {
                 text: {
                     var type = optionsRow.selectedAccountType
                     if (type == 0)
-                        return qsTr("Basic account with private keys")
+                        return qsTr("Basic wallet with private keys")
                     if (type == 1)
-                        return qsTr("Single seed-phrase account")
+                        return qsTr("Single seed-phrase wallet")
                     return qsTr("Import existing wallet")
                 }
                 font.pointSize: 14
@@ -137,24 +139,16 @@ FocusScope {
                 }
 
                 NewAccountCreateBasicAccount {
-                    id: createBasicAccount
-                    width: stack.width
                 }
                 GridLayout {
                     id: createHDAccount
-                    columns: 3
+                    columns: 1
                     Label {
-                        text: qsTr("This creates a new empty account with smart creation of addresses from a single seed")
-                        Layout.columnSpan: 3
+                        text: qsTr("This creates a new empty wallet with smart creation of addresses from a single seed")
+                        Layout.columnSpan: 1
                     }
                 }
-                GridLayout {
-                    id: importAccount
-                    columns: 3
-                    Label {
-                        text: qsTr("Please provide the text of the existing account you want to import")
-                        Layout.columnSpan: 3
-                    }
+                NewAccountImportAccount {
                 }
             }
         }
@@ -166,11 +160,11 @@ FocusScope {
             root.visible = false;
             event.accepted = true;
         }
-        else if (event.key === Qt.Key_Left) {
+        else if (event.key === Qt.Key_Left && optionsRow.activeFocus) {
             optionsRow.selectedAccountType = Math.max(0, optionsRow.selectedAccountType - 1)
             event.accepted = true;
         }
-        else if (event.key === Qt.Key_Right) {
+        else if (event.key === Qt.Key_Right && optionsRow.activeFocus) {
             optionsRow.selectedAccountType = Math.min(2, optionsRow.selectedAccountType + 1)
             event.accepted = true;
         }
