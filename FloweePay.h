@@ -125,6 +125,8 @@ public:
      */
     Q_INVOKABLE void createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName);
 
+    Q_INVOKABLE bool checkDerivation(const QString &path) const;
+
     /// take a bitcoin-address and identify the type.
     Q_INVOKABLE FloweePay::StringType identifyString(const QString &string) const;
 

@@ -124,6 +124,7 @@ GridLayout {
                 id: derivationPath
                 text: "m/44'/145'/0'" // default for BCH wallets
                 visible: importAccount.isMnemonic
+                color: Flowee.checkDerivation(text) ? palette.text : "red"
             }
         }
     }

@@ -443,15 +443,30 @@ void FloweePay::setHideBalance(bool hideBalance)
 void FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)
 {
     auto wallet = createWallet(walletName);
-    // TODO check with a search engine what the start-height is of the key.
     wallet->setSingleAddressWallet(true);
     wallet->addPrivateKey(privateKey, 520000);
 }
 
-void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName)
+void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName)
 {
-    assert(false);
-    // TODO
+    auto wallet = createWallet(walletName);
+    try {
+        std::vector<uint32_t> derivationPath = HDMasterKey::deriveFromString(derivationPathStr.toStdString());
+        wallet->createHDMasterKey(mnemonic, password, derivationPath);
+        wallet->setLastSynchedBlockHeight(520000);
+    } catch (const std::exception &e) {
+        logFatal() << "Failed to parse user provided data due to:" << e;
+    }
+}
+
+bool FloweePay::checkDerivation(const QString &path) const
+{
+    try {
+        auto vector = HDMasterKey::deriveFromString(path.toStdString());
+        return true;
+    } catch (...) {
+        return false;
+    }
 }
 
 FloweePay::StringType FloweePay::identifyString(const QString &string) const
