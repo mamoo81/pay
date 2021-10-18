@@ -26,7 +26,6 @@
         <file>ControlColors.js</file>
         <file>main.qml</file>
         <file>NetView.qml</file>
-        <file>NewAccountDialog.qml</file>
         <file>ReceiveTransactionPane.qml</file>
         <file>SendTransactionPane.qml</file>
         <file>SyncIndicator.qml</file>
