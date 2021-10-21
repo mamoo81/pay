@@ -402,7 +402,7 @@ ApplicationWindow {
                         anchors.centerIn: parent
                         width: parent.width - 20
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        text: qsTr("Import your Bitcoin Cash wallet")
+                        text: qsTr("Add Bitcoin Cash wallet")
                     }
 
                     MouseArea {
