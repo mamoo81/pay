@@ -35,6 +35,7 @@
 #include <QTimer>
 #include <QResource>
 #include <QDir>
+#include <SyncSPVAction.h>
 
 constexpr const char *UNIT_TYPE = "unit";
 constexpr const char *CREATE_START_WALLET = "create-start-wallet";
@@ -280,6 +281,9 @@ Wallet *FloweePay::createWallet(const QString &name)
 
     saveData();
     emit walletsChanged();
+
+    // make sure that we get peers for the new wallet.
+    dl->addAction<SyncSPVAction>();
     return w;
 }
 
