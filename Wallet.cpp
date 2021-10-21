@@ -1749,7 +1749,8 @@ void Wallet::saveWallet()
         if (!changed)
             return;
     }
-    Streaming::BufferPool pool(m_walletTransactions.size() * 110 + m_name.size() * 3 + 100);
+    Streaming::BufferPool pool(m_walletTransactions.size() * 110 + m_name.size() * 3 + 100
+                               + m_paymentRequests.size() * 500);
     Streaming::MessageBuilder builder(pool);
     for (const auto &item : m_walletTransactions) {
         builder.add(WalletPriv::Index, item.first);
