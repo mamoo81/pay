@@ -88,7 +88,7 @@ Item {
                 }
             }
             Label {
-                text: qsTr("Sync Status") + ":" + syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
+                text: qsTr("Sync Status") + ": " + syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
             }
 
 /* TODO, features to add;
