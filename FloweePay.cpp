@@ -172,6 +172,7 @@ void FloweePay::init()
         createNewWallet();
         m_wallets.at(0)->setUserOwnedWallet(false);
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
+        saveData();
     }
     emit loadComplete_priv();
 }
@@ -279,11 +280,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     dl->connectionManager().addPrivacySegment(w->segment());
     m_wallets.append(w);
 
-    saveData();
     emit walletsChanged();
-
-    // make sure that we get peers for the new wallet.
-    dl->addAction<SyncSPVAction>();
     return w;
 }
 
@@ -449,6 +446,8 @@ void FloweePay::createImportedWallet(const QString &privateKey, const QString &w
     auto wallet = createWallet(walletName);
     wallet->setSingleAddressWallet(true);
     wallet->addPrivateKey(privateKey, 520000);
+    saveData();
+    p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 }
 
 void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName)
@@ -457,7 +456,11 @@ void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &p
     try {
         std::vector<uint32_t> derivationPath = HDMasterKey::deriveFromString(derivationPathStr.toStdString());
         wallet->createHDMasterKey(mnemonic, password, derivationPath);
-        wallet->setLastSynchedBlockHeight(520000);
+        wallet->segment()->blockSynched(520000);
+        wallet->segment()->blockSynched(520000); // yes, twice
+        saveData();
+
+        p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
     } catch (const std::exception &e) {
         logFatal() << "Failed to parse user provided data due to:" << e;
     }
@@ -522,8 +525,11 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
 
 void FloweePay::createNewWallet(const QString &walletName)
 {
+    // TODO make this a HD wallet instead
     auto wallet = createWallet(walletName);
     wallet->createNewPrivateKey(walletStartHeightHint());
+
+    p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 }
 
 QString FloweePay::unitName() const

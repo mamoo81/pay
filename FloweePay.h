@@ -235,6 +235,7 @@ private:
     void init();
     void saveData();
     void saveAll();
+    // create wallet and add to list. Please consider calling saveData after
     Wallet *createWallet(const QString &name);
     uint32_t walletStartHeightHint() const;
 

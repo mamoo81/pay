@@ -254,6 +254,21 @@ bool AccountInfo::isSingleAddressAccount() const
     return m_wallet->isSingleAddressWallet();
 }
 
+bool AccountInfo::isHDAccount() const
+{
+    return m_wallet->isHDWallet();
+}
+
+QString AccountInfo::hdWalletMnemonic() const
+{
+    return m_wallet->hdWalletMnemonic();
+}
+
+QString AccountInfo::hdDerivationPath() const
+{
+    return m_wallet->derivationPath();
+}
+
 const QList<WalletSecret *> &AccountInfo::walletSecrets()
 {
     if (m_walletSecrets.isEmpty()) {

@@ -226,6 +226,7 @@ void Wallet::newTransaction(const Tx &tx)
             return;
         }
         wtx.minedBlockHeight = WalletPriv::Unconfirmed;
+        assert(m_segment->lastBlockSynched() >= 0);
         updateHDSignatures(wtx);
 
         // Mark UTXOs locked that this tx spent to avoid double spending them.
@@ -811,8 +812,12 @@ void Wallet::rebuildBloom()
             }
         }
 
-        if (use)
-            m_segment->addKeyToFilter(secret.address, secret.initialHeight);
+        if (use) {
+            uint32_t initialHeight = secret.initialHeight;
+            if (initialHeight == 0) // the key is so far unused, lets make sure the segment doesn't ignore it.
+                initialHeight = 1;
+            m_segment->addKeyToFilter(secret.address, initialHeight);
+        }
     }
     for (auto utxo : m_unspentOutputs) {
         OutputRef ref(utxo.first);

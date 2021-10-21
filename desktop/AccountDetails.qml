@@ -131,7 +131,10 @@ Item {
                     text: {
                         if (root.account.isSingleAddressAccount)
                             return qsTr("This account is a single-address wallet.")
-    
+
+                        if (root.account.isHDAccount)
+                            return qsTr("This account is based on a HD seed mnemonic")
+
                          // ok we only have one more type so far, so this is rather simple...
                         return qsTr("This account is a simple multiple-address wallet.")
                     }

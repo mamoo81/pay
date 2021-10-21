@@ -205,6 +205,11 @@ public:
     struct WalletSecret {
         CKey privKey;
         CKeyID address;
+        /*
+         * initial height for a secret key is relevant for the getmerkleblock call.
+         * The special value 0 implies that the key is created but not yet shared and thus
+         * initial height is still in the future.
+         */
         uint32_t initialHeight = 0;
         SignatureType signatureType = NotUsedYet;
         bool fromHdWallet = false;
@@ -233,6 +238,7 @@ public:
      * @param mnemonic The seed-string. Please validate the mnemonic before you pass it in here! This method assumes it is valid.
      * @param pwd the password that was created with the seed-phrase. Can be empty.
      * @param derivationPath the derivation steps. We will add 2 ints to this internally, so typically this vector has 3 fields.
+     * @param initialBlockHeight either a timestamp or blockheight, or zero if unsure.
      */
     void createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath);
 
