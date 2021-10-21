@@ -34,6 +34,7 @@ Control {
     property string text: ""
     property string placeholderText: ""
     property var nextFocusTarget: null
+    signal editingFinished;
 
     implicitHeight: textEdit.implicitHeight + 20
     implicitWidth: 100
@@ -95,6 +96,8 @@ Control {
                 // don't accept the event to end up typing it.
             }
         }
+
+        onEditingFinished: root.editingFinished()
     }
 
     background: Rectangle {
