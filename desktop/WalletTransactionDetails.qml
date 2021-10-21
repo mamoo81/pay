@@ -138,7 +138,12 @@ GridLayout {
                     height: modelData === null ? 12 : (10 + outAddress.height)
                     Rectangle {
                         id: outArrowLine
-                        color: modelData === null ? "grey" : "#c5c537"
+                        /*
+                         * There can be a nullptr, which means there is no info about this output.
+                         * Then we have a bool 'forMe' which indicates the money goes to me or to
+                         * someone else. Lets make the 'me' one the most visible one.
+                         */
+                        color: modelData === null ? "grey" : (modelData.forMe ? "#c5c537" : "#67671d")
                         anchors.left: parent.horizontalCenter
                         anchors.bottom: outArrowPoint.bottom
                         anchors.bottomMargin: 9
