@@ -141,10 +141,10 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
 
 // check if we need to create more private keys based on if this transaction
 // used private keys close to the index we have created and keep track off.
-void Wallet::updateHDSignatures(Wallet::WalletTransaction &wtx)
+bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx)
 {
     if (m_hdData.get() == nullptr)
-        return;
+        return false;
     QMutexLocker locker(&m_lock);
 
     static constexpr int ExtraAddresses = 20;
@@ -157,26 +157,31 @@ void Wallet::updateHDSignatures(Wallet::WalletTransaction &wtx)
         const WalletSecret &ws = privKey->second;
         if (ws.fromHdWallet) {
             if (ws.fromChangeChain) {
-                assert(m_hdData->lastChangeAddress <= ws.hdDerivationIndex);
+                assert(m_hdData->lastChangeAddress >= ws.hdDerivationIndex);
                 if (m_hdData->lastChangeAddress - ws.hdDerivationIndex < 15)
                     needChangeAddresses = ExtraAddresses;
             } else {
-                assert(m_hdData->lastMainAddress <= ws.hdDerivationIndex);
+                assert(m_hdData->lastMainAddress >= ws.hdDerivationIndex);
                 if (m_hdData->lastMainAddress - ws.hdDerivationIndex < 15)
                     needMainAddresses = ExtraAddresses;
             }
         }
     }
 
-    deriveHDKeys(needChangeAddresses, needMainAddresses);
+    if (needChangeAddresses + needMainAddresses > 0) {
+        deriveHDKeys(needMainAddresses, needChangeAddresses);
+        return true;
+    }
+    return false;
 }
 
-void Wallet::deriveHDKeys(int mainChain, int changeChain)
+void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
 {
-    QMutexLocker locker(&m_lock);
+    // mutex already locked
     while (changeChain + mainChain > 0) {
         m_secretsChanged = true;
         WalletSecret secret;
+        secret.initialHeight = startHeight;
         secret.fromHdWallet = true;
         const auto count = m_hdData->derivationPath.size();
         assert(count >= 2);
@@ -201,6 +206,7 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain)
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
     }
 
+    rebuildBloom();
     saveSecrets(); // no-op if secrets are unchanged
 }
 
@@ -227,7 +233,12 @@ void Wallet::newTransaction(const Tx &tx)
         }
         wtx.minedBlockHeight = WalletPriv::Unconfirmed;
         assert(m_segment->lastBlockSynched() >= 0);
-        updateHDSignatures(wtx);
+        while (updateHDSignatures(wtx)) {
+            // if we added a bunch of new private keys, then rerun the matching
+            // so we make sure we matched all we can
+            auto newWtx = createWalletTransactionFromTx(tx, txid, &notification);
+            wtx.outputs = newWtx.outputs;
+        }
 
         // Mark UTXOs locked that this tx spent to avoid double spending them.
         for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
@@ -306,9 +317,14 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 walletTransactionId = oldTx->second;
             }
             const bool wasUnconfirmed = wtx.minedBlockHeight == WalletPriv::Unconfirmed;
+            while (updateHDSignatures(wtx)) {
+                // if we added a bunch of new private keys, then rerun the matching
+                // so we make sure we matched all we can
+                auto newWtx = createWalletTransactionFromTx(tx, txid, &notification);
+                wtx.outputs = newWtx.outputs;
+            }
             wtx.minedBlock = header.createHash();
             wtx.minedBlockHeight = blockHeight;
-            updateHDSignatures(wtx);
 
             // remove UTXOs this Tx spent
             for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
@@ -542,7 +558,7 @@ QString Wallet::derivationPath() const
     return QString();
 }
 
-void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath)
+void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight)
 {
     assert(m_hdData.get() == nullptr);
     if (m_hdData.get()) {
@@ -566,7 +582,8 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     // So to reuse the derivationPath we store the last-used-index elsewhere.
     m_hdData->lastMainAddress = -1;
     m_hdData->lastChangeAddress = -1;
-    deriveHDKeys(50, 20);
+    QMutexLocker locker(&m_lock);
+    deriveHDKeys(50, 20, startHeight);
     saveSecrets();
 }
 
@@ -681,6 +698,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     Tx::Iterator txIter(tx);
     // If we created this transaction (we have inputs in it anyway) then
     // also look up all the outputs from the file.
+    // TODO this creates a false-positive for tx we co-created (cashfusion, flipstarter etc)
     const bool createdByUs = !iter->second.inputToWTX.empty();
     do {
         switch (txIter.next(Tx::PrevTxHash | Tx::OutputValue | Tx::OutputScript)) {
@@ -725,6 +743,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     // same for outputs
     for (auto o : iter->second.outputs) {
         auto secret = m_walletSecrets.find(o.second.walletSecretId);
+        assert(secret != m_walletSecrets.end());
         TransactionOutputInfo *out;
         if (createdByUs) { // reuse the one we created before from the raw Td.
             out = info->m_outputs[o.first];
@@ -804,18 +823,18 @@ void Wallet::rebuildBloom()
                 if (secret.fromChangeChain)
                     use = true;
                 else
-                    use = ++numHdRegistredUnused <= 10;
+                    use = ++numHdRegistredUnused <= 20;
             }
             else {
                 // also listen to the first 10 unused addresses.
-                use = ++numRegistredUnused <= 10;
+                use = ++numRegistredUnused <= 20;
             }
         }
 
         if (use) {
             uint32_t initialHeight = secret.initialHeight;
-            if (initialHeight == 0) // the key is so far unused, lets make sure the segment doesn't ignore it.
-                initialHeight = 1;
+            if (initialHeight > 1000000) // is a timestamp, not a height
+                initialHeight = 0;
             m_segment->addKeyToFilter(secret.address, initialHeight);
         }
     }
@@ -1264,7 +1283,6 @@ void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
 
     if (currentBlockheight < 10000000) {
         // if its out of this range, likely its a timestamp (headers are not yet synched)
-
         m_segment->addKeyToFilter(pubkey.getKeyId(), currentBlockheight);
         rebuildBloom();
     }
@@ -1754,8 +1772,17 @@ void Wallet::saveWallet()
         if (!changed)
             return;
     }
-    Streaming::BufferPool pool(m_walletTransactions.size() * 110 + m_name.size() * 3 + 100
-                               + m_paymentRequests.size() * 500);
+
+    int saveFileSize = m_name.size() * 3 + 100;
+    for (const auto &i : m_walletTransactions) {
+        const auto &wtx = i.second;
+        saveFileSize += 110 + wtx.inputToWTX.size() * 22 + wtx.outputs.size() * 30;
+    }
+    for (const auto &pr : qAsConst(m_paymentRequests)) {
+        saveFileSize += 100 + pr->m_message.size() * 6 + pr->m_incomingOutputRefs.size() * 12;
+    }
+
+    Streaming::BufferPool pool(saveFileSize);
     Streaming::MessageBuilder builder(pool);
     for (const auto &item : m_walletTransactions) {
         builder.add(WalletPriv::Index, item.first);

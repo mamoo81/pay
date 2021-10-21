@@ -66,8 +66,11 @@ GridLayout {
 
             text: qsTr("Import wallet")
             onClicked: {
+                var sh = parseInt("0" + startHeight.text, 10);
+                if (sh === 0) // the genesis was block 1, zero doesn't exist
+                    sh = 1;
                 if (importAccount.isMnemonic)
-                    Flowee.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text)
+                    Flowee.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh);
                 else
                     Flowee.createImportedWallet(secrets.text, accountName.text)
 
@@ -115,6 +118,14 @@ GridLayout {
                 Layout.fillWidth: true
                 echoMode: TextInput.Password
                 // TODO allow showing the text in the textfield component
+            }
+            Label {
+                text: qsTr("Start Height:")
+            }
+            FloweeTextField {
+                id: startHeight
+                Layout.fillWidth: true
+                validator: IntValidator{bottom: 0; top: 999999}
             }
             Label {
                 text: qsTr("Derivation:")

@@ -450,16 +450,17 @@ void FloweePay::createImportedWallet(const QString &privateKey, const QString &w
     p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 }
 
-void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName)
+void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, int startHeight)
 {
     auto wallet = createWallet(walletName);
     try {
         std::vector<uint32_t> derivationPath = HDMasterKey::deriveFromString(derivationPathStr.toStdString());
-        wallet->createHDMasterKey(mnemonic, password, derivationPath);
-        wallet->segment()->blockSynched(520000);
-        wallet->segment()->blockSynched(520000); // yes, twice
+        if (startHeight <= 1)
+            startHeight = s_chain == P2PNet::MainChain ? 550000 : 1000;
+        wallet->createHDMasterKey(mnemonic, password, derivationPath, startHeight);
+        wallet->segment()->blockSynched(startHeight);
+        wallet->segment()->blockSynched(startHeight); // yes, twice
         saveData();
-
         p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
     } catch (const std::exception &e) {
         logFatal() << "Failed to parse user provided data due to:" << e;

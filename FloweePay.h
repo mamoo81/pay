@@ -122,8 +122,10 @@ public:
      * @param password, the optional password that goes with a BIP39 wallet.
      * @param derivationPath the path that turns this mnemonic into a hierarchically deterministic wallet.
      * @param walletName the name the user knows this wallet as.
+     * @param startHeight the first block we should check for transactions, or zero for "future blocks"
+     *        If you set this to 1 then we set it to a more sane value of when Bitcoin became more well known.
      */
-    Q_INVOKABLE void createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName);
+    Q_INVOKABLE void createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName, int startHeight = 0);
 
     Q_INVOKABLE bool checkDerivation(const QString &path) const;
 

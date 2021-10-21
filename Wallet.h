@@ -240,7 +240,7 @@ public:
      * @param derivationPath the derivation steps. We will add 2 ints to this internally, so typically this vector has 3 fields.
      * @param initialBlockHeight either a timestamp or blockheight, or zero if unsure.
      */
-    void createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath);
+    void createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight = 0);
 
 
 private slots:
@@ -348,10 +348,11 @@ private:
 
     // check if we need to create more private keys based on if this transaction
     // used private keys close to the index we have created and keep track off.
-    void updateHDSignatures(Wallet::WalletTransaction &wtx);
+    // returns true if new private keys have been derived from the HD masterkey
+    bool updateHDSignatures(const WalletTransaction &wtx);
 
     /// use the hdData master key to create a number of private keys (WalletSecrets).
-    void deriveHDKeys(int mainChain, int changeChain);
+    void deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight = 0);
 
     std::map<int, WalletTransaction> m_walletTransactions;
 
