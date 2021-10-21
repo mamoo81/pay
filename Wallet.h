@@ -207,6 +207,9 @@ public:
         CKeyID address;
         uint32_t initialHeight = 0;
         SignatureType signatureType = NotUsedYet;
+        bool fromHdWallet = false;
+        bool fromChangeChain = false;
+        int hdDerivationIndex = -1;
         /// if true, this address has been reseved to receive funds on
         bool reserved = false; // in-mem-only
     };
@@ -296,7 +299,9 @@ private:
         HDMasterKey masterKey;
         QString walletMnemonic;
         QString walletMnemonicPwd;
-        std::vector<uint32_t> derivationPath; // contains the last created privkey.
+        std::vector<uint32_t> derivationPath; // contains the last created privkey. (full derivation path)
+        int lastMainAddress = -1;   // for derivation {BASE} + 0 / [num]
+        int lastChangeAddress = -1; // for derivation {BASE} + 1 / [num]
     };
     std::unique_ptr<HierarchicallyDeterministicWalletData> m_hdData;
 
@@ -334,6 +339,13 @@ private:
      * pool.reserve() is called by this method with the actual tx size.
      */
     Tx loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) const;
+
+    // check if we need to create more private keys based on if this transaction
+    // used private keys close to the index we have created and keep track off.
+    void updateHDSignatures(Wallet::WalletTransaction &wtx);
+
+    /// use the hdData master key to create a number of private keys (WalletSecrets).
+    void deriveHDKeys(int mainChain, int changeChain);
 
     std::map<int, WalletTransaction> m_walletTransactions;
 

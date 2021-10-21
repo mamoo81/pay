@@ -47,9 +47,16 @@ enum PrivateSaveTags {
 
     SignatureType,       // See the enum Wallet::WalletSecret::SignatureType
 
+    // Wallet-wide HD settings.
     HDWalletMnemonic,         // string
     HDWalletMnemonicPassword, // string
     HDWalletPathItem,         // int, one part of the derivation path. (typically 5 are give in a row)
+    HDWalletLastChangeIndex,  // In the 'change' derivation, which private key did we create last.
+    HDWalletLastReceiveIndex, // In the 'main' derivation, which private key did we create last.
+
+    // Per-privkey HD settings.
+    HDKeyFromChangeChain,     // bool. If true, this privkey comes from the 'change' derivation chain. (before last field in derivation path)
+    HDKeyDerivationIndex,     // int, the index used to generate this key (last field in derivation path)
 };
 
 enum WalletDataSaveTags {

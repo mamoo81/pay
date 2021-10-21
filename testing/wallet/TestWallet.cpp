@@ -419,6 +419,35 @@ void TestWallet::hierarchicallyDeterministic()
         QCOMPARE(QString::fromStdString(address), "bitcoincash:qrg0jddykyfeal70xduvyeathd3ulhm7hv22m3t7na");
         QCOMPARE(wallet->derivationPath(), QString("m/44'/145'/0'"));
     }
+    {
+        auto wallet = openWallet();
+        QVERIFY(wallet->isHDWallet());
+
+        auto secrets = wallet->walletSecrets();
+        bool plain = false; // found the plain one.
+        QSet<int> change;
+        QSet<int> main;
+        for (const auto &i : secrets) {
+            const auto &secret = i.second;
+            if (secret.fromHdWallet) {
+                if (secret.fromChangeChain) {
+                    QVERIFY(!change.contains(secret.hdDerivationIndex));
+                    change.insert(secret.hdDerivationIndex);
+                }
+                else {
+                    QVERIFY(!main.contains(secret.hdDerivationIndex));
+                    main.insert(secret.hdDerivationIndex);
+                }
+            }
+            else {
+                QCOMPARE(plain, false);
+                plain = true;
+            }
+        }
+        // we found (after loading) at least these many pre-calculated wallet-secrets.
+        QVERIFY(change.size() >= 20);
+        QVERIFY(main.size() >= 20);
+    }
 }
 
 std::unique_ptr<Wallet> TestWallet::createWallet()

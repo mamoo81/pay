@@ -139,6 +139,71 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
     return wtx;
 }
 
+// check if we need to create more private keys based on if this transaction
+// used private keys close to the index we have created and keep track off.
+void Wallet::updateHDSignatures(Wallet::WalletTransaction &wtx)
+{
+    if (m_hdData.get() == nullptr)
+        return;
+    QMutexLocker locker(&m_lock);
+
+    static constexpr int ExtraAddresses = 20;
+    int needChangeAddresses = 0;
+    int needMainAddresses = 0;
+
+    for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
+        auto privKey = m_walletSecrets.find(i->second.walletSecretId);
+        assert(privKey != m_walletSecrets.end()); // invalid wtx
+        const WalletSecret &ws = privKey->second;
+        if (ws.fromHdWallet) {
+            if (ws.fromChangeChain) {
+                assert(m_hdData->lastChangeAddress <= ws.hdDerivationIndex);
+                if (m_hdData->lastChangeAddress - ws.hdDerivationIndex < 15)
+                    needChangeAddresses = ExtraAddresses;
+            } else {
+                assert(m_hdData->lastMainAddress <= ws.hdDerivationIndex);
+                if (m_hdData->lastMainAddress - ws.hdDerivationIndex < 15)
+                    needMainAddresses = ExtraAddresses;
+            }
+        }
+    }
+
+    deriveHDKeys(needChangeAddresses, needMainAddresses);
+}
+
+void Wallet::deriveHDKeys(int mainChain, int changeChain)
+{
+    QMutexLocker locker(&m_lock);
+    while (changeChain + mainChain > 0) {
+        m_secretsChanged = true;
+        WalletSecret secret;
+        secret.fromHdWallet = true;
+        const auto count = m_hdData->derivationPath.size();
+        assert(count >= 2);
+        if (mainChain > 0) {
+            --mainChain;
+            secret.hdDerivationIndex = ++m_hdData->lastMainAddress;
+            m_hdData->derivationPath[count - 2] = 0;
+            logDebug() << "Creating new private key. Derivation: 0," << secret.hdDerivationIndex;
+        } else {
+            assert(changeChain > 0);
+            --changeChain;
+            secret.fromChangeChain = true;
+            secret.hdDerivationIndex = ++m_hdData->lastChangeAddress;
+            logDebug() << "Creating new private key for change chain:" << secret.hdDerivationIndex;
+            m_hdData->derivationPath[count - 2] = 1;
+        }
+        m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
+        secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
+
+        const CPubKey pubkey = secret.privKey.GetPubKey();
+        secret.address = pubkey.getKeyId();
+        m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
+    }
+
+    saveSecrets(); // no-op if secrets are unchanged
+}
+
 void Wallet::newTransaction(const Tx &tx)
 {
     int firstNewTransaction;
@@ -161,6 +226,7 @@ void Wallet::newTransaction(const Tx &tx)
             return;
         }
         wtx.minedBlockHeight = WalletPriv::Unconfirmed;
+        updateHDSignatures(wtx);
 
         // Mark UTXOs locked that this tx spent to avoid double spending them.
         for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
@@ -241,6 +307,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             const bool wasUnconfirmed = wtx.minedBlockHeight == WalletPriv::Unconfirmed;
             wtx.minedBlock = header.createHash();
             wtx.minedBlockHeight = blockHeight;
+            updateHDSignatures(wtx);
 
             // remove UTXOs this Tx spent
             for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
@@ -489,13 +556,16 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     std::string p(pwd.toUtf8().constData());
     m_hdData.reset(new HierarchicallyDeterministicWalletData(m, p));
     m_hdData->derivationPath = derivationPath;
-    // normal wallets add to the derivation path 2 items, the first is typically used
-    // to indicate 0=receive-keys, 1=change-keys
-    // the seconed is typically a sequential list of keys we give out on reservation.
+    // append two random numbers, to make clear the full length
     m_hdData->derivationPath.push_back(0);
-    m_hdData->derivationPath.push_back(-1);
+    m_hdData->derivationPath.push_back(0);
 
-    m_secretsChanged = true;
+    // Wallets add to the derivation path 2 items, the first is typically used
+    // to indicate 0=receive-keys, 1=change-keys
+    // So to reuse the derivationPath we store the last-used-index elsewhere.
+    m_hdData->lastMainAddress = -1;
+    m_hdData->lastChangeAddress = -1;
+    deriveHDKeys(50, 20);
     saveSecrets();
 }
 
@@ -722,17 +792,27 @@ void Wallet::rebuildBloom()
 {
     auto lock = m_segment->clearFilter();
     int numRegistredUnused = 0;
-    for (auto &priv : m_walletSecrets) {
-        bool use = priv.second.initialHeight > 0 && priv.second.initialHeight < 10000000;
-        if (!use && priv.second.reserved)
+    int numHdRegistredUnused = 0;
+    for (auto &i : m_walletSecrets) {
+        const auto &secret = i.second;
+        bool use = secret.initialHeight > 0 && secret.initialHeight < 10000000;
+        if (!use && secret.reserved)
             use = true;
         if (!use) {
-            // also listen to the first 10 unused addresses.
-            use = ++numRegistredUnused <= 10;
+            if (secret.fromHdWallet) {
+                if (secret.fromChangeChain)
+                    use = true;
+                else
+                    use = ++numHdRegistredUnused <= 10;
+            }
+            else {
+                // also listen to the first 10 unused addresses.
+                use = ++numRegistredUnused <= 10;
+            }
         }
 
         if (use)
-            m_segment->addKeyToFilter(priv.second.address, priv.second.initialHeight);
+            m_segment->addKeyToFilter(secret.address, secret.initialHeight);
     }
     for (auto utxo : m_unspentOutputs) {
         OutputRef ref(utxo.first);
@@ -857,7 +937,9 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId)
             keyId = i->second.address;
             return i->first; // just return the first then.
         }
-        if (i->second.initialHeight == 0 && !i->second.reserved) { // is unused address.
+        if (i->second.initialHeight == 0 && !i->second.reserved) { // is unused address
+            if (i->second.fromHdWallet && i->second.fromChangeChain) // we skip the 'change' chain for user-visible stuff
+                continue;
             i->second.reserved = true;
             keyId = i->second.address;
             rebuildBloom(); // make sure that we actually observe changes on this address
@@ -870,8 +952,13 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId)
     for (int i = 0; i < 50; ++i) {
         WalletSecret secret;
         if (m_hdData.get()) {
-            assert(!m_hdData->derivationPath.empty());
-            ++m_hdData->derivationPath.back();
+            secret.fromHdWallet = true;
+            secret.hdDerivationIndex = ++m_hdData->lastMainAddress;
+
+            const auto count = m_hdData->derivationPath.size();
+            assert(count >= 2);
+            m_hdData->derivationPath[count - 2] = 0; // Flowee Pay doesn't really care about the 'change' chain.
+            m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
             secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
         }
         else {
@@ -1151,8 +1238,13 @@ void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
     QMutexLocker locker(&m_lock);
     WalletSecret secret;
     if (m_hdData.get()) {
-        assert(!m_hdData->derivationPath.empty());
-        ++m_hdData->derivationPath.back();
+        secret.fromHdWallet = true;
+        secret.hdDerivationIndex = ++m_hdData->lastMainAddress;
+
+        const auto count = m_hdData->derivationPath.size();
+        assert(count >= 2);
+        m_hdData->derivationPath[count - 2] = 0; // Flowee Pay doesn't really care about the 'change' chain.
+        m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
         secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
     }
     else {
@@ -1216,6 +1308,8 @@ void Wallet::loadSecrets()
     WalletSecret secret;
     std::string mnemonic, mnemonicpwd;
     std::vector<uint32_t> derivationPath;
+    int derivationPathChangeIndex = -1;
+    int derivationPathMainIndex = -1;
     int index = 0;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
@@ -1250,6 +1344,15 @@ void Wallet::loadSecrets()
             else
                 secret.initialHeight = parser.longData();
         }
+        else if (parser.tag() == WalletPriv::HDKeyFromChangeChain) {
+            secret.fromHdWallet = true;
+            secret.fromChangeChain = parser.boolData();
+        }
+        else if (parser.tag() == WalletPriv::HDKeyDerivationIndex) {
+            secret.fromHdWallet = true;
+            secret.hdDerivationIndex = parser.intData();
+        }
+
         else if (parser.tag() == WalletPriv::IsSingleAddressWallet) {
             m_singleAddressWallet = parser.boolData();
         }
@@ -1268,6 +1371,12 @@ void Wallet::loadSecrets()
         else if (parser.tag() == WalletPriv::HDWalletPathItem) {
             derivationPath.push_back(static_cast<uint32_t>(parser.longData()));
         }
+        else if (parser.tag() == WalletPriv::HDWalletLastChangeIndex) {
+            derivationPathChangeIndex = parser.intData();
+        }
+        else if (parser.tag() == WalletPriv::HDWalletLastReceiveIndex) {
+            derivationPathMainIndex = parser.intData();
+        }
     }
 
     if (mnemonic.empty() != derivationPath.empty()) {
@@ -1277,6 +1386,8 @@ void Wallet::loadSecrets()
         try {
             m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, mnemonicpwd));
             m_hdData->derivationPath = derivationPath;
+            m_hdData->lastChangeAddress = derivationPathChangeIndex;
+            m_hdData->lastMainAddress = derivationPathMainIndex;
         } catch (const std::exception &e) {
             logFatal() << "Failed loading the HD wallet due to:" << e;
         }
@@ -1309,15 +1420,25 @@ void Wallet::saveSecrets()
         for (const uint32_t item : m_hdData->derivationPath) {
             builder.add(WalletPriv::HDWalletPathItem,  static_cast<uint64_t>(item));
         }
+        if (m_hdData->lastChangeAddress >= 0)
+            builder.add(WalletPriv::HDWalletLastChangeIndex,  m_hdData->lastChangeAddress);
+        if (m_hdData->lastMainAddress >= 0)
+            builder.add(WalletPriv::HDWalletLastReceiveIndex,  m_hdData->lastMainAddress);
     }
     for (const auto &item : m_walletSecrets) {
+        const auto &secret = item.second;
         builder.add(WalletPriv::Index, item.first);
-        builder.addByteArray(WalletPriv::PrivKey, item.second.privKey.begin(), item.second.privKey.size());
-        builder.addByteArray(WalletPriv::PubKeyHash, item.second.address.begin(), item.second.address.size());
-        if (item.second.initialHeight > 0)
-            builder.add(WalletPriv::HeightCreated, (uint64_t) item.second.initialHeight);
+        builder.addByteArray(WalletPriv::PrivKey, secret.privKey.begin(), secret.privKey.size());
+        builder.addByteArray(WalletPriv::PubKeyHash, secret.address.begin(), secret.address.size());
+        if (secret.initialHeight > 0)
+            builder.add(WalletPriv::HeightCreated, (uint64_t) secret.initialHeight);
         if (item.second.signatureType != NotUsedYet)
-            builder.add(WalletPriv::SignatureType, item.second.signatureType);
+            builder.add(WalletPriv::SignatureType, secret.signatureType);
+        if (secret.fromHdWallet) {
+            if (secret.fromChangeChain)
+                builder.add(WalletPriv::HDKeyFromChangeChain, true);
+            builder.add(WalletPriv::HDKeyDerivationIndex, secret.hdDerivationIndex);
+        }
         builder.add(WalletPriv::Separator, true);
     }
     if (m_singleAddressWallet)
