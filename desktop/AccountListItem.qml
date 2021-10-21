@@ -103,7 +103,10 @@ Item {
                 id: contextMenu
                 MenuItem {
                     text: qsTr("Details")
-                    onTriggered: accountDetails.state = "accountDetails";
+                    onTriggered: {
+                        portfolio.current = account;
+                        accountDetails.state = "accountDetails";
+                    }
                 }
                 MenuItem {
                     checked: root.account.isDefaultWallet
