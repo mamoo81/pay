@@ -70,8 +70,7 @@ Item {
             parent: root
             text: root.tooltipText
             delay: 1500
-            // timeout: 5000
-            visible: mousy.containsMouse
+            visible: mousy.containsMouse && root.tooltipText !== ""
         }
     }
     Label {
