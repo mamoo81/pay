@@ -307,6 +307,7 @@ ApplicationWindow {
                         height: implicitHeight / 10 * 7
                     }
                     Image {
+                        id: showBalanceButton
                         anchors.right: parent.right
                         source: {
                             if (Flowee.hideBalance)
@@ -321,6 +322,21 @@ ApplicationWindow {
                                 Flowee.hideBalance = !Flowee.hideBalance;
                                 balanceDetailsPane.showDetails = false;
                             }
+                        }
+                    }
+
+                    Label {
+                        id: questionMark
+                        text: "🛈"
+                        ToolTip.text: qsTr("Show Wallet Details")
+                        anchors.right: showBalanceButton.left
+                        anchors.baseline: balanceLabel.baseline
+                        anchors.rightMargin: 10
+                        opacity: 0.5
+                        visible: !mainWindow.isLoading && !portfolio.accounts[0].isUserOwned
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: accountDetails.state = "accountDetails";
                         }
                     }
                 }
