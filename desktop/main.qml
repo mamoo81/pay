@@ -212,12 +212,16 @@ ApplicationWindow {
                         opacity: 0.5
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: Flowee.hideBalance = !Flowee.hideBalance
+                            onClicked: {
+                                Flowee.hideBalance = !Flowee.hideBalance;
+                                balanceDetailsPane.showDetails = false;
+                            }
                         }
                     }
                 }
 
                 Item {
+                    id: balanceDetailsPane
                     property bool showDetails: false
                     width: balance.width
                     height: balance.height + (showDetails ? extraBalances.height + 20 : 0)
@@ -291,7 +295,10 @@ ApplicationWindow {
                     }
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: parent.showDetails = !parent.showDetails
+                        onClicked: {
+                            if (!Flowee.hideBalance)
+                                parent.showDetails = !parent.showDetails
+                        }
                     }
 
                     Behavior on height { NumberAnimation {} }
