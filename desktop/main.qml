@@ -87,6 +87,7 @@ ApplicationWindow {
             }
 
             Image {
+                id: appLogo
                 anchors.verticalCenter: parent.verticalCenter
                 x: 20
                 smooth: true
@@ -94,6 +95,63 @@ ApplicationWindow {
                 // ratio: 77 / 449
                 height: (parent.height - 20) * 7 / 10
                 width: height * 449 / 77
+            }
+
+            Item {
+                id: balanceInHeader
+                visible: {
+                    if (mainWindow.isLoading)
+                        return false;
+                    if (portfolio.accounts.length <= 1)
+                        return false;
+                    // If there is not enough space here (only for quite long balances), move to the left bar
+                    var minX = appLogo.width + totalFiatLabel.width + 50 // 50 is spacing
+                    return x > minX;
+                }
+                width: totalBalance2.width
+                height: totalBalance2.height
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: tabbar.headerHeight + 5
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                baselineOffset: totalBalance2.baselineOffset
+
+                BitcoinAmountLabel {
+                    id: totalBalance2
+                    value: {
+                        if (isLoading)
+                            return 0;
+                        if (Flowee.hideBalance)
+                            return 88888888;
+                        return portfolio.totalBalance
+                    }
+                    colorize: false
+                    showFiat: false
+                    fontPtSize: mainWindow.font.pointSize * 2
+                    opacity: blurredTotalBalance2.visible ? 0 : 1
+                }
+                FastBlur {
+                    id: blurredTotalBalance2
+                    anchors.fill: parent
+                    anchors.margins: 5
+                    visible: Flowee.hideBalance
+                    source: totalBalance2
+                    radius: 58
+                }
+            }
+            Label {
+                id: totalFiatLabel
+                anchors.baseline: balanceInHeader.baseline
+                anchors.right: balanceInHeader.left
+                anchors.rightMargin: 10
+
+                text: {
+                    if (Flowee.hideBalance && Flowee.isMainChain)
+                        return "-- " + Fiat.currencyName
+                    return Fiat.formattedPrice(totalBalance.value, Fiat.price)
+                }
+                visible: balanceInHeader.visible
+                opacity: 0.6
             }
         }
 
@@ -189,10 +247,57 @@ ApplicationWindow {
 
             Column {
                 id: leftColumn
-                y: 40
                 x: 10
                 width: overviewPane.width - 60
 
+                // the total balance is for most people not this one, but the balanceInHeader one.
+                // we only show this one when the header one decides it can't be seen.
+                Label {
+                    id: totalBalanceLabel
+                    visible: (mainWindow.isLoading || portfolio.accounts.length > 1) && !balanceInHeader.visible
+                    text: qsTr("Total balance");
+                    height: implicitHeight / 10 * 9
+                }
+                Item {
+                    visible: totalBalanceLabel.visible
+                    width: totalBalance.width
+                    height: totalBalance.height
+                    BitcoinAmountLabel {
+                        id: totalBalance
+                        value: {
+                            if (isLoading)
+                                return 0;
+                            if (Flowee.hideBalance)
+                                return 88888888;
+                            return portfolio.totalBalance
+                        }
+                        colorize: false
+                        showFiat: false
+                        fontPtSize: mainWindow.font.pointSize * 2
+                        opacity: blurredTotalBalance.visible ? 0 : 1
+                    }
+                    FastBlur {
+                        id: blurredTotalBalance
+                        anchors.fill: parent
+                        anchors.margins: -5
+                        visible: Flowee.hideBalance
+                        source: totalBalance
+                        radius: 58
+                    }
+                }
+                Label {
+                    text: {
+                        if (Flowee.hideBalance && Flowee.isMainChain)
+                            return "-- " + Fiat.currencyName
+                        return Fiat.formattedPrice(totalBalance.value, Fiat.price)
+                    }
+                    visible: totalBalanceLabel.visible
+                    opacity: 0.6
+                }
+                Item { // spacer
+                    width: 10
+                    height: 50
+                }
                 Item {
                     height: balanceLabel.height
                     width: parent.width
@@ -305,56 +410,10 @@ ApplicationWindow {
                 }
                 Label {
                     text: {
-                        if (Flowee.hideBalance)
+                        if (Flowee.hideBalance && Flowee.isMainChain)
                             return "-- " + Fiat.currencyName
                         return Fiat.formattedPrice(balance.value, Fiat.price)
                     }
-                    opacity: 0.6
-                }
-                Item { // spacer
-                    width: 10
-                    height: 20
-                }
-                Label {
-                    id: totalBalanceLabel
-                    visible: mainWindow.isLoading || portfolio.accounts.length > 1
-                    text: qsTr("Total balance");
-                    height: implicitHeight / 10 * 9
-                }
-                Item {
-                    visible: totalBalanceLabel.visible
-                    width: totalBalance.width
-                    height: totalBalance.height
-                    BitcoinAmountLabel {
-                        id: totalBalance
-                        value: {
-                            if (isLoading)
-                                return 0;
-                            if (Flowee.hideBalance)
-                                return 88888888;
-                            return portfolio.totalBalance
-                        }
-                        colorize: false
-                        showFiat: false
-                        fontPtSize: mainWindow.font.pointSize * 2
-                        opacity: blurredTotalBalance.visible ? 0 : 1
-                    }
-                    FastBlur {
-                        id: blurredTotalBalance
-                        anchors.fill: parent
-                        anchors.margins: -5
-                        visible: Flowee.hideBalance
-                        source: totalBalance
-                        radius: 58
-                    }
-                }
-                Label {
-                    text: {
-                        if (Flowee.hideBalance)
-                            return "-- " + Fiat.currencyName
-                        return Fiat.formattedPrice(totalBalance.value, Fiat.price)
-                    }
-                    visible: totalBalanceLabel.visible
                     opacity: 0.6
                 }
                 Item { // spacer
