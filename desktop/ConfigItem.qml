@@ -27,6 +27,7 @@ Item {
     Column {
         id: column
         spacing: 3
+        y: 1 // move the column down to account for the anti-alias line of the rectangle below
 
         Repeater {
             model: 4
