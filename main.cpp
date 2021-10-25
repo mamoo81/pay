@@ -18,6 +18,7 @@
 #include "BitcoinValue.h"
 #include "FloweePay.h"
 #include "NetDataProvider.h"
+#include "NewWalletConfig.h"
 #include "PortfolioDataProvider.h"
 #include "PriceDataProvider.h"
 #include "QRCreator.h"
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<FloweePay>("Flowee.org.pay", 1, 0, "Pay");
     qmlRegisterType<BitcoinValue>("Flowee.org.pay", 1, 0, "BitcoinValue");
+    qmlRegisterType<NewWalletConfig>("Flowee.org.pay", 1, 0, "NewWalletConfig");
     QCommandLineParser parser;
     parser.setApplicationDescription("Flowee pay");
     QCommandLineOption debug(QStringList() << "debug", "Use debug level logging");

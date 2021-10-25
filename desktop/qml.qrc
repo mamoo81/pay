@@ -44,5 +44,6 @@
         <file>NewAccountCreateBasicAccount.qml</file>
         <file>FloweeMultilineTextField.qml</file>
         <file>NewAccountImportAccount.qml</file>
+        <file>NewAccountCreateHDAccount.qml</file>
     </qresource>
 </RCC>

@@ -1,30 +1,14 @@
-/*
- * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import Flowee.org.pay 1.0
 
 ColumnLayout {
+    id: newAccountCreateHDAccount
     spacing: 10
     Label {
         id: title
-        text: qsTr("This creates a new empty wallet with simple multi-address capability")
+        text: qsTr("This creates a new empty wallet with smart creation of addresses from a single seed")
         width: parent.width
     }
     RowLayout {
@@ -44,10 +28,10 @@ ColumnLayout {
         Button2 {
             id: button
             text: qsTr("Go")
+            anchors.top: nameRow.bottom
             anchors.right: parent.right
             onClicked: {
-                var options = Flowee.createNewBasicWallet(accountName.text);
-                options.forceSingleAddress = singleAddress.checked;
+                var options = Flowee.createNewWallet(derivationPath.text, passwordField.text, accountName.text);
                 var accounts = portfolio.accounts;
                 for (var i = 0; i < accounts.length; ++i) {
                     var a = accounts[i];
@@ -62,22 +46,38 @@ ColumnLayout {
     }
 
     FloweeGroupBox {
-        id: gb
         title: qsTr("Advanced Options")
-        isCollapsed: true
         Layout.fillWidth: true
-        columns: 1
+        isCollapsed: true
+        columns: 2
 
-        FloweeCheckBox {
-            id: singleAddress
-            text: qsTr("Force Single Address");
-            tooltipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
-        }
         /*
         FloweeCheckBox {
             id: schnorr
             text: qsTr("Default to signing using ECDSA");
             tooltipText: qsTr("When enabled, newer style Schnorr signatures are not set as default for this wallet.")
+            Layout.columnSpan: 2
         } */
+        Label {
+            text: qsTr("Password:")
+            visible: importAccount.isMnemonic
+        }
+        FloweeTextField {
+            id: passwordField
+            visible: importAccount.isMnemonic
+            Layout.fillWidth: true
+            echoMode: TextInput.Password
+            // TODO allow showing the text in the textfield component
+        }
+        Label {
+            text: qsTr("Derivation:")
+            visible: importAccount.isMnemonic
+        }
+        FloweeTextField {
+            id: derivationPath
+            text: "m/44'/145'/0'" // default for BCH wallets
+            visible: importAccount.isMnemonic
+            color: Flowee.checkDerivation(text) ? palette.text : "red"
+        }
     }
 }

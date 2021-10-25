@@ -129,27 +129,11 @@ FocusScope {
                 currentIndex: optionsRow.selectedAccountType
                 anchors.left: optionsRow.left
                 anchors.right: optionsRow.right
-                height: 1
-                onCurrentIndexChanged: fixHeight()
-                Component.onCompleted: fixHeight()
-                function fixHeight() {
-                    // TODO why is this needed?
-                    var cur = visibleChildren[0]
-                    height = cur.implicitHeight
-                }
+                width: parent.width
 
-                NewAccountCreateBasicAccount {
-                }
-                GridLayout {
-                    id: createHDAccount
-                    columns: 1
-                    Label {
-                        text: qsTr("This creates a new empty wallet with smart creation of addresses from a single seed")
-                        Layout.columnSpan: 1
-                    }
-                }
-                NewAccountImportAccount {
-                }
+                NewAccountCreateBasicAccount { }
+                NewAccountCreateHDAccount { }
+                NewAccountImportAccount { }
             }
         }
     }

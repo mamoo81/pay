@@ -36,6 +36,7 @@ namespace Streaming {
     class BufferPool;
 }
 class Wallet;
+class NewWalletConfig;
 
 class FloweePay : public QObject, WorkerThreads, P2PNetInterface
 {
@@ -109,10 +110,12 @@ public:
     /// for a price, in satoshis, return a formatted string
     static QString priceToString(qint64 price, UnitOfBitcoin unit);
 
-    /// create a new wallet with an optional name.
-    Q_INVOKABLE void createNewWallet(const QString &walletName = QString());
+    /// create a new HD wallet with an optional name.
+    Q_INVOKABLE NewWalletConfig* createNewWallet(const QString &derivationPath, const QString &password = QString(), const QString &walletName = QString());
+    /// create a new seed-less wallet with an optional name.
+    Q_INVOKABLE NewWalletConfig* createNewBasicWallet(const QString &walletName = QString());
     /// swipe a paper wallet with an optional name
-    Q_INVOKABLE void createImportedWallet(const QString &privateKey, const QString &walletName);
+    Q_INVOKABLE NewWalletConfig* createImportedWallet(const QString &privateKey, const QString &walletName);
 
     /**
      * Import a mnemonics based (BIP39)  wallet.
@@ -125,7 +128,7 @@ public:
      * @param startHeight the first block we should check for transactions, or zero for "future blocks"
      *        If you set this to 1 then we set it to a more sane value of when Bitcoin became more well known.
      */
-    Q_INVOKABLE void createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName, int startHeight = 0);
+    Q_INVOKABLE NewWalletConfig *createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName, int startHeight = 0);
 
     Q_INVOKABLE bool checkDerivation(const QString &path) const;
 
@@ -247,6 +250,7 @@ private:
     QString m_basedir;
     P2PNet::Chain m_chain = P2PNet::MainChain;
     std::string m_chainPrefix;
+    QString m_defaultDerivationPath;
     std::unique_ptr<DownloadManager> m_downloadManager;
     NotificationManager m_notifications;
     QList<Wallet*> m_wallets;

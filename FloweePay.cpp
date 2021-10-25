@@ -17,10 +17,12 @@
  */
 #include "FloweePay.h"
 #include "Wallet.h"
+#include "NewWalletConfig.h"
 
 #include <streaming/MessageParser.h>
 #include <streaming/BufferPool.h>
 #include <streaming/MessageBuilder.h>
+#include <random.h>
 #include <config/flowee-config.h>
 
 #include <QStandardPaths>
@@ -46,7 +48,9 @@ constexpr const char *HIDEBALANCE = "hideBalance";
 constexpr const char *USERAGENT = "net/useragent";
 constexpr const char *DSPTIMEOUT = "payment/dsp-timeout";
 
-constexpr const char *appdataFilename = "/appdata";
+constexpr const char *AppdataFilename = "/appdata";
+constexpr const char *DefaultDerivationPath = "m/44'/145'/0'";
+constexpr const char *DefaultDerivationPathTestnet = "m/44'/145'/0'";
 
 enum FileTags {
     WalletId,
@@ -62,8 +66,10 @@ FloweePay::FloweePay()
     if (m_chain == P2PNet::Testnet4Chain) {
         m_basedir += "/testnet4";
         m_chainPrefix = "bchtest";
+        m_defaultDerivationPath = QLatin1String(DefaultDerivationPathTestnet);
     } else {
         m_chainPrefix = "bitcoincash";
+        m_defaultDerivationPath = QLatin1String(DefaultDerivationPath);
     }
     boost::filesystem::create_directories(boost::filesystem::path(m_basedir.toStdString()));
 
@@ -131,7 +137,7 @@ void FloweePay::init()
 {
     auto dl = p2pNet(); // this wil load the p2p layer.
 
-    QFile in(m_basedir + appdataFilename);
+    QFile in(m_basedir + AppdataFilename);
     Wallet *lastOpened = nullptr;
     if (in.open(QIODevice::ReadOnly)) {
         const auto dataSize = in.size();
@@ -169,7 +175,7 @@ void FloweePay::init()
     }
 
     if (m_wallets.isEmpty() && m_createStartWallet) {
-        createNewWallet();
+        createNewWallet(m_defaultDerivationPath);
         m_wallets.at(0)->setUserOwnedWallet(false);
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
         saveData();
@@ -185,7 +191,7 @@ void FloweePay::saveData()
         builder.add(WalletId, wallet->segment()->segmentId());
         builder.add(WalletPriority, wallet->segment()->priority());
     }
-    QString filebase = m_basedir + appdataFilename;
+    QString filebase = m_basedir + AppdataFilename;
     QFile out(filebase + "~");
     out.remove(); // avoid overwrite issues.
     if (out.open(QIODevice::WriteOnly)) {
@@ -441,16 +447,18 @@ void FloweePay::setHideBalance(bool hideBalance)
     appConfig.setValue(HIDEBALANCE, m_hideBalance);
 }
 
-void FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)
+NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)
 {
     auto wallet = createWallet(walletName);
     wallet->setSingleAddressWallet(true);
     wallet->addPrivateKey(privateKey, 520000);
     saveData();
     p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
+
+    return new NewWalletConfig(wallet);
 }
 
-void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, int startHeight)
+NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, int startHeight)
 {
     auto wallet = createWallet(walletName);
     try {
@@ -462,8 +470,11 @@ void FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &p
         wallet->segment()->blockSynched(startHeight); // yes, twice
         saveData();
         p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
+
+        return new NewWalletConfig(wallet);
     } catch (const std::exception &e) {
         logFatal() << "Failed to parse user provided data due to:" << e;
+        return nullptr;
     }
 }
 
@@ -524,13 +535,26 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
     return Unknown;
 }
 
-void FloweePay::createNewWallet(const QString &walletName)
+NewWalletConfig* FloweePay::createNewBasicWallet(const QString &walletName)
 {
-    // TODO make this a HD wallet instead
     auto wallet = createWallet(walletName);
     wallet->createNewPrivateKey(walletStartHeightHint());
+    p2pNet()->addAction<SyncSPVAction>();
+    return new NewWalletConfig(wallet);
+}
 
+NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const QString &password, const QString &walletName)
+{
+    auto wallet = createWallet(walletName);
+    std::vector<uint8_t> seed(32);
+    RandAddSeedPerfmon();
+    GetRandBytes(seed.data(), seed.size());
+    auto mnemonic = m_hdSeedValidator.generateMnemonic(seed, "en");
+    std::vector<uint32_t> dp = HDMasterKey::deriveFromString(derivationPath.toStdString());
+    wallet->createHDMasterKey(mnemonic, password, dp, walletStartHeightHint());
     p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
+
+    return new NewWalletConfig(wallet);
 }
 
 QString FloweePay::unitName() const

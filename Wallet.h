@@ -242,13 +242,14 @@ public:
      */
     void createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight = 0);
 
+public slots:
+    void delayedSave();
 
 private slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
     void broadcastUnconfirmed();
     void recalculateBalance();
-    void delayedSave();
     void delayedSaveTimeout();
 
 signals:

@@ -1890,7 +1890,9 @@ void Wallet::recalculateBalance()
 
 void Wallet::delayedSaveTimeout()
 {
+    QMutexLocker locker(&m_lock);
     m_saveStarted = false;
+    saveSecrets();
     saveWallet();
 }
 

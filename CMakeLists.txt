@@ -55,6 +55,7 @@ set (PAY_SOURCES
     main.cpp
     NetDataProvider.cpp
     NetPeer.cpp
+    NewWalletConfig.cpp
     NotificationManager.cpp
     Payment.cpp
     PaymentRequest.cpp
