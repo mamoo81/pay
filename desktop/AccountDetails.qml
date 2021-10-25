@@ -183,7 +183,7 @@ Item {
                     model: root.account.walletSecrets
                     delegate: Rectangle {
                         color: (index % 2) == 0 ? mainWindow.palette.base : mainWindow.palette.alternateBase
-                        width: root.width
+                        width: rows.width
                         height: id.height
 
                         Label {
