@@ -105,8 +105,10 @@ FocusScope {
             event.accepted = true
         }
     }
-    Shortcut {
-        sequence: StandardKey.Paste
-        onActivated: privValue.paste()
+    Keys.onReleased: {
+        if (event.matches(StandardKey.Paste)) {
+            privValue.paste();
+            event.accepted = true
+        }
     }
 }
