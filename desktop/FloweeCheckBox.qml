@@ -40,9 +40,11 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: parent.height / 3
-            color: mainWindow.palette.window
+            color: root.checked ? (Flowee.useDarkSkin ? "#4f7d63" : "#bff0d3") : mainWindow.palette.window
             border.color: root.activeFocus ? (Flowee.useDarkSkin ? "white" : "black") : mainWindow.palette.button
             border.width: 2
+
+            Behavior on color { ColorAnimation {}}
         }
         Rectangle {
             width: parent.height / 5 * 4
@@ -50,9 +52,11 @@ Item {
             radius: width
             x: root.checked ? parent.width - width - 3 : 3
             anchors.verticalCenter: parent.verticalCenter
-            color: mainWindow.palette.highlight
+            // color: mainWindow.palette.highlight
+            color: Flowee.useDarkSkin && root.checked ? mainWindow.palette.text : mainWindow.palette.highlight
 
             Behavior on x { NumberAnimation {}}
+            Behavior on color { ColorAnimation {}}
         }
     }
 
