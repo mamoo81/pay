@@ -112,7 +112,6 @@ void PortfolioDataProvider::selectDefaultWallet()
             break;
         }
         if (!wallet->userOwnedWallet()) {
-// TODO after one restart my userOwnedWallet goes from false to true.
             fallback = i;
         }
     }
