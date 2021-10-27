@@ -147,7 +147,7 @@ bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx)
         return false;
     QMutexLocker locker(&m_lock);
 
-    static constexpr int ExtraAddresses = 20;
+    static constexpr int ExtraAddresses = 50;
     int needChangeAddresses = 0;
     int needMainAddresses = 0;
 
@@ -215,6 +215,7 @@ void Wallet::newTransaction(const Tx &tx)
     int firstNewTransaction;
     P2PNet::Notification notification;
     notification.privacySegment = int(m_segment->segmentId());
+    bool createdNewKeys = false;
     {
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
@@ -238,6 +239,7 @@ void Wallet::newTransaction(const Tx &tx)
             // so we make sure we matched all we can
             auto newWtx = createWalletTransactionFromTx(tx, txid, &notification);
             wtx.outputs = newWtx.outputs;
+            createdNewKeys = true;
         }
 
         // Mark UTXOs locked that this tx spent to avoid double spending them.
@@ -278,6 +280,8 @@ void Wallet::newTransaction(const Tx &tx)
 #ifndef IN_TESTS // don't call singleton in unit tests
     FloweePay::instance()->p2pNet()->notifications().notifyNewTransaction(notification);
 #endif
+    if (createdNewKeys)
+        rebuildBloom();
 }
 
 void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions)
@@ -322,6 +326,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 // so we make sure we matched all we can
                 auto newWtx = createWalletTransactionFromTx(tx, txid, &notification);
                 wtx.outputs = newWtx.outputs;
+                needNewBloom = true;
             }
             wtx.minedBlock = header.createHash();
             wtx.minedBlockHeight = blockHeight;
@@ -583,7 +588,7 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     m_hdData->lastMainAddress = -1;
     m_hdData->lastChangeAddress = -1;
     QMutexLocker locker(&m_lock);
-    deriveHDKeys(50, 20, startHeight);
+    deriveHDKeys(50, 50, startHeight);
     saveSecrets();
 }
 
@@ -811,32 +816,70 @@ int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
 void Wallet::rebuildBloom()
 {
     auto lock = m_segment->clearFilter();
-    int numRegistredUnused = 0;
-    int numHdRegistredUnused = 0;
+    int unusedToInclude = 20;
+    int hdUnusedToInclude = 10;
+    int changeUnusedToIncude = 30;
+
+    std::set<int> secretsUsed;
+    for (const auto &i : m_walletTransactions) {
+        const auto &wtx = i.second;
+        for (const auto &output : wtx.outputs) {
+            secretsUsed.insert(output.second.walletSecretId);
+        }
+    }
+
+    std::set<int> secretsWithBalance;
+    for (auto utxo : m_unspentOutputs) {
+        auto i = m_walletTransactions.find(OutputRef(utxo.first).txIndex());
+        Q_ASSERT(i != m_walletTransactions.end());
+        const auto &wtx = i->second;
+        if (i->second.minedBlockHeight > 1) {
+            for (const auto &output : wtx.outputs) {
+                secretsWithBalance.insert(output.second.walletSecretId);
+            }
+        }
+    }
+    logDebug() << "Rebuilding bloom filter. UTXO-size:" << secretsWithBalance.size();
     for (auto &i : m_walletSecrets) {
         const auto &secret = i.second;
-        bool use = secret.initialHeight > 0 && secret.initialHeight < 10000000;
-        if (!use && secret.reserved)
-            use = true;
-        if (!use) {
-            if (secret.fromHdWallet) {
-                if (secret.fromChangeChain)
-                    use = true;
-                else
-                    use = ++numHdRegistredUnused <= 20;
+        if (secret.initialHeight >= 10000000) {
+            // is a timestamp, which means that we are waiting for the
+            // headerSyncComplete() to be called and this key is fresh
+            // and so searching in the history is useless.
+            continue;
+        }
+        if (secret.reserved) {
+            // whitelisted this one
+        }
+        else if (secret.fromHdWallet) {
+            if (secret.fromChangeChain) {
+                if (secretsUsed.find(i.first) == secretsUsed.end())  {
+                    // never used before
+                    if (--changeUnusedToIncude < 0)
+                        continue;
+                }
+                /*
+                 * The bloom filter gives us new transactions in future blocks.
+                 * The change-chain is specifically designed to have one-time-use addresses.
+                 * That means that after they become empty, we can stop looking for matches
+                 * which avoids leaking privacy info.
+                 *
+                 * We skip all secrets that have been deposited-in at least once (used)
+                 * and have no current balance on them (utxo does not refer to them)
+                 */
+                else if (secretsWithBalance.find(i.first) == secretsWithBalance.end()) {
+                    continue;
+                }
             }
-            else {
-                // also listen to the first 10 unused addresses.
-                use = ++numRegistredUnused <= 20;
+            // HD from main chain. If we never saw this, include a limited set.
+            else if (secretsUsed.find(i.first) == secretsUsed.end() && --hdUnusedToInclude < 0) {
+                continue;
             }
         }
-
-        if (use) {
-            uint32_t initialHeight = secret.initialHeight;
-            if (initialHeight > 1000000) // is a timestamp, not a height
-                initialHeight = 0;
-            m_segment->addKeyToFilter(secret.address, initialHeight);
+        else if (--unusedToInclude < 0) {
+            continue;
         }
+        m_segment->addKeyToFilter(secret.address, secret.initialHeight);
     }
     for (auto utxo : m_unspentOutputs) {
         OutputRef ref(utxo.first);
@@ -1215,8 +1258,6 @@ void Wallet::headerSyncComplete()
             const Blockchain &blockchain = FloweePay::instance()->p2pNet()->blockchain();
             iter->second.initialHeight = blockchain.blockHeightAtTime(iter->second.initialHeight);
             m_secretsChanged = true;
-
-            m_segment->addKeyToFilter(iter->second.address, iter->second.initialHeight);
             rebuildBloom();
         }
     }
@@ -1281,11 +1322,9 @@ void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
     m_secretsChanged = true;
     saveSecrets();
 
-    if (currentBlockheight < 10000000) {
+    if (currentBlockheight < 10000000)
         // if its out of this range, likely its a timestamp (headers are not yet synched)
-        m_segment->addKeyToFilter(pubkey.getKeyId(), currentBlockheight);
         rebuildBloom();
-    }
 }
 
 bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
@@ -1308,10 +1347,8 @@ bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
         m_secretsChanged = true;
         saveSecrets();
 
-        if (startBlockHeight < 10000000) {
-            m_segment->addKeyToFilter(pubkey.getKeyId(), startBlockHeight);
-            rebuildBloom();
-        }
+        if (startBlockHeight < 10000000)
+           rebuildBloom();
         return true;
     }
     logFatal() << "ERROR. Wallet: added string is not a private key";
