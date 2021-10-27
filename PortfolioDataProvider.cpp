@@ -111,23 +111,24 @@ QObject *PortfolioDataProvider::startPayAllToAddress(const QString &address)
 void PortfolioDataProvider::selectDefaultWallet()
 {
     int fallback = -1;
+    int current = -1;
+    PrivacySegment::Priority selectedPriority = PrivacySegment::OnlyManual;
     for (int i = 0; i < m_accounts.size(); ++i) {
         auto wallet = m_accounts.at(i);
-        if (wallet->segment()->priority() == PrivacySegment::First) {
-            m_currentAccount = i;
-            emit currentChanged();
-            break;
-        }
+        const auto prio = wallet->segment()->priority();
         if (!wallet->userOwnedWallet()) {
             fallback = i;
+        } else if (prio < selectedPriority) {
+            current = i;
+            selectedPriority = prio;
         }
     }
     // when the app went and made an empty wallet, select that so we have at least something selected.
-    if (m_currentAccount == -1) {
-        if (fallback >= 0)
-            m_currentAccount = fallback;
-        else if (!m_accounts.isEmpty())
-            m_currentAccount = 0;;
+    if (current == -1)
+        current = fallback;
+
+    if (current != m_currentAccount) { // changed?
+        m_currentAccount = current;
         emit currentChanged();
     }
 }
