@@ -159,11 +159,18 @@ void TestWallet::addingTransactions()
     // Create a double spending transaction and spend one of the two UTXOs only
     TransactionBuilder b4;
     // reuse the output we funded t3 with.
-    auto ref = funding.outputs.front();
-    b4.appendInput(wallet->txid(ref), ref.outputIndex());
-    auto output = wallet->txOutout(ref);
-    QCOMPARE(output.outputValue, 200000);
-    b4.appendOutput(output.outputValue - 1673);
+    bool found = false;
+    for (auto &ref : funding.outputs) {
+        // there are 2 outputs, we shall not assume the order of the funding request but just look for the right amount
+        auto output = wallet->txOutout(ref);
+        if (output.outputValue == 200000) {
+            found = true;
+            b4.appendInput(wallet->txid(ref), ref.outputIndex());
+            b4.appendOutput(output.outputValue - 1673);
+            break;
+        }
+    }
+    QVERIFY(found);
     b4.pushOutputPay2Address(wallet->nextUnusedAddress());
     Tx t4 = b4.createTransaction(&pool);
 

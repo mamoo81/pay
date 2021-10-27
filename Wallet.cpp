@@ -233,7 +233,6 @@ void Wallet::newTransaction(const Tx &tx)
             return;
         }
         wtx.minedBlockHeight = WalletPriv::Unconfirmed;
-        assert(m_segment->lastBlockSynched() >= 0);
         while (updateHDSignatures(wtx)) {
             // if we added a bunch of new private keys, then rerun the matching
             // so we make sure we matched all we can
@@ -252,7 +251,7 @@ void Wallet::newTransaction(const Tx &tx)
             uint64_t key = m_nextWalletTransactionId;
             key <<= 16;
             key += i->first;
-            logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
+            logDebug() << "   inserting output"<< i->first << Log::Hex << "TxIndex:" << i->second.walletSecretId << "outRef:" << key;
             m_unspentOutputs.insert(std::make_pair(key, i->second.value));
 
             const int privKeyId = i->second.walletSecretId;
