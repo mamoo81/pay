@@ -30,6 +30,8 @@ static const char *CoinGeckoURL = "https://api.coingecko.com/api/v3/simple/price
 static const char *CoinGeckoJSONRoot = "bitcoin-cash";
 // CoinGecko end
 
+static constexpr int ReloadTimeout = 7 * 60 * 1000;
+
 PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
 {
     QLocale here(QLocale::system());
@@ -50,13 +52,12 @@ PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
     // drop the '.00' behind the prices as this country doesn't traditionlly do that
     m_dispayCents = !(m_currency == QLatin1String("JPY")
                    || m_currency == QLatin1String("JPY"));
-    m_timer.setInterval(5 * 60 * 1000);
     QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetch()));
 }
 
 void PriceDataProvider::start()
 {
-    m_timer.start();
+    m_timer.start(ReloadTimeout);
     fetch();
 }
 
@@ -147,8 +148,12 @@ void PriceDataProvider::finishedDownload()
         m_currentPrice.timestamp = time(nullptr);
         emit priceChanged();
     } catch (const std::runtime_error &error) {
-        qWarning() << error.what();
-        qWarning() << QString::fromUtf8(data);
+        logWarning() << "PriceDataProvider failed." << error.what();
+        if (!data.isEmpty())
+            logInfo() << QString::fromUtf8(data);
+        m_timer.start(1 * 60 * 1000);
+        return;
     }
     logInfo() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
+    m_timer.start(ReloadTimeout);
 }
