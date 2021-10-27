@@ -288,7 +288,7 @@ void AccountInfo::updateWalletSecret(int id)
     if (m_walletSecrets.isEmpty())
         return;
 
-    for (auto ws : m_walletSecrets) {
+    for (const auto &ws : m_walletSecrets) {
         if (ws->id() == id) {
             auto map = m_wallet->walletSecrets();
             auto iter = map.find(id);
