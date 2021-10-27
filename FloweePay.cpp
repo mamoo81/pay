@@ -106,7 +106,7 @@ FloweePay::FloweePay()
     timer->start(5 * 60 * 1000);
     connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
 
-    QFileInfo me(QCoreApplication::arguments().first());
+    QFileInfo me(QCoreApplication::arguments().at(0));
     QDir base(me.absoluteDir().absolutePath() + "/../floweepay/");
     if (base.exists()) {
         // add Mnemonic (BIP39) dictionaries.
@@ -545,6 +545,24 @@ NewWalletConfig* FloweePay::createNewBasicWallet(const QString &walletName)
 
 NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const QString &password, const QString &walletName)
 {
+    // special case the first user-created wallet.
+    // If the user creates a new wallet that is identical to the one we auto-created, reuse that one.
+    const bool haveOneHiddenWallet = m_wallets.size() == 1 && m_wallets.first()->userOwnedWallet();
+    if (haveOneHiddenWallet) {
+        auto wallet = m_wallets.first();
+        if (wallet->isHDWallet() && derivationPath == wallet->derivationPath() && password == wallet->hdWalletMnemonicPwd()) {
+            wallet->setUserOwnedWallet(true);
+            if (!walletName.isEmpty())
+                wallet->setName(walletName);
+            // little hacky to make listeners realize we really changed the wallet.
+            m_wallets.clear();
+            emit walletsChanged();
+            m_wallets.append(wallet);
+            emit walletsChanged();
+            return new NewWalletConfig(wallet);
+        }
+    }
+
     auto wallet = createWallet(walletName);
     std::vector<uint8_t> seed(32);
     RandAddSeedPerfmon();

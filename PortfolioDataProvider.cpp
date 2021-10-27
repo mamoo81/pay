@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,11 +27,18 @@
 PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
 {
     connect (FloweePay::instance(), &FloweePay::walletsChanged, this, [=]() {
-        for (auto &w : FloweePay::instance()->wallets()) {
-            if (!m_accounts.contains(w)) {
-                addWalletAccount(w);
+        const auto &wallets = FloweePay::instance()->wallets();
+        if (wallets.isEmpty()) {
+            m_accounts.clear();
+            for (auto ai : m_accountInfos) {
+                ai->deleteLater();
             }
+            m_accountInfos.clear();
         }
+        for (auto &w : wallets) {
+            addWalletAccount(w);
+        }
+        emit accountsChanged(); // not strictly needed, but safe to have.
     });
 }
 
