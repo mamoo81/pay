@@ -31,7 +31,7 @@ ColumnLayout {
             anchors.top: nameRow.bottom
             anchors.right: parent.right
             onClicked: {
-                var options = Flowee.createNewWallet(derivationPath.text, passwordField.text, accountName.text);
+                var options = Flowee.createNewWallet(derivationPath.text, /* password */"", accountName.text);
                 var accounts = portfolio.accounts;
                 for (var i = 0; i < accounts.length; ++i) {
                     var a = accounts[i];
@@ -58,17 +58,6 @@ ColumnLayout {
             tooltipText: qsTr("When enabled, newer style Schnorr signatures are not set as default for this wallet.")
             Layout.columnSpan: 2
         } */
-        Label {
-            text: qsTr("Password:")
-            visible: importAccount.isMnemonic
-        }
-        FloweeTextField {
-            id: passwordField
-            visible: importAccount.isMnemonic
-            Layout.fillWidth: true
-            echoMode: TextInput.Password
-            // TODO allow showing the text in the textfield component
-        }
         Label {
             text: qsTr("Derivation:")
             visible: importAccount.isMnemonic

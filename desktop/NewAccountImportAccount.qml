@@ -11,6 +11,7 @@ GridLayout {
     property var typedData: Flowee.identifyString(secrets.text)
     property bool finished: typedData === Pay.PrivateKey || typedData === Pay.CorrectMnemonic;
     property bool isMnemonic: typedData === Pay.CorrectMnemonic || typedData === Pay.PartialMnemonic;
+    property bool isPrivateKey: typedData === Pay.PrivateKey
 
     Label {
         text: qsTr("Please enter the secrets of the wallet to import. This can be a seedphrase or a private key.")
@@ -107,20 +108,21 @@ GridLayout {
         FloweeCheckBox {
             id: singleAddress
             text: qsTr("Force Single Address");
-            tooltipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
-            visible: !importAccount.isMnemonic
+            tooltipText: qsTr("When enabled, no extra addresses will be auto-generated in this wallet.\nChange will come back to the imported key.")
+            checked: true
+            visible: importAccount.isPrivateKey
             Layout.columnSpan: 2
         }
         Label {
-            text: qsTr("Password:")
-            visible: importAccount.isMnemonic
+            text: qsTr("Alternate phrase:")
+            visible: !importAccount.isPrivateKey
         }
         FloweeTextField {
+            // according to the BIP39 spec this is the 'password', but from a UX
+            // perspective that is confusing and no actual wallet uses it
             id: passwordField
-            visible: importAccount.isMnemonic
+            visible: !importAccount.isPrivateKey
             Layout.fillWidth: true
-            echoMode: TextInput.Password
-            // TODO allow showing the text in the textfield component
         }
         Label {
             text: qsTr("Start Height:")
@@ -132,12 +134,12 @@ GridLayout {
         }
         Label {
             text: qsTr("Derivation:")
-            visible: importAccount.isMnemonic
+            visible: !importAccount.isPrivateKey
         }
         FloweeTextField {
             id: derivationPath
             text: "m/44'/145'/0'" // default for BCH wallets
-            visible: importAccount.isMnemonic
+            visible: !importAccount.isPrivateKey
             color: Flowee.checkDerivation(text) ? palette.text : "red"
         }
     }

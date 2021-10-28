@@ -36,6 +36,7 @@ FocusScope {
     Rectangle {
         color: mainWindow.palette.window
         anchors.fill: contentArea
+        anchors.margins: -10 // have an inset
         MouseArea { anchors.fill: parent }
     }
 
@@ -91,8 +92,7 @@ FocusScope {
                     features: [
                         qsTr("Seed phrase based", "Context: wallet type"),
                         qsTr("Easy to backup", "Context: wallet type"),
-                        qsTr("Hierarchically Deterministic", "BIP32 term"),
-                        qsTr("Most compatible type", "The most compatible wallet type")
+                        qsTr("Most compatible", "The most compatible wallet type")
                     ]
                 }
                 AccountTypeSelector {
