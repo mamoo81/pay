@@ -109,18 +109,17 @@ else()
     install(PROGRAMS desktop/org.flowee.pay.desktop DESTINATION share/applications)
     set (ICONIN desktop/icons/hicolor/)
     set (ICONOUT share/icons/hicolor/)
-    install(PROGRAMS ${ICONIN}16x16/apps/org.flowee.pay.png DESTINATION ${ICONOUT}16x16/apps)
-    install(PROGRAMS ${ICONIN}22x22/apps/org.flowee.pay.png DESTINATION ${ICONOUT}22x22/apps)
-    install(PROGRAMS ${ICONIN}24x24/apps/org.flowee.pay.png DESTINATION ${ICONOUT}24x24/apps)
-    install(PROGRAMS ${ICONIN}32x32/apps/org.flowee.pay.png DESTINATION ${ICONOUT}32x32/apps)
-    install(PROGRAMS ${ICONIN}48x48/apps/org.flowee.pay.png DESTINATION ${ICONOUT}48x48/apps)
-    install(PROGRAMS ${ICONIN}256x256/apps/org.flowee.pay.png DESTINATION ${ICONOUT}256x256/apps)
+    install(FILES ${ICONIN}16x16/apps/org.flowee.pay.png DESTINATION ${ICONOUT}16x16/apps)
+    install(FILES ${ICONIN}22x22/apps/org.flowee.pay.png DESTINATION ${ICONOUT}22x22/apps)
+    install(FILES ${ICONIN}24x24/apps/org.flowee.pay.png DESTINATION ${ICONOUT}24x24/apps)
+    install(FILES ${ICONIN}32x32/apps/org.flowee.pay.png DESTINATION ${ICONOUT}32x32/apps)
+    install(FILES ${ICONIN}48x48/apps/org.flowee.pay.png DESTINATION ${ICONOUT}48x48/apps)
+    install(FILES ${ICONIN}256x256/apps/org.flowee.pay.png DESTINATION ${ICONOUT}256x256/apps)
 endif()
 
-find_package(Boost 1.56.0
+find_package(Boost 1.67.0
     REQUIRED
     filesystem chrono thread
-    # iostreams 
 )
 find_package(OpenSSL REQUIRED)
 message ("Using OpenSSL ${OPENSSL_VERSION}")
@@ -138,5 +137,5 @@ target_link_libraries(pay
 
 add_subdirectory(testing)
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/pay DESTINATION bin)
-install(FILES ${CMAKE_SOURCE_DIR}/data/bip39-english DESTINATION floweepay)
+install(FILES ${CMAKE_SOURCE_DIR}/data/bip39-english DESTINATION share/floweepay)
+install(TARGETS pay DESTINATION bin)

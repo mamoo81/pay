@@ -107,7 +107,7 @@ FloweePay::FloweePay()
     connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
 
     QFileInfo me(QCoreApplication::arguments().at(0));
-    QDir base(me.absoluteDir().absolutePath() + "/../floweepay/");
+    QDir base(me.absoluteDir().absolutePath() + "/../share/floweepay/");
     if (base.exists()) {
         // add Mnemonic (BIP39) dictionaries.
         m_hdSeedValidator.registerWordList("en", base.absoluteFilePath("bip39-english"));
