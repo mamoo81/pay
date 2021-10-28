@@ -77,12 +77,23 @@ if(ANDROID)
         ${PAY_SOURCES}
     )
 else()
-    qt5_create_translation(QM_FILES
-        desktop
-        desktop/i18n/floweepay_en.ts
+    set (TS_FILES
         desktop/i18n/floweepay_nl.ts
         desktop/i18n/floweepay_pl.ts
     )
+    # set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "l10n")
+    qt5_add_translation(qmFiles ${TS_FILES})
+
+    # notice that for this custom target we require CMake 3.13 minimum. But since
+    # only the release manager will need to call this, we leave the project cmake
+    # minimum to be lower.
+    add_custom_target(i18n
+        COMMAND lupdate desktop/qml.qrc -ts ${TS_FILES} desktop/i18n/floweepay_en.ts
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT
+            "Updating internationalization (i18n) translation files"
+    )
+
     # The qm files are generated in the build tree, but the qrc file is inside the
     # source directory and the path to resources are relative to the location of
     # the qrc file itself. We use configure_file() to copy the qrc file in the build
