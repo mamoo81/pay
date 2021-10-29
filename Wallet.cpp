@@ -1947,13 +1947,3 @@ int Wallet::historicalOutputCount() const
     }
     return count;
 }
-
-
-// ///////////////////////////////////////////////////////////////////////////////////////////
-
-Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::string &pwd)
-    : masterKey(HDMasterKey::fromMnemonic(seedWords, pwd))
-{
-    walletMnemonic = QString::fromUtf8(seedWords.c_str());
-    walletMnemonicPwd = QString::fromUtf8(pwd.c_str());
-}
