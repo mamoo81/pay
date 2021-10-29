@@ -27,6 +27,15 @@
 
 class Wallet;
 
+/*
+ * Fee estimation needs to know how much space is used per input.
+ * 32 + 4 for the prevTx
+ * Then 72 + 33 bytes for the signature and pub-key (+-1).
+ * Using schnorr we can gain 8 bytes for the signature (not included here).
+ */
+constexpr int BYTES_PER_OUTPUT = 149;
+constexpr int MATURATION_AGE  = 100; // the amount of blocks a coinbase takes before we can spend it
+
 namespace WalletPriv
 {
 // we may have transactions that spend outputs created within the same block.

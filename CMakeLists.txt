@@ -66,6 +66,7 @@ set (PAY_SOURCES
     Wallet.cpp
     WalletHistoryModel.cpp
     Wallet_support.cpp
+    Wallet_spending.cpp
 )
 
 if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
