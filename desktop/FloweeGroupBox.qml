@@ -32,10 +32,10 @@ Item {
     activeFocusOnTab: true
     clip: true
 
-    width: 100 // should be changed by user
-    height: implicitHeight
+    width: 200 // should be changed by user
+    // height: implicitHeight
     implicitWidth: {
-        var w = child.width // even if its hidden, it takes horizontal space
+        var w = 0;
         if (titleArea.visible) {
             var headerWidth = titleArea.width
             if (arrowPoint.visible)
@@ -43,7 +43,7 @@ Item {
         }
         return w;
     }
-    implicitHeight: arrowPoint.height + (isCollapsed ? 0 : child.height + 25) // 25 = 15 top, 5 bottom of content area
+    implicitHeight: arrowPoint.height + (isCollapsed ? 0 : child.implicitHeight + 25) // 25 = 15 top, 5 bottom of content area
 
     Rectangle { // the outline
         width: parent.width
@@ -111,6 +111,7 @@ Item {
         width: root.width - 20
         height: implicitHeight
         visible: !root.isCollapsed
+        columns: 1
     }
 
     Behavior on height { NumberAnimation { } }

@@ -20,7 +20,7 @@ import Flowee.org.pay 1.0
 
 Item {
     id: root
-    width: wide ? 14 : 3
+    width: wide ? 10 : 4
     height: column.height
     property color color: Flowee.useDarkSkin ? "white" : "black"
     property bool wide: false
@@ -30,7 +30,7 @@ Item {
         y: 1 // move the column down to account for the anti-alias line of the rectangle below
 
         Repeater {
-            model: 4
+            model: 3
             delegate: Rectangle {
                 color: root.color
                 width: root.wide ? 14 : 3

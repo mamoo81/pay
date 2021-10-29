@@ -28,7 +28,6 @@ ColumnLayout {
         Button2 {
             id: button
             text: qsTr("Go")
-            anchors.top: nameRow.bottom
             anchors.right: parent.right
             onClicked: {
                 var options = Flowee.createNewWallet(derivationPath.text, /* password */"", accountName.text);
@@ -60,12 +59,11 @@ ColumnLayout {
         } */
         Label {
             text: qsTr("Derivation:")
-            visible: importAccount.isMnemonic
+            Layout.fillWidth: false
         }
         FloweeTextField {
             id: derivationPath
             text: "m/44'/145'/0'" // default for BCH wallets
-            visible: importAccount.isMnemonic
             color: Flowee.checkDerivation(text) ? palette.text : "red"
         }
     }

@@ -65,6 +65,7 @@ set (PAY_SOURCES
     TransactionInfo.cpp
     Wallet.cpp
     WalletHistoryModel.cpp
+    WalletSecretsModel.cpp
     Wallet_support.cpp
     Wallet_spending.cpp
 )

@@ -20,6 +20,7 @@
 
 #include <QObject>
 #include "WalletHistoryModel.h"
+#include "WalletSecretsModel.h"
 #include "Wallet.h"
 #include "TransactionInfo.h"
 #include <PaymentRequest.h>
@@ -89,12 +90,12 @@ class AccountInfo : public QObject
     Q_PROPERTY(int lastBlockSynched READ lastBlockSynched NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(WalletHistoryModel* transactions READ historyModel CONSTANT)
+    Q_PROPERTY(WalletSecretsModel* secrets READ secretsModel CONSTANT)
     Q_PROPERTY(bool isDefaultWallet READ isDefaultWallet WRITE setDefaultWallet NOTIFY isDefaultWalletChanged)
     Q_PROPERTY(bool isUserOwned READ userOwnedWallet NOTIFY userOwnedChanged)
     Q_PROPERTY(bool isSingleAddressAccount READ isSingleAddressAccount CONSTANT)
-    Q_PROPERTY(bool isHDAccount READ isHDAccount CONSTANT)
+    Q_PROPERTY(bool isHDWallet READ isHDWallet CONSTANT)
     Q_PROPERTY(QList<QObject*> paymentRequests READ paymentRequests NOTIFY paymentRequestsChanged)
-    Q_PROPERTY(QList<WalletSecret *> walletSecrets READ walletSecrets NOTIFY walletSecretsChanged)
     Q_PROPERTY(QString mnemonic READ hdWalletMnemonic CONSTANT)
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath CONSTANT)
 public:
@@ -123,6 +124,7 @@ public:
     int lastBlockSynched() const;
 
     WalletHistoryModel* historyModel();
+    WalletSecretsModel* secretsModel();
 
     /**
      * Sets a wallet to be the first to open (aka default) wallet.
@@ -152,11 +154,11 @@ public:
 
     bool isSingleAddressAccount() const;
 
-    bool isHDAccount() const;
+    bool isHDWallet() const;
     QString hdWalletMnemonic() const;
     QString hdDerivationPath() const;
 
-    const QList<WalletSecret *> &walletSecrets();
+    WalletSecretsModel*secretsModel() const;
 
 signals:
     void balanceChanged();
@@ -166,7 +168,6 @@ signals:
     void isDefaultWalletChanged();
     void paymentRequestsChanged();
     void userOwnedChanged();
-    void walletSecretsChanged();
 
 private slots:
     void updateWalletSecret(int id);
@@ -174,6 +175,7 @@ private slots:
 private:
     Wallet *m_wallet;
     std::unique_ptr<WalletHistoryModel> m_model;
+    std::unique_ptr<WalletSecretsModel> m_secretsModel;
     QList<WalletSecret*> m_walletSecrets;
 
     friend class WalletSecret;

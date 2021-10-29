@@ -143,7 +143,6 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     connect(wallet, SIGNAL(balanceChanged()), this, SIGNAL(balanceChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
-    connect(wallet, SIGNAL(walletSecretChanged(int)), this, SLOT(updateWalletSecret(int)), Qt::QueuedConnection);
 }
 
 int AccountInfo::id() const
@@ -203,6 +202,13 @@ WalletHistoryModel *AccountInfo::historyModel()
     return m_model.get();
 }
 
+WalletSecretsModel *AccountInfo::secretsModel()
+{
+    if (m_secretsModel == nullptr)
+        m_secretsModel.reset(new WalletSecretsModel(m_wallet, this));
+    return m_secretsModel.get();
+}
+
 void AccountInfo::setDefaultWallet(bool isDefault)
 {
     auto segment =m_wallet->segment();
@@ -254,7 +260,7 @@ bool AccountInfo::isSingleAddressAccount() const
     return m_wallet->isSingleAddressWallet();
 }
 
-bool AccountInfo::isHDAccount() const
+bool AccountInfo::isHDWallet() const
 {
     return m_wallet->isHDWallet();
 }
@@ -269,6 +275,7 @@ QString AccountInfo::hdDerivationPath() const
     return m_wallet->derivationPath();
 }
 
+#if 0
 const QList<WalletSecret *> &AccountInfo::walletSecrets()
 {
     if (m_walletSecrets.isEmpty()) {
@@ -282,9 +289,11 @@ const QList<WalletSecret *> &AccountInfo::walletSecrets()
     }
     return m_walletSecrets;
 }
+#endif
 
 void AccountInfo::updateWalletSecret(int id)
 {
+    /*
     if (m_walletSecrets.isEmpty())
         return;
 
@@ -296,4 +305,5 @@ void AccountInfo::updateWalletSecret(int id)
             ws->populate(iter->second, -1);
         }
     }
+    */
 }

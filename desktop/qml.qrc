@@ -45,5 +45,6 @@
         <file>FloweeMultilineTextField.qml</file>
         <file>NewAccountImportAccount.qml</file>
         <file>NewAccountCreateHDAccount.qml</file>
+        <file>widgets/CloseIcon.qml</file>
     </qresource>
 </RCC>

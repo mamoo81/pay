@@ -126,6 +126,7 @@ ApplicationWindow {
                         return portfolio.totalBalance
                     }
                     colorize: false
+                    textColor: "white"
                     showFiat: false
                     fontPtSize: mainWindow.font.pointSize * 2
                     opacity: blurredTotalBalance2.visible ? 0 : 1
@@ -144,6 +145,7 @@ ApplicationWindow {
                 anchors.baseline: balanceInHeader.baseline
                 anchors.right: balanceInHeader.left
                 anchors.rightMargin: 10
+                color: "white"
 
                 text: {
                     if (Flowee.hideBalance && Flowee.isMainChain)

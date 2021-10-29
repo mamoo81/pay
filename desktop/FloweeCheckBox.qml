@@ -40,7 +40,7 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: parent.height / 3
-            color: root.checked ? (Flowee.useDarkSkin ? "#4f7d63" : "#bff0d3") : mainWindow.palette.window
+            color: root.enabled && root.checked ? (Flowee.useDarkSkin ? "#4f7d63" : "#bff0d3") : mainWindow.palette.window
             border.color: root.activeFocus ? (Flowee.useDarkSkin ? "white" : "black") : mainWindow.palette.button
             border.width: 2
 
@@ -52,9 +52,13 @@ Item {
             radius: width
             x: root.checked ? parent.width - width - 3 : 3
             anchors.verticalCenter: parent.verticalCenter
-            // color: mainWindow.palette.highlight
-            color: Flowee.useDarkSkin && root.checked ? mainWindow.palette.text : mainWindow.palette.highlight
-
+            color: {
+                if (!root.enabled)
+                    return "darkgray"
+                if (root.checked && Flowee.useDarkSkin)
+                    return mainWindow.palette.text;
+                return mainWindow.palette.highlight
+            }
             Behavior on x { NumberAnimation {}}
             Behavior on color { ColorAnimation {}}
         }
@@ -82,11 +86,12 @@ Item {
         anchors.left: slider.right
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 6
+        color: enabled ? palette.text : "darkgray"
     }
 
     Rectangle {
         id: questionMarkIcon
-        visible: root.tooltipText !== ""
+        visible: root.tooltipText !== "" && root.enabled
         width: q.width + 14
         height: width
         anchors.left: title.right

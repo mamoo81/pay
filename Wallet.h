@@ -262,8 +262,6 @@ signals:
 
     void transactionConfirmed(int txIndex);
 
-    void walletSecretChanged(int secretId);
-
     // \internal
     void startDelayedSave();
 
@@ -381,6 +379,7 @@ private:
     qint64 m_balanceUnconfirmed = 0;
 
     friend class WalletHistoryModel;
+    friend class WalletSecretsModel;
 
     // user settings
     bool m_singleAddressWallet = false;

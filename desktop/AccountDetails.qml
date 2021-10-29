@@ -18,6 +18,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
+import "widgets" as Widgets
 import Flowee.org.pay 1.0
 
 Item {
@@ -32,72 +33,72 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
-    Item {
+    Widgets.CloseIcon {
         id: closeIcon
-        width: 30
-        height: 30
-        anchors.right: parent.right
-        anchors.margins: 6
         anchors.bottom: walletDetailsLabel.bottom
-        MouseArea {
-            anchors.fill: parent
-            onClicked: accountDetails.state = "showTransactions"
-        }
+        anchors.margins: 6
+        anchors.right: parent.right
+    }
 
-        Rectangle {
-            color: "#bbbbbb"
-            width: 30
-            height: 3
-            radius: 3
-            rotation: 45
-            anchors.centerIn: parent
+    RowLayout {
+        id: nameRow
+        anchors.top: walletDetailsLabel.bottom
+        anchors.topMargin: 20
+        x: 20
+        width: parent.width - 30
+
+        Label {
+            text: qsTr("Name") + ":"
         }
-        Rectangle {
-            color: "#bbbbbb"
-            width: 30
-            height: 3
-            radius: 3
-            rotation: -45
-            anchors.centerIn: parent
+        FloweeTextField {
+            id: accountNameEdit
+            text: root.account.name
+            onTextEdited: root.account.name = text
+            Layout.fillWidth: true
         }
     }
 
     Flickable {
-        anchors.top: walletDetailsLabel.bottom
-        anchors.topMargin: 10
+        id: scrollablePage
+        anchors.top: nameRow.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.bottom: parent.bottom
-        width: parent.width - 16
-        contentHeight: gridlayout.height + keysTable.height + 20
+        anchors.margins: 10
         clip: true
-        x: 8
+
+        contentHeight:  detailsPane.height + 10 + addressesList.height + 10
 
         ColumnLayout {
-            id: gridlayout
+            id: detailsPane
             spacing: 10
-            width: parent.width
+            width: parent.width - 20
+            x: 10
 
-            RowLayout {
-                Label {
-                    text: qsTr("Name") + ":"
-                }
-                FloweeTextField {
-                    id: accountNameEdit
-                    text: root.account.name
-                    onTextEdited: root.account.name = text
-                    Layout.fillWidth: true
-                }
-            }
             Label {
                 text: qsTr("Sync Status") + ": " + syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
             }
+            Label {
+                id: walletType
+                font.italic: true
+                text: {
+                    if (root.account.isSingleAddressAccount)
+                        return qsTr("This account is a single-address wallet.")
 
-/* TODO, features to add;
+                    if (root.account.isHDWallet)
+                        return qsTr("This account is based on a HD seed mnemonic")
+
+                     // ok we only have one more type so far, so this is rather simple...
+                    return qsTr("This account is a simple multiple-address wallet.")
+                }
+            }
+    /* TODO, features to add;
             Label {
                 text: qsTr("Security:")
                 Layout.columnSpan: 3
                 font.italic: true
             }
-    
+
             FloweeCheckBox {
                 id: schnorr
                 checked: true
@@ -123,125 +124,99 @@ Item {
                 checked: false
                 text: qsTr("Use Indexing Server");
             }
-*/
-    
-            RowLayout {
-                Label {
-                    id: walletType
-                    text: {
-                        if (root.account.isSingleAddressAccount)
-                            return qsTr("This account is a single-address wallet.")
-
-                        if (root.account.isHDAccount)
-                            return qsTr("This account is based on a HD seed mnemonic")
-
-                         // ok we only have one more type so far, so this is rather simple...
-                        return qsTr("This account is a simple multiple-address wallet.")
-                    }
-                }
-                /* TODO make able to convert to another type of wallet
-                Image {
-                    id: editWalletType
-                    source: Flowee.useDarkSkin ? "qrc:///images/gear-white.svg" : "qrc:///images/gear.svg"
-                    sourceSize.width: 24
-                    sourceSize.height: 24
-                }
-                */
-            }
+    */
         }
 
-        Rectangle {
-            id: keysTable
-            border.color: "black"
-            border.width: 3
-            color: "#00000000"
-            radius: 3
-            anchors.top: gridlayout.bottom
-            anchors.topMargin: 20
+        FloweeGroupBox {
+            id: addressesList
             width: parent.width
-            height: rows.height + 10
+            anchors.top: detailsPane.bottom
+            anchors.topMargin: 10
+            title: qsTr("Address List")
 
-            Column {
-                id: rows
-                width: parent.width - 6
-                spacing: 10
-                x: 3
-                y: 3
+            FloweeCheckBox {
+                text: qsTr("Change Addresses")
+                enabled: root.account.isHDWallet
+                checked: root.account.secrets.showChangeChain
+                onClicked: root.account.secrets.showChangeChain = !root.account.secrets.showChangeChain
+                tooltipText: qsTr("Switches between normal addresses or Bitcoin addresses used for coins that are change.")
+            }
+            FloweeCheckBox {
+                text: qsTr("Used Addresses");
+                checked: root.account.secrets.showUsedAddresses
+                onClicked: root.account.secrets.showUsedAddresses = !root.account.secrets.showUsedAddresses
+                tooltipText: qsTr("Switches between unused and used bitcoin addresses")
+            }
+            ListView {
+                model: root.account.secrets
+                Layout.fillWidth: true
+                implicitHeight: scrollablePage.height / 10 * 7
+                clip: true
+                delegate: Rectangle {
+                    id: delegateRoot
+                    color: (index % 2) == 0 ? mainWindow.palette.base : mainWindow.palette.alternateBase
+                    width: ListView.view.width
+                    height: addressLabel.height + 10 + amountLabel.height + 10
 
-                Rectangle {
-                    id: header
-                    color: Flowee.useDarkSkin ? "#393939" : "#bfbfbf"
-                    width: parent.width
-                    height: headerLabel.height + 18
                     Label {
-                        id: headerLabel
-                        text: qsTr("Keys in this wallet")
-                        anchors.centerIn: parent
+                        text: hdIndex
+                        anchors.baseline: addressLabel.baseline
+                        anchors.right: addressLabel.left
+                        anchors.rightMargin: 10
+                        visible: root.account.isHDWallet
                     }
-                }
-                Repeater {
-                    model: root.account.walletSecrets
-                    delegate: Rectangle {
-                        color: (index % 2) == 0 ? mainWindow.palette.base : mainWindow.palette.alternateBase
-                        width: rows.width
-                        height: id.height
 
-                        Label {
-                            id: id
-                            text: modelData.id
-                            x: 10
-                        }
-                        LabelWithClipboard {
-                            x: 40
-                            text: modelData.address
-                        }
+                    LabelWithClipboard {
+                        id: addressLabel
+                        y: 5
+                        x: root.account.isHDWallet ? 50 : 0
+                        text: address
+                    }
 
-                        Label {
-                            text: qsTr("unused")
-                            anchors.right: button.left
-                            anchors.rightMargin: 10
-                            visible: !bitcoinAmountLabel.visible
-                        }
-                        BitcoinAmountLabel {
-                            id: bitcoinAmountLabel
-                            value: modelData.saldo
-                            colorize: false
-                            visible: modelData.used || modelData.saldo > 0 // we either signed or we have UTXOs
-                            anchors.right: button.left
-                            anchors.rightMargin: 10
-                        }
-                        ConfigItem {
-                            id: button
-                            anchors.right: parent.right
-                            anchors.rightMargin: 10
-                            wide: true
-                            MouseArea {
-                                anchors.fill: parent
-                                anchors.margins: -3
-                                onClicked: contextMenu.popup()
+                    BitcoinAmountLabel {
+                        id: amountLabel
+                        value: balance
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 12
+                    }
+                    Label {
+                        anchors.left: parent.left
+                        anchors.leftMargin: delegateRoot.width / 4
+                        anchors.baseline: amountLabel.baseline
+                        text: qsTr("Coins: %1 / %2").arg(numCoins).arg(numTransactions)
+                    }
 
-                                Menu {
-                                    id: contextMenu
-                                    MenuItem {
-                                        text: qsTr("Copy Address")
-                                        onTriggered: Flowee.copyToClipboard(modelData.address)
-                                    }
-                                    MenuItem {
-                                        text: qsTr("Copy Private Key")
-                                        onTriggered: Flowee.copyToClipboard(modelData.fetchPrivateKey())
-                                    }
-                                    /*
-                                    MenuItem {
-                                        text: qsTr("Move to New Wallet")
-                                        onTriggered: ;
-                                    } */
+                    ConfigItem {
+                        id: button
+                        anchors.right: parent.right
+                        wide: true
+                        y: 10
+                        MouseArea {
+                            anchors.fill: parent
+                            anchors.margins: -3
+                            onClicked: contextMenu.popup()
+
+                            Menu {
+                                id: contextMenu
+                                MenuItem {
+                                    text: qsTr("Copy Address")
+                                    onTriggered: Flowee.copyToClipboard(address)
                                 }
+                                MenuItem {
+                                    text: qsTr("Copy Private Key")
+                                    onTriggered: Flowee.copyToClipboard(privatekey)
+                                }
+                                /*
+                                MenuItem {
+                                    text: qsTr("Move to New Wallet")
+                                    onTriggered: ;
+                                } */
                             }
                         }
                     }
                 }
             }
-
         }
     }
 }
