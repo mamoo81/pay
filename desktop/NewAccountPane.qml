@@ -17,6 +17,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
+import "widgets" as Widgets
 import Flowee.org.pay 1.0
 
 FocusScope {
@@ -49,6 +50,13 @@ FocusScope {
         contentHeight: contentAreaColumn.height + 20
         flickableDirection: Flickable.VerticalFlick
         clip: true
+
+        Widgets.CloseIcon {
+            id: closeIcon
+            anchors.margins: 6
+            anchors.right: parent.right
+            onClicked: root.visible = false
+        }
 
         Column {
             id: contentAreaColumn

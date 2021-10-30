@@ -38,6 +38,7 @@ Item {
         anchors.bottom: walletDetailsLabel.bottom
         anchors.margins: 6
         anchors.right: parent.right
+        onClicked: accountDetails.state = "showTransactions"
     }
 
     RowLayout {

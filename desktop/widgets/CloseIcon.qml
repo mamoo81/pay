@@ -4,12 +4,14 @@ import QtQuick.Layouts 1.11
 import Flowee.org.pay 1.0
 
 Item {
-    id: closeIcon
+    id: root
     width: 30
     height: 30
+
+    signal clicked;
     MouseArea {
         anchors.fill: parent
-        onClicked: accountDetails.state = "showTransactions"
+        onClicked: root.clicked();
     }
 
     Rectangle {
