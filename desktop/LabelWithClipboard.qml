@@ -27,6 +27,7 @@ Label {
         anchors.fill: parent
         acceptedButtons: Qt.RightButton | Qt.LeftButton
         onClicked: menu.start(parent);
+        cursorShape: Qt.PointingHandCursor
 
         Menu {
             id: menu

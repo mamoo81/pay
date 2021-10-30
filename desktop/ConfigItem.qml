@@ -24,6 +24,9 @@ Item {
     height: column.height
     property color color: Flowee.useDarkSkin ? "white" : "black"
     property bool wide: false
+
+    property var contextMenu: null
+
     Column {
         id: column
         spacing: 3
@@ -38,5 +41,13 @@ Item {
                 radius: 3
             }
         }
+    }
+    MouseArea {
+        anchors.fill: parent
+        anchors.margins: -15
+        hoverEnabled: true // to make sure we eat them and avoid the hover feedback.
+        acceptedButtons: Qt.RightButton | Qt.LeftButton
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.contextMenu.popup()
     }
 }

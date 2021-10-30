@@ -320,6 +320,7 @@ ApplicationWindow {
                         opacity: 0.5
                         MouseArea {
                             anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 Flowee.hideBalance = !Flowee.hideBalance;
                                 balanceDetailsPane.showDetails = false;
@@ -491,6 +492,7 @@ ApplicationWindow {
 
                     MouseArea {
                         anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
                         onClicked: newAccountPane.source = "./NewAccountPane.qml"
                     }
                 }

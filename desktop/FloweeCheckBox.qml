@@ -68,6 +68,7 @@ Item {
         id: mousy
         width: slider.width + 6 + title.width
         height: parent.height
+        cursorShape: Qt.PointingHandCursor
         onClicked: {
             root.checked = !root.checked
             root.clicked()
@@ -106,6 +107,8 @@ Item {
             anchors.centerIn: parent
             MouseArea {
                 anchors.fill: parent
+                anchors.margins: -7
+                cursorShape: Qt.PointingHandCursor
                 id: clicky
                 onClicked: ToolTip.show(root.tooltipText, 15000);
             }

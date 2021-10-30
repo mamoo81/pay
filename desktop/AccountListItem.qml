@@ -92,28 +92,19 @@ Item {
         anchors.rightMargin: 15
         y: 13
 
-        MouseArea {
-            anchors.fill: parent
-            anchors.margins: -15
-            hoverEnabled: true // to make sure we eat them and avoid the hover feedback.
-            acceptedButtons: Qt.RightButton | Qt.LeftButton
-            onClicked: contextMenu.popup()
-
-            Menu {
-                id: contextMenu
-                MenuItem {
-                    text: qsTr("Details")
-                    onTriggered: {
-                        portfolio.current = account;
-                        accountDetails.state = "accountDetails";
-                    }
+        contextMenu:  Menu {
+            MenuItem {
+                text: qsTr("Details")
+                onTriggered: {
+                    portfolio.current = account;
+                    accountDetails.state = "accountDetails";
                 }
-                MenuItem {
-                    checked: root.account.isDefaultWallet
-                    checkable: true
-                    text: qsTr("Main Account")
-                    onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
-                }
+            }
+            MenuItem {
+                checked: root.account.isDefaultWallet
+                checkable: true
+                text: qsTr("Main Account")
+                onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
             }
         }
     }

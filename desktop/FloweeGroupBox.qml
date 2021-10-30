@@ -49,6 +49,7 @@ Item {
         height: 20
         enabled: root.collapsable
         onClicked: root.collapsed = !root.collapsed
+        cursorShape: Qt.PointingHandCursor
     }
 
     Rectangle {

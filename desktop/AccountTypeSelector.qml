@@ -77,6 +77,7 @@ Item {
 
     MouseArea {
         anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
         onClicked: optionsRow.selectedAccountType = parent.accountType
     }
 }

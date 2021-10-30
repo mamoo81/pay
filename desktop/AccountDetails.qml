@@ -218,27 +218,21 @@ Item {
                         anchors.right: parent.right
                         wide: true
                         y: 10
-                        MouseArea {
-                            anchors.fill: parent
-                            anchors.margins: -3
-                            onClicked: contextMenu.popup()
-
-                            Menu {
-                                id: contextMenu
-                                MenuItem {
-                                    text: qsTr("Copy Address")
-                                    onTriggered: Flowee.copyToClipboard(address)
-                                }
-                                MenuItem {
-                                    text: qsTr("Copy Private Key")
-                                    onTriggered: Flowee.copyToClipboard(privatekey)
-                                }
-                                /*
+                        contextMenu: Menu {
+                            id: contextMenu
+                            MenuItem {
+                                text: qsTr("Copy Address")
+                                onTriggered: Flowee.copyToClipboard(address)
+                            }
+                            MenuItem {
+                                text: qsTr("Copy Private Key")
+                                onTriggered: Flowee.copyToClipboard(privatekey)
+                            }
+                            /*
                                 MenuItem {
                                     text: qsTr("Move to New Wallet")
                                     onTriggered: ;
                                 } */
-                            }
                         }
                     }
                 }
