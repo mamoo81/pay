@@ -111,7 +111,11 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
 
 QString WalletHistoryModel::dateForItem(qreal offset) const
 {
+    if (std::isnan(offset))
+        return QString();
     const int row = std::round(offset * m_rowsProxy.size());
+    if (row < 0 || row >= m_wallet->m_walletTransactions.size())
+        return QString();
     auto item = m_wallet->m_walletTransactions.at(m_rowsProxy.at(row));
     if (item.minedBlockHeight <= 0)
         return QString();
