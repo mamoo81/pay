@@ -109,6 +109,16 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
     return answer;
 }
 
+QString WalletHistoryModel::dateForItem(qreal offset) const
+{
+    const int row = std::round(offset * m_rowsProxy.size());
+    auto item = m_wallet->m_walletTransactions.at(m_rowsProxy.at(row));
+    if (item.minedBlockHeight <= 0)
+        return QString();
+    auto header = FloweePay::instance()->p2pNet()->blockchain().block(item.minedBlockHeight);
+    return QDateTime::fromTime_t(header.nTime).toString("MMMM yyyy");
+}
+
 void WalletHistoryModel::appendTransactions(int firstNew, int count)
 {
     // lets assume sorting newest to oldest here.

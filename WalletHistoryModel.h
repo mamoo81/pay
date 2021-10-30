@@ -47,6 +47,8 @@ public:
 
     QHash<int, QByteArray> roleNames() const override;
 
+    Q_INVOKABLE QString dateForItem(qreal offset) const;
+
 private slots:
     void appendTransactions(int firstNew, int count);
     void transactionConfirmed(int txIndex);

@@ -187,7 +187,65 @@ ApplicationWindow {
                         clip: true
                         delegate: WalletTransaction { width: activityView.width }
                         anchors.fill: parent
-                        ScrollBar.vertical: ScrollBar { }
+                        Rectangle {
+                            id: thumb
+                            property real newPosition: 0.0
+
+                            property bool pressed: false
+                            color: "white"
+                            width: label.width + 30
+                            height: label.height + 40
+                            anchors.right: parent.right
+                            anchors.rightMargin: 10
+                            y: {
+                                var pos = scroller.position
+                                var size = scroller.size
+                                var viewHeight = activityView.height
+                                return viewHeight * pos + viewHeight * size / 2 - height / 2
+                            }
+
+                            Text {
+                                id: label
+                                x: 10
+                                y: 20
+                                text: thumb.visible ? activityView.model.dateForItem(thumb.newPosition) : "";
+                            }
+
+                            opacity: scroller.active || pressed ? 1 : 0
+                            visible: opacity != 0
+                            Behavior on opacity { NumberAnimation { duration: 500 } }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                property int startY: 0
+                                property real startPos: 0
+                                onPressed: {
+                                    thumb.pressed = true
+                                    startY = activityView.mapFromItem(thumb, mouse.x, mouse.y).y
+                                    startPos = scroller.position
+                                }
+                                onReleased: thumb.pressed = false
+                                preventStealing: true
+                                onPositionChanged: {
+                                    // Most of the scroller properties are in the 0.0 - 1.0 range
+                                    var absolutePos = activityView.mapFromItem(thumb, mouse.x, mouse.y);
+                                    var diff = startY - absolutePos.y;
+                                    var viewHeight = activityView.height
+                                    var moved = diff / viewHeight;
+                                    var newPos = startPos - moved;
+                                    if (newPos < 0)
+                                        newPos = 0;
+                                    var max = 1 - scroller.visualSize;
+                                    if (newPos > max)
+                                        newPos = max;
+                                    thumb.newPosition = newPos;
+                                    scroller.position = newPos
+                                }
+                            }
+                        }
+                        ScrollBar.vertical: ScrollBar {
+                            id: scroller
+                        }
                     }
                 }
                 Loader {
