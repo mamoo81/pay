@@ -46,5 +46,6 @@
         <file>NewAccountImportAccount.qml</file>
         <file>NewAccountCreateHDAccount.qml</file>
         <file>widgets/CloseIcon.qml</file>
+        <file>widgets/ScrollThumb.qml</file>
     </qresource>
 </RCC>

@@ -20,7 +20,7 @@ import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtGraphicalEffects 1.0
 import Flowee.org.pay 1.0
-
+import "widgets" as Widgets
 import "./ControlColors.js" as ControlColors
 
 ApplicationWindow {
@@ -187,88 +187,15 @@ ApplicationWindow {
                         clip: true
                         delegate: WalletTransaction { width: activityView.width }
                         anchors.fill: parent
-                        Item {
-                            id: thumb
-                            anchors.fill: parent
-
-                            Rectangle {
-                                id: thumbRect
-                                opacity: scroller.active || pressed ? 1 : 0
-                                visible: opacity != 0
-                                width: label.width + 30
-                                height: label.height + 40
-                                anchors.right: parent.right
-                                radius: 5
-                                y: {
-                                    var pos = scroller.position
-                                    var size = scroller.size
-                                    var viewHeight = activityView.height
-                                    var newY = viewHeight * pos + viewHeight * size / 2 - height / 2
-                                    if (newY < 0)
-                                        return 0;
-                                    var max = viewHeight - height;
-                                    if (newY > max)
-                                        return max;
-                                    return newY;
-                                }
-
-                                property real newPosition: 0.0
-                                property bool pressed: false
-                                color: "white"
-
-                                Text {
-                                    id: label
-                                    x: 10
-                                    y: 20
-                                    text: parent.visible ? activityView.model.dateForItem(thumbRect.newPosition) : "";
-                                }
-
-                                Behavior on opacity { NumberAnimation { duration: 500 } }
-                            }
-
-                            Item {
-                                id: thumbInput
-                                y: {
-                                    var pos = scroller.position
-                                    var size = scroller.size
-                                    var viewHeight = activityView.height
-                                    return viewHeight * pos + viewHeight * size / 2 - height / 2
-                                }
-                                width: label.width + 30
-                                height: label.height + 40
-                                anchors.right: parent.right
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    property int startY: 0
-                                    property real startPos: 0
-                                    onPressed: {
-                                        thumbRect.pressed = true
-                                        startY = activityView.mapFromItem(thumb, mouse.x, mouse.y).y
-                                        startPos = scroller.position
-                                    }
-                                    onReleased: thumbRect.pressed = false
-                                    preventStealing: true
-                                    onPositionChanged: {
-                                        // Most of the scroller properties are in the 0.0 - 1.0 range
-                                        var absolutePos = activityView.mapFromItem(thumbInput, mouse.x, mouse.y);
-                                        var diff = startY - absolutePos.y;
-                                        var viewHeight = activityView.height
-                                        var moved = diff / viewHeight;
-                                        var newPos = startPos - moved;
-                                        if (newPos < 0)
-                                            newPos = 0;
-                                        var max = 1 - scroller.visualSize;
-                                        if (newPos > max)
-                                            newPos = max;
-                                        thumbRect.newPosition = newPos;
-                                        scroller.position = newPos
-                                    }
-                                }
-                            }
-                        }
                         ScrollBar.vertical: ScrollBar {
-                            id: scroller
+                            id: mainScrollbar
+                            minimumSize: 20 / activityView.height
+                        }
+                        Widgets.ScrollThumb {
+                            anchors.fill: parent
+                            visible: scroller.size < 0.1
+                            hint: visible ? activityView.model.dateForItem(position) : "";
+                            scroller: mainScrollbar
                         }
                     }
                 }
