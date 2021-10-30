@@ -55,6 +55,7 @@ Item {
             text: root.account.name
             onTextEdited: root.account.name = text
             Layout.fillWidth: true
+            focus: true
         }
     }
 
@@ -239,6 +240,59 @@ Item {
                             }
                         }
                     }
+                }
+            }
+        }
+        FloweeGroupBox {
+            id: hdDetails
+            width: parent.width
+            anchors.top: addressesList.bottom
+            anchors.topMargin: 10
+            title: qsTr("Backup details")
+            visible: root.account.isHDWallet
+            collapsed: true
+
+            Item {
+                width: parent.width
+                implicitHeight: grid.height + helpText.height + warningText.height + 20
+                GridLayout {
+                    id: grid
+                    width: parent.width
+                    columns: 2
+                    Label {
+                        text: qsTr("Seed Phrase") + ":"
+                        Layout.alignment: Qt.AlignTop
+                    }
+                    FloweeMultilineTextField {
+                        readOnly: true
+                        text: root.account.mnemonic
+                        Layout.fillWidth: true
+                    }
+                    Label {
+                        text: qsTr("Derivation") + ":"
+                    }
+                    LabelWithClipboard {
+                        text: root.account.hdDerivationPath
+                    }
+                }
+
+                Label {
+                    id: helpText
+                    width: parent.width
+                    anchors.top: grid.bottom
+                    anchors.topMargin: 10
+                    text: qsTr("Please save the seed phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case of computer failure.")
+                    textFormat: Text.StyledText
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                }
+                Label {
+                    id: warningText
+                    width: parent.width
+                    anchors.top: helpText.bottom
+                    anchors.topMargin: 10
+                    text: qsTr("<b>Important</b>: Never share your seed with others!")
+                    textFormat: Text.StyledText
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 }
             }
         }

@@ -33,15 +33,6 @@ Item {
     clip: true
 
     width: 200 // should be changed by user
-    implicitWidth: {
-        var w = 0;
-        if (titleArea.visible) {
-            var headerWidth = titleArea.width
-            if (arrowPoint.visible)
-                headerWidth += arrowPoint.width + 10
-        }
-        return w;
-    }
     implicitHeight: arrowPoint.height + (collapsed ? 0 : child.implicitHeight + 25) // 25 = 15 top, 5 bottom of content area
 
     Rectangle { // the outline
@@ -113,7 +104,7 @@ Item {
         columns: 1
     }
 
-    Behavior on height { NumberAnimation { } }
+    Behavior on implicitHeight { NumberAnimation { } }
     Keys.onPressed: {
         if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
             if (root.collapsable) {

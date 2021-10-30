@@ -48,7 +48,7 @@ ColumnLayout {
         title: qsTr("Advanced Options")
         Layout.fillWidth: true
         collapsed: true
-        columns: 2
+        columns: 3
 
         /*
         FloweeCheckBox {
@@ -58,7 +58,7 @@ ColumnLayout {
             Layout.columnSpan: 2
         } */
         Label {
-            text: qsTr("Derivation:")
+            text: qsTr("Derivation") + ":"
             Layout.fillWidth: false
         }
         FloweeTextField {
@@ -66,5 +66,6 @@ ColumnLayout {
             text: "m/44'/145'/0'" // default for BCH wallets
             color: Flowee.checkDerivation(text) ? palette.text : "red"
         }
+        Item { width: 1; height: 1; Layout.fillWidth: true } // spacer
     }
 }

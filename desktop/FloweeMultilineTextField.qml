@@ -35,6 +35,7 @@ Control {
     property string placeholderText: ""
     property var nextFocusTarget: null
     signal editingFinished;
+    property alias readOnly: textEdit.readOnly
 
     implicitHeight: textEdit.implicitHeight + 20
     implicitWidth: 100
@@ -56,6 +57,9 @@ Control {
         if (text === "" && placeholderText !== "") {
             textEdit.showingPlaceholder = true
             textEdit.text = placeholderText
+        }
+        else {
+            textEdit.text = text
         }
     }
 
