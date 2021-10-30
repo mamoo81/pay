@@ -222,7 +222,12 @@ public:
     /// Return the private keys and details owned by this wallet.
     std::map<int, WalletSecret> walletSecrets() const;
 
-    int64_t saldoForPrivateKey(int privKeyId) const;
+    struct KeyDetails {
+        qint64 saldo;          ///< The amount of Satoshi currently on this key.
+        int coins;              ///< The amount of coins that make up the current saldo
+        int historicalCoins;    ///< The amount of coins ever seen on this key.
+    };
+    KeyDetails fetchKeyDetails(int privKeyId) const;
 
     /// Returns true if this wallet is backed by a Hierarchically Deterministic seed.
     bool isHDWallet() const;

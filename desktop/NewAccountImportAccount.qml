@@ -93,7 +93,7 @@ GridLayout {
 
     FloweeGroupBox {
         title: qsTr("Advanced Options")
-        isCollapsed: true
+        collapsed: true
         Layout.columnSpan: 3
         Layout.fillWidth: true
 

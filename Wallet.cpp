@@ -498,23 +498,26 @@ std::map<int, Wallet::WalletSecret> Wallet::walletSecrets() const
     return m_walletSecrets;
 }
 
-int64_t Wallet::saldoForPrivateKey(int privKeyId) const
+Wallet::KeyDetails Wallet::fetchKeyDetails(int privKeyId) const
 {
+    KeyDetails details = { 0, 0, 0 };
     QMutexLocker locker(&m_lock);
-    int64_t amount = 0;
     for (const auto &row : m_walletTransactions) {
         const WalletTransaction &wt = row.second;
         for (auto i = wt.outputs.begin(); i != wt.outputs.end(); ++i) {
             if (i->second.walletSecretId == privKeyId) {
+                ++details.historicalCoins;
                 OutputRef ref(row.first, i->first);
                 auto utxo = m_unspentOutputs.find(ref.encoded());
                 if (utxo != m_unspentOutputs.end()) {
-                    amount += utxo->second;
+                    details.saldo += utxo->second;
+                    ++details.coins;
                 }
             }
         }
     }
-    return amount;
+
+    return details;
 }
 
 bool Wallet::isHDWallet() const

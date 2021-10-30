@@ -18,10 +18,11 @@
 #ifndef WALLETSECRETSMODEL_H
 #define WALLETSECRETSMODEL_H
 
+#include "Wallet.h"
+
 #include <QAbstractListModel>
 #include <QSet>
-
-class Wallet;
+#include <map>
 
 class WalletSecretsModel : public QAbstractListModel
 {
@@ -38,8 +39,9 @@ public:
         FromChangeChain,        ///< Bool. For HD wallets
         HDIndex,                ///< int, the derivation index
         Balance,                ///< long, the number of sats at this address
-        NumTransactions,        ///< int, the number of transactions touching this
+        HistoricalCoins,        ///< int, the number of historical coins touched this
         NumCoins,               ///< int, the number of coins still present on this address
+        UsedSchnorr,            ///< bool, has transactions signed with Schnorr sigantures
         // UserLabel               ///< user-specified name
     };
 
@@ -67,20 +69,24 @@ public:
 
 signals:
     void showChangeChainChanged();
-
     void showUsedAddressesChanged();
-
     void searchChanged();
+
+private slots:
+    void transactionsAddedToWallet(int from, int count);
 
 private:
     Wallet *m_wallet;
     void update();
+    const Wallet::KeyDetails &details(int privKeyId) const; // cached version of the details
 
     bool m_showChangeChain = false;
     bool m_showUsedAddresses = false;
     QString m_search;
 
     QVector<int> m_selectedPrivates;
+    mutable QMutex m_lock;
+    mutable std::map<int, Wallet::KeyDetails> m_keyDetails;
 };
 
 #endif

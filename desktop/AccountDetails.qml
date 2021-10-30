@@ -27,7 +27,7 @@ Item {
 
     Label {
         id: walletDetailsLabel
-        text: qsTr("Advanced Wallet Details")
+        text: qsTr("Wallet Details")
         font.pointSize: 18
         color: "white"
         anchors.horizontalCenter: parent.horizontalCenter
@@ -133,6 +133,7 @@ Item {
             anchors.top: detailsPane.bottom
             anchors.topMargin: 10
             title: qsTr("Address List")
+            collapsed: !root.account.isSingleAddressAccount
 
             FloweeCheckBox {
                 text: qsTr("Change Addresses")
@@ -143,6 +144,7 @@ Item {
             }
             FloweeCheckBox {
                 text: qsTr("Used Addresses");
+                enabled: !root.account.isSingleAddressAccount
                 checked: root.account.secrets.showUsedAddresses
                 onClicked: root.account.secrets.showUsedAddresses = !root.account.secrets.showUsedAddresses
                 tooltipText: qsTr("Switches between unused and used bitcoin addresses")
@@ -150,7 +152,7 @@ Item {
             ListView {
                 model: root.account.secrets
                 Layout.fillWidth: true
-                implicitHeight: scrollablePage.height / 10 * 7
+                implicitHeight: root.account.isSingleAddressAccount ? contentHeight : scrollablePage.height / 10 * 7
                 clip: true
                 delegate: Rectangle {
                     id: delegateRoot
@@ -181,10 +183,32 @@ Item {
                         anchors.bottomMargin: 12
                     }
                     Label {
+                        id: coinCountLabel
                         anchors.left: parent.left
                         anchors.leftMargin: delegateRoot.width / 4
                         anchors.baseline: amountLabel.baseline
-                        text: qsTr("Coins: %1 / %2").arg(numCoins).arg(numTransactions)
+                        text: qsTr("Coins: %1 / %2").arg(numCoins).arg(historicalCoinCount)
+                    }
+                    Label {
+                        id: schnorrIndicator
+                        anchors.left: coinCountLabel.right
+                        anchors.leftMargin: 10
+                        anchors.baseline: amountLabel.baseline
+                        visible: usedSchnorr
+                        text: "ⓢ"
+                        MouseArea {
+                            id: mousy
+                            anchors.fill: parent
+                            anchors.margins: -10
+                            hoverEnabled: true
+
+                            ToolTip {
+                                parent: schnorrIndicator
+                                text: qsTr("Signed with Schnorr signatures in the past")
+                                delay: 700
+                                visible: mousy.containsMouse
+                            }
+                        }
                     }
 
                     ConfigItem {

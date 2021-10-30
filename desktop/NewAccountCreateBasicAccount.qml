@@ -64,7 +64,7 @@ ColumnLayout {
     FloweeGroupBox {
         id: gb
         title: qsTr("Advanced Options")
-        isCollapsed: true
+        collapsed: true
         Layout.fillWidth: true
         columns: 1
 

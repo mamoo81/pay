@@ -19,6 +19,7 @@
 #include "Wallet.h"
 #include "FloweePay.h"
 
+#include <base58.h>
 #include <cashaddr.h>
 
 WalletSecretsModel::WalletSecretsModel(Wallet *wallet, QObject *parent)
@@ -27,6 +28,9 @@ WalletSecretsModel::WalletSecretsModel(Wallet *wallet, QObject *parent)
 {
     assert(m_wallet);
     update();
+
+    connect (wallet, SIGNAL(Wallet::appendedTransactions(int, int)),
+             this, SLOT(transactionsAddedToWallet(int,int)));
 }
 
 int WalletSecretsModel::rowCount(const QModelIndex &parent) const
@@ -55,18 +59,23 @@ QVariant WalletSecretsModel::data(const QModelIndex &index, int role) const
         auto s = CashAddress::encodeCashAddr(chainPrefix(), c);
         return QString::fromStdString(s).mid(chainPrefix().size() + 1);
     }
-    case PrivateKey:
-        return QVariant("PrivKey"); // TODO
+    case PrivateKey: {
+        CBase58Data d;
+        d.setData(item.privKey, FloweePay::instance()->chain() == P2PNet::MainChain ? CBase58Data::Mainnet : CBase58Data::Testnet);
+        return QVariant(QString::fromStdString(d.ToString()));
+    }
     case FromChangeChain:
         return QVariant(item.fromChangeChain);
     case HDIndex:
         return QVariant(item.hdDerivationIndex);
     case Balance:
-        return QVariant(static_cast<qint64>(m_wallet->saldoForPrivateKey(foundItem->first)));
-    case NumTransactions:
-        return QVariant(2); // TODO
+        return QVariant(details(foundItem->first).saldo);
+    case HistoricalCoins:
+        return QVariant(details(foundItem->first).historicalCoins);
     case NumCoins:
-        return QVariant(1); // TODO
+        return QVariant(details(foundItem->first).coins);
+    case UsedSchnorr:
+        return QVariant(item.signatureType == Wallet::SignedAsSchnorr);
     }
 
     return QVariant();
@@ -80,8 +89,9 @@ QHash<int, QByteArray> WalletSecretsModel::roleNames() const
     answer[FromChangeChain] = "isChange";
     answer[HDIndex] = "hdIndex";
     answer[Balance] = "balance";
-    answer[NumTransactions] = "numTransactions";
+    answer[HistoricalCoins] = "historicalCoinCount";
     answer[NumCoins] = "numCoins";
+    answer[UsedSchnorr] = "usedSchnorr";
 
     return answer;
 }
@@ -142,6 +152,10 @@ void WalletSecretsModel::update()
     while (iter != m_wallet->m_walletSecrets.end()) {
         const auto &priv = iter->second;
         bool use = !priv.fromHdWallet || m_showChangeChain == priv.fromChangeChain;
+        if (use) {
+            const bool addressUsed = priv.signatureType != Wallet::NotUsedYet;
+            use = addressUsed == m_showUsedAddresses;
+        }
 
         if (use)
             m_selectedPrivates.append(iter->first);
@@ -149,4 +163,57 @@ void WalletSecretsModel::update()
     }
     beginInsertRows(QModelIndex(), 0, m_selectedPrivates.size() - 1);
     endInsertRows();
+}
+
+const Wallet::KeyDetails &WalletSecretsModel::details(int privKeyId) const
+{
+    QMutexLocker locker(&m_lock);
+    auto iter = m_keyDetails.find(privKeyId);
+    if (iter == m_keyDetails.end()) {
+        assert(m_wallet);
+        auto rc = m_keyDetails.insert(std::make_pair(privKeyId, m_wallet->fetchKeyDetails(privKeyId)));
+        return rc.first->second;
+    }
+    return iter->second;
+}
+
+void WalletSecretsModel::transactionsAddedToWallet(int from, int count)
+{
+    assert(m_wallet);
+    auto iter = m_wallet->m_walletTransactions.find(from);
+    std::set<int> changedPrivateKeys;
+    while ( count-- > 0 && iter != m_wallet->m_walletTransactions.end()) {
+        const auto &tx = iter->second;
+        for (auto input = tx.inputToWTX.begin(); input != tx.inputToWTX.end(); ++input) {
+            Wallet::OutputRef ref(input->second);
+            auto w = m_wallet->m_walletTransactions.find(ref.txIndex());
+            assert(w != m_wallet->m_walletTransactions.end());
+            auto prevOut = w->second.outputs.find(ref.outputIndex());
+            assert(prevOut != w->second.outputs.end());
+            changedPrivateKeys.insert(prevOut->second.walletSecretId);
+        }
+        for (auto out = tx.outputs.begin(); out != tx.outputs.end(); ++out) {
+            changedPrivateKeys.insert(out->second.walletSecretId);
+        }
+        ++iter;
+    }
+
+    logDebug() << "New transactions touched these private keys:" << changedPrivateKeys;
+    for (auto privKeyId : changedPrivateKeys) {
+        auto detailsIter = m_keyDetails.find(privKeyId);
+        if (detailsIter != m_keyDetails.end()) {
+            m_keyDetails.erase(detailsIter); // remove cached version.
+
+            // make UI re-request the data
+            for (int i = 0; i < m_selectedPrivates.size(); ++i) {
+                if (m_selectedPrivates.at(i) == privKeyId) {
+                    beginRemoveRows(QModelIndex(), i, i);
+                    endRemoveRows();
+                    beginInsertRows(QModelIndex(), i, i);
+                    endInsertRows();
+                    break;
+                }
+            }
+        }
+    }
 }

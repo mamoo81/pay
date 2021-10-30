@@ -28,55 +28,6 @@
 
 class TransactionInfo;
 
-class WalletSecret : public QObject
-{
-    Q_OBJECT
-    /// The wallet-internal ID
-    Q_PROPERTY(int id READ id CONSTANT)
-    /// If this has been used yet.
-    Q_PROPERTY(bool used READ used WRITE setUsed NOTIFY usedChanged)
-    /// When used, was it used to sign with Schnorr
-    Q_PROPERTY(bool usedSchnorr READ usedSchnorr WRITE setUsedSchnorr NOTIFY usedSchnorrChanged)
-    /// The human readable address
-    Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
-    /// the amount of satoshis currently associated with this secret
-    Q_PROPERTY(qint64 saldo READ saldo WRITE setSaldo NOTIFY saldoChanged)
-public:
-    explicit WalletSecret(int id, QObject *parent = nullptr);
-
-    int id() const;
-
-    bool used() const;
-    void setUsed(bool newUsed);
-
-    bool usedSchnorr() const;
-    void setUsedSchnorr(bool newUsedSchnorr);
-
-    const QString &address() const;
-    void setAddress(const QString &newAddress);
-
-    qint64 saldo() const;
-    void setSaldo(qint64 newSaldo);
-
-    // \internal
-    void populate(const Wallet::WalletSecret &secret, qint64 saldo);
-
-    Q_INVOKABLE QString fetchPrivateKey() const;
-
-signals:
-    void usedChanged();
-    void usedSchnorrChanged();
-    void addressChanged();
-    void saldoChanged();
-
-private:
-    const int m_id;
-    bool m_used = false;
-    bool m_usedSchnorr = false;
-    QString m_address;
-    qint64 m_saldo = 0;
-};
-
 class AccountInfo : public QObject
 {
     Q_OBJECT
@@ -158,7 +109,7 @@ public:
     QString hdWalletMnemonic() const;
     QString hdDerivationPath() const;
 
-    WalletSecretsModel*secretsModel() const;
+    WalletSecretsModel *secretsModel() const;
 
 signals:
     void balanceChanged();
@@ -169,14 +120,10 @@ signals:
     void paymentRequestsChanged();
     void userOwnedChanged();
 
-private slots:
-    void updateWalletSecret(int id);
-
 private:
     Wallet *m_wallet;
     std::unique_ptr<WalletHistoryModel> m_model;
     std::unique_ptr<WalletSecretsModel> m_secretsModel;
-    QList<WalletSecret*> m_walletSecrets;
 
     friend class WalletSecret;
 };

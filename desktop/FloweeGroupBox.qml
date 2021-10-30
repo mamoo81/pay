@@ -25,7 +25,7 @@ Item {
     id: root
 
     property bool collapsable: true
-    property bool isCollapsed: false
+    property bool collapsed: false
     property string title: ""
     default property alias content: child.children
     property alias columns: child.columns
@@ -33,7 +33,6 @@ Item {
     clip: true
 
     width: 200 // should be changed by user
-    // height: implicitHeight
     implicitWidth: {
         var w = 0;
         if (titleArea.visible) {
@@ -43,12 +42,12 @@ Item {
         }
         return w;
     }
-    implicitHeight: arrowPoint.height + (isCollapsed ? 0 : child.implicitHeight + 25) // 25 = 15 top, 5 bottom of content area
+    implicitHeight: arrowPoint.height + (collapsed ? 0 : child.implicitHeight + 25) // 25 = 15 top, 5 bottom of content area
 
     Rectangle { // the outline
         width: parent.width
         y: titleArea.visible ? title.height / 2 : arrowPoint.height / 2
-        height: root.isCollapsed ? 1 : parent.height - y;
+        height: root.collapsed ? 1 : parent.height - y;
         color: "#00000000"
         border.color: title.palette.button
         border.width: 2
@@ -58,7 +57,7 @@ Item {
         width: parent.width
         height: 20
         enabled: root.collapsable
-        onClicked: root.isCollapsed = !root.isCollapsed
+        onClicked: root.collapsed = !root.collapsed
     }
 
     Rectangle {
@@ -97,7 +96,7 @@ Item {
             id: point
             x: 10
             color: Flowee.useDarkSkin ? "white" : "black"
-            rotation: root.isCollapsed ? 0 : 90
+            rotation: root.collapsed ? 0 : 90
             transformOrigin: Item.Center
 
             Behavior on rotation { NumberAnimation {} }
@@ -110,7 +109,7 @@ Item {
         y: titleArea.height + 10
         width: root.width - 20
         height: implicitHeight
-        visible: !root.isCollapsed
+        visible: !root.collapsed
         columns: 1
     }
 
@@ -118,7 +117,7 @@ Item {
     Keys.onPressed: {
         if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
             if (root.collapsable) {
-                root.isCollapsed = !root.isCollapsed
+                root.collapsed = !root.collapsed
                 event.accepted = true
             }
         }
