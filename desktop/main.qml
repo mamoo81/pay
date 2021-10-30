@@ -126,7 +126,7 @@ ApplicationWindow {
                         return portfolio.totalBalance
                     }
                     colorize: false
-                    textColor: "white"
+                    color: "white"
                     showFiat: false
                     fontPtSize: mainWindow.font.pointSize * 2
                     opacity: blurredTotalBalance2.visible ? 0 : 1
@@ -423,7 +423,7 @@ ApplicationWindow {
                         }
                         colorize: false
                         showFiat: false
-                        textColor: mainWindow.palette.text
+                        color: mainWindow.palette.text
                         fontPtSize: {
                             if (leftColumn.width < 300)
                                 return mainWindow.font.pointSize * 2

@@ -173,6 +173,7 @@ Rectangle {
         Label {
             text: qsTr("Not enough funds in account to make payment!")
             visible: root.payment != null && !root.payment.paymentOk
+            color: txid.color // make sure this is 'disabled' when the warning is not for this wallet.
         }
 
         FloweeGroupBox {
@@ -204,8 +205,13 @@ Rectangle {
                 }
 
                 LabelWithClipboard {
+                    id: txid
                     text: root.payment == null ? qsTr("Not prepared yet") : root.payment.txid
                     Layout.fillWidth: true
+                    // Change the color when the portfolio changed since 'prepare' was clicked.
+                    color: root.payment == null || prepareButton.portfolioUsed === portfolio.current
+                            ? palette.text
+                            : Qt.darker(palette.text, (Flowee.useDarkSkin ? 1.6 : 0.4))
                 }
                 Label {
                     text: qsTr("Fee") + ":"
@@ -215,6 +221,7 @@ Rectangle {
                 BitcoinAmountLabel {
                     value: !parent.txOk ? 0 : root.payment.assignedFee
                     colorize: false
+                    color: txid.color
                 }
                 Label {
                     text: qsTr("Transaction size") + ":"
@@ -227,6 +234,7 @@ Rectangle {
                         var rc = root.payment.txSize;
                         return qsTr("%1 bytes", "", rc).arg(rc)
                     }
+                    color: txid.color
                 }
                 Label {
                     text: qsTr("Fee per byte") + ":"
@@ -242,6 +250,7 @@ Rectangle {
                         fee = (fee * 1.0).toString(); // remove trailing zero's (1.000 => 1)
                         return qsTr("%1 sat/byte", "fee", rc).arg(fee);
                     }
+                    color: txid.color
                 }
             }
         }

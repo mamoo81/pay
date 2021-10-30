@@ -30,7 +30,7 @@ Item {
     property bool colorize: true
     property bool includeUnit: true
     property bool showFiat: true
-    property color textColor: Flowee.useDarkSkin ? "#fcfcfc" :"black"
+    property color color: Flowee.useDarkSkin ? "#fcfcfc" :"black"
     property alias fontPtSize: main.font.pointSize
 
     implicitHeight: row.implicitHeight
@@ -76,7 +76,7 @@ Item {
                         return Flowee.useDarkSkin ? "#ffdede" : "#444446";
                     // zero is shown without color, like below.
                 }
-                return root.textColor
+                return root.color
             }
             Layout.alignment: Qt.AlignBaseline
         }

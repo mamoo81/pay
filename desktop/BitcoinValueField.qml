@@ -65,7 +65,7 @@ FocusScope {
         value: root.value
         colorize: false
         visible: !root.activeFocus
-        textColor: mainWindow.palette.text
+        color: mainWindow.palette.text
         showFiat: false
     }
 

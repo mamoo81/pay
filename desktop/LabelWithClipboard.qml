@@ -21,6 +21,7 @@ import QtQuick.Controls 2.11
 Label {
     elide: Text.ElideMiddle
 
+    // override the text to be copied to clipboard
     property string clipboardText: ""
 
     MouseArea {
