@@ -50,6 +50,7 @@ FocusScope {
         contentHeight: contentAreaColumn.height + 20
         flickableDirection: Flickable.VerticalFlick
         clip: true
+        ScrollBar.vertical: ScrollBar { }
 
         Widgets.CloseIcon {
             id: closeIcon

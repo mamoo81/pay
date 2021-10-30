@@ -35,6 +35,7 @@ ApplicationWindow {
         id: listView
         model: net.peers
         clip: true
+        ScrollBar.vertical: ScrollBar { }
 
         anchors.fill: parent
         focus: true

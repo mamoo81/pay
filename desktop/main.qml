@@ -187,6 +187,7 @@ ApplicationWindow {
                         clip: true
                         delegate: WalletTransaction { width: activityView.width }
                         anchors.fill: parent
+                        ScrollBar.vertical: ScrollBar { }
                     }
                 }
                 Loader {
