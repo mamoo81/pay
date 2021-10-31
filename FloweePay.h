@@ -65,7 +65,9 @@ public:
         LegacyPKH,
         LegacySH,
         PartialMnemonic,
-        CorrectMnemonic
+        PartialMnemonicWithTypo,
+        CorrectMnemonic,
+        MissingLexicon
     };
     enum UnitOfBitcoin {
         BCH,

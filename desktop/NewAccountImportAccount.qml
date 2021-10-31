@@ -10,7 +10,7 @@ GridLayout {
 
     property var typedData: Flowee.identifyString(secrets.text)
     property bool finished: typedData === Pay.PrivateKey || typedData === Pay.CorrectMnemonic;
-    property bool isMnemonic: typedData === Pay.CorrectMnemonic || typedData === Pay.PartialMnemonic;
+    property bool isMnemonic: typedData === Pay.CorrectMnemonic || typedData === Pay.PartialMnemonic || typedData === Pay.PartialMnemonicWithTypo;
     property bool isPrivateKey: typedData === Pay.PrivateKey
 
     Label {
@@ -51,13 +51,17 @@ GridLayout {
 
         Label {
             id: detectedType
-            color: feedback.color
+            color: typedData === Pay.PartialMnemonicWithTypo ? "red" : feedback.color
             text: {
                 var typedData = importAccount.typedData
                 if (typedData === Pay.PrivateKey)
                     return qsTr("Private key", "description of type") // TODO print address to go with it
                 if (typedData === Pay.CorrectMnemonic)
                     return qsTr("BIP 39 mnemonic", "description of type")
+                if (typedData === Pay.PartialMnemonicWithTypo)
+                    return qsTr("Unrecognized word", "Word from the seed-phrases lexicon")
+                if (typedData === Pay.MissingLexicon)
+                    return "Installation error; no lexicon found"; // intentionally not translated, end-users should not see this
                 return ""
             }
         }

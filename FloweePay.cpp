@@ -519,18 +519,41 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
     }
 
     try {
-        const int space = string_.indexOf(' ');
-        auto word = string_.mid(0, space);
-        int index = m_hdSeedValidator.findWord(word);
-        if (index != -1) {
-            auto validity = m_hdSeedValidator.validateMnemonic(string_, index);
-            if (validity == Mnemonic::Valid)
-                return CorrectMnemonic;
+        int firstWord = -2;
+        int space = -1;
+        do {
+            ++space;
+            int space2 = string.indexOf(' ', space);
+            auto word = string.mid(space, space2 - space);
+            if (!word.isEmpty()) {
+                int index = m_hdSeedValidator.findWord(word);
+                if (firstWord == -2) {
+                    firstWord = index;
+                    if (index != -1) {
+                        auto validity = m_hdSeedValidator.validateMnemonic(string_, index);
+                        if (validity == Mnemonic::Valid)
+                            return CorrectMnemonic;
+                    }
+                    else { // not a recognized word
+                        break;
+                    }
+                }
+                else if (index == -1) { // a not-first-word failed the lookup.
+                    if (space2 != -1) // this is the last word, don't highlight while writing.
+                        return PartialMnemonicWithTypo;
+                    break;
+                }
+                // if we get to this point in the loop then we have a real word that we found in the dictionary.
+                // Lets continue checking words and check if the rest of the words are part of the lexicon too.
+            }
+            space = space2;
+        } while (space != -1);
+        if (firstWord >= 0)
             return PartialMnemonic;
-        }
     } catch (const std::exception &e) {
         // probably deployment issues (faulty word list)
         logFatal() << e;
+        return MissingLexicon;
     }
     return Unknown;
 }
