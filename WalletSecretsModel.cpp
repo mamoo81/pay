@@ -29,7 +29,7 @@ WalletSecretsModel::WalletSecretsModel(Wallet *wallet, QObject *parent)
     assert(m_wallet);
     update();
 
-    connect (wallet, SIGNAL(appendedTransactions(int, int)), this, SLOT(transactionsAddedToWallet(int,int)));
+    connect (wallet, SIGNAL(appendedTransactions(int,int)), this, SLOT(transactionsAddedToWallet(int,int)));
 }
 
 int WalletSecretsModel::rowCount(const QModelIndex &parent) const

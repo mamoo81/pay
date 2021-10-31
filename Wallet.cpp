@@ -585,6 +585,16 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     saveSecrets();
 }
 
+int Wallet::lastTransactionTimestamp() const
+{
+    QMutexLocker locker(&m_lock);
+    for (auto it = m_walletTransactions.crbegin(); it != m_walletTransactions.crend(); ++it) {
+        if (it->second.minedBlockHeight > 1)
+            return it->second.minedBlockHeight;
+    }
+    return 0;
+}
+
 QList<PaymentRequest *> Wallet::paymentRequests() const
 {
     QMutexLocker locker(&m_lock);

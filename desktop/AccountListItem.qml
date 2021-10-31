@@ -21,12 +21,12 @@ import QtQuick.Controls 2.11
 Item {
     id: root
     property QtObject account: null
-    height: column.height + 22
+    height: column.height + 26
     visible: account.isUserOwned
 
     Column {
         id: column
-        spacing: 4
+        // spacing: 4
         x: 11
         y: 11
         width: parent.width
@@ -42,18 +42,19 @@ Item {
             width: parent.width - 55
             clip: true
         }
-        /* TODO
         Flow {
             width: parent.width - 20
             x: 20
             spacing: 10
+            visible: lastReceive.text !== ""
             Label {
-                text: "Last Receive" + ":"
+                text: qsTr("Last Transaction") + ":"
             }
             Label {
-                text: "today";
+                id: lastReceive
+                text: Flowee.formatDate(account.lastMinedTransaction)
             }
-        } */
+        }
     }
     Rectangle {
         anchors.fill: parent

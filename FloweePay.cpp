@@ -269,6 +269,52 @@ QString FloweePay::priceToString(qint64 price, UnitOfBitcoin unit)
     return QString::fromLatin1(str);
 }
 
+QString FloweePay::formatDate(QDateTime date) const
+{
+    static QString format = QLocale::system().dateFormat(QLocale::ShortFormat);
+    if (!date.isValid() || date.isNull())
+        return QString();
+
+    const QDateTime now = QDateTime::currentDateTime();
+    if (now > date) {
+        // use the 'yesterday' style if the date is reasonably close.
+        const auto days = date.daysTo(now);
+        if (days == 0)
+            return tr("Today");
+        if (days == 1)
+            return tr("Yesterday");
+        if (days < 9) // return day of the week
+            return date.toString("dddd");
+    }
+    return date.toString(format);
+}
+
+QString FloweePay::formatDateTime(QDateTime date) const
+{
+    static QString format = QLocale::system().dateTimeFormat(QLocale::ShortFormat);
+    static QString timeFormat = QLocale::system().timeFormat(QLocale::ShortFormat);
+    if (!date.isValid() || date.isNull())
+        return QString();
+
+    const QDateTime now = QDateTime::currentDateTime();
+    if (now > date) {
+        // use the 'yesterday' style if the date is reasonably close.
+        const auto secs = date.secsTo(now);
+        if (secs < 24 * 60)
+            return tr("Now", "timestamp");
+        if (secs < 66 * 60)
+            return tr("An hour ago", "timestamp");
+        const auto days = date.daysTo(now);
+        if (days == 0)
+            return tr("Today") + " " + date.toString(timeFormat);
+        if (days == 1)
+            return tr("Yesterday") + " " + date.toString(timeFormat);
+        if (days < 9) // return day of the week
+            return date.toString("dddd " + timeFormat);
+    }
+    return date.toString(format);
+}
+
 Wallet *FloweePay::createWallet(const QString &name)
 {
     auto dl = p2pNet();

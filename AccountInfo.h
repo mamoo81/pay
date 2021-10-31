@@ -19,11 +19,13 @@
 #define ACCOUNTINFO_H
 
 #include <QObject>
+#include "PaymentRequest.h"
+#include "TransactionInfo.h"
+#include "Wallet.h"
 #include "WalletHistoryModel.h"
 #include "WalletSecretsModel.h"
-#include "Wallet.h"
-#include "TransactionInfo.h"
-#include <PaymentRequest.h>
+
+#include <QDateTime>
 #include <memory>
 
 class TransactionInfo;
@@ -49,6 +51,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(QList<QObject*> paymentRequests READ paymentRequests NOTIFY paymentRequestsChanged)
     Q_PROPERTY(QString mnemonic READ hdWalletMnemonic CONSTANT)
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath CONSTANT)
+    Q_PROPERTY(QDateTime lastMinedTransaction READ lastMinedTransaction NOTIFY balanceChanged)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -105,11 +108,18 @@ public:
 
     bool isSingleAddressAccount() const;
 
+    /// return true if the wallet is based on a master key and mnemonic seed.
     bool isHDWallet() const;
+    /// Return the mnemonic seed that is the basis of this wallet.
     QString hdWalletMnemonic() const;
+    /// Return the derivation base path that is the basis of this wallet.
     QString hdDerivationPath() const;
 
+    /// Return the model that shares more info about the wallets private keys
     WalletSecretsModel *secretsModel() const;
+
+    /// Returns the date of the last timestamped transaction
+    QDateTime lastMinedTransaction() const;
 
 signals:
     void balanceChanged();

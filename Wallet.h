@@ -247,6 +247,9 @@ public:
      */
     void createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight = 0);
 
+    /// return the height of the last seen transaction that is mined
+    int lastTransactionTimestamp() const;
+
 public slots:
     void delayedSave();
 

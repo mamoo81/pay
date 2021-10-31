@@ -29,6 +29,7 @@
 #include <Mnemonic.h>
 #include <QList>
 #include <QString>
+#include <QDateTime>
 
 const std::string &chainPrefix();
 
@@ -111,6 +112,9 @@ public:
     }
     /// for a price, in satoshis, return a formatted string
     static QString priceToString(qint64 price, UnitOfBitcoin unit);
+
+    Q_INVOKABLE QString formatDate(QDateTime date) const;
+    Q_INVOKABLE QString formatDateTime(QDateTime datetime) const;
 
     /// create a new HD wallet with an optional name.
     Q_INVOKABLE NewWalletConfig* createNewWallet(const QString &derivationPath, const QString &password = QString(), const QString &walletName = QString());

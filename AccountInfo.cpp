@@ -20,10 +20,9 @@
 #include "FloweePay.h"
 
 #include <p2p/PrivacySegment.h>
-
-#include <base58.h>
-#include <primitives/key.h>
-#include <cashaddr.h>
+#include <utils/base58.h>
+#include <utils/primitives/key.h>
+#include <utils/cashaddr.h>
 
 
 AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
@@ -98,6 +97,18 @@ WalletSecretsModel *AccountInfo::secretsModel()
     if (m_secretsModel == nullptr)
         m_secretsModel.reset(new WalletSecretsModel(m_wallet, this));
     return m_secretsModel.get();
+}
+
+QDateTime AccountInfo::lastMinedTransaction() const
+{
+    assert(m_wallet);
+    const int blockHeight = m_wallet->lastTransactionTimestamp();
+    if (blockHeight <= 0)
+        return QDateTime();
+   auto timestamp = FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
+   if (timestamp == 0)
+       return QDateTime();
+    return QDateTime::fromTime_t(timestamp);
 }
 
 void AccountInfo::setDefaultWallet(bool isDefault)

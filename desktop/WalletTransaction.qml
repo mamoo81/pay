@@ -21,7 +21,7 @@ import QtQuick.Controls 2.11
 Item {
     height: {
         var rc = mainLabel.height + 10 + date.height
-        if (detailsPane.item !== null)
+        if (detailsPane.item != null)
             rc += detailsPane.item.height + 10;
         return rc;
     }
@@ -55,7 +55,7 @@ Item {
             var dat = model.date;
             if (typeof dat === "undefined")
                 return qsTr("unconfirmed")
-            return Qt.formatDateTime(dat, Qt.SystemLocaleShortDate);
+            return Flowee.formatDateTime(dat);
         }
         opacity: 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8

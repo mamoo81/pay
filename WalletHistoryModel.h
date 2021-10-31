@@ -37,16 +37,19 @@ public:
         FundsOut,     ///< value (in sats) of the outputs created we own
         WalletIndex,  ///< wallet-internal index for this transaction.
 
-        Comment, // TODO (also: make editable)
-        SavedFiatRate, // TODO
+        // Comment, // TODO (also: make editable)
+        // SavedFiatRate, // TODO
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
     QHash<int, QByteArray> roleNames() const override;
 
+    /**
+     * Return a formatted date for an item in our list.
+     * @param offset a real number that is between 0.0 and 1.0, indicating the location of the item.
+     *        The value 0.0 is the most recent item.
+     */
     Q_INVOKABLE QString dateForItem(qreal offset) const;
 
 private slots:
