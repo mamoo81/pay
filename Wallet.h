@@ -78,6 +78,10 @@ public:
             m_outputIndex = index;
         }
 
+        inline bool isValid() const {
+            return m_txid != 0;
+        }
+
     private:
         uint32_t m_txid = 0; // index in m_walletTransactions
         uint16_t m_outputIndex = 0;
@@ -293,6 +297,9 @@ private:
     /// Fill the bloom filter with all the unspent transactions and addresses we handle.
     void rebuildBloom();
 
+    // helper method called from both newTransaction and newTransactions
+    void updateSignaturTypes(const std::map<uint64_t, SignatureType> &txData);
+
     std::unique_ptr<PrivacySegment> m_segment;
     mutable QMutex m_lock;
     /// used to determine if we need to persist the wallet
@@ -344,7 +351,16 @@ private:
         std::map<int, Output> outputs; // output-index to Output (only ones we can/could spend)
     };
 
-    WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, P2PNet::Notification *change = nullptr) const;
+    /**
+     * Parse a transaction and match the inputs / outputs to our UTXO and known addresses.
+     * This creates a fully populated WalletTransaction instance.
+     *
+     * @param tx the original, input transaction.
+     * @param txid the transaction-id for tx
+     * @param types[out] this map is filled with inputs and the signature types used.
+     * @param change an optional notification instance to highlight the changes that this transaction causes.
+     */
+    WalletTransaction createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, std::map<uint64_t, SignatureType> &types, P2PNet::Notification *change = nullptr) const;
     void saveTransaction(const Tx &tx);
     /**
      * returns a Tx if this txid was saved in this wallet.

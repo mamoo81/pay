@@ -40,6 +40,7 @@ class TestWallet : public QObject
     Q_OBJECT
 private slots:
     void cleanup(); // called after each testcase.
+    void testRef();
     void transactionOrdering();
     void addingTransactions();
     void saveTransaction();

@@ -75,7 +75,7 @@ Wallet::~Wallet()
     saveWallet();
 }
 
-Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, P2PNet::Notification *notifier) const
+Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, std::map<uint64_t, SignatureType> &types, P2PNet::Notification *notifier) const
 {
     WalletTransaction wtx;
     wtx.txid = txid;
@@ -99,10 +99,9 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                                << Log::Hex << i->second << prevTx.encoded();
             }
         } else  if (iter.tag() == Tx::PrevTxIndex) {
-            if (prevTx.txIndex() > 0) { // we know the prevTx
+            if (prevTx.isValid()) {
                 assert(iter.longData() < 0xFFFF); // it would break our scheme
                 prevTx.setOutputIndex(iter.intData());
-
                 auto utxo = m_unspentOutputs.find(prevTx.encoded());
                 if (utxo != m_unspentOutputs.end()) {
                     // input is spending one of our UTXOs
@@ -111,6 +110,22 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                     if (notifier)
                         notifier->spent += utxo->second;
                 }
+            }
+        }
+        else if (iter.tag() == Tx::TxInScript) {
+            if (prevTx.isValid()) {
+                // At this point we know that this wallet has created this signature,
+                // and that limits the types of output scripts we can expect to essentially
+                // p2sh and p2pkh.
+                //
+                // So we check the signature length, and if its 64 bytes we can be safe
+                // to conclude this is a Schnorr based signature.
+                CScript script(iter.byteData());
+                auto scriptIter = script.begin();
+                opcodetype type;
+                script.GetOp(scriptIter, type);
+                types.insert(std::make_pair(prevTx.encoded(),
+                                            type == 65 ? SignedAsSchnorr : SignedAsEcdsa));
             }
         }
         else if (iter.tag() == Tx::OutputValue) {
@@ -201,6 +216,24 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
     saveSecrets(); // no-op if secrets are unchanged
 }
 
+void Wallet::updateSignaturTypes(const std::map<uint64_t, SignatureType> &txData)
+{
+    // this basically processes the output argument received from createWalletTransactionFromTx
+    for (auto i = txData.begin(); i != txData.end(); ++i) {
+        OutputRef ref(i->first);
+        auto iter = m_walletTransactions.find(ref.txIndex());
+        assert(iter != m_walletTransactions.end());
+        auto outIter = iter->second.outputs.find(ref.outputIndex());
+        assert(outIter != iter->second.outputs.end());
+        auto secretIter = m_walletSecrets.find(outIter->second.walletSecretId);
+        assert(secretIter != m_walletSecrets.end());
+        auto &secret = secretIter->second;
+        if (secret.signatureType == NotUsedYet) {
+            secret.signatureType = i->second;
+        }
+    }
+}
+
 void Wallet::newTransaction(const Tx &tx)
 {
     int firstNewTransaction;
@@ -215,7 +248,8 @@ void Wallet::newTransaction(const Tx &tx)
         if (m_txidCash.find(txid) != m_txidCash.end()) // already known
             return;
 
-        WalletTransaction wtx = createWalletTransactionFromTx(tx, txid, &notification);
+        std::map<uint64_t, SignatureType> signatureTypes;
+        WalletTransaction wtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
         Q_ASSERT(wtx.isCoinbase == false);
         if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
             // no connection to our UTXOs
@@ -227,10 +261,13 @@ void Wallet::newTransaction(const Tx &tx)
         while (updateHDSignatures(wtx)) {
             // if we added a bunch of new private keys, then rerun the matching
             // so we make sure we matched all we can
-            auto newWtx = createWalletTransactionFromTx(tx, txid, &notification);
+            auto newWtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
             wtx.outputs = newWtx.outputs;
             createdNewKeys = true;
         }
+
+        // Remember the signature type used for specific private keys
+        updateSignaturTypes(signatureTypes);
 
         // Mark UTXOs locked that this tx spent to avoid double spending them.
         for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
@@ -293,8 +330,9 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             int walletTransactionId = m_nextWalletTransactionId;
             P2PNet::Notification notification;
             notification.privacySegment = int(m_segment->segmentId());
+            std::map<uint64_t, SignatureType> signatureTypes;
             if (oldTx == m_txidCash.end()) {
-                wtx = createWalletTransactionFromTx(tx, txid, &notification);
+                wtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
                 notification.blockHeight = blockHeight;
                 if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
                     // no connection to our UTXOs
@@ -302,7 +340,8 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                         rebuildBloom();
                     continue;
                 }
-            } else {
+            }
+            else {
                 // we already seen it before.
                 wtx = m_walletTransactions.find(oldTx->second)->second;
                 // check if the one we saw was unconfirmed or not.
@@ -314,12 +353,15 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             while (updateHDSignatures(wtx)) {
                 // if we added a bunch of new private keys, then rerun the matching
                 // so we make sure we matched all we can
-                auto newWtx = createWalletTransactionFromTx(tx, txid, &notification);
+                auto newWtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
                 wtx.outputs = newWtx.outputs;
                 needNewBloom = true;
             }
             wtx.minedBlock = header.createHash();
             wtx.minedBlockHeight = blockHeight;
+
+            // Remember the signature type used for specific private keys
+            updateSignaturTypes(signatureTypes);
 
             // remove UTXOs this Tx spent
             for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
@@ -367,6 +409,8 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                     }
                 }
             }
+
+
             // and remember the transaction
             if (oldTx == m_txidCash.end()) {
                 Q_ASSERT(walletTransactionId == m_nextWalletTransactionId);

@@ -71,8 +71,8 @@ Wallet::OutputRef::OutputRef(uint64_t encoded)
 {
     m_outputIndex = encoded & 0xFFFF;
     encoded >>= 16;
-    assert(encoded < 0xEFFFFFFF);
-    m_txid = encoded;
+    assert(encoded < 0xFFFFFFFF);
+    m_txid = encoded & 0x7FFFFFFF;
     assert(m_txid >= 0);
 }
 
@@ -80,9 +80,9 @@ Wallet::OutputRef::OutputRef(int txIndex, int outputIndex)
     : m_txid(txIndex),
       m_outputIndex(outputIndex)
 {
-    assert(txIndex >= 0); // zero is the 'invalid' state, which is valid here...
+    assert(txIndex >= 0); // zero is the 'invalid' state, which is allowed here to make an invalid OutputRef
     assert(outputIndex >= 0);
-    assert(outputIndex < 0XFFFF);
+    assert(outputIndex <= 0XFFFF);
 }
 
 uint64_t Wallet::OutputRef::encoded() const

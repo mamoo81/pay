@@ -117,6 +117,7 @@ void TestWallet::addingTransactions()
     for (auto ref : funding.outputs) {
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutout(ref);
+        QCOMPARE(wallet->unlockKey(ref).sigType, Wallet::NotUsedYet);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
     Tx t2 = b2.createTransaction(&pool);
@@ -128,6 +129,12 @@ void TestWallet::addingTransactions()
     QCOMPARE(wallet->balanceConfirmed(), 0);
     QCOMPARE(wallet->balanceUnconfirmed(), 200000 + 500000);
     QCOMPARE(wallet->balanceImmature(), 0);
+
+    // since we signed, lets check the signature type
+    auto secrets = wallet->walletSecrets();
+    for (auto ref : funding.outputs) {
+        QCOMPARE(wallet->unlockKey(ref).sigType, Wallet::SignedAsEcdsa);
+    }
 
     // try to spend it again, if its properly locked, it will not get funded.
     funding = wallet->findInputsFor(990000, 1, t2.size(), change);
@@ -486,7 +493,22 @@ void TestWallet::cleanup()
     m_dir.clear();
 }
 
+void TestWallet::testRef()
+{
+    Wallet::OutputRef a(10, 100);
+    Wallet::OutputRef b(a.encoded());
+    QCOMPARE(a.outputIndex(), 100);
+    QCOMPARE(b.outputIndex(), 100);
+    QCOMPARE(a.txIndex(), 10);
+    QCOMPARE(b.txIndex(), 10);
 
+    a.setTxIndex(12);
+    Wallet::OutputRef c(a.encoded());
+    QCOMPARE(a.outputIndex(), 100);
+    QCOMPARE(c.outputIndex(), 100);
+    QCOMPARE(a.txIndex(), 12);
+    QCOMPARE(c.txIndex(), 12);
+}
 
 MockBlockHeader::MockBlockHeader()
 {
