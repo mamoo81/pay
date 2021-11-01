@@ -633,7 +633,7 @@ NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const
     }
 
     auto wallet = createWallet(walletName);
-    std::vector<uint8_t> seed(32);
+    std::vector<uint8_t> seed(16); // 12 word seed
     RandAddSeedPerfmon();
     GetRandBytes(seed.data(), seed.size());
     auto mnemonic = m_hdSeedValidator.generateMnemonic(seed, "en");
