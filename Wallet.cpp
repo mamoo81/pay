@@ -379,7 +379,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 // unlock UTXOs
                 auto lockedIter = m_lockedOutputs.find(i->second);
                 if (lockedIter != m_lockedOutputs.end()) {
-                    if (lockedIter->second != walletTransactionId) {
+                    if (lockedIter->second  > 0 && lockedIter->second != walletTransactionId) {
                         // if this output was locked by another transaction then that means
                         // that other transaction was rejected (double spent) since the
                         // tx we are now processing made it into a block.
@@ -392,12 +392,17 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
 
             // process new UTXOs
             for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
-                uint64_t key = m_nextWalletTransactionId;
-                key <<= 16;
-                key += i->first;
+                auto key = OutputRef(m_nextWalletTransactionId, i->first).encoded();
                 if (!wasUnconfirmed) { // unconfirmed transactions already had their outputs added
                     logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
                     m_unspentOutputs.insert(std::make_pair(key, i->second.value));
+                    if (i->second.value == 547) {
+                        // special case so-called 'spam' outputs and instantly lock it for privacy reasons
+                        // those outputs can only be spent by combining them with others, combining inputs
+                        // is a potential loss of privacy (makes keys tracable) that is not worth the benefit
+                        // of this low value output.
+                        m_lockedOutputs.insert(std::make_pair(key, -1)); // -1 is our reason
+                    }
                 }
 
                 // check the payment requests
@@ -1661,8 +1666,8 @@ void Wallet::loadWallet()
     for (auto &pair : m_lockedOutputs) {
         auto utxoLink = m_unspentOutputs.find(pair.first);
         assert(utxoLink != m_unspentOutputs.end());
-        assert(pair.second >= 0);
-        if (pair.second != 0) { // zero means its user-locked
+        assert(pair.second >= -1);
+        if (pair.second > 0) { // zero means its user-locked, -1 is spam-locked
             auto w = m_walletTransactions.find(pair.second);
             assert (w != m_walletTransactions.end());
         }

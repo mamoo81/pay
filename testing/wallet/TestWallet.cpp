@@ -194,6 +194,44 @@ void TestWallet::addingTransactions()
     QCOMPARE(wallet->balanceUnconfirmed(), 500000);
 }
 
+void TestWallet::testSpam()
+{
+    auto wallet = createWallet();
+    TransactionBuilder b1;
+    uint256 prevTxId = uint256S("0x12830924807308721309128309128");
+    b1.appendInput(prevTxId, 0);
+    b1.appendOutput(1000000);
+    b1.pushOutputPay2Address(wallet->nextUnusedAddress());
+    Streaming::BufferPool pool;
+    Tx t1 = b1.createTransaction(&pool);
+    wallet->newTransactions(MockBlockHeader(), 1, { t1 });
+    QCOMPARE(wallet->balanceConfirmed(), 1000000);
+
+
+    // create a new transaction spending the above output and creating at least one 'spam' output.
+    TransactionBuilder b2;
+    b2.appendOutput(200000);
+    b2.pushOutputPay2Address(wallet->nextUnusedAddress());
+    b2.appendOutput(547); // Da SPAM.
+    b2.pushOutputPay2Address(wallet->nextUnusedAddress());
+    b2.appendOutput(290000);
+    CKeyID id("99999999999999999999");
+    b2.pushOutputPay2Address(id);
+
+    int64_t change = -1;
+    auto funding = wallet->findInputsFor(990000, 1, b2.createTransaction(&pool).size(), change);
+    for (auto ref : funding.outputs) {
+        b2.appendInput(wallet->txid(ref), ref.outputIndex());
+        auto output = wallet->txOutout(ref);
+        b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
+    }
+    Tx t2 = b2.createTransaction(&pool);
+    wallet->newTransactions(MockBlockHeader(), 2, { t2 } );
+    QCOMPARE(wallet->balanceConfirmed(), 200000); // does NOT include the 547
+    QCOMPARE(wallet->balanceUnconfirmed(), 0);
+    QCOMPARE(wallet->balanceImmature(), 0);
+}
+
 void TestWallet::saveTransaction()
 {
     Streaming::BufferPool pool;

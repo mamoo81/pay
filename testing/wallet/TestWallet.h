@@ -43,6 +43,7 @@ private slots:
     void testRef();
     void transactionOrdering();
     void addingTransactions();
+    void testSpam();
     void saveTransaction();
     void saveTransaction2();
     void findInputs();
