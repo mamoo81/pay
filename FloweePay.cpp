@@ -616,7 +616,7 @@ NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const
 {
     // special case the first user-created wallet.
     // If the user creates a new wallet that is identical to the one we auto-created, reuse that one.
-    const bool haveOneHiddenWallet = m_wallets.size() == 1 && m_wallets.first()->userOwnedWallet();
+    const bool haveOneHiddenWallet = m_wallets.size() == 1 && !m_wallets.first()->userOwnedWallet();
     if (haveOneHiddenWallet) {
         auto wallet = m_wallets.first();
         if (wallet->isHDWallet() && derivationPath == wallet->derivationPath() && password == wallet->hdWalletMnemonicPwd()) {
