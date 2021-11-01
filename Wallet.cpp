@@ -110,6 +110,9 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                     if (notifier)
                         notifier->spent += utxo->second;
                 }
+                else { // if its not actually an UTXO, forget this ref.
+                    prevTx = OutputRef();
+                }
             }
         }
         else if (iter.tag() == Tx::TxInScript) {
