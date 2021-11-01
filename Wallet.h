@@ -320,8 +320,11 @@ private:
         QString walletMnemonic;
         QString walletMnemonicPwd;
         std::vector<uint32_t> derivationPath; // contains the last created privkey. (full derivation path)
-        int lastMainAddress = -1;   // for derivation {BASE} + 0 / [num]
-        int lastChangeAddress = -1; // for derivation {BASE} + 1 / [num]
+        int lastMainKey = -1;   // for derivation {BASE} + 0 / [num]
+        int lastChangeKey = -1; // for derivation {BASE} + 1 / [num]
+        // two mem-only limits indicating the last key included in the bloom filter.
+        int lastIncludedMainKey = -1;
+        int lastIncludedChangeKey = -1;
     };
     std::unique_ptr<HierarchicallyDeterministicWalletData> m_hdData;
 
@@ -372,7 +375,7 @@ private:
     // check if we need to create more private keys based on if this transaction
     // used private keys close to the index we have created and keep track off.
     // returns true if new private keys have been derived from the HD masterkey
-    bool updateHDSignatures(const WalletTransaction &wtx);
+    bool updateHDSignatures(const WalletTransaction &wtx, bool &updateBloom);
 
     /// use the hdData master key to create a number of private keys (WalletSecrets).
     void deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight = 0);
