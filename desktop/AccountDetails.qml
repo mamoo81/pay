@@ -139,14 +139,14 @@ Item {
 
             FloweeCheckBox {
                 text: qsTr("Change Addresses")
-                enabled: root.account.isHDWallet
+                visible: root.account.isHDWallet
                 checked: root.account.secrets.showChangeChain
                 onClicked: root.account.secrets.showChangeChain = !root.account.secrets.showChangeChain
                 tooltipText: qsTr("Switches between normal addresses or Bitcoin addresses used for coins that are change.")
             }
             FloweeCheckBox {
                 text: qsTr("Used Addresses");
-                enabled: !root.account.isSingleAddressAccount
+                visible: !root.account.isSingleAddressAccount
                 checked: root.account.secrets.showUsedAddresses
                 onClicked: root.account.secrets.showUsedAddresses = !root.account.secrets.showUsedAddresses
                 tooltipText: qsTr("Switches between unused and used bitcoin addresses")
@@ -256,12 +256,15 @@ Item {
                     columns: 2
                     Label {
                         text: qsTr("Seed Phrase") + ":"
-                        Layout.alignment: Qt.AlignTop
                     }
-                    FloweeMultilineTextField {
+                    TextArea {
                         readOnly: true
                         text: root.account.mnemonic
                         Layout.fillWidth: true
+                        selectByMouse: true
+                        mouseSelectionMode: TextEdit.SelectWords
+                        wrapMode: TextEdit.WordWrap
+                        padding: 0
                     }
                     Label {
                         text: qsTr("Derivation") + ":"
