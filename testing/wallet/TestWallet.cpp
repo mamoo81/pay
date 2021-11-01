@@ -320,9 +320,9 @@ void TestWallet::findInputs()
     // Test that we prefer a simple solution over one with multiple aged coins
     auto walletSet =  wallet->findInputsFor(4000000, 1, 1, change);
     QCOMPARE(walletSet.outputs.size(), 1);
-    QCOMPARE(walletSet.totalSats, 5000000);
+    QCOMPARE(walletSet.totalSats, 6000000);
     QCOMPARE(walletSet.fee, 150);
-    QCOMPARE(change, 999850);
+    QCOMPARE(change, 2099701);
 
 }
 
