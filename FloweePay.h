@@ -121,7 +121,7 @@ public:
     /// create a new seed-less wallet with an optional name.
     Q_INVOKABLE NewWalletConfig* createNewBasicWallet(const QString &walletName = QString());
     /// swipe a paper wallet with an optional name
-    Q_INVOKABLE NewWalletConfig* createImportedWallet(const QString &privateKey, const QString &walletName);
+    Q_INVOKABLE NewWalletConfig* createImportedWallet(const QString &privateKey, const QString &walletName, int startHeight);
 
     /**
      * Import a mnemonics based (BIP39)  wallet.

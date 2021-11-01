@@ -78,7 +78,7 @@ GridLayout {
                 if (importAccount.isMnemonic)
                     var options = Flowee.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh);
                 else
-                    options = Flowee.createImportedWallet(secrets.text, accountName.text)
+                    options = Flowee.createImportedWallet(secrets.text, accountName.text, sh)
 
                 options.forceSingleAddress = singleAddress.checked;
 

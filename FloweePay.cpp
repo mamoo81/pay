@@ -493,11 +493,13 @@ void FloweePay::setHideBalance(bool hideBalance)
     appConfig.setValue(HIDEBALANCE, m_hideBalance);
 }
 
-NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName)
+NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName, int startHeight)
 {
     auto wallet = createWallet(walletName);
     wallet->setSingleAddressWallet(true);
-    wallet->addPrivateKey(privateKey, 520000);
+    if (startHeight <= 1)
+        startHeight = s_chain == P2PNet::MainChain ? 550000 : 1000;
+    wallet->addPrivateKey(privateKey, startHeight);
     saveData();
     p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
