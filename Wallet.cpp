@@ -1065,8 +1065,10 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId)
             keyId = i->second.address;
             return i->first; // just return the first then.
         }
-        if (i->second.initialHeight == 0 && !i->second.reserved) { // is unused address
+        if (i->second.signatureType == NotUsedYet && !i->second.reserved) { // is unused address
             if (i->second.fromHdWallet && i->second.fromChangeChain) // we skip the 'change' chain for user-visible stuff
+                continue;
+            if (i->second.reserved)
                 continue;
             i->second.reserved = true;
             keyId = i->second.address;
@@ -1076,23 +1078,15 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId)
     }
 
     // no unused addresses, lets make some.
+    if (m_hdData.get()) {
+        deriveHDKeys(50, 0);
+        return reserveUnusedAddress(keyId);
+    }
+
     int answer;
     for (int i = 0; i < 50; ++i) {
         WalletSecret secret;
-        if (m_hdData.get()) {
-            secret.fromHdWallet = true;
-            secret.hdDerivationIndex = ++m_hdData->lastMainKey;
-
-            const auto count = m_hdData->derivationPath.size();
-            assert(count >= 2);
-            m_hdData->derivationPath[count - 2] = 0; // Flowee Pay doesn't really care about the 'change' chain.
-            m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
-            secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
-        }
-        else {
-            secret.privKey.MakeNewKey();
-        }
-
+        secret.privKey.MakeNewKey();
         const CPubKey pubkey = secret.privKey.GetPubKey();
         secret.address = pubkey.getKeyId();
         if (i == 0) {
