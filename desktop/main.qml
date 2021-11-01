@@ -197,6 +197,20 @@ ApplicationWindow {
                             hint: visible ? activityView.model.dateForItem(position) : "";
                             scroller: mainScrollbar
                         }
+
+                        onModelChanged: resetUnreadTimer.restart();
+                        Timer {
+                            id: resetUnreadTimer
+                            interval: 46 * 1000
+                            // remove the 'new transaction' indicator.
+                            onTriggered: portfolio.current.transactions.lastSyncIndicator = undefined
+                            running: activityView.enabled && activityView.visible
+
+                            // copy the height so we know when the account height changes
+                            // and we can restart our timer as a result
+                            property int height: syncIndicator.accountBlockHeight
+                            onHeightChanged: restart();
+                        }
                     }
                 }
                 Loader {

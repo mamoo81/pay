@@ -27,6 +27,14 @@ Item {
     }
     width: mainLabel.width + bitcoinAmountLabel.width + 30
 
+    // overlay that indicates the transactions is new since last sync.
+    Rectangle {
+        anchors.fill: parent
+        opacity: 0.1
+        color: mainLabel.palette.text
+        visible: model.isNew
+    }
+
     /*
        we have
        model.fundsIn     the amount of satoshis consumed by inputs we own

@@ -29,6 +29,8 @@ WalletHistoryModel::WalletHistoryModel(Wallet *wallet, QObject *parent)
       m_wallet(wallet)
 {
     QMutexLocker locker(&m_wallet->m_lock);
+    assert(wallet->segment());
+    resetLastSyncIndicator();
     createMap();
 
     connect(wallet, SIGNAL(appendedTransactions(int,int)), SLOT(appendTransactions(int,int)), Qt::QueuedConnection);
@@ -88,6 +90,8 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
     }
     case WalletIndex:
         return QVariant(m_rowsProxy.at(index.row()));
+    case NewTransaction:
+        return QVariant(item.minedBlockHeight > m_lastSyncIndicator);
     }
 
     return QVariant();
@@ -97,6 +101,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> WalletHistoryModel::roleNames() const
 {
     QHash<int, QByteArray> answer;
+    answer[NewTransaction] = "isNew";
     answer[TxId] = "txid";
     answer[MinedHeight] = "height";
     answer[MinedDate] = "date";
@@ -158,5 +163,37 @@ void WalletHistoryModel::createMap()
     for (const auto &iter : m_wallet->m_walletTransactions) {
         assert(i >= 0);
         m_rowsProxy[i--] = iter.first;
+    }
+}
+
+int WalletHistoryModel::lastSyncIndicator() const
+{
+    return m_lastSyncIndicator;
+}
+
+void WalletHistoryModel::setLastSyncIndicator(int)
+{
+    // only reset is allowed.
+    // From QML:   `lastSyncIndicator = undefined;`
+    assert(false);
+}
+
+void WalletHistoryModel::resetLastSyncIndicator()
+{
+    const auto old = m_lastSyncIndicator;
+    m_lastSyncIndicator = m_wallet->segment()->lastBlockSynched();
+    int index = 0;
+    while (index < m_rowsProxy.size()) {
+        const auto &tx = m_wallet->m_walletTransactions.find(m_rowsProxy.at(index));
+        if (tx->second.minedBlockHeight < old)
+            break;
+        ++index;
+    }
+    // refresh the rows that need the 'new' indicator removed.
+    if (index > 0) {
+        beginRemoveRows(QModelIndex(), 0, index);
+        endRemoveRows();
+        beginInsertRows(QModelIndex(), 0, index);
+        endInsertRows();
     }
 }

@@ -25,12 +25,14 @@ class Wallet;
 class WalletHistoryModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int lastSyncIndicator READ lastSyncIndicator WRITE setLastSyncIndicator RESET resetLastSyncIndicator NOTIFY lastSyncIndicatorChanged)
 
 public:
     explicit WalletHistoryModel(Wallet *wallet, QObject *parent = nullptr);
 
     enum {
         TxId = Qt::UserRole,
+        NewTransaction, ///< bool, if this transaction is newer than lastSyncIndicator
         MinedHeight,  ///< int, height of block this tx was mined at.
         MinedDate,    ///< A date-time object when the item was mined
         FundsIn,      ///< value (in sats) of the funds we own being spent
@@ -52,6 +54,13 @@ public:
      */
     Q_INVOKABLE QString dateForItem(qreal offset) const;
 
+    int lastSyncIndicator() const;
+    void setLastSyncIndicator(int x);
+    void resetLastSyncIndicator();
+
+signals:
+    void lastSyncIndicatorChanged();
+
 private slots:
     void appendTransactions(int firstNew, int count);
     void transactionConfirmed(int txIndex);
@@ -61,6 +70,7 @@ private:
 
     QVector<int> m_rowsProxy;
     Wallet *m_wallet;
+    int m_lastSyncIndicator = 0;
 };
 
 #endif
