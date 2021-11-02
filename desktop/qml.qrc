@@ -2,21 +2,20 @@
     <qresource prefix="/">
         <file alias="FloweePay.png">../images/FloweePay.png</file>
         <file alias="FloweePay.svg">../images/FloweePay.svg</file>
-        <file alias="FloweePay.svg">../images/FloweePay.svg</file>
         <file alias="FloweePay-light.svg">../images/FloweePay-light.svg</file>
-        <file>images/gear.svg</file>
-        <file>images/gear-white.svg</file>
-        <file>sendIcon.png</file>
-        <file>sendIcon-light.png</file>
-        <file>receiveIcon.png</file>
-        <file>settingsIcon.png</file>
-        <file>settingsIcon-light.png</file>
-        <file>activityIcon.png</file>
-        <file>activityIcon-light.png</file>
-        <file>eye-closed-light.png</file>
-        <file>eye-closed.png</file>
-        <file>eye-open-light.png</file>
-        <file>eye-open.png</file>
+        <file alias="gear.svg">images/gear.svg</file>
+        <file alias="gear-white.svg">images/gear-white.svg</file>
+        <file alias="sendIcon.png">images/sendIcon.png</file>
+        <file alias="sendIcon-light.png">images/sendIcon-light.png</file>
+        <file alias="receiveIcon.png">images/receiveIcon.png</file>
+        <file alias="settingsIcon.png">images/settingsIcon.png</file>
+        <file alias="settingsIcon-light.png">images/settingsIcon-light.png</file>
+        <file alias="activityIcon.png">images/activityIcon.png</file>
+        <file alias="activityIcon-light.png">images/activityIcon-light.png</file>
+        <file alias="eye-closed-light.png">images/eye-closed-light.png</file>
+        <file alias="eye-closed.png">images/eye-closed.png</file>
+        <file alias="eye-open-light.png">images/eye-open-light.png</file>
+        <file alias="eye-open.png">images/eye-open.png</file>
         <file>defaults.ini</file>
         <file>BitcoinAmountLabel.qml</file>
         <file>BitcoinValueField.qml</file>
