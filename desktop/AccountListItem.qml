@@ -40,8 +40,8 @@ Item {
             if (portfolio.current === account)
                 return mainWindow.floweeGreen
             if (hover)
-                return mainWindow.floweeSalmon;
-            return Pay.useDarkSkin ? "#EEE" : mainWindow.floweeBlue
+                return Pay.useDarkSkin ? mainWindow.floweeSalmon : mainWindow.floweeBlue;
+            return Pay.useDarkSkin ? "#EEE" : "#7b7f7f"
         }
     }
 

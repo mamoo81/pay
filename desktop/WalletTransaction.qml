@@ -27,14 +27,6 @@ Item {
     }
     width: mainLabel.width + bitcoinAmountLabel.width + 30
 
-    // overlay that indicates the transactions is new since last sync.
-    Rectangle {
-        anchors.fill: parent
-        opacity: 0.1
-        color: mainLabel.palette.text
-        visible: model.isNew
-    }
-
     /*
        we have
        model.fundsIn     the amount of satoshis consumed by inputs we own
@@ -45,8 +37,19 @@ Item {
        model.date
      */
 
+    // overlay that indicates the transactions is new since last sync.
+    Rectangle {
+        id: isNewIndicator
+        anchors.verticalCenter: mainLabel.verticalCenter
+        width: model.isNew ? mainLabel.height / 3 * 2 : 0
+        height: width
+        radius: height
+        color: Pay.useDarkSkin ? mainWindow.floweeSalmon : mainWindow.floweeBlue
+    }
     Label {
         id: mainLabel
+        anchors.left: isNewIndicator.right
+        anchors.leftMargin: model.isNew ? 10 : 0
         text: {
             if (model.fundsIn === 0)
                 return qsTr("Received")
@@ -68,6 +71,7 @@ Item {
         opacity: 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8
     }
+
 
     BitcoinAmountLabel {
         id: bitcoinAmountLabel
