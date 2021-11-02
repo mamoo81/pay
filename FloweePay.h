@@ -242,6 +242,9 @@ signals:
     void hideBalanceChanged();
     void preferSchnorrChanged();
 
+private slots:
+    void loadingCompleted();
+
 private:
     void init();
     void saveData();

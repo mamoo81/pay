@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <QString>
 #include "Wallet.h"
 #include "Wallet_p.h"
+#include "FloweePay.h"
 
 #include <QTimer>
 #include <QThread>
+
+#include <primitives/script.h>
 
 
 namespace {
@@ -156,4 +160,64 @@ Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWallet
 {
     walletMnemonic = QString::fromUtf8(seedWords.c_str());
     walletMnemonicPwd = QString::fromUtf8(pwd.c_str());
+}
+
+// //////////////////////////////////////////////////
+// Apologies for the nested loop design, I promise this is not representative code and should only ever be ran once per wallet, ever.
+void Wallet::populateSigType()
+{
+    const auto &txs = m_walletTransactions; // short alias for readability
+
+    logCritical().nospace() << "Upgrading wallet '" << m_name << "', Finding signature types from seen transactions";
+    // iterate though each private key
+    for (auto s = m_walletSecrets.begin(); s != m_walletSecrets.end(); ++s) {
+        auto &secret = s->second;
+        // logDebug() << "Secret" << s->first << "Hd:" << secret.fromHdWallet << secret.fromChangeChain << "index:" << secret.hdDerivationIndex;
+        // iterate through transactions and outputs to find one that deposited funds there.
+        for (auto t1 = txs.cbegin(); secret.signatureType == NotUsedYet && t1 != txs.cend(); ++t1) {
+            const auto &tx1 = t1->second;
+            for (auto o = tx1.outputs.cbegin(); secret.signatureType == NotUsedYet && o != tx1.outputs.cend(); ++o) {
+                if (o->second.walletSecretId == s->first) {
+                    // logDebug() << " Found an out for secret" << t1->first << o->first;
+                    const auto ref = OutputRef(t1->first, o->first).encoded();
+                    // check UTXO, if still there, then its unspent.
+                    // Unspent means no signature, so find another output to check.
+                    if (m_unspentOutputs.find(ref) != m_unspentOutputs.end())
+                        continue;
+
+                    // iterate through transactions and inputs and try to find the spending input.
+                    for (auto t2 = txs.cbegin(); secret.signatureType == NotUsedYet && t2  != txs.cend(); ++t2) {
+                        const auto &tx2 = t2->second;
+                        for (auto i = tx2.inputToWTX.cbegin(); i != tx2.inputToWTX.cend(); ++i) {
+                            if (i->second == ref) {
+                                // found one, now fetch the input script and check the type.
+                                // logDebug() << "Found tx2 which spends output. Tx2:" << t2->first << i->first;
+                                Tx tx = loadTransaction(tx2.txid, FloweePay::pool(0));
+                                Tx::Iterator txIter(tx);
+                                for (int x = i->first; x >= 0; --x) {
+                                    if (txIter.next(Tx::TxInScript) != Tx::TxInScript) {
+                                        logCritical() << "Internal error; tx has too little inputs" << tx2.txid << i->first;
+                                        return;
+                                    }
+                                }
+                                assert(txIter.tag() == Tx::TxInScript);
+                                CScript script(txIter.byteData());
+                                auto scriptIter = script.begin();
+                                opcodetype type;
+                                script.GetOp(scriptIter, type);
+                                secret.signatureType = type == 65 ? SignedAsSchnorr : SignedAsEcdsa;
+                                logInfo() << "Secret key" << s->first << "detected signature type from tx-out:"
+                                           << tx1.txid << o->first
+                                           << "signed by tx-input:" << tx2.txid << i->first
+                                           << "SigType:" << (type == 65 ? "SignedAsSchnorr" : "SignedAsEcdsa");
+                                m_secretsChanged = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    logCritical() << "Wallet upgrade finished";
 }

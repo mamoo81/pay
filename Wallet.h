@@ -254,6 +254,8 @@ public:
     /// return the height of the last seen transaction that is mined
     int lastTransactionTimestamp() const;
 
+    void performUpgrades();
+
 public slots:
     void delayedSave();
 
@@ -329,6 +331,7 @@ private:
     std::unique_ptr<HierarchicallyDeterministicWalletData> m_hdData;
 
     QString m_name;
+    int m_walletVersion;
 
     struct Output {
         int walletSecretId = -1;
@@ -343,12 +346,14 @@ private:
         QString userComment;
 
         /*
-         * To keep track of chained transactions we store for an input a field should it come
-         * from an output also under this wallets control.
-         * Notice that we store in this map a key-value pair only when the input
-         * actually is spent from our own UTXO.
-         * They value is a composition of the output-index (lower 2 bytes)
-         * and the int-key in m_walletTransactions is the middle 4 bytes.
+         * To keep track of chained transactions we store for an input a entry here,
+         * should it come from an output stored in the walletTransactins map.
+         *
+         * Notice that only outputs matching one of our keys are eligable, so these
+         * are inputs that spent them.
+         *
+         * Key: index of input.
+         * Value: encoded OutputRef
          */
         std::map<int, uint64_t> inputToWTX;
         std::map<int, Output> outputs; // output-index to Output (only ones we can/could spend)
@@ -371,6 +376,10 @@ private:
      * pool.reserve() is called by this method with the actual tx size.
      */
     Tx loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) const;
+
+    /// helper method to upgrade older wallets and find the sigType from transactions to populate the field in walletSecrets.
+    /// Returns true if any changes were made.
+    void populateSigType();
 
     // check if we need to create more private keys based on if this transaction
     // used private keys close to the index we have created and keep track off.

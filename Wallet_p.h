@@ -66,6 +66,9 @@ enum PrivateSaveTags {
     // Per-privkey HD settings.
     HDKeyFromChangeChain,     // bool. If true, this privkey comes from the 'change' derivation chain. (before last field in derivation path)
     HDKeyDerivationIndex,     // int, the index used to generate this key (last field in derivation path)
+
+    // Versioning
+    WalletVersion,            // int.
 };
 
 enum WalletDataSaveTags {

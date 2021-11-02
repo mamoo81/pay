@@ -52,19 +52,20 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
 
 Wallet::Wallet()
     : m_lock(QMutex::Recursive),
-    m_walletChanged(true)
+    m_walletChanged(true),
+    m_walletVersion(2)
 {
 }
 
 Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
     : m_segment(new PrivacySegment(segmentId, this)),
       m_lock(QMutex::Recursive),
+      m_walletVersion(1), // after version 1 we saved the version in the secrets file.
       m_basedir(basedir / QString("wallet-%1/").arg(segmentId).toStdString())
 {
     loadSecrets();
     loadWallet();
     rebuildBloom();
-
     connect (this, SIGNAL(startDelayedSave()), this, SLOT(delayedSave()), Qt::QueuedConnection); // ensure right thread calls us.
 }
 
@@ -648,6 +649,18 @@ int Wallet::lastTransactionTimestamp() const
             return it->second.minedBlockHeight;
     }
     return 0;
+}
+
+void Wallet::performUpgrades()
+{
+    if (m_walletVersion == 1 && !m_walletTransactions.empty() && !m_walletSecrets.empty()) {
+        // this wallet needs to rescan its existing transactions since older clients
+        // didn't populate that field yet on receiving transactions
+        populateSigType();
+        m_walletVersion = 2;
+        m_secretsChanged = true;
+        delayedSave();
+    }
 }
 
 QList<PaymentRequest *> Wallet::paymentRequests() const
@@ -1323,6 +1336,9 @@ void Wallet::loadSecrets()
         else if (parser.tag() == WalletPriv::HDWalletLastReceiveIndex) {
             derivationPathMainIndex = parser.intData();
         }
+        else if (parser.tag() == WalletPriv::WalletVersion) {
+            m_walletVersion = parser.intData();
+        }
     }
 
     if (mnemonic.empty() != derivationPath.empty()) {
@@ -1359,6 +1375,7 @@ void Wallet::saveSecrets()
     }
     Streaming::BufferPool pool(m_walletSecrets.size() * 70 + hdDataSize);
     Streaming::MessageBuilder builder(pool);
+    builder.add(WalletPriv::WalletVersion, m_walletVersion);
     if (m_hdData.get()) {
         builder.add(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic.toUtf8().constData());
         if (!m_hdData->walletMnemonicPwd.isEmpty())

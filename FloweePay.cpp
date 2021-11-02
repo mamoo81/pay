@@ -74,8 +74,7 @@ FloweePay::FloweePay()
     boost::filesystem::create_directories(boost::filesystem::path(m_basedir.toStdString()));
 
     // make it move to the proper thread.
-    connect(this, SIGNAL(loadComplete_priv()), SIGNAL(loadComplete()), Qt::QueuedConnection);
-
+    connect(this, SIGNAL(loadComplete_priv()), this, SLOT(loadingCompleted()), Qt::QueuedConnection);
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, [=]() {
         p2pNet()->shutdown();
         saveAll();
@@ -180,7 +179,16 @@ void FloweePay::init()
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
         saveData();
     }
-    emit loadComplete_priv();
+    emit loadComplete_priv(); // move execution to loadingCompleted, in a Qt thread
+}
+
+void FloweePay::loadingCompleted()
+{
+    for (auto wallet : m_wallets) {
+        wallet->performUpgrades();
+    }
+
+    emit loadComplete();
 }
 
 void FloweePay::saveData()
