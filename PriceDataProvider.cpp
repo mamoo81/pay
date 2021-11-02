@@ -122,7 +122,8 @@ void PriceDataProvider::fetch()
 
 void PriceDataProvider::finishedDownload()
 {
-    assert(m_reply);
+    if (m_reply == nullptr)
+        return;
     auto data = m_reply->readAll();
     m_reply->deleteLater();
     m_reply = nullptr;
