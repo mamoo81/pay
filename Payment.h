@@ -20,7 +20,7 @@
 
 #include <QObject>
 #include <BroadcastTxData.h>
-#include <primitives/FastTransaction.h>
+#include <primitives/Tx.h>
 #include <memory>
 
 class Wallet;

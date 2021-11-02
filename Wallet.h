@@ -23,7 +23,7 @@
 
 #include <primitives/key.h>
 #include <primitives/pubkey.h>
-#include <primitives/FastTransaction.h>
+#include <primitives/Tx.h>
 
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem.hpp>
