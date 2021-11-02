@@ -21,7 +21,6 @@
         <file>ArrowPoint.qml</file>
         <file>BitcoinAmountLabel.qml</file>
         <file>BitcoinValueField.qml</file>
-        <file>Button2.qml</file>
         <file>ConfigItem.qml</file>
         <file>ControlColors.js</file>
         <file>main.qml</file>
@@ -45,6 +44,7 @@
         <file>FloweeMultilineTextField.qml</file>
         <file>NewAccountImportAccount.qml</file>
         <file>NewAccountCreateHDAccount.qml</file>
+        <file>widgets/Button.qml</file>
         <file>widgets/CloseIcon.qml</file>
         <file>widgets/ScrollThumb.qml</file>
     </qresource>

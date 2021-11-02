@@ -40,7 +40,7 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: parent.height / 3
-            color: root.enabled && root.checked ? (Flowee.useDarkSkin ? "#4f7d63" : "#bff0d3") : mainWindow.palette.window
+            color: root.enabled && root.checked ? (Flowee.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
             border.color: root.activeFocus ? (Flowee.useDarkSkin ? "white" : "black") : mainWindow.palette.button
             border.width: 2
 

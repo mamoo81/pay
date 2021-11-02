@@ -34,7 +34,7 @@ Item {
             var base = name.palette.base
             if (Flowee.useDarkSkin)
                 return parent.selected ? Qt.lighter(base, 1.4) : Qt.darker(base, 0.9)
-            return parent.selected ? Qt.darker(base, 1.1) : Qt.darker(base, 1.04)
+            return parent.selected ? Qt.darker(base, 1.04) : Qt.darker(base, 1.1)
         }
         border.width: parent.selected ? 5 : 2
         border.color: parent.selected ? name.palette.mid : name.palette.alternateBase

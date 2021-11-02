@@ -15,7 +15,7 @@ function applyDarkSkin(item) {
     item.palette.dark = "#bdc3c7"
     item.palette.highlight = "#76bfc7"
     item.palette.highlightedText = "#090909"
-    item.palette.light = "#383838"
+    item.palette.light = "#202326"
     item.palette.link = "#2980b9"
     item.palette.linkVisited = "#7f8c8d"
     item.palette.mid = "#6b6b6b"
@@ -31,7 +31,7 @@ function applyLightSkin(item) {
     item.palette.alternateBase = "#b2bfd0";
     item.palette.base = "#ffffff";
     item.palette.brightText = "#ffffff";
-    item.palette.button = "#e0e0e0";
+    item.palette.button = "#bfbebd";
     item.palette.buttonText = "#26282a";
     item.palette.dark = "#353637";
     item.palette.highlight = "#0066ff";
@@ -45,6 +45,6 @@ function applyLightSkin(item) {
     item.palette.text = "#353637";
     item.palette.toolTipBase = "#ffffff";
     item.palette.toolTipText = "#000000";
-    item.palette.window = "#ffffff";
+    item.palette.window = "#e0dfde";
     item.palette.windowText = "#26282a";
 }

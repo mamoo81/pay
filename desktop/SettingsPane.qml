@@ -20,7 +20,7 @@ Pane {
             Layout.columnSpan: 2
             checked: Flowee.useDarkSkin
             onClicked: {
-                Flowee.useDarkSkin = !Flowee.useDarkSkin
+                Flowee.useDarkSkin = checked;
                 ControlColors.applySkin(mainWindow);
             }
         }

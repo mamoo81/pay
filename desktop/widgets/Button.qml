@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,17 +17,27 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
+import "../ControlColors.js" as ControlColors
 import Flowee.org.pay 1.0
+
 
 // This is a silly hack to introduce a visual difference
 // between enabled and disabled buttons.
 Button {
-    property var backupPalette: mainWindow.palette
-    onEnabledChanged: {
-        palette = backupPalette
-        if (!enabled)
+    id: button
+    onEnabledChanged: updateColors();
+    Connections {
+        target: Flowee
+        function onUseDarkSkinChanged() { updateColors(); }
+    }
+
+    function updateColors() {
+        ControlColors.applySkin(this);
+        if (!enabled) {
             palette.buttonText = Flowee.useDarkSkin
-                    ? Qt.darker(palette.buttonText)
-                    : Qt.lighter(palette.buttonText)
+                ? Qt.darker(palette.buttonText)
+                : Qt.lighter(palette.buttonText, 2)
+            palette.button = Qt.darker(palette.button, 1.2)
+        }
     }
 }

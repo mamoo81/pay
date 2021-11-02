@@ -181,6 +181,12 @@ ApplicationWindow {
                     property string title: qsTr("Activity")
                     property string icon: "activityIcon-light.png"
                     anchors.fill: parent
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -10
+                        color: mainWindow.palette.light
+                        radius: 10
+                    }
                     ListView {
                         id: activityView
                         model: isLoading || portfolio.current === null ? 0 : portfolio.current.transactions
@@ -529,9 +535,9 @@ ApplicationWindow {
 
         Rectangle {
             id: splashScreen
-            color: "#FFFFFF"
+            color: mainWindow.palette.window
             anchors.fill: parent
-            Text {
+            Label {
                 text: qsTr("Preparing...")
                 anchors.centerIn: parent
                 font.pointSize: 20

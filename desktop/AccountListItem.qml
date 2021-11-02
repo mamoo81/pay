@@ -24,6 +24,26 @@ Item {
     height: column.height + 26
     visible: account.isUserOwned
 
+    //background
+    Rectangle {
+        property bool selected: portfolio.current === account
+
+        anchors.fill: parent
+        anchors.margins: 5
+        id: background
+        property bool hover: false
+        radius: 10
+        color: selected && !Flowee.useDarkSkin ? "white" : "#00000000" // transparant
+        border.width: 3
+        border.color: {
+            if (portfolio.current === account)
+                return mainWindow.floweeGreen
+            if (hover)
+                return mainWindow.floweeSalmon;
+            return Flowee.useDarkSkin ? "#EEE" : mainWindow.floweeBlue
+        }
+    }
+
     Column {
         id: column
         // spacing: 4
@@ -54,22 +74,6 @@ Item {
                 id: lastReceive
                 text: Flowee.formatDate(account.lastMinedTransaction)
             }
-        }
-    }
-    Rectangle {
-        anchors.fill: parent
-        anchors.margins: 5
-        id: background
-        property bool hover: false
-        radius: 10
-        color: "#00000000" // transparant
-        border.width: 3
-        border.color: {
-            if (portfolio.current === account)
-                return mainWindow.floweeGreen
-            if (hover)
-                return mainWindow.floweeSalmon;
-            return Flowee.useDarkSkin ? "#EEE" : mainWindow.floweeBlue
         }
     }
 
