@@ -18,7 +18,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
-import "widgets" as Widgets
+import "widgets" as Flowee
 
 Item {
     id: root
@@ -44,7 +44,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
-    Widgets.CloseIcon {
+    Flowee.CloseIcon {
         id: closeIcon
         anchors.bottom: walletDetailsLabel.bottom
         anchors.margins: 6

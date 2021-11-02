@@ -1,7 +1,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
-import "widgets" as Widgets
+import "widgets" as Flowee
 
 ColumnLayout {
     id: newAccountCreateHDAccount
@@ -25,7 +25,7 @@ ColumnLayout {
         height: button.height
         Layout.fillWidth: true
 
-        Widgets.Button {
+        Flowee.Button {
             id: button
             text: qsTr("Go")
             anchors.right: parent.right

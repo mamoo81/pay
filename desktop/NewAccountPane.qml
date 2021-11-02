@@ -17,7 +17,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
-import "widgets" as Widgets
+import "widgets" as Flowee
 
 FocusScope {
     id: root
@@ -51,7 +51,7 @@ FocusScope {
         clip: true
         ScrollBar.vertical: ScrollBar { }
 
-        Widgets.CloseIcon {
+        Flowee.CloseIcon {
             id: closeIcon
             anchors.margins: 6
             anchors.right: parent.right

@@ -19,7 +19,7 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtQuick.Window 2.11
-import "widgets" as Widgets
+import "widgets" as Flowee
 import "./ControlColors.js" as ControlColors
 import Flowee.org.pay 1.0
 
@@ -123,7 +123,7 @@ Rectangle {
                     }
                 }
             }
-            Widgets.Button {
+            Flowee.Button {
                 id: sendAll
                 text: qsTr("Max")
                 checkable: true
@@ -140,7 +140,7 @@ Rectangle {
         RowLayout {
             width: parent.width
             /* TODO future feature.
-            Widgets.Button {
+            Flowee.Button {
                 text: qsTr("Add Advanced Option...")
             }
             */
@@ -150,7 +150,7 @@ Rectangle {
                 Layout.fillWidth: true
             }
 
-            Widgets.Button {
+            Flowee.Button {
                 id: prepareButton
                 text: qsTr("Prepare")
                 enabled: (bitcoinValueField.value > 0
@@ -263,7 +263,7 @@ Rectangle {
                 Layout.fillWidth: true
             }
 
-            Widgets.Button {
+            Flowee.Button {
                 id: button
                 text: qsTr("Send")
                 enabled: root.payment != null && root.payment.paymentOk
@@ -274,7 +274,7 @@ Rectangle {
                     reset();
                 }
             }
-            Widgets.Button {
+            Flowee.Button {
                 text: qsTr("Cancel")
                 onClicked: root.reset();
             }

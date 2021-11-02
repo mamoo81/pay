@@ -19,7 +19,7 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtGraphicalEffects 1.0
-import "widgets" as Widgets
+import "widgets" as Flowee
 import "./ControlColors.js" as ControlColors
 
 ApplicationWindow {
@@ -196,7 +196,7 @@ ApplicationWindow {
                             id: mainScrollbar
                             minimumSize: 20 / activityView.height
                         }
-                        Widgets.ScrollThumb {
+                        Flowee.ScrollThumb {
                             anchors.fill: parent
                             visible: scroller.size < 0.1
                             hint: visible ? activityView.model.dateForItem(position) : "";
