@@ -50,7 +50,7 @@ Rectangle {
         }
         RowLayout {
             width: parent.width
-            FloweeTextField {
+            Flowee.TextField {
                 id: destination
                 focus: true
                 property bool addressOk: (addressType === Bitcoin.CashPKH || addressType === Bitcoin.CashSH)
@@ -88,7 +88,7 @@ Rectangle {
         }
         RowLayout {
             /* TODO hook this up when we add fiat support.
-            FloweeTextField {
+            Flowee.TextField {
                 text: "0.0 EUR"
             }
             Flowee.CheckBox {
@@ -176,7 +176,7 @@ Rectangle {
             color: txid.color // make sure this is 'disabled' when the warning is not for this wallet.
         }
 
-        FloweeGroupBox {
+        Flowee.GroupBox {
             id: txDetails
             Layout.columnSpan: 4
             title: qsTr("Transaction Details")
@@ -304,7 +304,7 @@ Rectangle {
                 border.color: "red"
                 radius: 10
             }
-            ArrowPoint {
+            Flowee.ArrowPoint {
                 x: 40
                 anchors.bottom: warningColumn.top
                 anchors.bottomMargin: 5

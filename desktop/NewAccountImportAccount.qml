@@ -23,7 +23,7 @@ GridLayout {
         text: qsTr("Secret:", "The private phrase or key")
         Layout.alignment: Qt.AlignBaseline
     }
-    FloweeMultilineTextField {
+    Flowee.MultilineTextField {
         id: secrets
         Layout.fillWidth: true
         onTextChanged: if (!importAccount.isMnemonic) { text = text.trim(); }
@@ -41,7 +41,7 @@ GridLayout {
         text: qsTr("Name:");
         Layout.alignment: Qt.AlignBaseline
     }
-    FloweeTextField {
+    Flowee.TextField {
         id: accountName
         onAccepted: if (startImport.enabled) startImport.clicked()
         Layout.columnSpan: 2
@@ -96,7 +96,7 @@ GridLayout {
         }
     }
 
-    FloweeGroupBox {
+    Flowee.GroupBox {
         title: qsTr("Advanced Options")
         collapsed: true
         Layout.columnSpan: 3
@@ -122,7 +122,7 @@ GridLayout {
             text: qsTr("Alternate phrase:")
             visible: !importAccount.isPrivateKey
         }
-        FloweeTextField {
+        Flowee.TextField {
             // according to the BIP39 spec this is the 'password', but from a UX
             // perspective that is confusing and no actual wallet uses it
             id: passwordField
@@ -132,7 +132,7 @@ GridLayout {
         Label {
             text: qsTr("Start Height:")
         }
-        FloweeTextField {
+        Flowee.TextField {
             id: startHeight
             Layout.fillWidth: true
             validator: IntValidator{bottom: 0; top: 999999}
@@ -141,7 +141,7 @@ GridLayout {
             text: qsTr("Derivation:")
             visible: !importAccount.isPrivateKey
         }
-        FloweeTextField {
+        Flowee.TextField {
             id: derivationPath
             text: "m/44'/145'/0'" // default for BCH wallets
             visible: !importAccount.isPrivateKey

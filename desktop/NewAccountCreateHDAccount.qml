@@ -17,7 +17,7 @@ ColumnLayout {
             text: qsTr("Name:");
             Layout.alignment: Qt.AlignBaseline
         }
-        FloweeTextField {
+        Flowee.TextField {
             id: accountName
         }
     }
@@ -44,7 +44,7 @@ ColumnLayout {
         }
     }
 
-    FloweeGroupBox {
+    Flowee.GroupBox {
         title: qsTr("Advanced Options")
         Layout.fillWidth: true
         collapsed: true
@@ -61,7 +61,7 @@ ColumnLayout {
             text: qsTr("Derivation") + ":"
             Layout.fillWidth: false
         }
-        FloweeTextField {
+        Flowee.TextField {
             id: derivationPath
             text: "m/44'/145'/0'" // default for BCH wallets
             color: Pay.checkDerivation(text) ? palette.text : "red"

@@ -8,7 +8,7 @@ import "widgets" as Flowee
 
 Pane {
     property string title: qsTr("Settings")
-    property string icon: "settingsIcon-light.png"
+    property string icon: "qrc:/settingsIcon-light.png"
 
     GridLayout {
         columns: 3

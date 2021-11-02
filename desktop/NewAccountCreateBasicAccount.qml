@@ -33,7 +33,7 @@ ColumnLayout {
             text: qsTr("Name:");
             Layout.alignment: Qt.AlignBaseline
         }
-        FloweeTextField {
+        Flowee.TextField {
             id: accountName
         }
     }
@@ -61,7 +61,7 @@ ColumnLayout {
         }
     }
 
-    FloweeGroupBox {
+    Flowee.GroupBox {
         id: gb
         title: qsTr("Advanced Options")
         collapsed: true

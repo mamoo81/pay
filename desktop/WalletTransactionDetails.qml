@@ -70,7 +70,7 @@ GridLayout {
                 Item {
                     width: rightColumn.width
                     height: modelData === null ? 8 : (10 + inAddress.height)
-                    ArrowPoint {
+                    Flowee.ArrowPoint {
                         id: arrowPoint
                         anchors.bottom: parent.bottom
                         color: arrowLine.color
@@ -151,7 +151,7 @@ GridLayout {
                         anchors.rightMargin: -2 // overlap the line and the arrow
                         height: 3
                     }
-                    ArrowPoint {
+                    Flowee.ArrowPoint {
                         id: outArrowPoint
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right

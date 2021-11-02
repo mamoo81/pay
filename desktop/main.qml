@@ -172,13 +172,13 @@ ApplicationWindow {
                 radius: 5
                 color: Pay.useDarkSkin ? "black" : "white"
             }
-            FloweeTabBar {
+            Flowee.TabBar {
                 id: tabbar
                 anchors.fill: parent
 
                 Pane {
                     property string title: qsTr("Activity")
-                    property string icon: "activityIcon-light.png"
+                    property string icon: "qrc:/activityIcon-light.png"
                     anchors.fill: parent
                     Rectangle {
                         anchors.fill: parent
@@ -222,12 +222,12 @@ ApplicationWindow {
                     id: sendTransactionPane
                     anchors.fill: parent
                     property string title: qsTr("Send")
-                    property string icon: "sendIcon-light.png"
+                    property string icon: "qrc:/sendIcon-light.png"
                 }
                 Loader {
                     id: receivePane
                     anchors.fill: parent
-                    property string icon: "receiveIcon.png"
+                    property string icon: "qrc:/receiveIcon.png"
                     property string title: qsTr("Receive")
                 }
                 SettingsPane {

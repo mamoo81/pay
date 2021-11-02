@@ -62,7 +62,7 @@ Item {
         Label {
             text: qsTr("Name") + ":"
         }
-        FloweeTextField {
+        Flowee.TextField {
             id: accountNameEdit
             text: root.account.name
             onTextEdited: root.account.name = text
@@ -140,7 +140,7 @@ Item {
     */
         }
 
-        FloweeGroupBox {
+        Flowee.GroupBox {
             id: addressesList
             width: parent.width
             anchors.top: detailsPane.bottom
@@ -249,7 +249,7 @@ Item {
                 }
             }
         }
-        FloweeGroupBox {
+        Flowee.GroupBox {
             id: hdDetails
             width: parent.width
             anchors.top: addressesList.bottom

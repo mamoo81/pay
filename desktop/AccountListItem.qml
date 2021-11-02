@@ -17,6 +17,7 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
+import "widgets" as Flowee
 
 Item {
     id: root
@@ -77,7 +78,7 @@ Item {
         }
     }
 
-    ArrowPoint {
+    Flowee.ArrowPoint {
         id: point
         x: 5
         visible: portfolio.current === account;
