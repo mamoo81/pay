@@ -18,8 +18,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import "../ControlColors.js" as ControlColors
-import Flowee.org.pay 1.0
-
 
 // This is a silly hack to introduce a visual difference
 // between enabled and disabled buttons.
@@ -27,14 +25,14 @@ Button {
     id: button
     onEnabledChanged: updateColors();
     Connections {
-        target: Flowee
+        target: Pay
         function onUseDarkSkinChanged() { updateColors(); }
     }
 
     function updateColors() {
         ControlColors.applySkin(this);
         if (!enabled) {
-            palette.buttonText = Flowee.useDarkSkin
+            palette.buttonText = Pay.useDarkSkin
                 ? Qt.darker(palette.buttonText)
                 : Qt.lighter(palette.buttonText, 2)
             palette.button = Qt.darker(palette.button, 1.2)

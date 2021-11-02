@@ -1,6 +1,6 @@
 
 function applySkin(item) {
-    if (Flowee.useDarkSkin)
+    if (Pay.useDarkSkin)
         applyDarkSkin(item);
     else
         applyLightSkin(item)

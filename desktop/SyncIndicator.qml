@@ -17,14 +17,13 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
-import Flowee.org.pay 1.0
 
 /*
  * A simple label that shows the amount of time a pair of block-heights are apart.
  */
 Label {
     property int accountBlockHeight: 0
-    property int globalPos: Flowee.chainHeight
+    property int globalPos: Pay.chainHeight
 
     text: {
         if (accountBlockHeight <= 0) // For accounts that only expect tx in the future.

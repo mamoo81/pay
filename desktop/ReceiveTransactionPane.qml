@@ -19,7 +19,6 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtQuick.Shapes 1.11 // for shape-path
-
 import Flowee.org.pay 1.0
 
 Pane {
@@ -69,7 +68,7 @@ Pane {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                Flowee.copyToClipboard(receivePane.request.qr)
+                Pay.copyToClipboard(receivePane.request.qr)
                 clipboardFeedback.opacity = 1
             }
         }
@@ -80,7 +79,7 @@ Pane {
             width: feedbackText.width + 20
             height: feedbackText.height + 20
             radius: 10
-            color: Flowee.useDarkSkin ? "#333" : "#ddd"
+            color: Pay.useDarkSkin ? "#333" : "#ddd"
             anchors.top: parent.bottom
             anchors.topMargin: -13
             anchors.horizontalCenter: parent.horizontalCenter
@@ -162,7 +161,7 @@ Pane {
                         startAngle: -80
                         sweepAngle: receivePane.request.state === PaymentRequest.Unpaid ? 0: 340
 
-                        Behavior on sweepAngle {  NumberAnimation { duration: Flowee.dspTimeout } }
+                        Behavior on sweepAngle {  NumberAnimation { duration: Pay.dspTimeout } }
                     }
                 }
 

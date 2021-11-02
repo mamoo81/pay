@@ -9,10 +9,10 @@ GridLayout {
     columns: 3
     rowSpacing: 10
 
-    property var typedData: Flowee.identifyString(secrets.text)
-    property bool finished: typedData === Pay.PrivateKey || typedData === Pay.CorrectMnemonic;
-    property bool isMnemonic: typedData === Pay.CorrectMnemonic || typedData === Pay.PartialMnemonic || typedData === Pay.PartialMnemonicWithTypo;
-    property bool isPrivateKey: typedData === Pay.PrivateKey
+    property var typedData: Pay.identifyString(secrets.text)
+    property bool finished: typedData === Bitcoin.PrivateKey || typedData === Bitcoin.CorrectMnemonic;
+    property bool isMnemonic: typedData === Bitcoin.CorrectMnemonic || typedData === Bitcoin.PartialMnemonic || typedData === Bitcoin.PartialMnemonicWithTypo;
+    property bool isPrivateKey: typedData === Bitcoin.PrivateKey
 
     Label {
         text: qsTr("Please enter the secrets of the wallet to import. This can be a seedphrase or a private key.")
@@ -33,7 +33,7 @@ GridLayout {
     Label {
         id: feedback
         text: importAccount.finished ? "✔" : " "
-        color: Flowee.useDarkSkin ? "#37be2d" : "green"
+        color: Bitcoin.useDarkSkin ? "#37be2d" : "green"
         font.pixelSize: 24
         Layout.alignment: Qt.AlignTop
     }
@@ -55,13 +55,13 @@ GridLayout {
             color: typedData === Pay.PartialMnemonicWithTypo ? "red" : feedback.color
             text: {
                 var typedData = importAccount.typedData
-                if (typedData === Pay.PrivateKey)
+                if (typedData === Bitcoin.PrivateKey)
                     return qsTr("Private key", "description of type") // TODO print address to go with it
-                if (typedData === Pay.CorrectMnemonic)
+                if (typedData === Bitcoin.CorrectMnemonic)
                     return qsTr("BIP 39 mnemonic", "description of type")
-                if (typedData === Pay.PartialMnemonicWithTypo)
+                if (typedData === Bitcoin.PartialMnemonicWithTypo)
                     return qsTr("Unrecognized word", "Word from the seed-phrases lexicon")
-                if (typedData === Pay.MissingLexicon)
+                if (typedData === Bitcoin.MissingLexicon)
                     return "Installation error; no lexicon found"; // intentionally not translated, end-users should not see this
                 return ""
             }
@@ -77,9 +77,9 @@ GridLayout {
                 if (sh === 0) // the genesis was block 1, zero doesn't exist
                     sh = 1;
                 if (importAccount.isMnemonic)
-                    var options = Flowee.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh);
+                    var options = Pay.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh);
                 else
-                    options = Flowee.createImportedWallet(secrets.text, accountName.text, sh)
+                    options = Pay.createImportedWallet(secrets.text, accountName.text, sh)
 
                 options.forceSingleAddress = singleAddress.checked;
 
@@ -145,7 +145,7 @@ GridLayout {
             id: derivationPath
             text: "m/44'/145'/0'" // default for BCH wallets
             visible: !importAccount.isPrivateKey
-            color: Flowee.checkDerivation(text) ? palette.text : "red"
+            color: Pay.checkDerivation(text) ? palette.text : "red"
         }
     }
 }

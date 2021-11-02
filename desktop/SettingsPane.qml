@@ -2,7 +2,6 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtGraphicalEffects 1.0
-import Flowee.org.pay 1.0
 
 import "./ControlColors.js" as ControlColors
 
@@ -18,9 +17,9 @@ Pane {
         }
         FloweeCheckBox {
             Layout.columnSpan: 2
-            checked: Flowee.useDarkSkin
+            checked: Pay.useDarkSkin
             onClicked: {
-                Flowee.useDarkSkin = checked;
+                Pay.useDarkSkin = checked;
                 ControlColors.applySkin(mainWindow);
             }
         }
@@ -33,13 +32,13 @@ Pane {
             model: {
                 var answer = [];
                 for (let i = 0; i < 5; ++i) {
-                    answer[i] = Flowee.nameOfUnit(i);
+                    answer[i] = Pay.nameOfUnit(i);
                 }
                 return answer;
             }
-            currentIndex: Flowee.unit
+            currentIndex: Pay.unit
             onCurrentIndexChanged: {
-                Flowee.unit = currentIndex
+                Pay.unit = currentIndex
             }
         }
 
@@ -60,27 +59,27 @@ Pane {
                 Label {
                     text: {
                         var answer = "1";
-                        for (let i = Flowee.unitAllowedDecimals; i < 8; ++i) {
+                        for (let i = Pay.unitAllowedDecimals; i < 8; ++i) {
                             answer += "0";
                         }
-                        return answer + " " + Flowee.unitName;
+                        return answer + " " + Pay.unitName;
                     }
                     Layout.alignment: Qt.AlignRight
                 }
                 Label { text: "=" }
                 Label { text: "1 Bitcoin Cash" }
 
-                Label { text: "1 " + Flowee.unitName; Layout.alignment: Qt.AlignRight; visible: Flowee.isMainChain}
-                Label { text: "="; visible: Flowee.isMainChain}
+                Label { text: "1 " + Pay.unitName; Layout.alignment: Qt.AlignRight; visible: Pay.isMainChain}
+                Label { text: "="; visible: Pay.isMainChain}
                 Label {
                     text: {
                         var amount = 1;
-                        for (let i = 0; i < Flowee.unitAllowedDecimals; ++i) {
+                        for (let i = 0; i < Pay.unitAllowedDecimals; ++i) {
                             amount = amount * 10;
                         }
                         return Fiat.formattedPrice(amount, Fiat.price);
                     }
-                    visible: Flowee.isMainChain
+                    visible: Pay.isMainChain
                 }
             }
         }
@@ -89,14 +88,14 @@ Pane {
             text: qsTr("Version") + ":"
         }
         Label {
-            text: Flowee.version
+            text: Pay.version
             Layout.columnSpan: 2
         }
         Label {
             text: qsTr("Library Version") + ":"
         }
         Label {
-            text: Flowee.libsVersion
+            text: Pay.libsVersion
             Layout.columnSpan: 2
         }
     }

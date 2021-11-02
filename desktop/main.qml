@@ -19,21 +19,20 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtGraphicalEffects 1.0
-import Flowee.org.pay 1.0
 import "widgets" as Widgets
 import "./ControlColors.js" as ControlColors
 
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: Flowee.windowWidth === -1 ? 750 : Flowee.windowWidth
-    height: Flowee.windowHeight === -1 ? 500 : Flowee.windowHeight
+    width: Pay.windowWidth === -1 ? 750 : Pay.windowWidth
+    height: Pay.windowHeight === -1 ? 500 : Pay.windowHeight
     minimumWidth: 800
     minimumHeight: 600
     title: "Flowee Pay"
 
-    onWidthChanged: Flowee.windowWidth = width
-    onHeightChanged: Flowee.windowHeight = height
+    onWidthChanged: Pay.windowWidth = width
+    onHeightChanged: Pay.windowHeight = height
     onVisibleChanged: if (visible) ControlColors.applySkin(mainWindow)
 
     property bool isLoading: typeof portfolio === "undefined";
@@ -65,7 +64,7 @@ ApplicationWindow {
 
         Rectangle {
             id: header
-            color: Flowee.useDarkSkin ? "#00000000" : mainWindow.floweeBlue
+            color: Pay.useDarkSkin ? "#00000000" : mainWindow.floweeBlue
             width: parent.width
             height: {
                 var h = mainWindow.height;
@@ -76,7 +75,7 @@ ApplicationWindow {
 
             Rectangle {
                 color: mainWindow.floweeBlue
-                opacity: Flowee.useDarkSkin ? 1 : 0
+                opacity: Pay.useDarkSkin ? 1 : 0
 
                 width: parent.height / 5 * 4
                 height: width
@@ -121,7 +120,7 @@ ApplicationWindow {
                     value: {
                         if (isLoading)
                             return 0;
-                        if (Flowee.hideBalance)
+                        if (Pay.hideBalance)
                             return 88888888;
                         return portfolio.totalBalance
                     }
@@ -135,7 +134,7 @@ ApplicationWindow {
                     id: blurredTotalBalance2
                     anchors.fill: parent
                     anchors.margins: 5
-                    visible: Flowee.hideBalance
+                    visible: Pay.hideBalance
                     source: totalBalance2
                     radius: 58
                 }
@@ -148,7 +147,7 @@ ApplicationWindow {
                 color: "white"
 
                 text: {
-                    if (Flowee.hideBalance && Flowee.isMainChain)
+                    if (Pay.hideBalance && Pay.isMainChain)
                         return "-- " + Fiat.currencyName
                     return Fiat.formattedPrice(totalBalance.value, Fiat.price)
                 }
@@ -171,7 +170,7 @@ ApplicationWindow {
                 anchors.topMargin: -5
                 anchors.leftMargin: -5
                 radius: 5
-                color: Flowee.useDarkSkin ? "black" : "white"
+                color: Pay.useDarkSkin ? "black" : "white"
             }
             FloweeTabBar {
                 id: tabbar
@@ -299,7 +298,7 @@ ApplicationWindow {
                         value: {
                             if (isLoading)
                                 return 0;
-                            if (Flowee.hideBalance)
+                            if (Pay.hideBalance)
                                 return 88888888;
                             return portfolio.totalBalance
                         }
@@ -312,14 +311,14 @@ ApplicationWindow {
                         id: blurredTotalBalance
                         anchors.fill: parent
                         anchors.margins: -5
-                        visible: Flowee.hideBalance
+                        visible: Pay.hideBalance
                         source: totalBalance
                         radius: 58
                     }
                 }
                 Label {
                     text: {
-                        if (Flowee.hideBalance && Flowee.isMainChain)
+                        if (Pay.hideBalance && Pay.isMainChain)
                             return "-- " + Fiat.currencyName
                         return Fiat.formattedPrice(totalBalance.value, Fiat.price)
                     }
@@ -342,9 +341,9 @@ ApplicationWindow {
                         id: showBalanceButton
                         anchors.right: parent.right
                         source: {
-                            if (Flowee.hideBalance)
-                                return Flowee.useDarkSkin ? "eye-closed-light.png" : "eye-closed.png"
-                            return Flowee.useDarkSkin ? "eye-open-light.png" : "eye-open.png"
+                            if (Pay.hideBalance)
+                                return Pay.useDarkSkin ? "eye-closed-light.png" : "eye-closed.png"
+                            return Pay.useDarkSkin ? "eye-open-light.png" : "eye-open.png"
                         }
                         smooth: true
                         opacity: 0.5
@@ -352,7 +351,7 @@ ApplicationWindow {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                Flowee.hideBalance = !Flowee.hideBalance;
+                                Pay.hideBalance = !Pay.hideBalance;
                                 balanceDetailsPane.showDetails = false;
                             }
                         }
@@ -388,7 +387,7 @@ ApplicationWindow {
                             var account = portfolio.current;
                             if (account === null)
                                 return 0;
-                            if (Flowee.hideBalance)
+                            if (Pay.hideBalance)
                                 return 88888888;
                             return account.balanceConfirmed + account.balanceUnconfirmed
                         }
@@ -405,7 +404,7 @@ ApplicationWindow {
                         id: blurredBalance
                         anchors.fill: parent
                         anchors.margins: -5
-                        visible: Flowee.hideBalance
+                        visible: Pay.hideBalance
                         source: balance
                         radius: 58
                     }
@@ -450,7 +449,7 @@ ApplicationWindow {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            if (!Flowee.hideBalance)
+                            if (!Pay.hideBalance)
                                 parent.showDetails = !parent.showDetails
                         }
                     }
@@ -459,7 +458,7 @@ ApplicationWindow {
                 }
                 Label {
                     text: {
-                        if (Flowee.hideBalance && Flowee.isMainChain)
+                        if (Pay.hideBalance && Pay.isMainChain)
                             return "-- " + Fiat.currencyName
                         return Fiat.formattedPrice(balance.value, Fiat.price)
                     }
@@ -473,7 +472,7 @@ ApplicationWindow {
                 Label {
                     id: fiatValue
                     text: qsTr("1 BCH is: %1").arg(Fiat.formattedPrice(100000000, Fiat.price))
-                    visible: Flowee.isMainChain
+                    visible: Pay.isMainChain
                     font.pixelSize: 18
                 }
                 Item { // spacer

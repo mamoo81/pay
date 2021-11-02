@@ -19,8 +19,6 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 
-import Flowee.org.pay 1.0
-
 Item {
     id: root
 
@@ -87,7 +85,7 @@ Item {
         ArrowPoint {
             id: point
             x: 10
-            color: Flowee.useDarkSkin ? "white" : "black"
+            color: Pay.useDarkSkin ? "white" : "black"
             rotation: root.collapsed ? 0 : 90
             transformOrigin: Item.Center
 

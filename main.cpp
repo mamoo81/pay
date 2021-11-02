@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
     srand((quint32) QDateTime::currentMSecsSinceEpoch());
 
-    qmlRegisterType<FloweePay>("Flowee.org.pay", 1, 0, "Pay");
+    qmlRegisterType<FloweePay>("Flowee.org.pay", 1, 0, "Bitcoin");
     qmlRegisterType<BitcoinValue>("Flowee.org.pay", 1, 0, "BitcoinValue");
     qmlRegisterType<NewWalletConfig>("Flowee.org.pay", 1, 0, "NewWalletConfig");
     QCommandLineParser parser;
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
-    engine.rootContext()->setContextProperty("Flowee", FloweePay::instance());
+    engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
     engine.rootContext()->setContextProperty("Fiat", &prices);
     engine.load(url);
 

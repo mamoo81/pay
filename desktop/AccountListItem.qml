@@ -33,14 +33,14 @@ Item {
         id: background
         property bool hover: false
         radius: 10
-        color: selected && !Flowee.useDarkSkin ? "white" : "#00000000" // transparant
+        color: selected && !Pay.useDarkSkin ? "white" : "#00000000" // transparant
         border.width: 3
         border.color: {
             if (portfolio.current === account)
                 return mainWindow.floweeGreen
             if (hover)
                 return mainWindow.floweeSalmon;
-            return Flowee.useDarkSkin ? "#EEE" : mainWindow.floweeBlue
+            return Pay.useDarkSkin ? "#EEE" : mainWindow.floweeBlue
         }
     }
 
@@ -72,7 +72,7 @@ Item {
             }
             Label {
                 id: lastReceive
-                text: Flowee.formatDate(account.lastMinedTransaction)
+                text: Pay.formatDate(account.lastMinedTransaction)
             }
         }
     }

@@ -77,7 +77,7 @@ FocusScope {
     }
     Label {
         id: unit
-        text: Flowee.unitName
+        text: Pay.unitName
         y: 8
         anchors.right: parent.right
         anchors.rightMargin: 8

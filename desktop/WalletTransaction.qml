@@ -63,7 +63,7 @@ Item {
             var dat = model.date;
             if (typeof dat === "undefined")
                 return qsTr("unconfirmed")
-            return Flowee.formatDateTime(dat);
+            return Pay.formatDateTime(dat);
         }
         opacity: 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8

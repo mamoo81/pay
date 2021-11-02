@@ -39,7 +39,7 @@ GridLayout {
         text: {
             if (typeof  model.date === "undefined")
                 return qsTr("unconfirmed")
-            var confirmations = Flowee.headerChainHeight - model.height + 1;
+            var confirmations = Pay.headerChainHeight - model.height + 1;
             return qsTr("%1 confirmations (mined in block %2)", "", confirmations)
                 .arg(confirmations).arg(model.height);
         }
@@ -94,7 +94,7 @@ GridLayout {
                         anchors.bottom: arrowLine.top
                     }
                     Rectangle {
-                        color: Flowee.useDarkSkin ? "#4fb2e7" : "yellow"
+                        color: Pay.useDarkSkin ? "#4fb2e7" : "yellow"
                         visible: inAddress.visible
                         x: inAddress.x - 3
                         y: inAddress.y -3
@@ -166,7 +166,7 @@ GridLayout {
                         anchors.bottom: outArrowLine.top
                     }
                     Rectangle {
-                        color: Flowee.useDarkSkin ? "#4fb2e7" : "yellow"
+                        color: Pay.useDarkSkin ? "#4fb2e7" : "yellow"
                         visible: modelData !== null && modelData.forMe
                         x: outAddress.x - 3
                         y: outAddress.y -3

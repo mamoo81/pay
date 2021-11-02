@@ -16,13 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import Flowee.org.pay 1.0
 
 Item {
     id: root
     width: wide ? 10 : 4
     height: column.height
-    property color color: Flowee.useDarkSkin ? "white" : "black"
+    property color color: Pay.useDarkSkin ? "white" : "black"
     property bool wide: false
 
     property var contextMenu: null

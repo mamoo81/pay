@@ -40,8 +40,8 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: parent.height / 3
-            color: root.enabled && root.checked ? (Flowee.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
-            border.color: root.activeFocus ? (Flowee.useDarkSkin ? "white" : "black") : mainWindow.palette.button
+            color: root.enabled && root.checked ? (Pay.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
+            border.color: root.activeFocus ? (Pay.useDarkSkin ? "white" : "black") : mainWindow.palette.button
             border.width: 2
 
             Behavior on color { ColorAnimation {}}
@@ -55,7 +55,7 @@ Item {
             color: {
                 if (!root.enabled)
                     return "darkgray"
-                if (root.checked && Flowee.useDarkSkin)
+                if (root.checked && Pay.useDarkSkin)
                     return mainWindow.palette.text;
                 return mainWindow.palette.highlight
             }

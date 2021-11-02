@@ -17,7 +17,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
-import Flowee.org.pay 1.0
 
 /*
  * Annoyingly, there is a gap in the Qt default components.
@@ -70,7 +69,7 @@ Control {
         width: parent.width - 20
         height: parent.height - 20
         activeFocusOnTab: true
-        color: showingPlaceholder ? Qt.darker(root.palette.text, Flowee.useDarkSkin ? 1.6 : 0.65) : root.palette.text
+        color: showingPlaceholder ? Qt.darker(root.palette.text, Pay.useDarkSkin ? 1.6 : 0.65) : root.palette.text
         selectedTextColor: root.palette.highlightedText
         selectionColor: root.palette.highlight
         selectByMouse: true

@@ -18,7 +18,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
-import Flowee.org.pay 1.0
 
 /**
  * This class displays a Bitcoin value using the current settings
@@ -30,7 +29,7 @@ Item {
     property bool colorize: true
     property bool includeUnit: true
     property bool showFiat: true
-    property color color: Flowee.useDarkSkin ? "#fcfcfc" :"black"
+    property color color: Pay.useDarkSkin ? "#fcfcfc" :"black"
     property alias fontPtSize: main.font.pointSize
 
     implicitHeight: row.implicitHeight
@@ -48,20 +47,20 @@ Item {
         // calculated
         property string amountString: "";
         Connections {
-            target: Flowee
+            target: Pay
             function onUnitChanged(unit) {
                 root.calcString(root.value);
             }
         }
         function calcString(sats) {
-            amountString = Flowee.priceToString(sats)
+            amountString = Pay.priceToString(sats)
         }
 
         Label {
             id: main
             text: {
                 var s = row.amountString
-                var removeChars = Flowee.unitAllowedDecimals
+                var removeChars = Pay.unitAllowedDecimals
                 if (removeChars > 3)
                     removeChars -= 3; // the next text field eats those
                 return s.substring(0, s.length - removeChars)
@@ -71,9 +70,9 @@ Item {
                     var num = root.value
                     if (num > 0)
                         // positive value
-                        return Flowee.useDarkSkin ? "#86ffa8" : "green";
+                        return Pay.useDarkSkin ? "#86ffa8" : "green";
                     else if (num < 0) // negative
-                        return Flowee.useDarkSkin ? "#ffdede" : "#444446";
+                        return Pay.useDarkSkin ? "#ffdede" : "#444446";
                     // zero is shown without color, like below.
                 }
                 return root.color
@@ -91,7 +90,7 @@ Item {
             color: main.color
             opacity: (satsLabel.opacity !== 1 && text == "000") ? 0.3 : 1
             Layout.alignment: Qt.AlignBaseline
-            visible: Flowee.unitAllowedDecimals === 8
+            visible: Pay.unitAllowedDecimals === 8
         }
         Label {
             id: satsLabel
@@ -103,18 +102,18 @@ Item {
             color: main.color
             opacity: text == "00" ? 0.3 : 1
             Layout.alignment: Qt.AlignBaseline
-            visible: Flowee.unitAllowedDecimals >= 2
+            visible: Pay.unitAllowedDecimals >= 2
         }
 
         Label {
-            text: Flowee.unitName
+            text: Pay.unitName
             color: main.color
             visible: root.includeUnit
             Layout.alignment: Qt.AlignBaseline
         }
 
         Label {
-             visible: root.showFiat //&& Flowee.isMainChain
+             visible: root.showFiat //&& Pay.isMainChain
              Layout.alignment: Qt.AlignBaseline
              text: Fiat.formattedPrice(root.value, Fiat.price)
         }

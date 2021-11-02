@@ -19,7 +19,6 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import "widgets" as Widgets
-import Flowee.org.pay 1.0
 
 ColumnLayout {
     spacing: 10
@@ -47,7 +46,7 @@ ColumnLayout {
             text: qsTr("Go")
             anchors.right: parent.right
             onClicked: {
-                var options = Flowee.createNewBasicWallet(accountName.text);
+                var options = Pay.createNewBasicWallet(accountName.text);
                 options.forceSingleAddress = singleAddress.checked;
                 var accounts = portfolio.accounts;
                 for (var i = 0; i < accounts.length; ++i) {

@@ -42,7 +42,7 @@ Label {
             property string text: ""
             MenuItem {
                 text: qsTr("Copy")
-                onTriggered:  Flowee.copyToClipboard(menu.text)
+                onTriggered:  Pay.copyToClipboard(menu.text)
             }
         }
     }

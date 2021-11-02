@@ -21,7 +21,6 @@ import QtQuick.Layouts 1.11
 import QtQuick.Window 2.11
 import "widgets" as Widgets
 import "./ControlColors.js" as ControlColors
-
 import Flowee.org.pay 1.0
 
 Rectangle {
@@ -54,9 +53,9 @@ Rectangle {
             FloweeTextField {
                 id: destination
                 focus: true
-                property bool addressOk: (addressType === Pay.CashPKH || addressType === Pay.CashSH)
-                                         || (forceLegacyOk && (addressType === Pay.LegacySH || addressType === Pay.LegacyPKH))
-                property var addressType: Flowee.identifyString(text);
+                property bool addressOk: (addressType === Bitcoin.CashPKH || addressType === Bitcoin.CashSH)
+                                         || (forceLegacyOk && (addressType === Bitcoin.LegacySH || addressType === Bitcoin.LegacyPKH))
+                property var addressType: Pay.identifyString(text);
                 property bool forceLegacyOk: false
 
                 placeholderText: qsTr("Enter Bitcoin Cash Address")
@@ -68,7 +67,7 @@ Rectangle {
 
                 function updateColor() {
                     if (!activeFocus && text !== "" && !addressOk)
-                        color = Flowee.useDarkSkin ? "#ff6568" : "red"
+                        color = Pay.useDarkSkin ? "#ff6568" : "red"
                     else
                         color = mainWindow.palette.text
                 }
@@ -212,7 +211,7 @@ Rectangle {
                     // Change the color when the portfolio changed since 'prepare' was clicked.
                     color: root.payment == null || prepareButton.portfolioUsed === portfolio.current
                             ? palette.text
-                            : Qt.darker(palette.text, (Flowee.useDarkSkin ? 1.6 : 0.4))
+                            : Qt.darker(palette.text, (Pay.useDarkSkin ? 1.6 : 0.4))
                 }
                 Label {
                     text: qsTr("Fee") + ":"

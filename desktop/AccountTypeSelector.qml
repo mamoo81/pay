@@ -16,7 +16,6 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
-import Flowee.org.pay 1.0
 
 Item {
     id: root
@@ -32,7 +31,7 @@ Item {
     Rectangle {
         color: {
             var base = name.palette.base
-            if (Flowee.useDarkSkin)
+            if (Pay.useDarkSkin)
                 return parent.selected ? Qt.lighter(base, 1.4) : Qt.darker(base, 0.9)
             return parent.selected ? Qt.darker(base, 1.04) : Qt.darker(base, 1.1)
         }

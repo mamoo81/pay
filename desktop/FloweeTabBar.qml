@@ -77,7 +77,7 @@ FocusScope {
                     color: {
                         if (index === floweeTabBar.currentIndex)
                             return mainWindow.floweeGreen
-                        if (Flowee.useDarkSkin) {
+                        if (Pay.useDarkSkin) {
                             if (hover)
                                 return mainWindow.floweeSalmon
                             return "#EEE"

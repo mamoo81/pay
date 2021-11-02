@@ -2,7 +2,6 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import "widgets" as Widgets
-import Flowee.org.pay 1.0
 
 ColumnLayout {
     id: newAccountCreateHDAccount
@@ -31,7 +30,7 @@ ColumnLayout {
             text: qsTr("Go")
             anchors.right: parent.right
             onClicked: {
-                var options = Flowee.createNewWallet(derivationPath.text, /* password */"", accountName.text);
+                var options = Pay.createNewWallet(derivationPath.text, /* password */"", accountName.text);
                 var accounts = portfolio.accounts;
                 for (var i = 0; i < accounts.length; ++i) {
                     var a = accounts[i];
@@ -65,7 +64,7 @@ ColumnLayout {
         FloweeTextField {
             id: derivationPath
             text: "m/44'/145'/0'" // default for BCH wallets
-            color: Flowee.checkDerivation(text) ? palette.text : "red"
+            color: Pay.checkDerivation(text) ? palette.text : "red"
         }
         Item { width: 1; height: 1; Layout.fillWidth: true } // spacer
     }
