@@ -91,7 +91,7 @@ Rectangle {
             FloweeTextField {
                 text: "0.0 EUR"
             }
-            FloweeCheckBox {
+            Flowee.CheckBox {
                 id: amountSelector
             }
             */

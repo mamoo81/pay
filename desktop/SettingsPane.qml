@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.11
 import QtGraphicalEffects 1.0
 
 import "./ControlColors.js" as ControlColors
+import "widgets" as Flowee
 
 Pane {
     property string title: qsTr("Settings")
@@ -15,7 +16,7 @@ Pane {
         Label {
             text: qsTr("Night mode") + ":"
         }
-        FloweeCheckBox {
+        Flowee.CheckBox {
             Layout.columnSpan: 2
             checked: Pay.useDarkSkin
             onClicked: {

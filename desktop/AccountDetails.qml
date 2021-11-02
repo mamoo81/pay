@@ -112,27 +112,27 @@ Item {
                 font.italic: true
             }
 
-            FloweeCheckBox {
+            Flowee.CheckBox {
                 id: schnorr
                 checked: true
                 text: qsTr("Use Schnorr signatures");
             }
-            FloweeCheckBox {
+            Flowee.CheckBox {
                 id: pinToTray
                 checked: false
                 text: qsTr("Pin to Pay");
             }
-            FloweeCheckBox {
+            Flowee.CheckBox {
                 id: pinToOpen
                 checked: false
                 text: qsTr("Pin to Open");
             }
-            FloweeCheckBox {
+            Flowee.CheckBox {
                 id: syncOnStart
                 checked: false
                 text: qsTr("Sync on Start");
             }
-            FloweeCheckBox {
+            Flowee.CheckBox {
                 id: useIndexServer
                 checked: false
                 text: qsTr("Use Indexing Server");
@@ -148,14 +148,14 @@ Item {
             title: qsTr("Address List")
             collapsed: !root.account.isSingleAddressAccount
 
-            FloweeCheckBox {
+            Flowee.CheckBox {
                 id: changeAddresses
                 text: qsTr("Change Addresses")
                 visible: root.account.isHDWallet
                 onClicked: root.account.secrets.showChangeChain = checked
                 tooltipText: qsTr("Switches between normal addresses or Bitcoin addresses used for coins that are change.")
             }
-            FloweeCheckBox {
+            Flowee.CheckBox {
                 id: usedAddresses
                 text: qsTr("Used Addresses");
                 visible: !root.account.isSingleAddressAccount

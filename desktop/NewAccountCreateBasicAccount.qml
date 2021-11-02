@@ -68,13 +68,13 @@ ColumnLayout {
         Layout.fillWidth: true
         columns: 1
 
-        FloweeCheckBox {
+        Flowee.CheckBox {
             id: singleAddress
             text: qsTr("Force Single Address");
             tooltipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
         }
         /*
-        FloweeCheckBox {
+        Flowee.CheckBox {
             id: schnorr
             text: qsTr("Default to signing using ECDSA");
             tooltipText: qsTr("When enabled, newer style Schnorr signatures are not set as default for this wallet.")

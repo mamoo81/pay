@@ -104,13 +104,13 @@ GridLayout {
 
         columns: 2
         /*
-        FloweeCheckBox {
+        Flowee.CheckBox {
             id: schnorr
             text: qsTr("Default to signing using ECDSA");
             tooltipText: qsTr("When enabled, newer style Schnorr signatures are not set as default for this wallet.")
             Layout.columnSpan: 2
         } */
-        FloweeCheckBox {
+        Flowee.CheckBox {
             id: singleAddress
             text: qsTr("Force Single Address");
             tooltipText: qsTr("When enabled, no extra addresses will be auto-generated in this wallet.\nChange will come back to the imported key.")

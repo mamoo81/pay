@@ -32,7 +32,7 @@
         <file>WalletTransaction.qml</file>
         <file>FloweeTabBar.qml</file>
         <file>AccountListItem.qml</file>
-        <file>FloweeCheckBox.qml</file>
+        <file>widgets/CheckBox.qml</file>
         <file>FloweeGroupBox.qml</file>
         <file>LabelWithClipboard.qml</file>
         <file>FloweeTextField.qml</file>
