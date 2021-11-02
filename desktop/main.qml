@@ -476,9 +476,8 @@ ApplicationWindow {
                     font.pixelSize: 18
                 }
                 Item { // spacer
-                    visible: totalBalanceLabel.visible
                     width: 10
-                    height: 40
+                    height: totalBalanceLabel.visible ? 40 : 10
                 }
                 Label {
                     text: qsTr("Network status")
