@@ -151,7 +151,7 @@ void WalletSecretsModel::update()
     while (iter != m_wallet->m_walletSecrets.end()) {
         const auto &priv = iter->second;
         bool use = !priv.fromHdWallet || m_showChangeChain == priv.fromChangeChain;
-        if (use) {
+        if (use && !m_wallet->isSingleAddressWallet()) {
             const bool addressUsed = priv.signatureType != Wallet::NotUsedYet;
             use = addressUsed == m_showUsedAddresses;
         }
