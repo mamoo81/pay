@@ -25,6 +25,18 @@ Item {
     id: root
     property QtObject account: portfolio.current
 
+    Connections {
+        target: portfolio
+        function onCurrentChanged() {
+            // The model in this case follows the UI, so we need to have this not very
+            // declarative code.
+            // When a new model is offered, copy the UI settings into it.
+            root.account.secrets.showChangeChain = changeAddresses.checked
+            root.account.secrets.showUsedAddresses = usedAddresses.checked
+        }
+    }
+
+
     Label {
         id: walletDetailsLabel
         text: qsTr("Wallet Details")
@@ -138,17 +150,17 @@ Item {
             collapsed: !root.account.isSingleAddressAccount
 
             FloweeCheckBox {
+                id: changeAddresses
                 text: qsTr("Change Addresses")
                 visible: root.account.isHDWallet
-                checked: root.account.secrets.showChangeChain
-                onClicked: root.account.secrets.showChangeChain = !root.account.secrets.showChangeChain
+                onClicked: root.account.secrets.showChangeChain = checked
                 tooltipText: qsTr("Switches between normal addresses or Bitcoin addresses used for coins that are change.")
             }
             FloweeCheckBox {
+                id: usedAddresses
                 text: qsTr("Used Addresses");
                 visible: !root.account.isSingleAddressAccount
-                checked: root.account.secrets.showUsedAddresses
-                onClicked: root.account.secrets.showUsedAddresses = !root.account.secrets.showUsedAddresses
+                onClicked: root.account.secrets.showUsedAddresses = checked
                 tooltipText: qsTr("Switches between unused and used bitcoin addresses")
             }
             ListView {
