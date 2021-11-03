@@ -59,7 +59,7 @@ void BitcoinValue::insertNumber(QChar number)
 {
     int pos = m_typedNumber.indexOf('.');
     const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
-    if (pos > -1 && m_typedNumber.size() - pos - unitConfigDecimals > 0)
+    if (pos > -1 && m_cursorPos > pos && m_typedNumber.size() - pos - unitConfigDecimals > 0)
         return;
     int cursorPos = m_cursorPos;
     m_typedNumber.insert(cursorPos, number);

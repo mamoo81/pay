@@ -181,6 +181,13 @@ void TestValue::fiatValues()
     testObject.insertNumber('5');
     QCOMPARE(testObject.cursorPos(), 4);
     QCOMPARE(testObject.value(), 457);
+
+    testObject.setCursorPos(0);
+    QCOMPARE(testObject.cursorPos(), 0);
+    QCOMPARE(testObject.value(), 457);
+    testObject.insertNumber('3');
+    QCOMPARE(testObject.cursorPos(), 1);
+    QCOMPARE(testObject.value(), 3457);
 }
 
 QTEST_MAIN(TestValue)
