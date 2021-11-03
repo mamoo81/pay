@@ -192,15 +192,9 @@ ApplicationWindow {
                         clip: true
                         delegate: WalletTransaction { width: activityView.width }
                         anchors.fill: parent
-                        ScrollBar.vertical: ScrollBar {
-                            id: mainScrollbar
-                            minimumSize: 20 / activityView.height
-                        }
-                        Flowee.ScrollThumb {
+                        ScrollBar.vertical: Flowee.ScrollThumb {
                             id: thumb
-                            anchors.fill: parent
-                            visible: scroller.size < 0.3
-                            scroller: mainScrollbar
+                            minimumSize: 20 / activityView.height
                             preview: Rectangle {
                                 width: label.width + 20
                                 height: label.height + 20

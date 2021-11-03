@@ -18,37 +18,41 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.15
 
-Control {
+ScrollBar {
     id: root
 
     /// override this if the flickable is not the direct parent.
     property var flickable: parent
-    required property var scroller
-    property real position: 0
     /// A component will be made visible when the user moves the thumb,
     /// allowing the showing of details based on the position
     property Component preview: Item {}
 
-    Loader {
-        anchors.centerIn: parent
-        sourceComponent: root.preview
+    background: Item {}
+    contentItem: Item {}
 
-        opacity: thumbInput.engaged
-        Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.InQuad } }
+    Item {
+        parent: root.flickable
+        anchors.fill: parent
+        Loader {
+            anchors.centerIn: parent
+            sourceComponent: root.preview
+
+            opacity: thumbInput.engaged
+            Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.InQuad } }
+        }
     }
-
 
     Rectangle {
         id: thumbRect
         property bool open: false
-        property bool moving: root.scroller.active || thumbInput.engaged
+        property bool moving: root.active || thumbInput.engaged
         onMovingChanged: if (moving) open = true
         width: 26
         height: 42
-        x: moving || open ? parent.width - width - root.scroller.width + 1: parent.width + 2
+        x: moving || open ? parent.width - width: parent.width + 2
         y: {
-            var pos = root.scroller.position
-            var size = root.scroller.size
+            var pos = root.position
+            var size = root.size
             var viewHeight = root.flickable.height
             var newY = viewHeight * pos + viewHeight * size / 2 - height / 2
             if (newY < 0)
@@ -93,13 +97,13 @@ Control {
     MouseArea {
         id: thumbInput
         // make it easier to grab by having a bigger mouse area than the visial thumb
-        width: thumbRect.width + 20 + scroller.width
+        width: thumbRect.width + 20 + root.width
         height: thumbRect.height + 20
         anchors.right: parent.right
         enabled: thumbRect.moving || thumbRect.open
         y: {
-            var pos = root.scroller.position
-            var size = root.scroller.size
+            var pos = root.position
+            var size = root.size
             var viewHeight = root.flickable.height
             return viewHeight * pos + viewHeight * size / 2 - height / 2
         }
@@ -109,7 +113,7 @@ Control {
         property bool engaged: false // seems that 'Mousearea.pressed' behaves different than I expect, this works better
         onPressed: {
             startY = root.flickable.mapFromItem(thumbInput, mouse.x, mouse.y).y
-            startPos = root.scroller.position
+            startPos = root.position
             engaged = true
         }
         onReleased: engaged = false
@@ -123,11 +127,10 @@ Control {
             var newPos = startPos - moved;
             if (newPos < 0)
                 newPos = 0;
-            var max = 1 - root.scroller.size;
+            var max = 1 - root.size;
             if (newPos > max)
                 newPos = max;
             root.position = newPos
-            root.scroller.position = newPos
         }
     }
 }
