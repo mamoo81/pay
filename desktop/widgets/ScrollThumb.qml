@@ -16,28 +16,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.15
 
-Item {
+Control {
     id: root
 
-    property var listView: parent
-    property var scroller: null
+    /// override this if the flickable is not the direct parent.
+    property var flickable: parent
+    required property var scroller
     property real position: 0
-    property alias hint: label.text
-    visible: thumbRect.opacity != 0
+    /// A component will be made visible when the user moves the thumb,
+    /// allowing the showing of details based on the position
+    property Component preview: Item {}
+
+    Loader {
+        anchors.centerIn: parent
+        sourceComponent: root.preview
+
+        opacity: thumbInput.engaged
+        Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.InQuad } }
+    }
+
 
     Rectangle {
         id: thumbRect
-        opacity: root.scroller.active || thumbInput.engaged ? 1 : 0
-        width: label.width + 30
-        height: label.height + 40
-        anchors.right: parent.right
-        radius: 5
+        property bool open: false
+        property bool moving: root.scroller.active || thumbInput.engaged
+        onMovingChanged: if (moving) open = true
+        width: 26
+        height: 42
+        x: moving || open ? parent.width - width - root.scroller.width + 1: parent.width + 2
         y: {
             var pos = root.scroller.position
             var size = root.scroller.size
-            var viewHeight = root.listView.height
+            var viewHeight = root.flickable.height
             var newY = viewHeight * pos + viewHeight * size / 2 - height / 2
             if (newY < 0)
                 return 0;
@@ -47,18 +59,32 @@ Item {
             return newY;
         }
 
-        color: label.palette.text
+        Column {
+            id: column
+            spacing: 2
+            anchors.centerIn: parent
+            width: thumbRect.width - 10
+            Repeater {
+                model: 3
+                delegate: Rectangle {
+                    color: root.palette.light
+                    width: column.width
+                    height: 2
+                    radius: 1
+                }
+            }
+        }
+        color: thumbInput.engaged ? root.palette.highlight : root.palette.dark
 
-        Label {
-            id: label
-            x: 10
-            y: 20
-            color: label.palette.window
+        Timer {
+            running: thumbRect.open && !thumbRect.moving
+            interval: 500
+            onTriggered: thumbRect.open = false;
         }
 
-        Behavior on opacity {
+        Behavior on x {
             NumberAnimation {
-                duration: 500
+                duration: 200
                 easing.type: Easing.InQuad
             }
         }
@@ -66,13 +92,15 @@ Item {
 
     MouseArea {
         id: thumbInput
-        width: label.width + 30
-        height: label.height + 40
+        // make it easier to grab by having a bigger mouse area than the visial thumb
+        width: thumbRect.width + 20 + scroller.width
+        height: thumbRect.height + 20
         anchors.right: parent.right
+        enabled: thumbRect.moving || thumbRect.open
         y: {
             var pos = root.scroller.position
             var size = root.scroller.size
-            var viewHeight = root.listView.height
+            var viewHeight = root.flickable.height
             return viewHeight * pos + viewHeight * size / 2 - height / 2
         }
 
@@ -80,7 +108,7 @@ Item {
         property real startPos: 0
         property bool engaged: false // seems that 'Mousearea.pressed' behaves different than I expect, this works better
         onPressed: {
-            startY = root.listView.mapFromItem(thumbInput, mouse.x, mouse.y).y
+            startY = root.flickable.mapFromItem(thumbInput, mouse.x, mouse.y).y
             startPos = root.scroller.position
             engaged = true
         }
@@ -88,14 +116,14 @@ Item {
         preventStealing: true
         onPositionChanged: {
             // Most of the scroller properties are in the 0.0 - 1.0 range
-            var absolutePos = root.listView.mapFromItem(thumbInput, mouse.x, mouse.y);
+            var absolutePos = root.flickable.mapFromItem(thumbInput, mouse.x, mouse.y);
             var diff = startY - absolutePos.y;
-            var viewHeight = root.listView.height
+            var viewHeight = root.flickable.height
             var moved = diff / viewHeight;
             var newPos = startPos - moved;
             if (newPos < 0)
                 newPos = 0;
-            var max = 1 - root.scroller.visualSize;
+            var max = 1 - root.scroller.size;
             if (newPos > max)
                 newPos = max;
             root.position = newPos

@@ -197,10 +197,22 @@ ApplicationWindow {
                             minimumSize: 20 / activityView.height
                         }
                         Flowee.ScrollThumb {
+                            id: thumb
                             anchors.fill: parent
-                            visible: scroller.size < 0.1
-                            hint: visible ? activityView.model.dateForItem(position) : "";
+                            visible: scroller.size < 0.3
                             scroller: mainScrollbar
+                            preview: Rectangle {
+                                width: label.width + 20
+                                height: label.height + 20
+                                radius: 5
+                                color: label.palette.dark
+                                Label {
+                                    id: label
+                                    anchors.centerIn: parent
+                                    color: palette.light
+                                    text: isLoading ? "" : activityView.model.dateForItem(thumb.position);
+                                }
+                            }
                         }
 
                         onModelChanged: resetUnreadTimer.restart();
