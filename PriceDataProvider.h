@@ -27,6 +27,7 @@ class PriceDataProvider : public QObject
     Q_OBJECT
     Q_PROPERTY(int price READ price NOTIFY priceChanged)
     Q_PROPERTY(QString currencyName READ currencyName NOTIFY currencySymbolChanged)
+    Q_PROPERTY(bool dispayCents READ dispayCents NOTIFY dispayCentsChanged)
 public:
     explicit PriceDataProvider(QObject *parent = nullptr);
 
@@ -48,9 +49,12 @@ public:
      */
     Q_INVOKABLE QString formattedPrice(double amountSats, int price) const;
 
+    bool dispayCents() const;
+
 signals:
     void priceChanged();
     void currencySymbolChanged();
+    void dispayCentsChanged();
 
 private slots:
     void fetch();

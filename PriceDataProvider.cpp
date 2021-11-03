@@ -158,3 +158,8 @@ void PriceDataProvider::finishedDownload()
     logInfo() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
     m_timer.start(ReloadTimeout);
 }
+
+bool PriceDataProvider::dispayCents() const
+{
+    return m_dispayCents;
+}
