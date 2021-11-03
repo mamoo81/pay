@@ -87,14 +87,19 @@ Rectangle {
             text: qsTr("Amount") + ":"
         }
         RowLayout {
-            /* TODO hook this up when we add fiat support.
-            Flowee.TextField {
-                text: "0.0 EUR"
+            Flowee.FiatValueField {
+                id: fiatValueField
             }
             Flowee.CheckBox {
                 id: amountSelector
+                sliderOnIndicator: false
+                Connections {
+                    target: bitcoinValueField
+                    function onValueEdited() {
+                        amountSelector.checked = true;
+                    }
+                }
             }
-            */
             Flowee.BitcoinValueField {
                 id: bitcoinValueField
                 property bool maxSelected: false
@@ -106,10 +111,10 @@ Rectangle {
                 function update(setToMax) {
                     if (setToMax) {
                         // backup what the user typed there, to be used if she no longer wants 'max'
-                        previousAmountString = bitcoinValueField.valueObject.enteredString;
+                        previousAmountString =  bitcoinValueField.valueObject.enteredString;
                         value = portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
                     } else {
-                        valueObject.strValue = previousAmountString
+                        valueObject.enteredString = previousAmountString
                     }
                 }
                 Connections {
@@ -133,6 +138,8 @@ Rectangle {
                     var isChecked = !bitcoinValueField.maxSelected // simply invert
                     bitcoinValueField.update(isChecked);
                     bitcoinValueField.maxSelected = isChecked
+                    if (isChecked)
+                        amountSelector.checked = true
                 }
             }
         }

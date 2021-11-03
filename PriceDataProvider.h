@@ -48,6 +48,7 @@ public:
      * based on \a price.
      */
     Q_INVOKABLE QString formattedPrice(double amountSats, int price) const;
+    Q_INVOKABLE QString formattedPrice(int cents) const;
 
     bool dispayCents() const;
 

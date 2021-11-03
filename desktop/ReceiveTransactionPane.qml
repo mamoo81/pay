@@ -230,7 +230,7 @@ Pane {
         Label {
             text: qsTr("Description") + ":"
         }
-        TextField {
+        Flowee.TextField {
             id: description
             Layout.fillWidth: true
             enabled: receivePane.request.state === PaymentRequest.Unpaid

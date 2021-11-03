@@ -17,15 +17,7 @@
  */
 #include "TestValue.h"
 #include <BitcoinValue.h>
-//   #include <utils/cashaddr.h>
-//   #include <Wallet.h>
-//   #include <Wallet_p.h>
 #include <FloweePay.h>
-//
-//   #include <QtTest/QtTest>
-//   #include <QStandardPaths>
-//   #include <TransactionBuilder.h>
-
 
 void TestValue::init()
 {
@@ -172,6 +164,23 @@ void TestValue::insertAtCursor()
     testObject.addSeparator();
     QCOMPARE(testObject.cursorPos(), 3);
     QCOMPARE(testObject.value(), 1640000000);
+}
+
+void TestValue::fiatValues()
+{
+    BitcoinValue testObject;
+    testObject.setMaxFractionalDigits(2);
+    // this sets it to a fiat mode, like the Euro
+
+    testObject.setEnteredString("4.5");
+    QCOMPARE(testObject.cursorPos(), 3);
+    QCOMPARE(testObject.value(), 450);
+    testObject.insertNumber('7');
+    QCOMPARE(testObject.cursorPos(), 4);
+    QCOMPARE(testObject.value(), 457);
+    testObject.insertNumber('5');
+    QCOMPARE(testObject.cursorPos(), 4);
+    QCOMPARE(testObject.value(), 457);
 }
 
 QTEST_MAIN(TestValue)

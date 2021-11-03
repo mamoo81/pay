@@ -27,6 +27,7 @@ private slots:
     void init();
     void basics();
     void insertAtCursor();
+    void fiatValues();
 
 private:
 };

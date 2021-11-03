@@ -28,26 +28,16 @@ MoneyValueField  {
     implicitHeight: balance.height + 16
     implicitWidth: balance.width + 16
 
-    property alias fontPtSize: balance.fontPtSize
+    property alias fontPtSize: balance.font.pointSize
     property double baselineOffset: balance.baselineOffset + balance.y
 
-    BitcoinAmountLabel {
+    valueObject.maxFractionalDigits: Fiat.dispayCents ? 2 : 0
+
+    Label {
         id: balance
         x: 8
         y: 8
-        value: root.value
-        colorize: false
+        text: Fiat.formattedPrice(root.value)
         visible: !root.activeFocus
-        color: unit.palette.text
-        showFiat: false
-    }
-
-    Label {
-        id: unit
-        text: Pay.unitName
-        y: 8
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-        visible: root.activeFocus
     }
 }

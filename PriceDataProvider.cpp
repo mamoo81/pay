@@ -67,7 +67,12 @@ QString PriceDataProvider::formattedPrice(double amountSats, int price) const
         return QString();
     qint64 fiatValue = amountSats * price;
     fiatValue = (fiatValue + 50000000) / qint64(100000000);
+    assert(fiatValue < INT_MAX);
+    return formattedPrice(static_cast<int>(fiatValue));
+}
 
+QString PriceDataProvider::formattedPrice(int fiatValue) const
+{
     // convert cheaply (low number of mallocs) to a price.
     // since our fiat is in cents, we assume we may add up to two leading zeros.
     static const QString priceTemplate("00%1");

@@ -21,6 +21,7 @@ import QtQuick.Controls 2.11
 Item {
     id: root
     property bool checked: false
+    property bool sliderOnIndicator: true
     property alias text: title.text
     property string tooltipText: ""
     signal clicked;
@@ -40,7 +41,7 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: parent.height / 3
-            color: root.enabled && root.checked ? (Pay.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
+            color: root.sliderOnIndicator && root.enabled && root.checked ? (Pay.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
             border.color: root.activeFocus ? (Pay.useDarkSkin ? "white" : "black") : mainWindow.palette.button
             border.width: 2
 

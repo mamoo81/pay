@@ -58,7 +58,8 @@ void BitcoinValue::moveRight()
 void BitcoinValue::insertNumber(QChar number)
 {
     int pos = m_typedNumber.indexOf('.');
-    if (pos > -1 && m_typedNumber.size() - pos - FloweePay::instance()->unitAllowedDecimals() > 0)
+    const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
+    if (pos > -1 && m_typedNumber.size() - pos - unitConfigDecimals > 0)
         return;
     int cursorPos = m_cursorPos;
     m_typedNumber.insert(cursorPos, number);
@@ -140,7 +141,7 @@ void BitcoinValue::setStringValue(const QString &value)
         after = value.mid(separator + 1);
     }
     qint64 newVal = before.toLong();
-    const int unitConfigDecimals = FloweePay::instance()->unitAllowedDecimals();
+    const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
     for (int i = 0; i < unitConfigDecimals; ++i) {
         newVal *= 10;
     }
