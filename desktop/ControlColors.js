@@ -35,7 +35,7 @@ function applyLightSkin(item) {
     item.palette.buttonText = "#26282a";
     item.palette.dark = "#353637";
     item.palette.highlight = "#0066ff";
-    item.palette.highlightedText = "#090909";
+    item.palette.highlightedText = "#f9f9f9";
     item.palette.light = "#f6f6f6";
     item.palette.link = "#45a7d7";
     item.palette.linkVisited = "#7f8c8d";

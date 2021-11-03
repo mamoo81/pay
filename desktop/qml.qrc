@@ -46,5 +46,6 @@
         <file>widgets/ScrollThumb.qml</file>
         <file>widgets/TabBar.qml</file>
         <file>widgets/TextField.qml</file>
+        <file>widgets/ComboBox.qml</file>
     </qresource>
 </RCC>
