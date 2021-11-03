@@ -89,24 +89,30 @@ Rectangle {
         RowLayout {
             Flowee.FiatValueField {
                 id: fiatValueField
+                enabled: Fiat.price > 0
+                onValueEdited: {
+                    amountSelector.checked = false;
+                    bitcoinValueField.maxSelected = false;
+                    bitcoinValueField.valueObject.enteredString = value / Fiat.price
+                }
+
+                function copyFromBCH(bchAmount) {
+                    valueObject.enteredString = ((bchAmount / 100000000 * Fiat.price) + 0.5) / 100
+                }
             }
             Flowee.CheckBox {
                 id: amountSelector
                 sliderOnIndicator: false
-                Connections {
-                    target: bitcoinValueField
-                    function onValueEdited() {
-                        amountSelector.checked = true;
-                    }
-                }
             }
             Flowee.BitcoinValueField {
                 id: bitcoinValueField
                 property bool maxSelected: false
                 property string previousAmountString: ""
-
-                fontPtSize: payAmount.font.pointSize
-                onValueChanged: maxSelected = false
+                onValueEdited: {
+                    maxSelected = false;
+                    amountSelector.checked = true;
+                    fiatValueField.copyFromBCH(value);
+                }
 
                 function update(setToMax) {
                     if (setToMax) {
@@ -116,6 +122,7 @@ Rectangle {
                     } else {
                         valueObject.enteredString = previousAmountString
                     }
+                    fiatValueField.copyFromBCH(value);
                 }
                 Connections {
                     target: portfolio

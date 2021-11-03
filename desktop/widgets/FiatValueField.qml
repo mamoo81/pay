@@ -20,17 +20,16 @@ import QtQuick.Controls 2.11
 import Flowee.org.pay 1.0
 
 /*
- * Similar to TextField, this is a wrapper around BitcoinAmountLabel
+ * Similar to TextField, this is a wrapper around BitcoinValue
  * in order to provide a background and ediing capabilities.
  */
 MoneyValueField  {
     id: root
     implicitHeight: balance.height + 16
-    implicitWidth: balance.width + 16
+    implicitWidth: Math.max(100, balance.width + 16)
 
     property alias fontPtSize: balance.font.pointSize
     property double baselineOffset: balance.baselineOffset + balance.y
-
     valueObject.maxFractionalDigits: Fiat.dispayCents ? 2 : 0
 
     Label {
