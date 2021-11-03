@@ -35,14 +35,15 @@ FocusScope {
     property bool enabled: true
     property double baselineOffset: balance.baselineOffset + balance.y
 
+    signal valueEdited;
+
     onEnabledChanged: {
         if (!enabled)
             root.focus = false
     }
 
     function reset() {
-        privValue.enteredString = "0";
-        privValue.value = 0;
+        privValue.enteredString = "";
     }
 
     BitcoinValue {
@@ -69,12 +70,35 @@ FocusScope {
         showFiat: false
     }
 
-    Label {
-        text: privValue.enteredString
+    Item { // edit-label
         visible: root.activeFocus
         x: 8
         y: 8
+        Label {
+            id: begin
+            text: privValue.enteredString.substring(0, privValue.cursorPos)
+        }
+        Rectangle {
+            id: cursor
+            anchors.left: begin.right
+            width: 1
+            height: root.height - 16
+            color: cursorVisible ? unit.palette.text : "#00000000"
+            property bool cursorVisible: true
+            Timer {
+                id: blinkingCursor
+                running: root.activeFocus
+                repeat: true
+                interval: 500
+                onTriggered: parent.cursorVisible = !parent.cursorVisible
+            }
+        }
+        Label {
+            anchors.left: begin.right
+            text: privValue.enteredString.substring(privValue.cursorPos)
+        }
     }
+
     Label {
         id: unit
         text: Pay.unitName
@@ -93,22 +117,38 @@ FocusScope {
 
     Keys.onPressed: {
         if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
-            privValue.addNumber(event.key);
-            event.accepted = true
+            privValue.insertNumber(event.key);
+            event.accepted = true;
+            root.valueEdited();
         }
         else if (event.key === 44 || event.key === 46) {
             privValue.addSeparator();
-            event.accepted = true
+            event.accepted = true;
+            root.valueEdited();
         }
         else if (event.key === Qt.Key_Backspace) {
             privValue.backspacePressed();
-            event.accepted = true
+            event.accepted = true;
+            root.valueEdited();
+        }
+        else if (event.key === Qt.Key_Left) {
+            privValue.moveLeft();
+            blinkingCursor.restart();
+            cursor.cursorVisible = true;
+            event.accepted = true;
+        }
+        else if (event.key === Qt.Key_Right) {
+            privValue.moveRight();
+            cursor.cursorVisible = true;
+            blinkingCursor.restart();
+            event.accepted = true;
         }
     }
     Keys.onReleased: {
         if (event.matches(StandardKey.Paste)) {
             privValue.paste();
-            event.accepted = true
+            event.accepted = true;
+            root.valueEdited();
         }
     }
 }

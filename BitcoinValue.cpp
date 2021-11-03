@@ -43,25 +43,45 @@ void BitcoinValue::setValue(qint64 value)
     emit valueChanged();
 }
 
-void BitcoinValue::addNumber(QChar number)
+void BitcoinValue::moveLeft()
+{
+    if (m_cursorPos > 0)
+        setCursorPos(m_cursorPos - 1);
+}
+
+void BitcoinValue::moveRight()
+{
+    if (m_typedNumber.size() > m_cursorPos)
+        setCursorPos(m_cursorPos + 1);
+}
+
+void BitcoinValue::insertNumber(QChar number)
 {
     int pos = m_typedNumber.indexOf('.');
     if (pos > -1 && m_typedNumber.size() - pos - FloweePay::instance()->unitAllowedDecimals() > 0)
         return;
-    m_typedNumber += number;
-    while (((pos < 0 && m_typedNumber.size() > 1) || pos > 1) && m_typedNumber.startsWith('0'))
+    int cursorPos = m_cursorPos;
+    m_typedNumber.insert(cursorPos, number);
+    while (((pos < 0 && m_typedNumber.size() > 1) || pos > 1) && m_typedNumber.startsWith('0')) {
+        --cursorPos;
         m_typedNumber = m_typedNumber.mid(1);
+    }
 
     setStringValue(m_typedNumber);
+    setCursorPos(cursorPos + 1);
     emit enteredStringChanged();
 }
 
 void BitcoinValue::addSeparator()
 {
     if (m_typedNumber.indexOf('.') == -1) {
-        m_typedNumber += '.';
-        if (m_typedNumber.size() == 1)
+        m_typedNumber.insert(m_cursorPos, '.');
+        int movedPlaces = 1;
+        if (m_typedNumber.size() == 1) {
+            ++movedPlaces;
             m_typedNumber = "0.";
+        }
+        setCursorPos(m_cursorPos + movedPlaces);
         setStringValue(m_typedNumber);
         emit enteredStringChanged();
     }
@@ -71,36 +91,41 @@ void BitcoinValue::paste()
 {
     QClipboard *clipboard = QGuiApplication::clipboard();
     assert(clipboard);
-    QString originalText = clipboard->text().trimmed();
+    setEnteredString(clipboard->text().trimmed());
+}
+
+void BitcoinValue::backspacePressed()
+{
+    int cursorPos = m_cursorPos;
+    if (m_typedNumber.size() <= 1) {
+        m_typedNumber.clear();
+        cursorPos = 0;
+    } else {
+        m_typedNumber.remove(--cursorPos, 1);
+    }
+    setStringValue(m_typedNumber);
+    emit enteredStringChanged();
+    setCursorPos(cursorPos);
+}
+
+void BitcoinValue::setEnteredString(const QString &value)
+{
     bool started = false;
-    for (int i = 0; i < originalText.size(); ++i) {
-        auto k = originalText.at(i);
+    setCursorPos(0);
+    m_typedNumber.clear();
+    for (int i = 0; i < value.size(); ++i) {
+        auto k = value.at(i);
         if (k.isDigit()) {
             started = true;
-            addNumber(k);
+            insertNumber(k);
         }
-        else if ((started || (originalText.size() > i + 1 && originalText.at(i+1).isDigit()))
+        else if ((started || (value.size() > i + 1 && value.at(i+1).isDigit()))
                   && (k.unicode() == ',' || k.unicode() == '.')) {
             addSeparator();
         }
         else if (started)
             return;
     }
-}
-
-void BitcoinValue::backspacePressed()
-{
-    if (m_typedNumber.size() == 1)
-        m_typedNumber = "0";
-    else
-        m_typedNumber = m_typedNumber.left(m_typedNumber.size() - 1);
-    setStringValue(m_typedNumber);
-    emit enteredStringChanged();
-}
-
-QString BitcoinValue::stringForValue() const
-{
-    return FloweePay::instance()->priceToString(m_value);
 }
 
 void BitcoinValue::setStringValue(const QString &value)
@@ -137,24 +162,33 @@ QString BitcoinValue::enteredString() const
     return m_typedNumber;
 }
 
-void BitcoinValue::setEnteredString(const QString &s)
+int BitcoinValue::maxFractionalDigits() const
 {
-    if (m_typedNumber == s)
+    return m_maxFractionalDigits;
+}
+
+void BitcoinValue::setMaxFractionalDigits(int newMaxFractionalDigits)
+{
+    if (m_maxFractionalDigits == newMaxFractionalDigits)
         return;
-    bool decimal = false;
-    for (int i = 0; i < s.size(); ++i) {
-        if (!s.at(i).isDigit()) {
-            if (s.at(i) == '.') {
-                if (decimal)
-                    throw std::runtime_error("Multiple decimals");
-                decimal = true;
-            } else {
-                if (decimal)
-                    throw std::runtime_error("Contains illegal chars");
-            }
-        }
-    }
-    // I didn't check for length...
-    m_typedNumber = s;
-    emit enteredStringChanged();
+    m_maxFractionalDigits = newMaxFractionalDigits;
+    emit maxFractionalDigitsChanged();
+}
+
+void BitcoinValue::resetMaxFractionalDigits()
+{
+    setMaxFractionalDigits(-1);
+}
+
+int BitcoinValue::cursorPos() const
+{
+    return m_cursorPos;
+}
+
+void BitcoinValue::setCursorPos(int cp)
+{
+    if (m_cursorPos == cp)
+        return;
+    m_cursorPos = cp;
+    emit cursorPosChanged();
 }
