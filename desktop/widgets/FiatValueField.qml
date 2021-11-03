@@ -38,5 +38,6 @@ MoneyValueField  {
         y: 8
         text: Fiat.formattedPrice(root.value)
         visible: !root.activeFocus
+        color: root.enabled ? palette.text : palette.dark
     }
 }

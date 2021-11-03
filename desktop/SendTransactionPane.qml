@@ -89,7 +89,7 @@ Rectangle {
         RowLayout {
             Flowee.FiatValueField {
                 id: fiatValueField
-                enabled: Fiat.price > 0
+                visible: Fiat.price > 0
                 onValueEdited: {
                     amountSelector.checked = false;
                     bitcoinValueField.maxSelected = false;
@@ -103,6 +103,8 @@ Rectangle {
             Flowee.CheckBox {
                 id: amountSelector
                 sliderOnIndicator: false
+                visible: Fiat.price > 0
+                enabled: false
             }
             Flowee.BitcoinValueField {
                 id: bitcoinValueField

@@ -54,6 +54,13 @@ FocusScope {
         }
     }
 
+    Rectangle { // focus indicator
+        anchors.fill: parent
+        border.color: root.activeFocus ? begin.palette.highlight  : begin.palette.mid
+        border.width: 2
+        color: root.enabled && !Pay.useDarkSkin ? "white" : "#00000000" // transparant
+    }
+
     Item { // edit-label
         visible: root.activeFocus
         x: 8
@@ -81,13 +88,6 @@ FocusScope {
             anchors.left: begin.right
             text: privValue.enteredString.substring(privValue.cursorPos)
         }
-    }
-
-    Rectangle { // focus indicator
-        anchors.fill: parent
-        border.color: root.activeFocus ? begin.palette.highlight  : begin.palette.mid
-        border.width: 1
-        color: "#00000000" // transparant
     }
 
     Keys.onPressed: {
