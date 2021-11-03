@@ -41,6 +41,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(int historicalOutputCount READ historicalOutputCount NOTIFY utxosChanged)
     Q_PROPERTY(int id READ id CONSTANT)
     Q_PROPERTY(int lastBlockSynched READ lastBlockSynched NOTIFY lastBlockSynchedChanged)
+    Q_PROPERTY(QDateTime lastBlockSynchedTime READ lastBlockSynchedTime NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(WalletHistoryModel* transactions READ historyModel CONSTANT)
     Q_PROPERTY(WalletSecretsModel* secrets READ secretsModel CONSTANT)
@@ -76,6 +77,7 @@ public:
     QString name() const;
 
     int lastBlockSynched() const;
+    QDateTime lastBlockSynchedTime() const;
 
     WalletHistoryModel* historyModel();
     WalletSecretsModel* secretsModel();

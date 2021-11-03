@@ -80,7 +80,7 @@ Item {
         anchors.margins: 10
         clip: true
 
-        contentHeight:  detailsPane.height + 10 + addressesList.height + 10
+        contentHeight: detailsPane.height + 10 + addressesList.height + 10
 
         ColumnLayout {
             id: detailsPane
@@ -89,7 +89,14 @@ Item {
             x: 10
 
             Label {
-                text: qsTr("Sync Status") + ": " + syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos
+                text: {
+                    if (syncIndicator.accountBlockHeight < 1)
+                        return ""
+                    var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
+                    if (time !== "")
+                        time = "  (" + time + ")";
+                    return qsTr("Sync Status") + ": " + syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos + time;
+                }
             }
             Label {
                 id: walletType

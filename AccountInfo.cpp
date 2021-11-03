@@ -85,6 +85,16 @@ int AccountInfo::lastBlockSynched() const
     return m_wallet->segment()->lastBlockSynched();
 }
 
+QDateTime AccountInfo::lastBlockSynchedTime() const
+{
+    if (!m_wallet->segment() || m_wallet->segment()->lastBlockSynched() < 1)
+        return QDateTime();
+    auto timestamp = FloweePay::instance()->p2pNet()->blockchain().block(m_wallet->segment()->lastBlockSynched()).nTime;
+   if (timestamp == 0)
+       return QDateTime();
+    return QDateTime::fromTime_t(timestamp);
+}
+
 WalletHistoryModel *AccountInfo::historyModel()
 {
     if (m_model == nullptr)
