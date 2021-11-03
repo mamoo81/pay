@@ -49,7 +49,7 @@ Item {
         Connections {
             target: Pay
             function onUnitChanged(unit) {
-                root.calcString(root.value);
+                row.calcString(root.value);
             }
         }
         function calcString(sats) {
