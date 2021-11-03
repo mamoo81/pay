@@ -17,6 +17,7 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
+import "widgets" as Flowee
 
 Item {
     height: {
@@ -73,7 +74,7 @@ Item {
     }
 
 
-    BitcoinAmountLabel {
+    Flowee.BitcoinAmountLabel {
         id: bitcoinAmountLabel
         value: model.fundsOut - model.fundsIn
         anchors.top: mainLabel.top

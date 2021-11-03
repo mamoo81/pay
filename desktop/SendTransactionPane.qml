@@ -95,7 +95,7 @@ Rectangle {
                 id: amountSelector
             }
             */
-            BitcoinValueField {
+            Flowee.BitcoinValueField {
                 id: bitcoinValueField
                 property bool maxSelected: false
                 property string previousAmountString: ""
@@ -218,7 +218,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignRight
                 }
 
-                BitcoinAmountLabel {
+                Flowee.BitcoinAmountLabel {
                     value: !parent.txOk ? 0 : root.payment.assignedFee
                     colorize: false
                     color: txid.color

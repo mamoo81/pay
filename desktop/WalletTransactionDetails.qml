@@ -50,7 +50,7 @@ GridLayout {
     Label {
         text: mainLabel.text + ":"
     }
-    BitcoinAmountLabel {
+    Flowee.BitcoinAmountLabel {
         value: model.fundsOut - model.fundsIn
     }
     Label {
@@ -114,7 +114,7 @@ GridLayout {
                         anchors.right: amount.left
                         anchors.rightMargin: 20
                     }
-                    BitcoinAmountLabel {
+                    Flowee.BitcoinAmountLabel {
                         id: amount
                         visible: modelData !== null
                         value: modelData === null ? 0 : (-1 * modelData.value)
@@ -187,7 +187,7 @@ GridLayout {
                         anchors.right: outAmount.left
                         anchors.bottom: outArrowLine.top
                     }
-                    BitcoinAmountLabel {
+                    Flowee.BitcoinAmountLabel {
                         id: outAmount
                         visible: modelData !== null
                         value: modelData === null ? 0 : modelData.value

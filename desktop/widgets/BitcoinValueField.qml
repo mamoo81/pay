@@ -25,8 +25,8 @@ import Flowee.org.pay 1.0
  */
 FocusScope {
     id: root
-    height: balance.height + 16
-    width: balance.width + 16
+    implicitHeight: balance.height + 16
+    implicitWidth: balance.width + 16
     activeFocusOnTab: true
 
     property alias value: privValue.value

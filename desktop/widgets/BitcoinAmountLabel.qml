@@ -33,7 +33,7 @@ Item {
     property alias fontPtSize: main.font.pointSize
 
     implicitHeight: row.implicitHeight
-    implicitWidth: row.implicitWidth
+    implicitWidth: Math.max(row.maxWidth, row.implicitWidth)
 
     height: main.height
     baselineOffset: main.baselineOffset
@@ -43,6 +43,9 @@ Item {
     RowLayout {
         id: row
         height: parent.height
+
+        property int maxWidth: 0
+        onImplicitWidthChanged: maxWidth = Math.max(maxWidth, implicitWidth)
 
         // calculated
         property string amountString: "";

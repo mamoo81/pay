@@ -17,8 +17,6 @@
         <file alias="eye-open-light.png">images/eye-open-light.png</file>
         <file alias="eye-open.png">images/eye-open.png</file>
         <file>defaults.ini</file>
-        <file>BitcoinAmountLabel.qml</file>
-        <file>BitcoinValueField.qml</file>
         <file>ConfigItem.qml</file>
         <file>ControlColors.js</file>
         <file>main.qml</file>
@@ -38,6 +36,8 @@
         <file>NewAccountImportAccount.qml</file>
         <file>NewAccountCreateHDAccount.qml</file>
         <file>widgets/ArrowPoint.qml</file>
+        <file>widgets/BitcoinAmountLabel.qml</file>
+        <file>widgets/BitcoinValueField.qml</file>
         <file>widgets/Button.qml</file>
         <file>widgets/CheckBox.qml</file>
         <file>widgets/CloseIcon.qml</file>

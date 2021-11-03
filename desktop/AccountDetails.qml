@@ -188,7 +188,7 @@ Item {
                         text: address
                     }
 
-                    BitcoinAmountLabel {
+                    Flowee.BitcoinAmountLabel {
                         id: amountLabel
                         value: balance
                         anchors.right: parent.right

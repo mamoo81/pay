@@ -115,7 +115,7 @@ ApplicationWindow {
                 anchors.rightMargin: 10
                 baselineOffset: totalBalance2.baselineOffset
 
-                BitcoinAmountLabel {
+                Flowee.BitcoinAmountLabel {
                     id: totalBalance2
                     value: {
                         if (isLoading)
@@ -299,7 +299,7 @@ ApplicationWindow {
                     visible: totalBalanceLabel.visible
                     width: totalBalance.width
                     height: totalBalance.height
-                    BitcoinAmountLabel {
+                    Flowee.BitcoinAmountLabel {
                         id: totalBalance
                         value: {
                             if (isLoading)
@@ -384,7 +384,7 @@ ApplicationWindow {
                     property bool showDetails: false
                     width: balance.width
                     height: balance.height + (showDetails ? extraBalances.height + 20 : 0)
-                    BitcoinAmountLabel {
+                    Flowee.BitcoinAmountLabel {
                         id: balance
                         opacity: blurredBalance.visible ? 0 : 1
                         value: {
@@ -428,7 +428,7 @@ ApplicationWindow {
                             text: qsTr("Main") + ":"
                             Layout.alignment: Qt.AlignRight
                         }
-                        BitcoinAmountLabel {
+                        Flowee.BitcoinAmountLabel {
                             value: extraBalances.account == null ? 0 : extraBalances.account.balanceConfirmed
                             colorize: false
                             showFiat: false
@@ -437,7 +437,7 @@ ApplicationWindow {
                             text: qsTr("Unconfirmed") + ":"
                             Layout.alignment: Qt.AlignRight
                         }
-                        BitcoinAmountLabel {
+                        Flowee.BitcoinAmountLabel {
                             value: extraBalances.account == null ? 0 : extraBalances.account.balanceUnconfirmed
                             colorize: false
                             showFiat: false
@@ -446,7 +446,7 @@ ApplicationWindow {
                             text: qsTr("Immature") + ":"
                             Layout.alignment: Qt.AlignRight
                         }
-                        BitcoinAmountLabel {
+                        Flowee.BitcoinAmountLabel {
                             value: extraBalances.account == null ? 0 : extraBalances.account.balanceImmature
                             colorize: false
                             showFiat: false

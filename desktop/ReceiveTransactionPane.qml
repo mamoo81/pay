@@ -20,6 +20,7 @@ import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtQuick.Shapes 1.11 // for shape-path
 import Flowee.org.pay 1.0
+import "widgets" as Flowee
 
 Pane {
     id: receivePane
@@ -27,9 +28,9 @@ Pane {
     property QtObject account: portfolio.current
     property QtObject request: null
     onAccountChanged: {
-        if (account === null)
+        if (account == null)
             return;
-        if (request === null)
+        if (request == null)
             request = account.createPaymentRequest(receivePane)
         else
             request.switchAccount(portfolio.current);
@@ -242,7 +243,7 @@ Pane {
         }
         RowLayout {
             spacing: 10
-            BitcoinValueField {
+            Flowee.BitcoinValueField {
                 id: bitcoinValueField
                 fontPtSize: payAmount.font.pointSize
                 enabled: receivePane.request.state === PaymentRequest.Unpaid
