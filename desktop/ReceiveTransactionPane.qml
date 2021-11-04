@@ -235,6 +235,7 @@ Pane {
             Layout.fillWidth: true
             enabled: receivePane.request.state === PaymentRequest.Unpaid
             onTextChanged: receivePane.request.message = text
+            focus: true
         }
 
         Label {

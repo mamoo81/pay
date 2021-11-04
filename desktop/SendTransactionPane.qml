@@ -23,25 +23,24 @@ import "widgets" as Flowee
 import "./ControlColors.js" as ControlColors
 import Flowee.org.pay 1.0
 
-Rectangle {
+Pane {
     id: root
     function reset() {
         // reset fields
         bitcoinValueField.reset();
         bitcoinValueField.maxSelected = false;
+        fiatValueField.reset();
+        amountSelector.checked = false;
         destination.forceLegacyOk = false;
         destination.text = "";
         destination.updateColor();
         delete root.payment;
         root.payment = null;
     }
-    color: mainWindow.palette.window
 
     property QtObject payment: null
 
     Column {
-        x: 10
-        y: 10
         spacing: 10
         width: parent.width - 20
         Label {

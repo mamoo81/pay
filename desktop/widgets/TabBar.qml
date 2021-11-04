@@ -29,12 +29,23 @@ FocusScope {
     Component.onCompleted: setOpacities()
 
     function setOpacities() {
-        for (var i = 0; i < stack.children.length; ++i) {
+        var visibleChild = null;
+        for (let i = 0; i < stack.children.length; ++i) {
             let on = i === currentIndex;
             let child = stack.children[i];
             child.visible = on;
             if (on)
-                child.focus = true
+                visibleChild = child;
+        }
+
+        // try to make sure the current tab gets keyboard focus properly.
+        // We do some extra work in case the tab itself is a loader.
+        forceActiveFocus();
+        visibleChild.focus = true
+        if (visibleChild instanceof Loader) {
+            var child = visibleChild.item;
+            if (child != null)
+                child.focus = true;
         }
     }
 
