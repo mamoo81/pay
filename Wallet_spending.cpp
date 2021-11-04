@@ -34,17 +34,17 @@ int scoreForSolution(size_t outputCount, int64_t change, size_t unspentOutputCou
 
     const int resultingOutputCount = unspentOutputCount - outputCount;
     int score = 0;
-    // aim to keep our output count between 10 and 15
-    if (resultingOutputCount > 10 && resultingOutputCount <= 15)
+    // aim to keep our output count between 10 and 40
+    if (resultingOutputCount > 10 && resultingOutputCount <= 50)
         score = 1000; // perfection
-    else if (resultingOutputCount > 5 && resultingOutputCount < 15)
+    else if (resultingOutputCount > 5 && resultingOutputCount < 40)
         score = 250;
     else if (resultingOutputCount < 25 && resultingOutputCount > 10)
         score = 250;
-    else if (resultingOutputCount > 25)
-        score -= (resultingOutputCount - 25) * 10;
-    else
-        score -= (5 - resultingOutputCount) * 10; // for the 0 - 5 range
+    else if (resultingOutputCount > 40)
+        score -= (resultingOutputCount - 40) * 5;
+    else if (resultingOutputCount <= 5)
+        score -= (5 - resultingOutputCount) * 40; // for the 0 - 5 range
 
     // in most cases no modifier is added due to change
     if (change < 100)
@@ -96,11 +96,11 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         } else {
             const int diff = currentBlockHeight - h;
             if (diff > 4024)
-                out.score = 50;
+                out.score = -20;
             else if (diff > 1008)
-                out.score = 30;
+                out.score = -30;
             else if (diff > 144)
-                out.score = 10;
+                out.score = -50;
         }
         utxosBySize.insert(std::make_pair(iter->second, unspentOutputs.size()));
         unspentOutputs.push_back(out);

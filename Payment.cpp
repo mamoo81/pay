@@ -199,6 +199,7 @@ void Payment::approveAndSign()
             m_assignedFee -= change;
         }
     }
+    assert(m_assignedFee >= 0);
     m_tx = builder.createTransaction();
 
     // now double-check the fee since we can't predict the tx-size size perfectly.
