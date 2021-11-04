@@ -184,6 +184,6 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         }
     }
 
-    change = current.totalSats - current.fee - output;
+    change = bestSet.totalSats - bestSet.fee - output;
     return bestSet;
 }
