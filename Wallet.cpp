@@ -1673,7 +1673,7 @@ void Wallet::loadWallet()
         }
     }
 
-    // check sanity of autoLOckedOutputs struct
+    // check sanity of autoLockedOutputs struct
     for (auto &pair : m_lockedOutputs) {
         auto utxoLink = m_unspentOutputs.find(pair.first);
         assert(utxoLink != m_unspentOutputs.end());
