@@ -251,7 +251,6 @@ void Wallet::newTransaction(const Tx &tx)
     {
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
-        setUserOwnedWallet(true);
         const uint256 txid = tx.createHash();
         if (m_txidCash.find(txid) != m_txidCash.end()) // already known
             return;
@@ -265,6 +264,7 @@ void Wallet::newTransaction(const Tx &tx)
                 rebuildBloom();
             return;
         }
+        setUserOwnedWallet(true);
         wtx.minedBlockHeight = WalletPriv::Unconfirmed;
         bool dummy;
         while (updateHDSignatures(wtx, dummy)) {
