@@ -17,7 +17,6 @@
  */
 #include "TestWallet.h"
 #include <utils/cashaddr.h>
-#include <utils/primitives/transaction.h>
 #include <Wallet.h>
 #include <Wallet_p.h>
 #include <FloweePay.h>
