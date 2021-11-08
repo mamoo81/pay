@@ -1662,7 +1662,10 @@ void Wallet::loadWallet()
         auto iter = m_walletTransactions.find(index);
         assert(iter != m_walletTransactions.end());
 
+        if (iter->second.minedBlockHeight == WalletPriv::Rejected)
+            continue;
         if (iter->second.minedBlockHeight != WalletPriv::Unconfirmed) {
+            assert(iter->second.minedBlockHeight > 0);
             // remove UTXOs this Tx spent
             for (auto i = iter->second.inputToWTX.begin(); i != iter->second.inputToWTX.end(); ++i) {
                 auto utxo = m_unspentOutputs.find(i->second);
