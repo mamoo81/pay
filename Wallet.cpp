@@ -1033,7 +1033,7 @@ Tx::Output Wallet::txOutput(Wallet::OutputRef ref) const
 
     Tx tx = loadTransaction(txid, FloweePay::pool(0));
     if (tx.size() == 0)
-        throw std::runtime_error("missing data");
+        throw std::runtime_error("missing TX data");
     return tx.output(ref.outputIndex());
 }
 
