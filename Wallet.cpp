@@ -130,6 +130,8 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                 script.GetOp(scriptIter, type);
                 types.insert(std::make_pair(prevTx.encoded(),
                                             type == 65 ? SignedAsSchnorr : SignedAsEcdsa));
+
+                prevTx = OutputRef(); // clear it
             }
         }
         else if (iter.tag() == Tx::OutputValue) {
