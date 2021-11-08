@@ -33,7 +33,7 @@ struct MockBlockHeader : public BlockHeader
     MockBlockHeader();
 };
 
-class Wallet;
+class MockWallet;
 
 class TestWallet : public QObject
 {
@@ -52,9 +52,11 @@ private slots:
 
     void hierarchicallyDeterministic();
 
+    void rejectTx();
+
 private:
-    std::unique_ptr<Wallet> createWallet();
-    std::unique_ptr<Wallet> openWallet();
+    std::unique_ptr<MockWallet> createWallet();
+    std::unique_ptr<MockWallet> openWallet();
     QString m_dir;
     const ECC_State m_state;
 };

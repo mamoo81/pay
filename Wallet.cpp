@@ -1025,8 +1025,34 @@ void Wallet::broadcastTxFinished(int txIndex, bool success)
                 auto wtx = m_walletTransactions.find(txIndex);
                 if (wtx != m_walletTransactions.end()) {
                     logCritical() << "Marking transaction invalid";
+                    auto &tx = wtx->second;
+                    if (tx.minedBlockHeight == WalletPriv::Unconfirmed) {
+                        // a transaction that has been added before, but now marked
+                        // rejected means we should revert some stuff that newTransaction() did.
+                        // - locked output
+                        // - utxo
+                        // - balance
 
-                    wtx->second.minedBlockHeight = WalletPriv::Rejected;
+                        auto i = m_lockedOutputs.begin();
+                        while (i != m_lockedOutputs.end()) {
+                            if (i->second == txIndex)
+                                i = m_lockedOutputs.erase(i);
+                            else
+                                ++i;
+                        }
+                        for (auto out = tx.outputs.begin(); out != tx.outputs.end(); ++out) {
+                            auto utxo = m_unspentOutputs.find(OutputRef(txIndex, out->first).encoded());
+                            assert(utxo != m_unspentOutputs.end());
+                            m_unspentOutputs.erase(utxo);
+                        }
+
+                        recalculateBalance();
+                    }
+                    else {
+                        assert(false); // Can't imagine the usecase, so if this hits in a debug build lets fail-fast
+                        logWarning() << "Transaction marked rejected that had blockHeight:" << tx.minedBlockHeight;
+                    }
+                    tx.minedBlockHeight = WalletPriv::Rejected;
                 }
             }
             return;

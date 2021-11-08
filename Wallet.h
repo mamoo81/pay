@@ -274,7 +274,7 @@ public:
 public slots:
     void delayedSave();
 
-private slots:
+protected slots:
     void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
     void broadcastUnconfirmed();

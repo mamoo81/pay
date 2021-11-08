@@ -27,6 +27,21 @@
 #include <TransactionBuilder.h>
 
 
+class MockWallet : public Wallet
+{
+public:
+    MockWallet(const boost::filesystem::path &basedir, uint16_t segmentId)
+        : Wallet(basedir, segmentId) {}
+
+    void findBroadcastTransaction() {
+        broadcastUnconfirmed();
+    }
+
+    void markTxRejected(int txIndex) {
+        broadcastTxFinished(txIndex, false);
+    }
+};
+
 void TestWallet::transactionOrdering()
 {
     std::deque<Tx> unsortedList;
@@ -622,23 +637,75 @@ void TestWallet::hierarchicallyDeterministic()
     }
 }
 
-std::unique_ptr<Wallet> TestWallet::createWallet()
+void TestWallet::rejectTx()
+{
+    Streaming::BufferPool pool;
+    {
+        auto wallet = createWallet();
+        wallet->addTestTransactions();
+        int64_t change = 0;
+        auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
+        QCOMPARE(walletSet.outputs.size(), 2L);
+        TransactionBuilder b1;
+        for (auto ref : walletSet.outputs) {
+            b1.appendInput(wallet->txid(ref), ref.outputIndex());
+            b1.pushInputSignature(wallet->unlockKey(ref).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
+        }
+        b1.appendOutput(5000); // 9000000 was available, so the fee is enormous. But this makes it easy to test.
+        CKeyID address;
+        wallet->reserveUnusedAddress(address);
+        b1.pushOutputPay2Address(address);
+        Tx t1 = b1.createTransaction(&pool);
+        wallet->newTransaction(t1);
+        QCOMPARE(wallet->balanceUnconfirmed(), 5000); // simple check to know its been accepted
+
+        // base check
+        for (auto ref : walletSet.outputs) {
+            bool lockSuccess = wallet->lockUTXO(ref);
+            QVERIFY(!lockSuccess); // can't lock them again.
+            bool unlockSuccess = wallet->unlockUTXO(ref);
+            QVERIFY(!unlockSuccess); // can't unlock auto-referenced outputs.
+        }
+
+        // start the broadcast, which finds all the unconfirmed transactions.
+        wallet->findBroadcastTransaction();
+        wallet->markTxRejected(7);
+
+
+        // Now check that the resources are made available again.
+        QCOMPARE(wallet->balanceUnconfirmed(), 0);
+        auto ws =  wallet->findInputsFor(12899000, 1, 1, change);
+        QCOMPARE(ws.outputs.size(), 6L);
+
+        // should behave like unlocked outputs now.
+        for (auto ref : walletSet.outputs) {
+            bool lockSuccess = wallet->lockUTXO(ref);
+            QVERIFY(lockSuccess);
+            bool unlockSuccess = wallet->unlockUTXO(ref);
+            QVERIFY(unlockSuccess);
+        }
+    }
+}
+
+std::unique_ptr<MockWallet> TestWallet::createWallet()
 {
     if (m_dir.isEmpty()) {
         QString basedir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
         m_dir = basedir + QString("/floweepay-%1/").arg(QCoreApplication::instance()->applicationPid());
     }
 
-    std::unique_ptr<Wallet> wallet(Wallet::createWallet(m_dir.toStdString(), 1111, "test"));
+    std::unique_ptr<MockWallet> wallet(
+                static_cast<MockWallet*>(Wallet::createWallet(m_dir.toStdString(), 1111, "test")));
     wallet->createNewPrivateKey(0);
 
     return wallet;
 }
 
-std::unique_ptr<Wallet> TestWallet::openWallet()
+std::unique_ptr<MockWallet> TestWallet::openWallet()
 {
     Q_ASSERT(!m_dir.isEmpty());
-    std::unique_ptr<Wallet> wallet(new Wallet(m_dir.toStdString(), 1111));
+    std::unique_ptr<MockWallet> wallet(
+                static_cast<MockWallet*>(new Wallet(m_dir.toStdString(), 1111)));
     return wallet;
 }
 
