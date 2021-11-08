@@ -142,7 +142,7 @@ public:
     /// Fetch UTXO txid
     const uint256 &txid(int txIndex) const;
     /// Fetch UTXO output
-    Tx::Output txOutout(OutputRef ref) const;
+    Tx::Output txOutput(OutputRef ref) const;
 
     struct PrivKeyData {
         int privKeyId = 0;

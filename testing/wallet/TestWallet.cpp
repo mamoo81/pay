@@ -116,7 +116,7 @@ void TestWallet::addingTransactions()
 
     for (auto ref : funding.outputs) {
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
-        auto output = wallet->txOutout(ref);
+        auto output = wallet->txOutput(ref);
         QCOMPARE(wallet->unlockKey(ref).sigType, Wallet::NotUsedYet);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
@@ -149,7 +149,7 @@ void TestWallet::addingTransactions()
     QCOMPARE(funding.outputs.size(), 2L);
     for (auto ref : funding.outputs) {
         b3.appendInput(wallet->txid(ref), ref.outputIndex());
-        auto output = wallet->txOutout(ref);
+        auto output = wallet->txOutput(ref);
         b3.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
     Tx t3 = b3.createTransaction(&pool);
@@ -169,7 +169,7 @@ void TestWallet::addingTransactions()
     bool found = false;
     for (auto &ref : funding.outputs) {
         // there are 2 outputs, we shall not assume the order of the funding request but just look for the right amount
-        auto output = wallet->txOutout(ref);
+        auto output = wallet->txOutput(ref);
         if (output.outputValue == 200000) {
             found = true;
             b4.appendInput(wallet->txid(ref), ref.outputIndex());
@@ -222,7 +222,7 @@ void TestWallet::testSpam()
     auto funding = wallet->findInputsFor(990000, 1, b2.createTransaction(&pool).size(), change);
     for (auto ref : funding.outputs) {
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
-        auto output = wallet->txOutout(ref);
+        auto output = wallet->txOutput(ref);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
     Tx t2 = b2.createTransaction(&pool);
@@ -273,7 +273,7 @@ void TestWallet::saveTransaction()
         QCOMPARE(funding.outputs.size(), 1L);
         auto ref = funding.outputs.front();
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
-        auto output = wallet->txOutout(ref);
+        auto output = wallet->txOutput(ref);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
         Tx t2 = b2.createTransaction(&pool);
 
@@ -407,7 +407,7 @@ void TestWallet::unconfirmed()
         QCOMPARE(funding.outputs.size(), 1L);
         auto ref = funding.outputs.front();
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
-        auto output = wallet->txOutout(ref);
+        auto output = wallet->txOutput(ref);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
         Tx t2 = b2.createTransaction(&pool);
 

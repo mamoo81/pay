@@ -167,7 +167,7 @@ void Payment::approveAndSign()
     qint64 fundsIngoing = 0;
     for (auto ref : funding.outputs) {
         builder.appendInput(m_wallet->txid(ref), ref.outputIndex());
-        auto output = m_wallet->txOutout(ref);
+        auto output = m_wallet->txOutput(ref);
         fundsIngoing += output.outputValue;
         auto priv = m_wallet->unlockKey(ref);
         if (priv.sigType == Wallet::NotUsedYet) {

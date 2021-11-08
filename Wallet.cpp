@@ -1018,7 +1018,7 @@ const uint256 &Wallet::txid(int txIndex) const
     return iter->second.txid;
 }
 
-Tx::Output Wallet::txOutout(Wallet::OutputRef ref) const
+Tx::Output Wallet::txOutput(Wallet::OutputRef ref) const
 {
     uint256 txid;
     {
