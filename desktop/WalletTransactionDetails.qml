@@ -38,6 +38,8 @@ GridLayout {
         id: rightColumn
         Layout.fillWidth: true
         text: {
+            if (txRoot.isRejected)
+                return qsTr("rejected")
             if (typeof  model.date === "undefined")
                 return qsTr("unconfirmed")
             var confirmations = Pay.headerChainHeight - model.height + 1;

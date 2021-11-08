@@ -20,6 +20,7 @@ import QtQuick.Controls 2.11
 import "widgets" as Flowee
 
 Item {
+    id: txRoot
     height: {
         var rc = mainLabel.height + 10 + date.height
         if (detailsPane.item != null)
@@ -27,6 +28,8 @@ Item {
         return rc;
     }
     width: mainLabel.width + bitcoinAmountLabel.width + 30
+
+    property bool isRejected: model.height === -2 // magic height for 'rejected'
 
     /*
        we have
@@ -42,7 +45,7 @@ Item {
     Rectangle {
         id: isNewIndicator
         anchors.verticalCenter: mainLabel.verticalCenter
-        width: model.isNew ? mainLabel.height / 3 * 2 : 0
+        width: model.isNew ? mainLabel.height / 4 : 0
         height: width
         radius: height
         color: Pay.useDarkSkin ? mainWindow.floweeSalmon : mainWindow.floweeBlue
@@ -65,14 +68,16 @@ Item {
         anchors.top: mainLabel.bottom
         text: {
             var dat = model.date;
+            if (txRoot.isRejected)
+                return qsTr("rejected")
             if (typeof dat === "undefined")
                 return qsTr("unconfirmed")
             return Pay.formatDateTime(dat);
         }
-        opacity: 0.5
+        opacity: txRoot.isRejected ? 1 : 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8
+        color: txRoot.isRejected ? (Pay.useDarkSkin ? "#ec2327" : "#b41214") : palette.text
     }
-
 
     Flowee.BitcoinAmountLabel {
         id: bitcoinAmountLabel
@@ -82,6 +87,7 @@ Item {
         anchors.right: parent.right
     }
 
+    // visual separator
     Rectangle {
         width: parent.width / 100 * 80
         height: 1
