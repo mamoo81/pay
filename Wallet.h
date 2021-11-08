@@ -262,6 +262,13 @@ public:
     /// return the height of the last seen transaction that is mined
     int lastTransactionTimestamp() const;
 
+    /**
+     * Lock a the output from being spent in auto-generated transactions.
+     * @returns true if successful, false if the UTXO did not exist.
+     */
+    bool lockUTXO(OutputRef outputRef);
+    bool unlockUTXO(OutputRef outputRef);
+
     void performUpgrades();
 
 public slots:

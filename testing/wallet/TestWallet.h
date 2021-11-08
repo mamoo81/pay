@@ -43,13 +43,14 @@ private slots:
     void testRef();
     void transactionOrdering();
     void addingTransactions();
+    void lockingOutputs();
     void testSpam();
     void saveTransaction();
     void saveTransaction2();
     void findInputs();
     void unconfirmed();
 
-    void  hierarchicallyDeterministic();
+    void hierarchicallyDeterministic();
 
 private:
     std::unique_ptr<Wallet> createWallet();

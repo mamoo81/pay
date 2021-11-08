@@ -17,6 +17,7 @@
  */
 #include "TestWallet.h"
 #include <utils/cashaddr.h>
+#include <utils/primitives/transaction.h>
 #include <Wallet.h>
 #include <Wallet_p.h>
 #include <FloweePay.h>
@@ -194,6 +195,125 @@ void TestWallet::addingTransactions()
     QCOMPARE(wallet->balanceUnconfirmed(), 500000);
 }
 
+void TestWallet::lockingOutputs()
+{
+    Streaming::BufferPool pool;
+    {
+        // See if locking outputs manually has an effect on findInputs
+        auto wallet = createWallet();
+        wallet->addTestTransactions();
+        int64_t change = 0;
+        auto walletSet =  wallet->findInputsFor(12899000, 1, 1, change);
+        QCOMPARE(walletSet.outputs.size(), 6L);
+
+        // now lock one and see that we can no longer fulfill the request.
+        const Wallet::OutputRef ref(1, 3);
+        bool ok = wallet->lockUTXO(ref);
+        QVERIFY(ok);
+        walletSet = wallet->findInputsFor(12899000, 1, 1, change);
+        QVERIFY(walletSet.outputs.empty());
+        // check that all other outputs are still available.
+        walletSet = wallet->findInputsFor(12799000, 1, 1, change);
+        QCOMPARE(walletSet.outputs.size(), 5L);
+
+        // unlock and check again.
+        ok = wallet->unlockUTXO(ref);
+        QVERIFY(ok);
+        walletSet = wallet->findInputsFor(12899000, 1, 1, change);
+        QCOMPARE(walletSet.outputs.size(), 6L);
+
+        // -- Create a transaction and add it, then check if the outputs are locked --
+        walletSet = wallet->findInputsFor(11000000, 1, 1, change);
+        QCOMPARE(walletSet.outputs.size(), 3L);
+        TransactionBuilder b1;
+        for (auto ref : walletSet.outputs) {
+            try {
+                b1.appendInput(wallet->txid(ref), ref.outputIndex());
+                b1.pushInputSignature(wallet->unlockKey(ref).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
+            } catch (const std::exception &e) {
+                logFatal() << e;
+            }
+        }
+        b1.appendOutput(5000); // 11000000 was available, so the fee is enormous. But this makes it easy to test.
+        CKeyID address;
+        wallet->reserveUnusedAddress(address);
+        b1.pushOutputPay2Address(address);
+        Tx t1 = b1.createTransaction(&pool);
+        wallet->newTransaction(t1);
+        QCOMPARE(wallet->balanceUnconfirmed(), 5000);
+
+        // now, outputs from the walletSet should be locked.
+        for (auto ref : walletSet.outputs) {
+            bool lockSuccess = wallet->lockUTXO(ref);
+            QVERIFY(!lockSuccess); // can't lock them again.
+            bool unlockSuccess = wallet->unlockUTXO(ref);
+            QVERIFY(!unlockSuccess); // can't unlock auto-referenced outputs.
+        }
+        walletSet = wallet->findInputsFor(12899000, 1, 1, change);
+        QVERIFY(walletSet.outputs.empty());
+        walletSet = wallet->findInputsFor(906000, 1, 1, change); // all used outputs unavailable to us
+        QVERIFY(walletSet.outputs.empty());
+    }
+
+    {
+        auto wallet = openWallet();
+        QCOMPARE(wallet->balanceUnconfirmed(), 5000);
+        int64_t change = 0;
+        auto walletSet = wallet->findInputsFor(12899000, 1, 1, change);
+        QVERIFY(walletSet.outputs.empty());
+        walletSet = wallet->findInputsFor(906000, 1, 1, change); // all used outputs unavailable to us
+        QVERIFY(walletSet.outputs.empty());
+
+        /* Chain the transaction and to spent an unconfirmed output. */
+        Wallet::OutputRef unconfirmedOut(7, 0);
+        bool lockSuccess = wallet->lockUTXO(unconfirmedOut);
+        QVERIFY(lockSuccess);
+        bool unlockSuccess = wallet->unlockUTXO(unconfirmedOut);
+        QVERIFY(unlockSuccess);
+
+        walletSet = wallet->findInputsFor(904000, 1, 1, change);
+        QCOMPARE(walletSet.outputs.size(), 4L); // should be all outputs, including the unconfirmed one.
+        TransactionBuilder b1;
+        for (auto ref : walletSet.outputs) {
+            try {
+                b1.appendInput(wallet->txid(ref), ref.outputIndex());
+                b1.pushInputSignature(wallet->unlockKey(ref).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
+            } catch (const std::exception &e) {
+                logFatal() << e;
+            }
+        }
+        b1.appendOutput(700000);
+        CKeyID address;
+        wallet->reserveUnusedAddress(address);
+        b1.pushOutputPay2Address(address);
+        Tx t1 = b1.createTransaction(&pool);
+        wallet->newTransaction(t1);
+        QCOMPARE(wallet->balanceUnconfirmed(), 700000);
+
+        // now, outputs from the walletSet should be locked.
+        for (auto ref : walletSet.outputs) {
+            bool lockSuccess = wallet->lockUTXO(ref);
+            QVERIFY(!lockSuccess); // can't lock them again.
+            bool unlockSuccess = wallet->unlockUTXO(ref);
+            QVERIFY(!unlockSuccess); // can't unlock auto-referenced outputs.
+        }
+        walletSet = wallet->findInputsFor(904000, 1, 1, change);
+        QVERIFY(walletSet.outputs.empty());
+        walletSet = wallet->findInputsFor(690000, 1, 1, change);
+        QVERIFY(!walletSet.outputs.empty());
+    }
+
+    {
+        auto wallet = openWallet();
+        QCOMPARE(wallet->balanceUnconfirmed(), 700000);
+        int64_t change = 0;
+        auto walletSet = wallet->findInputsFor(904000, 1, 1, change);
+        QVERIFY(walletSet.outputs.empty());
+        walletSet = wallet->findInputsFor(690000, 1, 1, change);
+        QVERIFY(!walletSet.outputs.empty());
+    }
+}
+
 void TestWallet::testSpam()
 {
     auto wallet = createWallet();
@@ -360,7 +480,7 @@ void TestWallet::findInputs()
     QCOMPARE(walletSet.outputs.size(), 1);
     QCOMPARE(walletSet.totalSats, 6000000);
     QCOMPARE(walletSet.fee, 150);
-    QCOMPARE(change, 2099701);
+    QCOMPARE(change, 1999850);
 
 }
 

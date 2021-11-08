@@ -653,6 +653,32 @@ int Wallet::lastTransactionTimestamp() const
     return 0;
 }
 
+bool Wallet::lockUTXO(OutputRef outputRef)
+{
+    QMutexLocker locker(&m_lock);
+    const auto ref = outputRef.encoded();
+    auto utxoLink = m_unspentOutputs.find(ref);
+    if (utxoLink == m_unspentOutputs.end())
+        return false;
+    if (m_lockedOutputs.find(ref) != m_lockedOutputs.end())
+        return false;
+    m_lockedOutputs.insert(std::make_pair(ref, 0));
+    return true;
+}
+
+bool Wallet::unlockUTXO(OutputRef outputRef)
+{
+    QMutexLocker locker(&m_lock);
+    const auto ref = outputRef.encoded();
+    const auto i = m_lockedOutputs.find(ref);
+    if (i == m_lockedOutputs.end())
+        return false;
+    if (i->second > 0) // only allow manual unlocking manually locked outputs
+        return false;
+    m_lockedOutputs.erase(i);
+    return true;
+}
+
 void Wallet::performUpgrades()
 {
     if (m_walletVersion == 1 && !m_walletTransactions.empty() && !m_walletSecrets.empty()) {
@@ -692,28 +718,37 @@ void Wallet::addTestTransactions()
             output.walletSecretId = 1;
             output.value = 100000;
             wtx.minedBlockHeight = 1;
+            wtx.txid = uint256S("394927492398654081379479813123");
             break;
         case 1:
             output.walletSecretId = 2;
             output.value = 5000000;
             wtx.minedBlockHeight = 10;
+            wtx.txid = uint256S("7690458423233792103818319038080");
             break;
         case 2:
-            output.walletSecretId = 10;
-            // fall-through
+            output.value = 400000;
+            output.walletSecretId = 3;
+            wtx.txid = uint256S("0498b98890485092431083023081830913");
+            wtx.minedBlockHeight = 20;
+            break;
         case 3:
             output.value = 400000;
+            output.walletSecretId = 10;
+            wtx.txid = uint256S("549843275584902321873108027832");
             wtx.minedBlockHeight = 20;
             break;
         case 4:
             output.walletSecretId = 4;
             output.value = 1000000;
             wtx.minedBlockHeight = 25;
+            wtx.txid = uint256S("709582732308923840923821832908");
             break;
         case 5:
             output.walletSecretId = 5;
             output.value = 6000000;
             wtx.minedBlockHeight = 35;
+            wtx.txid = uint256S("594239089060435802934890119830");
             break;
         }
         total += output.value;
