@@ -152,6 +152,12 @@ public:
     /// Fetch UTXO key
     PrivKeyData unlockKey(OutputRef ref) const;
 
+    /**
+     * Register the signature type for the given private key.
+     * The unlockKey() method will return the sigType stored for
+     * a specific private key. By calling this method we
+     * store the signature type for this key, for future requests.
+     */
     void updateSignatureType(const PrivKeyData &data);
 
     /// Return a bitcoin address (160 bits ripe key) for deposit.
@@ -179,9 +185,11 @@ public:
      */
     OutputSet findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const;
 
+    /// a simple boolean that indicates only address zero will ever be used.
     bool isSingleAddressWallet() const;
-    void setSingleAddressWallet(bool isSingleAddressWallet);
+    void setSingleAddressWallet(bool on);
 
+    // Fill the transactionInfo object from walletTransaction \a txIndex
     void fetchTransactionInfo(TransactionInfo *info, int txIndex);
 
     void addPaymentRequest(PaymentRequest *pr);
@@ -197,7 +205,7 @@ public:
 #endif
 
     /**
-     * WHen true, then this wallet is the result of a user-initiated action.
+     * When true, then this wallet is the result of a user-initiated action.
      * Otherwise it was created by the system for some reason and is empty.
      */
     bool userOwnedWallet() const;
