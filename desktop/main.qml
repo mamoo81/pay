@@ -212,7 +212,7 @@ ApplicationWindow {
                         onModelChanged: resetUnreadTimer.restart();
                         Timer {
                             id: resetUnreadTimer
-                            interval: 46 * 1000
+                            interval: 90 * 1000
                             // remove the 'new transaction' indicator.
                             onTriggered: portfolio.current.transactions.lastSyncIndicator = undefined
                             running: activityView.enabled && activityView.visible

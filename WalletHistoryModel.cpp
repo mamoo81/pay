@@ -91,7 +91,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
     case WalletIndex:
         return QVariant(m_rowsProxy.at(index.row()));
     case NewTransaction:
-        return QVariant(item.minedBlockHeight > m_lastSyncIndicator);
+        return QVariant(item.minedBlockHeight > m_lastSyncIndicator || item.isUnconfirmed());
     }
 
     return QVariant();

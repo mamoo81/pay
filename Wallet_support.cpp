@@ -154,6 +154,18 @@ uint16_t WalletInfoObject::privSegment() const
 
 
 // //////////////////////////////////////////////////
+bool Wallet::WalletTransaction::isUnconfirmed() const
+{
+    return minedBlockHeight == WalletPriv::Unconfirmed;
+}
+
+bool Wallet::WalletTransaction::isRejected() const
+{
+    return minedBlockHeight == WalletPriv::Rejected;
+}
+
+
+// //////////////////////////////////////////////////
 
 Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::string &pwd)
     : masterKey(HDMasterKey::fromMnemonic(seedWords, pwd))

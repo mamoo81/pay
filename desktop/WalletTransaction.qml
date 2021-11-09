@@ -29,7 +29,7 @@ Item {
     }
     width: mainLabel.width + bitcoinAmountLabel.width + 30
 
-    property bool isRejected: model.height === -2 // magic height for 'rejected'
+    property bool isRejected: model.height === -2 // -2 is the magic block-height indicating 'rejected'
 
     /*
        we have
@@ -66,17 +66,25 @@ Item {
     Label {
         id: date
         anchors.top: mainLabel.bottom
-        text: {
-            var dat = model.date;
+        function updateText() {
             if (txRoot.isRejected)
-                return qsTr("rejected")
+                text = qsTr("rejected")
+            var dat = model.date;
             if (typeof dat === "undefined")
-                return qsTr("unconfirmed")
-            return Pay.formatDateTime(dat);
+                text = qsTr("unconfirmed")
+            text = Pay.formatDateTime(dat);
         }
         opacity: txRoot.isRejected ? 1 : 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8
         color: txRoot.isRejected ? (Pay.useDarkSkin ? "#ec2327" : "#b41214") : palette.text
+
+        Component.onCompleted: updateText()
+        Timer {
+            interval: 60000
+            running: !txRoot.isRejected
+            repeat: true
+            onTriggered: parent.updateText()
+        }
     }
 
     Flowee.BitcoinAmountLabel {

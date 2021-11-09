@@ -368,6 +368,9 @@ private:
         bool isCoinbase = false;
         QString userComment;
 
+        bool isUnconfirmed() const;
+        bool isRejected() const;
+
         /*
          * To keep track of chained transactions we store for an input a entry here,
          * should it come from an output stored in the walletTransactins map.
