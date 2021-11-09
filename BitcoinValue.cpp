@@ -109,6 +109,16 @@ void BitcoinValue::backspacePressed()
     setCursorPos(cursorPos);
 }
 
+void BitcoinValue::reset()
+{
+    m_value = 0;
+    m_typedNumber.clear();
+    m_cursorPos = 0;
+    emit enteredStringChanged();
+    emit cursorPosChanged();
+    emit valueChanged();
+}
+
 void BitcoinValue::setEnteredString(const QString &value)
 {
     bool started = false;

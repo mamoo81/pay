@@ -47,6 +47,7 @@ public:
     Q_INVOKABLE void addSeparator();
     Q_INVOKABLE void paste();
     Q_INVOKABLE void backspacePressed();
+    Q_INVOKABLE void reset();
 
     QString enteredString() const;
     void setEnteredString(const QString &s);

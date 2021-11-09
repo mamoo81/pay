@@ -38,7 +38,7 @@ FocusScope {
     }
 
     function reset() {
-        privValue.enteredString = "";
+        privValue.reset();
     }
 
     BitcoinValue {
