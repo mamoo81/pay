@@ -163,8 +163,16 @@ public:
     /// Return a bitcoin address (160 bits ripe key) for deposit.
     CKeyID nextUnusedAddress();
 
+    /// Return a bitcoin address (160 bits ripe key) for change.
+    CKeyID nextUnusedChangeAddress();
+
+    enum PrivKeyType {
+        ChangePath,     ///< The private keys created from a HD wallets change derivation
+        ReceivePath     ///< All the other types of private keys
+    };
+
     /// Return a private-key-index for deposits and reserve it from re-use.
-    int reserveUnusedAddress(CKeyID &keyId);
+    int reserveUnusedAddress(CKeyID &keyId, PrivKeyType pkt = ReceivePath);
 
     /// The opposite of reserveUnusedAddress, free for usage an address.
     void unreserveAddress(int index);

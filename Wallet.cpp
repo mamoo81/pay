@@ -1133,24 +1133,48 @@ CKeyID Wallet::nextUnusedAddress()
     return answer;
 }
 
-int Wallet::reserveUnusedAddress(CKeyID &keyId)
+CKeyID Wallet::nextUnusedChangeAddress()
+{
+    CKeyID answer;
+    reserveUnusedAddress(answer, ChangePath);
+    return answer;
+}
+
+int Wallet::reserveUnusedAddress(CKeyID &keyId, PrivKeyType pkt)
 {
     QMutexLocker locker(&m_lock);
     for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+        auto &secret = i->second;
         if (m_singleAddressWallet) {
-            keyId = i->second.address;
+            keyId = secret.address;
             return i->first; // just return the first then.
         }
-        if (i->second.signatureType == NotUsedYet && !i->second.reserved) { // is unused address
-            if (i->second.fromHdWallet && i->second.fromChangeChain) // we skip the 'change' chain for user-visible stuff
+        if (secret.reserved)
+            continue;
+        if (secret.signatureType != NotUsedYet) // used to sign, so obviously not unused.
+            continue;
+        if (secret.fromHdWallet) {
+            // we skip the 'change' chain unless the app asked for it.
+            if ((pkt == ChangePath) != secret.fromChangeChain)
                 continue;
-            if (i->second.reserved)
-                continue;
-            i->second.reserved = true;
-            keyId = i->second.address;
-            rebuildBloom(); // make sure that we actually observe changes on this address
-            return i->first;
         }
+        // The only place we remember if we received something for this private key is our tx list
+        bool used = false;
+        for (auto w = m_walletTransactions.cbegin(); !used && w != m_walletTransactions.cend(); ++w) {
+            const auto &wtx = w->second;
+            for (auto o = wtx.outputs.cbegin(); o != wtx.outputs.cend(); ++o) {
+                if(o->second.walletSecretId == i->first) {
+                    used = true;
+                    break;
+                }
+            }
+        }
+        if (used)
+            continue;
+        secret.reserved = true;
+        keyId = secret.address;
+        rebuildBloom(); // make sure that we actually observe changes on this address
+        return i->first;
     }
 
     // no unused addresses, lets make some.
