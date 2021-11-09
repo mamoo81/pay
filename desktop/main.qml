@@ -425,7 +425,7 @@ ApplicationWindow {
 
                         property QtObject account: mainWindow.isLoading ? null : portfolio.current
                         Label {
-                            text: qsTr("Main") + ":"
+                            text: qsTr("Main", "balance (money), non specified") + ":"
                             Layout.alignment: Qt.AlignRight
                         }
                         Flowee.BitcoinAmountLabel {
@@ -434,7 +434,7 @@ ApplicationWindow {
                             showFiat: false
                         }
                         Label {
-                            text: qsTr("Unconfirmed") + ":"
+                            text: qsTr("Unconfirmed", "balance (money)") + ":"
                             Layout.alignment: Qt.AlignRight
                         }
                         Flowee.BitcoinAmountLabel {
@@ -443,7 +443,7 @@ ApplicationWindow {
                             showFiat: false
                         }
                         Label {
-                            text: qsTr("Immature") + ":"
+                            text: qsTr("Immature", "balance (money)") + ":"
                             Layout.alignment: Qt.AlignRight
                         }
                         Flowee.BitcoinAmountLabel {

@@ -8,13 +8,13 @@ ColumnLayout {
     spacing: 10
     Label {
         id: title
-        text: qsTr("This creates a new empty wallet with smart creation of addresses from a single seed")
+        text: qsTr("This creates a new empty wallet with smart creation of addresses from a single seed-phrase")
         width: parent.width
     }
     RowLayout {
         id: nameRow
         Label {
-            text: qsTr("Name:");
+            text: qsTr("Name") + ":";
             Layout.alignment: Qt.AlignBaseline
         }
         Flowee.TextField {

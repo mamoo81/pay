@@ -60,7 +60,7 @@ ApplicationWindow {
                     text: modelData.userAgent
                 }
                 Label {
-                    text: qsTr("Address:", "network address (IP)") + " " + modelData.address
+                    text: qsTr("Address", "network address (IP)") + ": " + modelData.address
                 }
                 RowLayout {
                     height: secondRow.height
@@ -83,14 +83,14 @@ ApplicationWindow {
                                 return qsTr("initializing connection")
                             if (!modelData.headersReceived)
                                 return qsTr("Verifying peer")
-                            return qsTr("Assigning..")
+                            return qsTr("Assigning...")
                         }
                         var accounts = portfolio.accounts;
                         for (var i = 0; i < accounts.length; ++i) {
                             if (accounts[i].id === id)
-                                return qsTr("Peer for account: %1").arg(accounts[i].name);
+                                return qsTr("Peer for wallet: %1").arg(accounts[i].name);
                         }
-                        return qsTr("Peer for initial account");
+                        return qsTr("Peer for initial wallet");
                     }
                     visible: text !== ""
                 }

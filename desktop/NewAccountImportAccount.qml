@@ -15,12 +15,12 @@ GridLayout {
     property bool isPrivateKey: typedData === Bitcoin.PrivateKey
 
     Label {
-        text: qsTr("Please enter the secrets of the wallet to import. This can be a seedphrase or a private key.")
+        text: qsTr("Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.")
         Layout.columnSpan: 3
         wrapMode: Text.Wrap
     }
     Label {
-        text: qsTr("Secret:", "The private phrase or key")
+        text: qsTr("Secret", "The seed-phrase or private key") + ":"
         Layout.alignment: Qt.AlignBaseline
     }
     Flowee.MultilineTextField {
@@ -28,7 +28,7 @@ GridLayout {
         Layout.fillWidth: true
         onTextChanged: if (!importAccount.isMnemonic) { text = text.trim(); }
         nextFocusTarget: accountName
-        placeholderText: qsTr("Example; %1", "placeholder text").arg("L5bxhjPeQqVFgCLALiFaJYpptdX6Nf6R9TuKgHaAikcNwg32Q4aL")
+        placeholderText: qsTr("Example: %1", "placeholder text").arg("L5bxhjPeQqVFgCLALiFaJYpptdX6Nf6R9TuKgHaAikcNwg32Q4aL")
     }
     Label {
         id: feedback
@@ -38,7 +38,7 @@ GridLayout {
         Layout.alignment: Qt.AlignTop
     }
     Label {
-        text: qsTr("Name:");
+        text: qsTr("Name") + ":"
         Layout.alignment: Qt.AlignBaseline
     }
     Flowee.TextField {
@@ -58,7 +58,7 @@ GridLayout {
                 if (typedData === Bitcoin.PrivateKey)
                     return qsTr("Private key", "description of type") // TODO print address to go with it
                 if (typedData === Bitcoin.CorrectMnemonic)
-                    return qsTr("BIP 39 mnemonic", "description of type")
+                    return qsTr("BIP 39 seed-phrase", "description of type")
                 if (typedData === Bitcoin.PartialMnemonicWithTypo)
                     return qsTr("Unrecognized word", "Word from the seed-phrases lexicon")
                 if (typedData === Bitcoin.MissingLexicon)
@@ -119,7 +119,7 @@ GridLayout {
             Layout.columnSpan: 2
         }
         Label {
-            text: qsTr("Alternate phrase:")
+            text: qsTr("Alternate phrase") + ":"
             visible: !importAccount.isPrivateKey
         }
         Flowee.TextField {
@@ -130,7 +130,7 @@ GridLayout {
             Layout.fillWidth: true
         }
         Label {
-            text: qsTr("Start Height:")
+            text: qsTr("Start Height") + ":"
         }
         Flowee.TextField {
             id: startHeight
@@ -138,7 +138,7 @@ GridLayout {
             validator: IntValidator{bottom: 0; top: 999999}
         }
         Label {
-            text: qsTr("Derivation:")
+            text: qsTr("Derivation") + ":"
             visible: !importAccount.isPrivateKey
         }
         Flowee.TextField {

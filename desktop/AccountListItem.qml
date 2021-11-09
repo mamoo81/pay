@@ -109,7 +109,7 @@ Item {
             MenuItem {
                 checked: root.account.isDefaultWallet
                 checkable: true
-                text: qsTr("Main Account")
+                text: qsTr("Main Wallet")
                 onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
             }
         }

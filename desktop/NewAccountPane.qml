@@ -98,7 +98,7 @@ FocusScope {
                     width: parent.selectorWidth
 
                     features: [
-                        qsTr("Seed phrase based", "Context: wallet type"),
+                        qsTr("Seed-phrase based", "Context: wallet type"),
                         qsTr("Easy to backup", "Context: wallet type"),
                         qsTr("Most compatible", "The most compatible wallet type")
                     ]
@@ -110,7 +110,7 @@ FocusScope {
                     width: parent.selectorWidth
 
                     features: [
-                        qsTr("Imports seeds"),
+                        qsTr("Imports seed-phrase"),
                         qsTr("Imports paper wallets")
                     ]
                 }
@@ -126,7 +126,7 @@ FocusScope {
                     if (type == 0)
                         return qsTr("Basic wallet with private keys")
                     if (type == 1)
-                        return qsTr("Single seed-phrase wallet")
+                        return qsTr("Seed-phrase wallet")
                     return qsTr("Import existing wallet")
                 }
                 font.pointSize: 14

@@ -30,7 +30,7 @@ ColumnLayout {
     RowLayout {
         id: nameRow
         Label {
-            text: qsTr("Name:");
+            text: qsTr("Name") + ":";
             Layout.alignment: Qt.AlignBaseline
         }
         Flowee.TextField {

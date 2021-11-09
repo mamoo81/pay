@@ -110,7 +110,7 @@ Item {
                         return qsTr("This wallet is a single-address wallet.")
 
                     if (root.account.isHDWallet)
-                        return qsTr("This wallet is based on a HD seed mnemonic")
+                        return qsTr("This wallet is based on a HD seed-phrase")
 
                      // ok we only have one more type so far, so this is rather simple...
                     return qsTr("This wallet is a simple multiple-address wallet.")
@@ -164,14 +164,14 @@ Item {
                 text: qsTr("Change Addresses")
                 visible: root.account.isHDWallet
                 onClicked: root.account.secrets.showChangeChain = checked
-                tooltipText: qsTr("Switches between normal addresses or Bitcoin addresses used for coins that are change.")
+                tooltipText: qsTr("Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.")
             }
             Flowee.CheckBox {
                 id: usedAddresses
                 text: qsTr("Used Addresses");
                 visible: !root.account.isSingleAddressAccount
                 onClicked: root.account.secrets.showUsedAddresses = checked
-                tooltipText: qsTr("Switches between unused and used bitcoin addresses")
+                tooltipText: qsTr("Switches between unused and used Bitcoin addresses")
             }
             ListView {
                 model: root.account.secrets
@@ -277,7 +277,7 @@ Item {
                     width: parent.width
                     columns: 2
                     Label {
-                        text: qsTr("Seed Phrase") + ":"
+                        text: qsTr("Seed-phrase") + ":"
                     }
                     TextArea {
                         readOnly: true
@@ -301,7 +301,7 @@ Item {
                     width: parent.width
                     anchors.top: grid.bottom
                     anchors.topMargin: 10
-                    text: qsTr("Please save the seed phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case of computer failure.")
+                    text: qsTr("Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case of computer failure.")
                     textFormat: Text.StyledText
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 }
@@ -310,7 +310,7 @@ Item {
                     width: parent.width
                     anchors.top: helpText.bottom
                     anchors.topMargin: 10
-                    text: qsTr("<b>Important</b>: Never share your seed with others!")
+                    text: qsTr("<b>Important</b>: Never share your seed-phrase with others!")
                     textFormat: Text.StyledText
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 }
