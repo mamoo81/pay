@@ -35,6 +35,10 @@ Item {
         }
     }
 
+    Component.onCompleted: {
+        root.account.secrets.showChangeChain = changeAddresses.checked
+        root.account.secrets.showUsedAddresses = usedAddresses.checked
+    }
 
     Label {
         id: walletDetailsLabel
