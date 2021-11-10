@@ -195,6 +195,7 @@ ApplicationWindow {
                         ScrollBar.vertical: Flowee.ScrollThumb {
                             id: thumb
                             minimumSize: 20 / activityView.height
+                            visible: size < 0.9
                             preview: Rectangle {
                                 width: label.width + 20
                                 height: label.height + 20
