@@ -61,7 +61,7 @@ Item {
         spacing: 15
         width: parent.width
         anchors.top: name.bottom
-        anchors.topMargin: 6
+        anchors.topMargin: 26
 
         Repeater {
             model: root.features
