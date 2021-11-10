@@ -90,7 +90,7 @@ else()
     # only the release manager will need to call this, we leave the project cmake
     # minimum to be lower.
     add_custom_target(i18n
-        COMMAND lupdate desktop/qml.qrc -ts ${TS_FILES} desktop/i18n/floweepay_en.ts
+        COMMAND lupdate desktop/qml.qrc ${PAY_SOURCES} -ts ${TS_FILES} desktop/i18n/floweepay_en.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT
             "Updating internationalization (i18n) translation files"
