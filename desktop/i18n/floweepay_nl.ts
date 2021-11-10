@@ -370,18 +370,6 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <translation>Eenvoudig</translation>
     </message>
     <message>
-      <location filename="../NewAccountPane.qml" line="89"/>
-      <source>Private keys</source>
-      <comment>Property of a wallet</comment>
-      <translation>Privé sleutels</translation>
-    </message>
-    <message>
-      <location filename="../NewAccountPane.qml" line="90"/>
-      <source>Backups difficult</source>
-      <comment>Context: wallet type</comment>
-      <translation>Back-upt lastig</translation>
-    </message>
-    <message>
       <location filename="../NewAccountPane.qml" line="91"/>
       <source>Great for brief usage</source>
       <comment>Context: wallet type</comment>
@@ -404,15 +392,37 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <translation>Importeert herstelzin</translation>
     </message>
     <message>
+      <location filename="../NewAccountPane.qml" line="114"/>
+      <source>Imports private key</source>
+      <translation>Importeert Privésleutel</translation>
+    </message>
+    <message>
       <location filename="../NewAccountPane.qml" line="129"/>
       <source>Seed-phrase wallet</source>
       <translation>Herstelzin portemonnee</translation>
+    </message>
+    <message>
+      <location filename="../NewAccountPane.qml" line="130"/>
+      <source>Import of an existing wallet</source>
+      <translation>Importeer een bestaande portemonnee</translation>
     </message>
     <message>
       <location filename="../NewAccountPane.qml" line="102"/>
       <source>Easy to backup</source>
       <comment>Context: wallet type</comment>
       <translation>Back-upt makkelijk</translation>
+    </message>
+    <message>
+      <location filename="../NewAccountPane.qml" line="89"/>
+      <source>Private keys based</source>
+      <comment>Property of a wallet</comment>
+      <translation>Privé sleutels gebaseerd</translation>
+    </message>
+    <message>
+      <location filename="../NewAccountPane.qml" line="90"/>
+      <source>Difficult to backup</source>
+      <comment>Context: wallet type</comment>
+      <translation>Back-up moeilijk</translation>
     </message>
     <message>
       <location filename="../NewAccountPane.qml" line="103"/>
@@ -426,19 +436,9 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <translation>Importeer</translation>
     </message>
     <message>
-      <location filename="../NewAccountPane.qml" line="114"/>
-      <source>Imports paper wallets</source>
-      <translation>Importeer papieren wallet</translation>
-    </message>
-    <message>
       <location filename="../NewAccountPane.qml" line="127"/>
       <source>Basic wallet with private keys</source>
       <translation>Basis portemonnee met privésleutels</translation>
-    </message>
-    <message>
-      <location filename="../NewAccountPane.qml" line="130"/>
-      <source>Import existing wallet</source>
-      <translation>Importeer een bestaande portemonnee</translation>
     </message>
   </context>
   <context>
@@ -777,65 +777,65 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <translation>Activiteit</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="230"/>
+      <location filename="../main.qml" line="231"/>
       <source>Send</source>
       <translation>Versturen</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="237"/>
+      <location filename="../main.qml" line="238"/>
       <source>Receive</source>
       <translation>Ontvangen</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="295"/>
+      <location filename="../main.qml" line="296"/>
       <source>Total balance</source>
       <translation>Totale saldo</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="343"/>
+      <location filename="../main.qml" line="344"/>
       <source>Balance</source>
       <translation>Saldo</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="369"/>
+      <location filename="../main.qml" line="370"/>
       <source>Show Wallet Details</source>
       <translation>Toon portemonnee details</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="428"/>
+      <location filename="../main.qml" line="429"/>
       <source>Main</source>
       <comment>balance (money), non specified</comment>
       <translation>Algemeen</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="437"/>
+      <location filename="../main.qml" line="438"/>
       <source>Unconfirmed</source>
       <comment>balance (money)</comment>
       <translation>Onbevestigd</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="446"/>
+      <location filename="../main.qml" line="447"/>
       <source>Immature</source>
       <comment>balance (money)</comment>
       <translation>Ongerijpt</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="480"/>
+      <location filename="../main.qml" line="481"/>
       <source>1 BCH is: %1</source>
       <translation>1 BCH is: %1</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="489"/>
+      <location filename="../main.qml" line="490"/>
       <source>Network status</source>
       <translation>Netwerkstatus</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="524"/>
+      <location filename="../main.qml" line="525"/>
       <source>Add Bitcoin Cash wallet</source>
       <translation>Bitcoin Cash portemonnee toevoegen</translation>
     </message>
     <message>
-      <location filename="../main.qml" line="545"/>
+      <location filename="../main.qml" line="546"/>
       <source>Preparing...</source>
       <translation>Voorbereiden...</translation>
     </message>
