@@ -70,6 +70,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: Math.min(implicitWidth, contentArea.width - 50)
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                horizontalAlignment: Text.AlignHCenter
             }
         }
     }

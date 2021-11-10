@@ -239,7 +239,7 @@ Item {
                         id: button
                         anchors.right: parent.right
                         wide: true
-                        y: 10
+                        y: 5
                         contextMenu: Menu {
                             id: contextMenu
                             MenuItem {
