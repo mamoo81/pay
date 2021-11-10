@@ -72,7 +72,8 @@ Item {
             var dat = model.date;
             if (typeof dat === "undefined")
                 text = qsTr("unconfirmed")
-            text = Pay.formatDateTime(dat);
+            else
+                text = Pay.formatDateTime(dat);
         }
         opacity: txRoot.isRejected ? 1 : 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8
