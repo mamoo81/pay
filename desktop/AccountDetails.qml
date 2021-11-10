@@ -244,11 +244,11 @@ Item {
                             id: contextMenu
                             MenuItem {
                                 text: qsTr("Copy Address")
-                                onTriggered: Flowee.copyToClipboard(address)
+                                onTriggered: Pay.copyToClipboard(address)
                             }
                             MenuItem {
                                 text: qsTr("Copy Private Key")
-                                onTriggered: Flowee.copyToClipboard(privatekey)
+                                onTriggered: Pay.copyToClipboard(privatekey)
                             }
                             /*
                                 MenuItem {
