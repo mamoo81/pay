@@ -62,6 +62,7 @@ FocusScope {
             id: contentAreaColumn
             width: contentArea.width
             y: 10
+            spacing: 20
             Label {
                 text: qsTr("New Bitcoin Cash Wallet")
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -116,8 +117,6 @@ FocusScope {
                 }
             }
 
-            Item { width: 1; height: 30 } // spacer
-
             Label {
                 id: description
                 anchors.left: optionsRow.left
@@ -131,7 +130,6 @@ FocusScope {
                 }
                 font.pointSize: 14
             }
-            Item { width: 1; height: 20 } // spacer
             StackLayout {
                 id: stack
                 currentIndex: optionsRow.selectedAccountType
