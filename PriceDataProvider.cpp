@@ -97,7 +97,7 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
             assert(actualPrice.at(i).unicode() < 127); // only digits
             buf[i + add] = actualPrice.at(i).unicode();
         }
-        dummy = QString(buf);
+        dummy = QString::fromLatin1(buf);
         actualPrice = dummy.leftRef(dummy.size());
     }
 
