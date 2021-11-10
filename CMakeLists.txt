@@ -71,7 +71,7 @@ set (PAY_SOURCES
 )
 
 if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
-    install(FILES ${CMAKE_SOURCE_DIR}/data/blockheaders DESTINATION floweepay)
+    install(FILES ${CMAKE_SOURCE_DIR}/data/blockheaders DESTINATION share/floweepay)
 endif()
 
 if(ANDROID)
