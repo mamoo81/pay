@@ -34,11 +34,18 @@
 
 Payment::Payment(Wallet *wallet, qint64 amountToPay)
     : m_wallet(wallet),
-      m_fee(1),
-      m_paymentAmount(amountToPay)
+      m_fee(1)
 {
     assert(m_wallet);
     assert(m_wallet->segment());
+
+    auto out = new PaymentDetailOutput(this);
+    out->setPaymentAmount(amountToPay);
+    out->setCollapsable(false);
+    m_paymentDetails.append(out);
+    // the first one is special since its used to emulate a dumb payment API
+    connect (out, SIGNAL(paymentAmountChanged()), this, SIGNAL(amountChanged()));
+    connect (out, SIGNAL(addressChanged()), this, SIGNAL(targetAddressChanged()));
 }
 
 void Payment::setFeePerByte(int sats)
@@ -54,113 +61,94 @@ int Payment::feePerByte()
     return m_fee;
 }
 
-void Payment::setPaymentAmount(double amount_)
+PaymentDetailOutput *Payment::soleOut() const
 {
-    qint64 amount = static_cast<qint64>(amount_);
-    if (m_paymentAmount == amount)
-        return;
-    m_paymentAmount = amount;
-    emit amountChanged();
+    if (m_paymentDetails.size() != 1) // don't mix modes.
+        throw std::runtime_error("Don't mix payment modes, use the details");
+    auto out = dynamic_cast<PaymentDetailOutput*>(m_paymentDetails.first());
+    assert(out);
+    return out;
+}
+
+void Payment::setPaymentAmount(double amount)
+{
+    soleOut()->setPaymentAmount(amount);
 }
 
 double Payment::paymentAmount()
 {
-    return static_cast<double>(m_paymentAmount);
+    return soleOut()->paymentAmount();
 }
 
 void Payment::setTargetAddress(const QString &address)
 {
-    if (m_address == address)
-        return;
-    switch (FloweePay::instance()->identifyString(address)) {
-    case FloweePay::LegacyPKH: {
-        m_address = address.trimmed();
-        CBase58Data legacy;
-        auto ok = legacy.SetString(m_address.toStdString());
-        assert(ok);
-        assert(legacy.isMainnetPkh() || legacy.isTestnetPkh());
-        CashAddress::Content c;
-        c.hash = legacy.data();
-        c.type = CashAddress::PUBKEY_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-
-        emit targetAddressChanged();
-        break;
-    }
-    case FloweePay::CashPKH: {
-        m_address = address.trimmed();
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
-        assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        emit targetAddressChanged();
-        break;
-    }
-    case FloweePay::LegacySH: {
-        m_address = address.trimmed();
-        CBase58Data legacy;
-        auto ok = legacy.SetString(m_address.toStdString());
-        assert(ok);
-        assert(legacy.isMainnetSh() || legacy.isTestnetSh());
-        CashAddress::Content c;
-        c.hash = legacy.data();
-        c.type = CashAddress::SCRIPT_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        break;
-    }
-    case FloweePay::CashSH: {
-        m_address = address.trimmed();
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
-        assert (!c.hash.empty() && c.type == CashAddress::SCRIPT_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        emit targetAddressChanged();
-        break;
-    }
-    default:
-        throw std::runtime_error("Address not recognized");
-    }
+    soleOut()->setAddress(address);
 }
 
 QString Payment::targetAddress()
 {
-    return m_address;
+    return soleOut()->address();
 }
 
 QString Payment::formattedTargetAddress()
 {
-    return m_formattedTarget;
+    return soleOut()->formattedTarget();
 }
 
 void Payment::approveAndSign()
 {
-    if (m_paymentAmount < 600 && m_paymentAmount != -1) {
-        logFatal() << "Payment::approveAndSign: Can not create transaction, faulty payment amount:"
-                   << m_paymentAmount;
-        return;
-    }
-    if (m_formattedTarget.isEmpty()) {
-        logFatal() << "Payment::approveAndSign: Can not create transaction, missing data";
-        return;
-    }
+    int numOutputs = 0;
     TransactionBuilder builder;
-    builder.appendOutput(m_paymentAmount);
-    bool ok = false;
-    CashAddress::Content c = CashAddress::decodeCashAddrContent(m_formattedTarget.toStdString(), chainPrefix());
-    assert(!c.hash.empty());
-    if (c.type == CashAddress::PUBKEY_TYPE) {
-        builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));
-        ok = true;
+    qint64 totalOut = 0;
+    bool seenMaxAmount = false; // set to true if the last output detail was set to 'Max'
+    for (auto detail : m_paymentDetails) {
+        if (detail->type() == PayToAddress) {
+            ++numOutputs;
+            auto o = detail->toOutput();
+            if (o->amount() == -1) {
+                if (seenMaxAmount) { // not the only one that is 'Max'
+                    logFatal().nospace() << "Payment::approveAndSign: Can not create transaction, "
+                       "faulty payment amount[" << numOutputs << "] Multiple MAX outputs";
+                    return;
+                }
+                else {
+                    seenMaxAmount = true;
+                }
+            }
+            else if (o->amount() < 600) {
+                logFatal().nospace() << "Payment::approveAndSign: Can not create transaction, "
+                   "faulty payment amount[" << numOutputs << "] " << o->amount();
+                return;
+            }
+            if (o->formattedTarget().isEmpty()) {
+                logFatal() << "Payment::approveAndSign: Can not create transaction, missing data for output:"
+                           << numOutputs;
+                return;
+            }
+            totalOut += o->amount();
+
+            builder.appendOutput(o->amount());
+
+            bool ok = false;
+            CashAddress::Content c = CashAddress::decodeCashAddrContent(o->formattedTarget().toStdString(), chainPrefix());
+            assert(!c.hash.empty());
+            if (c.type == CashAddress::PUBKEY_TYPE) {
+                builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));
+                ok = true;
+            }
+            else if (c.type == CashAddress::SCRIPT_TYPE) {
+                builder.pushOutputPay2Script(CScriptID(reinterpret_cast<const char*>(c.hash.data())));
+                ok = true;
+            }
+            assert(ok); // mismatch between setPayTo and this method...
+        }
     }
-    else if (c.type == CashAddress::SCRIPT_TYPE) {
-        builder.pushOutputPay2Script(CScriptID(reinterpret_cast<const char*>(c.hash.data())));
-        ok = true;
-    }
-    assert(ok); // mismatch between setPayTo and this method...
 
     auto tx = builder.createTransaction();
 
     // find and add outputs that can be used to pay for our required output
     int64_t change = -1;
-    const auto funding = m_wallet->findInputsFor(m_paymentAmount, m_fee, tx.size(), change);
+    const auto funding = m_wallet->findInputsFor(totalOut, m_fee, tx.size(), change);
     if (funding.outputs.empty()) // not enough funds.
         return;
 
@@ -181,13 +169,13 @@ void Payment::approveAndSign()
 
     m_assignedFee = 0;
     int changeOutput = -1;
-    if (m_paymentAmount == -1) { // if we pay everything to the one output
+    if (seenMaxAmount) { // if we pay everything to the last output
         change = fundsIngoing;
         changeOutput = builder.outputCount() - 1;
         builder.selectOutput(changeOutput);
         builder.setOutputValue(change); // pays no fee yet
     } else {
-        m_assignedFee = fundsIngoing - m_paymentAmount;
+        m_assignedFee = fundsIngoing - totalOut;
 
         // notice that the findInputsFor() will try really really hard to avoid us
         // having change greater than 100 and less than 1000.
@@ -215,8 +203,10 @@ void Payment::approveAndSign()
         builder.setOutputValue(change);
         m_tx = builder.createTransaction();
     }
-    if (m_paymentAmount == -1)
-        m_paymentAmount = fundsIngoing;
+    if (seenMaxAmount) {
+        totalOut = fundsIngoing;
+        // TODO remember this?
+    }
 
     m_paymentOk = true;
     emit txCreated();
@@ -248,6 +238,17 @@ void Payment::sendTx()
 
     m_infoObject = std::make_shared<PaymentInfoObject>(this, m_tx);
     FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(m_infoObject);
+}
+
+PaymentDetail* Payment::addDetail(PaymentDetail *detail)
+{
+    m_paymentDetails.append(detail);
+    return detail;
+}
+
+PaymentDetail* Payment::addExtraOutput()
+{
+    return addDetail(new PaymentDetailOutput(this));
 }
 
 QString Payment::txid() const
@@ -342,4 +343,131 @@ uint16_t PaymentInfoObject::privSegment() const
     assert(m_parent->wallet());
     assert(m_parent->wallet()->segment());
     return m_parent->wallet()->segment()->segmentId();
+}
+
+PaymentDetail::PaymentDetail(Payment::DetailType type, QObject *parent)
+    : QObject(parent),
+      m_type(type)
+{
+}
+
+Payment::DetailType PaymentDetail::type() const
+{
+    return m_type;
+}
+
+bool PaymentDetail::collapsable() const
+{
+    return m_collapsable;
+}
+
+void PaymentDetail::setCollapsable(bool newCollapsable)
+{
+    if (m_collapsable == newCollapsable)
+        return;
+    m_collapsable = newCollapsable;
+    emit collapsableChanged();
+}
+
+bool PaymentDetail::collapsed() const
+{
+    return m_collapsed;
+}
+
+void PaymentDetail::setCollapsed(bool newCollapsed)
+{
+    if (m_collapsed == newCollapsed)
+        return;
+    m_collapsed = newCollapsed;
+    emit collapsedChanged();
+}
+
+
+// ///////////////////////////////////////////////
+
+PaymentDetailInputs::PaymentDetailInputs(QObject *parent)
+    : PaymentDetail(Payment::InputSelector, parent)
+{
+}
+
+
+// ///////////////////////////////////////////////
+
+PaymentDetailOutput::PaymentDetailOutput(QObject *parent)
+    : PaymentDetail(Payment::PayToAddress, parent)
+{
+
+}
+
+double PaymentDetailOutput::paymentAmount() const
+{
+    return static_cast<double>(m_paymentAmount);
+}
+
+void PaymentDetailOutput::setPaymentAmount(double newPaymentAmount)
+{
+    qint64 amount = static_cast<qint64>(newPaymentAmount);
+    if (m_paymentAmount == amount)
+        return;
+    m_paymentAmount = amount;
+    emit paymentAmountChanged();
+}
+
+const QString &PaymentDetailOutput::address() const
+{
+    return m_address;
+}
+
+void PaymentDetailOutput::setAddress(const QString &address_)
+{
+    const QString address = address_.trimmed();
+    if (m_address == address)
+        return;
+
+    switch (FloweePay::instance()->identifyString(address)) {
+    case FloweePay::LegacyPKH: {
+        CBase58Data legacy;
+        auto ok = legacy.SetString(m_address.toStdString());
+        assert(ok);
+        assert(legacy.isMainnetPkh() || legacy.isTestnetPkh());
+        CashAddress::Content c;
+        c.hash = legacy.data();
+        c.type = CashAddress::PUBKEY_TYPE;
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        break;
+    }
+    case FloweePay::CashPKH: {
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
+        assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        break;
+    }
+    case FloweePay::LegacySH: {
+        CBase58Data legacy;
+        auto ok = legacy.SetString(m_address.toStdString());
+        assert(ok);
+        assert(legacy.isMainnetSh() || legacy.isTestnetSh());
+        CashAddress::Content c;
+        c.hash = legacy.data();
+        c.type = CashAddress::SCRIPT_TYPE;
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        break;
+    }
+    case FloweePay::CashSH: {
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
+        assert (!c.hash.empty() && c.type == CashAddress::SCRIPT_TYPE);
+        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        break;
+    }
+    default:
+        throw std::runtime_error("Address not recognized");
+    }
+
+    m_address = address;
+    emit addressChanged();
+}
+
+const QString &PaymentDetailOutput::formattedTarget() const
+{
+    return m_formattedTarget;
 }

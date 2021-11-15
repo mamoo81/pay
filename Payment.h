@@ -24,6 +24,8 @@
 #include <memory>
 
 class Wallet;
+class PaymentDetail;
+class PaymentDetailOutput;
 
 class Payment : public QObject
 {
@@ -38,7 +40,14 @@ class Payment : public QObject
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
     Q_PROPERTY(bool paymentOk READ paymentOk NOTIFY paymentOkChanged);
     Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
+
+    Q_ENUMS(DetailType)
 public:
+    enum DetailType {
+        InputSelector,
+        PayToAddress
+    };
+
     Payment(Wallet *wallet, qint64 amountToPay);
 
     void setFeePerByte(int sats);
@@ -51,14 +60,14 @@ public:
     void setPaymentAmount(double amount);
     double paymentAmount();
 
-    /// this method throws if its not a proper address.
-    /// @see FloweePay::identifyString()
     void setTargetAddress(const QString &address);
     QString targetAddress();
     QString formattedTargetAddress();
 
     Q_INVOKABLE void approveAndSign();
     Q_INVOKABLE void sendTx();
+
+    Q_INVOKABLE PaymentDetail* addExtraOutput();
 
     /// return the txid, should there be a transaction (otherwise empty string)
     QString txid() const;
@@ -89,18 +98,96 @@ signals:
     void preferSchnorrChanged();
 
 private:
+    /// Helper method to get the output, assuming that is the only detail.
+    /// Will throw if the Payment has more than one detail.
+    PaymentDetailOutput *soleOut() const;
+    PaymentDetail *addDetail(PaymentDetail*);
+
     Wallet *m_wallet;
+    QList<PaymentDetail*> m_paymentDetails;
     bool m_paymentOk = false;
     bool m_preferSchnorr = true;
     Tx m_tx;
     int m_fee = 1; // in sats per byte
     int m_assignedFee = 0;
-    qint64 m_paymentAmount;
-    QString m_address;
-    QString m_formattedTarget;
     std::shared_ptr<BroadcastTxData> m_infoObject;
     short m_sentPeerCount = 0;
     short m_rejectedPeerCount = 0;
 };
+
+class PaymentDetail : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(Payment::DetailType type READ type CONSTANT)
+    Q_PROPERTY(bool collapsable READ collapsable WRITE setCollapsable NOTIFY collapsableChanged)
+    Q_PROPERTY(bool collapsed READ collapsed WRITE setCollapsed NOTIFY collapsedChanged)
+public:
+    PaymentDetail(Payment::DetailType type, QObject *parent = nullptr);
+
+
+    Payment::DetailType type() const;
+
+    bool collapsable() const;
+    void setCollapsable(bool newCollapsable);
+
+    bool collapsed() const;
+    void setCollapsed(bool newCollapsed);
+
+    PaymentDetailOutput *toOutput();
+
+signals:
+    void collapsableChanged();
+    void collapsedChanged();
+
+private:
+    const Payment::DetailType m_type;
+    bool m_collapsable = true;
+    bool m_collapsed = false;
+};
+
+class PaymentDetailOutput : public PaymentDetail
+{
+    Q_OBJECT
+    Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY paymentAmountChanged)
+    Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
+    // cleaned up and re-formatted
+    Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY addressChanged)
+public:
+    PaymentDetailOutput(QObject *parent = nullptr);
+
+    qint64 amount() const {
+        return m_paymentAmount;
+    }
+    double paymentAmount() const;
+    void setPaymentAmount(double newPaymentAmount);
+
+    /// this method throws if its not a proper address.
+    /// @see FloweePay::identifyString()
+    const QString &address() const;
+    void setAddress(const QString &newAddress);
+    const QString &formattedTarget() const;
+
+signals:
+    void paymentAmountChanged();
+    void addressChanged();
+
+private:
+    qint64 m_paymentAmount;
+    QString m_address;
+    QString m_formattedTarget;
+};
+
+class PaymentDetailInputs : public PaymentDetail
+{
+    Q_OBJECT
+public:
+    PaymentDetailInputs(QObject *parent = nullptr);
+
+};
+
+inline PaymentDetailOutput *PaymentDetail::toOutput() {
+    assert(m_type == Payment::PayToAddress);
+    return static_cast<PaymentDetailOutput*>(this);
+}
 
 #endif
