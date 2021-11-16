@@ -65,7 +65,7 @@ Item {
             if (model.fundsIn === 0)
                 return qsTr("Received")
             let diff = model.fundsOut - model.fundsIn;
-            if (diff > 0 && diff < 1000) // then the diff is likely just fees.
+            if (diff < 0 && diff > -1000) // then the diff is likely just fees.
                 return qsTr("Moved");
             return qsTr("Sent")
         }
