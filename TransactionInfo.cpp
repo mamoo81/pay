@@ -45,6 +45,21 @@ QList<QObject *> TransactionInfo::inputs() const
     return answer;
 }
 
+const QString &TransactionInfo::userComment() const
+{
+    return m_userComment;
+}
+
+bool TransactionInfo::isCashFusion() const
+{
+    return m_isCashFusion;
+}
+
+bool TransactionInfo::isCoinbase() const
+{
+    return m_isCoinbase;
+}
+
 QString TransactionInputInfo::address() const
 {
     return m_address;

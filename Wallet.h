@@ -366,6 +366,7 @@ private:
         uint256 minedBlock;
         int minedBlockHeight = 0;
         bool isCoinbase = false;
+        bool isCashFusionTx = false;
         QString userComment;
 
         bool isUnconfirmed() const;

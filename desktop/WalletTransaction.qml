@@ -39,6 +39,9 @@ Item {
        model.txid
        model.height
        model.date
+       model.isCoinbase
+       model.isCashFusion
+       model.comment
      */
 
     // overlay that indicates the transactions is new since last sync.
@@ -55,6 +58,10 @@ Item {
         anchors.left: isNewIndicator.right
         anchors.leftMargin: model.isNew ? 10 : 0
         text: {
+            if (model.isCoinbase)
+                return qsTr("Miner Reward")
+            if (model.isCashFusion)
+                return qsTr("Cash Fusion")
             if (model.fundsIn === 0)
                 return qsTr("Received")
             let diff = model.fundsOut - model.fundsIn;
@@ -85,6 +92,30 @@ Item {
             running: !txRoot.isRejected
             repeat: true
             onTriggered: parent.updateText()
+        }
+    }
+
+    Label {
+        id: userComment
+
+        anchors {
+            verticalCenter: parent.verticalCenter
+            // Pick the widest label to be aligned to
+            left: date.width > mainLabel.width ? date.right : mainLabel.right
+            right: bitcoinAmountLabel.left
+            margins: 10
+        }
+        text: model.comment
+        elide: Text.ElideRight
+        Connections {
+            target: date
+            function onTextChanged() {
+                if (date.width > mainLabel.width) {
+                    userComment.anchors.left =  date.right
+                } else {
+                    userComment.anchors.left =  mainLabel.right
+                }
+            }
         }
     }
 

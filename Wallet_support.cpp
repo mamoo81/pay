@@ -219,7 +219,12 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     if (m_walletTransactions.end() == iter)
         throw std::runtime_error("Invalid tx-index");
 
-    Tx tx = loadTransaction(iter->second.txid, FloweePay::pool(0));
+    const auto &wtx = iter->second;
+    info->m_isCashFusion = wtx.isCashFusionTx;
+    info->m_isCoinbase = wtx.isCoinbase;
+    info->m_userComment = wtx.userComment;
+
+    Tx tx = loadTransaction(wtx.txid, FloweePay::pool(0));
     info->m_txSize = tx.size();
 
     // find out how many inputs and how many outputs there are.
@@ -227,7 +232,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     // If we created this transaction (we have inputs in it anyway) then
     // also look up all the outputs from the file.
     // TODO this creates a false-positive for tx we co-created (cashfusion, flipstarter etc)
-    const bool createdByUs = !iter->second.inputToWTX.empty();
+    const bool createdByUs = !wtx.inputToWTX.empty() && !wtx.isCashFusionTx;
     do {
         switch (txIter.next(Tx::PrevTxHash | Tx::OutputValue | Tx::OutputScript)) {
         case Tx::PrevTxHash: info->m_inputs.append(nullptr); break;
@@ -255,7 +260,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     // probably only a couple of the inputs and outputs I have knowledge about,
     // since only those that use our addresses are stored in the wallet.
     // We find those and put the info objects in the assigned places.
-    for (auto pair : iter->second.inputToWTX) {
+    for (auto pair : wtx.inputToWTX) {
         OutputRef ref(pair.second);
         auto w = m_walletTransactions.find(ref.txIndex());
         assert(w != m_walletTransactions.end());
@@ -269,7 +274,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
         info->m_inputs[pair.first] = in;
     }
     // same for outputs
-    for (auto o : iter->second.outputs) {
+    for (auto o : wtx.outputs) {
         auto secret = m_walletSecrets.find(o.second.walletSecretId);
         assert(secret != m_walletSecrets.end());
         TransactionOutputInfo *out;

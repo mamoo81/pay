@@ -144,7 +144,31 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                 if (notifier)
                     notifier->deposited += output.value;
             }
+            else if (iter.dataLength() == 39) {
+                // The right length for a CashFusion indicator
+                auto outputScript = iter.byteData();
+                const char *bytes = outputScript.begin();
+                if (bytes[0] == 0x6a // OP_RETURN
+                        && bytes[1] == 0x04
+                        && bytes[2] == 0x46  // 'F'
+                        && bytes[3] == 0x55  // 'U'
+                        && bytes[4] == 0x5a  // 'Z'
+                        && bytes[5] == 0) {
+                    logDebug() << "Transaction" << txid << "is a Cash_Fusion transaction.";
+                    wtx.isCashFusionTx = true;
+                }
+            }
         }
+    }
+    if (wtx.isCashFusionTx) {
+        qint64 sats = 0;
+        for (auto o = wtx.outputs.cbegin(); o != wtx.outputs.cend(); ++o) {
+            sats += o->second.value;
+        }
+        wtx.userComment = QString("Fused %1 ➜ %2 (%3 BCH)")
+                .arg(wtx.inputToWTX.size())
+                .arg(wtx.outputs.size())
+                .arg(FloweePay::priceToString(sats, FloweePay::BCH));
     }
     return wtx;
 }
@@ -1481,6 +1505,9 @@ void Wallet::loadWallet()
         else if (parser.tag() == WalletPriv::OutputFromCoinbase) {
             wtx.isCoinbase = parser.boolData();
         }
+        else if (parser.tag() == WalletPriv::TxIsCashFusion) {
+            wtx.isCashFusionTx = parser.boolData();
+        }
         else if (parser.tag() == WalletPriv::InputIndex) {
             inputIndex = parser.intData();
         }
@@ -1710,6 +1737,8 @@ void Wallet::saveWallet()
         builder.add(WalletPriv::BlockHeight, item.second.minedBlockHeight);
         if (item.second.isCoinbase)
             builder.add(WalletPriv::OutputFromCoinbase, true);
+        if (item.second.isCashFusionTx)
+            builder.add(WalletPriv::TxIsCashFusion, true);
         // Save all links we established when inputs spent outputs also in this wallet.
         for (auto i = item.second.inputToWTX.begin(); i != item.second.inputToWTX.end(); ++i) {
             builder.add(WalletPriv::InputIndex, i->first);
