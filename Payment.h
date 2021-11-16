@@ -26,6 +26,7 @@
 class Wallet;
 class PaymentDetail;
 class PaymentDetailOutput;
+class AccountInfo;
 
 class Payment : public QObject
 {
@@ -38,8 +39,9 @@ class Payment : public QObject
     Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
-    Q_PROPERTY(bool paymentOk READ paymentOk NOTIFY paymentOkChanged);
+    Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged);
     Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
+    Q_PROPERTY(QList<QObject*> details READ paymentDetails NOTIFY paymentDetailsChanged);
 
     Q_ENUMS(DetailType)
 public:
@@ -48,7 +50,7 @@ public:
         PayToAddress
     };
 
-    Payment(Wallet *wallet, qint64 amountToPay);
+    Payment(QObject *parent = nullptr);
 
     void setFeePerByte(int sats);
     int feePerByte();
@@ -64,8 +66,9 @@ public:
     QString targetAddress();
     QString formattedTargetAddress();
 
-    Q_INVOKABLE void approveAndSign();
-    Q_INVOKABLE void sendTx();
+    Q_INVOKABLE bool validate();
+    Q_INVOKABLE void prepare(AccountInfo *currentAccount);
+    Q_INVOKABLE void broadcast();
 
     Q_INVOKABLE PaymentDetail* addExtraOutput();
 
@@ -74,12 +77,14 @@ public:
 
     int assignedFee() const;
     int txSize() const;
-    bool paymentOk() const;
+    bool txPrepared() const;
 
     Wallet *wallet() const;
 
     bool preferSchnorr() const;
     void setPreferSchnorr(bool preferSchnorr);
+
+    QList<QObject *> paymentDetails() const;
 
 private slots:
     void sentToPeer();
@@ -94,8 +99,10 @@ signals:
 
     void txCreated();
 
-    void paymentOkChanged();
+    void txPreparedChanged();
     void preferSchnorrChanged();
+
+    void paymentDetailsChanged();
 
 private:
     /// Helper method to get the output, assuming that is the only detail.
@@ -103,9 +110,9 @@ private:
     PaymentDetailOutput *soleOut() const;
     PaymentDetail *addDetail(PaymentDetail*);
 
-    Wallet *m_wallet;
+    Wallet *m_wallet = nullptr;
     QList<PaymentDetail*> m_paymentDetails;
-    bool m_paymentOk = false;
+    bool m_txPrepared = false;
     bool m_preferSchnorr = true;
     Tx m_tx;
     int m_fee = 1; // in sats per byte
@@ -161,10 +168,11 @@ public:
     double paymentAmount() const;
     void setPaymentAmount(double newPaymentAmount);
 
-    /// this method throws if its not a proper address.
+    /// this method also sets formattedTarget if its a proper address.
     /// @see FloweePay::identifyString()
     const QString &address() const;
     void setAddress(const QString &newAddress);
+    /// is non-empty if the address() is proper.
     const QString &formattedTarget() const;
 
 signals:

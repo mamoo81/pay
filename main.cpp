@@ -21,6 +21,7 @@
 #include "NewWalletConfig.h"
 #include "PortfolioDataProvider.h"
 #include "PriceDataProvider.h"
+#include "Payment.h"
 #include "QRCreator.h"
 
 #include <primitives/key.h> // for ECC_Start()
@@ -68,6 +69,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<FloweePay>("Flowee.org.pay", 1, 0, "Bitcoin");
     qmlRegisterType<BitcoinValue>("Flowee.org.pay", 1, 0, "BitcoinValue");
     qmlRegisterType<NewWalletConfig>("Flowee.org.pay", 1, 0, "NewWalletConfig");
+    qmlRegisterType<Payment>("Flowee.org.pay", 1, 0, "Payment");
     QCommandLineParser parser;
     parser.setApplicationDescription("Flowee pay");
     QCommandLineOption debug(QStringList() << "debug", "Use debug level logging");

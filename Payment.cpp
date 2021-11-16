@@ -20,6 +20,7 @@
 #include "Payment_p.h"
 #include "FloweePay.h"
 #include "Wallet.h"
+#include "AccountInfo.h"
 
 #include <base58.h>
 #include <cashaddr.h>
@@ -32,15 +33,49 @@
 # include <QFile>
 #endif
 
-Payment::Payment(Wallet *wallet, qint64 amountToPay)
-    : m_wallet(wallet),
+namespace {
+bool validatePayment(const QList<PaymentDetail*> &details, bool &hasMaxOutput)
+{
+    int numOutputs = 0;
+    for (auto detail : details) {
+        if (detail->type() == Payment::PayToAddress) {
+            ++numOutputs;
+            auto o = detail->toOutput();
+            if (o->amount() == -1) {
+                if (hasMaxOutput) { // not the only one that is 'Max'
+                    logFatal().nospace() << "Payment::prepare: Can not create transaction, "
+                       "faulty payment amount[" << numOutputs << "] Multiple MAX outputs";
+                    return false;
+                }
+                else {
+                    hasMaxOutput = true;
+                }
+            }
+            else if (o->amount() < 600) {
+                logFatal().nospace() << "Payment::prepare: Can not create transaction, "
+                   "faulty payment amount[" << numOutputs << "] " << o->amount();
+                return false;
+            }
+            if (o->formattedTarget().isEmpty()) {
+                logFatal() << "Payment::prepare: Can not create transaction, missing data for output:"
+                           << numOutputs;
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+}
+
+
+// ///////////////////////////////////////////////
+
+Payment::Payment(QObject *parent)
+    : QObject(parent),
       m_fee(1)
 {
-    assert(m_wallet);
-    assert(m_wallet->segment());
-
     auto out = new PaymentDetailOutput(this);
-    out->setPaymentAmount(amountToPay);
     out->setCollapsable(false);
     m_paymentDetails.append(out);
     // the first one is special since its used to emulate a dumb payment API
@@ -95,36 +130,31 @@ QString Payment::formattedTargetAddress()
     return soleOut()->formattedTarget();
 }
 
-void Payment::approveAndSign()
+bool Payment::validate()
 {
-    int numOutputs = 0;
-    TransactionBuilder builder;
-    qint64 totalOut = 0;
+    bool hasMaxOutput;
+    return validatePayment(m_paymentDetails, hasMaxOutput);
+}
+
+void Payment::prepare(AccountInfo *account)
+{
+    if (account == nullptr || account->wallet() == nullptr)
+        throw std::runtime_error("Required account missing");
+    assert(account);
+    assert(account->wallet());
+    assert(account->wallet()->segment());
+    m_wallet = account->wallet();
     bool seenMaxAmount = false; // set to true if the last output detail was set to 'Max'
+    if (!validatePayment(m_paymentDetails, seenMaxAmount))
+        return;
+
+    TransactionBuilder builder;
+    int numOutputs = 0;
+    qint64 totalOut = 0;
     for (auto detail : m_paymentDetails) {
         if (detail->type() == PayToAddress) {
             ++numOutputs;
             auto o = detail->toOutput();
-            if (o->amount() == -1) {
-                if (seenMaxAmount) { // not the only one that is 'Max'
-                    logFatal().nospace() << "Payment::approveAndSign: Can not create transaction, "
-                       "faulty payment amount[" << numOutputs << "] Multiple MAX outputs";
-                    return;
-                }
-                else {
-                    seenMaxAmount = true;
-                }
-            }
-            else if (o->amount() < 600) {
-                logFatal().nospace() << "Payment::approveAndSign: Can not create transaction, "
-                   "faulty payment amount[" << numOutputs << "] " << o->amount();
-                return;
-            }
-            if (o->formattedTarget().isEmpty()) {
-                logFatal() << "Payment::approveAndSign: Can not create transaction, missing data for output:"
-                           << numOutputs;
-                return;
-            }
             totalOut += o->amount();
 
             builder.appendOutput(o->amount());
@@ -208,9 +238,9 @@ void Payment::approveAndSign()
         // TODO remember this?
     }
 
-    m_paymentOk = true;
+    m_txPrepared = true;
     emit txCreated();
-    emit paymentOkChanged();
+    emit txPreparedChanged();
 #ifdef DEBUG_TX_CREATION
     QFile out(QDir::homePath() + "/flowee-pay-" + QString::fromStdString(m_tx.createHash().ToString()));
     if (out.open(QIODevice::WriteOnly)) {
@@ -222,9 +252,9 @@ void Payment::approveAndSign()
 #endif
 }
 
-void Payment::sendTx()
+void Payment::broadcast()
 {
-    if (!m_paymentOk)
+    if (!m_txPrepared)
         return;
 
     /*
@@ -243,7 +273,17 @@ void Payment::sendTx()
 PaymentDetail* Payment::addDetail(PaymentDetail *detail)
 {
     m_paymentDetails.append(detail);
+    emit paymentDetailsChanged();
     return detail;
+}
+
+QList<QObject*> Payment::paymentDetails() const
+{
+    QList<QObject*> pds;
+    for (auto *detail : m_paymentDetails) {
+        pds.append(detail);
+    }
+    return pds;
 }
 
 PaymentDetail* Payment::addExtraOutput()
@@ -300,9 +340,9 @@ void Payment::setPreferSchnorr(bool preferSchnorr)
     emit preferSchnorrChanged();
 }
 
-bool Payment::paymentOk() const
+bool Payment::txPrepared() const
 {
-    return m_paymentOk;
+    return m_txPrepared;
 }
 
 int Payment::assignedFee() const
@@ -460,7 +500,8 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         break;
     }
     default:
-        throw std::runtime_error("Address not recognized");
+        m_formattedTarget.clear();
+        return;
     }
 
     m_address = address;
