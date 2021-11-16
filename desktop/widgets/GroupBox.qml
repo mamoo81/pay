@@ -46,6 +46,7 @@ Item {
         width: parent.width
         height: 20
         enabled: root.collapsable
+        visible: enabled // this line is needed to make the cursor shape not be set when not enabled (Qt bug)
         onClicked: root.collapsed = !root.collapsed
         cursorShape: Qt.PointingHandCursor
     }
