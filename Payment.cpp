@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ bool validatePayment(const QList<PaymentDetail*> &details, bool &hasMaxOutput)
             auto o = detail->toOutput();
             if (o->amount() == -1) {
                 if (hasMaxOutput) { // not the only one that is 'Max'
-                    logFatal().nospace() << "Payment::prepare: Can not create transaction, "
+                    logDebug().nospace() << "Payment::prepare: Can not create transaction, "
                        "faulty payment amount[" << numOutputs << "] Multiple MAX outputs";
                     return false;
                 }
@@ -52,12 +52,12 @@ bool validatePayment(const QList<PaymentDetail*> &details, bool &hasMaxOutput)
                 }
             }
             else if (o->amount() < 600) {
-                logFatal().nospace() << "Payment::prepare: Can not create transaction, "
+                logDebug().nospace() << "Payment::prepare: Can not create transaction, "
                    "faulty payment amount[" << numOutputs << "] " << o->amount();
                 return false;
             }
             if (o->formattedTarget().isEmpty()) {
-                logFatal() << "Payment::prepare: Can not create transaction, missing data for output:"
+                logDebug() << "Payment::prepare: Can not create transaction, missing data for output:"
                            << numOutputs;
                 return false;
             }
@@ -72,15 +72,9 @@ bool validatePayment(const QList<PaymentDetail*> &details, bool &hasMaxOutput)
 // ///////////////////////////////////////////////
 
 Payment::Payment(QObject *parent)
-    : QObject(parent),
-      m_fee(1)
+    : QObject(parent)
 {
-    auto out = new PaymentDetailOutput(this);
-    out->setCollapsable(false);
-    m_paymentDetails.append(out);
-    // the first one is special since its used to emulate a dumb payment API
-    connect (out, SIGNAL(paymentAmountChanged()), this, SIGNAL(amountChanged()));
-    connect (out, SIGNAL(addressChanged()), this, SIGNAL(targetAddressChanged()));
+    reset();
 }
 
 void Payment::setFeePerByte(int sats)
@@ -170,7 +164,7 @@ void Payment::prepare(AccountInfo *account)
                 builder.pushOutputPay2Script(CScriptID(reinterpret_cast<const char*>(c.hash.data())));
                 ok = true;
             }
-            assert(ok); // mismatch between setPayTo and this method...
+            assert(ok); // mismatch between PaymentDetailOutput::setAddress and this method...
         }
     }
 
@@ -179,7 +173,9 @@ void Payment::prepare(AccountInfo *account)
     // find and add outputs that can be used to pay for our required output
     int64_t change = -1;
     const auto funding = m_wallet->findInputsFor(totalOut, m_fee, tx.size(), change);
-    if (funding.outputs.empty()) // not enough funds.
+    m_walletOk = !funding.outputs.empty(); // not enough funds.
+    emit walletOkChanged();
+    if (!m_walletOk)
         return;
 
     qint64 fundsIngoing = 0;
@@ -270,10 +266,45 @@ void Payment::broadcast()
     FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(m_infoObject);
 }
 
+void Payment::reset()
+{
+    m_fee = 1;
+    m_wallet = nullptr;
+    m_txPrepared = false;
+    m_preferSchnorr = true;
+    m_walletOk = true;
+    m_tx = Tx();
+    m_assignedFee = 0;
+    m_infoObject.reset();
+    m_sentPeerCount = 0;
+    m_rejectedPeerCount = 0;
+
+    qDeleteAll(m_paymentDetails);
+    m_paymentDetails.clear();
+    emit paymentDetailsChanged(); // work around too-lazy QML not updating if the number of items is identical
+    auto out = new PaymentDetailOutput(this);
+    out->setCollapsable(false);
+    // the first one is special since its used to emulate a dumb payment API
+    connect (out, SIGNAL(paymentAmountChanged()), this, SIGNAL(amountChanged()));
+    connect (out, SIGNAL(addressChanged()), this, SIGNAL(targetAddressChanged()));
+    addDetail(out);
+
+    emit feePerByteChanged();
+    emit amountChanged();
+    emit targetAddressChanged();
+    emit txPreparedChanged();
+    emit preferSchnorrChanged();
+    emit broadcastStatusChanged();
+    emit walletOkChanged();
+    emit txCreated();
+}
+
 PaymentDetail* Payment::addDetail(PaymentDetail *detail)
 {
     m_paymentDetails.append(detail);
+    connect (detail, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
     emit paymentDetailsChanged();
+    emit validChanged(); // pretty sure its invalid after
     return detail;
 }
 
@@ -284,6 +315,20 @@ QList<QObject*> Payment::paymentDetails() const
         pds.append(detail);
     }
     return pds;
+}
+
+Payment::BroadcastStatus Payment::broadcastStatus() const
+{
+    if (m_sentPeerCount == 0)
+        return TxNotSent;
+    if (m_rejectedPeerCount > 0)
+        return TxRejected;
+    if (m_sentPeerCount > 1) {
+        if (m_infoObject.get() == nullptr)
+            return TxBroadcastSuccess;
+        return TxWaiting;
+    }
+    return TxSent1;
 }
 
 PaymentDetail* Payment::addExtraOutput()
@@ -306,17 +351,17 @@ Wallet *Payment::wallet() const
 void Payment::sentToPeer()
 {
     // this callback happens when one of our peers did a getdata for the transaction.
-    emit sent(++m_sentPeerCount);
-
-    if (m_sentPeerCount >= 2) {
+    if (++m_sentPeerCount >= 2) {
         // if two peers requested the tx, then wait a bit and check on the status
         QTimer::singleShot(5 * 1000, [=]() {
             if (m_sentPeerCount - m_rejectedPeerCount > 2) {
                 // When enough peers received the transaction stop broadcasting it.
                 m_infoObject.reset();
             }
+            emit broadcastStatusChanged();
         });
     }
+    emit broadcastStatusChanged();
 }
 
 void Payment::txRejected(short reason, const QString &message)
@@ -324,6 +369,7 @@ void Payment::txRejected(short reason, const QString &message)
     // reason is hinted using BroadcastTxData::RejectReason
     logCritical() << "Transaction rejected" << reason << message;
     ++m_rejectedPeerCount;
+    emit broadcastStatusChanged();
 }
 
 bool Payment::preferSchnorr() const
@@ -422,6 +468,14 @@ void PaymentDetail::setCollapsed(bool newCollapsed)
     emit collapsedChanged();
 }
 
+void PaymentDetail::setValid(bool valid)
+{
+    if (m_valid == valid)
+        return;
+    m_valid = valid;
+    emit validChanged();
+}
+
 
 // ///////////////////////////////////////////////
 
@@ -451,6 +505,7 @@ void PaymentDetailOutput::setPaymentAmount(double newPaymentAmount)
         return;
     m_paymentAmount = amount;
     emit paymentAmountChanged();
+    checkValid();
 }
 
 const QString &PaymentDetailOutput::address() const
@@ -463,6 +518,7 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     const QString address = address_.trimmed();
     if (m_address == address)
         return;
+    m_address = address;
 
     switch (FloweePay::instance()->identifyString(address)) {
     case FloweePay::LegacyPKH: {
@@ -501,11 +557,15 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     }
     default:
         m_formattedTarget.clear();
-        return;
     }
 
-    m_address = address;
     emit addressChanged();
+    checkValid();
+}
+
+void PaymentDetailOutput::checkValid()
+{
+    setValid((m_paymentAmount == -1 || m_paymentAmount > 600) && !m_formattedTarget.isEmpty());
 }
 
 const QString &PaymentDetailOutput::formattedTarget() const

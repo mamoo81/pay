@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,15 +39,28 @@ class Payment : public QObject
     Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
+    /// Tx has been prepared
+    Q_PROPERTY(bool walletOk READ walletOk NOTIFY walletOkChanged);
     Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged);
     Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
+    /// Input is valid, tx can be prepared
+    Q_PROPERTY(bool isValid READ validate NOTIFY validChanged);
     Q_PROPERTY(QList<QObject*> details READ paymentDetails NOTIFY paymentDetailsChanged);
+    Q_PROPERTY(BroadcastStatus broadcastStatus  READ broadcastStatus NOTIFY broadcastStatusChanged)
 
-    Q_ENUMS(DetailType)
+    Q_ENUMS(DetailType BroadcastStatus)
 public:
     enum DetailType {
         InputSelector,
         PayToAddress
+    };
+
+    enum BroadcastStatus {
+        TxNotSent,
+        TxRejected,
+        TxWaiting,
+        TxSent1,
+        TxBroadcastSuccess
     };
 
     Payment(QObject *parent = nullptr);
@@ -69,6 +82,7 @@ public:
     Q_INVOKABLE bool validate();
     Q_INVOKABLE void prepare(AccountInfo *currentAccount);
     Q_INVOKABLE void broadcast();
+    Q_INVOKABLE void reset();
 
     Q_INVOKABLE PaymentDetail* addExtraOutput();
 
@@ -80,11 +94,17 @@ public:
     bool txPrepared() const;
 
     Wallet *wallet() const;
+    /// returns false if the wallet failed to supply funds during prepare()
+    bool walletOk() const {
+        return m_walletOk;
+    }
 
     bool preferSchnorr() const;
     void setPreferSchnorr(bool preferSchnorr);
 
     QList<QObject *> paymentDetails() const;
+
+    BroadcastStatus broadcastStatus() const;
 
 private slots:
     void sentToPeer();
@@ -94,15 +114,13 @@ signals:
     void feePerByteChanged();
     void amountChanged();
     void targetAddressChanged();
-    /// notify how many peers we relayed the transaction to.
-    void sent(int count);
-
-    void txCreated();
-
     void txPreparedChanged();
     void preferSchnorrChanged();
-
     void paymentDetailsChanged();
+    void broadcastStatusChanged();
+    void validChanged();
+    void walletOkChanged();
+    void txCreated();
 
 private:
     /// Helper method to get the output, assuming that is the only detail.
@@ -110,16 +128,18 @@ private:
     PaymentDetailOutput *soleOut() const;
     PaymentDetail *addDetail(PaymentDetail*);
 
-    Wallet *m_wallet = nullptr;
+    // Variable initialization in reset() please
+    Wallet *m_wallet;
     QList<PaymentDetail*> m_paymentDetails;
-    bool m_txPrepared = false;
-    bool m_preferSchnorr = true;
+    bool m_txPrepared;
+    bool m_preferSchnorr;
+    bool m_walletOk;
     Tx m_tx;
-    int m_fee = 1; // in sats per byte
-    int m_assignedFee = 0;
+    int m_fee; // in sats per byte
+    int m_assignedFee;
     std::shared_ptr<BroadcastTxData> m_infoObject;
-    short m_sentPeerCount = 0;
-    short m_rejectedPeerCount = 0;
+    short m_sentPeerCount;
+    short m_rejectedPeerCount;
 };
 
 class PaymentDetail : public QObject
@@ -142,14 +162,19 @@ public:
 
     PaymentDetailOutput *toOutput();
 
+protected:
+    void setValid(bool valid);
+
 signals:
     void collapsableChanged();
     void collapsedChanged();
+    void validChanged();
 
 private:
     const Payment::DetailType m_type;
     bool m_collapsable = true;
     bool m_collapsed = false;
+    bool m_valid = false; // when all user-input is valid
 };
 
 class PaymentDetailOutput : public PaymentDetail
@@ -180,7 +205,9 @@ signals:
     void addressChanged();
 
 private:
-    qint64 m_paymentAmount;
+    void checkValid();
+
+    qint64 m_paymentAmount = 0;
     QString m_address;
     QString m_formattedTarget;
 };

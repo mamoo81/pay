@@ -31,134 +31,37 @@ Pane {
         bitcoinValueField.maxSelected = false;
         fiatValueField.reset();
         amountSelector.checked = false;
-        destination.forceLegacyOk = false;
-        destination.text = "";
-        destination.updateColor();
-        delete root.payment;
-        root.payment = null;
     }
 
-    property QtObject payment: null
+    Payment { // the model behind the Payment logic
+        id: payment
+    }
 
     Column {
+        id: mainColumn
+        width: parent.width
         spacing: 10
-        width: parent.width - 20
-        Label {
-            text: qsTr("Destination") + ":"
-            Layout.columnSpan: 2
-        }
-        RowLayout {
-            width: parent.width
-            Flowee.TextField {
-                id: destination
-                focus: true
-                property bool addressOk: (addressType === Bitcoin.CashPKH || addressType === Bitcoin.CashSH)
-                                         || (forceLegacyOk && (addressType === Bitcoin.LegacySH || addressType === Bitcoin.LegacyPKH))
-                property var addressType: Pay.identifyString(text);
-                property bool forceLegacyOk: false
 
-                placeholderText: qsTr("Enter Bitcoin Cash Address")
-                Layout.fillWidth: true
-                Layout.columnSpan: 3
-
-                onFocusChanged: updateColor();
-                onAddressOkChanged: updateColor()
-
-                function updateColor() {
-                    if (!activeFocus && text !== "" && !addressOk)
-                        color = Pay.useDarkSkin ? "#ff6568" : "red"
-                    else
-                        color = mainWindow.palette.text
+        Repeater {
+            model: payment.details
+            delegate: Loader {
+                width: mainColumn.width
+                height: status === Loader.Ready ? item.implicitHeight : 0
+                sourceComponent: {
+                    if (modelData.type === Payment.PayToAddress)
+                        return destinationFields
+                    return null;
                 }
-
-            }
-            Label {
-                id: checked
-                color: "green"
-
-                font.pixelSize: 24
-                text: destination.addressOk ? "✔" : " "
-            }
-        }
-
-        Label {
-            id: payAmount
-            text: qsTr("Amount") + ":"
-        }
-        RowLayout {
-            Flowee.FiatValueField {
-                id: fiatValueField
-                visible: Fiat.price > 0
-                onValueEdited: {
-                    amountSelector.checked = false;
-                    bitcoinValueField.maxSelected = false;
-                    bitcoinValueField.valueObject.enteredString = value / Fiat.price
-                }
-
-                function copyFromBCH(bchAmount) {
-                    valueObject.enteredString = ((bchAmount / 100000000 * Fiat.price) + 0.5) / 100
-                }
-            }
-            Flowee.CheckBox {
-                id: amountSelector
-                sliderOnIndicator: false
-                visible: Fiat.price > 0
-                enabled: false
-            }
-            Flowee.BitcoinValueField {
-                id: bitcoinValueField
-                property bool maxSelected: false
-                property string previousAmountString: ""
-                onValueEdited: {
-                    maxSelected = false;
-                    amountSelector.checked = true;
-                    fiatValueField.copyFromBCH(value);
-                }
-
-                function update(setToMax) {
-                    if (setToMax) {
-                        // backup what the user typed there, to be used if she no longer wants 'max'
-                        previousAmountString =  bitcoinValueField.valueObject.enteredString;
-                        value = portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
-                    } else {
-                        valueObject.enteredString = previousAmountString
-                    }
-                    fiatValueField.copyFromBCH(value);
-                }
-                Connections {
-                    target: portfolio
-                    function onCurrentChanged() {
-                        var setToMax = bitcoinValueField.maxSelected
-                        if (setToMax) {
-                            bitcoinValueField.update(setToMax);
-                            bitcoinValueField.maxSelected = setToMax; // undo any changes in the button
-                        }
-                    }
-                }
-            }
-            Flowee.Button {
-                id: sendAll
-                text: qsTr("Max")
-                checkable: true
-                checked: bitcoinValueField.maxSelected
-
-                onClicked: {
-                    var isChecked = !bitcoinValueField.maxSelected // simply invert
-                    bitcoinValueField.update(isChecked);
-                    bitcoinValueField.maxSelected = isChecked
-                    if (isChecked)
-                        amountSelector.checked = true
-                }
+                onLoaded: item.paymentDetail = modelData
             }
         }
 
         RowLayout {
             width: parent.width
-            /* TODO future feature.
+            /*
             Flowee.Button {
-                text: qsTr("Add Advanced Option...")
-            }
-            */
+                text: qsTr("Add Option...")
+            }*/
 
             Item {
                 width: 1; height: 1
@@ -168,26 +71,19 @@ Pane {
             Flowee.Button {
                 id: prepareButton
                 text: qsTr("Prepare")
-                enabled: (bitcoinValueField.value > 0
-                          || bitcoinValueField.maxSelected) && destination.addressOk;
+                enabled: payment.isValid
 
                 property QtObject portfolioUsed: null
 
                 onClicked: {
-                    if (bitcoinValueField.maxSelected)
-                        var payment = portfolio.startPayAllToAddress(destination.text);
-                    else
-                        payment = portfolio.startPayToAddress(destination.text, bitcoinValueField.valueObject);
-                    delete root.payment;
-                    root.payment = payment;
-                    payment.approveAndSign();
                     portfolioUsed = portfolio.current
+                    payment.prepare(portfolioUsed);
                 }
             }
         }
         Label {
             text: qsTr("Not enough funds in account to make payment!")
-            visible: root.payment != null && !root.payment.paymentOk
+            visible: !payment.walletOk
             color: txid.color // make sure this is 'disabled' when the warning is not for this wallet.
         }
 
@@ -199,20 +95,28 @@ Pane {
 
             GridLayout {
                 columns: 2
-                property bool txOk: root.payment != null && root.payment.paymentOk
+                property bool txOk: payment.txPrepared
 
-                Label {
-                    text: qsTr("Destination") + ":"
-                    Layout.alignment: Qt.AlignRight
-                    visible: finalDestination.visible
+                Repeater {
+                    model: payment.details
+                    delegate: RowLayout {
+                        Layout.columnSpan: 2
+                        visible: modelData.type === Payment.PayToAddress
+                                    && modelData.formattedTarget !== ""
+                                    && modelData.formattedTarget !== modelData.address
+                        Label {
+                            text: qsTr("Destination") + ":"
+                            visible: finalDestination.visible
+                        }
+                        Label {
+                            id: finalDestination
+                            text: modelData.type === Payment.PayToAddress ? modelData.formattedTarget : ""
+                            wrapMode: Text.WrapAnywhere
+                            Layout.fillWidth: true
+                        }
+                    }
                 }
-                Label {
-                    id: finalDestination
-                    text: root.payment == null ? "" : root.payment.formattedTargetAddress
-                    wrapMode: Text.WrapAnywhere
-                    Layout.fillWidth: true
-                    visible: text !== "" && text != destination.text
-                }
+
                 Label {
                     // no need translating this one.
                     text: "TxId:"
@@ -221,10 +125,10 @@ Pane {
 
                 LabelWithClipboard {
                     id: txid
-                    text: root.payment == null ? qsTr("Not prepared yet") : root.payment.txid
+                    text: payment.txid === "" ? qsTr("Not prepared yet") : payment.txid
                     Layout.fillWidth: true
                     // Change the color when the portfolio changed since 'prepare' was clicked.
-                    color: root.payment == null || prepareButton.portfolioUsed === portfolio.current
+                    color: prepareButton.portfolioUsed === portfolio.current
                             ? palette.text
                             : Qt.darker(palette.text, (Pay.useDarkSkin ? 1.6 : 0.4))
                 }
@@ -234,7 +138,7 @@ Pane {
                 }
 
                 Flowee.BitcoinAmountLabel {
-                    value: !parent.txOk ? 0 : root.payment.assignedFee
+                    value: !parent.txOk ? 0 : payment.assignedFee
                     colorize: false
                     color: txid.color
                 }
@@ -246,7 +150,7 @@ Pane {
                     text: {
                         if (!parent.txOk)
                             return "";
-                        var rc = root.payment.txSize;
+                        var rc = payment.txSize;
                         return qsTr("%1 bytes", "", rc).arg(rc)
                     }
                     color: txid.color
@@ -259,7 +163,7 @@ Pane {
                     text: {
                         if (!parent.txOk)
                             return "";
-                        var rc = root.payment.assignedFee / root.payment.txSize;
+                        var rc = payment.assignedFee / payment.txSize;
 
                         var fee = rc.toFixed(3); // no more than 3 numbers behind the separator
                         fee = (fee * 1.0).toString(); // remove trailing zero's (1.000 => 1)
@@ -281,87 +185,133 @@ Pane {
             Flowee.Button {
                 id: button
                 text: qsTr("Send")
-                enabled: root.payment != null && root.payment.paymentOk
+                enabled: payment.txPrepared
                             && prepareButton.portfolioUsed === portfolio.current // also make sure we prepared for the current portfolio.
-                onClicked: {
-                    root.payment.sendTx();
-                    root.payment = null
-                    reset();
-                }
+                onClicked: payment.broadcast();
             }
             Flowee.Button {
                 text: qsTr("Cancel")
-                onClicked: root.reset();
+                onClicked: payment.reset();
             }
         }
     }
-    Item {
-        // overlay item
-        anchors.fill: parent
-        Item {
-            // BTC address warning.
-            visible: (destination.addressType === Pay.LegacySH || destination.addressType === Pay.LegacyPKH)
-                     && destination.forceLegacyOk === false;
-            onVisibleChanged: {
-                var pos = parent.mapFromItem(destination, 0, destination.height);
-                // console.log("xxxx " + pos.x + ", " + pos.y);
-                x = pos.x + 20
-                y = pos.y + 25
-            }
 
-            width: destination.width - 40
-            height: warningColumn.height + 20
-            Rectangle {
-                anchors.fill: warningColumn
-                anchors.margins: -10
-                color: warning.palette.window
-                border.width: 3
-                border.color: "red"
-                radius: 10
-            }
-            Flowee.ArrowPoint {
-                x: 40
-                anchors.bottom: warningColumn.top
-                anchors.bottomMargin: 5
-                rotation: -90
-                color: "red"
-            }
+    // ============= Payment components  ===============
 
-            Column {
-                id: warningColumn
-                x: 10
-                width: parent.width - 20
-                spacing: 10
-                Label {
-                    font.bold: true
-                    font.pixelSize: warning.font.pixelSize * 1.2
-                    text: qsTr("Warning")
+    Component {
+        id: destinationFields
+        Flowee.GroupBox {
+            id: destinationPane
+            property QtObject paymentDetail: null
+
+            collapsable: paymentDetail.collapsable
+            collapsed: paymentDetail.collapsed
+            title: qsTr("Destination") + ":"
+            columns: 1
+
+            RowLayout {
+                width: parent.width
+                Flowee.TextField {
+                    id: destination
+                    focus: true
+                    property bool addressOk: (addressType === Bitcoin.CashPKH || addressType === Bitcoin.CashSH)
+                                             || (forceLegacyOk && (addressType === Bitcoin.LegacySH || addressType === Bitcoin.LegacyPKH))
+                    property var addressType: Pay.identifyString(text);
+                    property bool forceLegacyOk: false
+
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 3
+                    onFocusChanged: updateColor();
+                    onAddressOkChanged: updateColor()
+
+                    placeholderText: qsTr("Enter Bitcoin Cash Address")
+                    text: destinationPane.paymentDetail.address
+                    onTextChanged: destinationPane.paymentDetail.address = text
+
+                    function updateColor() {
+                        if (!activeFocus && text !== "" && !addressOk)
+                            color = Pay.useDarkSkin ? "#ff6568" : "red"
+                        else
+                            color = mainWindow.palette.text
+                    }
                 }
                 Label {
-                    id: warning
-                    width: parent.width
-                    text: qsTr("This is a request to pay to a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure you want to pay to this BTC address?")
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    id: checked
+                    color: "green"
+
+                    font.pixelSize: 24
+                    text: destination.addressOk ? "✔" : " "
                 }
-
-                RowLayout {
-
-                    width: parent.width
-                    Item {
-                        width: 1; height: 1
-                        Layout.fillWidth: true
+            }
+            Label {
+                id: payAmount
+                text: qsTr("Amount") + ":"
+            }
+            RowLayout {
+                Flowee.FiatValueField {
+                    id: fiatValueField
+                    visible: Fiat.price > 0
+                    onValueEdited: {
+                        amountSelector.checked = false;
+                        bitcoinValueField.maxSelected = false;
+                        bitcoinValueField.valueObject.enteredString = value / Fiat.price
                     }
 
-                    Button {
-                        text: qsTr("Yes, I am sure")
-                        onClicked: destination.forceLegacyOk = true
+                    function copyFromBCH(bchAmount) {
+                        valueObject.enteredString = ((bchAmount / 100000000 * Fiat.price) + 0.5) / 100
                     }
-                    Button {
-                        text: qsTr("No")
-                        onClicked: {
-                            destination.text = ""
-                            destination.updateColor()
+                }
+                Flowee.CheckBox {
+                    id: amountSelector
+                    sliderOnIndicator: false
+                    visible: Fiat.price > 0
+                    enabled: false
+                }
+                Flowee.BitcoinValueField {
+                    id: bitcoinValueField
+                    property bool maxSelected: false
+                    property string previousAmountString: ""
+                    onValueEdited: {
+                        maxSelected = false;
+                        amountSelector.checked = true;
+                        fiatValueField.copyFromBCH(value);
+                    }
+                    // send back to model on change, model validates correctness
+                    onValueChanged: destinationPane.paymentDetail.paymentAmount = value
+
+                    function update(setToMax) {
+                        if (setToMax) {
+                            // backup what the user typed there, to be used if she no longer wants 'max'
+                            previousAmountString =  bitcoinValueField.valueObject.enteredString;
+                            value = portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
+                        } else {
+                            valueObject.enteredString = previousAmountString
                         }
+                        fiatValueField.copyFromBCH(value);
+                    }
+                    Connections {
+                        target: portfolio
+                        function onCurrentChanged() {
+                            var setToMax = bitcoinValueField.maxSelected
+                            if (setToMax) {
+                                bitcoinValueField.update(setToMax);
+                                bitcoinValueField.maxSelected = setToMax; // undo any changes in the button
+                            }
+                        }
+                    }
+                }
+                Flowee.Button {
+                    id: sendAll
+                    text: qsTr("Max")
+                    checkable: true
+                    checked: bitcoinValueField.maxSelected
+
+                    onClicked: {
+                        var isChecked = !bitcoinValueField.maxSelected // simply invert
+                        bitcoinValueField.update(isChecked);
+                        bitcoinValueField.maxSelected = isChecked
+                        if (isChecked)
+                            amountSelector.checked = true
                     }
                 }
             }
