@@ -38,8 +38,9 @@ public:
         FundsIn,      ///< value (in sats) of the funds we own being spent
         FundsOut,     ///< value (in sats) of the outputs created we own
         WalletIndex,  ///< wallet-internal index for this transaction.
-
-        // Comment, // TODO (also: make editable)
+        IsCoinbase,
+        IsCashFusion,
+        Comment,
         // SavedFiatRate, // TODO
     };
 

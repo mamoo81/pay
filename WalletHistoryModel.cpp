@@ -92,6 +92,12 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
         return QVariant(m_rowsProxy.at(index.row()));
     case NewTransaction:
         return QVariant(item.minedBlockHeight > m_lastSyncIndicator || item.isUnconfirmed());
+    case IsCoinbase:
+        return QVariant(item.isCoinbase);
+    case IsCashFusion:
+        return QVariant(item.isCashFusionTx);
+    case Comment:
+        return QVariant(item.userComment);
     }
 
     return QVariant();
@@ -108,7 +114,9 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
     answer[FundsIn] = "fundsIn";
     answer[FundsOut] = "fundsOut";
     answer[WalletIndex] = "walletIndex";
-    // answer[Comment] = "comment";
+    answer[IsCoinbase] = "isCoinbase";
+    answer[IsCashFusion] = "isCashFusion";
+    answer[Comment] = "comment";
     // answer[SavedFiatRate] = "savedFiatRate";
 
     return answer;
