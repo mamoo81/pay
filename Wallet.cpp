@@ -19,7 +19,6 @@
 #include "Wallet_p.h"
 #include "FloweePay.h"
 #include "PaymentRequest.h"
-#include "TransactionInfo.h"
 
 #include <NotificationListener.h>
 #include <primitives/script.h>
@@ -27,7 +26,6 @@
 #include <streaming/MessageBuilder.h>
 #include <streaming/MessageParser.h>
 #include <base58.h>
-#include <cashaddr.h>
 
 #include <QFile>
 #include <QSet>
@@ -762,115 +760,6 @@ void Wallet::addTestTransactions()
 }
 #endif
 
-namespace {
-QString renderAddress(const CKeyID &pubkeyhash)
-{
-    CashAddress::Content c;
-    c.type = CashAddress::PUBKEY_TYPE;
-    c.hash = std::vector<uint8_t>(pubkeyhash.begin(), pubkeyhash.end());
-    auto s = CashAddress::encodeCashAddr(chainPrefix(), c);
-    return QString::fromStdString(s).mid(chainPrefix().size() + 1);
-}
-
-QString renderAddress(const Streaming::ConstBuffer &outputScript)
-{
-    std::vector<std::vector<uint8_t> > vSolutions;
-    Script::TxnOutType whichType;
-    if (!Script::solver(outputScript, whichType, vSolutions))
-        return QString();
-
-    CKeyID keyID;
-    switch (whichType)
-    {
-    case Script::TX_PUBKEY:
-        keyID = CPubKey(vSolutions[0]).getKeyId();
-        break;
-    case Script::TX_PUBKEYHASH:
-        keyID = CKeyID(uint160(vSolutions[0]));
-        break;
-    default:
-        return QString();
-    }
-
-    return renderAddress(keyID);
-}
-}
-
-void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
-{
-    Q_ASSERT(info);
-    QMutexLocker locker(&m_lock);
-    auto iter = m_walletTransactions.find(txIndex);
-    if (m_walletTransactions.end() == iter)
-        throw std::runtime_error("Invalid tx-index");
-
-    Tx tx = loadTransaction(iter->second.txid, FloweePay::pool(0));
-    info->m_txSize = tx.size();
-
-    // find out how many inputs and how many outputs there are.
-    Tx::Iterator txIter(tx);
-    // If we created this transaction (we have inputs in it anyway) then
-    // also look up all the outputs from the file.
-    // TODO this creates a false-positive for tx we co-created (cashfusion, flipstarter etc)
-    const bool createdByUs = !iter->second.inputToWTX.empty();
-    do {
-        switch (txIter.next(Tx::PrevTxHash | Tx::OutputValue | Tx::OutputScript)) {
-        case Tx::PrevTxHash: info->m_inputs.append(nullptr); break;
-        case Tx::OutputValue: {
-            TransactionOutputInfo *out = nullptr;
-            if (createdByUs) {
-                out = new TransactionOutputInfo(info);
-                out->setForMe(false);
-                out->setValue(txIter.longData());
-            }
-            info->m_outputs.append(out);
-            break;
-        }
-        case Tx::OutputScript:
-            assert(!info->m_outputs.isEmpty());
-            if (createdByUs) {
-                assert(info->m_outputs.back());
-                info->m_outputs.back()->setAddress(renderAddress(txIter.byteData()));
-            }
-            break;
-        default: break; // silence compiler warnings
-        }
-    } while (txIter.tag() != Tx::End);
-
-    // probably only a couple of the inputs and outputs I have knowledge about,
-    // since only those that use our addresses are stored in the wallet.
-    // We find those and put the info objects in the assigned places.
-    for (auto pair : iter->second.inputToWTX) {
-        OutputRef ref(pair.second);
-        auto w = m_walletTransactions.find(ref.txIndex());
-        assert(w != m_walletTransactions.end());
-        auto prevOut = w->second.outputs.find(ref.outputIndex());
-        assert(prevOut != w->second.outputs.end());
-
-        auto in = new TransactionInputInfo(info);
-        in->setValue(prevOut->second.value);
-        auto secret = m_walletSecrets.find(prevOut->second.walletSecretId);
-        in->setAddress(renderAddress(secret->second.address));
-        info->m_inputs[pair.first] = in;
-    }
-    // same for outputs
-    for (auto o : iter->second.outputs) {
-        auto secret = m_walletSecrets.find(o.second.walletSecretId);
-        assert(secret != m_walletSecrets.end());
-        TransactionOutputInfo *out;
-        if (createdByUs) { // reuse the one we created before from the raw Td.
-            out = info->m_outputs[o.first];
-            out->setForMe(true);
-        }
-        else {
-            out = new TransactionOutputInfo(info);
-            out->setValue(o.second.value);
-            out->setAddress(renderAddress(secret->second.address));
-        }
-        out->setSpent(m_unspentOutputs.find(OutputRef(txIndex, o.first).encoded()) == m_unspentOutputs.end());
-        info->m_outputs[o.first] = out;
-    }
-}
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
 {
