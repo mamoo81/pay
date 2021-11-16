@@ -97,9 +97,9 @@ Item {
 
     Label {
         id: userComment
+        y: (date.y + date.height - height) / 2
 
         anchors {
-            verticalCenter: parent.verticalCenter
             // Pick the widest label to be aligned to
             left: date.width > mainLabel.width ? date.right : mainLabel.right
             right: bitcoinAmountLabel.left
