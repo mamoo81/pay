@@ -16,6 +16,7 @@
         <file alias="eye-closed.png">images/eye-closed.png</file>
         <file alias="eye-open-light.png">images/eye-open-light.png</file>
         <file alias="eye-open.png">images/eye-open.png</file>
+        <file alias="edit-delete.svg">images/edit-delete.svg</file>
         <file>defaults.ini</file>
         <file>ConfigItem.qml</file>
         <file>ControlColors.js</file>
@@ -50,5 +51,6 @@
         <file>widgets/MoneyValueField.qml</file>
         <file>widgets/FiatValueField.qml</file>
         <file>widgets/BitcoinValueField.qml</file>
+        <file>widgets/Dialog.qml</file>
     </qresource>
 </RCC>

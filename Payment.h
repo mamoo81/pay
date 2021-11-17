@@ -83,8 +83,8 @@ public:
     Q_INVOKABLE void prepare(AccountInfo *currentAccount);
     Q_INVOKABLE void broadcast();
     Q_INVOKABLE void reset();
-
-    Q_INVOKABLE PaymentDetail* addExtraOutput();
+    Q_INVOKABLE void addExtraOutput();
+    Q_INVOKABLE void remove(PaymentDetail *detail);
 
     /// return the txid, should there be a transaction (otherwise empty string)
     QString txid() const;
@@ -126,7 +126,7 @@ private:
     /// Helper method to get the output, assuming that is the only detail.
     /// Will throw if the Payment has more than one detail.
     PaymentDetailOutput *soleOut() const;
-    PaymentDetail *addDetail(PaymentDetail*);
+    void addDetail(PaymentDetail*);
 
     // Variable initialization in reset() please
     Wallet *m_wallet;
@@ -160,6 +160,9 @@ public:
     bool collapsed() const;
     void setCollapsed(bool newCollapsed);
 
+    inline bool isOutput() const {
+        return m_type == Payment::PayToAddress;
+    }
     PaymentDetailOutput *toOutput();
 
 protected:
@@ -169,6 +172,8 @@ signals:
     void collapsableChanged();
     void collapsedChanged();
     void validChanged();
+
+    void maxAllowedChanged();
 
 private:
     const Payment::DetailType m_type;
@@ -184,6 +189,7 @@ class PaymentDetailOutput : public PaymentDetail
     Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY addressChanged)
+    Q_PROPERTY(bool maxAllowed READ maxAllowed WRITE setMaxAllowed NOTIFY maxAllowedChanged)
 public:
     PaymentDetailOutput(QObject *parent = nullptr);
 
@@ -200,6 +206,13 @@ public:
     /// is non-empty if the address() is proper.
     const QString &formattedTarget() const;
 
+    /**
+     * The mayment amount can be set to 'max' which means the wallet-total-value.
+     * This returns weather this output can be set to 'max'
+     */
+    bool maxAllowed() const;
+    void setMaxAllowed(bool newN_maxAllowed);
+
 signals:
     void paymentAmountChanged();
     void addressChanged();
@@ -207,6 +220,7 @@ signals:
 private:
     void checkValid();
 
+    bool m_maxAllowed = true; // only the last in the sequence can have 'max'
     qint64 m_paymentAmount = 0;
     QString m_address;
     QString m_formattedTarget;

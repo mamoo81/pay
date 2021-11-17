@@ -150,7 +150,6 @@ void Payment::prepare(AccountInfo *account)
             ++numOutputs;
             auto o = detail->toOutput();
             totalOut += o->amount();
-
             builder.appendOutput(o->amount());
 
             bool ok = false;
@@ -299,13 +298,12 @@ void Payment::reset()
     emit txCreated();
 }
 
-PaymentDetail* Payment::addDetail(PaymentDetail *detail)
+void Payment::addDetail(PaymentDetail *detail)
 {
     m_paymentDetails.append(detail);
     connect (detail, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
     emit paymentDetailsChanged();
     emit validChanged(); // pretty sure its invalid after
-    return detail;
 }
 
 QList<QObject*> Payment::paymentDetails() const
@@ -331,9 +329,22 @@ Payment::BroadcastStatus Payment::broadcastStatus() const
     return TxSent1;
 }
 
-PaymentDetail* Payment::addExtraOutput()
+void Payment::addExtraOutput()
 {
-    return addDetail(new PaymentDetailOutput(this));
+    // only the last in the sequence can have 'max'
+    for (auto d : m_paymentDetails) {
+        if (d->isOutput()) {
+            d->toOutput()->setMaxAllowed(false);
+        }
+    }
+    addDetail(new PaymentDetailOutput(this));
+}
+
+void Payment::remove(PaymentDetail *detail)
+{
+    const auto count = m_paymentDetails.removeAll(detail);
+    if (count)
+        emit paymentDetailsChanged();
 }
 
 QString Payment::txid() const
@@ -571,4 +582,20 @@ void PaymentDetailOutput::checkValid()
 const QString &PaymentDetailOutput::formattedTarget() const
 {
     return m_formattedTarget;
+}
+
+bool PaymentDetailOutput::maxAllowed() const
+{
+    return m_maxAllowed;
+}
+
+void PaymentDetailOutput::setMaxAllowed(bool max)
+{
+    if (m_maxAllowed == max)
+        return;
+    m_maxAllowed = max;
+    emit maxAllowedChanged();
+
+    if (max == false && m_paymentAmount == -1)
+        setPaymentAmount(0);
 }
