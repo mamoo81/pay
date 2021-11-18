@@ -39,14 +39,18 @@ class Payment : public QObject
     Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
+    /// If Prepare failed, this is set.
+    Q_PROPERTY(QString error READ error NOTIFY errorChanged);
     /// Tx has been prepared
-    Q_PROPERTY(bool walletOk READ walletOk NOTIFY walletOkChanged);
     Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged);
     Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
     /// Input is valid, tx can be prepared
     Q_PROPERTY(bool isValid READ validate NOTIFY validChanged);
     Q_PROPERTY(QList<QObject*> details READ paymentDetails NOTIFY paymentDetailsChanged);
     Q_PROPERTY(BroadcastStatus broadcastStatus  READ broadcastStatus NOTIFY broadcastStatusChanged)
+    /// The price of on BCH
+    Q_PROPERTY(int fiatPrice READ fiatPrice WRITE setFiatPrice NOTIFY fiatPriceChanged)
+    Q_PROPERTY(AccountInfo *account READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
 
     Q_ENUMS(DetailType BroadcastStatus)
 public:
@@ -79,8 +83,12 @@ public:
     QString targetAddress();
     QString formattedTargetAddress();
 
-    Q_INVOKABLE bool validate();
-    Q_INVOKABLE void prepare(AccountInfo *currentAccount);
+    /// return true if all fields are correctly populated and we can prepare()
+    bool validate();
+    /// A user error occured during prepare()
+    const QString &error() const;
+
+    Q_INVOKABLE void prepare();
     Q_INVOKABLE void broadcast();
     Q_INVOKABLE void reset();
     Q_INVOKABLE void addExtraOutput();
@@ -93,11 +101,9 @@ public:
     int txSize() const;
     bool txPrepared() const;
 
+    /// Return the wallet used by the previous prepare()
+    /// \sa currentAccount
     Wallet *wallet() const;
-    /// returns false if the wallet failed to supply funds during prepare()
-    bool walletOk() const {
-        return m_walletOk;
-    }
 
     bool preferSchnorr() const;
     void setPreferSchnorr(bool preferSchnorr);
@@ -106,9 +112,16 @@ public:
 
     BroadcastStatus broadcastStatus() const;
 
+    int fiatPrice() const;
+    void setFiatPrice(int newFiatPrice);
+
+    AccountInfo *currentAccount() const;
+    void setCurrentAccount(AccountInfo *account);
+
 private slots:
     void sentToPeer();
     void txRejected(short reason, const QString &message);
+    void paymentAmountChanged();
 
 signals:
     void feePerByteChanged();
@@ -119,27 +132,34 @@ signals:
     void paymentDetailsChanged();
     void broadcastStatusChanged();
     void validChanged();
-    void walletOkChanged();
+    void errorChanged();
     void txCreated();
+    void fiatPriceChanged();
+    void currentAccountChanged();
 
 private:
+    friend class PaymentDetailOutput;
+
     /// Helper method to get the output, assuming that is the only detail.
     /// Will throw if the Payment has more than one detail.
     PaymentDetailOutput *soleOut() const;
     void addDetail(PaymentDetail*);
 
-    // Variable initialization in reset() please
-    Wallet *m_wallet;
+    AccountInfo *m_account = nullptr;
+
+    // Payment Variable initialization in reset() please
     QList<PaymentDetail*> m_paymentDetails;
     bool m_txPrepared;
     bool m_preferSchnorr;
-    bool m_walletOk;
     Tx m_tx;
     int m_fee; // in sats per byte
     int m_assignedFee;
+    int m_fiatPrice; // price for one whole BCH
     std::shared_ptr<BroadcastTxData> m_infoObject;
     short m_sentPeerCount;
     short m_rejectedPeerCount;
+    Wallet *m_wallet;
+    QString m_error;
 };
 
 class PaymentDetail : public QObject
@@ -149,7 +169,7 @@ class PaymentDetail : public QObject
     Q_PROPERTY(bool collapsable READ collapsable WRITE setCollapsable NOTIFY collapsableChanged)
     Q_PROPERTY(bool collapsed READ collapsed WRITE setCollapsed NOTIFY collapsedChanged)
 public:
-    PaymentDetail(Payment::DetailType type, QObject *parent = nullptr);
+    PaymentDetail(Payment *parent, Payment::DetailType type);
 
 
     Payment::DetailType type() const;
@@ -164,6 +184,8 @@ public:
         return m_type == Payment::PayToAddress;
     }
     PaymentDetailOutput *toOutput();
+
+    bool valid() const;
 
 protected:
     void setValid(bool valid);
@@ -185,17 +207,17 @@ private:
 class PaymentDetailOutput : public PaymentDetail
 {
     Q_OBJECT
-    Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY paymentAmountChanged)
     Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
+    Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY paymentAmountChanged)
+    Q_PROPERTY(int fiatAmount READ fiatAmount WRITE setFiatAmount NOTIFY fiatAmountChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY addressChanged)
     Q_PROPERTY(bool maxAllowed READ maxAllowed WRITE setMaxAllowed NOTIFY maxAllowedChanged)
+    Q_PROPERTY(bool fiatFollows READ fiatFollows WRITE setFiatFollows NOTIFY fiatFollowsChanged)
+    Q_PROPERTY(bool maxSelected READ maxSelected WRITE setMaxSelected NOTIFY maxSelectedChanged)
 public:
-    PaymentDetailOutput(QObject *parent = nullptr);
+    explicit PaymentDetailOutput(Payment *parent);
 
-    qint64 amount() const {
-        return m_paymentAmount;
-    }
     double paymentAmount() const;
     void setPaymentAmount(double newPaymentAmount);
 
@@ -211,17 +233,36 @@ public:
      * This returns weather this output can be set to 'max'
      */
     bool maxAllowed() const;
-    void setMaxAllowed(bool newN_maxAllowed);
+    void setMaxAllowed(bool on);
+
+    int fiatAmount() const;
+    void setFiatAmount(int amount);
+
+    bool fiatFollows() const;
+    void setFiatFollows(bool on);
+
+    bool maxSelected() const;
+    void setMaxSelected(bool on);
+
+    /// If max is selected, recalc the effective fiat / payment amounts
+    void recalcMax();
 
 signals:
     void paymentAmountChanged();
     void addressChanged();
+    void fiatAmountChanged();
+    void fiatIsMainChanged();
+    void fiatFollowsChanged();
+    void maxSelectedChanged();
 
 private:
     void checkValid();
 
-    bool m_maxAllowed = true; // only the last in the sequence can have 'max'
     qint64 m_paymentAmount = 0;
+    int m_fiatAmount = 0;
+    bool m_maxAllowed = true; // only the last in the sequence can have 'max'
+    bool m_fiatFollows = false;
+    bool m_maxSelected = false;
     QString m_address;
     QString m_formattedTarget;
 };
@@ -230,7 +271,7 @@ class PaymentDetailInputs : public PaymentDetail
 {
     Q_OBJECT
 public:
-    PaymentDetailInputs(QObject *parent = nullptr);
+    explicit PaymentDetailInputs(Payment *parent);
 
 };
 

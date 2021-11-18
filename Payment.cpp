@@ -33,43 +33,6 @@
 # include <QFile>
 #endif
 
-namespace {
-bool validatePayment(const QList<PaymentDetail*> &details, bool &hasMaxOutput)
-{
-    int numOutputs = 0;
-    for (auto detail : details) {
-        if (detail->type() == Payment::PayToAddress) {
-            ++numOutputs;
-            auto o = detail->toOutput();
-            if (o->amount() == -1) {
-                if (hasMaxOutput) { // not the only one that is 'Max'
-                    logDebug().nospace() << "Payment::prepare: Can not create transaction, "
-                       "faulty payment amount[" << numOutputs << "] Multiple MAX outputs";
-                    return false;
-                }
-                else {
-                    hasMaxOutput = true;
-                }
-            }
-            else if (o->amount() < 600) {
-                logDebug().nospace() << "Payment::prepare: Can not create transaction, "
-                   "faulty payment amount[" << numOutputs << "] " << o->amount();
-                return false;
-            }
-            if (o->formattedTarget().isEmpty()) {
-                logDebug() << "Payment::prepare: Can not create transaction, missing data for output:"
-                           << numOutputs;
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-}
-
-
-// ///////////////////////////////////////////////
 
 Payment::Payment(QObject *parent)
     : QObject(parent)
@@ -126,31 +89,36 @@ QString Payment::formattedTargetAddress()
 
 bool Payment::validate()
 {
-    bool hasMaxOutput;
-    return validatePayment(m_paymentDetails, hasMaxOutput);
+    for (auto detail : m_paymentDetails) {
+        if (!detail->valid())
+            return false;
+    }
+    return true;
 }
 
-void Payment::prepare(AccountInfo *account)
+
+
+void Payment::prepare()
 {
-    if (account == nullptr || account->wallet() == nullptr)
+    if (m_account == nullptr || m_account->wallet() == nullptr)
         throw std::runtime_error("Required account missing");
-    assert(account);
-    assert(account->wallet());
-    assert(account->wallet()->segment());
-    m_wallet = account->wallet();
-    bool seenMaxAmount = false; // set to true if the last output detail was set to 'Max'
-    if (!validatePayment(m_paymentDetails, seenMaxAmount))
-        return;
+    assert(m_account);
+    assert(m_account->wallet());
+    assert(m_account->wallet()->segment());
+    if (!validate())
+        throw std::runtime_error("can't prepare an invalid Payment");
+    m_wallet = m_account->wallet();
 
     TransactionBuilder builder;
-    int numOutputs = 0;
     qint64 totalOut = 0;
+    bool seenMaxAmount = false; // set to true if the last output detail was set to 'Max'
     for (auto detail : m_paymentDetails) {
         if (detail->type() == PayToAddress) {
-            ++numOutputs;
+            assert(!seenMaxAmount); // only allowed once.
             auto o = detail->toOutput();
-            totalOut += o->amount();
-            builder.appendOutput(o->amount());
+            seenMaxAmount |= o->maxAllowed() && o->maxSelected();
+            totalOut += o->paymentAmount();
+            builder.appendOutput(o->paymentAmount());
 
             bool ok = false;
             CashAddress::Content c = CashAddress::decodeCashAddrContent(o->formattedTarget().toStdString(), chainPrefix());
@@ -171,11 +139,16 @@ void Payment::prepare(AccountInfo *account)
 
     // find and add outputs that can be used to pay for our required output
     int64_t change = -1;
-    const auto funding = m_wallet->findInputsFor(totalOut, m_fee, tx.size(), change);
-    m_walletOk = !funding.outputs.empty(); // not enough funds.
-    emit walletOkChanged();
-    if (!m_walletOk)
+    const auto funding = m_wallet->findInputsFor(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
+    if (funding.outputs.empty()) { // not enough funds.
+        m_error = tr("Not enough funds in account to make payment!");
+        emit errorChanged();
         return;
+    }
+    if (!m_error.isEmpty()) {
+        m_error.clear();
+        emit errorChanged();
+    }
 
     qint64 fundsIngoing = 0;
     for (auto ref : funding.outputs) {
@@ -228,10 +201,6 @@ void Payment::prepare(AccountInfo *account)
         builder.setOutputValue(change);
         m_tx = builder.createTransaction();
     }
-    if (seenMaxAmount) {
-        totalOut = fundsIngoing;
-        // TODO remember this?
-    }
 
     m_txPrepared = true;
     emit txCreated();
@@ -268,10 +237,9 @@ void Payment::broadcast()
 void Payment::reset()
 {
     m_fee = 1;
-    m_wallet = nullptr;
     m_txPrepared = false;
     m_preferSchnorr = true;
-    m_walletOk = true;
+    m_error.clear();
     m_tx = Tx();
     m_assignedFee = 0;
     m_infoObject.reset();
@@ -294,16 +262,52 @@ void Payment::reset()
     emit txPreparedChanged();
     emit preferSchnorrChanged();
     emit broadcastStatusChanged();
-    emit walletOkChanged();
+    emit errorChanged();
     emit txCreated();
 }
 
 void Payment::addDetail(PaymentDetail *detail)
 {
+    assert(detail);
     m_paymentDetails.append(detail);
     connect (detail, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
+    if (detail->isOutput()) {
+        connect (detail, SIGNAL(paymentAmountChanged()), this, SLOT(paymentAmountChanged()));
+        connect (detail, SIGNAL(fiatAmountChanged()), this, SLOT(paymentAmountChanged()));
+    }
     emit paymentDetailsChanged();
-    emit validChanged(); // pretty sure its invalid after
+    emit validChanged(); // pretty sure we are invalid after ;-)
+}
+
+const QString &Payment::error() const
+{
+    return m_error;
+}
+
+AccountInfo *Payment::currentAccount() const
+{
+    return m_account;
+}
+
+void Payment::setCurrentAccount(AccountInfo *account)
+{
+    if (m_account == account)
+        return;
+    m_account = account;
+    emit currentAccountChanged();
+}
+
+int Payment::fiatPrice() const
+{
+    return m_fiatPrice;
+}
+
+void Payment::setFiatPrice(int newFiatPrice)
+{
+    if (m_fiatPrice == newFiatPrice)
+        return;
+    m_fiatPrice = newFiatPrice;
+    emit fiatPriceChanged();
 }
 
 QList<QObject*> Payment::paymentDetails() const
@@ -343,8 +347,22 @@ void Payment::addExtraOutput()
 void Payment::remove(PaymentDetail *detail)
 {
     const auto count = m_paymentDetails.removeAll(detail);
-    if (count)
+    if (count) {
         emit paymentDetailsChanged();
+
+        // Make sure only the last output has 'maxAllowed' set to true.
+        if (detail->isOutput()) {
+            bool seenOne = false;
+            for (auto iter = m_paymentDetails.rbegin(); iter != m_paymentDetails.rend(); ++iter) {
+                auto *detail = *iter;
+                if (detail->isOutput()) {
+                    detail->toOutput()->setMaxAllowed(!seenOne);
+                    seenOne = true;
+                }
+            }
+        }
+    }
+    assert(!m_paymentDetails.isEmpty());
 }
 
 QString Payment::txid() const
@@ -381,6 +399,24 @@ void Payment::txRejected(short reason, const QString &message)
     logCritical() << "Transaction rejected" << reason << message;
     ++m_rejectedPeerCount;
     emit broadcastStatusChanged();
+}
+
+void Payment::paymentAmountChanged()
+{
+    // Find the output that has 'max' and give it a change to recalculate the effective values.
+    auto out = qobject_cast<PaymentDetailOutput*>(sender());
+    if (out == nullptr)
+        return;
+    if (out->maxSelected() && out->maxAllowed())
+        return;
+    for (auto i = m_paymentDetails.rbegin(); i != m_paymentDetails.rend(); ++i) {
+        auto *detail = *i;
+        if (detail->isOutput()) {
+            if (detail != sender())
+                detail->toOutput()->recalcMax();
+            break; // only the last detail can be a 'max'
+        }
+    }
 }
 
 bool Payment::preferSchnorr() const
@@ -442,7 +478,7 @@ uint16_t PaymentInfoObject::privSegment() const
     return m_parent->wallet()->segment()->segmentId();
 }
 
-PaymentDetail::PaymentDetail(Payment::DetailType type, QObject *parent)
+PaymentDetail::PaymentDetail(Payment *parent, Payment::DetailType type)
     : QObject(parent),
       m_type(type)
 {
@@ -487,34 +523,66 @@ void PaymentDetail::setValid(bool valid)
     emit validChanged();
 }
 
+bool PaymentDetail::valid() const
+{
+    return m_valid;
+}
+
 
 // ///////////////////////////////////////////////
 
-PaymentDetailInputs::PaymentDetailInputs(QObject *parent)
-    : PaymentDetail(Payment::InputSelector, parent)
+PaymentDetailInputs::PaymentDetailInputs(Payment *parent)
+    : PaymentDetail(parent, Payment::InputSelector)
 {
 }
 
 
 // ///////////////////////////////////////////////
 
-PaymentDetailOutput::PaymentDetailOutput(QObject *parent)
-    : PaymentDetail(Payment::PayToAddress, parent)
+PaymentDetailOutput::PaymentDetailOutput(Payment *parent)
+    : PaymentDetail(parent, Payment::PayToAddress)
 {
 
 }
 
 double PaymentDetailOutput::paymentAmount() const
 {
+    if (!m_fiatFollows) {
+        Payment *p = qobject_cast<Payment*>(parent());
+        assert(p);
+        if (p->fiatPrice() == 0)
+            return 0;
+
+        return static_cast<double>(m_fiatAmount * 100000000L / p->fiatPrice());
+    }
+    if (m_maxAllowed && m_maxSelected) {
+        Payment *p = qobject_cast<Payment*>(parent());
+        assert(p);
+        assert(p->currentAccount());
+        auto wallet = p->currentAccount()->wallet();
+        assert(wallet);
+        auto amount = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
+        for (auto detail : p->m_paymentDetails) {
+            if (detail == this) // max is only allowed in the last of the outputs
+                break;
+            if (detail->isOutput())
+                amount -= detail->toOutput()->paymentAmount();
+        }
+        return static_cast<double>(amount);
+    }
     return static_cast<double>(m_paymentAmount);
 }
 
-void PaymentDetailOutput::setPaymentAmount(double newPaymentAmount)
+void PaymentDetailOutput::setPaymentAmount(double amount_)
 {
-    qint64 amount = static_cast<qint64>(newPaymentAmount);
+    qint64 amount = static_cast<qint64>(amount_);
     if (m_paymentAmount == amount)
         return;
     m_paymentAmount = amount;
+    // implicit changes first, it changes the representation
+    setFiatFollows(true);
+    setMaxSelected(false);
+    emit fiatAmountChanged();
     emit paymentAmountChanged();
     checkValid();
 }
@@ -576,7 +644,90 @@ void PaymentDetailOutput::setAddress(const QString &address_)
 
 void PaymentDetailOutput::checkValid()
 {
-    setValid((m_paymentAmount == -1 || m_paymentAmount > 600) && !m_formattedTarget.isEmpty());
+    bool valid = !m_formattedTarget.isEmpty();
+    valid = valid
+            && ((m_maxSelected && m_maxAllowed)
+                || (m_fiatFollows && m_paymentAmount > 600)
+                || (!m_fiatFollows && m_fiatAmount > 0));
+    setValid(valid);
+}
+
+bool PaymentDetailOutput::maxSelected() const
+{
+    return m_maxSelected;
+}
+
+void PaymentDetailOutput::setMaxSelected(bool on)
+{
+    if (m_maxSelected == on)
+        return;
+    m_maxSelected = on;
+    // implicit change first, it changes the representation
+    setFiatFollows(true);
+    emit maxSelectedChanged();
+    emit fiatAmountChanged();
+    emit paymentAmountChanged();
+    checkValid();
+}
+
+void PaymentDetailOutput::recalcMax()
+{
+    if (m_maxSelected && m_maxAllowed) {
+        emit fiatAmountChanged();
+        emit paymentAmountChanged();
+    }
+}
+
+bool PaymentDetailOutput::fiatFollows() const
+{
+    return m_fiatFollows;
+}
+
+void PaymentDetailOutput::setFiatFollows(bool on)
+{
+    if (m_fiatFollows == on)
+        return;
+    m_fiatFollows = on;
+    emit fiatFollowsChanged();
+}
+
+int PaymentDetailOutput::fiatAmount() const
+{
+    if (m_fiatFollows) {
+        Payment *p = qobject_cast<Payment*>(parent());
+        assert(p);
+        if (p->fiatPrice() == 0)
+            return 0;
+        qint64 amount = m_paymentAmount;
+        if (m_maxAllowed && m_maxSelected) {
+            assert(p->currentAccount());
+            auto wallet = p->currentAccount()->wallet();
+            assert(wallet);
+            amount = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
+            for (auto detail : p->m_paymentDetails) {
+                if (detail == this) // max is only allowed in the last of the outputs
+                    break;
+                if (detail->isOutput())
+                    amount -= detail->toOutput()->paymentAmount();
+            }
+        }
+
+        return (amount * p->fiatPrice() / 10000000 + 5) / 10;
+    }
+    return m_fiatAmount;
+}
+
+void PaymentDetailOutput::setFiatAmount(int amount)
+{
+    if (m_fiatAmount == amount)
+        return;
+    m_fiatAmount = amount;
+    // implicit changes first, it changes the representation
+    setFiatFollows(false);
+    setMaxSelected(false);
+    emit fiatAmountChanged();
+    emit paymentAmountChanged();
+    checkValid();
 }
 
 const QString &PaymentDetailOutput::formattedTarget() const

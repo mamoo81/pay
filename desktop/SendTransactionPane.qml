@@ -27,6 +27,8 @@ Pane {
     id: root
     Payment { // the model behind the Payment logic
         id: payment
+        fiatPrice: Fiat.price
+        account: portfolio.current
     }
 
     Column {
@@ -124,8 +126,8 @@ Pane {
             }
         }
         Label {
-            text: qsTr("Not enough funds in account to make payment!")
-            visible: !payment.walletOk
+            text: payment.error
+            visible: text !== ""
             color: txid.color // make sure this is 'disabled' when the warning is not for this wallet.
         }
 
@@ -249,7 +251,6 @@ Pane {
             collapsable: paymentDetail.collapsable
             collapsed: paymentDetail.collapsed
             title: qsTr("Destination") + ":"
-            columns: 1
             onCollapsedChanged: paymentDetail.collapsed = collapsed
 
             RowLayout {
@@ -264,12 +265,15 @@ Pane {
 
                     Layout.fillWidth: true
                     Layout.columnSpan: 3
-                    onFocusChanged: updateColor();
+                    onActiveFocusChanged: updateColor();
                     onAddressOkChanged: updateColor()
 
                     placeholderText: qsTr("Enter Bitcoin Cash Address")
                     text: destinationPane.paymentDetail.address
-                    onTextChanged: destinationPane.paymentDetail.address = text
+                    onTextChanged: {
+                        destinationPane.paymentDetail.address = text
+                        updateColor();
+                    }
 
                     function updateColor() {
                         if (!activeFocus && text !== "" && !addressOk)
@@ -281,7 +285,6 @@ Pane {
                 Label {
                     id: checked
                     color: "green"
-
                     font.pixelSize: 24
                     text: destination.addressOk ? "✔" : " "
                 }
@@ -294,77 +297,28 @@ Pane {
                 Flowee.FiatValueField {
                     id: fiatValueField
                     visible: Fiat.price > 0
-                    onValueEdited: {
-                        amountSelector.checked = false;
-                        bitcoinValueField.maxSelected = false;
-                        bitcoinValueField.valueObject.enteredString = value / Fiat.price
-                    }
-
-                    function copyFromBCH(bchAmount) {
-                        valueObject.enteredString = ((bchAmount / 100000000 * Fiat.price) + 0.5) / 100
-                    }
+                    onValueEdited: destinationPane.paymentDetail.fiatAmount = value
+                    value: destinationPane.paymentDetail.fiatAmount
                 }
                 Flowee.CheckBox {
                     id: amountSelector
                     sliderOnIndicator: false
                     visible: Fiat.price > 0
                     enabled: false
+                    checked: destinationPane.paymentDetail.fiatFollows
                 }
                 Flowee.BitcoinValueField {
                     id: bitcoinValueField
-                    property bool maxSelected: false
-                    property bool maxAllowed: destinationPane.paymentDetail.maxAllowed
-                    property string previousAmountString: ""
-                    onValueEdited: {
-                        maxSelected = false;
-                        amountSelector.checked = true;
-                        fiatValueField.copyFromBCH(value);
-                    }
-                    // send back to model on change, model validates correctness
-                    onValueChanged: {
-                        console.log("Value changed " + maxAllowed + " " +  maxSelected + " "
-                                    + value);
-                        if (maxAllowed && maxSelected)
-                            destinationPane.paymentDetail.paymentAmount = -1;
-                        else
-                            destinationPane.paymentDetail.paymentAmount = value;
-                    }
-
-                    function update(setToMax) {
-                        if (setToMax) {
-                            // backup what the user typed there, to be used if she no longer wants 'max'
-                            previousAmountString =  bitcoinValueField.valueObject.enteredString;
-                            value = portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
-                        } else {
-                            valueObject.enteredString = previousAmountString
-                        }
-                        fiatValueField.copyFromBCH(value);
-                    }
-                    Connections {
-                        target: portfolio
-                        function onCurrentChanged() {
-                            var setToMax = bitcoinValueField.maxSelected && bitcoinValueField.maxAllowed
-                            if (setToMax) {
-                                bitcoinValueField.update(setToMax);
-                                bitcoinValueField.maxSelected = setToMax; // undo any changes in the button
-                            }
-                        }
-                    }
+                    value: destinationPane.paymentDetail.paymentAmount
+                    onValueEdited: destinationPane.paymentDetail.paymentAmount = value
                 }
                 Flowee.Button {
                     id: sendAll
-                    visible: bitcoinValueField.maxAllowed
+                    visible: destinationPane.paymentDetail.maxAllowed
                     text: qsTr("Max")
                     checkable: true
-                    checked: bitcoinValueField.maxSelected
-
-                    onClicked: {
-                        var isChecked = !bitcoinValueField.maxSelected // simply invert
-                        bitcoinValueField.maxSelected = isChecked
-                        bitcoinValueField.update(isChecked);
-                        if (isChecked)
-                            amountSelector.checked = true
-                    }
+                    checked: destinationPane.paymentDetail.maxSelected
+                    onClicked: destinationPane.paymentDetail.maxSelected = checked
                 }
             }
         }
