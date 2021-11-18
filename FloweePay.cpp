@@ -234,6 +234,23 @@ QString FloweePay::basedir() const
     return m_basedir;
 }
 
+QString FloweePay::priceToStringPretty(double price) const
+{
+    QString answer = FloweePay::priceToString(static_cast<qint64>(price), m_unit);
+    int c = answer.size();
+    while (c > 0) {
+        auto k = answer.at(c - 1).unicode();
+        if (k == '.' || k == ',') {
+            --c;
+            break;
+        }
+        if (k > '0' && k <= '9')
+            break;
+        --c;
+    }
+    return answer.left(c);
+}
+
 // static
 QString FloweePay::priceToString(qint64 price, UnitOfBitcoin unit)
 {

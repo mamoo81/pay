@@ -106,7 +106,7 @@ Pane {
                 Menu {
                     id: addDetailMenu
                     MenuItem {
-                        text: "Destination"
+                        text: qsTr("Destination")
                         onTriggered: payment.addExtraOutput();
                     }
                 }
@@ -148,10 +148,6 @@ Pane {
                         visible: modelData.type === Payment.PayToAddress
                                     && modelData.formattedTarget !== ""
                                     && modelData.formattedTarget !== modelData.address
-                        Label {
-                            text: qsTr("Destination") + ":"
-                            visible: finalDestination.visible
-                        }
                         Label {
                             id: finalDestination
                             text: modelData.type === Payment.PayToAddress ? modelData.formattedTarget : ""
@@ -250,7 +246,26 @@ Pane {
 
             collapsable: paymentDetail.collapsable
             collapsed: paymentDetail.collapsed
-            title: qsTr("Destination") + ":"
+            title: qsTr("Destination")
+            summary: {
+                var ad = paymentDetail.address
+                if (ad === "")
+                    ad = "\'\'";
+                if (paymentDetail.fiatFollows) {
+                    if (paymentDetail.maxSelected)
+                        var amount = qsTr("Max available", "The maximum balance available")
+                    else
+                        amount = Pay.priceToStringPretty(paymentDetail.paymentAmount)
+                                + " " + Pay.unitName;
+                }
+                else {
+                    amount = Fiat.formattedPrice(paymentDetail.fiatAmount)
+                }
+
+                return qsTr("%1 to %2", "summary text to pay X-euro to address M")
+                            .arg(amount).arg(ad);
+            }
+
             onCollapsedChanged: paymentDetail.collapsed = collapsed
 
             RowLayout {

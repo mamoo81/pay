@@ -106,6 +106,8 @@ public:
     Q_INVOKABLE inline QString priceToString(double price) const {
         return FloweePay::priceToString(static_cast<qint64>(price), m_unit);
     }
+    /// for a price, in satoshis, return a formatted string in unitName(), removing trailing zeros.
+    Q_INVOKABLE QString priceToStringPretty(double price) const;
     /// for a price, in satoshis, return a formatted string in unitName().
     QString priceToString(qint64 price) const {
         return FloweePay::priceToString(price, m_unit);
