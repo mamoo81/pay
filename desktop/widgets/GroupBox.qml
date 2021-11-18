@@ -27,7 +27,7 @@ Item {
     property string title: ""
     default property alias content: child.children
     property alias columns: child.columns
-    activeFocusOnTab: true
+    activeFocusOnTab: collapsable
     clip: true
 
     width: 200 // should be changed by user
