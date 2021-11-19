@@ -105,11 +105,14 @@ FloweePay::FloweePay()
     timer->start(5 * 60 * 1000);
     connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
 
-    QFileInfo me(QCoreApplication::arguments().at(0));
+    QFileInfo me(QCoreApplication::applicationFilePath());
     QDir base(me.absoluteDir().absolutePath() + "/../share/floweepay/");
     if (base.exists()) {
         // add Mnemonic (BIP39) dictionaries.
         m_hdSeedValidator.registerWordList("en", base.absoluteFilePath("bip39-english"));
+    }
+    else {
+        logCritical() << "Warning: No bip39 wordlists found. Looking in:" << base.absolutePath();
     }
 }
 
