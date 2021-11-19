@@ -105,11 +105,29 @@ FloweePay::FloweePay()
     timer->start(5 * 60 * 1000);
     connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
 
-    QFileInfo me(QCoreApplication::applicationFilePath());
-    QDir base(me.absoluteDir().absolutePath() + "/../share/floweepay/");
+    QDir base(QCoreApplication::applicationDirPath() + "/../share/floweepay/");
     if (base.exists()) {
         // add Mnemonic (BIP39) dictionaries.
-        m_hdSeedValidator.registerWordList("en", base.absoluteFilePath("bip39-english"));
+        struct LangPair { const char *id, *filename; };
+        static const LangPair knownPairs[] = {
+            {"en", "bip39-english"},
+            {"zh-simple", "bip39-chinese_simplified"},
+            {"zh-traditional", "bip39-chinese_traditional"},
+            {"cs", "bip39-czech"},
+            {"fr", "bip39-french"},
+            {"it", "bip39-italian"},
+            {"ja", "bip39-japanese"},
+            {"ko", "bip39-korean"},
+            {"pt", "bip39-portuguese"},
+            {"es", "bip39-spanish"},
+            {0, 0}
+        };
+        for (int i = 0; knownPairs[i].id; ++i) {
+            const LangPair lang = knownPairs[i];
+            QString fullPath(base.absoluteFilePath(lang.filename));
+            if (QFile::exists(fullPath))
+                m_hdSeedValidator.registerWordList(lang.id, fullPath);
+        }
     }
     else {
         logCritical() << "Warning: No bip39 wordlists found. Looking in:" << base.absolutePath();
