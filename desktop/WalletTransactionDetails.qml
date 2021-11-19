@@ -27,6 +27,7 @@ GridLayout {
 
     columns: 2
     LabelWithClipboard {
+        menuText: qsTr("Copy transaction-ID")
         Layout.columnSpan: 2
         text: model.txid
         font.pointSize: 7
@@ -108,7 +109,16 @@ GridLayout {
                     }
                     LabelWithClipboard {
                         id: inAddress
-                        text: modelData === null ? "" : modelData.address
+                        menuText: qsTr("Copy Address")
+                        text: {
+                            if (modelData === null)
+                                return "";
+                            var cloaked = modelData.cloakedAddress
+                            if (cloaked !== "")
+                                return cloaked;
+                            return modelData.address;
+                        }
+                        clipboardText: modelData === null ? "" : modelData.address
                         visible: modelData !== null
                         anchors.bottom: arrowLine.top
                         anchors.left: inIndex.right
@@ -182,7 +192,16 @@ GridLayout {
                         id: outAddress
                         visible: modelData !== null
                         elide: Text.ElideMiddle
-                        text: modelData === null ? "" : modelData.address
+                        menuText: qsTr("Copy Address")
+                        text: {
+                            if (modelData === null)
+                                return "";
+                            var cloaked = modelData.cloakedAddress
+                            if (cloaked !== "")
+                                return cloaked;
+                            return modelData.address;
+                        }
+                        clipboardText: modelData === null ? "" : modelData.address
                         anchors.left: outIndex.right
                         anchors.leftMargin: 10
                         anchors.rightMargin: 20

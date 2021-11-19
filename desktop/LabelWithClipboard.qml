@@ -19,10 +19,12 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 
 Label {
+    id: root
     elide: Text.ElideMiddle
 
     // override the text to be copied to clipboard
     property string clipboardText: ""
+    property string menuText: qsTr("Copy Address")
 
     MouseArea {
         anchors.fill: parent
@@ -41,8 +43,8 @@ Label {
             }
             property string text: ""
             MenuItem {
-                text: qsTr("Copy")
-                onTriggered:  Pay.copyToClipboard(menu.text)
+                text: root.menuText
+                onTriggered: Pay.copyToClipboard(menu.text)
             }
         }
     }

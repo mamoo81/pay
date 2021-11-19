@@ -269,14 +269,21 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
 
         auto in = new TransactionInputInfo(info);
         in->setValue(prevOut->second.value);
-        auto secret = m_walletSecrets.find(prevOut->second.walletSecretId);
-        in->setAddress(renderAddress(secret->second.address));
+        auto secretIter = m_walletSecrets.find(prevOut->second.walletSecretId);
+        assert(secretIter != m_walletSecrets.end());
+        const auto &secret = secretIter->second;
+        in->setAddress(renderAddress(secret.address));
+        if (secret.fromChangeChain) {
+            assert(secret.fromHdWallet);
+            in->setCloakedAddress(tr("Change #%1").arg(secret.hdDerivationIndex));
+        }
         info->m_inputs[pair.first] = in;
     }
     // same for outputs
     for (auto o : wtx.outputs) {
-        auto secret = m_walletSecrets.find(o.second.walletSecretId);
-        assert(secret != m_walletSecrets.end());
+        auto secretIter = m_walletSecrets.find(o.second.walletSecretId);
+        assert(secretIter != m_walletSecrets.end());
+        const auto &secret = secretIter->second;
         TransactionOutputInfo *out;
         if (createdByUs) { // reuse the one we created before from the raw Td.
             out = info->m_outputs[o.first];
@@ -285,9 +292,13 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
         else {
             out = new TransactionOutputInfo(info);
             out->setValue(o.second.value);
-            out->setAddress(renderAddress(secret->second.address));
+            out->setAddress(renderAddress(secret.address));
         }
         out->setSpent(m_unspentOutputs.find(OutputRef(txIndex, o.first).encoded()) == m_unspentOutputs.end());
+        if (secret.fromChangeChain) {
+            assert(secret.fromHdWallet);
+            out->setCloakedAddress(tr("Change #%1").arg(secret.hdDerivationIndex));
+        }
         info->m_outputs[o.first] = out;
     }
 }
