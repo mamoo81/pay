@@ -49,6 +49,8 @@ Pane {
                     sourceComponent: {
                         if (modelData.type === Payment.PayToAddress)
                             return destinationFields
+                        if (modelData.type === Payment.InputSelector)
+                            return inputFields
                         return null; // should never happen
                     }
                     onLoaded: item.paymentDetail = modelData
@@ -108,6 +110,11 @@ Pane {
                     MenuItem {
                         text: qsTr("Destination")
                         onTriggered: payment.addExtraOutput();
+                    }
+                    MenuItem {
+                        text: qsTr("Coin selector")
+                        onTriggered: payment.addInputSelector();
+                        // TODO find a way to disable this one when there is one already.
                     }
                 }
             }
@@ -338,4 +345,12 @@ Pane {
             }
         }
     }
+
+    Component {
+        id: inputFields
+        Flowee.GroupBox {
+            title: "bla bla"
+        }
+    }
+
 }

@@ -26,6 +26,7 @@
 class Wallet;
 class PaymentDetail;
 class PaymentDetailOutput;
+class PaymentDetailInputs;
 class AccountInfo;
 
 class Payment : public QObject
@@ -92,6 +93,7 @@ public:
     Q_INVOKABLE void broadcast();
     Q_INVOKABLE void reset();
     Q_INVOKABLE void addExtraOutput();
+    Q_INVOKABLE void addInputSelector();
     Q_INVOKABLE void remove(PaymentDetail *detail);
 
     /// return the txid, should there be a transaction (otherwise empty string)
@@ -183,7 +185,11 @@ public:
     inline bool isOutput() const {
         return m_type == Payment::PayToAddress;
     }
+    inline bool isInputs() const {
+        return m_type == Payment::InputSelector;
+    }
     PaymentDetailOutput *toOutput();
+    PaymentDetailInputs *toInputs();
 
     bool valid() const;
 

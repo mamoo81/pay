@@ -64,6 +64,7 @@ set (PAY_SOURCES
     QRCreator.cpp
     TransactionInfo.cpp
     Wallet.cpp
+    WalletCoinsModel.cpp
     WalletHistoryModel.cpp
     WalletSecretsModel.cpp
     Wallet_support.cpp

@@ -344,6 +344,16 @@ void Payment::addExtraOutput()
     addDetail(new PaymentDetailOutput(this));
 }
 
+void Payment::addInputSelector()
+{
+    // only one input selector allowed
+    for (auto d : m_paymentDetails) {
+        if (d->isInputs())
+            return;
+    }
+    addDetail(new PaymentDetailInputs(this));
+}
+
 void Payment::remove(PaymentDetail *detail)
 {
     const auto count = m_paymentDetails.removeAll(detail);
