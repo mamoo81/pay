@@ -81,14 +81,14 @@ int main(int argc, char *argv[])
     parser.addOption(quiet);
     parser.addOption(connect);
     parser.addOption(testnet4);
+    // nice feature to test your QML changes.
+    QCommandLineOption offline(QStringList() << "offline", "Do not connect");
+    parser.addOption(offline);
 #ifndef NDEBUG
     // to protect people from the bad effect of having and later not having headers we only allow this
     // override in debug mode.
     QCommandLineOption headers(QStringList() << "headers", "Override location of blockheaders", "PATH");
     parser.addOption(headers);
-    // nice feature to test your QML changes.
-    QCommandLineOption offline(QStringList() << "offline", "Do not connect");
-    parser.addOption(offline);
 #endif
     parser.process(qapp);
 
@@ -120,7 +120,6 @@ int main(int argc, char *argv[])
         prices.start();
     FloweePay::selectChain(chain);
 
-    bool online = true;
     std::unique_ptr<QFile> blockheaders; // pointer to own the memmapped blockheaders file.
     // lets try by default to open the path /usr/share/floweepay/*
     blockheaders.reset(new QFile(QString("/usr/share/floweepay/")
@@ -142,9 +141,8 @@ int main(int argc, char *argv[])
             blockheaders.reset();
         }
     }
-    online = !parser.isSet(offline);
-
 #endif
+
     if (blockheaders) {
        if (!blockheaders->open(QIODevice::ReadOnly)) { // can't be opened for reading.
             blockheaders.reset();
@@ -166,7 +164,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("Fiat", &prices);
     engine.load(url);
 
-    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect, online]() {
+    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect, offline]() {
         FloweePay *app = FloweePay::instance();
 
         NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);
@@ -185,7 +183,7 @@ int main(int argc, char *argv[])
             app->p2pNet()->connectionManager().peerAddressDb().addOne( // actually connect to it too.
                         EndPoint(parser.value(connect).toStdString(), 8333));
         }
-        if (online) // see the 'offline' commandline option (debug builds only)
+        if (!parser.isSet(offline))
             app->p2pNet()->start(); // lets go!
     });
 
