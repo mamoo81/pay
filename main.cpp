@@ -54,6 +54,10 @@ struct ECC_State
 };
 }
 
+// defined in qml_path_helper.cpp.in
+void handleLocalQml(QQmlApplicationEngine &engine);
+
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -81,7 +85,7 @@ int main(int argc, char *argv[])
     parser.addOption(quiet);
     parser.addOption(connect);
     parser.addOption(testnet4);
-    // nice feature to test your QML changes.
+    // nice features to test your QML changes.
     QCommandLineOption offline(QStringList() << "offline", "Do not connect");
     parser.addOption(offline);
 #ifndef NDEBUG
@@ -107,9 +111,20 @@ int main(int argc, char *argv[])
     logger->clearLogLevels(v);
     logger->addConsoleChannel();
 
-    QTranslator translator;
-    if (translator.load(QLocale(), QLatin1String("floweepay"), QLatin1String("_"), QLatin1String(":/i18n")))
-        QCoreApplication::installTranslator(&translator);
+    static const char* languagePacks[] = {
+        "floweepay-desktop",
+        "floweepay-common",
+        "floweepay-mobile",
+        nullptr
+    };
+
+    for (int i = 0; languagePacks[i]; ++i) {
+        auto *translator = new QTranslator(&qapp);
+        if (translator->load(QLocale(), languagePacks[i], QLatin1String("_"), QLatin1String(":/i18n")))
+            QCoreApplication::installTranslator(translator);
+        else
+            delete translator;
+    }
 
     PriceDataProvider prices;
     // select chain
@@ -159,10 +174,10 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
 
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
     engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
     engine.rootContext()->setContextProperty("Fiat", &prices);
-    engine.load(url);
+    handleLocalQml(engine);
+    engine.load(engine.baseUrl().url() + "/main.qml");
 
     QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect, offline]() {
         FloweePay *app = FloweePay::instance();
