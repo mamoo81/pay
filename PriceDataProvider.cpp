@@ -157,7 +157,7 @@ void PriceDataProvider::finishedDownload()
         logWarning() << "PriceDataProvider failed." << error.what();
         if (!data.isEmpty())
             logInfo() << QString::fromUtf8(data);
-        m_timer.start(1 * 60 * 1000);
+        m_timer.start(20 * 1000);
         return;
     }
     logInfo() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
