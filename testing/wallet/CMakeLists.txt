@@ -14,34 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${Qt5Core_INCLUDE_DIRS}
-    ${Qt5Test_INCLUDE_DIRS}
-)
+include_directories(${CMAKE_SOURCE_DIR} ${Qt5Test_INCLUDE_DIRS})
 
 add_executable(test_wallet
     TestWallet.cpp
-    ${CMAKE_SOURCE_DIR}/FloweePay.cpp
-    ${CMAKE_SOURCE_DIR}/PaymentRequest.cpp
-    ${CMAKE_SOURCE_DIR}/Wallet.cpp
-    ${CMAKE_SOURCE_DIR}/NewWalletConfig.cpp
-    ${CMAKE_SOURCE_DIR}/TransactionInfo.cpp
-    ${CMAKE_SOURCE_DIR}/NotificationManager.cpp
-    ${CMAKE_SOURCE_DIR}/Wallet_support.cpp
-    ${CMAKE_SOURCE_DIR}/Wallet_spending.cpp
+    ${CMAKE_SOURCE_DIR}/Wallet_test.cpp
 )
-target_link_libraries(test_wallet
-    flowee_apputils
-    flowee_utils
-    flowee_p2p
-    ${OPENSSL_LIBRARIES}
-    ${Boost_LIBRARIES}
-    Qt5::Test
-    Qt5::Gui
-)
-
+target_link_libraries(test_wallet pay_lib Qt5::Test)
 add_test(NAME Pay_test_wallet COMMAND test_wallet)

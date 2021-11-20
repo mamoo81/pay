@@ -40,13 +40,19 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
 find_package(QREncode REQUIRED)
+find_package(OpenSSL REQUIRED)
+message ("Using OpenSSL ${OPENSSL_VERSION}")
+find_package(Flowee REQUIRED flowee_p2p)
+find_package(Boost 1.67.0
+    REQUIRED
+    filesystem chrono thread
+)
 
 # starting with Qt5.15 we have a lot of deprecation warnings,
 # likely to make porting to Qt6 easier.
 # as long as we require linking to older Qt versions those warnings
 # are clutter. Remove this define when we start porting to Qt6.
 add_definitions(-DQT_NO_DEPRECATED_WARNINGS)
-
 
 set (PAY_SOURCES
     AccountInfo.cpp
@@ -70,66 +76,11 @@ set (PAY_SOURCES
     Wallet_spending.cpp
 )
 
-if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
-    install(FILES ${CMAKE_SOURCE_DIR}/data/blockheaders DESTINATION share/floweepay)
-endif()
-
-if(ANDROID)
-    add_library(PAY SHARED
-        ${PAY_SOURCES}
-    )
-else()
-    set (TS_FILES
-        desktop/i18n/floweepay_nl.ts
-        desktop/i18n/floweepay_pl.ts
-    )
-    # set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "l10n")
-    qt5_add_translation(qmFiles ${TS_FILES})
-
-    # notice that for this custom target we require CMake 3.13 minimum. But since
-    # only the release manager will need to call this, we leave the project cmake
-    # minimum to be lower.
-    add_custom_target(i18n
-        COMMAND lupdate desktop/qml.qrc ${PAY_SOURCES} -ts ${TS_FILES} desktop/i18n/floweepay_en.ts
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT
-            "Updating internationalization (i18n) translation files"
-    )
-
-    # The qm files are generated in the build tree, but the qrc file is inside the
-    # source directory and the path to resources are relative to the location of
-    # the qrc file itself. We use configure_file() to copy the qrc file in the build
-    # directory such that it can find the qm translations files. The qrc file is
-    # copied if it doesn't exist in the destination or if it is modified.
-    configure_file(desktop/i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
-    add_executable(pay
-        ${PAY_SOURCES}
-        ${QM_FILES}
-        desktop/qml.qrc
-        i18n.qrc
-    )
-    install(PROGRAMS desktop/org.flowee.pay.desktop DESTINATION share/applications)
-    set (ICONIN desktop/icons/hicolor/)
-    set (ICONOUT share/icons/hicolor/)
-    install(FILES ${ICONIN}16x16/apps/org.flowee.pay.png DESTINATION ${ICONOUT}16x16/apps)
-    install(FILES ${ICONIN}22x22/apps/org.flowee.pay.png DESTINATION ${ICONOUT}22x22/apps)
-    install(FILES ${ICONIN}24x24/apps/org.flowee.pay.png DESTINATION ${ICONOUT}24x24/apps)
-    install(FILES ${ICONIN}32x32/apps/org.flowee.pay.png DESTINATION ${ICONOUT}32x32/apps)
-    install(FILES ${ICONIN}48x48/apps/org.flowee.pay.png DESTINATION ${ICONOUT}48x48/apps)
-    install(FILES ${ICONIN}256x256/apps/org.flowee.pay.png DESTINATION ${ICONOUT}256x256/apps)
-endif()
-
-find_package(Boost 1.67.0
-    REQUIRED
-    filesystem chrono thread
+add_library(pay_lib STATIC
+    ${PAY_SOURCES}
 )
-find_package(OpenSSL REQUIRED)
-message ("Using OpenSSL ${OPENSSL_VERSION}")
-find_package(Flowee REQUIRED flowee_p2p)
 
-target_compile_definitions(pay
-  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(pay
+target_link_libraries(pay_lib
     flowee_apputils
     flowee_utils
     flowee_p2p
@@ -137,7 +88,48 @@ target_link_libraries(pay
     ${Boost_LIBRARIES}
     Qt5::Core Qt5::Quick ${QREncode_LIBRARIES})
 
-add_subdirectory(testing)
+set (TS_FILES
+    desktop/i18n/floweepay_nl.ts
+    desktop/i18n/floweepay_pl.ts
+)
+# set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "l10n")
+qt5_add_translation(qmFiles ${TS_FILES})
 
-install(FILES ${CMAKE_SOURCE_DIR}/data/bip39-english DESTINATION share/floweepay)
+# notice that for this custom target we require CMake 3.13 minimum. But since
+# only the release manager will need to call this, we leave the project cmake
+# minimum to be lower.
+add_custom_target(i18n
+    COMMAND lupdate desktop/qml.qrc ${PAY_SOURCES} -ts ${TS_FILES} desktop/i18n/floweepay_en.ts
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT
+        "Updating internationalization (i18n) translation files"
+)
+
+# The qm files are generated in the build tree, but the qrc file is inside the
+# source directory and the path to resources are relative to the location of
+# the qrc file itself. We use configure_file() to copy the qrc file in the build
+# directory such that it can find the qm translations files. The qrc file is
+# copied if it doesn't exist in the destination or if it is modified.
+configure_file(desktop/i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
+add_executable(pay
+    desktop/qml.qrc
+    i18n.qrc
+)
+target_link_libraries(pay pay_lib)
 install(TARGETS pay DESTINATION bin)
+
+install(PROGRAMS desktop/org.flowee.pay.desktop DESTINATION share/applications)
+set (ICONIN desktop/icons/hicolor/)
+set (ICONOUT share/icons/hicolor/)
+install(FILES ${ICONIN}16x16/apps/org.flowee.pay.png DESTINATION ${ICONOUT}16x16/apps)
+install(FILES ${ICONIN}22x22/apps/org.flowee.pay.png DESTINATION ${ICONOUT}22x22/apps)
+install(FILES ${ICONIN}24x24/apps/org.flowee.pay.png DESTINATION ${ICONOUT}24x24/apps)
+install(FILES ${ICONIN}32x32/apps/org.flowee.pay.png DESTINATION ${ICONOUT}32x32/apps)
+install(FILES ${ICONIN}48x48/apps/org.flowee.pay.png DESTINATION ${ICONOUT}48x48/apps)
+install(FILES ${ICONIN}256x256/apps/org.flowee.pay.png DESTINATION ${ICONOUT}256x256/apps)
+install(FILES ${CMAKE_SOURCE_DIR}/data/bip39-english DESTINATION share/floweepay)
+if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
+    install(FILES ${CMAKE_SOURCE_DIR}/data/blockheaders DESTINATION share/floweepay)
+endif()
+
+add_subdirectory(testing)
