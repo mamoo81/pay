@@ -421,7 +421,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 if (!wasUnconfirmed) { // unconfirmed transactions already had their outputs added
                     logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
                     m_unspentOutputs.insert(std::make_pair(key, i->second.value));
-                    if (i->second.value == 547) {
+                    if (!m_singleAddressWallet && i->second.value == 547) {
                         // special case so-called 'spam' outputs and instantly lock it for privacy reasons
                         // those outputs can only be spent by combining them with others, combining inputs
                         // is a potential loss of privacy (makes keys tracable) that is not worth the benefit
