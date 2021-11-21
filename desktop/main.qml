@@ -90,7 +90,7 @@ ApplicationWindow {
                 anchors.verticalCenter: parent.verticalCenter
                 x: 20
                 smooth: true
-                source: "FloweePay-light.svg"
+                source: "qrc:/FloweePay-light.svg"
                 // ratio: 77 / 449
                 height: (parent.height - 20) * 7 / 10
                 width: height * 449 / 77

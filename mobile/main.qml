@@ -42,7 +42,7 @@ ApplicationWindow {
             x: 10
             y: 10
             smooth: true
-            source: "FloweePay-light.svg"
+            source: "qrc:/FloweePay-light.svg"
             // ratio: 77 / 449
             height: 50
             width: height * 449 / 77
