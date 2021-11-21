@@ -105,7 +105,20 @@ Item {
             right: bitcoinAmountLabel.left
             margins: 10
         }
-        text: model.comment
+        text: {
+            var userComment = model.comment;
+            if (userComment !== "")
+                return userComment;
+            let diff = model.fundsOut - model.fundsIn;
+            if (diff < 0 && diff > -1000) { // then lets print the fees here.
+                diff = -1 * diff;
+                var rc = Pay.priceToString(diff) + " " + Pay.unitName
+                if (Fiat.price > 0)
+                    rc += " " + Fiat.formattedPrice(diff, Fiat.price);
+                return qsTr("Fees paid: %1").arg(rc);
+            }
+            return "";
+        }
         elide: Text.ElideRight
         Connections {
             target: date
@@ -121,7 +134,14 @@ Item {
 
     Flowee.BitcoinAmountLabel {
         id: bitcoinAmountLabel
-        value: model.fundsOut - model.fundsIn
+        value: {
+            let inputs = model.fundsIn
+            let outputs = model.fundsOut
+            let diff = model.fundsOut - model.fundsIn
+            if (diff < 0 && diff > -1000) // then the diff is likely just fees.
+                return inputs;
+            return diff;
+        }
         anchors.top: mainLabel.top
         fontPtSize: date.font.pointSize
         anchors.right: parent.right
