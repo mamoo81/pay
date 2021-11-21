@@ -269,7 +269,17 @@ void Payment::reset()
 void Payment::addDetail(PaymentDetail *detail)
 {
     assert(detail);
-    m_paymentDetails.append(detail);
+    if (detail->isOutput()) {
+        // outputs are grouped together at the beginning. We insert
+        // at the end of the outputs, before any others.
+        int newPos = 0;
+        while (newPos < m_paymentDetails.length() && m_paymentDetails.at(newPos)->isOutput())
+            ++newPos;
+        m_paymentDetails.insert(newPos, detail);
+    }
+    else {
+        m_paymentDetails.append(detail);
+    }
     connect (detail, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
     if (detail->isOutput()) {
         connect (detail, SIGNAL(paymentAmountChanged()), this, SLOT(paymentAmountChanged()));
