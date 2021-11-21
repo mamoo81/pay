@@ -329,10 +329,18 @@ QString FloweePay::formatDateTime(QDateTime date) const
     if (now > date) {
         // use the 'yesterday' style if the date is reasonably close.
         const auto secs = date.secsTo(now);
-        if (secs < 24 * 60)
-            return tr("Now", "timestamp");
-        if (secs < 66 * 60)
-            return tr("An hour ago", "timestamp");
+        if (secs < 24 * 60) {
+            const int mins = (secs + 24) / 60;
+            if (mins <= 0)
+                return tr("Now", "timestamp");
+            return tr("%1 minutes ago", "relative time stamp", mins).arg(mins);
+        }
+        if (secs < 18 * 60 * 60) {
+            if (secs < 46 * 60)
+                return tr("½ hour ago", "timestamp");
+            const int hours = (secs + 900) / 3600;
+            return tr("%1 hours ago", "timestamp", hours).arg(hours);
+        }
         const auto days = date.daysTo(now);
         if (days == 0)
             return tr("Today") + " " + date.toString(timeFormat);
