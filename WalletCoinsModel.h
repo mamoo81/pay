@@ -28,8 +28,14 @@ class WalletCoinsModel : public QAbstractListModel
 public:
     explicit WalletCoinsModel(Wallet *wallet, QObject *parent = nullptr);
 
+    void setWallet(Wallet *newWallet);
+
     enum {
-        Foo = Qt::UserRole,
+        Value = Qt::UserRole, // in sats
+        Blockheight,
+        FusedCount,
+        Address,
+        CloakedAddress
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -37,13 +43,13 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
 private slots:
-    void balanceChanged();
+    void uxosChanged();
 
 private:
     void createMap();
 
-    QVector<int> m_rowsProxy;
     Wallet *m_wallet;
+    std::map<int, uint64_t> m_rowsToOutputRefs;
 };
 
 #endif

@@ -295,6 +295,13 @@ void Payment::setCurrentAccount(AccountInfo *account)
         return;
     m_account = account;
     emit currentAccountChanged();
+
+    for (auto detail : m_paymentDetails) {
+        if (detail->isInputs()) {
+            detail->toInputs()->model()->setWallet(account->wallet());
+            break;
+        }
+    }
 }
 
 int Payment::fiatPrice() const
@@ -542,8 +549,14 @@ bool PaymentDetail::valid() const
 // ///////////////////////////////////////////////
 
 PaymentDetailInputs::PaymentDetailInputs(Payment *parent)
-    : PaymentDetail(parent, Payment::InputSelector)
+    : PaymentDetail(parent, Payment::InputSelector),
+      m_model(parent->currentAccount()->wallet())
 {
+}
+
+WalletCoinsModel *PaymentDetailInputs::model()
+{
+    return &m_model;
 }
 
 

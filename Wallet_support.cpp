@@ -40,15 +40,6 @@ void copyTx(size_t index, std::deque<Tx> &answer, const std::vector<QSet<int> > 
     answer.push_back(in.at(index));
 }
 
-QString renderAddress(const CKeyID &pubkeyhash)
-{
-    CashAddress::Content c;
-    c.type = CashAddress::PUBKEY_TYPE;
-    c.hash = std::vector<uint8_t>(pubkeyhash.begin(), pubkeyhash.end());
-    auto s = CashAddress::encodeCashAddr(chainPrefix(), c);
-    return QString::fromStdString(s).mid(chainPrefix().size() + 1);
-}
-
 QString renderAddress(const Streaming::ConstBuffer &outputScript)
 {
     std::vector<std::vector<uint8_t> > vSolutions;

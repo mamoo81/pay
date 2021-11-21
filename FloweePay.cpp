@@ -773,3 +773,14 @@ const std::string &chainPrefix()
 {
     return FloweePay::instance()->chainPrefix();
 }
+
+QString renderAddress(const CKeyID &pubkeyhash)
+{
+    CashAddress::Content c;
+    c.type = CashAddress::PUBKEY_TYPE;
+    c.hash = std::vector<uint8_t>(pubkeyhash.begin(), pubkeyhash.end());
+    const std::string &chainPrefix = FloweePay::instance()->chainPrefix();
+    auto s = CashAddress::encodeCashAddr(chainPrefix, c);
+    const auto size = chainPrefix.size();
+    return QString::fromLatin1(s.c_str() + size, s.size() - size);
+}

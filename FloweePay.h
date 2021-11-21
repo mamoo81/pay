@@ -31,13 +31,15 @@
 #include <QString>
 #include <QDateTime>
 
-const std::string &chainPrefix();
-
 namespace Streaming {
     class BufferPool;
 }
 class Wallet;
 class NewWalletConfig;
+class CKeyID;
+
+const std::string &chainPrefix();
+QString renderAddress(const CKeyID &pubkeyhash);
 
 class FloweePay : public QObject, WorkerThreads, P2PNetInterface
 {

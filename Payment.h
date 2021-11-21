@@ -18,7 +18,8 @@
 #ifndef PAYMENT_H
 #define PAYMENT_H
 
-#include <QObject>
+#include "WalletCoinsModel.h"
+
 #include <BroadcastTxData.h>
 #include <primitives/Tx.h>
 #include <memory>
@@ -276,14 +277,24 @@ private:
 class PaymentDetailInputs : public PaymentDetail
 {
     Q_OBJECT
+    Q_PROPERTY(QAbstractListModel* model READ model CONSTANT)
 public:
     explicit PaymentDetailInputs(Payment *parent);
 
+    WalletCoinsModel *model();
+
+private:
+    WalletCoinsModel m_model;
 };
 
 inline PaymentDetailOutput *PaymentDetail::toOutput() {
     assert(m_type == Payment::PayToAddress);
     return static_cast<PaymentDetailOutput*>(this);
+}
+
+inline PaymentDetailInputs *PaymentDetail::toInputs() {
+    assert(m_type == Payment::InputSelector);
+    return static_cast<PaymentDetailInputs*>(this);
 }
 
 #endif

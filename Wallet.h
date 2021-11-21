@@ -443,6 +443,7 @@ private:
 
     friend class WalletHistoryModel;
     friend class WalletSecretsModel;
+    friend class WalletCoinsModel;
 
     // user settings
     bool m_singleAddressWallet = false;
