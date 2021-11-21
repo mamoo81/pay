@@ -348,9 +348,9 @@ ApplicationWindow {
                         id: showBalanceButton
                         anchors.right: parent.right
                         source: {
-                            if (Pay.hideBalance)
-                                return Pay.useDarkSkin ? "eye-closed-light.png" : "eye-closed.png"
-                            return Pay.useDarkSkin ? "eye-open-light.png" : "eye-open.png"
+                            var state = Pay.hideBalance ? "closed" : "open";
+                            var skin = Pay.useDarkSkin ? "-light" : ""
+                            return "qrc:/eye-" + state + skin + ".png";
                         }
                         smooth: true
                         opacity: 0.5
