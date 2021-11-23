@@ -19,6 +19,7 @@
 #define WALLETCOINSMODEL_H
 
 #include <QAbstractListModel>
+#include <functional>
 
 class Wallet;
 
@@ -32,15 +33,32 @@ public:
 
     enum {
         Value = Qt::UserRole, // in sats
+        Age,
         Blockheight,
         FusedCount,
+        Locked, // bool
         Address,
-        CloakedAddress
+        CloakedAddress,
+        Selected
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+
+    /**
+     * For a specific row return the Wallet::OutputRef that matches it.
+     */
+    uint64_t outRefForRow(int row) const;
+
+    // lock or unlock a UTXO entry in the backing wallet.
+    void setOutputLocked(int row, bool lock);
+
+    void setSelectionGetter(const std::function<bool(uint64_t)> &callback);
+    /// Find the row for a Wallet::OutputRef and mark it dirty for refresh in the UI
+    void updateRow(uint64_t outRef);
+    /// mark row dirty for refresh in the UI
+    void updateRow(int row);
 
 private slots:
     void uxosChanged();
@@ -48,8 +66,10 @@ private slots:
 private:
     void createMap();
 
-    Wallet *m_wallet;
+    Wallet *m_wallet = nullptr;
     std::map<int, uint64_t> m_rowsToOutputRefs;
+
+    std::function<bool(uint64_t)> m_selectionGetter;
 };
 
 #endif

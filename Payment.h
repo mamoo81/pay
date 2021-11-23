@@ -23,6 +23,8 @@
 #include <BroadcastTxData.h>
 #include <primitives/Tx.h>
 #include <memory>
+#include <set>
+#include <map>
 
 class Wallet;
 class PaymentDetail;
@@ -277,14 +279,41 @@ private:
 class PaymentDetailInputs : public PaymentDetail
 {
     Q_OBJECT
-    Q_PROPERTY(QAbstractListModel* model READ model CONSTANT)
+    Q_PROPERTY(double selectedValue READ selectedValue NOTIFY selectedValueChanged)
+    Q_PROPERTY(int selectedCount READ selectedCount NOTIFY selectedCountChanged)
+    Q_PROPERTY(QAbstractListModel* coins READ coins CONSTANT)
 public:
     explicit PaymentDetailInputs(Payment *parent);
 
-    WalletCoinsModel *model();
+    void setWallet(Wallet *wallet);
+
+    /// returns the model that shows the unspent coins.
+    WalletCoinsModel *coins();
+
+    Q_INVOKABLE void setRowIncluded(int row, bool on);
+    Q_INVOKABLE void setOutputLocked(int row, bool lock);
+    Q_INVOKABLE void selectAll();
+    Q_INVOKABLE void unselectAll();
+
+    double selectedValue() const;
+    int selectedCount() const;
+
+signals:
+    void selectedValueChanged();
+    void selectedCountChanged();
 
 private:
+    bool isRowIncluded(uint64_t rowId);
+
+    Wallet *m_wallet = nullptr;
     WalletCoinsModel m_model;
+
+    struct Selection {
+        quint64 selectedValue = 0;
+        int selectedCount = 0;
+        std::set<uint64_t> rows;
+    };
+    std::map<Wallet*, Selection> m_selectionModels;
 };
 
 inline PaymentDetailOutput *PaymentDetail::toOutput() {

@@ -19,31 +19,34 @@
 #include "WalletCoinsModel.h"
 #include "Wallet.h"
 #include "FloweePay.h"
+#include <p2p/DownloadManager.h>
 
 #include <QMutex>
 #include <cashaddr.h>
 
 
 WalletCoinsModel::WalletCoinsModel(Wallet *wallet, QObject *parent)
-    : QAbstractListModel(parent),
-    m_wallet(wallet)
+    : QAbstractListModel(parent)
 {
-    assert(wallet);
-    QMutexLocker locker(&m_wallet->m_lock);
-    assert(wallet->segment());
-    createMap();
-
-    connect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(uxosChanged()));
+    setWallet(wallet);
 }
 
 void WalletCoinsModel::setWallet(Wallet *newWallet)
 {
     assert(newWallet);
+    assert(newWallet->segment());
     if (m_wallet == newWallet)
         return;
+    if (m_wallet)
+        disconnect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(uxosChanged()));
     m_wallet = newWallet;
-    // TODO update rows
+    connect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(uxosChanged()));
+
+    beginRemoveRows(QModelIndex(), 0, m_rowsToOutputRefs.size() - 1);
+    endRemoveRows();
     createMap();
+    beginInsertRows(QModelIndex(), 0, m_rowsToOutputRefs.size() - 1);
+    endInsertRows();
 }
 
 int WalletCoinsModel::rowCount(const QModelIndex &parent) const
@@ -74,6 +77,23 @@ QVariant WalletCoinsModel::data(const QModelIndex &index, int role) const
             return QVariant(static_cast<double>(utxo->second));
         break;
     }
+    case Age: {
+        const auto tx = m_wallet->m_walletTransactions.find(outRef.txIndex());
+        if (tx != m_wallet->m_walletTransactions.end()) {
+            const int bh = tx->second.minedBlockHeight;
+            if (bh < 1)
+                return tr("Unconfirmed");
+            const int now = FloweePay::instance()->p2pNet()->blockHeight();
+            const auto diff = now - bh;
+            const int days = (diff - 20) / 144;
+            if (days < 10)
+                return tr("%1 days", "age, like 'days old'").arg(days + 1);
+            if (days < 6 * 7)
+                return tr("%1 weeks", "age, like 'weeks old'").arg((days - 2) / 7);
+            return tr("%1 months", "age, like 'months old'").arg(qRound((days - 2) / 30.4));
+        }
+        break;
+    }
     case Blockheight: {
         const auto tx = m_wallet->m_walletTransactions.find(outRef.txIndex());
         if (tx != m_wallet->m_walletTransactions.end())
@@ -99,6 +119,8 @@ QVariant WalletCoinsModel::data(const QModelIndex &index, int role) const
         break;
     }
     case CloakedAddress: {
+        if (m_wallet->isSingleAddressWallet())
+            return QVariant(m_wallet->name());
         const auto tx = m_wallet->m_walletTransactions.find(outRef.txIndex());
         if (tx != m_wallet->m_walletTransactions.end()) {
             auto out = tx->second.outputs.find(outRef.outputIndex());
@@ -108,8 +130,17 @@ QVariant WalletCoinsModel::data(const QModelIndex &index, int role) const
             const auto &secret = secretIter->second;
             if (secret.fromHdWallet && secret.fromChangeChain)
                 return QVariant(tr("Change #%1").arg(secret.hdDerivationIndex));
+            return QVariant(QString());
         }
         break;
+    }
+    case Locked: {
+        const auto lockedIter = m_wallet->m_lockedOutputs.find(iter->second);
+        return QVariant(lockedIter != m_wallet->m_lockedOutputs.end());
+    }
+    case Selected: {
+        if (m_selectionGetter)
+            return QVariant(m_selectionGetter(iter->second));
     }
     default:
         break;
@@ -122,10 +153,64 @@ QHash<int, QByteArray> WalletCoinsModel::roleNames() const
     QHash<int, QByteArray> answer;
     answer[Value] = "value";
     answer[Blockheight] = "blockheight";
+    answer[Age] = "age";
     answer[FusedCount] = "fusedCount";
     answer[Address] = "address";
     answer[CloakedAddress] = "cloakedAddress";
+    answer[Locked] = "locked";
+    answer[Selected] = "selected";
     return answer;
+}
+
+uint64_t WalletCoinsModel::outRefForRow(int row) const
+{
+    auto i = m_rowsToOutputRefs.find(row);
+    if (i == m_rowsToOutputRefs.end())
+        return 0;
+    return i->second;
+}
+
+void WalletCoinsModel::setOutputLocked(int row, bool lock)
+{
+    auto i = m_rowsToOutputRefs.find(row);
+    if (i == m_rowsToOutputRefs.end())
+        return;
+    const Wallet::OutputRef id(i->second);
+    bool changed;
+    if (lock)
+        changed = m_wallet->lockUTXO(id);
+    else
+        changed = m_wallet->unlockUTXO(id);
+
+    if (changed) {
+        beginRemoveRows(QModelIndex(), row, row);
+        endRemoveRows();
+        beginInsertRows(QModelIndex(), row, row);
+        endInsertRows();
+    }
+}
+
+void WalletCoinsModel::setSelectionGetter(const std::function<bool (uint64_t)> &callback)
+{
+    m_selectionGetter = callback;
+}
+
+void WalletCoinsModel::updateRow(uint64_t outRef)
+{
+    for (auto i = m_rowsToOutputRefs.cbegin(); i != m_rowsToOutputRefs.cend(); ++i) {
+        if (i->second == outRef) {
+            updateRow(i->first);
+            break;
+        }
+    }
+}
+
+void WalletCoinsModel::updateRow(int row)
+{
+    beginRemoveRows(QModelIndex(), row, row);
+    endRemoveRows();
+    beginInsertRows(QModelIndex(), row, row);
+    endInsertRows();
 }
 
 void WalletCoinsModel::uxosChanged()
@@ -140,7 +225,15 @@ void WalletCoinsModel::createMap()
     m_rowsToOutputRefs.clear();
 
     int index = 0;
-    for (auto i = m_wallet->m_unspentOutputs.cbegin(); i != m_wallet->m_unspentOutputs.end(); ++i) {
+    for (auto i = m_wallet->m_unspentOutputs.crbegin(); i != m_wallet->m_unspentOutputs.rend(); ++i) {
+        auto lockIter = m_wallet->m_lockedOutputs.find(i->first);
+        if (lockIter != m_wallet->m_lockedOutputs.end()) {
+            // its locked, so we check if its locked by a transaction not yet confirmed.
+            // If it is (and the second points to a wallet-transaction-index) we simply
+            // hide this one from view.
+            if (lockIter->second > 0)
+                continue;
+        }
         m_rowsToOutputRefs.insert(std::make_pair(index++, i->first));
     }
 }

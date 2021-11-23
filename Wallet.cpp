@@ -1011,6 +1011,15 @@ Tx::Output Wallet::txOutput(Wallet::OutputRef ref) const
     return tx.output(ref.outputIndex());
 }
 
+qint64 Wallet::utxoOutputValue(OutputRef ref) const
+{
+    QMutexLocker locker(&m_lock);
+    auto iter = m_unspentOutputs.find(ref.encoded());
+    if (m_unspentOutputs.end() == iter)
+        throw std::runtime_error("Invalid ref");
+    return iter->second;
+}
+
 Wallet::PrivKeyData Wallet::unlockKey(Wallet::OutputRef ref) const
 {
     QMutexLocker locker(&m_lock);

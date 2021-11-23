@@ -143,6 +143,8 @@ public:
     const uint256 &txid(int txIndex) const;
     /// Fetch UTXO output
     Tx::Output txOutput(OutputRef ref) const;
+    /// Fetch UTXO value (in sats)
+    qint64 utxoOutputValue(OutputRef ref) const;
 
     struct PrivKeyData {
         int privKeyId = 0;
@@ -277,6 +279,7 @@ public:
     bool lockUTXO(OutputRef outputRef);
     bool unlockUTXO(OutputRef outputRef);
 
+    /// Check the loaded wallet version Id and make internal changes to upgrade it to current.
     void performUpgrades();
 
 public slots:

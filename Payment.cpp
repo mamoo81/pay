@@ -308,7 +308,7 @@ void Payment::setCurrentAccount(AccountInfo *account)
 
     for (auto detail : m_paymentDetails) {
         if (detail->isInputs()) {
-            detail->toInputs()->model()->setWallet(account->wallet());
+            detail->toInputs()->setWallet(account->wallet());
             break;
         }
     }
@@ -560,13 +560,126 @@ bool PaymentDetail::valid() const
 
 PaymentDetailInputs::PaymentDetailInputs(Payment *parent)
     : PaymentDetail(parent, Payment::InputSelector),
-      m_model(parent->currentAccount()->wallet())
+      m_wallet(parent->currentAccount()->wallet()),
+      m_model(m_wallet)
 {
+    m_model.setSelectionGetter(std::bind(&PaymentDetailInputs::isRowIncluded, this, std::placeholders::_1));
 }
 
-WalletCoinsModel *PaymentDetailInputs::model()
+void PaymentDetailInputs::setWallet(Wallet *wallet)
+{
+    if (wallet == m_wallet)
+        return;
+    m_wallet = wallet;
+    m_model.setWallet(m_wallet);
+
+    emit selectedCountChanged();
+    emit selectedValueChanged();
+}
+
+WalletCoinsModel *PaymentDetailInputs::coins()
 {
     return &m_model;
+}
+
+void PaymentDetailInputs::setRowIncluded(int row, bool on)
+{
+    assert(m_wallet);
+    const auto id = m_model.outRefForRow(row);
+    auto &selection = m_selectionModels[m_wallet];
+    const auto iter = selection.rows.find(id);
+    const bool wasThere = iter != selection.rows.end();
+    if (on == wasThere) // no change
+        return;
+
+    const auto value = m_wallet->utxoOutputValue(Wallet::OutputRef(id));
+    if (on) {
+        assert(!wasThere);
+        selection.rows.insert(id);
+        selection.selectedValue += value;
+        ++selection.selectedCount;
+    }
+    else {
+        assert(wasThere);
+        selection.rows.erase(iter);
+        selection.selectedValue -= value;
+        --selection.selectedCount;
+    }
+    emit selectedCountChanged();
+    emit selectedValueChanged();
+
+    m_model.updateRow(row);
+}
+
+bool PaymentDetailInputs::isRowIncluded(uint64_t rowId)
+{
+    assert(m_wallet);
+    auto a = m_selectionModels.find(m_wallet);
+    if (a == m_selectionModels.end())
+        return false;
+    const auto &selection = a->second;
+    return selection.rows.find(rowId) != selection.rows.end();
+}
+
+void PaymentDetailInputs::setOutputLocked(int row, bool lock)
+{
+    assert(m_wallet);
+    m_model.setOutputLocked(row, lock);
+}
+
+void PaymentDetailInputs::selectAll()
+{
+    assert(m_wallet);
+    auto &selection = m_selectionModels[m_wallet];
+    for (int i = m_model.rowCount() - 1; i >= 0; --i) {
+        auto const id = m_model.outRefForRow(i);
+        assert(id >= 0);
+        if (selection.rows.find(id) == selection.rows.end()) {
+            selection.rows.insert(id);
+            m_model.updateRow(i);
+
+            const auto value = m_wallet->utxoOutputValue(Wallet::OutputRef(id));
+            selection.selectedValue += value;
+            ++selection.selectedCount;
+        }
+    }
+    emit selectedCountChanged();
+    emit selectedValueChanged();
+}
+
+void PaymentDetailInputs::unselectAll()
+{
+    assert(m_wallet);
+    auto a = m_selectionModels.find(m_wallet);
+    if (a == m_selectionModels.end())
+        return;
+    auto selection = a->second;
+    m_selectionModels.erase(a);
+    for (auto rowId : selection.rows) {
+        // tell the model to tell the view the data has changed.
+        m_model.updateRow(rowId);
+    }
+    emit selectedCountChanged();
+    emit selectedValueChanged();
+}
+
+double PaymentDetailInputs::selectedValue() const
+{
+    assert(m_wallet);
+    auto a = m_selectionModels.find(m_wallet);
+    if (a == m_selectionModels.end())
+        return false;
+    const auto &selection = a->second;
+    return static_cast<double>(selection.selectedValue);
+}
+
+int PaymentDetailInputs::selectedCount() const
+{
+    auto a = m_selectionModels.find(m_wallet);
+    if (a == m_selectionModels.end())
+        return 0;
+    const auto &selection = a->second;
+    return selection.selectedCount;
 }
 
 
