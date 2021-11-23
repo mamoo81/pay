@@ -782,5 +782,5 @@ QString renderAddress(const CKeyID &pubkeyhash)
     const std::string &chainPrefix = FloweePay::instance()->chainPrefix();
     auto s = CashAddress::encodeCashAddr(chainPrefix, c);
     const auto size = chainPrefix.size();
-    return QString::fromLatin1(s.c_str() + size, s.size() - size);
+    return QString::fromLatin1(s.c_str() + size + 1, s.size() - size -1); // the 1 is for the colon
 }
