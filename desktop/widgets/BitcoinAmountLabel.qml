@@ -36,6 +36,7 @@ Item {
     implicitWidth: Math.max(row.maxWidth, row.implicitWidth)
 
     height: main.height
+    width: implicitWidth
     baselineOffset: main.baselineOffset
 
     onValueChanged: row.calcString(value)
@@ -116,7 +117,7 @@ Item {
         }
 
         Label {
-             visible: root.showFiat //&& Pay.isMainChain
+             visible: root.showFiat
              Layout.alignment: Qt.AlignBaseline
              text: Fiat.formattedPrice(root.value, Fiat.price)
         }
