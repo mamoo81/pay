@@ -80,7 +80,7 @@ target_link_libraries(pay_lib
 
 set (TS_FILES_DESKTOP
     translations/floweepay-desktop_en.ts
-    translations/floweepay-desktop_pl.ts
+    translations/floweepay-desktop_nl.ts
     translations/floweepay-desktop_pl.ts
 )
 qt5_add_translation(qmFiles1 ${TS_FILES_DESKTOP})
