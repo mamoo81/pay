@@ -55,13 +55,17 @@ struct ECC_State
 };
 }
 
+// defined in qml_path_helper.cpp.in
+void handleLocalQml(QQmlApplicationEngine &engine);
+
+
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication qapp(argc, argv);
     qapp.setOrganizationName("flowee");
     qapp.setApplicationName("pay");
-    qapp.setApplicationVersion("2021.06");
+    qapp.setApplicationVersion("2021.06.1");
     qapp.setWindowIcon(QIcon(":/FloweePay.png"));
 
     srand((quint32) QDateTime::currentMSecsSinceEpoch());
@@ -83,14 +87,14 @@ int main(int argc, char *argv[])
     parser.addOption(quiet);
     parser.addOption(connect);
     parser.addOption(testnet4);
+    // nice features to test your QML changes.
+    QCommandLineOption offline(QStringList() << "offline", "Do not connect");
+    parser.addOption(offline);
 #ifndef NDEBUG
     // to protect people from the bad effect of having and later not having headers we only allow this
     // override in debug mode.
     QCommandLineOption headers(QStringList() << "headers", "Override location of blockheaders", "PATH");
     parser.addOption(headers);
-    // nice feature to test your QML changes.
-    QCommandLineOption offline(QStringList() << "offline", "Do not connect");
-    parser.addOption(offline);
 #endif
     parser.process(qapp);
 
@@ -109,20 +113,33 @@ int main(int argc, char *argv[])
     logger->clearLogLevels(v);
     logger->addConsoleChannel();
 
-    QTranslator translator;
-    if (translator.load(QLocale(), QLatin1String("floweepay"), QLatin1String("_"), QLatin1String(":/i18n")))
-        QCoreApplication::installTranslator(&translator);
+    static const char* languagePacks[] = {
+        "floweepay-desktop",
+        "floweepay-common",
+        "floweepay-mobile",
+        nullptr
+    };
+
+    for (int i = 0; languagePacks[i]; ++i) {
+        auto *translator = new QTranslator(&qapp);
+        if (translator->load(QLocale(), languagePacks[i], QLatin1String("_"), QLatin1String(":/i18n")))
+            QCoreApplication::installTranslator(translator);
+        else
+            delete translator;
+    }
 
     PriceDataProvider prices;
     // select chain
     auto chain = P2PNet::MainChain;
     if (parser.isSet(testnet4))
         chain = P2PNet::Testnet4Chain;
-    else
+
+    if (parser.isSet(offline))
+        prices.mock(50000);
+    else if (!parser.isSet(testnet4))
         prices.start();
     FloweePay::selectChain(chain);
 
-    bool online = true;
     std::unique_ptr<QFile> blockheaders; // pointer to own the memmapped blockheaders file.
     // lets try by default to open the path /usr/share/floweepay/*
     blockheaders.reset(new QFile(QString("/usr/share/floweepay/")
@@ -144,9 +161,8 @@ int main(int argc, char *argv[])
             blockheaders.reset();
         }
     }
-    online = !parser.isSet(offline);
-
 #endif
+
     if (blockheaders) {
        if (!blockheaders->open(QIODevice::ReadOnly)) { // can't be opened for reading.
             blockheaders.reset();
@@ -163,12 +179,12 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
 
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
     engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
     engine.rootContext()->setContextProperty("Fiat", &prices);
-    engine.load(url);
+    handleLocalQml(engine);
+    engine.load(engine.baseUrl().url() + "/main.qml");
 
-    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect, online]() {
+    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect, offline]() {
         FloweePay *app = FloweePay::instance();
 
         NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);
@@ -187,7 +203,7 @@ int main(int argc, char *argv[])
             app->p2pNet()->connectionManager().peerAddressDb().addOne( // actually connect to it too.
                         EndPoint(parser.value(connect).toStdString(), 8333));
         }
-        if (online) // see the 'offline' commandline option (debug builds only)
+        if (!parser.isSet(offline))
             app->p2pNet()->start(); // lets go!
     });
 

@@ -105,11 +105,32 @@ FloweePay::FloweePay()
     timer->start(5 * 60 * 1000);
     connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
 
-    QFileInfo me(QCoreApplication::arguments().at(0));
-    QDir base(me.absoluteDir().absolutePath() + "/../share/floweepay/");
+    QDir base(QCoreApplication::applicationDirPath() + "/../share/floweepay/");
     if (base.exists()) {
         // add Mnemonic (BIP39) dictionaries.
-        m_hdSeedValidator.registerWordList("en", base.absoluteFilePath("bip39-english"));
+        struct LangPair { const char *id, *filename; };
+        static const LangPair knownPairs[] = {
+            {"en", "bip39-english"},
+            {"zh-simple", "bip39-chinese_simplified"},
+            {"zh-traditional", "bip39-chinese_traditional"},
+            {"cs", "bip39-czech"},
+            {"fr", "bip39-french"},
+            {"it", "bip39-italian"},
+            {"ja", "bip39-japanese"},
+            {"ko", "bip39-korean"},
+            {"pt", "bip39-portuguese"},
+            {"es", "bip39-spanish"},
+            {0, 0}
+        };
+        for (int i = 0; knownPairs[i].id; ++i) {
+            const LangPair lang = knownPairs[i];
+            QString fullPath(base.absoluteFilePath(lang.filename));
+            if (QFile::exists(fullPath))
+                m_hdSeedValidator.registerWordList(lang.id, fullPath);
+        }
+    }
+    else {
+        logCritical() << "Warning: No bip39 wordlists found. Looking in:" << base.absolutePath();
     }
 }
 
@@ -325,10 +346,18 @@ QString FloweePay::formatDateTime(QDateTime date) const
     if (now > date) {
         // use the 'yesterday' style if the date is reasonably close.
         const auto secs = date.secsTo(now);
-        if (secs < 24 * 60)
-            return tr("Now", "timestamp");
-        if (secs < 66 * 60)
-            return tr("An hour ago", "timestamp");
+        if (secs < 24 * 60) {
+            const int mins = (secs + 24) / 60;
+            if (mins <= 0)
+                return tr("Now", "timestamp");
+            return tr("%1 minutes ago", "relative time stamp", mins).arg(mins);
+        }
+        if (secs < 18 * 60 * 60) {
+            if (secs < 46 * 60)
+                return tr("½ hour ago", "timestamp");
+            const int hours = (secs + 900) / 3600;
+            return tr("%1 hours ago", "timestamp", hours).arg(hours);
+        }
         const auto days = date.daysTo(now);
         if (days == 0)
             return tr("Today") + " " + date.toString(timeFormat);

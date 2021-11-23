@@ -26,25 +26,31 @@ class TransactionInputInfo : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString address READ address CONSTANT)
+    Q_PROPERTY(QString cloakedAddress READ cloakedAddress CONSTANT)
     Q_PROPERTY(qint64 value READ value CONSTANT)
 public:
-    TransactionInputInfo(QObject *parent) : QObject(parent) {}
+    TransactionInputInfo(QObject *parent);
+
     QString address() const;
     void setAddress(const QString &address);
 
     qint64 value() const;
     void setValue(const qint64 &value);
 
+    const QString &cloakedAddress() const;
+    void setCloakedAddress(const QString &newCloakedAddress);
+
 private:
     QString m_address;
+    QString m_cloakedAddress;
     qint64 m_value;
-    // int m_prevTxIndex;
 };
 
 class TransactionOutputInfo : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString address READ address CONSTANT)
+    Q_PROPERTY(QString cloakedAddress READ cloakedAddress CONSTANT)
     Q_PROPERTY(qint64 value READ value CONSTANT)
     Q_PROPERTY(bool spent READ spent CONSTANT)
     Q_PROPERTY(bool forMe READ forMe CONSTANT)
@@ -63,8 +69,12 @@ public:
     bool forMe() const;
     void setForMe(bool forMe);
 
+    const QString &cloakedAddress() const;
+    void setCloakedAddress(const QString &ad);
+
 private:
     QString m_address;
+    QString m_cloakedAddress;
     qint64 m_value;
     bool m_spent = false;
     bool m_forMe = true;

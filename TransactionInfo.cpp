@@ -60,6 +60,14 @@ bool TransactionInfo::isCoinbase() const
     return m_isCoinbase;
 }
 
+
+// //////////////////////////////////////////////////////
+
+TransactionInputInfo::TransactionInputInfo(QObject *parent)
+    : QObject(parent)
+{
+}
+
 QString TransactionInputInfo::address() const
 {
     return m_address;
@@ -79,6 +87,19 @@ void TransactionInputInfo::setValue(const qint64 &value)
 {
     m_value = value;
 }
+
+const QString &TransactionInputInfo::cloakedAddress() const
+{
+    return m_cloakedAddress;
+}
+
+void TransactionInputInfo::setCloakedAddress(const QString &newCloakedAddress)
+{
+    m_cloakedAddress = newCloakedAddress;
+}
+
+
+// //////////////////////////////////////////////////////
 
 QString TransactionOutputInfo::address() const
 {
@@ -118,4 +139,14 @@ bool TransactionOutputInfo::forMe() const
 void TransactionOutputInfo::setForMe(bool forMe)
 {
     m_forMe = forMe;
+}
+
+const QString &TransactionOutputInfo::cloakedAddress() const
+{
+    return m_cloakedAddress;
+}
+
+void TransactionOutputInfo::setCloakedAddress(const QString &ad)
+{
+    m_cloakedAddress = ad;
 }

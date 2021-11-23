@@ -137,6 +137,8 @@ void BitcoinValue::setEnteredString(const QString &value)
         else if (started)
             return;
     }
+    if (!m_cursorPos)
+        setValue(0);
 }
 
 void BitcoinValue::setStringValue(const QString &value)

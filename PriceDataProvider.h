@@ -32,6 +32,7 @@ public:
     explicit PriceDataProvider(QObject *parent = nullptr);
 
     void start();
+    void mock(int price);
 
     QString currencyName() const {
         return m_currency;

@@ -18,34 +18,34 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 
-Label {
-    id: root
-    elide: Text.ElideMiddle
+ApplicationWindow {
+    id: mainWindow
+    title: "Flowee Pay"
+    width: 360
+    height: 720
+    visible: true
 
-    // override the text to be copied to clipboard
-    property string clipboardText: ""
-    property string menuText: qsTr("Copy Address")
+    property bool isLoading: typeof portfolio === "undefined";
 
-    MouseArea {
+    property color floweeSalmon: "#ff9d94"
+    property color floweeBlue: "#0b1088"
+    property color floweeGreen: "#90e4b5"
+
+    Rectangle {
+        focus: true
+        id: header
+        color: Pay.useDarkSkin ? "#232629" : mainWindow.floweeBlue
         anchors.fill: parent
-        acceptedButtons: Qt.RightButton | Qt.LeftButton
-        onClicked: menu.start(parent);
-        cursorShape: Qt.PointingHandCursor
 
-        Menu {
-            id: menu
-            function start(label) {
-                if (label.clipboardText !== "")
-                    this.text = label.clipboardText;
-                else
-                    this.text = label.text;
-                popup();
-            }
-            property string text: ""
-            MenuItem {
-                text: root.menuText
-                onTriggered: Pay.copyToClipboard(menu.text)
-            }
+        Image {
+            id: appLogo
+            x: 10
+            y: 10
+            smooth: true
+            source: "qrc:/FloweePay-light.svg"
+            // ratio: 77 / 449
+            height: 50
+            width: height * 449 / 77
         }
     }
 }

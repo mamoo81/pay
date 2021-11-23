@@ -421,7 +421,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 if (!wasUnconfirmed) { // unconfirmed transactions already had their outputs added
                     logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
                     m_unspentOutputs.insert(std::make_pair(key, i->second.value));
-                    if (i->second.value == 547) {
+                    if (!m_singleAddressWallet && i->second.value == 547) {
                         // special case so-called 'spam' outputs and instantly lock it for privacy reasons
                         // those outputs can only be spent by combining them with others, combining inputs
                         // is a potential loss of privacy (makes keys tracable) that is not worth the benefit
@@ -718,72 +718,6 @@ QList<PaymentRequest *> Wallet::paymentRequests() const
     QMutexLocker locker(&m_lock);
     return m_paymentRequests;
 }
-
-#ifdef IN_TESTS
-// called and compiled in unit tests only
-void Wallet::addTestTransactions()
-{
-    QMutexLocker locker(&m_lock);
-    while (m_walletSecrets.size() < 10) {
-        createNewPrivateKey(0);
-    }
-
-    uint64_t total = 0;
-    for (int i = 0; i < 6; ++i) {
-        WalletTransaction wtx;
-        wtx.minedBlockHeight = 10;
-        Output output;
-        output.value = 1000000;
-        int outputIndex = 3;
-        switch (i) {
-        case 0:
-            output.walletSecretId = 1;
-            output.value = 100000;
-            wtx.minedBlockHeight = 1;
-            wtx.txid = uint256S("394927492398654081379479813123");
-            break;
-        case 1:
-            output.walletSecretId = 2;
-            output.value = 5000000;
-            wtx.minedBlockHeight = 10;
-            wtx.txid = uint256S("7690458423233792103818319038080");
-            break;
-        case 2:
-            output.value = 400000;
-            output.walletSecretId = 3;
-            wtx.txid = uint256S("0498b98890485092431083023081830913");
-            wtx.minedBlockHeight = 20;
-            break;
-        case 3:
-            output.value = 400000;
-            output.walletSecretId = 10;
-            wtx.txid = uint256S("549843275584902321873108027832");
-            wtx.minedBlockHeight = 20;
-            break;
-        case 4:
-            output.walletSecretId = 4;
-            output.value = 1000000;
-            wtx.minedBlockHeight = 25;
-            wtx.txid = uint256S("709582732308923840923821832908");
-            break;
-        case 5:
-            output.walletSecretId = 5;
-            output.value = 6000000;
-            wtx.minedBlockHeight = 35;
-            wtx.txid = uint256S("594239089060435802934890119830");
-            break;
-        }
-        total += output.value;
-        wtx.outputs.insert(std::make_pair(outputIndex, output));
-        m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId, wtx));
-        m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
-        m_unspentOutputs.insert(std::make_pair(OutputRef(m_nextWalletTransactionId, outputIndex).encoded(), output.value));
-        ++m_nextWalletTransactionId;
-    }
-    logCritical() << "Total dummy outputs deposited" << total << "sats";
-}
-#endif
-
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
 {
