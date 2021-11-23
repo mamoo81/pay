@@ -23,14 +23,13 @@
 #include <BroadcastTxData.h>
 #include <primitives/Tx.h>
 #include <memory>
-#include <set>
-#include <map>
 
 class Wallet;
 class PaymentDetail;
 class PaymentDetailOutput;
 class PaymentDetailInputs;
 class AccountInfo;
+
 
 class Payment : public QObject
 {
@@ -167,6 +166,7 @@ private:
     QString m_error;
 };
 
+
 class PaymentDetail : public QObject
 {
     Q_OBJECT
@@ -212,118 +212,5 @@ private:
     bool m_collapsed = false;
     bool m_valid = false; // when all user-input is valid
 };
-
-class PaymentDetailOutput : public PaymentDetail
-{
-    Q_OBJECT
-    Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
-    Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY paymentAmountChanged)
-    Q_PROPERTY(int fiatAmount READ fiatAmount WRITE setFiatAmount NOTIFY fiatAmountChanged)
-    // cleaned up and re-formatted
-    Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY addressChanged)
-    Q_PROPERTY(bool maxAllowed READ maxAllowed WRITE setMaxAllowed NOTIFY maxAllowedChanged)
-    Q_PROPERTY(bool fiatFollows READ fiatFollows WRITE setFiatFollows NOTIFY fiatFollowsChanged)
-    Q_PROPERTY(bool maxSelected READ maxSelected WRITE setMaxSelected NOTIFY maxSelectedChanged)
-public:
-    explicit PaymentDetailOutput(Payment *parent);
-
-    double paymentAmount() const;
-    void setPaymentAmount(double newPaymentAmount);
-
-    /// this method also sets formattedTarget if its a proper address.
-    /// @see FloweePay::identifyString()
-    const QString &address() const;
-    void setAddress(const QString &newAddress);
-    /// is non-empty if the address() is proper.
-    const QString &formattedTarget() const;
-
-    /**
-     * The mayment amount can be set to 'max' which means the wallet-total-value.
-     * This returns weather this output can be set to 'max'
-     */
-    bool maxAllowed() const;
-    void setMaxAllowed(bool on);
-
-    int fiatAmount() const;
-    void setFiatAmount(int amount);
-
-    bool fiatFollows() const;
-    void setFiatFollows(bool on);
-
-    bool maxSelected() const;
-    void setMaxSelected(bool on);
-
-    /// If max is selected, recalc the effective fiat / payment amounts
-    void recalcMax();
-
-signals:
-    void paymentAmountChanged();
-    void addressChanged();
-    void fiatAmountChanged();
-    void fiatIsMainChanged();
-    void fiatFollowsChanged();
-    void maxSelectedChanged();
-
-private:
-    void checkValid();
-
-    qint64 m_paymentAmount = 0;
-    int m_fiatAmount = 0;
-    bool m_maxAllowed = true; // only the last in the sequence can have 'max'
-    bool m_fiatFollows = false;
-    bool m_maxSelected = false;
-    QString m_address;
-    QString m_formattedTarget;
-};
-
-class PaymentDetailInputs : public PaymentDetail
-{
-    Q_OBJECT
-    Q_PROPERTY(double selectedValue READ selectedValue NOTIFY selectedValueChanged)
-    Q_PROPERTY(int selectedCount READ selectedCount NOTIFY selectedCountChanged)
-    Q_PROPERTY(QAbstractListModel* coins READ coins CONSTANT)
-public:
-    explicit PaymentDetailInputs(Payment *parent);
-
-    void setWallet(Wallet *wallet);
-
-    /// returns the model that shows the unspent coins.
-    WalletCoinsModel *coins();
-
-    Q_INVOKABLE void setRowIncluded(int row, bool on);
-    Q_INVOKABLE void setOutputLocked(int row, bool lock);
-    Q_INVOKABLE void selectAll();
-    Q_INVOKABLE void unselectAll();
-
-    double selectedValue() const;
-    int selectedCount() const;
-
-signals:
-    void selectedValueChanged();
-    void selectedCountChanged();
-
-private:
-    bool isRowIncluded(uint64_t rowId);
-
-    Wallet *m_wallet = nullptr;
-    WalletCoinsModel m_model;
-
-    struct Selection {
-        quint64 selectedValue = 0;
-        int selectedCount = 0;
-        std::set<uint64_t> rows;
-    };
-    std::map<Wallet*, Selection> m_selectionModels;
-};
-
-inline PaymentDetailOutput *PaymentDetail::toOutput() {
-    assert(m_type == Payment::PayToAddress);
-    return static_cast<PaymentDetailOutput*>(this);
-}
-
-inline PaymentDetailInputs *PaymentDetail::toInputs() {
-    assert(m_type == Payment::InputSelector);
-    return static_cast<PaymentDetailInputs*>(this);
-}
 
 #endif

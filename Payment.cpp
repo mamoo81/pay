@@ -18,16 +18,16 @@
 
 #include "Payment.h"
 #include "Payment_p.h"
+#include "PaymentDetailInputs.h"
+#include "PaymentDetailOutput.h"
 #include "FloweePay.h"
-#include "Wallet.h"
 #include "AccountInfo.h"
 
-#include <base58.h>
 #include <cashaddr.h>
 #include <TransactionBuilder.h>
 #include <QTimer>
 
-// #define DEBUG_TX_CREATION
+#define DEBUG_TX_CREATION
 #ifdef DEBUG_TX_CREATION
 # include <QDir>
 # include <QFile>
@@ -95,8 +95,6 @@ bool Payment::validate()
     }
     return true;
 }
-
-
 
 void Payment::prepare()
 {
@@ -276,8 +274,25 @@ void Payment::addDetail(PaymentDetail *detail)
         while (newPos < m_paymentDetails.length() && m_paymentDetails.at(newPos)->isOutput())
             ++newPos;
         m_paymentDetails.insert(newPos, detail);
+        for (int i = newPos; i < m_paymentDetails.length(); ++i) {
+            if (m_paymentDetails.at(i)->isInputs()) {
+                // then no output is allowed to be 'max'.
+                detail->toOutput()->setMaxAllowed(false);
+                break;
+            }
+        }
     }
     else {
+        if (detail->isInputs()) {
+            // adding an 'inputs' should lead to the outputs being set to max_allowed = false
+            for (auto iter = m_paymentDetails.begin(); iter != m_paymentDetails.end(); ++iter) {
+                auto *detail = *iter;
+                if (detail->isOutput())
+                    detail->toOutput()->setMaxAllowed(false);
+                else
+                    break;
+            }
+        }
         m_paymentDetails.append(detail);
     }
     connect (detail, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
@@ -354,9 +369,8 @@ void Payment::addExtraOutput()
 {
     // only the last in the sequence can have 'max'
     for (auto d : m_paymentDetails) {
-        if (d->isOutput()) {
+        if (d->isOutput())
             d->toOutput()->setMaxAllowed(false);
-        }
     }
     addDetail(new PaymentDetailOutput(this));
 }
@@ -380,10 +394,12 @@ void Payment::remove(PaymentDetail *detail)
         // Make sure only the last output has 'maxAllowed' set to true.
         if (detail->isOutput()) {
             bool seenOne = false;
+            bool seenInput = false;
             for (auto iter = m_paymentDetails.rbegin(); iter != m_paymentDetails.rend(); ++iter) {
                 auto *detail = *iter;
+                seenInput |= detail->isInputs();
                 if (detail->isOutput()) {
-                    detail->toOutput()->setMaxAllowed(!seenOne);
+                    detail->toOutput()->setMaxAllowed(!seenOne && !seenInput);
                     seenOne = true;
                 }
             }
@@ -505,6 +521,9 @@ uint16_t PaymentInfoObject::privSegment() const
     return m_parent->wallet()->segment()->segmentId();
 }
 
+
+// ///////////////////////////////
+
 PaymentDetail::PaymentDetail(Payment *parent, Payment::DetailType type)
     : QObject(parent),
       m_type(type)
@@ -555,344 +574,3 @@ bool PaymentDetail::valid() const
     return m_valid;
 }
 
-
-// ///////////////////////////////////////////////
-
-PaymentDetailInputs::PaymentDetailInputs(Payment *parent)
-    : PaymentDetail(parent, Payment::InputSelector),
-      m_wallet(parent->currentAccount()->wallet()),
-      m_model(m_wallet)
-{
-    m_model.setSelectionGetter(std::bind(&PaymentDetailInputs::isRowIncluded, this, std::placeholders::_1));
-}
-
-void PaymentDetailInputs::setWallet(Wallet *wallet)
-{
-    if (wallet == m_wallet)
-        return;
-    m_wallet = wallet;
-    m_model.setWallet(m_wallet);
-
-    emit selectedCountChanged();
-    emit selectedValueChanged();
-}
-
-WalletCoinsModel *PaymentDetailInputs::coins()
-{
-    return &m_model;
-}
-
-void PaymentDetailInputs::setRowIncluded(int row, bool on)
-{
-    assert(m_wallet);
-    const auto id = m_model.outRefForRow(row);
-    auto &selection = m_selectionModels[m_wallet];
-    const auto iter = selection.rows.find(id);
-    const bool wasThere = iter != selection.rows.end();
-    if (on == wasThere) // no change
-        return;
-
-    const auto value = m_wallet->utxoOutputValue(Wallet::OutputRef(id));
-    if (on) {
-        assert(!wasThere);
-        selection.rows.insert(id);
-        selection.selectedValue += value;
-        ++selection.selectedCount;
-    }
-    else {
-        assert(wasThere);
-        selection.rows.erase(iter);
-        selection.selectedValue -= value;
-        --selection.selectedCount;
-    }
-    emit selectedCountChanged();
-    emit selectedValueChanged();
-
-    m_model.updateRow(row);
-}
-
-bool PaymentDetailInputs::isRowIncluded(uint64_t rowId)
-{
-    assert(m_wallet);
-    auto a = m_selectionModels.find(m_wallet);
-    if (a == m_selectionModels.end())
-        return false;
-    const auto &selection = a->second;
-    return selection.rows.find(rowId) != selection.rows.end();
-}
-
-void PaymentDetailInputs::setOutputLocked(int row, bool lock)
-{
-    assert(m_wallet);
-    m_model.setOutputLocked(row, lock);
-}
-
-void PaymentDetailInputs::selectAll()
-{
-    assert(m_wallet);
-    auto &selection = m_selectionModels[m_wallet];
-    for (int i = m_model.rowCount() - 1; i >= 0; --i) {
-        auto const id = m_model.outRefForRow(i);
-        assert(id >= 0);
-        if (selection.rows.find(id) == selection.rows.end()) {
-            selection.rows.insert(id);
-            m_model.updateRow(i);
-
-            const auto value = m_wallet->utxoOutputValue(Wallet::OutputRef(id));
-            selection.selectedValue += value;
-            ++selection.selectedCount;
-        }
-    }
-    emit selectedCountChanged();
-    emit selectedValueChanged();
-}
-
-void PaymentDetailInputs::unselectAll()
-{
-    assert(m_wallet);
-    auto a = m_selectionModels.find(m_wallet);
-    if (a == m_selectionModels.end())
-        return;
-    auto selection = a->second;
-    m_selectionModels.erase(a);
-    for (auto rowId : selection.rows) {
-        // tell the model to tell the view the data has changed.
-        m_model.updateRow(rowId);
-    }
-    emit selectedCountChanged();
-    emit selectedValueChanged();
-}
-
-double PaymentDetailInputs::selectedValue() const
-{
-    assert(m_wallet);
-    auto a = m_selectionModels.find(m_wallet);
-    if (a == m_selectionModels.end())
-        return false;
-    const auto &selection = a->second;
-    return static_cast<double>(selection.selectedValue);
-}
-
-int PaymentDetailInputs::selectedCount() const
-{
-    auto a = m_selectionModels.find(m_wallet);
-    if (a == m_selectionModels.end())
-        return 0;
-    const auto &selection = a->second;
-    return selection.selectedCount;
-}
-
-
-// ///////////////////////////////////////////////
-
-PaymentDetailOutput::PaymentDetailOutput(Payment *parent)
-    : PaymentDetail(parent, Payment::PayToAddress)
-{
-
-}
-
-double PaymentDetailOutput::paymentAmount() const
-{
-    if (!m_fiatFollows) {
-        Payment *p = qobject_cast<Payment*>(parent());
-        assert(p);
-        if (p->fiatPrice() == 0)
-            return 0;
-
-        return static_cast<double>(m_fiatAmount * 100000000L / p->fiatPrice());
-    }
-    if (m_maxAllowed && m_maxSelected) {
-        Payment *p = qobject_cast<Payment*>(parent());
-        assert(p);
-        assert(p->currentAccount());
-        auto wallet = p->currentAccount()->wallet();
-        assert(wallet);
-        auto amount = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
-        for (auto detail : p->m_paymentDetails) {
-            if (detail == this) // max is only allowed in the last of the outputs
-                break;
-            if (detail->isOutput())
-                amount -= detail->toOutput()->paymentAmount();
-        }
-        return static_cast<double>(amount);
-    }
-    return static_cast<double>(m_paymentAmount);
-}
-
-void PaymentDetailOutput::setPaymentAmount(double amount_)
-{
-    qint64 amount = static_cast<qint64>(amount_);
-    if (m_paymentAmount == amount)
-        return;
-    m_paymentAmount = amount;
-    // implicit changes first, it changes the representation
-    setFiatFollows(true);
-    setMaxSelected(false);
-    emit fiatAmountChanged();
-    emit paymentAmountChanged();
-    checkValid();
-}
-
-const QString &PaymentDetailOutput::address() const
-{
-    return m_address;
-}
-
-void PaymentDetailOutput::setAddress(const QString &address_)
-{
-    const QString address = address_.trimmed();
-    if (m_address == address)
-        return;
-    m_address = address;
-
-    switch (FloweePay::instance()->identifyString(address)) {
-    case FloweePay::LegacyPKH: {
-        CBase58Data legacy;
-        auto ok = legacy.SetString(m_address.toStdString());
-        assert(ok);
-        assert(legacy.isMainnetPkh() || legacy.isTestnetPkh());
-        CashAddress::Content c;
-        c.hash = legacy.data();
-        c.type = CashAddress::PUBKEY_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        break;
-    }
-    case FloweePay::CashPKH: {
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
-        assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        break;
-    }
-    case FloweePay::LegacySH: {
-        CBase58Data legacy;
-        auto ok = legacy.SetString(m_address.toStdString());
-        assert(ok);
-        assert(legacy.isMainnetSh() || legacy.isTestnetSh());
-        CashAddress::Content c;
-        c.hash = legacy.data();
-        c.type = CashAddress::SCRIPT_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        break;
-    }
-    case FloweePay::CashSH: {
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
-        assert (!c.hash.empty() && c.type == CashAddress::SCRIPT_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        break;
-    }
-    default:
-        m_formattedTarget.clear();
-    }
-
-    emit addressChanged();
-    checkValid();
-}
-
-void PaymentDetailOutput::checkValid()
-{
-    bool valid = !m_formattedTarget.isEmpty();
-    valid = valid
-            && ((m_maxSelected && m_maxAllowed)
-                || (m_fiatFollows && m_paymentAmount > 600)
-                || (!m_fiatFollows && m_fiatAmount > 0));
-    setValid(valid);
-}
-
-bool PaymentDetailOutput::maxSelected() const
-{
-    return m_maxSelected;
-}
-
-void PaymentDetailOutput::setMaxSelected(bool on)
-{
-    if (m_maxSelected == on)
-        return;
-    m_maxSelected = on;
-    // implicit change first, it changes the representation
-    setFiatFollows(true);
-    emit maxSelectedChanged();
-    emit fiatAmountChanged();
-    emit paymentAmountChanged();
-    checkValid();
-}
-
-void PaymentDetailOutput::recalcMax()
-{
-    if (m_maxSelected && m_maxAllowed) {
-        emit fiatAmountChanged();
-        emit paymentAmountChanged();
-    }
-}
-
-bool PaymentDetailOutput::fiatFollows() const
-{
-    return m_fiatFollows;
-}
-
-void PaymentDetailOutput::setFiatFollows(bool on)
-{
-    if (m_fiatFollows == on)
-        return;
-    m_fiatFollows = on;
-    emit fiatFollowsChanged();
-}
-
-int PaymentDetailOutput::fiatAmount() const
-{
-    if (m_fiatFollows) {
-        Payment *p = qobject_cast<Payment*>(parent());
-        assert(p);
-        if (p->fiatPrice() == 0)
-            return 0;
-        qint64 amount = m_paymentAmount;
-        if (m_maxAllowed && m_maxSelected) {
-            assert(p->currentAccount());
-            auto wallet = p->currentAccount()->wallet();
-            assert(wallet);
-            amount = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
-            for (auto detail : p->m_paymentDetails) {
-                if (detail == this) // max is only allowed in the last of the outputs
-                    break;
-                if (detail->isOutput())
-                    amount -= detail->toOutput()->paymentAmount();
-            }
-        }
-
-        return (amount * p->fiatPrice() / 10000000 + 5) / 10;
-    }
-    return m_fiatAmount;
-}
-
-void PaymentDetailOutput::setFiatAmount(int amount)
-{
-    if (m_fiatAmount == amount)
-        return;
-    m_fiatAmount = amount;
-    // implicit changes first, it changes the representation
-    setFiatFollows(false);
-    setMaxSelected(false);
-    emit fiatAmountChanged();
-    emit paymentAmountChanged();
-    checkValid();
-}
-
-const QString &PaymentDetailOutput::formattedTarget() const
-{
-    return m_formattedTarget;
-}
-
-bool PaymentDetailOutput::maxAllowed() const
-{
-    return m_maxAllowed;
-}
-
-void PaymentDetailOutput::setMaxAllowed(bool max)
-{
-    if (m_maxAllowed == max)
-        return;
-    m_maxAllowed = max;
-    emit maxAllowedChanged();
-
-    if (max == false && m_paymentAmount == -1)
-        setPaymentAmount(0);
-}

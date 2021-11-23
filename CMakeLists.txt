@@ -53,6 +53,8 @@ set (PAY_SOURCES
     NotificationManager.cpp
     Payment.cpp
     PaymentRequest.cpp
+    PaymentDetailOutput.cpp
+    PaymentDetailInputs.cpp
     PortfolioDataProvider.cpp
     PriceDataProvider.cpp
     QRCreator.cpp
