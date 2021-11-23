@@ -131,7 +131,10 @@ int main(int argc, char *argv[])
     auto chain = P2PNet::MainChain;
     if (parser.isSet(testnet4))
         chain = P2PNet::Testnet4Chain;
-    else
+
+    if (parser.isSet(offline))
+        prices.mock(50000);
+    else if (!parser.isSet(testnet4))
         prices.start();
     FloweePay::selectChain(chain);
 

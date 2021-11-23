@@ -60,6 +60,10 @@ void PriceDataProvider::start()
     m_timer.start(ReloadTimeout);
     fetch();
 }
+void PriceDataProvider::mock(int price)
+{
+    m_currentPrice.price = price;
+}
 
 QString PriceDataProvider::formattedPrice(double amountSats, int price) const
 {
