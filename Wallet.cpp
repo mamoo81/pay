@@ -701,6 +701,12 @@ bool Wallet::unlockUTXO(OutputRef outputRef)
     return true;
 }
 
+bool Wallet::isLocked(OutputRef outputRef) const
+{
+    QMutexLocker locker(&m_lock);
+    return m_lockedOutputs.find(outputRef.encoded()) != m_lockedOutputs.end();
+}
+
 void Wallet::performUpgrades()
 {
     if (m_walletVersion == 1 && !m_walletTransactions.empty() && !m_walletSecrets.empty()) {

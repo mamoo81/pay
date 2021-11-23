@@ -278,6 +278,7 @@ public:
      */
     bool lockUTXO(OutputRef outputRef);
     bool unlockUTXO(OutputRef outputRef);
+    bool isLocked(OutputRef outputRef) const;
 
     /// Check the loaded wallet version Id and make internal changes to upgrade it to current.
     void performUpgrades();
