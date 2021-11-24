@@ -46,10 +46,10 @@
         <file>widgets/TabBar.qml</file>
         <file>widgets/TextField.qml</file>
         <file>widgets/ComboBox.qml</file>
-
         <file>widgets/MoneyValueField.qml</file>
         <file>widgets/FiatValueField.qml</file>
         <file>widgets/BitcoinValueField.qml</file>
         <file>widgets/Dialog.qml</file>
+        <file>PaymentTweakingPanel.qml</file>
     </qresource>
 </RCC>

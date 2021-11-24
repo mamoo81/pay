@@ -31,12 +31,6 @@ Pane {
         fiatPrice: Fiat.price
         account: portfolio.current
     }
-
-    ToolButton {
-        text: qsTr("Add…")
-        onClicked: payment.addInputSelector();
-    }
-
     Flickable {
         id: contentArea
         width: sendPanel.width - 20
@@ -238,6 +232,12 @@ Pane {
                 }
             }
         }
+    }
+
+    // the panel that allows us to tweak the payment
+    PaymentTweakingPanel {
+        anchors.fill: parent
+        anchors.margins: -sendPanel.padding
     }
 
     // ============= Payment components  ===============
