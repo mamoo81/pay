@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PaymentDetailOutput.h"
-#include "PaymentDetailInputs.h"
+#include "PaymentDetailOutput_p.h"
+#include "PaymentDetailInputs_p.h"
 #include "FloweePay.h"
 #include "AccountInfo.h"
 

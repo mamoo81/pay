@@ -18,8 +18,8 @@
 
 #include "Payment.h"
 #include "Payment_p.h"
-#include "PaymentDetailInputs.h"
-#include "PaymentDetailOutput.h"
+#include "PaymentDetailInputs_p.h"
+#include "PaymentDetailOutput_p.h"
 #include "FloweePay.h"
 #include "AccountInfo.h"
 

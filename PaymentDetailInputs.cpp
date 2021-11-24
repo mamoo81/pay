@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PaymentDetailInputs.h"
+#include "PaymentDetailInputs_p.h"
 #include "Wallet.h"
 #include "Wallet_p.h" // for BYTES_PER_OUTPUT
 #include "AccountInfo.h"
