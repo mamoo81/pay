@@ -27,7 +27,7 @@
 #include <TransactionBuilder.h>
 #include <QTimer>
 
-#define DEBUG_TX_CREATION
+// #define DEBUG_TX_CREATION
 #ifdef DEBUG_TX_CREATION
 # include <QDir>
 # include <QFile>
@@ -129,12 +129,14 @@ void Payment::prepare()
     TransactionBuilder builder;
     qint64 totalOut = 0;
     bool seenMaxAmount = false; // set to true if the last output detail was set to 'Max'
+    PaymentDetailInputs *inputs = nullptr;
     for (auto detail : m_paymentDetails) {
         if (detail->type() == PayToAddress) {
             assert(!seenMaxAmount); // only allowed once.
             auto o = detail->toOutput();
             seenMaxAmount |= o->maxAllowed() && o->maxSelected();
-            totalOut += o->paymentAmount();
+            if (!seenMaxAmount)
+                totalOut += o->paymentAmount();
             builder.appendOutput(o->paymentAmount());
 
             bool ok = false;
@@ -150,28 +152,41 @@ void Payment::prepare()
             }
             assert(ok); // mismatch between PaymentDetailOutput::setAddress and this method...
         }
+        else if (detail->type() == InputSelector) {
+            inputs = detail->toInputs();
+        }
     }
 
     auto tx = builder.createTransaction();
 
     // find and add outputs that can be used to pay for our required output
     int64_t change = -1;
-    const auto funding = m_wallet->findInputsFor(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
-    if (funding.outputs.empty()) { // not enough funds.
-        m_error = tr("Not enough funds in account to make payment!");
-        emit errorChanged();
-        return;
+    Wallet::OutputSet funding;
+    if (inputs) {
+        funding = inputs->selectedInputs(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
+        if (funding.outputs.empty()) { // not enough funds.
+            // This can only be due to fees as we called 'verify' above.
+            m_error = tr("Not enough funds selected for fees");
+            emit errorChanged();
+            return;
+        }
+    }
+    else {
+        funding = m_wallet->findInputsFor(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
+        if (funding.outputs.empty()) { // not enough funds.
+            m_error = tr("Not enough funds in account to make payment!");
+            emit errorChanged();
+            return;
+        }
     }
     if (!m_error.isEmpty()) {
         m_error.clear();
         emit errorChanged();
     }
 
-    qint64 fundsIngoing = 0;
     for (auto ref : funding.outputs) {
         builder.appendInput(m_wallet->txid(ref), ref.outputIndex());
         auto output = m_wallet->txOutput(ref);
-        fundsIngoing += output.outputValue;
         auto priv = m_wallet->unlockKey(ref);
         if (priv.sigType == Wallet::NotUsedYet) {
             priv.sigType = m_preferSchnorr ? Wallet::SignedAsSchnorr : Wallet::SignedAsEcdsa;
@@ -184,13 +199,13 @@ void Payment::prepare()
 
     m_assignedFee = 0;
     int changeOutput = -1;
-    if (seenMaxAmount) { // if we pay everything to the last output
-        change = fundsIngoing;
+    if (seenMaxAmount) { // if we pay the rest to the last output
+        change = funding.totalSats - totalOut;
         changeOutput = builder.outputCount() - 1;
         builder.selectOutput(changeOutput);
         builder.setOutputValue(change); // pays no fee yet
     } else {
-        m_assignedFee = fundsIngoing - totalOut;
+        m_assignedFee = funding.totalSats - totalOut;
 
         // notice that the findInputsFor() will try really really hard to avoid us
         // having change greater than 100 and less than 1000.

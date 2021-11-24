@@ -19,6 +19,7 @@
 #define PAYMENT_DETAIL_INPUTS_H
 
 #include "Payment.h"
+#include "Wallet.h"
 
 class PaymentDetailInputs : public PaymentDetail
 {
@@ -41,6 +42,8 @@ public:
 
     double selectedValue() const;
     int selectedCount() const;
+
+    Wallet::OutputSet selectedInputs(int64_t output, int feePerByte, int txSize, int64_t &change) const;
 
 signals:
     void selectedValueChanged();

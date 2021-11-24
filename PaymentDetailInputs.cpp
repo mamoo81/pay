@@ -18,6 +18,7 @@
 
 #include "PaymentDetailInputs.h"
 #include "Wallet.h"
+#include "Wallet_p.h" // for BYTES_PER_OUTPUT
 #include "AccountInfo.h"
 
 PaymentDetailInputs::PaymentDetailInputs(Payment *parent)
@@ -152,4 +153,28 @@ int PaymentDetailInputs::selectedCount() const
         return 0;
     const auto &selection = a->second;
     return selection.selectedCount;
+}
+
+Wallet::OutputSet PaymentDetailInputs::selectedInputs(int64_t output, int feePerByte, int txSize, int64_t &change) const
+{
+    Wallet::OutputSet answer;
+    assert(m_wallet);
+    auto a = m_selectionModels.find(m_wallet);
+    if (a == m_selectionModels.end())
+        return answer;
+    const auto &selection = a->second;
+    int fee = feePerByte * (txSize + BYTES_PER_OUTPUT * selection.rows.size());
+    change = 0;
+    if (output != -1) { // an output of -1 means that there was an ouput that takes 'the rest', leaving no change.
+        change = selection.selectedValue - output - fee;
+        if (change < 0) // return an empty answer if the input can't pay the outputs plus expected fees.
+            return answer;
+    }
+
+    answer.totalSats = selection.selectedValue;
+    answer.outputs.reserve(selection.rows.size());
+    for (auto ref : selection.rows) {
+        answer.outputs.push_back(Wallet::OutputRef(ref));
+    }
+    return answer;
 }
