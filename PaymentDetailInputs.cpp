@@ -68,9 +68,12 @@ void PaymentDetailInputs::setRowIncluded(int row, bool on)
         --selection.selectedCount;
     }
     emit selectedCountChanged();
+    logFatal();
     emit selectedValueChanged();
 
     m_model.updateRow(row);
+    setValid(selection.selectedValue > 547);
+    emit validChanged(); // the Payment needs to do the math as well, if inputs and outputs match
 }
 
 bool PaymentDetailInputs::isRowIncluded(uint64_t rowId)
@@ -111,6 +114,8 @@ void PaymentDetailInputs::selectAll()
     }
     emit selectedCountChanged();
     emit selectedValueChanged();
+    setValid(true);
+    emit validChanged(); // the Payment needs to do the math as well, if inputs and outputs match
 }
 
 void PaymentDetailInputs::unselectAll()
@@ -127,6 +132,7 @@ void PaymentDetailInputs::unselectAll()
     }
     emit selectedCountChanged();
     emit selectedValueChanged();
+    setValid(false);
 }
 
 double PaymentDetailInputs::selectedValue() const

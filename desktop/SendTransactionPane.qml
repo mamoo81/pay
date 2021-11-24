@@ -44,6 +44,7 @@ Pane {
         height: parent.height - 50
         contentHeight: mainColumn.height
         contentWidth: width
+        clip: true
         Column {
             id: mainColumn
             width: parent.width
@@ -361,32 +362,46 @@ Pane {
 
             GridLayout {
                 width: parent.width
-                columns: 5
+                columns: 4
+                Label {
+                    text: qsTr("Total", "Number of coins") + ":"
+                }
+                Label {
+                    text: coinsListView.count
+                    Layout.fillWidth: true
+                }
+                Label {
+                    text: qsTr("Needed") +":"
+                }
+                Flowee.BitcoinAmountLabel {
+                    value: payment.paymentAmount
+                    Layout.fillWidth: true
+                    colorize: false
+                }
+
+                // next row
                 Label {
                     text: qsTr("Selected") + ":"
                 }
                 Label {
                     text: inputsPane.paymentDetail.selectedCount
+                    Layout.fillWidth: true
                 }
                 Label {
-                    text: qsTr("Total value") + ":"
+                    text: qsTr("Value") + ":"
                 }
                 Flowee.BitcoinAmountLabel {
                     value: inputsPane.paymentDetail.selectedValue
                     colorize: false
                 }
-                Item { Layout.fillWidth: true }
+
+                // next row
                 ListView {
                     id: coinsListView
                     clip: true
-                    Layout.columnSpan: 5
+                    Layout.columnSpan: 4
                     Layout.fillWidth: true
-                    implicitHeight: {
-                        var ch = contentHeight;
-                        if (ch < 100) // probably still building
-                            return 150;
-                        return Math.min(ch, 300);
-                    }
+                    implicitHeight: contentArea.height * 0.8
                     model: inputsPane.paymentDetail.coins
 
                     property bool menuIsOpen: false

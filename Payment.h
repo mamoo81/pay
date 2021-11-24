@@ -76,14 +76,40 @@ public:
     int feePerByte();
 
     /**
-     * Set the amount we want to have arrive on the other side.
-     * Special value can be -1 to indicate all available outputs.
+     * Sats the amount of BCH on our single-detail payment.
+     *
+     * This method can no longer be used after addExtraOutput() have been called.
+     * This method assumes a single output, which is the default for this class.
+     *
+     * This sets the amount to pay, in Satoshis, to the target address.
      */
     void setPaymentAmount(double amount);
+    /**
+     * Returns the total amount of satoshis that are selected by outputs.
+     * Notice that if 'max' is requested that this is not counted.
+     */
     double paymentAmount();
 
+    /**
+     * Sets the address to pay to.
+     *
+     * This method can no longer be used after addExtraOutput has been called.
+     * This method assumes a single output, which is the default for this class.
+     */
     void setTargetAddress(const QString &address);
+    /**
+     * Returns the address to pay to, as the user typed it.
+     *
+     * This method can no longer be used after addExtraOutput has been called.
+     * This method assumes a single output, which is the default for this class.
+     */
     QString targetAddress();
+    /**
+     * Returns the validated and formatted address to pay to.
+     *
+     * This method can no longer be used after addExtraOutput has been called.
+     * This method assumes a single output, which is the default for this class.
+     */
     QString formattedTargetAddress();
 
     /// return true if all fields are correctly populated and we can prepare()
@@ -101,8 +127,11 @@ public:
     /// return the txid, should there be a transaction (otherwise empty string)
     QString txid() const;
 
+    /// The fee decided to be used in 'prepare()'.
     int assignedFee() const;
+    /// The size of the transaction we prepare()d.
     int txSize() const;
+    /// Return true if prepare() successfully completed.
     bool txPrepared() const;
 
     /// Return the wallet used by the previous prepare()
@@ -125,7 +154,7 @@ public:
 private slots:
     void sentToPeer();
     void txRejected(short reason, const QString &message);
-    void paymentAmountChanged();
+    void recalcAmounts();
 
 signals:
     void feePerByteChanged();

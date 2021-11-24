@@ -17,6 +17,7 @@
  */
 
 #include "PaymentDetailOutput.h"
+#include "PaymentDetailInputs.h"
 #include "FloweePay.h"
 #include "AccountInfo.h"
 
@@ -40,19 +41,30 @@ double PaymentDetailOutput::paymentAmount() const
         return static_cast<double>(m_fiatAmount * 100000000L / p->fiatPrice());
     }
     if (m_maxAllowed && m_maxSelected) {
+        /*
+         * If the value is 'max' then we think per definition in satoshis.
+         * We will count up all the outputs and subtract that from the base amount.
+         *
+         * The base amount is either the total spendable money in the wallet, or in
+         * case there is an InputsSelector, the total amount selected there.
+         */
+
         Payment *p = qobject_cast<Payment*>(parent());
         assert(p);
         assert(p->currentAccount());
         auto wallet = p->currentAccount()->wallet();
         assert(wallet);
-        auto amount = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
+        int64_t baseBalance = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
+        int64_t outputs = 0;
         for (auto detail : p->m_paymentDetails) {
             if (detail == this) // max is only allowed in the last of the outputs
-                break;
+                continue;
             if (detail->isOutput())
-                amount -= detail->toOutput()->paymentAmount();
+                outputs += detail->toOutput()->paymentAmount();
+            if (detail->isInputs())
+                baseBalance = detail->toInputs()->selectedValue();
         }
-        return static_cast<double>(amount);
+        return static_cast<double>(std::max(0l, baseBalance - outputs));
     }
     return static_cast<double>(m_paymentAmount);
 }
@@ -187,13 +199,17 @@ int PaymentDetailOutput::fiatAmount() const
             assert(p->currentAccount());
             auto wallet = p->currentAccount()->wallet();
             assert(wallet);
-            amount = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
+            int64_t baseBalance = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
+            int64_t outputs = 0;
             for (auto detail : p->m_paymentDetails) {
                 if (detail == this) // max is only allowed in the last of the outputs
-                    break;
+                    continue;
                 if (detail->isOutput())
-                    amount -= detail->toOutput()->paymentAmount();
+                    outputs += detail->toOutput()->paymentAmount();
+                if (detail->isInputs())
+                    baseBalance = detail->toInputs()->selectedValue();
             }
+            amount = std::max(0l, baseBalance - outputs);
         }
 
         return (amount * p->fiatPrice() / 10000000 + 5) / 10;

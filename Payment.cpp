@@ -69,7 +69,15 @@ void Payment::setPaymentAmount(double amount)
 
 double Payment::paymentAmount()
 {
-    return soleOut()->paymentAmount();
+    int64_t sats = 0;
+    for (auto d : m_paymentDetails) {
+        if (d->isOutput()) {
+            auto o = d->toOutput();
+            if (!(o->maxAllowed() && o->maxSelected()))
+                sats += o->paymentAmount();
+        }
+    }
+    return static_cast<double>(sats);
 }
 
 void Payment::setTargetAddress(const QString &address)
@@ -89,9 +97,20 @@ QString Payment::formattedTargetAddress()
 
 bool Payment::validate()
 {
+    int64_t output = 0;
     for (auto detail : m_paymentDetails) {
         if (!detail->valid())
             return false;
+        if (detail->isOutput())
+            output += detail->toOutput()->paymentAmount();
+        if (detail->isInputs()) {
+            // we are ensured that all outputs come before the input-selector.
+            // Check that the selected inputs contain more than is output
+            if (output > detail->toInputs()->selectedValue()) {
+                logDebug() << "Need more inputs to cover the requested output-amounts";
+                return false;
+            }
+        }
     }
     return true;
 }
@@ -244,9 +263,10 @@ void Payment::reset()
     m_sentPeerCount = 0;
     m_rejectedPeerCount = 0;
 
-    qDeleteAll(m_paymentDetails);
+    auto copy(m_paymentDetails);
     m_paymentDetails.clear();
-    emit paymentDetailsChanged(); // work around too-lazy QML not updating if the number of items is identical
+    emit paymentDetailsChanged(); // Instantly update UI
+    qDeleteAll(copy);
     auto out = new PaymentDetailOutput(this);
     out->setCollapsable(false);
     // the first one is special since its used to emulate a dumb payment API
@@ -274,32 +294,20 @@ void Payment::addDetail(PaymentDetail *detail)
         while (newPos < m_paymentDetails.length() && m_paymentDetails.at(newPos)->isOutput())
             ++newPos;
         m_paymentDetails.insert(newPos, detail);
-        for (int i = newPos; i < m_paymentDetails.length(); ++i) {
-            if (m_paymentDetails.at(i)->isInputs()) {
-                // then no output is allowed to be 'max'.
-                detail->toOutput()->setMaxAllowed(false);
-                break;
-            }
-        }
     }
     else {
-        if (detail->isInputs()) {
-            // adding an 'inputs' should lead to the outputs being set to max_allowed = false
-            for (auto iter = m_paymentDetails.begin(); iter != m_paymentDetails.end(); ++iter) {
-                auto *detail = *iter;
-                if (detail->isOutput())
-                    detail->toOutput()->setMaxAllowed(false);
-                else
-                    break;
-            }
-        }
         m_paymentDetails.append(detail);
     }
     connect (detail, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
     if (detail->isOutput()) {
-        connect (detail, SIGNAL(paymentAmountChanged()), this, SLOT(paymentAmountChanged()));
-        connect (detail, SIGNAL(fiatAmountChanged()), this, SLOT(paymentAmountChanged()));
+        connect (detail, SIGNAL(paymentAmountChanged()), this, SLOT(recalcAmounts()));
+        connect (detail, SIGNAL(fiatAmountChanged()), this, SLOT(recalcAmounts()));
     }
+    if (detail->isInputs()) {
+        connect (detail, SIGNAL(selectedValueChanged()), this, SLOT(recalcAmounts()));
+    }
+    assert(!m_paymentDetails.isEmpty());
+    m_paymentDetails.first()->setCollapsable(m_paymentDetails.size() > 1);
     emit paymentDetailsChanged();
     emit validChanged(); // pretty sure we are invalid after ;-)
 }
@@ -394,18 +402,17 @@ void Payment::remove(PaymentDetail *detail)
         // Make sure only the last output has 'maxAllowed' set to true.
         if (detail->isOutput()) {
             bool seenOne = false;
-            bool seenInput = false;
             for (auto iter = m_paymentDetails.rbegin(); iter != m_paymentDetails.rend(); ++iter) {
                 auto *detail = *iter;
-                seenInput |= detail->isInputs();
                 if (detail->isOutput()) {
-                    detail->toOutput()->setMaxAllowed(!seenOne && !seenInput);
+                    detail->toOutput()->setMaxAllowed(!seenOne);
                     seenOne = true;
                 }
             }
         }
     }
     assert(!m_paymentDetails.isEmpty());
+    detail->deleteLater();
 }
 
 QString Payment::txid() const
@@ -444,13 +451,11 @@ void Payment::txRejected(short reason, const QString &message)
     emit broadcastStatusChanged();
 }
 
-void Payment::paymentAmountChanged()
+void Payment::recalcAmounts()
 {
     // Find the output that has 'max' and give it a change to recalculate the effective values.
     auto out = qobject_cast<PaymentDetailOutput*>(sender());
-    if (out == nullptr)
-        return;
-    if (out->maxSelected() && out->maxAllowed())
+    if (out && out->maxSelected() && out->maxAllowed())
         return;
     for (auto i = m_paymentDetails.rbegin(); i != m_paymentDetails.rend(); ++i) {
         auto *detail = *i;
@@ -460,6 +465,7 @@ void Payment::paymentAmountChanged()
             break; // only the last detail can be a 'max'
         }
     }
+    emit amountChanged(); // also trigger the payment-wide paymentAmount property to have been changed
 }
 
 bool Payment::preferSchnorr() const
