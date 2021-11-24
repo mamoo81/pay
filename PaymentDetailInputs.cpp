@@ -69,7 +69,6 @@ void PaymentDetailInputs::setRowIncluded(int row, bool on)
         --selection.selectedCount;
     }
     emit selectedCountChanged();
-    logFatal();
     emit selectedValueChanged();
 
     m_model.updateRow(row);
