@@ -23,7 +23,7 @@ import "widgets" as Flowee
 import "./ControlColors.js" as ControlColors
 import Flowee.org.pay 1.0
 
-Pane {
+Item {
     id: sendPanel
 
     Payment { // the model behind the Payment logic
@@ -31,11 +31,17 @@ Pane {
         fiatPrice: Fiat.price
         account: portfolio.current
     }
+    Rectangle { // background
+        anchors.fill: parent
+        color: mainWindow.palette.window
+    }
     Flickable {
         id: contentArea
         width: sendPanel.width - 20
-        y: 50
-        height: parent.height - 50
+        y: 40
+        x: 10
+
+        height: parent.height - 40
         contentHeight: mainColumn.height
         contentWidth: width
         clip: true
@@ -237,7 +243,6 @@ Pane {
     // the panel that allows us to tweak the payment
     PaymentTweakingPanel {
         anchors.fill: parent
-        anchors.margins: -sendPanel.padding
     }
 
     // ============= Payment components  ===============
