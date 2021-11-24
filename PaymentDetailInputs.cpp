@@ -91,6 +91,8 @@ void PaymentDetailInputs::setOutputLocked(int row, bool lock)
 {
     assert(m_wallet);
     m_model.setOutputLocked(row, lock);
+    if (lock)
+        setRowIncluded(row, false);
 }
 
 void PaymentDetailInputs::selectAll()

@@ -130,7 +130,6 @@ QVariant WalletCoinsModel::data(const QModelIndex &index, int role) const
             const auto &secret = secretIter->second;
             if (secret.fromHdWallet && secret.fromChangeChain)
                 return QVariant(tr("Change #%1").arg(secret.hdDerivationIndex));
-            return QVariant(QString());
         }
         break;
     }

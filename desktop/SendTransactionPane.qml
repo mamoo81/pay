@@ -360,177 +360,180 @@ Pane {
                             .arg(Pay.unitName)
                             .arg(paymentDetail.selectedCount)
 
-            GridLayout {
-                width: parent.width
-                columns: 4
-                Label {
-                    text: qsTr("Total", "Number of coins") + ":"
-                }
-                Label {
-                    text: coinsListView.count
-                    Layout.fillWidth: true
-                }
-                Label {
-                    text: qsTr("Needed") +":"
-                }
-                Flowee.BitcoinAmountLabel {
-                    value: payment.paymentAmount
-                    Layout.fillWidth: true
-                    colorize: false
-                }
+            columns: 4
+            Label {
+                text: qsTr("Total", "Number of coins") + ":"
+            }
+            Label {
+                text: coinsListView.count
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("Needed") +":"
+            }
+            Flowee.BitcoinAmountLabel {
+                id: neededAmountLabel
+                value: payment.paymentAmount
+                Layout.fillWidth: true
+                colorize: false
+            }
+            // next row
+            Label {
+                text: qsTr("Selected") + ":"
+            }
+            Label {
+                text: inputsPane.paymentDetail.selectedCount
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("Value") + ":"
+            }
+            Flowee.BitcoinAmountLabel {
+                value: inputsPane.paymentDetail.selectedValue
+                Layout.fillWidth: true
+                colorize: false
+            }
 
-                // next row
-                Label {
-                    text: qsTr("Selected") + ":"
+            // next row
+            ListView {
+                id: coinsListView
+                clip: true
+                Layout.columnSpan: 4
+                Layout.fillWidth: true
+                implicitHeight: {
+                    var ch = contentHeight
+                    var suggested = contentArea.height * 0.8
+                    if (ch < 0 || suggested < ch)
+                        return suggested
+                    return ch
                 }
-                Label {
-                    text: inputsPane.paymentDetail.selectedCount
-                    Layout.fillWidth: true
-                }
-                Label {
-                    text: qsTr("Value") + ":"
-                }
-                Flowee.BitcoinAmountLabel {
-                    value: inputsPane.paymentDetail.selectedValue
-                    colorize: false
-                }
+                model: inputsPane.paymentDetail.coins
 
-                // next row
-                ListView {
-                    id: coinsListView
-                    clip: true
-                    Layout.columnSpan: 4
-                    Layout.fillWidth: true
-                    implicitHeight: contentArea.height * 0.8
-                    model: inputsPane.paymentDetail.coins
+                property bool menuIsOpen: false
 
-                    property bool menuIsOpen: false
+                delegate: Rectangle {
+                    width: ListView.view.width - 5
+                    height: mainText.height + ageLabel.height + 12
+                    color: index %2 == 0 ? mainText.palette.alternateBase : mainText.palette.base
 
-                    header: Rectangle {
-                        width: ListView.view.width - 6
-                        height: amount.height * 2
-                        color:amount.palette.button
-                        Label {
-                            text: qsTr("address")
-                            x: 100
-                            font.bold: true
-                            anchors.baseline: age.baseline
-                        }
-                        Label {
-                            id: amount
-                            text: qsTr("amount")
-                            font.bold: true
-                            anchors.right: parent.right
-                            anchors.rightMargin: 220
-                            anchors.baseline: age.baseline
-                        }
-                        Label {
-                            id: age
-                            text: qsTr("age")
-                            font.bold: true
-                            anchors.right: parent.right
-                            anchors.rightMargin: 60
-                            anchors.verticalCenter: parent.verticalCenter
+                    Rectangle {
+                        id: lockedRect
+                        color: Pay.useDarkSkin ? "#002558" : "#1a6ae2"
+                        anchors.fill: parent
+                        visible: locked // if the UTXO is user-locked
+
+                        ToolTip {
+                            delay: 600
+                            text: qsTr("Locked coins will never be used for payments. Right-click for menu.")
+                            visible: rowMouseArea.containsMouse
                         }
                     }
 
-                    delegate: Rectangle {
-                        width: ListView.view.width - 5
-                        height: mainText.height * 2
-                        color: index %2 == 0 ? mainText.palette.alternateBase : mainText.palette.base
-
-                        Rectangle {
-                            id: lockedRect
-                            color: Pay.useDarkSkin ? "#002558" : "#1a6ae2"
-                            anchors.fill: parent
-                            visible: locked // if the UTXO is user-locked
+                    CheckBox {
+                        y: 6
+                        id: selectedBox
+                        checked: model.selected
+                        visible: !lockedRect.visible
+                    }
+                    Label {
+                        id: mainText
+                        y: 6
+                        anchors.right: amountLabel.left
+                        anchors.left: parent.left
+                        anchors.leftMargin: 50
+                        text: {
+                            var fancy = cloakedAddress;
+                            if (typeof fancy != "undefined")
+                                return fancy;
+                            return address;
                         }
 
-                        CheckBox {
-                            id: selectedBox
-                            checked: model.selected
-                            visible: !lockedRect.visible
-                        }
-                        Label {
-                            id: mainText
-                            x: 50
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: {
-                                var fancy = cloakedAddress;
-                                if (fancy !== "")
-                                    return fancy;
-                                return address
+                        elide: Label.ElideRight
+                    }
+                    Flowee.BitcoinAmountLabel {
+                        id: amountLabel
+                        value: model.value
+                        anchors.baseline: mainText.baseline
+                        anchors.right: parent.right
+                        anchors.rightMargin: 30
+                    }
+                    Label {
+                        id: ageLabel
+                        text: qsTr("Age") + ": " + age
+                        anchors.left: mainText.left
+                        anchors.top: mainText.bottom
+                        font.pixelSize: mainText.font.pixelSize * 0.8
+                    }
+                    MouseArea {
+                        id: rowMouseArea
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        hoverEnabled: locked
+
+                        onClicked: {
+                            // make it easy for the user to close a menu with either mouse
+                            // button without instantly triggering another action.
+                            if (coinsListView.menuIsOpen) {
+                                coinsListView.menuIsOpen = false
+                                return;
+                            }
+                            if (mouse.button == Qt.LeftButton) {
+                                var willCheck = !selectedBox.checked
+                                selectedBox.checked = willCheck
+                                inputsPane.paymentDetail.setRowIncluded(index, willCheck)
+                            }
+                            else {
+                                coinsListView.menuIsOpen = true
+                                // Make sure that the menu
+                                // opens where we clicked.
+                                mousePos.x = mouse.x
+                                mousePos.y = mouse.y
+                                lockingMenu.open();
                             }
                         }
-                        Flowee.BitcoinAmountLabel {
-                            value: model.value
-                            anchors.baseline: mainText.baseline
-                            anchors.right: parent.right
-                            anchors.rightMargin: 160
-                            colorize: false
+                        Item {
+                            id: mousePos
+                            width: 1; height: 1
+                            Menu {
+                                id: lockingMenu
+                                MenuItem {
+                                    text: selectedBox.checked ? qsTr("Unselect All") : qsTr("Select All")
+                                    onClicked: {
+                                        coinsListView.menuIsOpen = false
+                                        if (selectedBox.checked)
+                                            inputsPane.paymentDetail.unselectAll();
+                                        else
+                                            inputsPane.paymentDetail.selectAll();
+                                    }
+                                }
+                                MenuItem {
+                                    text: locked ? qsTr("Unlock coin") : qsTr("Lock coin")
+                                    onClicked: {
+                                        inputsPane.paymentDetail.setOutputLocked(index, !locked)
+                                        coinsListView.menuIsOpen = false
+                                    }
+                                }
+                            }
                         }
-                        Label {
-                            text: age
-                            anchors.right: parent.right
-                            anchors.rightMargin: 30
-                            anchors.baseline: mainText.baseline
-                        }
-                        Label {
-                            id: fusedIcon
-                            text: fusedCount
-                            anchors.right: parent.right
-                            anchors.baseline: mainText.baseline
+                    }
+                    Image {
+                        id: fusedIcon
+                        visible: fusedCount > 0
+                        source: "qrc:/cashfusion.svg"
+                        anchors.right: parent.right
+                        anchors.verticalCenter: mainText.verticalCenter
+                        width: 24
+                        height: 24
+                        ToolTip {
+                            delay: 200
+                            text: qsTr("Coin has been fused for increased anonymity")
+                            visible: mouseArea.containsMouse
                         }
                         MouseArea {
+                            id: mouseArea
+                            hoverEnabled: true
                             anchors.fill: parent
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-                            onClicked: {
-                                // make it easy for the user to close a menu with either mouse
-                                // button without instantly triggering another action.
-                                if (coinsListView.menuIsOpen) {
-                                    coinsListView.menuIsOpen = false
-                                    return;
-                                }
-                                if (mouse.button == Qt.LeftButton) {
-                                    var willCheck = !selectedBox.checked
-                                    selectedBox.checked = willCheck
-                                    inputsPane.paymentDetail.setRowIncluded(index, willCheck)
-                                }
-                                else {
-                                    coinsListView.menuIsOpen = true
-                                    // Make sure that the menu
-                                    // opens where we clicked.
-                                    mousePos.x = mouse.x
-                                    mousePos.y = mouse.y
-                                    lockingMenu.open();
-                                }
-                            }
-                            Item {
-                                id: mousePos
-                                width: 1; height: 1
-                                Menu {
-                                    id: lockingMenu
-                                    MenuItem {
-                                        text: locked ? qsTr("Unlock coin") : qsTr("Lock coin")
-                                        onClicked: {
-                                            inputsPane.paymentDetail.setOutputLocked(index, !locked)
-                                            coinsListView.menuIsOpen = false
-                                        }
-                                    }
-                                    MenuItem {
-                                        visible: !locked
-                                        text: selectedBox.checked ? qsTr("Unselect All") : qsTr("Select All")
-                                        onClicked: {
-                                            coinsListView.menuIsOpen = false
-                                            if (selectedBox.checked)
-                                                inputsPane.paymentDetail.unselectAll();
-                                            else
-                                                inputsPane.paymentDetail.selectAll();
-                                        }
-                                    }
-                                }
-                            }
+                            anchors.margins: -5
                         }
                     }
                 }
