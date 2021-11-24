@@ -460,7 +460,8 @@ Item {
                         value: model.value
                         anchors.baseline: mainText.baseline
                         anchors.right: parent.right
-                        anchors.rightMargin: 30
+                        // only HD wallets can use cash-fusion
+                        anchors.rightMargin: portfolio.current.isHDWallet ? 30 : 0
                     }
                     Label {
                         id: ageLabel
