@@ -224,6 +224,10 @@ ApplicationWindow {
                             onHeightChanged: restart();
                         }
                     }
+
+                    Keys.forwardTo: Flowee.ListViewKeyHandler {
+                        target: activityView
+                    }
                 }
                 Loader {
                     id: sendTransactionPane

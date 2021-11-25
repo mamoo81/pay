@@ -39,6 +39,7 @@
         <file>widgets/CheckBox.qml</file>
         <file>widgets/CloseIcon.qml</file>
         <file>widgets/GroupBox.qml</file>
+        <file>widgets/ListViewKeyHandler.qml</file>
         <file>widgets/MultilineTextField.qml</file>
         <file>widgets/ScrollThumb.qml</file>
         <file>widgets/TabBar.qml</file>
