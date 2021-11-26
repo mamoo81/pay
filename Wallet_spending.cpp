@@ -19,43 +19,71 @@
 #include "Wallet_p.h"
 #include "FloweePay.h"
 
+// #define DEBUG_UTXO_SELECTION
+#ifdef DEBUG_UTXO_SELECTION
+# define logUtxo logCritical
+#else
+# define logUtxo if (false) logCritical
+#endif
+
 namespace {
 struct UnspentOutput {
     Wallet::OutputRef outputRef;
     qint64 value = 0;       // in satoshis
-    int score = 0;          // the score gained by using this tx.
+    int score = 0;          // the score gained by using this output.
+    int walletSecretId = -1;    // the private key that this UTXO is unlocked by
 };
+}
 
-int scoreForSolution(size_t outputCount, int64_t change, size_t unspentOutputCount)
+int Wallet::scoreForSolution(const OutputSet &set, int64_t change, size_t unspentOutputCount) const
 {
     assert(unspentOutputCount > 0);
-    assert(outputCount > 0);
+    assert(set.outputs.size() > 0);
     assert(change > 0);
 
-    const int resultingOutputCount = unspentOutputCount - outputCount;
+    const int resultingOutputCount = unspentOutputCount - set.outputs.size();
     int score = 0;
-    // aim to keep our output count between 10 and 40
-    if (resultingOutputCount > 10 && resultingOutputCount <= 50)
-        score = 1000; // perfection
-    else if (resultingOutputCount > 5 && resultingOutputCount < 40)
-        score = 250;
-    else if (resultingOutputCount < 25 && resultingOutputCount > 10)
-        score = 250;
-    else if (resultingOutputCount > 40)
-        score -= (resultingOutputCount - 40) * 5;
-    else if (resultingOutputCount <= 5)
-        score -= (5 - resultingOutputCount) * 40; // for the 0 - 5 range
+    if (m_singleAddressWallet) {
+        // aim to keep our output count between 5 and 15
+        // Rationale: (in the context of this being a single-address walllet)
+        //  there is no loss in privacy in any combination, as such we aim to only
+        //  optimize to have no unconfirmed transactions when the user wants to pay.
+        if (resultingOutputCount > 5 && resultingOutputCount <= 15)
+            score = 1000; // perfection
+        else if (resultingOutputCount <= 5)
+            score = 500 - (5 - resultingOutputCount) * 40; // for the 0 - 5 range
+        else
+            score = 500 - (resultingOutputCount - 15) * 40;
+    }
+    else {
+        // aim to keep our output count between 10 and 50
+        // Rationale:
+        //  To keep privacy we ideally always have a single input and avoid
+        //  combining inputs that to the outside world are unconnected.
+        //
+        //  Additionally, we want to keep enough outputs to avoid reusing
+        //  unconfirmed ones.
+        if (resultingOutputCount > 10 && resultingOutputCount <= 50)
+            score = 1000; // perfection
+        else if (resultingOutputCount > 5 && resultingOutputCount < 40)
+            score = 250;
+        else if (resultingOutputCount < 25 && resultingOutputCount > 10)
+            score = 250;
+        else if (resultingOutputCount > 40)
+            score -= (resultingOutputCount - 40) * 5;
+        else if (resultingOutputCount <= 5)
+            score -= (5 - resultingOutputCount) * 40; // for the 0 - 5 range
+    }
 
     // in most cases no modifier is added due to change
-    if (change < 100)
+    if (change < 500)
         score += 2000; // thats very nice (if over 0, that's for the miner)
-    else if (change < 1000) // we would create very small UTXO, not nice.
+    else if (change < 2000) // we would create very small UTXO, not nice.
         score -= 1000;
     else if (change < 5000) // ditto
         score -= 800;
 
     return score;
-}
 }
 
 Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const
@@ -86,23 +114,31 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         auto wtxIter = m_walletTransactions.find(out.outputRef.txIndex());
         Q_ASSERT(wtxIter != m_walletTransactions.end());
 
-        int h = wtxIter->second.minedBlockHeight;
+        const auto &wtx = wtxIter->second;
+        int h = wtx.minedBlockHeight;
         if (h == WalletPriv::Unconfirmed) {
             out.score = -10; // unconfirmed.
-        } else if (wtxIter->second.isCoinbase
+        } else if (wtx.isCoinbase
                    && h + MATURATION_AGE >= m_lastBlockHeightSeen) {
             // don't spend an immature coinbase
             continue;
         } else {
             const int diff = currentBlockHeight - h;
             if (diff > 4024)
-                out.score = -20;
+                out.score = 0;
             else if (diff > 1008)
-                out.score = -30;
+                out.score = -10;
             else if (diff > 144)
-                out.score = -50;
+                out.score = -30;
         }
         utxosBySize.insert(std::make_pair(iter->second, unspentOutputs.size()));
+        if (wtx.isCashFusionTx)
+            out.score += 50;
+        if (!m_singleAddressWallet) {
+            const auto outputIter = wtx.outputs.find(out.outputRef.outputIndex());
+            assert(outputIter != wtx.outputs.end());
+            out.walletSecretId = outputIter->second.walletSecretId; // TODO use
+        }
         unspentOutputs.push_back(out);
     }
 
@@ -126,16 +162,19 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
     if (bestSet.totalSats - bestSet.fee < output)
         return OutputSet();
 
-    bestScore += scoreForSolution(bestSet.outputs.size(),
-                                     bestSet.totalSats - bestSet.fee - output, unspentOutputs.size());
+    int scoreAdjust = scoreForSolution(bestSet, bestSet.totalSats - bestSet.fee - output,
+                                  unspentOutputs.size());
+    logUtxo() << "Initial set, size:" << bestSet.outputs.size() << "paying" << bestSet.totalSats << "+"
+              << bestSet.fee << "fee, gives change of:" << bestSet.totalSats - bestSet.fee - output
+              << "got score" << bestScore << "+" << scoreAdjust;
+    bestScore += scoreAdjust;
     // try a new set.
     OutputSet current;
     int score = 0;
     current.fee = txSize * feePerByte;
-    auto iterBySize = utxosBySize.end();
-    while (iterBySize != utxosBySize.begin()) {
-        --iterBySize;
+    for (auto iterBySize = utxosBySize.crbegin(); iterBySize != utxosBySize.crend(); ++iterBySize) {
         const auto &utxo = unspentOutputs.at(iterBySize->second);
+        logFatal() << "  " << utxo.value;
         current.outputs.push_back(utxo.outputRef);
         current.totalSats += utxo.value;
         current.fee += BYTES_PER_OUTPUT * feePerByte;
@@ -146,11 +185,16 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
     }
 
     if (current.totalSats - current.fee >= output) {
-        score += scoreForSolution(current.outputs.size(),
-                                  current.totalSats - current.fee - output, unspentOutputs.size());
+        scoreAdjust = scoreForSolution(current, current.totalSats - current.fee - output,
+                                  unspentOutputs.size());
+        logUtxo() << "Size-based set, size:" << current.outputs.size() << "paying" << current.totalSats << "+"
+                  << current.fee << "fee, gives change of:" << current.totalSats - current.fee - output
+                  << "got score" << score << "+" << scoreAdjust;
+        score += scoreAdjust;
 
         // compare with the cost of oldest to newest.
         if (score > bestScore) {
+            logUtxo() << "  + New BEST";
             bestScore = score;
             bestSet = current;
         }
@@ -175,15 +219,21 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
             outputs.removeAt(index); // take it.
         } while (current.totalSats - current.fee < output);
 
-        score += scoreForSolution(current.outputs.size(),
+        scoreAdjust = scoreForSolution(current,
                                   (current.totalSats - current.fee) - output, unspentOutputs.size());
+        logUtxo() << "Random set, size:" << current.outputs.size() << "paying" << current.totalSats << "+"
+                  << current.fee << "fee, gives change of:" << current.totalSats - current.fee - output
+                  << "got score" << score << "+" << scoreAdjust;
+        score += scoreAdjust;
         Q_ASSERT(current.totalSats - current.fee >= output);
         if (score > bestScore) {
+            logUtxo() << "  + New BEST";
             bestScore = score;
             bestSet = current;
         }
     }
 
     change = bestSet.totalSats - bestSet.fee - output;
+    logInfo() << "selected a set with" << bestSet.outputs.size() << "inputs, change:" << change;
     return bestSet;
 }
