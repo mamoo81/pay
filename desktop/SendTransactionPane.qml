@@ -25,6 +25,7 @@ import Flowee.org.pay 1.0
 
 Item {
     id: sendPanel
+    focus: true
 
     Payment { // the model behind the Payment logic
         id: payment
@@ -244,6 +245,9 @@ Item {
     PaymentTweakingPanel {
         anchors.fill: parent
     }
+    Keys.forwardTo: Flowee.ListViewKeyHandler {
+        id: listViewKeyHandler
+    }
 
     // ============= Payment components  ===============
 
@@ -365,6 +369,10 @@ Item {
                             .arg(Pay.unitName)
                             .arg(paymentDetail.selectedCount)
 
+            // make this tabs arrow-navigation go to our coinsListView.
+            Component.onCompleted: listViewKeyHandler.target = coinsListView
+
+
             columns: 4
             Label {
                 text: qsTr("Total", "Number of coins") + ":"
@@ -407,7 +415,7 @@ Item {
                 Layout.fillWidth: true
                 implicitHeight: {
                     var ch = contentHeight
-                    var suggested = contentArea.height * 0.8
+                    var suggested = contentArea.height * 0.7
                     if (ch < 0 || suggested < ch)
                         return suggested
                     return ch
