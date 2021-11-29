@@ -224,6 +224,11 @@ public:
      */
     void setUserOwnedWallet(bool userOwnedWallet);
 
+    /**
+     * Set comment field on this transaction, assuming it has been accepted by this wallet.
+     */
+    void setTransactionComment(const Tx &transaction, const QString &comment);
+
     struct WalletSecret {
         CKey privKey;
         CKeyID address;
@@ -427,7 +432,7 @@ private:
     std::map<int, WalletTransaction> m_walletTransactions;
 
     typedef boost::unordered_map<uint256, int, HashShortener> TxIdCash;
-    TxIdCash m_txidCash; // txid -> m_walletTransactions-id
+    TxIdCash m_txidCache; // txid -> m_walletTransactions-id
 
     /*
      * Our little UTXO.

@@ -19,6 +19,7 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtQuick.Window 2.11
+import QtQuick.Shapes 1.11 // for shape-path
 import "widgets" as Flowee
 import "./ControlColors.js" as ControlColors
 import Flowee.org.pay 1.0
@@ -249,8 +250,201 @@ Item {
         id: listViewKeyHandler
     }
 
+    Control {
+        id: broadcastFeedback
+        anchors.fill: parent
+        states: [
+            State {
+                name: "notStarted"
+                when: payment.broadcastStatus === Payment.NotStarted
+            },
+            State {
+                name: "preparing"
+                when: payment.broadcastStatus === Payment.TxOffered
+                PropertyChanges { target: background;
+                    opacity: 1
+                    y: 0
+                }
+                PropertyChanges { target: progressCircle; sweepAngle: 90 }
+                StateChangeScript { script: ControlColors.applyLightSkin(broadcastFeedback) }
+            },
+            State {
+                name: "sent1" // sent to only one peer
+                extend: "preparing"
+                when: payment.broadcastStatus === Payment.TxSent1
+                PropertyChanges { target: progressCircle; sweepAngle: 150 }
+            },
+            State {
+                name: "waiting" // waiting for possible rejection.
+                when: payment.broadcastStatus === Payment.TxWaiting
+                extend: "preparing"
+                PropertyChanges { target: progressCircle; sweepAngle: 320 }
+            },
+            State {
+                name: "success" // no reject, great success
+                when: payment.broadcastStatus === Payment.TxBroadcastSuccess
+                extend: "preparing"
+                PropertyChanges { target: progressCircle
+                    sweepAngle: 320
+                    startAngle: -20
+                }
+                PropertyChanges { target: checkShape; opacity: 1 }
+            },
+            State {
+                name: "rejected" // a peer didn't like our tx
+                when: payment.broadcastStatus === Payment.TxRejected
+                extend: "preparing"
+                PropertyChanges { target: background; color: "#c80000" }
+                PropertyChanges { target: circleShape; opacity: 0 }
+                PropertyChanges {
+                    target: txidFeedbackLabel
+                    text: qsTr("Transaction rejected by network")
+                }
+            }
+        ]
+        Rectangle {
+            id: background
+            width: parent.width
+            height: parent.height
+            opacity: 0
+            visible: opacity != 0
+            color: mainWindow.floweeGreen
+            y: height + 2
+
+
+            Label {
+                id: title
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pointSize: 15
+                y: parent.height / 8
+                text: qsTr("Payment Sent") + " " + payment.broadcastStatus + " / " + broadcastFeedback.state
+            }
+
+            // The 'progress' icon.
+            Shape {
+                id: circleShape
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: title.bottom
+                anchors.topMargin: 10
+                width: 160
+                height: width
+                smooth: true
+                ShapePath {
+                    strokeWidth: 20
+                    strokeColor: "#dedede"
+                    fillColor: "transparent"
+                    capStyle: ShapePath.RoundCap
+                    startX: 100; startY: 10
+
+                    PathAngleArc {
+                        id: progressCircle
+                        centerX: 80
+                        centerY: 80
+                        radiusX: 70; radiusY: 70
+                        startAngle: -80
+                        sweepAngle: 0
+                        Behavior on sweepAngle {  NumberAnimation { duration: 2500 } }
+                        Behavior on startAngle {  NumberAnimation { } }
+                    }
+                }
+                Behavior on opacity {  NumberAnimation { } }
+            }
+            Shape {
+                id: checkShape
+                anchors.fill: circleShape
+                smooth: true
+                opacity: 0
+                ShapePath {
+                    id: checkPath
+                    strokeWidth: 16
+                    strokeColor: "green"
+                    fillColor: "transparent"
+                    capStyle: ShapePath.RoundCap
+                    startX: 60; startY: 60
+                    PathLine { x: 80; y: 80 }
+                    PathLine { x: 135; y: 30 }
+                }
+            }
+
+            Label {
+                id: fiatAmount
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: circleShape.bottom
+                anchors.topMargin: 10
+                font.pointSize: 24
+                text: Fiat.formattedPrice(payment.effectiveFiatAmount)
+            }
+            Flowee.BitcoinAmountLabel {
+                id: cryptoAmount
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: fiatAmount.bottom
+                anchors.topMargin: 20
+                fontPtSize: 15
+                value: payment.effectiveBchAmount
+                colorize: false
+            }
+            LabelWithClipboard {
+                id: txidFeedbackLabel
+                anchors.top: cryptoAmount.bottom
+                anchors.topMargin: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+                menuText: qsTr("Copy transaction-ID")
+                clipboardText: payment.txid
+                width: parent.width
+                horizontalAlignment: Qt.AlignHCenter
+                text: qsTr("Your payment can be found by its identifyer: %1").arg(payment.txid)
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            }
+
+            RowLayout {
+                id: txIdFeedback
+                anchors.top: txidFeedbackLabel.bottom
+                anchors.topMargin: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                ToolButton {
+                    // TODO set icon to copy to clipboard
+                    onClicked: Pay.copyToClipboard(payment.txid);
+                }
+                ToolButton {
+                    // TODO open in browser
+                }
+            }
+
+            Label {
+                anchors.verticalCenter: transactionComment.verticalCenter
+                anchors.right: transactionComment.left
+                anchors.rightMargin: 10
+                text: qsTr("Comment") + ":"
+            }
+            Flowee.TextField {
+                id: transactionComment
+                anchors.top: txIdFeedback.bottom
+                anchors.topMargin: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 400
+                onTextChanged: payment.userComment = text
+            }
+
+            Flowee.Button {
+                anchors.top: transactionComment.bottom
+                anchors.topMargin: 10
+                anchors.right: parent.right
+                anchors.rightMargin: 20
+                text: qsTr("Close")
+                onClicked: payment.reset()
+            }
+
+            Behavior on opacity { NumberAnimation { } }
+            Behavior on y { NumberAnimation { } }
+            Behavior on color { ColorAnimation { } }
+        }
+    }
+
     // ============= Payment components  ===============
 
+    /*
+     * The payment-output (address based) component.
+     */
     Component {
         id: destinationFields
         Flowee.GroupBox {
@@ -351,7 +545,6 @@ Item {
         }
     }
 
-
     /*
      * The input selector component.
      */
@@ -438,7 +631,7 @@ Item {
                         ToolTip {
                             delay: 600
                             text: qsTr("Locked coins will never be used for payments. Right-click for menu.")
-                            visible: rowMouseArea.containsMouse
+                            visible: locked && rowMouseArea.containsMouse
                         }
                     }
 

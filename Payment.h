@@ -39,13 +39,6 @@ class Payment : public QObject
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
-    Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
-    Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
-    Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
-    /// If Prepare failed, this is set.
-    Q_PROPERTY(QString error READ error NOTIFY errorChanged);
-    /// Tx has been prepared
-    Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged);
     Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
     /// Input is valid, tx can be prepared
     Q_PROPERTY(bool isValid READ validate NOTIFY validChanged);
@@ -54,6 +47,18 @@ class Payment : public QObject
     /// The price of on BCH
     Q_PROPERTY(int fiatPrice READ fiatPrice WRITE setFiatPrice NOTIFY fiatPriceChanged)
     Q_PROPERTY(AccountInfo *account READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
+    Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY userCommentChanged)
+
+    // --- Stuff that becomes available / useful after prepare has been called:
+    /// Tx has been prepared
+    Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged);
+    Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
+    Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
+    Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
+    Q_PROPERTY(int effectiveFiatAmount READ effectiveFiatAmount NOTIFY txCreated)
+    Q_PROPERTY(double effectiveBchAmount READ effectiveBchAmount NOTIFY txCreated)
+    /// If Prepare failed, this is set.
+    Q_PROPERTY(QString error READ error NOTIFY errorChanged);
 
     Q_ENUMS(DetailType BroadcastStatus)
 public:
@@ -62,12 +67,33 @@ public:
         PayToAddress
     };
 
+    /**
+     * The broadcast status is a statemachine to indicate if the transaction
+     * has been offered to the network to the final state of
+     * either TxRejected or TxBroadcastSuccess
+     *
+     * The statemachine goes like this;
+     *
+     * 0. `NotStarted`
+     * 1. After the API call 'broadcast()' we offer the transaction to all peers.
+     *    `TxOffered`
+     * 2. A peer responds by downloading the actual transaction from us.
+     *    `TxSent1`
+     * 3. A second peer responds by downloading the tx from us.
+     *    `TxWaiting`
+     * 4. Optionally, a peer responds with 'rejected' if the transaction is somehow wrong.
+     *    `TxRejected`
+     *    Stop here.
+     * 5. We waited a little time and no rejected came in, implying 2 or more peers like our tx.
+     *    `TxBroadcastSuccess`
+     */
     enum BroadcastStatus {
-        TxNotSent,
-        TxRejected,
-        TxWaiting,
-        TxSent1,
-        TxBroadcastSuccess
+        NotStarted,     //< We have not yet seen a call to broadcast()
+        TxOffered,      //< Tx has not been offered to any peers.
+        TxSent1,        //< Tx has been sent to at least one peer.
+        TxWaiting,      //< Tx has been downloaded by more than one peer.
+        TxBroadcastSuccess, //< Tx broadcast and accepted by multiple peers.
+        TxRejected      //< Tx has been offered, downloaded and rejected by at least one peer.
     };
 
     Payment(QObject *parent = nullptr);
@@ -134,6 +160,15 @@ public:
     /// Return true if prepare() successfully completed.
     bool txPrepared() const;
 
+    /**
+     * This returns a total fiat amount input into the prepared transaction.
+     */
+    int effectiveFiatAmount() const;
+    /**
+     * This returns a total BCH (in sats) amount that went into the prepared transaction.
+     */
+    double effectiveBchAmount() const;
+
     /// Return the wallet used by the previous prepare()
     /// \sa currentAccount
     Wallet *wallet() const;
@@ -145,11 +180,16 @@ public:
 
     BroadcastStatus broadcastStatus() const;
 
+    /// The exchange rate. The amount of cents for one BCH.
     int fiatPrice() const;
-    void setFiatPrice(int newFiatPrice);
+    /// The exchange rate. The amount of cents for one BCH.
+    void setFiatPrice(int pricePerCoin);
 
     AccountInfo *currentAccount() const;
     void setCurrentAccount(AccountInfo *account);
+
+    const QString &userComment() const;
+    void setUserComment(const QString &comment);
 
 private slots:
     void sentToPeer();
@@ -170,6 +210,8 @@ signals:
     void fiatPriceChanged();
     void currentAccountChanged();
 
+    void userCommentChanged();
+
 private:
     friend class PaymentDetailOutput;
 
@@ -183,6 +225,7 @@ private:
     // Payment Variable initialization in reset() please
     QList<PaymentDetail*> m_paymentDetails;
     bool m_txPrepared;
+    bool m_txBroadcastStarted;
     bool m_preferSchnorr;
     Tx m_tx;
     int m_fee; // in sats per byte
@@ -193,6 +236,7 @@ private:
     short m_rejectedPeerCount;
     Wallet *m_wallet;
     QString m_error;
+    QString m_userComment;
 };
 
 
@@ -204,7 +248,6 @@ class PaymentDetail : public QObject
     Q_PROPERTY(bool collapsed READ collapsed WRITE setCollapsed NOTIFY collapsedChanged)
 public:
     PaymentDetail(Payment *parent, Payment::DetailType type);
-
 
     Payment::DetailType type() const;
 

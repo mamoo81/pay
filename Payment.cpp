@@ -253,23 +253,22 @@ void Payment::broadcast()
     if (!m_txPrepared)
         return;
 
-    /*
-     * Wallet:
-     *  * Make the AccountInfo able to show these unconfirmed transactions so we
-     *    can cancel one to free up the utxos.
-     */
-
     // call to wallet to mark outputs locked and save tx.
     m_wallet->newTransaction(m_tx);
+    if (!m_userComment.isEmpty())
+        m_wallet->setTransactionComment(m_tx, m_userComment);
 
     m_infoObject = std::make_shared<PaymentInfoObject>(this, m_tx);
     FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(m_infoObject);
+    m_txBroadcastStarted = true;
+    emit broadcastStatusChanged();
 }
 
 void Payment::reset()
 {
     m_fee = 1;
     m_txPrepared = false;
+    m_txBroadcastStarted = false;
     m_preferSchnorr = true;
     m_error.clear();
     m_tx = Tx();
@@ -277,11 +276,13 @@ void Payment::reset()
     m_infoObject.reset();
     m_sentPeerCount = 0;
     m_rejectedPeerCount = 0;
+    m_userComment.clear();
 
-    auto copy(m_paymentDetails);
+    for (auto d : m_paymentDetails) {
+        d->deleteLater();
+    }
     m_paymentDetails.clear();
     emit paymentDetailsChanged(); // Instantly update UI
-    qDeleteAll(copy);
     auto out = new PaymentDetailOutput(this);
     out->setCollapsable(false);
     // the first one is special since its used to emulate a dumb payment API
@@ -297,6 +298,7 @@ void Payment::reset()
     emit broadcastStatusChanged();
     emit errorChanged();
     emit txCreated();
+    emit userCommentChanged();
 }
 
 void Payment::addDetail(PaymentDetail *detail)
@@ -325,6 +327,21 @@ void Payment::addDetail(PaymentDetail *detail)
     m_paymentDetails.first()->setCollapsable(m_paymentDetails.size() > 1);
     emit paymentDetailsChanged();
     emit validChanged(); // pretty sure we are invalid after ;-)
+}
+
+const QString &Payment::userComment() const
+{
+    return m_userComment;
+}
+
+void Payment::setUserComment(const QString &comment)
+{
+    if (m_userComment == comment)
+        return;
+    m_userComment = comment;
+    if (m_txPrepared)
+        m_wallet->setTransactionComment(m_tx, comment);
+    emit userCommentChanged();
 }
 
 const QString &Payment::error() const
@@ -357,11 +374,11 @@ int Payment::fiatPrice() const
     return m_fiatPrice;
 }
 
-void Payment::setFiatPrice(int newFiatPrice)
+void Payment::setFiatPrice(int pricePerCoin)
 {
-    if (m_fiatPrice == newFiatPrice)
+    if (m_fiatPrice == pricePerCoin)
         return;
-    m_fiatPrice = newFiatPrice;
+    m_fiatPrice = pricePerCoin;
     emit fiatPriceChanged();
 }
 
@@ -376,11 +393,13 @@ QList<QObject*> Payment::paymentDetails() const
 
 Payment::BroadcastStatus Payment::broadcastStatus() const
 {
+    if (!m_txBroadcastStarted)
+        return NotStarted;
     if (m_sentPeerCount == 0)
-        return TxNotSent;
-    if (m_rejectedPeerCount > 0)
-        return TxRejected;
+        return TxOffered;
     if (m_sentPeerCount > 1) {
+        if (m_rejectedPeerCount > 0)
+            return TxRejected;
         if (m_infoObject.get() == nullptr)
             return TxBroadcastSuccess;
         return TxWaiting;
@@ -447,7 +466,7 @@ void Payment::sentToPeer()
     // this callback happens when one of our peers did a getdata for the transaction.
     if (++m_sentPeerCount >= 2) {
         // if two peers requested the tx, then wait a bit and check on the status
-        QTimer::singleShot(5 * 1000, [=]() {
+        QTimer::singleShot(3 * 1000, [=]() {
             if (m_sentPeerCount - m_rejectedPeerCount > 2) {
                 // When enough peers received the transaction stop broadcasting it.
                 m_infoObject.reset();
@@ -500,6 +519,70 @@ void Payment::setPreferSchnorr(bool preferSchnorr)
 bool Payment::txPrepared() const
 {
     return m_txPrepared;
+}
+
+int Payment::effectiveFiatAmount() const
+{
+    int amount = 0;
+    PaymentDetailInputs *inputSelector = nullptr;
+    for (auto i = m_paymentDetails.crbegin(); i != m_paymentDetails.crend(); ++i) {
+        auto *detail = *i;
+        if (detail->isInputs())
+            inputSelector = detail->toInputs();
+        if (!detail->isOutput())
+            continue;
+        auto *out = detail->toOutput();
+        if (out->maxAllowed() && out->maxSelected()) {
+            if (m_fiatPrice == 0)
+                return 0;
+            int64_t totalBch = 0;
+            if (inputSelector) {
+                totalBch = inputSelector->selectedValue();
+            } else {
+                // then the total amount is actually trivial, it is all that is available in the wallet.
+                totalBch = m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
+            }
+
+            return (totalBch * m_fiatPrice / 10000000 + 5) / 10;
+        }
+        amount += out->fiatAmount();
+    }
+    for (auto d : m_paymentDetails) {
+        if (!d->isOutput())
+            continue;
+        auto *out = d->toOutput();
+        if (out->maxAllowed() && out->maxSelected()) {
+            if (m_fiatPrice == 0)
+                return 0;
+            // then the total amount is actually trivial, it is all that is available in the wallet.
+            auto totalBch = m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
+            return (totalBch * m_fiatPrice / 10000000 + 5) / 10;
+        }
+        amount += out->fiatAmount();
+    }
+    return amount;
+}
+
+double Payment::effectiveBchAmount() const
+{
+    int64_t amount = 0;
+    PaymentDetailInputs *inputSelector = nullptr;
+    for (auto i = m_paymentDetails.crbegin(); i != m_paymentDetails.crend(); ++i) {
+        auto *detail = *i;
+        if (detail->isInputs())
+            inputSelector = detail->toInputs();
+        if (!detail->isOutput())
+            continue;
+        auto *out = detail->toOutput();
+        if (out->maxAllowed() && out->maxSelected()) {
+            if (inputSelector)
+                return inputSelector->selectedValue();
+            // then the total amount is actually trivial, it is all that is available in the wallet.
+            return m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
+        }
+        amount += out->paymentAmount();
+    }
+    return static_cast<double>(amount);
 }
 
 int Payment::assignedFee() const

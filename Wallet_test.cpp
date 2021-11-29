@@ -77,7 +77,7 @@ void Wallet::addTestTransactions()
         total += output.value;
         wtx.outputs.insert(std::make_pair(outputIndex, output));
         m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId, wtx));
-        m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
+        m_txidCache.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
         m_unspentOutputs.insert(std::make_pair(OutputRef(m_nextWalletTransactionId, outputIndex).encoded(), output.value));
         ++m_nextWalletTransactionId;
     }

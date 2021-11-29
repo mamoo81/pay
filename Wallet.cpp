@@ -91,9 +91,9 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
             if (++inputIndex == 0)
                 wtx.isCoinbase = prevTxhash.IsNull();
             if (!wtx.isCoinbase) {
-                auto i = m_txidCash.find(prevTxhash);
-                prevTx.setTxIndex((i != m_txidCash.end()) ? i->second : 0);
-                if (i != m_txidCash.end())
+                auto i = m_txidCache.find(prevTxhash);
+                prevTx.setTxIndex((i != m_txidCache.end()) ? i->second : 0);
+                if (i != m_txidCache.end())
                     logDebug() << "  Input:" << inputIndex << "prevTx:" << prevTxhash
                                << Log::Hex << i->second << prevTx.encoded();
             }
@@ -274,7 +274,7 @@ void Wallet::newTransaction(const Tx &tx)
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
         const uint256 txid = tx.createHash();
-        if (m_txidCash.find(txid) != m_txidCash.end()) // already known
+        if (m_txidCache.find(txid) != m_txidCache.end()) // already known
             return;
 
         std::map<uint64_t, SignatureType> signatureTypes;
@@ -323,7 +323,7 @@ void Wallet::newTransaction(const Tx &tx)
         }
 
         // and remember the transaction
-        m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
+        m_txidCache.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
         m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
         m_walletChanged = true;
 
@@ -357,12 +357,12 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             const uint256 txid = tx.createHash();
             WalletTransaction wtx;
 
-            auto oldTx = m_txidCash.find(txid);
+            auto oldTx = m_txidCache.find(txid);
             int walletTransactionId = m_nextWalletTransactionId;
             P2PNet::Notification notification;
             notification.privacySegment = int(m_segment->segmentId());
             std::map<uint64_t, SignatureType> signatureTypes;
-            if (oldTx == m_txidCash.end()) {
+            if (oldTx == m_txidCache.end()) {
                 wtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
                 notification.blockHeight = blockHeight;
                 if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
@@ -448,9 +448,9 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
 
 
             // and remember the transaction
-            if (oldTx == m_txidCash.end()) {
+            if (oldTx == m_txidCache.end()) {
                 Q_ASSERT(walletTransactionId == m_nextWalletTransactionId);
-                m_txidCash.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
+                m_txidCache.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
                 m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
                 transactionsToSave.push_back(tx);
             }
@@ -570,6 +570,21 @@ void Wallet::setUserOwnedWallet(bool userOwnedWallet)
         m_segment->setPriority(PrivacySegment::Normal);
     m_secretsChanged = true;
     emit userOwnedChanged();
+}
+
+void Wallet::setTransactionComment(const Tx &transaction, const QString &comment)
+{
+    QMutexLocker locker(&m_lock);
+    auto i = m_txidCache.find(transaction.createHash());
+    if (i != m_txidCache.end()) {
+        auto wtxIter = m_walletTransactions.find(i->second);
+        assert(wtxIter != m_walletTransactions.end());
+        auto &wtx = wtxIter->second;
+        if (wtx.userComment != comment) {
+            wtx.userComment = comment;
+            m_walletChanged = true;
+        }
+    }
 }
 
 std::map<int, Wallet::WalletSecret> Wallet::walletSecrets() const
@@ -1409,7 +1424,7 @@ void Wallet::loadWallet()
             assert(m_walletTransactions.find(index) == m_walletTransactions.end());
             assert(!wtx.inputToWTX.empty() || !wtx.outputs.empty());
             m_walletTransactions.insert(std::make_pair(index, wtx));
-            m_txidCash.insert(std::make_pair(wtx.txid, index));
+            m_txidCache.insert(std::make_pair(wtx.txid, index));
             m_nextWalletTransactionId = std::max(m_nextWalletTransactionId, index);
             // insert outputs of new tx.
             for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
