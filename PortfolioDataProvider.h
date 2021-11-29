@@ -39,9 +39,7 @@ public:
     AccountInfo *current() const;
     void setCurrent(AccountInfo *item);
 
-    Q_INVOKABLE QObject *startPayToAddress(const QString &address, BitcoinValue *bitcoinValue);
-    Q_INVOKABLE QObject *startPayAllToAddress(const QString &address);
-
+    /// find the highest priority wallet and make it the selected one
     void selectDefaultWallet();
 
     double totalBalance() const;
@@ -58,7 +56,7 @@ private slots:
     void walletChangedPriority();
 
 private:
-    Payment* createPaymentObject(const QString &address, double value);
+    Payment* createPaymentObject(const QString &address, double value) const;
 
     QList<Wallet*> m_accounts;
     QList<AccountInfo*> m_accountInfos;

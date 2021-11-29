@@ -31,13 +31,15 @@
 #include <QString>
 #include <QDateTime>
 
-const std::string &chainPrefix();
-
 namespace Streaming {
     class BufferPool;
 }
 class Wallet;
 class NewWalletConfig;
+class CKeyID;
+
+const std::string &chainPrefix();
+QString renderAddress(const CKeyID &pubkeyhash);
 
 class FloweePay : public QObject, WorkerThreads, P2PNetInterface
 {
@@ -106,6 +108,8 @@ public:
     Q_INVOKABLE inline QString priceToString(double price) const {
         return FloweePay::priceToString(static_cast<qint64>(price), m_unit);
     }
+    /// for a price, in satoshis, return a formatted string in unitName(), removing trailing zeros.
+    Q_INVOKABLE QString priceToStringPretty(double price) const;
     /// for a price, in satoshis, return a formatted string in unitName().
     QString priceToString(qint64 price) const {
         return FloweePay::priceToString(price, m_unit);

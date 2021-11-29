@@ -143,6 +143,8 @@ public:
     const uint256 &txid(int txIndex) const;
     /// Fetch UTXO output
     Tx::Output txOutput(OutputRef ref) const;
+    /// Fetch UTXO value (in sats)
+    qint64 utxoOutputValue(OutputRef ref) const;
 
     struct PrivKeyData {
         int privKeyId = 0;
@@ -222,6 +224,11 @@ public:
      */
     void setUserOwnedWallet(bool userOwnedWallet);
 
+    /**
+     * Set comment field on this transaction, assuming it has been accepted by this wallet.
+     */
+    void setTransactionComment(const Tx &transaction, const QString &comment);
+
     struct WalletSecret {
         CKey privKey;
         CKeyID address;
@@ -276,7 +283,9 @@ public:
      */
     bool lockUTXO(OutputRef outputRef);
     bool unlockUTXO(OutputRef outputRef);
+    bool isLocked(OutputRef outputRef) const;
 
+    /// Check the loaded wallet version Id and make internal changes to upgrade it to current.
     void performUpgrades();
 
 public slots:
@@ -423,7 +432,7 @@ private:
     std::map<int, WalletTransaction> m_walletTransactions;
 
     typedef boost::unordered_map<uint256, int, HashShortener> TxIdCash;
-    TxIdCash m_txidCash; // txid -> m_walletTransactions-id
+    TxIdCash m_txidCache; // txid -> m_walletTransactions-id
 
     /*
      * Our little UTXO.
@@ -447,6 +456,7 @@ private:
 
     friend class WalletHistoryModel;
     friend class WalletSecretsModel;
+    friend class WalletCoinsModel;
 
     // user settings
     bool m_singleAddressWallet = false;

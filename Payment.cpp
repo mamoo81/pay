@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +18,11 @@
 
 #include "Payment.h"
 #include "Payment_p.h"
+#include "PaymentDetailInputs_p.h"
+#include "PaymentDetailOutput_p.h"
 #include "FloweePay.h"
-#include "Wallet.h"
+#include "AccountInfo.h"
 
-#include <base58.h>
 #include <cashaddr.h>
 #include <TransactionBuilder.h>
 #include <QTimer>
@@ -32,13 +33,11 @@
 # include <QFile>
 #endif
 
-Payment::Payment(Wallet *wallet, qint64 amountToPay)
-    : m_wallet(wallet),
-      m_fee(1),
-      m_paymentAmount(amountToPay)
+
+Payment::Payment(QObject *parent)
+    : QObject(parent)
 {
-    assert(m_wallet);
-    assert(m_wallet->segment());
+    reset();
 }
 
 void Payment::setFeePerByte(int sats)
@@ -54,121 +53,140 @@ int Payment::feePerByte()
     return m_fee;
 }
 
-void Payment::setPaymentAmount(double amount_)
+PaymentDetailOutput *Payment::soleOut() const
 {
-    qint64 amount = static_cast<qint64>(amount_);
-    if (m_paymentAmount == amount)
-        return;
-    m_paymentAmount = amount;
-    emit amountChanged();
+    if (m_paymentDetails.size() != 1) // don't mix modes.
+        throw std::runtime_error("Don't mix payment modes, use the details");
+    auto out = dynamic_cast<PaymentDetailOutput*>(m_paymentDetails.first());
+    assert(out);
+    return out;
+}
+
+void Payment::setPaymentAmount(double amount)
+{
+    soleOut()->setPaymentAmount(amount);
 }
 
 double Payment::paymentAmount()
 {
-    return static_cast<double>(m_paymentAmount);
+    int64_t sats = 0;
+    for (auto d : m_paymentDetails) {
+        if (d->isOutput()) {
+            auto o = d->toOutput();
+            if (!(o->maxAllowed() && o->maxSelected()))
+                sats += o->paymentAmount();
+        }
+    }
+    return static_cast<double>(sats);
 }
 
 void Payment::setTargetAddress(const QString &address)
 {
-    if (m_address == address)
-        return;
-    switch (FloweePay::instance()->identifyString(address)) {
-    case FloweePay::LegacyPKH: {
-        m_address = address.trimmed();
-        CBase58Data legacy;
-        auto ok = legacy.SetString(m_address.toStdString());
-        assert(ok);
-        assert(legacy.isMainnetPkh() || legacy.isTestnetPkh());
-        CashAddress::Content c;
-        c.hash = legacy.data();
-        c.type = CashAddress::PUBKEY_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-
-        emit targetAddressChanged();
-        break;
-    }
-    case FloweePay::CashPKH: {
-        m_address = address.trimmed();
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
-        assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        emit targetAddressChanged();
-        break;
-    }
-    case FloweePay::LegacySH: {
-        m_address = address.trimmed();
-        CBase58Data legacy;
-        auto ok = legacy.SetString(m_address.toStdString());
-        assert(ok);
-        assert(legacy.isMainnetSh() || legacy.isTestnetSh());
-        CashAddress::Content c;
-        c.hash = legacy.data();
-        c.type = CashAddress::SCRIPT_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        break;
-    }
-    case FloweePay::CashSH: {
-        m_address = address.trimmed();
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
-        assert (!c.hash.empty() && c.type == CashAddress::SCRIPT_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
-        emit targetAddressChanged();
-        break;
-    }
-    default:
-        throw std::runtime_error("Address not recognized");
-    }
+    soleOut()->setAddress(address);
 }
 
 QString Payment::targetAddress()
 {
-    return m_address;
+    return soleOut()->address();
 }
 
 QString Payment::formattedTargetAddress()
 {
-    return m_formattedTarget;
+    return soleOut()->formattedTarget();
 }
 
-void Payment::approveAndSign()
+bool Payment::validate()
 {
-    if (m_paymentAmount < 600 && m_paymentAmount != -1) {
-        logFatal() << "Payment::approveAndSign: Can not create transaction, faulty payment amount:"
-                   << m_paymentAmount;
-        return;
+    int64_t output = 0;
+    for (auto detail : m_paymentDetails) {
+        if (!detail->valid())
+            return false;
+        if (detail->isOutput())
+            output += detail->toOutput()->paymentAmount();
+        if (detail->isInputs()) {
+            // we are ensured that all outputs come before the input-selector.
+            // Check that the selected inputs contain more than is output
+            if (output > detail->toInputs()->selectedValue()) {
+                logDebug() << "Need more inputs to cover the requested output-amounts";
+                return false;
+            }
+        }
     }
-    if (m_formattedTarget.isEmpty()) {
-        logFatal() << "Payment::approveAndSign: Can not create transaction, missing data";
-        return;
-    }
+    return true;
+}
+
+void Payment::prepare()
+{
+    if (m_account == nullptr || m_account->wallet() == nullptr)
+        throw std::runtime_error("Required account missing");
+    assert(m_account);
+    assert(m_account->wallet());
+    assert(m_account->wallet()->segment());
+    if (!validate())
+        throw std::runtime_error("can't prepare an invalid Payment");
+    m_wallet = m_account->wallet();
+
     TransactionBuilder builder;
-    builder.appendOutput(m_paymentAmount);
-    bool ok = false;
-    CashAddress::Content c = CashAddress::decodeCashAddrContent(m_formattedTarget.toStdString(), chainPrefix());
-    assert(!c.hash.empty());
-    if (c.type == CashAddress::PUBKEY_TYPE) {
-        builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));
-        ok = true;
+    qint64 totalOut = 0;
+    bool seenMaxAmount = false; // set to true if the last output detail was set to 'Max'
+    PaymentDetailInputs *inputs = nullptr;
+    for (auto detail : m_paymentDetails) {
+        if (detail->type() == PayToAddress) {
+            assert(!seenMaxAmount); // only allowed once.
+            auto o = detail->toOutput();
+            seenMaxAmount |= o->maxAllowed() && o->maxSelected();
+            if (!seenMaxAmount)
+                totalOut += o->paymentAmount();
+            builder.appendOutput(o->paymentAmount());
+
+            bool ok = false;
+            CashAddress::Content c = CashAddress::decodeCashAddrContent(o->formattedTarget().toStdString(), chainPrefix());
+            assert(!c.hash.empty());
+            if (c.type == CashAddress::PUBKEY_TYPE) {
+                builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));
+                ok = true;
+            }
+            else if (c.type == CashAddress::SCRIPT_TYPE) {
+                builder.pushOutputPay2Script(CScriptID(reinterpret_cast<const char*>(c.hash.data())));
+                ok = true;
+            }
+            assert(ok); // mismatch between PaymentDetailOutput::setAddress and this method...
+        }
+        else if (detail->type() == InputSelector) {
+            inputs = detail->toInputs();
+        }
     }
-    else if (c.type == CashAddress::SCRIPT_TYPE) {
-        builder.pushOutputPay2Script(CScriptID(reinterpret_cast<const char*>(c.hash.data())));
-        ok = true;
-    }
-    assert(ok); // mismatch between setPayTo and this method...
 
     auto tx = builder.createTransaction();
 
     // find and add outputs that can be used to pay for our required output
     int64_t change = -1;
-    const auto funding = m_wallet->findInputsFor(m_paymentAmount, m_fee, tx.size(), change);
-    if (funding.outputs.empty()) // not enough funds.
-        return;
+    Wallet::OutputSet funding;
+    if (inputs) {
+        funding = inputs->selectedInputs(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
+        if (funding.outputs.empty()) { // not enough funds.
+            // This can only be due to fees as we called 'verify' above.
+            m_error = tr("Not enough funds selected for fees");
+            emit errorChanged();
+            return;
+        }
+    }
+    else {
+        funding = m_wallet->findInputsFor(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
+        if (funding.outputs.empty()) { // not enough funds.
+            m_error = tr("Not enough funds in account to make payment!");
+            emit errorChanged();
+            return;
+        }
+    }
+    if (!m_error.isEmpty()) {
+        m_error.clear();
+        emit errorChanged();
+    }
 
-    qint64 fundsIngoing = 0;
     for (auto ref : funding.outputs) {
         builder.appendInput(m_wallet->txid(ref), ref.outputIndex());
         auto output = m_wallet->txOutput(ref);
-        fundsIngoing += output.outputValue;
         auto priv = m_wallet->unlockKey(ref);
         if (priv.sigType == Wallet::NotUsedYet) {
             priv.sigType = m_preferSchnorr ? Wallet::SignedAsSchnorr : Wallet::SignedAsEcdsa;
@@ -181,13 +199,13 @@ void Payment::approveAndSign()
 
     m_assignedFee = 0;
     int changeOutput = -1;
-    if (m_paymentAmount == -1) { // if we pay everything to the one output
-        change = fundsIngoing;
+    if (seenMaxAmount) { // if we pay the rest to the last output
+        change = funding.totalSats - totalOut;
         changeOutput = builder.outputCount() - 1;
         builder.selectOutput(changeOutput);
         builder.setOutputValue(change); // pays no fee yet
     } else {
-        m_assignedFee = fundsIngoing - m_paymentAmount;
+        m_assignedFee = funding.totalSats - totalOut;
 
         // notice that the findInputsFor() will try really really hard to avoid us
         // having change greater than 100 and less than 1000.
@@ -215,12 +233,10 @@ void Payment::approveAndSign()
         builder.setOutputValue(change);
         m_tx = builder.createTransaction();
     }
-    if (m_paymentAmount == -1)
-        m_paymentAmount = fundsIngoing;
 
-    m_paymentOk = true;
+    m_txPrepared = true;
     emit txCreated();
-    emit paymentOkChanged();
+    emit txPreparedChanged();
 #ifdef DEBUG_TX_CREATION
     QFile out(QDir::homePath() + "/flowee-pay-" + QString::fromStdString(m_tx.createHash().ToString()));
     if (out.open(QIODevice::WriteOnly)) {
@@ -232,22 +248,205 @@ void Payment::approveAndSign()
 #endif
 }
 
-void Payment::sendTx()
+void Payment::broadcast()
 {
-    if (!m_paymentOk)
+    if (!m_txPrepared)
         return;
-
-    /*
-     * Wallet:
-     *  * Make the AccountInfo able to show these unconfirmed transactions so we
-     *    can cancel one to free up the utxos.
-     */
 
     // call to wallet to mark outputs locked and save tx.
     m_wallet->newTransaction(m_tx);
+    if (!m_userComment.isEmpty())
+        m_wallet->setTransactionComment(m_tx, m_userComment);
 
     m_infoObject = std::make_shared<PaymentInfoObject>(this, m_tx);
     FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(m_infoObject);
+    m_txBroadcastStarted = true;
+    emit broadcastStatusChanged();
+}
+
+void Payment::reset()
+{
+    m_fee = 1;
+    m_txPrepared = false;
+    m_txBroadcastStarted = false;
+    m_preferSchnorr = true;
+    m_error.clear();
+    m_tx = Tx();
+    m_assignedFee = 0;
+    m_infoObject.reset();
+    m_sentPeerCount = 0;
+    m_rejectedPeerCount = 0;
+    m_userComment.clear();
+
+    for (auto d : m_paymentDetails) {
+        d->deleteLater();
+    }
+    m_paymentDetails.clear();
+    emit paymentDetailsChanged(); // Instantly update UI
+    auto out = new PaymentDetailOutput(this);
+    out->setCollapsable(false);
+    // the first one is special since its used to emulate a dumb payment API
+    connect (out, SIGNAL(paymentAmountChanged()), this, SIGNAL(amountChanged()));
+    connect (out, SIGNAL(addressChanged()), this, SIGNAL(targetAddressChanged()));
+    addDetail(out);
+
+    emit feePerByteChanged();
+    emit amountChanged();
+    emit targetAddressChanged();
+    emit txPreparedChanged();
+    emit preferSchnorrChanged();
+    emit broadcastStatusChanged();
+    emit errorChanged();
+    emit txCreated();
+    emit userCommentChanged();
+}
+
+void Payment::addDetail(PaymentDetail *detail)
+{
+    assert(detail);
+    if (detail->isOutput()) {
+        // outputs are grouped together at the beginning. We insert
+        // at the end of the outputs, before any others.
+        int newPos = 0;
+        while (newPos < m_paymentDetails.length() && m_paymentDetails.at(newPos)->isOutput())
+            ++newPos;
+        m_paymentDetails.insert(newPos, detail);
+    }
+    else {
+        m_paymentDetails.append(detail);
+    }
+    connect (detail, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
+    if (detail->isOutput()) {
+        connect (detail, SIGNAL(paymentAmountChanged()), this, SLOT(recalcAmounts()));
+        connect (detail, SIGNAL(fiatAmountChanged()), this, SLOT(recalcAmounts()));
+    }
+    if (detail->isInputs()) {
+        connect (detail, SIGNAL(selectedValueChanged()), this, SLOT(recalcAmounts()));
+    }
+    assert(!m_paymentDetails.isEmpty());
+    m_paymentDetails.first()->setCollapsable(m_paymentDetails.size() > 1);
+    emit paymentDetailsChanged();
+    emit validChanged(); // pretty sure we are invalid after ;-)
+}
+
+const QString &Payment::userComment() const
+{
+    return m_userComment;
+}
+
+void Payment::setUserComment(const QString &comment)
+{
+    if (m_userComment == comment)
+        return;
+    m_userComment = comment;
+    if (m_txPrepared)
+        m_wallet->setTransactionComment(m_tx, comment);
+    emit userCommentChanged();
+}
+
+const QString &Payment::error() const
+{
+    return m_error;
+}
+
+AccountInfo *Payment::currentAccount() const
+{
+    return m_account;
+}
+
+void Payment::setCurrentAccount(AccountInfo *account)
+{
+    if (m_account == account)
+        return;
+    m_account = account;
+    emit currentAccountChanged();
+
+    for (auto detail : m_paymentDetails) {
+        if (detail->isInputs()) {
+            detail->toInputs()->setWallet(account->wallet());
+            break;
+        }
+    }
+}
+
+int Payment::fiatPrice() const
+{
+    return m_fiatPrice;
+}
+
+void Payment::setFiatPrice(int pricePerCoin)
+{
+    if (m_fiatPrice == pricePerCoin)
+        return;
+    m_fiatPrice = pricePerCoin;
+    emit fiatPriceChanged();
+}
+
+QList<QObject*> Payment::paymentDetails() const
+{
+    QList<QObject*> pds;
+    for (auto *detail : m_paymentDetails) {
+        pds.append(detail);
+    }
+    return pds;
+}
+
+Payment::BroadcastStatus Payment::broadcastStatus() const
+{
+    if (!m_txBroadcastStarted)
+        return NotStarted;
+    if (m_sentPeerCount == 0)
+        return TxOffered;
+    if (m_sentPeerCount > 1) {
+        if (m_rejectedPeerCount > 0)
+            return TxRejected;
+        if (m_infoObject.get() == nullptr)
+            return TxBroadcastSuccess;
+        return TxWaiting;
+    }
+    return TxSent1;
+}
+
+void Payment::addExtraOutput()
+{
+    // only the last in the sequence can have 'max'
+    for (auto d : m_paymentDetails) {
+        if (d->isOutput())
+            d->toOutput()->setMaxAllowed(false);
+    }
+    addDetail(new PaymentDetailOutput(this));
+}
+
+void Payment::addInputSelector()
+{
+    // only one input selector allowed
+    for (auto d : m_paymentDetails) {
+        if (d->isInputs())
+            return;
+    }
+    addDetail(new PaymentDetailInputs(this));
+}
+
+void Payment::remove(PaymentDetail *detail)
+{
+    const auto count = m_paymentDetails.removeAll(detail);
+    if (count) {
+        emit paymentDetailsChanged();
+
+        // Make sure only the last output has 'maxAllowed' set to true.
+        if (detail->isOutput()) {
+            bool seenOne = false;
+            for (auto iter = m_paymentDetails.rbegin(); iter != m_paymentDetails.rend(); ++iter) {
+                auto *detail = *iter;
+                if (detail->isOutput()) {
+                    detail->toOutput()->setMaxAllowed(!seenOne);
+                    seenOne = true;
+                }
+            }
+        }
+    }
+    assert(!m_paymentDetails.isEmpty());
+    detail->deleteLater();
 }
 
 QString Payment::txid() const
@@ -265,17 +464,17 @@ Wallet *Payment::wallet() const
 void Payment::sentToPeer()
 {
     // this callback happens when one of our peers did a getdata for the transaction.
-    emit sent(++m_sentPeerCount);
-
-    if (m_sentPeerCount >= 2) {
+    if (++m_sentPeerCount >= 2) {
         // if two peers requested the tx, then wait a bit and check on the status
-        QTimer::singleShot(5 * 1000, [=]() {
+        QTimer::singleShot(3 * 1000, [=]() {
             if (m_sentPeerCount - m_rejectedPeerCount > 2) {
                 // When enough peers received the transaction stop broadcasting it.
                 m_infoObject.reset();
             }
+            emit broadcastStatusChanged();
         });
     }
+    emit broadcastStatusChanged();
 }
 
 void Payment::txRejected(short reason, const QString &message)
@@ -283,6 +482,24 @@ void Payment::txRejected(short reason, const QString &message)
     // reason is hinted using BroadcastTxData::RejectReason
     logCritical() << "Transaction rejected" << reason << message;
     ++m_rejectedPeerCount;
+    emit broadcastStatusChanged();
+}
+
+void Payment::recalcAmounts()
+{
+    // Find the output that has 'max' and give it a change to recalculate the effective values.
+    auto out = qobject_cast<PaymentDetailOutput*>(sender());
+    if (out && out->maxSelected() && out->maxAllowed())
+        return;
+    for (auto i = m_paymentDetails.rbegin(); i != m_paymentDetails.rend(); ++i) {
+        auto *detail = *i;
+        if (detail->isOutput()) {
+            if (detail != sender())
+                detail->toOutput()->recalcMax();
+            break; // only the last detail can be a 'max'
+        }
+    }
+    emit amountChanged(); // also trigger the payment-wide paymentAmount property to have been changed
 }
 
 bool Payment::preferSchnorr() const
@@ -299,9 +516,73 @@ void Payment::setPreferSchnorr(bool preferSchnorr)
     emit preferSchnorrChanged();
 }
 
-bool Payment::paymentOk() const
+bool Payment::txPrepared() const
 {
-    return m_paymentOk;
+    return m_txPrepared;
+}
+
+int Payment::effectiveFiatAmount() const
+{
+    int amount = 0;
+    PaymentDetailInputs *inputSelector = nullptr;
+    for (auto i = m_paymentDetails.crbegin(); i != m_paymentDetails.crend(); ++i) {
+        auto *detail = *i;
+        if (detail->isInputs())
+            inputSelector = detail->toInputs();
+        if (!detail->isOutput())
+            continue;
+        auto *out = detail->toOutput();
+        if (out->maxAllowed() && out->maxSelected()) {
+            if (m_fiatPrice == 0)
+                return 0;
+            int64_t totalBch = 0;
+            if (inputSelector) {
+                totalBch = inputSelector->selectedValue();
+            } else {
+                // then the total amount is actually trivial, it is all that is available in the wallet.
+                totalBch = m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
+            }
+
+            return (totalBch * m_fiatPrice / 10000000 + 5) / 10;
+        }
+        amount += out->fiatAmount();
+    }
+    for (auto d : m_paymentDetails) {
+        if (!d->isOutput())
+            continue;
+        auto *out = d->toOutput();
+        if (out->maxAllowed() && out->maxSelected()) {
+            if (m_fiatPrice == 0)
+                return 0;
+            // then the total amount is actually trivial, it is all that is available in the wallet.
+            auto totalBch = m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
+            return (totalBch * m_fiatPrice / 10000000 + 5) / 10;
+        }
+        amount += out->fiatAmount();
+    }
+    return amount;
+}
+
+double Payment::effectiveBchAmount() const
+{
+    int64_t amount = 0;
+    PaymentDetailInputs *inputSelector = nullptr;
+    for (auto i = m_paymentDetails.crbegin(); i != m_paymentDetails.crend(); ++i) {
+        auto *detail = *i;
+        if (detail->isInputs())
+            inputSelector = detail->toInputs();
+        if (!detail->isOutput())
+            continue;
+        auto *out = detail->toOutput();
+        if (out->maxAllowed() && out->maxSelected()) {
+            if (inputSelector)
+                return inputSelector->selectedValue();
+            // then the total amount is actually trivial, it is all that is available in the wallet.
+            return m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
+        }
+        amount += out->paymentAmount();
+    }
+    return static_cast<double>(amount);
 }
 
 int Payment::assignedFee() const
@@ -343,3 +624,57 @@ uint16_t PaymentInfoObject::privSegment() const
     assert(m_parent->wallet()->segment());
     return m_parent->wallet()->segment()->segmentId();
 }
+
+
+// ///////////////////////////////
+
+PaymentDetail::PaymentDetail(Payment *parent, Payment::DetailType type)
+    : QObject(parent),
+      m_type(type)
+{
+}
+
+Payment::DetailType PaymentDetail::type() const
+{
+    return m_type;
+}
+
+bool PaymentDetail::collapsable() const
+{
+    return m_collapsable;
+}
+
+void PaymentDetail::setCollapsable(bool newCollapsable)
+{
+    if (m_collapsable == newCollapsable)
+        return;
+    m_collapsable = newCollapsable;
+    emit collapsableChanged();
+}
+
+bool PaymentDetail::collapsed() const
+{
+    return m_collapsed;
+}
+
+void PaymentDetail::setCollapsed(bool newCollapsed)
+{
+    if (m_collapsed == newCollapsed)
+        return;
+    m_collapsed = newCollapsed;
+    emit collapsedChanged();
+}
+
+void PaymentDetail::setValid(bool valid)
+{
+    if (m_valid == valid)
+        return;
+    m_valid = valid;
+    emit validChanged();
+}
+
+bool PaymentDetail::valid() const
+{
+    return m_valid;
+}
+

@@ -3,6 +3,7 @@
         <file alias="FloweePay.png">../images/FloweePay.png</file>
         <file alias="FloweePay.svg">../images/FloweePay.svg</file>
         <file alias="FloweePay-light.svg">../images/FloweePay-light.svg</file>
+        <file alias="cashfusion.svg">../images/cashfusion.svg</file>
         <file alias="sendIcon.png">images/sendIcon.png</file>
         <file alias="sendIcon-light.png">images/sendIcon-light.png</file>
         <file alias="receiveIcon.png">images/receiveIcon.png</file>
@@ -14,6 +15,7 @@
         <file alias="eye-closed.png">images/eye-closed.png</file>
         <file alias="eye-open-light.png">images/eye-open-light.png</file>
         <file alias="eye-open.png">images/eye-open.png</file>
+        <file alias="edit-delete.svg">images/edit-delete.svg</file>
         <file>defaults.ini</file>
         <file>ConfigItem.qml</file>
         <file>ControlColors.js</file>
@@ -45,9 +47,10 @@
         <file>widgets/TabBar.qml</file>
         <file>widgets/TextField.qml</file>
         <file>widgets/ComboBox.qml</file>
-
         <file>widgets/MoneyValueField.qml</file>
         <file>widgets/FiatValueField.qml</file>
         <file>widgets/BitcoinValueField.qml</file>
+        <file>widgets/Dialog.qml</file>
+        <file>PaymentTweakingPanel.qml</file>
     </qresource>
 </RCC>

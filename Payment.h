@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,18 @@
 #ifndef PAYMENT_H
 #define PAYMENT_H
 
-#include <QObject>
+#include "WalletCoinsModel.h"
+
 #include <BroadcastTxData.h>
 #include <primitives/Tx.h>
 #include <memory>
 
 class Wallet;
+class PaymentDetail;
+class PaymentDetailOutput;
+class PaymentDetailInputs;
+class AccountInfo;
+
 
 class Payment : public QObject
 {
@@ -33,74 +39,250 @@ class Payment : public QObject
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
+    Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
+    /// Input is valid, tx can be prepared
+    Q_PROPERTY(bool isValid READ validate NOTIFY validChanged);
+    Q_PROPERTY(QList<QObject*> details READ paymentDetails NOTIFY paymentDetailsChanged);
+    Q_PROPERTY(BroadcastStatus broadcastStatus  READ broadcastStatus NOTIFY broadcastStatusChanged)
+    /// The price of on BCH
+    Q_PROPERTY(int fiatPrice READ fiatPrice WRITE setFiatPrice NOTIFY fiatPriceChanged)
+    Q_PROPERTY(AccountInfo *account READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
+    Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY userCommentChanged)
+
+    // --- Stuff that becomes available / useful after prepare has been called:
+    /// Tx has been prepared
+    Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged);
     Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
-    Q_PROPERTY(bool paymentOk READ paymentOk NOTIFY paymentOkChanged);
-    Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
+    Q_PROPERTY(int effectiveFiatAmount READ effectiveFiatAmount NOTIFY txCreated)
+    Q_PROPERTY(double effectiveBchAmount READ effectiveBchAmount NOTIFY txCreated)
+    /// If Prepare failed, this is set.
+    Q_PROPERTY(QString error READ error NOTIFY errorChanged);
+
+    Q_ENUMS(DetailType BroadcastStatus)
 public:
-    Payment(Wallet *wallet, qint64 amountToPay);
+    enum DetailType {
+        InputSelector,
+        PayToAddress
+    };
+
+    /**
+     * The broadcast status is a statemachine to indicate if the transaction
+     * has been offered to the network to the final state of
+     * either TxRejected or TxBroadcastSuccess
+     *
+     * The statemachine goes like this;
+     *
+     * 0. `NotStarted`
+     * 1. After the API call 'broadcast()' we offer the transaction to all peers.
+     *    `TxOffered`
+     * 2. A peer responds by downloading the actual transaction from us.
+     *    `TxSent1`
+     * 3. A second peer responds by downloading the tx from us.
+     *    `TxWaiting`
+     * 4. Optionally, a peer responds with 'rejected' if the transaction is somehow wrong.
+     *    `TxRejected`
+     *    Stop here.
+     * 5. We waited a little time and no rejected came in, implying 2 or more peers like our tx.
+     *    `TxBroadcastSuccess`
+     */
+    enum BroadcastStatus {
+        NotStarted,     //< We have not yet seen a call to broadcast()
+        TxOffered,      //< Tx has not been offered to any peers.
+        TxSent1,        //< Tx has been sent to at least one peer.
+        TxWaiting,      //< Tx has been downloaded by more than one peer.
+        TxBroadcastSuccess, //< Tx broadcast and accepted by multiple peers.
+        TxRejected      //< Tx has been offered, downloaded and rejected by at least one peer.
+    };
+
+    Payment(QObject *parent = nullptr);
 
     void setFeePerByte(int sats);
     int feePerByte();
 
     /**
-     * Set the amount we want to have arrive on the other side.
-     * Special value can be -1 to indicate all available outputs.
+     * Sats the amount of BCH on our single-detail payment.
+     *
+     * This method can no longer be used after addExtraOutput() have been called.
+     * This method assumes a single output, which is the default for this class.
+     *
+     * This sets the amount to pay, in Satoshis, to the target address.
      */
     void setPaymentAmount(double amount);
+    /**
+     * Returns the total amount of satoshis that are selected by outputs.
+     * Notice that if 'max' is requested that this is not counted.
+     */
     double paymentAmount();
 
-    /// this method throws if its not a proper address.
-    /// @see FloweePay::identifyString()
+    /**
+     * Sets the address to pay to.
+     *
+     * This method can no longer be used after addExtraOutput has been called.
+     * This method assumes a single output, which is the default for this class.
+     */
     void setTargetAddress(const QString &address);
+    /**
+     * Returns the address to pay to, as the user typed it.
+     *
+     * This method can no longer be used after addExtraOutput has been called.
+     * This method assumes a single output, which is the default for this class.
+     */
     QString targetAddress();
+    /**
+     * Returns the validated and formatted address to pay to.
+     *
+     * This method can no longer be used after addExtraOutput has been called.
+     * This method assumes a single output, which is the default for this class.
+     */
     QString formattedTargetAddress();
 
-    Q_INVOKABLE void approveAndSign();
-    Q_INVOKABLE void sendTx();
+    /// return true if all fields are correctly populated and we can prepare()
+    bool validate();
+    /// A user error occured during prepare()
+    const QString &error() const;
+
+    Q_INVOKABLE void prepare();
+    Q_INVOKABLE void broadcast();
+    Q_INVOKABLE void reset();
+    Q_INVOKABLE void addExtraOutput();
+    Q_INVOKABLE void addInputSelector();
+    Q_INVOKABLE void remove(PaymentDetail *detail);
 
     /// return the txid, should there be a transaction (otherwise empty string)
     QString txid() const;
 
+    /// The fee decided to be used in 'prepare()'.
     int assignedFee() const;
+    /// The size of the transaction we prepare()d.
     int txSize() const;
-    bool paymentOk() const;
+    /// Return true if prepare() successfully completed.
+    bool txPrepared() const;
 
+    /**
+     * This returns a total fiat amount input into the prepared transaction.
+     */
+    int effectiveFiatAmount() const;
+    /**
+     * This returns a total BCH (in sats) amount that went into the prepared transaction.
+     */
+    double effectiveBchAmount() const;
+
+    /// Return the wallet used by the previous prepare()
+    /// \sa currentAccount
     Wallet *wallet() const;
 
     bool preferSchnorr() const;
     void setPreferSchnorr(bool preferSchnorr);
 
+    QList<QObject *> paymentDetails() const;
+
+    BroadcastStatus broadcastStatus() const;
+
+    /// The exchange rate. The amount of cents for one BCH.
+    int fiatPrice() const;
+    /// The exchange rate. The amount of cents for one BCH.
+    void setFiatPrice(int pricePerCoin);
+
+    AccountInfo *currentAccount() const;
+    void setCurrentAccount(AccountInfo *account);
+
+    const QString &userComment() const;
+    void setUserComment(const QString &comment);
+
 private slots:
     void sentToPeer();
     void txRejected(short reason, const QString &message);
+    void recalcAmounts();
 
 signals:
     void feePerByteChanged();
     void amountChanged();
     void targetAddressChanged();
-    /// notify how many peers we relayed the transaction to.
-    void sent(int count);
-
-    void txCreated();
-
-    void paymentOkChanged();
+    void txPreparedChanged();
     void preferSchnorrChanged();
+    void paymentDetailsChanged();
+    void broadcastStatusChanged();
+    void validChanged();
+    void errorChanged();
+    void txCreated();
+    void fiatPriceChanged();
+    void currentAccountChanged();
+
+    void userCommentChanged();
 
 private:
-    Wallet *m_wallet;
-    bool m_paymentOk = false;
-    bool m_preferSchnorr = true;
+    friend class PaymentDetailOutput;
+
+    /// Helper method to get the output, assuming that is the only detail.
+    /// Will throw if the Payment has more than one detail.
+    PaymentDetailOutput *soleOut() const;
+    void addDetail(PaymentDetail*);
+
+    AccountInfo *m_account = nullptr;
+
+    // Payment Variable initialization in reset() please
+    QList<PaymentDetail*> m_paymentDetails;
+    bool m_txPrepared;
+    bool m_txBroadcastStarted;
+    bool m_preferSchnorr;
     Tx m_tx;
-    int m_fee = 1; // in sats per byte
-    int m_assignedFee = 0;
-    qint64 m_paymentAmount;
-    QString m_address;
-    QString m_formattedTarget;
+    int m_fee; // in sats per byte
+    int m_assignedFee;
+    int m_fiatPrice; // price for one whole BCH
     std::shared_ptr<BroadcastTxData> m_infoObject;
-    short m_sentPeerCount = 0;
-    short m_rejectedPeerCount = 0;
+    short m_sentPeerCount;
+    short m_rejectedPeerCount;
+    Wallet *m_wallet;
+    QString m_error;
+    QString m_userComment;
+};
+
+
+class PaymentDetail : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(Payment::DetailType type READ type CONSTANT)
+    Q_PROPERTY(bool collapsable READ collapsable WRITE setCollapsable NOTIFY collapsableChanged)
+    Q_PROPERTY(bool collapsed READ collapsed WRITE setCollapsed NOTIFY collapsedChanged)
+public:
+    PaymentDetail(Payment *parent, Payment::DetailType type);
+
+    Payment::DetailType type() const;
+
+    bool collapsable() const;
+    void setCollapsable(bool newCollapsable);
+
+    bool collapsed() const;
+    void setCollapsed(bool newCollapsed);
+
+    inline bool isOutput() const {
+        return m_type == Payment::PayToAddress;
+    }
+    inline bool isInputs() const {
+        return m_type == Payment::InputSelector;
+    }
+    PaymentDetailOutput *toOutput();
+    PaymentDetailInputs *toInputs();
+
+    bool valid() const;
+
+protected:
+    void setValid(bool valid);
+
+signals:
+    void collapsableChanged();
+    void collapsedChanged();
+    void validChanged();
+
+    void maxAllowedChanged();
+
+private:
+    const Payment::DetailType m_type;
+    bool m_collapsable = true;
+    bool m_collapsed = false;
+    bool m_valid = false; // when all user-input is valid
 };
 
 #endif

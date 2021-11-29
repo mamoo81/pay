@@ -24,7 +24,8 @@ Item {
 
     property bool collapsable: true
     property bool collapsed: false
-    property string title: ""
+    property alias title: titleLabel.text
+    property alias summary: summaryLabel.text
     default property alias content: child.children
     property alias columns: child.columns
     activeFocusOnTab: collapsable
@@ -35,10 +36,10 @@ Item {
 
     Rectangle { // the outline
         width: parent.width
-        y: titleArea.visible ? title.height / 2 : arrowPoint.height / 2
+        y: titleArea.visible ? titleLabel.height / 2 : arrowPoint.height / 2
         height: root.collapsed ? 1 : parent.height - y;
         color: "#00000000"
-        border.color: title.palette.button
+        border.color: titleLabel.palette.button
         border.width: 2
         radius: 3
     }
@@ -46,22 +47,23 @@ Item {
         width: parent.width
         height: 20
         enabled: root.collapsable
+        visible: enabled // this line is needed to make the cursor shape not be set when not enabled (Qt bug)
         onClicked: root.collapsed = !root.collapsed
         cursorShape: Qt.PointingHandCursor
     }
 
     Rectangle {
         id: titleArea
-        visible: title.text !== ""
-        color: title.palette.window
-        width: title.width + 18
-        height: title.height
+        visible: titleLabel.text !== ""
+        color: titleLabel.palette.window
+        width: titleLabel.width + 18 + (summaryLabel.visible ? summaryLabel.width + 20 : 0)
+        height: titleLabel.height
         anchors.left: arrowPoint.right
         Label {
-            id: title
+            id: titleLabel
             x: 12
-            text: root.title
 
+            // focus indicator
             Rectangle {
                anchors.fill: parent
                anchors.leftMargin: -2
@@ -72,12 +74,20 @@ Item {
                visible: root.activeFocus
             }
         }
+
+        Label {
+            id: summaryLabel
+            anchors.left: titleLabel.right
+            anchors.leftMargin: 20
+            visible: root.collapsed && text !== ""
+            font.italic: true
+        }
     }
 
     Rectangle {
         id: arrowPoint
         visible: parent.collapsable
-        color: title.palette.window
+        color: titleLabel.palette.window
         width: point.width + 12
         height: point.height + 2
         x: 6
