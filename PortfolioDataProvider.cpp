@@ -42,9 +42,9 @@ PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
     });
 }
 
-QList<AccountInfo *> PortfolioDataProvider::accounts() const
+QList<QObject *> PortfolioDataProvider::accounts() const
 {
-    QList<AccountInfo *> answer;
+    QList<QObject *> answer;
     // we filter out the wallets that are NOT user-owned. Which is essentially the main initial
     // wallet created to allow people to deposit instantly.
     for (auto *account : m_accountInfos) {
@@ -52,8 +52,10 @@ QList<AccountInfo *> PortfolioDataProvider::accounts() const
             answer.append(account);
     }
     // if the only wallet(s) are not user owned, share those with the GUI.
-    if (answer.isEmpty() && !m_accountInfos.isEmpty())
-        return m_accountInfos;
+    if (answer.isEmpty() && !m_accountInfos.isEmpty()) {
+        for (auto *account : m_accountInfos)
+            answer.append(account);
+    }
     return answer;
 }
 

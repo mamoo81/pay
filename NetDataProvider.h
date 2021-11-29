@@ -30,7 +30,7 @@ class QTimer;
 class NetDataProvider : public QObject, public P2PNetInterface
 {
     Q_OBJECT
-    Q_PROPERTY(QList<NetPeer*> peers READ peers NOTIFY peerListChanged)
+    Q_PROPERTY(QList<QObject*> peers READ peers NOTIFY peerListChanged)
     Q_PROPERTY(int blockheight READ blockheight NOTIFY blockHeightChanged)
 public:
     explicit NetDataProvider(int initialBlockHeight, QObject *parent = nullptr);
@@ -41,7 +41,7 @@ public:
     void blockchainHeightChanged(int newHeight) override;
     void punishMentChanged(int peerId) override;
 
-    QList<NetPeer*> peers() const;
+    QList<QObject*> peers() const;
     int blockheight() const;
 
     void startRefreshTimer();

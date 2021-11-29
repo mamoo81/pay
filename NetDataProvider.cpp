@@ -105,9 +105,13 @@ void NetDataProvider::punishMentChanged(int peerId)
     }
 }
 
-QList<NetPeer *> NetDataProvider::peers() const
+QList<QObject *> NetDataProvider::peers() const
 {
-    return m_peers;
+    QList<QObject *> answer;
+    for (auto *p : m_peers) {
+        answer.append(p);
+    }
+    return answer;
 }
 
 int NetDataProvider::blockheight() const
