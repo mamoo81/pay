@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 import "../ControlColors.js" as ControlColors
 
 // This is a silly hack to introduce a visual difference
 // between enabled and disabled buttons.
-Button {
+QQC2.Button {
     id: button
     onEnabledChanged: updateColors();
     Connections {
