@@ -34,7 +34,9 @@ class Wallet;
  * Using schnorr we can gain 8 bytes for the signature (not included here).
  */
 constexpr int BYTES_PER_OUTPUT = 149;
-constexpr int MATURATION_AGE  = 100; // the amount of blocks a coinbase takes before we can spend it
+/// Reject any solution with > this amount of inputs as that will result in > 100.000 byte transactions
+constexpr int MAX_INPUTS = 670;
+constexpr int MATURATION_AGE  = 100; //< the amount of blocks a coinbase takes before we can spend it
 
 namespace WalletPriv
 {

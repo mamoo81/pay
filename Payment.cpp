@@ -234,6 +234,12 @@ void Payment::prepare()
         m_tx = builder.createTransaction();
     }
 
+    if (m_tx.size() > 100000) { // max size of a transaction is 100KB
+        m_error = tr("Transaction size limits exceeded! Amount selected led to too many inputs.");
+        emit errorChanged();
+        return;
+    }
+
     m_txPrepared = true;
     emit txCreated();
     emit txPreparedChanged();

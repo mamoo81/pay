@@ -155,7 +155,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         if (output != -1 && bestSet.totalSats - bestSet.fee >= output)
             break;
     }
-    if (output == -1) { // the magic number to return all outputs
+    if (output == -1) { // the magic number to return all unspent outputs
         change = 0;
         return bestSet;
     }
@@ -192,8 +192,11 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
                   << "got score" << score << "+" << scoreAdjust;
         score += scoreAdjust;
 
+        if (current.outputs.size() > MAX_INPUTS) {
+            logUtxo() << "  + Skipping due to too-many-inputs";
+        }
         // compare with the cost of oldest to newest.
-        if (score > bestScore) {
+        else if (score > bestScore) {
             logUtxo() << "  + New BEST";
             bestScore = score;
             bestSet = current;
@@ -226,7 +229,10 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
                   << "got score" << score << "+" << scoreAdjust;
         score += scoreAdjust;
         Q_ASSERT(current.totalSats - current.fee >= output);
-        if (score > bestScore) {
+        if (current.outputs.size() > MAX_INPUTS) {
+            logUtxo() << "  + Skipping due to too-many-inputs";
+        }
+        else if (score > bestScore) {
             logUtxo() << "  + New BEST";
             bestScore = score;
             bestSet = current;
