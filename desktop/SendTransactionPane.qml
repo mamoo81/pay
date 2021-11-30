@@ -130,10 +130,28 @@ Item {
                     }
                 }
             }
-            Label {
-                text: payment.error
-                visible: text !== ""
-                color: txid.color // make sure this is 'disabled' when the warning is not for this wallet.
+            Item {
+                visible: payment.error !== ""
+                width: parent.width
+                height: Math.max(warningIcon.height, warningText.height)
+                Image {
+                    id: warningIcon
+                    source: "qrc:/emblem-warning.svg"
+                    smooth: true
+                    width: 32
+                    height: 32
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Label {
+                    id: warningText
+                    anchors.left: warningIcon.right
+                    anchors.leftMargin: 5
+                    anchors.verticalCenter: warningIcon.verticalCenter
+                    anchors.right: parent.right
+                    text: payment.error
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    color: txid.color // make sure this is 'disabled' when the warning is not for this wallet.
+                }
             }
 
             Flowee.GroupBox {
