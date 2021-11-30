@@ -506,6 +506,7 @@ void Payment::recalcAmounts()
         }
     }
     emit amountChanged(); // also trigger the payment-wide paymentAmount property to have been changed
+    emit validChanged();
 }
 
 bool Payment::preferSchnorr() const
