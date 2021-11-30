@@ -403,7 +403,8 @@ Payment::BroadcastStatus Payment::broadcastStatus() const
         return NotStarted;
     if (m_sentPeerCount == 0)
         return TxOffered;
-    if (m_sentPeerCount > 1) {
+    if (m_sentPeerCount > 1
+            || (FloweePay::instance()->chain() != P2PNet::MainChain && m_sentPeerCount > 0)) {
         if (m_rejectedPeerCount > 0)
             return TxRejected;
         if (m_infoObject.get() == nullptr)
@@ -470,10 +471,11 @@ Wallet *Payment::wallet() const
 void Payment::sentToPeer()
 {
     // this callback happens when one of our peers did a getdata for the transaction.
-    if (++m_sentPeerCount >= 2) {
+    if (++m_sentPeerCount >= 2 || FloweePay::instance()->chain() != P2PNet::MainChain) {
         // if two peers requested the tx, then wait a bit and check on the status
         QTimer::singleShot(3 * 1000, [=]() {
-            if (m_sentPeerCount - m_rejectedPeerCount > 2) {
+            if (m_sentPeerCount - m_rejectedPeerCount > 2
+                    || FloweePay::instance()->chain() != P2PNet::MainChain) {
                 // When enough peers received the transaction stop broadcasting it.
                 m_infoObject.reset();
             }

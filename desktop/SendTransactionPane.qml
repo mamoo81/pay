@@ -391,6 +391,7 @@ Item {
                 anchors.topMargin: 10
                 font.pointSize: 24
                 text: Fiat.formattedPrice(payment.effectiveFiatAmount)
+                visible: Fiat.price !== 0
             }
             Flowee.BitcoinAmountLabel {
                 id: cryptoAmount
