@@ -334,8 +334,8 @@ Item {
                 id: title
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pointSize: 15
-                y: parent.height / 8
-                text: qsTr("Payment Sent") + " " + payment.broadcastStatus + " / " + broadcastFeedback.state
+                y: 25
+                text: qsTr("Payment Sent")
             }
 
             // The 'progress' icon.
@@ -378,9 +378,9 @@ Item {
                     strokeColor: "green"
                     fillColor: "transparent"
                     capStyle: ShapePath.RoundCap
-                    startX: 60; startY: 60
-                    PathLine { x: 80; y: 80 }
-                    PathLine { x: 135; y: 30 }
+                    startX: 52; startY: 80
+                    PathLine { x: 76; y: 110 }
+                    PathLine { x: 125; y: 47 }
                 }
             }
 
@@ -420,11 +420,13 @@ Item {
                 anchors.topMargin: 10
                 anchors.horizontalCenter: parent.horizontalCenter
                 ToolButton {
-                    // TODO set icon to copy to clipboard
+                    icon.source: "qrc:/edit-copy.svg"
                     onClicked: Pay.copyToClipboard(payment.txid);
+                    text: qsTr("Copy")
                 }
                 ToolButton {
-                    // TODO open in browser
+                    onClicked: Pay.openInExplorer(payment.txid);
+                    text: qsTr("Internet")
                 }
             }
 

@@ -220,6 +220,7 @@ public:
     void setHideBalance(bool hideBalance);
 
     Q_INVOKABLE void copyToClipboard(const QString &text);
+    Q_INVOKABLE void openInExplorer(const QString &text);
 
     Q_ENUM(StringType UnitOfBitcoin)
 

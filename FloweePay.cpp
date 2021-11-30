@@ -28,6 +28,7 @@
 #include <QStandardPaths>
 #include <QGuiApplication>
 #include <QClipboard>
+#include <QDesktopServices>
 #include <QLocale>
 #include <QSettings>
 #include <QFile>
@@ -38,6 +39,7 @@
 #include <QResource>
 #include <QDir>
 #include <SyncSPVAction.h>
+#include <QUrl>
 
 constexpr const char *UNIT_TYPE = "unit";
 constexpr const char *CREATE_START_WALLET = "create-start-wallet";
@@ -398,6 +400,15 @@ P2PNet::Chain FloweePay::chain() const
 void FloweePay::copyToClipboard(const QString &text)
 {
     QGuiApplication::clipboard()->setText(text);
+}
+
+void FloweePay::openInExplorer(const QString &text)
+{
+    if (text.size() == 64) { // assume this is a txid
+        QDesktopServices::openUrl(QUrl("https://blockchair.com/bitcoin-cash/transaction/" + text));
+        return;
+    }
+    // Add maybe other types?
 }
 
 FloweePay::UnitOfBitcoin FloweePay::unit() const

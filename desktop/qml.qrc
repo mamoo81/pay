@@ -17,6 +17,7 @@
         <file alias="eye-open-light.png">images/eye-open-light.png</file>
         <file alias="eye-open.png">images/eye-open.png</file>
         <file alias="edit-delete.svg">images/edit-delete.svg</file>
+        <file alias="edit-copy.svg">images/edit-copy.svg</file>
         <file>defaults.ini</file>
         <file>ConfigItem.qml</file>
         <file>ControlColors.js</file>
