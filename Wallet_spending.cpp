@@ -174,7 +174,6 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
     current.fee = txSize * feePerByte;
     for (auto iterBySize = utxosBySize.crbegin(); iterBySize != utxosBySize.crend(); ++iterBySize) {
         const auto &utxo = unspentOutputs.at(iterBySize->second);
-        logFatal() << "  " << utxo.value;
         current.outputs.push_back(utxo.outputRef);
         current.totalSats += utxo.value;
         current.fee += BYTES_PER_OUTPUT * feePerByte;
