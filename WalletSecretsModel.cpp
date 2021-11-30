@@ -149,11 +149,20 @@ void WalletSecretsModel::update()
 
     auto iter = m_wallet->m_walletSecrets.begin();
     while (iter != m_wallet->m_walletSecrets.end()) {
-        const auto &priv = iter->second;
-        bool use = !priv.fromHdWallet || m_showChangeChain == priv.fromChangeChain;
+        const auto &secret = iter->second;
+        bool use = !secret.fromHdWallet || m_showChangeChain == secret.fromChangeChain;
         if (use && !m_wallet->isSingleAddressWallet()) {
-            const bool addressUsed = priv.signatureType != Wallet::NotUsedYet;
-            use = addressUsed == m_showUsedAddresses;
+            /*
+             * Addresses (a) have money currently on them, (b) have had money
+             * on them in the past (coins: 0/1), or (c) have never had any deposits made.
+             *
+             * The 'm_showUsedAddreses', in english, means that we hide empty, previously used addresses:
+             *  true = coins: 0/n (where n > 0)
+             *  false = coins 0/0 or n/m (where n > 0)
+             */
+            auto keyDetails = m_wallet->fetchKeyDetails(iter->first);
+            const bool addressWasUsed = keyDetails.historicalCoins > 0 && keyDetails.coins == 0;
+            use = addressWasUsed == m_showUsedAddresses;
         }
 
         if (use)
