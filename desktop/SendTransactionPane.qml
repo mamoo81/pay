@@ -525,7 +525,6 @@ Item {
                     }
                 }
                 Label {
-                    id: checked
                     color: "green"
                     font.pixelSize: 24
                     text: destination.addressOk ? "✔" : " "
