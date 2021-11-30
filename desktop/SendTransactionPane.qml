@@ -260,7 +260,7 @@ Item {
         }
     }
 
-    // the panel that allows us to tweak the payment
+    // the panel that allows us to tweak the payment (add details)
     PaymentTweakingPanel {
         anchors.fill: parent
     }
@@ -576,7 +576,7 @@ Item {
             collapsed: paymentDetail.collapsed
             onCollapsedChanged: paymentDetail.collapsed = collapsed
             property QtObject paymentDetail: null
-            title: qsTr("Input Selector")
+            title: qsTr("Coin Selector")
             summary: qsTr("Selected %1 %2 in %3 coins", "selected 2 BCH in 5 coins", paymentDetail.selectedCount)
                             .arg(Pay.priceToStringPretty(paymentDetail.selectedValue))
                             .arg(Pay.unitName)

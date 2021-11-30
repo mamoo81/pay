@@ -55,65 +55,46 @@ Item {
             opacity: priv.collapsed ? 0 : 1
             visible: opacity != 0
             width: parent.width
-            height: title.height + 60 + Math.max(leftColumn.height, rightColumn.height)
+            height: randomRect.height + title.height + 30
 
             Label {
                 id: title
-                text: "Some label"
+                text: qsTr("Add Detail")
                 font.pointSize: 20
                 anchors.horizontalCenter: parent.horizontalCenter
             }
-
-            Column {
-                id: leftColumn
-                width: parent.width / 2
+            Rectangle {
+                id: randomRect
+                width: inputSelectorButton.width + 30
+                height: width
                 anchors.top: title.bottom
-                anchors.topMargin: 20
-                spacing: 10
-                Label {
-                    text: "Templates"
-                    font.pointSize: 14
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Item { }
+                anchors.topMargin: 10
+                x: 10
+
+                color: helpText.palette.light
+                border.width: 2
+                border.color: helpText.palette.shadow
 
                 Flowee.Button {
-                    text: "Pay Rent"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-            }
-
-            Column {
-                id: rightColumn
-                x: parent.width / 2
-                width: parent.width / 2
-                anchors.top: title.bottom
-                anchors.topMargin: 20
-                spacing: 10
-
-                Label {
-                    text: "Components"
-                    font.pointSize: 14
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Item { }
-
-                Flowee.Button {
-                    text: "Input Selector"
+                    id: inputSelectorButton
+                    text: qsTr("Coin Selector")
+                    y: 15
                     anchors.horizontalCenter: parent.horizontalCenter
                     onClicked: {
                         payment.addInputSelector();
                         priv.collapsed = true
                     }
                 }
-                Flowee.Button {
-                    text: "Comment"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Flowee.Button {
-                    text: "Contract"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
+            }
+            Label {
+                id: helpText
+                anchors.top: randomRect.top
+                anchors.topMargin: 20
+                anchors.left: randomRect.right
+                anchors.leftMargin: 10
+                anchors.right: parent.right
+                wrapMode: Label.Wrap
+                text: qsTr("To override the default selection of coins that are used to pay a transaction, you can add the 'Coin Selector' where the wallets coins will be made visible.")
             }
 
             // line
