@@ -263,13 +263,19 @@ ApplicationWindow {
                 State {
                     name: "showTransactions"
                     PropertyChanges { target: tabbedPane; opacity: 1 }
-                    PropertyChanges { target: accountDetails; opacity: 0 }
-                    PropertyChanges { target: accountDetails; source: "" }
+                    PropertyChanges { target: tabbar; focus: true }
+                    PropertyChanges { target: accountDetails;
+                        opacity: 0;
+                        source: "";
+                    }
                 },
                 State {
                     name: "accountDetails"
-                    PropertyChanges { target: accountDetails; source: "./AccountDetails.qml" }
-                    PropertyChanges { target: accountDetails; opacity: 1 }
+                    PropertyChanges { target: accountDetails;
+                        source: "./AccountDetails.qml"
+                        opacity: 1
+                        focus: true
+                    }
                     PropertyChanges { target: tabbedPane; opacity: 0 }
                 }
             ]

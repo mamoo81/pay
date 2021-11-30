@@ -23,6 +23,7 @@ import "widgets" as Flowee
 Item {
     id: root
     property QtObject account: portfolio.current
+    focus: true
 
     Connections {
         target: portfolio
@@ -174,6 +175,7 @@ Item {
                 tooltipText: qsTr("Switches between unused and used Bitcoin addresses")
             }
             ListView {
+                id: historyView
                 model: root.account.secrets
                 Layout.fillWidth: true
                 implicitHeight: root.account.isSingleAddressAccount ? contentHeight : scrollablePage.height / 10 * 7
@@ -258,6 +260,12 @@ Item {
                         }
                     }
                 }
+                ScrollBar.vertical: Flowee.ScrollThumb {
+                    id: thumb
+                    minimumSize: 20 / activityView.height
+                    visible: size < 0.9
+                }
+
             }
         }
         Flowee.GroupBox {
@@ -316,5 +324,8 @@ Item {
                 }
             }
         }
+    }
+    Keys.forwardTo: Flowee.ListViewKeyHandler {
+        target: historyView
     }
 }
