@@ -23,13 +23,13 @@ import QtQuick.Layouts 1.11
  * This class displays a Bitcoin value using the current settings
  * and renders it smartly to avoid it just being a long list of digits.
  */
-Item {
+Control {
     id: root
     property double value: 5E8
     property bool colorize: true
     property bool includeUnit: true
     property bool showFiat: true
-    property color color: Pay.useDarkSkin ? "#fcfcfc" :"black"
+    property color color: palette.text
     property alias fontPtSize: main.font.pointSize
 
     implicitHeight: row.implicitHeight
