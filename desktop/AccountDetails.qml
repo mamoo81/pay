@@ -192,7 +192,7 @@ Item {
                         visible: root.account.isHDWallet
                     }
 
-                    LabelWithClipboard {
+                    Flowee.LabelWithClipboard {
                         id: addressLabel
                         y: 5
                         x: root.account.isHDWallet ? 50 : 0
@@ -291,7 +291,7 @@ Item {
                     Label {
                         text: qsTr("Derivation") + ":"
                     }
-                    LabelWithClipboard {
+                    Flowee.LabelWithClipboard {
                         text: root.account.hdDerivationPath
                     }
                 }

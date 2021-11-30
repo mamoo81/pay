@@ -186,7 +186,7 @@ Item {
                         Layout.alignment: Qt.AlignRight | Qt.AlignTop
                     }
 
-                    LabelWithClipboard {
+                    Flowee.LabelWithClipboard {
                         id: txid
                         text: payment.txid === "" ? qsTr("Not prepared yet") : payment.txid
                         Layout.fillWidth: true
@@ -401,7 +401,7 @@ Item {
                 value: payment.effectiveBchAmount
                 colorize: false
             }
-            LabelWithClipboard {
+            Flowee.LabelWithClipboard {
                 id: txidFeedbackLabel
                 anchors.top: cryptoAmount.bottom
                 anchors.topMargin: 20

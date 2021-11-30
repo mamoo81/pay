@@ -26,7 +26,7 @@ GridLayout {
     property QtObject infoObject: null
 
     columns: 2
-    LabelWithClipboard {
+    Flowee.LabelWithClipboard {
         menuText: qsTr("Copy transaction-ID")
         Layout.columnSpan: 2
         text: model.txid
@@ -35,7 +35,7 @@ GridLayout {
     Label {
         text: qsTr("Status") + ":"
     }
-    LabelWithClipboard {
+    Flowee.LabelWithClipboard {
         id: rightColumn
         Layout.fillWidth: true
         text: {
@@ -107,7 +107,7 @@ GridLayout {
                         radius: height / 3
                         opacity: 0.2
                     }
-                    LabelWithClipboard {
+                    Flowee.LabelWithClipboard {
                         id: inAddress
                         menuText: qsTr("Copy Address")
                         text: {
@@ -188,7 +188,7 @@ GridLayout {
                         radius: height / 3
                         opacity: 0.2
                     }
-                    LabelWithClipboard {
+                    Flowee.LabelWithClipboard {
                         id: outAddress
                         visible: modelData !== null
                         elide: Text.ElideMiddle

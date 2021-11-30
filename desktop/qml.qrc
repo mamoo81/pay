@@ -29,7 +29,6 @@
         <file>WalletTransactionDetails.qml</file>
         <file>WalletTransaction.qml</file>
         <file>AccountListItem.qml</file>
-        <file>LabelWithClipboard.qml</file>
         <file>AccountDetails.qml</file>
         <file>SettingsPane.qml</file>
         <file>NewAccountPane.qml</file>
@@ -43,6 +42,7 @@
         <file>widgets/CheckBox.qml</file>
         <file>widgets/CloseIcon.qml</file>
         <file>widgets/GroupBox.qml</file>
+        <file>widgets/LabelWithClipboard.qml</file>
         <file>widgets/ListViewKeyHandler.qml</file>
         <file>widgets/MultilineTextField.qml</file>
         <file>widgets/ScrollThumb.qml</file>
