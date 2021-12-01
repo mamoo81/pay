@@ -398,9 +398,10 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: fiatAmount.bottom
                 anchors.topMargin: 20
-                fontPtSize: 15
+                fontPtSize: 13
                 value: payment.effectiveBchAmount
                 colorize: false
+                showFiat: false
             }
             Flowee.LabelWithClipboard {
                 id: txidFeedbackLabel
