@@ -103,6 +103,10 @@ public:
     /// if /a on, mark payment request as one to store and keep around until fulfilled or deleted
     void setStored(bool on);
 
+    /**
+     * This ties the request to a different wallet.
+     * \sa setWallet()
+     */
     Q_INVOKABLE void switchAccount(AccountInfo *ai);
 
     void setWallet(Wallet *wallet);

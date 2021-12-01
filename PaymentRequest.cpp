@@ -115,6 +115,18 @@ PaymentRequest::PaymentState PaymentRequest::paymentState() const
 void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
 {
     assert(value > 0);
+    if (m_wallet->isSingleAddressWallet()
+            && m_unusedRequest && m_message.isEmpty()
+            && m_amountRequested == 0) {
+        // This is a completely empty payment-request and since we are
+        // connected to a single-address wallet it is common for transactions
+        // to arrive that match our 'reserved' address.
+        // This means that we have zero indication that incoming transactions
+        // are in response to this request.
+
+        // Just return and keep us showing a QR of our only address.
+        return;
+    }
     if (m_incomingOutputRefs.contains(ref)) {
         if (m_paymentState >= PaymentSeen && blockHeight != -1)
             setPaymentState(Confirmed);
