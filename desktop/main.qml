@@ -465,6 +465,7 @@ ApplicationWindow {
                     }
                     MouseArea {
                         anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
                         onClicked: {
                             if (!Pay.hideBalance)
                                 parent.showDetails = !parent.showDetails
