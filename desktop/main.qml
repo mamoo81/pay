@@ -488,9 +488,25 @@ ApplicationWindow {
                 }
                 Label {
                     id: fiatValue
+                    property double prevPrice: 0
                     text: qsTr("1 BCH is: %1").arg(Fiat.formattedPrice(100000000, Fiat.price))
                     visible: Pay.isMainChain
                     font.pixelSize: 18
+
+                    Behavior on color { ColorAnimation { duration: 300 } }
+                    onTextChanged: {
+                        animTimer.start()
+                        if (prevPrice > Fiat.price)
+                            color = Pay.useDarkSkin ? "#5f1414" : "#ff3636"; // red
+                        else
+                            color = Pay.useDarkSkin ? "#154822" : "#4aff77"; // green
+                        prevPrice = Fiat.price
+                    }
+                    Timer {
+                        id: animTimer
+                        interval: 305
+                        onTriggered: fiatValue.color = fiatValue.palette.text
+                    }
                 }
                 Item { // spacer
                     width: 10
