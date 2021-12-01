@@ -556,19 +556,6 @@ int Payment::effectiveFiatAmount() const
         }
         amount += out->fiatAmount();
     }
-    for (auto d : m_paymentDetails) {
-        if (!d->isOutput())
-            continue;
-        auto *out = d->toOutput();
-        if (out->maxAllowed() && out->maxSelected()) {
-            if (m_fiatPrice == 0)
-                return 0;
-            // then the total amount is actually trivial, it is all that is available in the wallet.
-            auto totalBch = m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
-            return (totalBch * m_fiatPrice / 10000000 + 5) / 10;
-        }
-        amount += out->fiatAmount();
-    }
     return amount;
 }
 
