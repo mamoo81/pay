@@ -18,6 +18,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
+import "widgets" as Flowee
 
 ApplicationWindow {
     id: root
@@ -101,6 +102,9 @@ ApplicationWindow {
                     }
                 }
             }
+        }
+        Keys.forwardTo: Flowee.ListViewKeyHandler {
+            target: listView
         }
     }
 
