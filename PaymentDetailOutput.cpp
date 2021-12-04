@@ -159,7 +159,7 @@ void PaymentDetailOutput::setMaxSelected(bool on)
         return;
     m_maxSelected = on;
     // implicit change first, it changes the representation
-    setFiatFollows(true);
+    setFiatFollows(on);
     emit maxSelectedChanged();
     emit fiatAmountChanged();
     emit paymentAmountChanged();
