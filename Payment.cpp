@@ -235,7 +235,7 @@ void Payment::prepare()
     }
 
     if (m_tx.size() > 100000) { // max size of a transaction is 100KB
-        m_error = tr("Transaction size limits exceeded! Amount selected led to too many inputs.");
+        m_error = tr("Transaction too large. Amount selected needs too many coins.");
         emit errorChanged();
         return;
     }
