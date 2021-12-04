@@ -214,7 +214,7 @@ Item {
                             if (!parent.txOk)
                                 return "";
                             var rc = payment.txSize;
-                            return qsTr("%1 bytes", "", rc).arg(rc)
+                            return qsTr("%1 bytes").arg(rc)
                         }
                         color: txid.color
                     }
@@ -230,7 +230,7 @@ Item {
 
                             var fee = rc.toFixed(3); // no more than 3 numbers behind the separator
                             fee = (fee * 1.0).toString(); // remove trailing zero's (1.000 => 1)
-                            return qsTr("%1 sat/byte", "fee", rc).arg(fee);
+                            return qsTr("%1 sat/byte", "fee").arg(fee);
                         }
                         color: txid.color
                     }
