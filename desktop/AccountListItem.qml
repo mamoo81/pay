@@ -112,6 +112,10 @@ Item {
                 text: qsTr("Main Wallet")
                 onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
             }
+            MenuItem {
+                text: qsTr("Archive Wallet")
+                onTriggered: root.account.isArchived = true
+            }
         }
     }
 }

@@ -49,6 +49,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(bool isUserOwned READ userOwnedWallet NOTIFY userOwnedChanged)
     Q_PROPERTY(bool isSingleAddressAccount READ isSingleAddressAccount CONSTANT)
     Q_PROPERTY(bool isHDWallet READ isHDWallet CONSTANT)
+    Q_PROPERTY(bool isArchived READ isArchived WRITE setIsArchived NOTIFY isArchivedChanged)
     Q_PROPERTY(QList<QObject*> paymentRequests READ paymentRequests NOTIFY paymentRequestsChanged)
     Q_PROPERTY(QString mnemonic READ hdWalletMnemonic CONSTANT)
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath CONSTANT)
@@ -123,6 +124,9 @@ public:
     /// Returns the date of the last timestamped transaction
     QDateTime lastMinedTransaction() const;
 
+    bool isArchived() const;
+    void setIsArchived(bool newIsArchived);
+
 signals:
     void balanceChanged();
     void utxosChanged();
@@ -131,6 +135,7 @@ signals:
     void isDefaultWalletChanged();
     void paymentRequestsChanged();
     void userOwnedChanged();
+    void isArchivedChanged();
 
 private:
     Wallet *m_wallet;

@@ -118,15 +118,34 @@ QDateTime AccountInfo::lastMinedTransaction() const
    auto timestamp = FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
    if (timestamp == 0)
        return QDateTime();
-    return QDateTime::fromTime_t(timestamp);
+   return QDateTime::fromTime_t(timestamp);
+}
+
+bool AccountInfo::isArchived() const
+{
+    auto segment =m_wallet->segment();
+    if (!segment)
+        return false;
+    return segment->priority() == PrivacySegment::OnlyManual;
+}
+
+void AccountInfo::setIsArchived(bool archived)
+{
+    auto segment = m_wallet->segment();
+    if (!segment)
+        return;
+    if ((segment->priority() == PrivacySegment::OnlyManual) == archived)
+        return;
+    segment->setPriority(archived ? PrivacySegment::OnlyManual : PrivacySegment::Normal);
+    emit isArchivedChanged();
 }
 
 void AccountInfo::setDefaultWallet(bool isDefault)
 {
-    auto segment =m_wallet->segment();
+    auto segment = m_wallet->segment();
     if (!segment)
         return;
-    if (segment->priority() == isDefault ? PrivacySegment::First : PrivacySegment::Normal)
+    if ((segment->priority() == PrivacySegment::First) == isDefault)
         return;
     segment->setPriority(isDefault ? PrivacySegment::First : PrivacySegment::Normal);
     emit isDefaultWalletChanged();

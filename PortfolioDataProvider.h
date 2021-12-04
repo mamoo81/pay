@@ -29,12 +29,14 @@ class PortfolioDataProvider : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QList<QObject*> accounts READ accounts NOTIFY accountsChanged)
+    Q_PROPERTY(QList<QObject*> archivedAccounts READ archivedAccounts NOTIFY accountsChanged)
     Q_PROPERTY(AccountInfo* current READ current WRITE setCurrent NOTIFY currentChanged)
     Q_PROPERTY(double totalBalance READ totalBalance NOTIFY totalBalanceChanged)
 public:
     explicit PortfolioDataProvider(QObject *parent = nullptr);
 
     QList<QObject*> accounts() const;
+    QList<QObject*> archivedAccounts() const;
 
     AccountInfo *current() const;
     void setCurrent(AccountInfo *item);

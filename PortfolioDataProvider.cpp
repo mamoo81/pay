@@ -48,12 +48,26 @@ QList<QObject *> PortfolioDataProvider::accounts() const
     // we filter out the wallets that are NOT user-owned. Which is essentially the main initial
     // wallet created to allow people to deposit instantly.
     for (auto *account : m_accountInfos) {
-        if (account->userOwnedWallet())
+        if (account->userOwnedWallet() || !account->isArchived())
             answer.append(account);
     }
     // if the only wallet(s) are not user owned, share those with the GUI.
     if (answer.isEmpty() && !m_accountInfos.isEmpty()) {
-        for (auto *account : m_accountInfos)
+        for (auto *account : m_accountInfos) {
+            if (account->isArchived())
+                answer.append(account);
+        }
+    }
+    return answer;
+}
+
+QList<QObject *> PortfolioDataProvider::archivedAccounts() const
+{
+    QList<QObject *> answer;
+    // we filter out the wallets that are NOT user-owned. Which is essentially the main initial
+    // wallet created to allow people to deposit instantly.
+    for (auto *account : m_accountInfos) {
+        if (account->isArchived())
             answer.append(account);
     }
     return answer;
@@ -125,6 +139,7 @@ void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
     auto info = new AccountInfo(wallet, this);
     m_accountInfos.append(info);
     connect (info, SIGNAL(isDefaultWalletChanged()), this, SLOT(walletChangedPriority()));
+    connect (info, SIGNAL(isArchivedChanged()), this, SLOT(walletChangedPriority()));
     connect (info, SIGNAL(balanceChanged()), this, SIGNAL(totalBalanceChanged()));
     emit accountsChanged();
 }
@@ -142,4 +157,5 @@ void PortfolioDataProvider::walletChangedPriority()
                 info->setDefaultWallet(false);
         }
     }
+    emit accountsChanged();
 }
