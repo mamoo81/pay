@@ -66,7 +66,7 @@ GridLayout {
         text: qsTr("Inputs") + ":"
         Layout.alignment: Qt.AlignTop
     }
-    ColumnLayout {
+    Column {
         Layout.fillWidth: true
         Repeater {
             model: infoObject.inputs
@@ -141,7 +141,7 @@ GridLayout {
         text: qsTr("Outputs") + ":"
         Layout.alignment: Qt.AlignTop
     }
-    ColumnLayout {
+    Column {
         Layout.fillWidth: true
         Repeater {
             model: infoObject.outputs
