@@ -85,12 +85,19 @@ QVariant WalletCoinsModel::data(const QModelIndex &index, int role) const
                 return tr("Unconfirmed");
             const int now = FloweePay::instance()->p2pNet()->blockHeight();
             const auto diff = now - bh;
+            if (diff < 76) {
+                const int hours = diff / 6;
+                return tr("%1 hours", "age, like 'hours old'", hours).arg(hours + 1);
+            }
             const int days = (diff - 20) / 144;
             if (days < 10)
-                return tr("%1 days", "age, like 'days old'").arg(days + 1);
-            if (days < 6 * 7)
-                return tr("%1 weeks", "age, like 'weeks old'").arg((days - 2) / 7);
-            return tr("%1 months", "age, like 'months old'").arg(qRound((days - 2) / 30.4));
+                return tr("%1 days", "age, like 'days old'", days + 1).arg(days + 1);
+            if (days < 6 * 7) {
+                const int weeks = (days - 2) / 7;
+                return tr("%1 weeks", "age, like 'weeks old'", weeks).arg(weeks);
+            }
+            const int months = qRound((days - 2) / 30.4);
+            return tr("%1 months", "age, like 'months old'", months).arg(months);
         }
         break;
     }
