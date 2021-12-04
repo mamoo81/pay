@@ -174,7 +174,7 @@ void Payment::prepare()
     else {
         funding = m_wallet->findInputsFor(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
         if (funding.outputs.empty()) { // not enough funds.
-            m_error = tr("Not enough funds in account to make payment!");
+            m_error = tr("Not enough funds in wallet to make payment!");
             emit errorChanged();
             return;
         }
