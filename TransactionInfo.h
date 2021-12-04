@@ -89,6 +89,8 @@ class TransactionInfo : public QObject
     Q_PROPERTY(QString userComment READ userComment CONSTANT)
     Q_PROPERTY(bool isCoinbase READ isCoinbase CONSTANT)
     Q_PROPERTY(bool isCashFusion READ isCashFusion CONSTANT)
+    Q_PROPERTY(bool createdByUs READ createdByUs CONSTANT)
+
 public:
     explicit TransactionInfo(QObject *parent = nullptr);
 
@@ -98,6 +100,7 @@ public:
     const QString &userComment() const;
     bool isCoinbase() const;
     bool isCashFusion() const;
+    bool createdByUs() const;
 
     int m_txSize = 0;
     QList<TransactionOutputInfo *> m_outputs;
@@ -105,6 +108,7 @@ public:
     QString m_userComment;
     bool m_isCoinbase = false;
     bool m_isCashFusion = false;
+    bool m_createdByUs = false;
 };
 
 #endif

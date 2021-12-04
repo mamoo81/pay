@@ -60,6 +60,11 @@ bool TransactionInfo::isCoinbase() const
     return m_isCoinbase;
 }
 
+bool TransactionInfo::createdByUs() const
+{
+    return m_createdByUs;
+}
+
 
 // //////////////////////////////////////////////////////
 

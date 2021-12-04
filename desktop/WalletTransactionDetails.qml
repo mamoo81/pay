@@ -51,10 +51,37 @@ GridLayout {
     }
 
     Label {
+        id: paymentTypeLabel
+        visible: {
+            let diff = model.fundsOut - model.fundsIn;
+            if (diff < 0 && diff > -1000) // this is our heuristic to mark it as 'moved'
+                return false;
+            return true;
+        }
         text: mainLabel.text + ":"
     }
     Flowee.BitcoinAmountLabel {
+        visible: paymentTypeLabel.visible
         value: model.fundsOut - model.fundsIn
+    }
+    Label {
+        id: feesLabel
+        visible: infoObject.createdByUs
+        text: qsTr("Fees") + ":"
+    }
+    Flowee.BitcoinAmountLabel {
+        visible: feesLabel.visible
+        value: {
+            if (!infoObject.createdByUs)
+                return 0;
+            var amount = model.fundsIn;
+            var outputs = infoObject.outputs
+            for (var i in outputs) {
+                amount -= outputs[i].value
+            }
+            return amount
+        }
+        colorize: false
     }
     Label {
         text: qsTr("Size") + ":"

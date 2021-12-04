@@ -105,20 +105,7 @@ Item {
             right: bitcoinAmountLabel.left
             margins: 10
         }
-        text: {
-            var userComment = model.comment;
-            if (userComment !== "")
-                return userComment;
-            let diff = model.fundsOut - model.fundsIn;
-            if (diff < 0 && diff > -1000) { // then lets print the fees here.
-                diff = -1 * diff;
-                var rc = Pay.priceToString(diff) + " " + Pay.unitName
-                if (Fiat.price > 0)
-                    rc += " " + Fiat.formattedPrice(diff, Fiat.price);
-                return qsTr("Fees paid: %1").arg(rc);
-            }
-            return "";
-        }
+        text: model.comment
         elide: Text.ElideRight
         Connections {
             target: date

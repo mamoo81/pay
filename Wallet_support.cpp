@@ -224,6 +224,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     // also look up all the outputs from the file.
     // TODO this creates a false-positive for tx we co-created (cashfusion, flipstarter etc)
     const bool createdByUs = !wtx.inputToWTX.empty() && !wtx.isCashFusionTx;
+    info->m_createdByUs = createdByUs;
     do {
         switch (txIter.next(Tx::PrevTxHash | Tx::OutputValue | Tx::OutputScript)) {
         case Tx::PrevTxHash: info->m_inputs.append(nullptr); break;
