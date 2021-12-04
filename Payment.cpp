@@ -112,7 +112,7 @@ bool Payment::validate()
             }
         }
     }
-    return true;
+    return output > 547;
 }
 
 void Payment::prepare()
@@ -309,6 +309,8 @@ void Payment::reset()
 
 void Payment::addDetail(PaymentDetail *detail)
 {
+    if (m_paymentDetails.size() == 1) // Our initial one is made non-collapsable, revert that.
+        m_paymentDetails.first()->setCollapsable(true);
     assert(detail);
     if (detail->isOutput()) {
         // outputs are grouped together at the beginning. We insert
@@ -330,7 +332,6 @@ void Payment::addDetail(PaymentDetail *detail)
         connect (detail, SIGNAL(selectedValueChanged()), this, SLOT(recalcAmounts()));
     }
     assert(!m_paymentDetails.isEmpty());
-    m_paymentDetails.first()->setCollapsable(m_paymentDetails.size() > 1);
     emit paymentDetailsChanged();
     emit validChanged(); // pretty sure we are invalid after ;-)
 }
@@ -448,7 +449,6 @@ void Payment::remove(PaymentDetail *detail)
             }
         }
     }
-    assert(!m_paymentDetails.isEmpty());
     detail->deleteLater();
 }
 
