@@ -214,7 +214,8 @@ GridLayout {
                         value: modelData === null ? 0 : modelData.value
                         colorize: modelData !== null && modelData.forMe
                         fontPtSize: date.font.pointSize
-                        anchors.right: parent.right
+                        anchors.right: outArrowPoint.left
+                        anchors.rightMargin: 4
                         anchors.bottom: outArrowLine.top
                         anchors.bottomMargin: 10
                     }
