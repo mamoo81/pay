@@ -48,7 +48,7 @@ Item {
     Rectangle {
         id: isNewIndicator
         anchors.verticalCenter: mainLabel.verticalCenter
-        width: model.isNew ? mainLabel.height / 4 : 0
+        width: model.isNew ? mainLabel.height * 0.4 : 0
         height: width
         radius: height
         color: Pay.useDarkSkin ? mainWindow.floweeSalmon : mainWindow.floweeBlue
