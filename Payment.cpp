@@ -425,8 +425,11 @@ void Payment::addInputSelector()
 {
     // only one input selector allowed
     for (auto d : m_paymentDetails) {
-        if (d->isInputs())
+        if (d->isInputs()) {
+            // un-collapse, but not add
+            d->setCollapsed(false);
             return;
+        }
     }
     addDetail(new PaymentDetailInputs(this));
 }

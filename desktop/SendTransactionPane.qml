@@ -575,7 +575,7 @@ Item {
             id: inputsPane
             collapsable: paymentDetail.collapsable
             collapsed: paymentDetail.collapsed
-            onCollapsedChanged: paymentDetail.collapsed = collapsed
+            onEffectiveCollapsedChanged: paymentDetail.collapsed = effectiveCollapsed
             property QtObject paymentDetail: null
             title: qsTr("Coin Selector")
             summary: qsTr("Selected %1 %2 in %3 coins", "selected 2 BCH in 5 coins", paymentDetail.selectedCount)

@@ -24,6 +24,12 @@ Item {
 
     property bool collapsable: true
     property bool collapsed: false
+    /**
+     * This is like collapsed, but when the user changes the groupbox collapse-state, this is updated.
+     * We never overwrite the 'collapsed' property to enable binding it to a model, this is the effective
+     * collapsed state taking both changes from the `collapsed` property and from user input.
+     */
+    property bool effectiveCollapsed: collapsed
     property alias title: titleLabel.text
     property alias summary: summaryLabel.text
     default property alias content: child.children
@@ -31,13 +37,15 @@ Item {
     activeFocusOnTab: collapsable
     clip: true
 
+    onCollapsedChanged: effectiveCollapsed = collapsed
+
     width: 200 // should be changed by user
-    implicitHeight: arrowPoint.height + (collapsed ? 0 : child.implicitHeight + 25) // 25 = 15 top, 5 bottom of content area
+    implicitHeight: arrowPoint.height + (effectiveCollapsed ? 0 : child.implicitHeight + 25) // 25 = 15 top, 5 bottom of content area
 
     Rectangle { // the outline
         width: parent.width
         y: titleArea.visible ? titleLabel.height / 2 : arrowPoint.height / 2
-        height: root.collapsed ? 1 : parent.height - y;
+        height: root.effectiveCollapsed ? 1 : parent.height - y;
         color: "#00000000"
         border.color: titleLabel.palette.button
         border.width: 2
@@ -48,7 +56,7 @@ Item {
         height: 20
         enabled: root.collapsable
         visible: enabled // this line is needed to make the cursor shape not be set when not enabled (Qt bug)
-        onClicked: root.collapsed = !root.collapsed
+        onClicked: root.effectiveCollapsed = !root.effectiveCollapsed
         cursorShape: Qt.PointingHandCursor
     }
 
@@ -79,7 +87,7 @@ Item {
             id: summaryLabel
             anchors.left: titleLabel.right
             anchors.leftMargin: 20
-            visible: root.collapsed && text !== ""
+            visible: root.effectiveCollapsed && text !== ""
             font.italic: true
         }
     }
@@ -96,7 +104,7 @@ Item {
             id: point
             x: 10
             color: Pay.useDarkSkin ? "white" : "black"
-            rotation: root.collapsed ? 0 : 90
+            rotation: root.effectiveCollapsed ? 0 : 90
             transformOrigin: Item.Center
 
             Behavior on rotation { NumberAnimation {} }
@@ -109,7 +117,7 @@ Item {
         y: titleArea.height + 10
         width: root.width - 20
         height: implicitHeight
-        visible: !root.collapsed
+        visible: !root.effectiveCollapsed
         columns: 1
     }
 
@@ -117,7 +125,7 @@ Item {
     Keys.onPressed: {
         if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
             if (root.collapsable) {
-                root.collapsed = !root.collapsed
+                root.effectiveCollapsed = !root.effectiveCollapsed
                 event.accepted = true
             }
         }
