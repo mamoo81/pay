@@ -1391,6 +1391,7 @@ void Wallet::saveSecrets()
 
 void Wallet::delayedSave()
 {
+    assert(thread() == QThread::currentThread());
     if (m_saveStarted)
         return;
     m_saveStarted = true;
