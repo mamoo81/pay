@@ -305,7 +305,7 @@ signals:
     void lastBlockSynchedChanged();
     void paymentRequestsChanged();
     void userOwnedChanged();
-
+    void transactionChanged(int txIndex);
     void transactionConfirmed(int txIndex);
 
     // \internal

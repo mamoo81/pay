@@ -583,6 +583,9 @@ void Wallet::setTransactionComment(const Tx &transaction, const QString &comment
         if (wtx.userComment != comment) {
             wtx.userComment = comment;
             m_walletChanged = true;
+
+            emit transactionChanged(wtxIter->first);
+            emit startDelayedSave();
         }
     }
 }

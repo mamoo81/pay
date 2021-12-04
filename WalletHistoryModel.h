@@ -64,7 +64,7 @@ signals:
 
 private slots:
     void appendTransactions(int firstNew, int count);
-    void transactionConfirmed(int txIndex);
+    void transactionChanged(int txIndex);
 
 private:
     void createMap();
