@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/i18n">
         <file>floweepay-desktop_nl.qm</file>
-        <file>floweepay-desktop_nl.qm</file>
+        <file>floweepay-desktop_pl.qm</file>
         <file>floweepay-desktop_en.qm</file>
         <file>floweepay-common_nl.qm</file>
         <file>floweepay-common_pl.qm</file>
