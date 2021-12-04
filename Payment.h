@@ -78,13 +78,11 @@ public:
      * 1. After the API call 'broadcast()' we offer the transaction to all peers.
      *    `TxOffered`
      * 2. A peer responds by downloading the actual transaction from us.
-     *    `TxSent1`
-     * 3. A second peer responds by downloading the tx from us.
      *    `TxWaiting`
-     * 4. Optionally, a peer responds with 'rejected' if the transaction is somehow wrong.
+     * 3. Optionally, a peer responds with 'rejected' if the transaction is somehow wrong.
      *    `TxRejected`
      *    Stop here.
-     * 5. We waited a little time and no rejected came in, implying 2 or more peers like our tx.
+     * 4. We waited a little time and no rejected came in, implying 2 or more peers like our tx.
      *    `TxBroadcastSuccess`
      */
     enum BroadcastStatus {

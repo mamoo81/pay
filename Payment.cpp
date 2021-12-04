@@ -403,15 +403,11 @@ Payment::BroadcastStatus Payment::broadcastStatus() const
         return NotStarted;
     if (m_sentPeerCount == 0)
         return TxOffered;
-    if (m_sentPeerCount > 1
-            || (FloweePay::instance()->chain() != P2PNet::MainChain && m_sentPeerCount > 0)) {
-        if (m_rejectedPeerCount > 0)
-            return TxRejected;
-        if (m_infoObject.get() == nullptr)
-            return TxBroadcastSuccess;
-        return TxWaiting;
-    }
-    return TxSent1;
+    if (m_rejectedPeerCount - m_sentPeerCount >= 0)
+        return TxRejected;
+    if (m_infoObject.get() == nullptr)
+        return TxBroadcastSuccess;
+    return TxWaiting;
 }
 
 void Payment::addExtraOutput()
@@ -468,20 +464,29 @@ Wallet *Payment::wallet() const
     return m_wallet;
 }
 
+// this callback happens when one of our peers did a getdata for the transaction.
 void Payment::sentToPeer()
 {
-    // this callback happens when one of our peers did a getdata for the transaction.
-    if (++m_sentPeerCount >= 2 || FloweePay::instance()->chain() != P2PNet::MainChain) {
-        // if two peers requested the tx, then wait a bit and check on the status
-        QTimer::singleShot(3 * 1000, [=]() {
-            if (m_sentPeerCount - m_rejectedPeerCount > 2
-                    || FloweePay::instance()->chain() != P2PNet::MainChain) {
-                // When enough peers received the transaction stop broadcasting it.
-                m_infoObject.reset();
-            }
-            emit broadcastStatusChanged();
-        });
-    }
+    /*
+     * We offered the Tx to all peers (typically 3) and we need at least one to have
+     * downloaded it from us.
+     * Possibly more peers will download it from us, but it is more likely that they
+     * download it from each other and we won't be able to see progress.
+     *
+     * On the other hand, when a transaction is invalid we will get a rejection message
+     * and then likely other nodes will download it from us as well and we'll get more
+     * rejections that way.  For this reason we need to wait a seconds after download
+     * started to see if we have more peers we sent it to than that rejected it.
+     */
+    ++m_sentPeerCount;
+
+    QTimer::singleShot(1000, [=]() {
+        if (m_rejectedPeerCount == 0 || m_sentPeerCount > 1) {
+            // When enough peers received the transaction stop broadcasting it.
+            m_infoObject.reset();
+        }
+        emit broadcastStatusChanged();
+    });
     emit broadcastStatusChanged();
 }
 
