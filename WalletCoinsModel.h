@@ -61,7 +61,7 @@ public:
     void updateRow(int row);
 
 private slots:
-    void uxosChanged();
+    void utxosChanged();
 
 private:
     void createMap();

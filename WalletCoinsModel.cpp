@@ -38,9 +38,9 @@ void WalletCoinsModel::setWallet(Wallet *newWallet)
     if (m_wallet == newWallet)
         return;
     if (m_wallet)
-        disconnect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(uxosChanged()));
+        disconnect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(utxosChanged()));
     m_wallet = newWallet;
-    connect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(uxosChanged()));
+    connect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(utxosChanged()));
 
     beginRemoveRows(QModelIndex(), 0, m_rowsToOutputRefs.size() - 1);
     endRemoveRows();
@@ -219,10 +219,13 @@ void WalletCoinsModel::updateRow(int row)
     endInsertRows();
 }
 
-void WalletCoinsModel::uxosChanged()
+void WalletCoinsModel::utxosChanged()
 {
-    // TODO
-    logFatal() << "do something";
+    beginRemoveRows(QModelIndex(), 0, m_rowsToOutputRefs.size());
+    endRemoveRows();
+    createMap();
+    beginInsertRows(QModelIndex(), 0, m_rowsToOutputRefs.size());
+    endInsertRows();
 }
 
 void WalletCoinsModel::createMap()
