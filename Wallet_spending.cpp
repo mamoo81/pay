@@ -48,10 +48,10 @@ int Wallet::scoreForSolution(const OutputSet &set, int64_t change, size_t unspen
         // Rationale: (in the context of this being a single-address walllet)
         //  there is no loss in privacy in any combination, as such we aim to only
         //  optimize to have no unconfirmed transactions when the user wants to pay.
-        if (resultingOutputCount > 5 && resultingOutputCount <= 15)
+        if (resultingOutputCount > 8 && resultingOutputCount <= 15)
             score = 1000; // perfection
-        else if (resultingOutputCount <= 5)
-            score = 500 - (5 - resultingOutputCount) * 40; // for the 0 - 5 range
+        else if (resultingOutputCount <= 8)
+            score = 800 - (8 - resultingOutputCount) * 200; // for the 0 - 10 range
         else
             score = 500 - (resultingOutputCount - 15) * 40;
     }
