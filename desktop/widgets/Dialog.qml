@@ -18,6 +18,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
+import "." as Flowee;
 
 /*
  * This is a simple message-box style dialog that does not creat a new window.
@@ -53,11 +54,8 @@ Popup {
         RowLayout {
             width: parent.width
             Item { width: 1; height: 1; Layout.fillWidth: true } // spacer
-            DialogButtonBox {
+            Flowee.DialogButtonBox {
                 id: box
-                // next line is a hack to give spacing between the buttons.
-                Component.onCompleted: children[0].spacing = 10 // In Qt5.15 the first child is ListView
-
                 standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
                 onAccepted: {
                     root.accepted();

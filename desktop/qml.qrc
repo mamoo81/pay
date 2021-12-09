@@ -53,6 +53,8 @@
         <file>widgets/FiatValueField.qml</file>
         <file>widgets/BitcoinValueField.qml</file>
         <file>widgets/Dialog.qml</file>
+        <file>widgets/DialogButtonBox.qml</file>
         <file>PaymentTweakingPanel.qml</file>
+        <file>widgets/DialogButtonBox.qml</file>
     </qresource>
 </RCC>
