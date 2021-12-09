@@ -87,7 +87,7 @@ QVariant WalletCoinsModel::data(const QModelIndex &index, int role) const
             const auto diff = now - bh;
             if (diff < 76) {
                 const int hours = diff / 6;
-                return tr("%1 hours", "age, like: hours old", hours).arg(hours + 1);
+                return tr("%1 hours", "age, like: hours old", hours + 1).arg(hours + 1);
             }
             const int days = (diff - 20) / 144;
             if (days < 10)
