@@ -27,7 +27,6 @@
 PaymentDetailOutput::PaymentDetailOutput(Payment *parent)
     : PaymentDetail(parent, Payment::PayToAddress)
 {
-
 }
 
 double PaymentDetailOutput::paymentAmount() const
@@ -94,6 +93,8 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     if (m_address == address)
         return;
     m_address = address;
+    const std::string &chainPrefix = FloweePay::instance()->chainPrefix();
+    std::string encodedAddress;
 
     switch (FloweePay::instance()->identifyString(address)) {
     case FloweePay::LegacyPKH: {
@@ -104,13 +105,13 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         CashAddress::Content c;
         c.hash = legacy.data();
         c.type = CashAddress::PUBKEY_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        encodedAddress = CashAddress::encodeCashAddr(chainPrefix, c);
         break;
     }
     case FloweePay::CashPKH: {
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix);
         assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        encodedAddress = CashAddress::encodeCashAddr(chainPrefix, c);
         break;
     }
     case FloweePay::LegacySH: {
@@ -121,17 +122,27 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         CashAddress::Content c;
         c.hash = legacy.data();
         c.type = CashAddress::SCRIPT_TYPE;
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        encodedAddress = CashAddress::encodeCashAddr(chainPrefix, c);
         break;
     }
     case FloweePay::CashSH: {
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix());
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix);
         assert (!c.hash.empty() && c.type == CashAddress::SCRIPT_TYPE);
-        m_formattedTarget = QString::fromStdString(CashAddress::encodeCashAddr(chainPrefix(), c));
+        encodedAddress = CashAddress::encodeCashAddr(chainPrefix, c);
         break;
     }
     default:
-        m_formattedTarget.clear();
+        break;
+    }
+
+    m_formattedTarget.clear();
+    if (!encodedAddress.empty()) {
+        const auto size = chainPrefix.size();
+        // lets see if the encoded address is substantially different from the user-given address
+        auto full = QString::fromStdString(encodedAddress);
+        auto formattedTarget = full.mid(size + 1);
+        if (full != address && formattedTarget != address)
+            m_formattedTarget = formattedTarget;
     }
 
     emit addressChanged();
