@@ -373,10 +373,7 @@ void Payment::setCurrentAccount(AccountInfo *account)
     emit currentAccountChanged();
 
     for (auto detail : m_paymentDetails) {
-        if (detail->isInputs()) {
-            detail->toInputs()->setWallet(account->wallet());
-            break;
-        }
+        detail->setWallet(account->wallet());
     }
 }
 
@@ -684,5 +681,9 @@ void PaymentDetail::setValid(bool valid)
 bool PaymentDetail::valid() const
 {
     return m_valid;
+}
+
+void PaymentDetail::setWallet(Wallet *)
+{
 }
 

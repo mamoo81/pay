@@ -66,6 +66,8 @@ public:
     bool forceLegacyOk() const;
     void setForceLegacyOk(bool newForceLegacyOk);
 
+    void setWallet(Wallet *wallet) override;
+
 signals:
     void paymentAmountChanged();
     void addressChanged();
@@ -73,7 +75,6 @@ signals:
     void fiatIsMainChanged();
     void fiatFollowsChanged();
     void maxSelectedChanged();
-
     void forceLegacyOkChanged();
 
 private:

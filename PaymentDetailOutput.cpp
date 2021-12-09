@@ -173,6 +173,14 @@ void PaymentDetailOutput::setForceLegacyOk(bool newForceLegacyOk)
     emit forceLegacyOkChanged();
 }
 
+void PaymentDetailOutput::setWallet(Wallet *)
+{
+    if (m_maxAllowed && m_maxSelected) {
+        emit paymentAmountChanged();
+        emit fiatAmountChanged();
+    }
+}
+
 bool PaymentDetailOutput::maxSelected() const
 {
     return m_maxSelected;

@@ -266,6 +266,12 @@ public:
 
     bool valid() const;
 
+    /**
+     * When the user selects another wallet (via Payment::setCurrentAccount)
+     * default implementation is empty.
+     */
+    virtual void setWallet(Wallet *wallet);
+
 protected:
     void setValid(bool valid);
 

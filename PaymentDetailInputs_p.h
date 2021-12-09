@@ -30,7 +30,7 @@ class PaymentDetailInputs : public PaymentDetail
 public:
     explicit PaymentDetailInputs(Payment *parent);
 
-    void setWallet(Wallet *wallet);
+    void setWallet(Wallet *wallet) override;
 
     /// returns the model that shows the unspent coins.
     WalletCoinsModel *coins();
