@@ -496,71 +496,142 @@ Item {
                             .arg(amount).arg(ad);
             }
 
-            RowLayout {
-                width: parent.width
-                Flowee.TextField {
-                    id: destination
-                    focus: true
-                    property bool addressOk: (addressType === Bitcoin.CashPKH || addressType === Bitcoin.CashSH)
-                                             || (forceLegacyOk && (addressType === Bitcoin.LegacySH || addressType === Bitcoin.LegacyPKH))
-                    property var addressType: Pay.identifyString(text);
-                    property bool forceLegacyOk: false
+            Item {
+                implicitWidth: parent.width
+                implicitHeight: Math.max(contentColumn.height, warningArea.visible ? warningArea.height : 0)
+                ColumnLayout {
+                    id: contentColumn
+                    width: parent.width
+                    RowLayout {
+                        width: parent.width
+                        Flowee.TextField {
+                            id: destination
+                            focus: true
+                            property bool addressOk: (addressType === Bitcoin.CashPKH || addressType === Bitcoin.CashSH)
+                                                     || (forceLegacyOk && (addressType === Bitcoin.LegacySH || addressType === Bitcoin.LegacyPKH))
+                            property var addressType: Pay.identifyString(text);
+                            property bool forceLegacyOk: false
+                            Layout.fillWidth: true
+                            Layout.columnSpan: 3
+                            onActiveFocusChanged: updateColor();
+                            onAddressOkChanged: updateColor()
 
-                    Layout.fillWidth: true
-                    Layout.columnSpan: 3
-                    onActiveFocusChanged: updateColor();
-                    onAddressOkChanged: updateColor()
+                            placeholderText: qsTr("Enter Bitcoin Cash Address")
+                            text: destinationPane.paymentDetail.address
+                            onTextChanged: {
+                                destinationPane.paymentDetail.address = text
+                                updateColor();
+                            }
 
-                    placeholderText: qsTr("Enter Bitcoin Cash Address")
-                    text: destinationPane.paymentDetail.address
-                    onTextChanged: {
-                        destinationPane.paymentDetail.address = text
-                        updateColor();
+                            function updateColor() {
+                                if (!activeFocus && text !== "" && !addressOk)
+                                    color = Pay.useDarkSkin ? "#ff6568" : "red"
+                                else
+                                    color = mainWindow.palette.text
+                            }
+                        }
+                        Label {
+                            color: "green"
+                            font.pixelSize: 24
+                            text: destination.addressOk ? "✔" : " "
+                        }
+                    }
+                    Label {
+                        id: payAmount
+                        text: qsTr("Amount") + ":"
+                    }
+                    RowLayout {
+                        Flowee.FiatValueField {
+                            id: fiatValueField
+                            visible: Fiat.price > 0
+                            onValueEdited: destinationPane.paymentDetail.fiatAmount = value
+                            value: destinationPane.paymentDetail.fiatAmount
+                        }
+                        Flowee.CheckBox {
+                            id: amountSelector
+                            sliderOnIndicator: false
+                            visible: Fiat.price > 0
+                            enabled: false
+                            checked: destinationPane.paymentDetail.fiatFollows
+                        }
+                        Flowee.BitcoinValueField {
+                            id: bitcoinValueField
+                            value: destinationPane.paymentDetail.paymentAmount
+                            onValueEdited: destinationPane.paymentDetail.paymentAmount = value
+                        }
+                        Flowee.Button {
+                            id: sendAll
+                            visible: destinationPane.paymentDetail.maxAllowed
+                            text: qsTr("Max")
+                            checkable: true
+                            checked: destinationPane.paymentDetail.maxSelected
+                            onClicked: destinationPane.paymentDetail.maxSelected = checked
+                        }
+                    }
+                }
+
+                Item {
+                    id: warningArea
+                    // BTC address entered warning.
+                    visible: (destination.addressType === Bitcoin.LegacySH || destination.addressType === Bitcoin.LegacyPKH)
+                             && destination.forceLegacyOk === false;
+
+                    width: parent.width - 40
+                    height: warningColumn.height + 20 + destination.height
+                    Rectangle {
+                        anchors.fill: warningColumn
+                        anchors.margins: -10
+                        color: warning.palette.window
+                        border.width: 3
+                        border.color: "red"
+                        radius: 10
+                    }
+                    Flowee.ArrowPoint {
+                        x: 20
+                        anchors.bottom: warningColumn.top
+                        anchors.bottomMargin: 5
+                        rotation: -90
+                        color: "red"
                     }
 
-                    function updateColor() {
-                        if (!activeFocus && text !== "" && !addressOk)
-                            color = Pay.useDarkSkin ? "#ff6568" : "red"
-                        else
-                            color = mainWindow.palette.text
+                    Column {
+                        id: warningColumn
+                        x: 10
+                        y: destination.height + 10
+                        width: parent.width
+                        spacing: 10
+                        Label {
+                            font.bold: true
+                            font.pixelSize: warning.font.pixelSize * 1.2
+                            text: qsTr("Warning")
+                        }
+                        Label {
+                            id: warning
+                            width: parent.width
+                            text: qsTr("This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?")
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        }
+
+                        RowLayout {
+                            width: parent.width
+                            Item {
+                                width: 1; height: 1
+                                Layout.fillWidth: true
+                            }
+
+                            Button {
+                                text: qsTr("Continue")
+                                onClicked: destination.forceLegacyOk = true
+                            }
+                            Button {
+                                text: qsTr("Cancel")
+                                onClicked: {
+                                    destination.text = ""
+                                    destination.updateColor()
+                                }
+                            }
+                        }
                     }
-                }
-                Label {
-                    color: "green"
-                    font.pixelSize: 24
-                    text: destination.addressOk ? "✔" : " "
-                }
-            }
-            Label {
-                id: payAmount
-                text: qsTr("Amount") + ":"
-            }
-            RowLayout {
-                Flowee.FiatValueField {
-                    id: fiatValueField
-                    visible: Fiat.price > 0
-                    onValueEdited: destinationPane.paymentDetail.fiatAmount = value
-                    value: destinationPane.paymentDetail.fiatAmount
-                }
-                Flowee.CheckBox {
-                    id: amountSelector
-                    sliderOnIndicator: false
-                    visible: Fiat.price > 0
-                    enabled: false
-                    checked: destinationPane.paymentDetail.fiatFollows
-                }
-                Flowee.BitcoinValueField {
-                    id: bitcoinValueField
-                    value: destinationPane.paymentDetail.paymentAmount
-                    onValueEdited: destinationPane.paymentDetail.paymentAmount = value
-                }
-                Flowee.Button {
-                    id: sendAll
-                    visible: destinationPane.paymentDetail.maxAllowed
-                    text: qsTr("Max")
-                    checkable: true
-                    checked: destinationPane.paymentDetail.maxSelected
-                    onClicked: destinationPane.paymentDetail.maxSelected = checked
                 }
             }
         }
