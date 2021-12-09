@@ -136,13 +136,14 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     }
 
     m_formattedTarget.clear();
-    if (!encodedAddress.empty()) {
+    m_addressOk = !encodedAddress.empty();
+    if (m_addressOk) {
         const auto size = chainPrefix.size();
         // lets see if the encoded address is substantially different from the user-given address
         auto full = QString::fromStdString(encodedAddress);
         auto formattedTarget = full.mid(size + 1);
         if (full != address && formattedTarget != address)
-            m_formattedTarget = formattedTarget;
+            m_formattedTarget = full;
     }
 
     emit addressChanged();
@@ -151,12 +152,25 @@ void PaymentDetailOutput::setAddress(const QString &address_)
 
 void PaymentDetailOutput::checkValid()
 {
-    bool valid = !m_formattedTarget.isEmpty();
+    bool valid = m_addressOk;
     valid = valid
             && ((m_maxSelected && m_maxAllowed)
                 || (m_fiatFollows && m_paymentAmount > 600)
                 || (!m_fiatFollows && m_fiatAmount > 0));
     setValid(valid);
+}
+
+bool PaymentDetailOutput::forceLegacyOk() const
+{
+    return m_forceLegacyOk;
+}
+
+void PaymentDetailOutput::setForceLegacyOk(bool newForceLegacyOk)
+{
+    if (m_forceLegacyOk == newForceLegacyOk)
+        return;
+    m_forceLegacyOk = newForceLegacyOk;
+    emit forceLegacyOkChanged();
 }
 
 bool PaymentDetailOutput::maxSelected() const

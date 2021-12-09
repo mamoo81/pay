@@ -63,6 +63,9 @@ public:
     /// If max is selected, recalc the effective fiat / payment amounts
     void recalcMax();
 
+    bool forceLegacyOk() const;
+    void setForceLegacyOk(bool newForceLegacyOk);
+
 signals:
     void paymentAmountChanged();
     void addressChanged();
@@ -70,6 +73,8 @@ signals:
     void fiatIsMainChanged();
     void fiatFollowsChanged();
     void maxSelectedChanged();
+
+    void forceLegacyOkChanged();
 
 private:
     void checkValid();
@@ -79,8 +84,11 @@ private:
     bool m_maxAllowed = true; // only the last in the sequence can have 'max'
     bool m_fiatFollows = false;
     bool m_maxSelected = false;
+    bool m_addressOk = false;
+    bool m_forceLegacyOk = false;
     QString m_address;
     QString m_formattedTarget;
+    Q_PROPERTY(bool forceLegacyOk READ forceLegacyOk WRITE setForceLegacyOk NOTIFY forceLegacyOkChanged)
 };
 
 inline PaymentDetailOutput* PaymentDetail::toOutput() {

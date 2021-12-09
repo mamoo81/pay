@@ -140,7 +140,11 @@ void Payment::prepare()
             builder.appendOutput(o->paymentAmount());
 
             bool ok = false;
-            CashAddress::Content c = CashAddress::decodeCashAddrContent(o->formattedTarget().toStdString(), chainPrefix());
+            auto address = o->formattedTarget();
+            if (address.isEmpty())
+                address = o->address();
+            assert(!address.isEmpty());
+            CashAddress::Content c = CashAddress::decodeCashAddrContent(address.toStdString(), chainPrefix());
             assert(!c.hash.empty());
             if (c.type == CashAddress::PUBKEY_TYPE) {
                 builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));

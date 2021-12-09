@@ -164,28 +164,11 @@ Item {
                     columns: 2
                     property bool txOk: payment.txPrepared
 
-                    Repeater {
-                        model: payment.details
-                        delegate: RowLayout {
-                            Layout.columnSpan: 2
-                            visible: modelData.type === Payment.PayToAddress
-                                        && modelData.formattedTarget !== ""
-                                        && modelData.formattedTarget !== modelData.address
-                            Label {
-                                id: finalDestination
-                                text: modelData.type === Payment.PayToAddress ? modelData.formattedTarget : ""
-                                wrapMode: Text.WrapAnywhere
-                                Layout.fillWidth: true
-                            }
-                        }
-                    }
-
                     Label {
                         // no need translating this one.
                         text: "TxId:"
                         Layout.alignment: Qt.AlignRight | Qt.AlignTop
                     }
-
                     Flowee.LabelWithClipboard {
                         id: txid
                         text: payment.txid === "" ? qsTr("Not prepared yet") : payment.txid
@@ -508,9 +491,8 @@ Item {
                             id: destination
                             focus: true
                             property bool addressOk: (addressType === Bitcoin.CashPKH || addressType === Bitcoin.CashSH)
-                                                     || (forceLegacyOk && (addressType === Bitcoin.LegacySH || addressType === Bitcoin.LegacyPKH))
+                                                     || (paymentDetail.forceLegacyOk && (addressType === Bitcoin.LegacySH || addressType === Bitcoin.LegacyPKH))
                             property var addressType: Pay.identifyString(text);
-                            property bool forceLegacyOk: false
                             Layout.fillWidth: true
                             Layout.columnSpan: 3
                             onActiveFocusChanged: updateColor();
@@ -535,6 +517,13 @@ Item {
                             font.pixelSize: 24
                             text: destination.addressOk ? "✔" : " "
                         }
+                    }
+                    Flowee.LabelWithClipboard {
+                        visible: text !== ""
+                        Layout.fillWidth: true
+                        text: paymentDetail.formattedTarget
+                        horizontalAlignment: Qt.AlignRight
+                        font.italic: true
                     }
                     Label {
                         id: payAmount
@@ -574,7 +563,7 @@ Item {
                     id: warningArea
                     // BTC address entered warning.
                     visible: (destination.addressType === Bitcoin.LegacySH || destination.addressType === Bitcoin.LegacyPKH)
-                             && destination.forceLegacyOk === false;
+                             && paymentDetail.forceLegacyOk === false;
 
                     width: parent.width - 40
                     height: warningColumn.height + 20 + destination.height
@@ -621,7 +610,7 @@ Item {
 
                             Button {
                                 text: qsTr("Continue")
-                                onClicked: destination.forceLegacyOk = true
+                                onClicked: paymentDetail.forceLegacyOk = true
                             }
                             Button {
                                 text: qsTr("Cancel")
