@@ -35,7 +35,6 @@ Popup {
     signal accepted
     property alias title: titleLabel.text
     property alias text: mainTextLabel.text
-    property alias standardButtons: box.standardButtons
 
     modal: true
     focus: true
@@ -51,18 +50,14 @@ Popup {
         Label {
             id: mainTextLabel
         }
-        RowLayout {
+        Flowee.DialogButtonBox {
+            standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
             width: parent.width
-            Item { width: 1; height: 1; Layout.fillWidth: true } // spacer
-            Flowee.DialogButtonBox {
-                id: box
-                standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
-                onAccepted: {
-                    root.accepted();
-                    root.close()
-                }
-                onRejected: root.close()
+            onAccepted: {
+                root.accepted();
+                root.close()
             }
+            onRejected: root.close()
         }
     }
 }

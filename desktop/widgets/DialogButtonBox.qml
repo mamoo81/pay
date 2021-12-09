@@ -17,29 +17,46 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11 as QQC2
-import QtQuick.Layouts 1.11
+import "." as Flowee;
 
-RowLayout {
+/*
+ * This is a buttonbox that swaps button order based on platform defaults.
+ *
+ * This file fixes the DialogButtonBox having really bad defaults.
+ * Specifically, it doesn't align the buttons right, but uses the
+ * full width (making the buttons too big).
+ * It doesn't have any spacing between the buttons.
+ * Also it removes spacing above and below that should not be there.
+ */
+QQC2.DialogButtonBox {
     id: root
-    property alias alignment: box.alignment
-    property alias buttonLayout: box.buttonLayout
-    property alias delegate: box.delegate
-    property alias position: box.position
-    property alias standardButtons: box.standardButtons
+    spacing: 0
+    padding: 0
 
-    signal accepted;
-    signal discarded;
-    signal rejected;
-
-    Item { width: 1; height: 1; Layout.fillWidth: true } // spacer
-    QQC2.DialogButtonBox {
-        id: box
-        // next line is a hack to give spacing between the buttons.
-        Component.onCompleted: children[0].spacing = 10 // In Qt5.15 the first child is ListView
-
-        onAccepted: root.accepted();
-        onDiscarded: root.discarded();
-        onRejected: root.rejected();
+    contentItem: ListView {
+        model: root.contentModel
+        spacing: 10
+        orientation: ListView.Horizontal
+        boundsBehavior: Flickable.StopAtBounds
+        snapMode: ListView.SnapToItem
     }
+
+    function setEnabled(buttonType, on) {
+        let but = standardButton(buttonType)
+        if (but !== null)
+            but.enabled = on
+    }
+
+    alignment: Qt.AlignRight
+    delegate: Flowee.Button {
+            // Round because fractional width values are possible.
+            width: Math.round(Math.min(
+                implicitWidth,
+                // Divide availableWidth (width - leftPadding - rightPadding) by the number of buttons,
+                // then subtract the spacing between each button.
+                (root.availableWidth / root.count) - (root.spacing * (root.count-1))
+            ))
+        }
+
 }
 

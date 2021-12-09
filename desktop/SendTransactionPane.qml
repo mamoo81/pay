@@ -220,25 +220,22 @@ Item {
                 }
             }
 
-            RowLayout {
+            Flowee.DialogButtonBox {
+                id: box
                 width: parent.width
-
-                Item {
-                    width: 1; height: 1
-                    Layout.fillWidth: true
+                standardButtons: DialogButtonBox.Cancel | DialogButtonBox.Ok
+                onStandardButtonsChanged: {
+                    var okButton = standardButton(DialogButtonBox.Ok)
+                    if (okButton !== null) {
+                        okButton.text = qsTr("Send")
+                        okButton.enabled = canSend
+                    }
                 }
-
-                Flowee.Button {
-                    id: button
-                    text: qsTr("Send")
-                    enabled: payment.txPrepared
-                                && prepareButton.portfolioUsed === portfolio.current // also make sure we prepared for the current portfolio.
-                    onClicked: payment.broadcast();
-                }
-                Flowee.Button {
-                    text: qsTr("Cancel")
-                    onClicked: payment.reset();
-                }
+                property bool canSend: payment.isValid && payment.txPrepared
+                                && prepareButton.portfolioUsed === portfolio.current; // also make sure we prepared for the current portfolio.
+                onCanSendChanged: setEnabled(DialogButtonBox.Ok, canSend)
+                onRejected: payment.reset();
+                onAccepted: payment.broadcast();
             }
         }
     }
