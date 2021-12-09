@@ -48,6 +48,7 @@ GridLayout {
                 .arg(confirmations).arg(model.height);
         }
         clipboardText: model.height
+        menuText: qsTr("Copy block height")
     }
 
     Label {
