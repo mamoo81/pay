@@ -433,7 +433,10 @@ Item {
                 anchors.right: parent.right
                 anchors.rightMargin: 20
                 text: qsTr("Close")
-                onClicked: payment.reset()
+                onClicked: {
+                    payment.reset()
+                    transactionComment.text = ""
+                }
             }
 
             Behavior on opacity { NumberAnimation { } }
