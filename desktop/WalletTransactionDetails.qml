@@ -93,6 +93,7 @@ GridLayout {
     Label {
         text: qsTr("Inputs") + ":"
         Layout.alignment: Qt.AlignTop
+        visible: infoObject.inputs.length > 0
     }
     ColumnLayout {
         Layout.fillWidth: true
@@ -168,6 +169,7 @@ GridLayout {
     Label {
         text: qsTr("Outputs") + ":"
         Layout.alignment: Qt.AlignTop
+        visible: infoObject.outputs.length > 0
     }
     ColumnLayout {
         Layout.fillWidth: true
