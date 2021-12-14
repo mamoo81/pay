@@ -79,7 +79,6 @@ FloweePay::FloweePay()
     connect(this, SIGNAL(loadComplete_priv()), this, SLOT(loadingCompleted()), Qt::QueuedConnection);
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, [=]() {
         p2pNet()->shutdown();
-        saveAll();
     });
 
     // start creation of downloadmanager and loading of data in a different thread
