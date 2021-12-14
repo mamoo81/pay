@@ -95,6 +95,14 @@ Item {
         }
     }
 
+    Flowee.CashFusionIcon {
+        id: fusedIcon
+        visible: model.isCashFusion
+        anchors.right: userComment.left
+        anchors.rightMargin: 10
+        anchors.verticalCenter: userComment.verticalCenter
+    }
+
     Label {
         id: userComment
         y: (date.y + date.height - height) / 2
@@ -103,7 +111,8 @@ Item {
             // Pick the widest label to be aligned to
             left: date.width > mainLabel.width ? date.right : mainLabel.right
             right: bitcoinAmountLabel.left
-            margins: 10
+            leftMargin: fusedIcon.visible ? 44 : 10
+            rightMargin: 10
         }
         text: model.comment
         elide: Text.ElideRight

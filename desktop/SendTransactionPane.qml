@@ -804,25 +804,10 @@ Item {
                             }
                         }
                     }
-                    Image {
+                    Flowee.CashFusionIcon {
                         id: fusedIcon
-                        visible: fusedCount > 0
-                        source: "qrc:/cashfusion.svg"
                         anchors.right: parent.right
                         anchors.verticalCenter: mainText.verticalCenter
-                        width: 24
-                        height: 24
-                        ToolTip {
-                            delay: 200
-                            text: qsTr("Coin has been fused for increased anonymity")
-                            visible: mouseArea.containsMouse
-                        }
-                        MouseArea {
-                            id: mouseArea
-                            hoverEnabled: true
-                            anchors.fill: parent
-                            anchors.margins: -5
-                        }
                     }
                 }
             }
