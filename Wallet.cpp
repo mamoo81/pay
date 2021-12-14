@@ -1671,7 +1671,8 @@ void Wallet::loadWallet()
         }
     }
 
-    ++m_nextWalletTransactionId;
+    if (!m_walletTransactions.empty())
+        ++m_nextWalletTransactionId;
     emit utxosChanged();
 }
 
