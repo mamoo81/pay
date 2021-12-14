@@ -288,7 +288,7 @@ void Wallet::newTransaction(const Tx &tx)
         }
         setUserOwnedWallet(true);
         wtx.minedBlockHeight = WalletPriv::Unconfirmed;
-        bool dummy;
+        bool dummy = false;
         while (updateHDSignatures(wtx, dummy)) {
             // if we added a bunch of new private keys, then rerun the matching
             // so we make sure we matched all we can
