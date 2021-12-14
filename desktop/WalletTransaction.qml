@@ -125,7 +125,8 @@ Item {
             let inputs = model.fundsIn
             let outputs = model.fundsOut
             let diff = model.fundsOut - model.fundsIn
-            if (diff < 0 && diff > -1000) // then the diff is likely just fees.
+            if (!model.isCashFusion
+                    && diff < 0 && diff > -1000) // then the diff is likely just fees.
                 return inputs;
             return diff;
         }
