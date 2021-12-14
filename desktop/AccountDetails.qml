@@ -301,6 +301,7 @@ Item {
                     }
                     Flowee.LabelWithClipboard {
                         text: root.account.hdDerivationPath
+                        menuText: qsTr("Copy")
                     }
                 }
 
