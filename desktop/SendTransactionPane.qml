@@ -448,6 +448,7 @@ Item {
     // ============= Payment components  ===============
 
     /*
+     * Destination.
      * The payment-output (address based) component.
      */
     Component {
@@ -457,7 +458,7 @@ Item {
             property QtObject paymentDetail: null
 
             collapsable: paymentDetail.collapsable
-            onCollapsedChanged: paymentDetail.collapsed = collapsed
+            onEffectiveCollapsedChanged: paymentDetail.collapsed = effectiveCollapsed
             collapsed: paymentDetail.collapsed
             title: qsTr("Destination")
             summary: {
