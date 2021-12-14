@@ -54,7 +54,13 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
     QMutexLocker locker(&m_wallet->m_lock);
 
     assert(m_rowsProxy.size() > index.row());
-    auto item = m_wallet->m_walletTransactions.at(m_rowsProxy.at(index.row()));
+    assert(index.row() >= 0);
+    // logDebug() << " getting" << index.row() << "=>" << m_rowsProxy.at(index.row());
+    auto itemIter = m_wallet->m_walletTransactions.find(m_rowsProxy.at(index.row()));
+    assert(itemIter != m_wallet->m_walletTransactions.end());
+    if (itemIter == m_wallet->m_walletTransactions.end())
+        return QVariant();
+    const auto &item = itemIter->second;
     switch (role) {
     case TxId:
         return QVariant(QString::fromStdString(item.txid.ToString()));
@@ -64,7 +70,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
         if (item.minedBlockHeight <= 0)
             return QVariant();
         auto header = FloweePay::instance()->p2pNet()->blockchain().block(item.minedBlockHeight);
-        return QVariant(QDateTime::fromTime_t(header.nTime)); // .toString(format));
+        return QVariant(QDateTime::fromTime_t(header.nTime));
     }
     case FundsIn: {
         qint64 value = 0;
