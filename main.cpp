@@ -168,7 +168,9 @@ int main(int argc, char *argv[])
             blockheaders.reset();
        }
        else {
-           Blockchain::setStaticChain(blockheaders->map(0, blockheaders->size()), blockheaders->size());
+           QFileInfo info(*blockheaders);
+           Blockchain::setStaticChain(blockheaders->map(0, blockheaders->size()), blockheaders->size(),
+                                      (info.absoluteFilePath() + ".info").toStdString());
            blockheaders->close();
        }
     }

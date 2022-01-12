@@ -111,6 +111,9 @@ add_custom_target(i18n
         "Updating internationalization (i18n) translation files"
 )
 
+
+###### Pay executable
+
 # The qm files are generated in the build tree, but the qrc file is inside the
 # source directory and the path to resources are relative to the location of
 # the qrc file itself. We use configure_file() to copy the qrc file in the build
@@ -130,6 +133,9 @@ add_executable(pay
 target_link_libraries(pay pay_lib)
 install(TARGETS pay DESTINATION bin)
 
+
+###### Pay-mobile executable
+
 configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
 if (local_qml)
     set (QML_PATH ${CMAKE_SOURCE_DIR}/mobile)
@@ -143,6 +149,21 @@ add_executable(pay_mobile
 )
 target_link_libraries(pay_mobile pay_lib)
 install(TARGETS pay_mobile DESTINATION bin)
+
+
+###### blockheaders-meta-extractor executable
+
+add_executable(blockheaders-meta-extractor
+    MetaExtractor.cpp
+)
+target_link_libraries(blockheaders-meta-extractor
+    flowee_p2p
+    ${Boost_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+)
+install(TARGETS blockheaders-meta-extractor DESTINATION bin)
+
+
 
 install(PROGRAMS desktop/org.flowee.pay.desktop DESTINATION share/applications)
 set (ICONIN desktop/icons/hicolor/)
