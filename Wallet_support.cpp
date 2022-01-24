@@ -26,6 +26,7 @@
 #include <QThread>
 
 #include <primitives/script.h>
+#include <streaming/BufferPools.h>
 
 
 namespace {
@@ -215,7 +216,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     info->m_isCoinbase = wtx.isCoinbase;
     info->m_userComment = wtx.userComment;
 
-    Tx tx = loadTransaction(wtx.txid, FloweePay::pool(0));
+    Tx tx = loadTransaction(wtx.txid, Streaming::pool(0));
     info->m_txSize = tx.size();
 
     /*
@@ -339,7 +340,7 @@ void Wallet::populateSigType()
                             if (i->second == ref) {
                                 // found one, now fetch the input script and check the type.
                                 // logDebug() << "Found tx2 which spends output. Tx2:" << t2->first << i->first;
-                                Tx tx = loadTransaction(tx2.txid, FloweePay::pool(0));
+                                Tx tx = loadTransaction(tx2.txid, Streaming::pool(0));
                                 Tx::Iterator txIter(tx);
                                 for (int x = i->first; x >= 0; --x) {
                                     if (txIter.next(Tx::TxInScript) != Tx::TxInScript) {

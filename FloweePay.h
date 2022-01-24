@@ -94,9 +94,6 @@ public:
 
     DownloadManager* p2pNet();
 
-    /// return a pool for the current thread;
-    static Streaming::BufferPool &pool(int reserveSize);
-
     /// return the amount of milli-seconds we wait for a double-spent-proof
     int dspTimeout() const;
     void setDspTimeout(int milliseconds);

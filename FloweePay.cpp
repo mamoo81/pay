@@ -787,12 +787,6 @@ DownloadManager *FloweePay::p2pNet()
     return m_downloadManager.get();
 }
 
-// static
-Streaming::BufferPool &FloweePay::pool(int reserveSize)
-{
-    return FloweePay::instance()->p2pNet()->connectionManager().pool(reserveSize);
-}
-
 int FloweePay::dspTimeout() const
 {
     return m_dspTimeout;

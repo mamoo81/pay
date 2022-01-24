@@ -23,6 +23,7 @@
 #include <NotificationListener.h>
 #include <primitives/script.h>
 #include <streaming/BufferPool.h>
+#include <streaming/BufferPools.h>
 #include <streaming/MessageBuilder.h>
 #include <streaming/MessageParser.h>
 #include <base58.h>
@@ -963,7 +964,7 @@ Tx::Output Wallet::txOutput(Wallet::OutputRef ref) const
         txid = iter->second.txid;
     }
 
-    Tx tx = loadTransaction(txid, FloweePay::pool(0));
+    Tx tx = loadTransaction(txid, Streaming::pool(0));
     if (tx.size() == 0)
         throw std::runtime_error("missing TX data");
     return tx.output(ref.outputIndex());
@@ -1142,7 +1143,7 @@ void Wallet::broadcastUnconfirmed()
          iter != m_walletTransactions.end(); ++iter) {
 
         if (iter->second.minedBlockHeight == WalletPriv::Unconfirmed) {
-            auto tx = loadTransaction(iter->second.txid, FloweePay::pool(0));
+            auto tx = loadTransaction(iter->second.txid, Streaming::pool(0));
             if (tx.data().size() > 64) {
                 auto bc = std::make_shared<WalletInfoObject>(this, iter->first, tx);
                 bc->moveToThread(thread());
