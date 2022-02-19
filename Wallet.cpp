@@ -798,7 +798,7 @@ void Wallet::rebuildBloom()
     auto lock = m_segment->clearFilter();
     int unusedToInclude = 20;
     int hdUnusedToInclude = 10;
-    int changeUnusedToIncude = 30;
+    int changeUnusedToInclude = 30;
 
     std::set<int> secretsUsed;
     for (const auto &i : m_walletTransactions) {
@@ -835,7 +835,7 @@ void Wallet::rebuildBloom()
             if (secret.fromChangeChain) {
                 if (secretsUsed.find(i.first) == secretsUsed.end())  {
                     // never used before
-                    if (--changeUnusedToIncude < 0)
+                    if (--changeUnusedToInclude < 0)
                         continue;
                 }
                 /*
