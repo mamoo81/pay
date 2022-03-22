@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,22 +48,25 @@ QString renderAddress(const Streaming::ConstBuffer &outputScript)
     if (!Script::solver(outputScript, whichType, vSolutions))
         return QString();
 
-    CKeyID keyID;
-    switch (whichType)
-    {
+    switch (whichType) {
     case Script::TX_PUBKEY:
-        keyID = CPubKey(vSolutions[0]).getKeyId();
-        break;
+        return renderAddress(CPubKey(vSolutions[0]).getKeyId());
     case Script::TX_PUBKEYHASH:
-        keyID = CKeyID(uint160(vSolutions[0]));
-        break;
+        return renderAddress(CKeyID(uint160(vSolutions[0])));
+    case Script::TX_SCRIPTHASH: {
+        CashAddress::Content c;
+        c.type = CashAddress::SCRIPT_TYPE;
+        c.hash = vSolutions[0];
+        const std::string &chainPrefix = FloweePay::instance()->chainPrefix();
+        auto s = CashAddress::encodeCashAddr(chainPrefix, c);
+        const auto size = chainPrefix.size();
+        return QString::fromLatin1(s.c_str() + size + 1, s.size() - size -1); // the 1 is for the colon
+    }
     default:
         return QString();
     }
-
-    return renderAddress(keyID);
 }
-}
+} // anon namespace
 
 std::deque<Tx> WalletPriv::sortTransactions(const std::deque<Tx> &in) {
     if (in.size() < 2)
