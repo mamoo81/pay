@@ -115,10 +115,10 @@ QDateTime AccountInfo::lastMinedTransaction() const
     const int blockHeight = m_wallet->lastTransactionTimestamp();
     if (blockHeight <= 0)
         return QDateTime();
-   auto timestamp = FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
-   if (timestamp == 0)
-       return QDateTime();
-   return QDateTime::fromTime_t(timestamp);
+    auto timestamp = FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
+    if (timestamp == 0)
+        return QDateTime();
+    return QDateTime::fromTime_t(timestamp);
 }
 
 bool AccountInfo::isArchived() const
