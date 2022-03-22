@@ -177,6 +177,7 @@ Item {
                         color: prepareButton.portfolioUsed === portfolio.current
                                 ? palette.text
                                 : Qt.darker(palette.text, (Pay.useDarkSkin ? 1.6 : 0.4))
+                        menuText: qsTr("Copy transaction-ID")
                     }
                     Label {
                         text: qsTr("Fee") + ":"
