@@ -72,7 +72,12 @@ FocusScope {
                         id: payTabButtonText
                         anchors.verticalCenter: parent.verticalCenter
                         font.bold: true
-                        color: "white"
+                        color: {
+                            var child = stack.children[index];
+                            if (!child.enabled)
+                                return "#888"
+                            return "white"
+                        }
                         text: stack.children[index].title
                     }
                 }
@@ -89,13 +94,15 @@ FocusScope {
                         if (index === floweeTabBar.currentIndex)
                             return mainWindow.floweeGreen
                         var child = stack.children[index];
+                        if (!child.enabled)
+                            return "#888"
                         if (Pay.useDarkSkin) {
-                            if (hover && child.enabled)
+                            if (hover)
                                 return mainWindow.floweeSalmon
                             return "#EEE"
                         }
                         // light skin
-                        if (hover && child.enabled)
+                        if (hover)
                             return mainWindow.floweeSalmon
                         return mainWindow.floweeBlue
                     }
