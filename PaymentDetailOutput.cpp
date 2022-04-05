@@ -93,7 +93,7 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     if (m_address == address)
         return;
     m_address = address;
-    const std::string &chainPrefix = FloweePay::instance()->chainPrefix();
+    const std::string &chainPrefixCopy = chainPrefix();
     std::string encodedAddress;
 
     switch (FloweePay::instance()->identifyString(address)) {
@@ -105,13 +105,13 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         CashAddress::Content c;
         c.hash = legacy.data();
         c.type = CashAddress::PUBKEY_TYPE;
-        encodedAddress = CashAddress::encodeCashAddr(chainPrefix, c);
+        encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
         break;
     }
     case FloweePay::CashPKH: {
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix);
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefixCopy);
         assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
-        encodedAddress = CashAddress::encodeCashAddr(chainPrefix, c);
+        encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
         break;
     }
     case FloweePay::LegacySH: {
@@ -122,13 +122,13 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         CashAddress::Content c;
         c.hash = legacy.data();
         c.type = CashAddress::SCRIPT_TYPE;
-        encodedAddress = CashAddress::encodeCashAddr(chainPrefix, c);
+        encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
         break;
     }
     case FloweePay::CashSH: {
-        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefix);
+        auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefixCopy);
         assert (!c.hash.empty() && c.type == CashAddress::SCRIPT_TYPE);
-        encodedAddress = CashAddress::encodeCashAddr(chainPrefix, c);
+        encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
         break;
     }
     default:
@@ -138,7 +138,7 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     m_formattedTarget.clear();
     m_addressOk = !encodedAddress.empty();
     if (m_addressOk) {
-        const auto size = chainPrefix.size();
+        const auto size = chainPrefixCopy.size();
         // lets see if the encoded address is substantially different from the user-given address
         auto full = QString::fromStdString(encodedAddress);
         auto formattedTarget = full.mid(size + 1);
