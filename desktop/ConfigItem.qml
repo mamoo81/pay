@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ Item {
     property color color: Pay.useDarkSkin ? "white" : "black"
     property bool wide: false
 
-    property var contextMenu: null
+    property Component contextMenu: Component { Item {} }
 
     Column {
         id: column
@@ -47,6 +47,14 @@ Item {
         hoverEnabled: true // to make sure we eat them and avoid the hover feedback.
         acceptedButtons: Qt.RightButton | Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.contextMenu.popup()
+
+        Loader { id: contextMenu }
+        onClicked: {
+            if (contextMenu.item == null) {
+                contextMenu.sourceComponent = root.contextMenu
+            }
+            // if there is no contextMenu set we just get an error printed here. No problem
+            contextMenu.item.popup()
+        }
     }
 }

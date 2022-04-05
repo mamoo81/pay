@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ Item {
     property QtObject account: null
     height: column.height + 26
     visible: account.isUserOwned
+    property alias contextMenu: configItem.contextMenu
 
     //background
     Rectangle {
@@ -94,28 +95,9 @@ Item {
     }
 
     ConfigItem {
+        id: configItem
         anchors.right: parent.right
         anchors.rightMargin: 15
         y: 13
-
-        contextMenu:  Menu {
-            MenuItem {
-                text: qsTr("Details")
-                onTriggered: {
-                    portfolio.current = account;
-                    accountDetails.state = "accountDetails";
-                }
-            }
-            MenuItem {
-                checked: root.account.isDefaultWallet
-                checkable: true
-                text: qsTr("Main Wallet")
-                onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
-            }
-            MenuItem {
-                text: qsTr("Archive Wallet")
-                onTriggered: root.account.isArchived = true
-            }
-        }
     }
 }

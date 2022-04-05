@@ -48,7 +48,7 @@ QList<QObject *> PortfolioDataProvider::accounts() const
     // we filter out the wallets that are NOT user-owned. Which is essentially the main initial
     // wallet created to allow people to deposit instantly.
     for (auto *account : m_accountInfos) {
-        if (account->userOwnedWallet() || !account->isArchived())
+        if (account->userOwnedWallet() && !account->isArchived())
             answer.append(account);
     }
     // if the only wallet(s) are not user owned, share those with the GUI.

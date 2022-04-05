@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -250,6 +250,7 @@ ApplicationWindow {
         }
 
         Loader {
+            // This overlays the tabbed pane
             id: accountDetails
             anchors.bottom: parent.bottom
             anchors.left: overviewPane.right
@@ -283,6 +284,7 @@ ApplicationWindow {
         }
 
         Flickable {
+            // the whole area left of the tabbed panels.
             id: overviewPane
             anchors.left: parent.left
             anchors.right: tabbedPane.left
@@ -532,6 +534,24 @@ ApplicationWindow {
                     delegate: AccountListItem {
                         width: leftColumn.width
                         account: modelData
+                        contextMenu:  Menu {
+                            MenuItem {
+                                text: qsTr("Details")
+                                onTriggered: {
+                                    portfolio.current = modelData;
+                                    accountDetails.state = "accountDetails";
+                                }
+                            }
+                            MenuItem {
+                                enabled: !modelData.isDefaultWallet
+                                text: enabled ? qsTr("Make Primary") : qsTr("★ Primary")
+                                onTriggered: modelData.isDefaultWallet = !modelData.isDefaultWallet
+                            }
+                            MenuItem {
+                                text: qsTr("Archive Wallet")
+                                onTriggered: modelData.isArchived = !modelData.isArchived
+                            }
+                        }
                     }
                 }
                 Item { // spacer
@@ -561,6 +581,27 @@ ApplicationWindow {
                 Item { // spacer
                     width: 10
                     height: 40
+                }
+                Repeater { // the archived accounts
+                    width: parent.width
+                    model: (typeof portfolio === "undefined") ? 0 : portfolio.archivedAccounts;
+                    delegate: AccountListItem {
+                        width: leftColumn.width
+                        account: modelData
+                        contextMenu:  Menu {
+                            MenuItem {
+                                text: qsTr("Details")
+                                onTriggered: {
+                                    portfolio.current = modelData;
+                                    accountDetails.state = "accountDetails";
+                                }
+                            }
+                            MenuItem {
+                                text: qsTr("Unarchive")
+                                onTriggered: modelData.isArchived = false
+                            }
+                        }
+                    }
                 }
             }
         }
