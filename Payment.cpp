@@ -276,6 +276,7 @@ void Payment::broadcast()
 
 void Payment::reset()
 {
+    m_fiatPrice = 50000; // just have it initialized
     m_fee = 1;
     m_txPrepared = false;
     m_txBroadcastStarted = false;
