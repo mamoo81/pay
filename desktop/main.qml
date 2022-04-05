@@ -596,7 +596,7 @@ ApplicationWindow {
                     height: 40
                 }
 
-                Rectangle {
+                Rectangle { // button 'add bitcoin cash wallet'
                     color: mainWindow.floweeGreen
                     radius: 10
                     width: leftColumn.width
@@ -619,9 +619,34 @@ ApplicationWindow {
                     width: 10
                     height: 40
                 }
+                Item {
+                    visible: !isLoading && portfolio.archivedAccounts.length > 0
+                    height: archivedLabel.height
+                    width: leftColumn.width
+                    Flowee.ArrowPoint {
+                        id: showArchivedWalletsList
+                        property bool on: false
+                        color: Pay.useDarkSkin ? "white" : "black"
+                        rotation: on ? 90 : 0
+                        transformOrigin: Item.Center
+                        Behavior on rotation { NumberAnimation {} }
+                    }
+                    Label {
+                        id: archivedLabel
+                        x: showArchivedWalletsList.width + 10
+                        text: qsTr("Archived wallets")
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: showArchivedWalletsList.on = !showArchivedWalletsList.on
+                    }
+                }
+
                 Repeater { // the archived accounts
                     width: parent.width
-                    model: mainWindow.isLoading ? 0 : portfolio.archivedAccounts;
+                    model: showArchivedWalletsList.on ? portfolio.archivedAccounts : 0;
                     delegate: AccountListItem {
                         width: leftColumn.width
                         account: modelData
