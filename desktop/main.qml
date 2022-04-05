@@ -186,12 +186,46 @@ ApplicationWindow {
                         color: mainWindow.palette.light
                         radius: 10
                     }
+                    Column {
+                        id: activityHeader
+                        width: parent.width
+                        Rectangle {
+                            width: parent.width
+                            height: warn.height + unarchiveButton.height + 26
+                            color: "#c2ab00"
+                            visible: !isLoading && portfolio.current.isArchived
+                            Text {
+                                id: warn
+                                y: 10
+                                x: 10
+                                width: parent.width - 20
+                                horizontalAlignment: Text.AlignHCenter
+
+                                color: "black"
+                                font.bold: true
+                                wrapMode: Text.WordWrap
+                                text: qsTr("Archived wallets do not check for activities. Balance may be out of date.")
+                            }
+                            Button {
+                                id: unarchiveButton
+                                text: qsTr("Unarchive")
+                                anchors.right: warn.right
+                                anchors.top: warn.bottom
+                                anchors.topMargin: 6
+
+                                onClicked: portfolio.current.isArchived = false
+                            }
+                        }
+                    }
                     ListView {
                         id: activityView
                         model: isLoading || portfolio.current === null ? 0 : portfolio.current.transactions
                         clip: true
                         delegate: WalletTransaction { width: activityView.width }
-                        anchors.fill: parent
+                        anchors.top: activityHeader.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
                         ScrollBar.vertical: Flowee.ScrollThumb {
                             id: thumb
                             minimumSize: 20 / activityView.height
