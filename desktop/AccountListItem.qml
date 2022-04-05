@@ -23,8 +23,8 @@ Item {
     id: root
     property QtObject account: null
     height: column.height + 26
-    visible: account.isUserOwned
     property alias contextMenu: configItem.contextMenu
+    signal clicked;
 
     //background
     Rectangle {
@@ -89,7 +89,10 @@ Item {
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: portfolio.current = account
+        onClicked: {
+            portfolio.current = account
+            root.clicked()
+        }
         onEntered: background.hover = true
         onExited: background.hover = false
     }

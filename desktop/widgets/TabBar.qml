@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,13 +88,14 @@ FocusScope {
                     color: {
                         if (index === floweeTabBar.currentIndex)
                             return mainWindow.floweeGreen
+                        var child = stack.children[index];
                         if (Pay.useDarkSkin) {
-                            if (hover)
+                            if (hover && child.enabled)
                                 return mainWindow.floweeSalmon
                             return "#EEE"
                         }
                         // light skin
-                        if (hover)
+                        if (hover && child.enabled)
                             return mainWindow.floweeSalmon
                         return mainWindow.floweeBlue
                     }
@@ -104,7 +105,12 @@ FocusScope {
                     anchors.fill: parent
                     onEntered: highlight.hover = true
                     onExited: highlight.hover = false
-                    onClicked: floweeTabBar.currentIndex = index
+                    onClicked: {
+                        let child = stack.children[index];
+                        // respect 'disabled' bool and don't change to the tab
+                        if (child.enabled)
+                            floweeTabBar.currentIndex = index
+                    }
                 }
             }
         }

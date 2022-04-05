@@ -231,12 +231,15 @@ ApplicationWindow {
                 }
                 Loader {
                     id: sendTransactionPane
+                    // Disable these tabs for archived accounts
+                    enabled: !mainWindow.isLoading && !portfolio.current.isArchived
                     anchors.fill: parent
                     property string title: qsTr("Send")
                     property string icon: "qrc:/sendIcon-light.png"
                 }
                 Loader {
                     id: receivePane
+                    enabled: sendTransactionPane.enabled
                     anchors.fill: parent
                     property string icon: "qrc:/receiveIcon.png"
                     property string title: qsTr("Receive")
@@ -530,7 +533,7 @@ ApplicationWindow {
                 }
                 Repeater { // the portfolio listing our accounts
                     width: parent.width
-                    model: (typeof portfolio === "undefined") ? 0 : portfolio.accounts;
+                    model: mainWindow.isLoading ? 0 : portfolio.accounts;
                     delegate: AccountListItem {
                         width: leftColumn.width
                         account: modelData
@@ -584,7 +587,7 @@ ApplicationWindow {
                 }
                 Repeater { // the archived accounts
                     width: parent.width
-                    model: (typeof portfolio === "undefined") ? 0 : portfolio.archivedAccounts;
+                    model: mainWindow.isLoading ? 0 : portfolio.archivedAccounts;
                     delegate: AccountListItem {
                         width: leftColumn.width
                         account: modelData
@@ -601,6 +604,8 @@ ApplicationWindow {
                                 onTriggered: modelData.isArchived = false
                             }
                         }
+                        // archived accounts don't have access to anything but the activity tab
+                        onClicked: tabbar.currentIndex = 0; // change to the 'activity' tab
                     }
                 }
             }
