@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -134,10 +134,13 @@ int main(int argc, char *argv[])
     if (parser.isSet(testnet4))
         chain = P2PNet::Testnet4Chain;
 
-    if (parser.isSet(offline))
+    if (parser.isSet(offline)) {
+        FloweePay::instance()->setOffline(true);
         prices.mock(50000);
-    else if (!parser.isSet(testnet4))
+    }
+    else if (!parser.isSet(testnet4)) {
         prices.start();
+    }
     FloweePay::selectChain(chain);
 
     std::unique_ptr<QFile> blockheaders; // pointer to own the memmapped blockheaders file.
@@ -186,7 +189,7 @@ int main(int argc, char *argv[])
     handleLocalQml(engine);
     engine.load(engine.baseUrl().url() + "/main.qml");
 
-    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect, offline]() {
+    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect]() {
         FloweePay *app = FloweePay::instance();
 
         NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);
@@ -205,8 +208,7 @@ int main(int argc, char *argv[])
             app->p2pNet()->connectionManager().peerAddressDb().addOne( // actually connect to it too.
                         EndPoint(parser.value(connect).toStdString(), 8333));
         }
-        if (!parser.isSet(offline))
-            app->p2pNet()->start(); // lets go!
+        app->startNet(); // lets go!
     });
 
     // Clean shutdown on SIGTERM

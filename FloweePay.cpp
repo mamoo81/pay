@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -513,6 +513,23 @@ uint32_t FloweePay::walletStartHeightHint() const
     // interpret as seconds and match it to the block time to resolve a
     // hight when the headers are synched.
     return time(nullptr);
+}
+
+bool FloweePay::isOffline() const
+{
+    return m_offline;
+}
+
+void FloweePay::setOffline(bool offline)
+{
+    m_offline = offline;
+}
+
+void FloweePay::startNet()
+{
+    if (m_offline)
+        return;
+    p2pNet()->start(); // lets go!
 }
 
 bool FloweePay::preferSchnorr() const

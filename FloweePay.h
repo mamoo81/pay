@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -227,6 +227,14 @@ public:
     QString version() const;
     QString libsVersion() const;
 
+    /// Simple bool to register user preference
+    bool isOffline() const;
+    /// register the user preference for being offline.
+    void setOffline(bool offline);
+
+    /// start the p2p networking, unless isOffline()
+    void startNet();
+
 signals:
     void loadComplete();
     /// \internal
@@ -273,6 +281,7 @@ private:
     bool m_createStartWallet = false;
     bool m_hideBalance = false;
     bool m_preferSchnorr = true;
+    bool m_offline = false;
 };
 
 #endif

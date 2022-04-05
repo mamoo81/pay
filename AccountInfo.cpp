@@ -23,6 +23,7 @@
 #include <utils/base58.h>
 #include <utils/primitives/key.h>
 #include <utils/cashaddr.h>
+#include <SyncSPVAction.h>
 
 
 AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
@@ -138,6 +139,11 @@ void AccountInfo::setIsArchived(bool archived)
         return;
     segment->setPriority(archived ? PrivacySegment::OnlyManual : PrivacySegment::Normal);
     emit isArchivedChanged();
+
+    if (!archived && !FloweePay::instance()->isOffline()) {
+         // make sure that we get peers for the no longer archived wallet.
+        FloweePay::instance()->p2pNet()->addAction<SyncSPVAction>();
+    }
 }
 
 void AccountInfo::setDefaultWallet(bool isDefault)
