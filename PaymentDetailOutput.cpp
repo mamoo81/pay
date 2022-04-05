@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,9 @@
 
 #include <base58.h>
 #include <cashaddr.h>
+
+#include <QUrl>
+#include <QUrlQuery>
 
 PaymentDetailOutput::PaymentDetailOutput(Payment *parent)
     : PaymentDetail(parent, Payment::PayToAddress)
@@ -92,7 +95,28 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     const QString address = address_.trimmed();
     if (m_address == address)
         return;
+
+    /*
+     * Users may paste an address that is really a payment url.
+     * This basically means we may have a price added after a questionmark.
+     * bitcoincash:qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45?amount=2.1
+     */
     m_address = address;
+    int urlStart = address.indexOf('?');
+    if (urlStart > 0) {
+        m_address = address.left(urlStart);
+        QUrl url(address);
+        auto query = QUrlQuery(url.query(QUrl::FullyDecoded));
+        for (const auto &item : query.queryItems()) {
+            if (item.first == "amount") {
+                bool ok;
+                auto amount = item.second.toLongLong(&ok);
+                if (ok)
+                    setPaymentAmount(amount * 1E8);
+            }
+        }
+    }
+
     const std::string &chainPrefixCopy = chainPrefix();
     std::string encodedAddress;
 
