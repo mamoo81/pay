@@ -192,8 +192,9 @@ ApplicationWindow {
                         Rectangle {
                             width: parent.width
                             height: warn.height + unarchiveButton.height + 26
-                            color: "#c2ab00"
+                            color: Pay.useDarkSkin ? "#c1ba58" : "#f6e992"
                             visible: !isLoading && portfolio.current.isArchived
+                            radius: 10
                             Text {
                                 id: warn
                                 y: 10
