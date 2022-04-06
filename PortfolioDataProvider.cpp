@@ -157,5 +157,8 @@ void PortfolioDataProvider::walletChangedPriority()
                 info->setDefaultWallet(false);
         }
     }
+    if (wallet == current() && wallet->isArchived()) {
+        selectDefaultWallet();
+    }
     emit accountsChanged();
 }
