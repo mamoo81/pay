@@ -202,6 +202,7 @@ void FloweePay::init()
         createNewWallet(m_defaultDerivationPath);
         m_wallets.at(0)->setUserOwnedWallet(false);
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
+        m_wallets.at(0)->setName(tr("Initial Wallet"));
         saveData();
     }
     emit loadComplete_priv(); // move execution to loadingCompleted, in a Qt thread
