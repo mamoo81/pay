@@ -95,12 +95,13 @@ Item {
 
             Label {
                 text: {
-                    if (syncIndicator.accountBlockHeight < 1)
+                    var height = root.account.lastBlockSynched
+                    if (height < 1)
                         return ""
                     var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
                     if (time !== "")
                         time = "  (" + time + ")";
-                    return qsTr("Sync Status") + ": " + syncIndicator.accountBlockHeight + " / " + syncIndicator.globalPos + time;
+                    return qsTr("Sync Status") + ": " + height + " / " + Pay.chainHeight + time;
                 }
             }
             Label {
