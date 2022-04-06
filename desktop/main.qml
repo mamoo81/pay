@@ -422,7 +422,7 @@ ApplicationWindow {
                         anchors.baseline: balanceLabel.baseline
                         anchors.rightMargin: 10
                         opacity: 0.5
-                        visible: !mainWindow.isLoading && !portfolio.accounts[0].isUserOwned
+                        visible: !isLoading && !portfolio.current.isUserOwned
                         MouseArea {
                             anchors.fill: parent
                             onClicked: accountDetails.state = "accountDetails";
@@ -587,7 +587,7 @@ ApplicationWindow {
                             }
                             MenuItem {
                                 text: qsTr("Archive Wallet")
-                                onTriggered: modelData.isArchived = !modelData.isArchived
+                                onTriggered: modelData.isArchived = true
                             }
                         }
                     }
