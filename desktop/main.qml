@@ -635,7 +635,13 @@ ApplicationWindow {
                     Label {
                         id: archivedLabel
                         x: showArchivedWalletsList.width + 10
-                        text: qsTr("Archived wallets")
+                        text: {
+                            if (isLoading)
+                                return ""
+                            var walletCount = portfolio.archivedAccounts.length
+
+                            return qsTr("Archived wallets [%1]", "Arg is wallet count", walletCount).arg(walletCount);
+                        }
                     }
 
                     MouseArea {
