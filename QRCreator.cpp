@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2018-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2018-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,8 @@
 #include "QRCreator.h"
 
 #include <Logger.h>
-
-#if defined(HAVE_CONFIG_H)
-#include "config/flowee-config.h" /* for USE_QRCODE */
-#endif
-
-#ifdef USE_QRCODE
+// cmake requires the presence of the lib.
 #include <qrencode.h>
-#endif
 
 QRCreator::QRCreator()
     : QQuickImageProvider(QQmlImageProviderBase::Image)
@@ -34,9 +28,6 @@ QRCreator::QRCreator()
 
 QImage QRCreator::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    Q_UNUSED(size)
-    Q_UNUSED(requestedSize)
-#ifdef USE_QRCODE
     QRcode *code = QRcode_encodeString(id.toLatin1().constData(), 0, QR_ECLEVEL_L, QR_MODE_8, 1);
     QImage result = QImage(code->width + 8, code->width + 8, QImage::Format_RGB32);
     result.fill(0xffffff);
@@ -48,9 +39,5 @@ QImage QRCreator::requestImage(const QString &id, QSize *size, const QSize &requ
         }
     }
     QRcode_free(code);
-#else
-    QImage result = QImage(8,8, QImage::Format_RGB32);
-    result.fill(0xffffff);
-#endif
     return result;
 }
