@@ -124,6 +124,9 @@ double PortfolioDataProvider::totalBalance() const
     double rc = 0;
     for (int i = 0; i < m_accounts.size(); ++i) {
         auto wallet = m_accounts.at(i);
+        // skip archived wallet balances.
+        if (!wallet->segment() || wallet->segment()->priority() == PrivacySegment::OnlyManual)
+            continue;
         rc += wallet->balanceConfirmed();
         rc += wallet->balanceImmature();
         rc += wallet->balanceUnconfirmed();
@@ -161,4 +164,5 @@ void PortfolioDataProvider::walletChangedPriority()
         selectDefaultWallet();
     }
     emit accountsChanged();
+    emit totalBalanceChanged(); // maybe one got (un) archived which changes the total balance
 }
