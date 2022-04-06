@@ -65,6 +65,9 @@ FloweePay::FloweePay()
     : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)),
     m_chain(s_chain)
 {
+    // make sure the lifetime of the lockedPoolManager exceeds mine (LIFO of globals)
+    LockedPoolManager::instance();
+
     if (m_chain == P2PNet::Testnet4Chain) {
         m_basedir += "/testnet4";
         m_chainPrefix = "bchtest";
