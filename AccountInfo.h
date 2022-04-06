@@ -56,6 +56,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(QString mnemonic READ hdWalletMnemonic CONSTANT)
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath CONSTANT)
     Q_PROPERTY(QDateTime lastMinedTransaction READ lastMinedTransaction NOTIFY balanceChanged)
+    Q_PROPERTY(bool hasFreshTransactions READ hasFreshTransactions WRITE setHasFreshTransactions NOTIFY hasFreshTransactionsChanged)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -130,6 +131,9 @@ public:
     bool isArchived() const;
     void setIsArchived(bool newIsArchived);
 
+    bool hasFreshTransactions() const;
+    void setHasFreshTransactions(bool fresh);
+
 signals:
     void balanceChanged();
     void utxosChanged();
@@ -140,11 +144,18 @@ signals:
     void paymentRequestsChanged();
     void userOwnedChanged();
     void isArchivedChanged();
+    void hasFreshTransactionsChanged();
+
+private slots:
+    // callback from wallet
+    void balanceHasChanged();
 
 private:
     Wallet *m_wallet;
     std::unique_ptr<WalletHistoryModel> m_model;
     std::unique_ptr<WalletSecretsModel> m_secretsModel;
+    int m_lastTxHeight = -1; ///< last seen tx blockheight.
+    bool m_hasFreshTransactions = false;
 
     friend class WalletSecret;
 };

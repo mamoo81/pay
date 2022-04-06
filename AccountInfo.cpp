@@ -31,7 +31,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
       m_wallet(wallet)
 {
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
-    connect(wallet, SIGNAL(balanceChanged()), this, SIGNAL(balanceChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(balanceChanged()), this, SLOT(balanceHasChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(timeBehindChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
@@ -170,6 +170,36 @@ void AccountInfo::setIsArchived(bool archived)
          // make sure that we get peers for the no longer archived wallet.
         FloweePay::instance()->p2pNet()->addAction<SyncSPVAction>();
     }
+}
+
+void AccountInfo::balanceHasChanged()
+{
+    emit balanceChanged();
+
+    /* us getting called is very likely due to a new transaction that has been made known to the wallet. */
+    if (!m_hasFreshTransactions) {
+        // check this
+        const int blockHeight = m_wallet->lastTransactionTimestamp();
+        if (m_lastTxHeight < blockHeight) {
+            setHasFreshTransactions(true);
+            m_lastTxHeight = blockHeight;
+        }
+        if (blockHeight == 0) // an unconfirmed one
+            setHasFreshTransactions(true);
+    }
+}
+
+bool AccountInfo::hasFreshTransactions() const
+{
+    return m_hasFreshTransactions;
+}
+
+void AccountInfo::setHasFreshTransactions(bool fresh)
+{
+    if (m_hasFreshTransactions == fresh)
+        return;
+    m_hasFreshTransactions = fresh;
+    emit hasFreshTransactionsChanged();
 }
 
 void AccountInfo::setDefaultWallet(bool isDefault)

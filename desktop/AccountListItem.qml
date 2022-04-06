@@ -84,6 +84,22 @@ Item {
         }
     }
 
+    Rectangle {
+        color: Pay.useDarkSkin ? mainWindow.floweeSalmon : mainWindow.floweeBlue
+        width: 16
+        height: 16
+        radius: 8
+        x: 14
+        anchors.verticalCenter: parent.verticalCenter
+
+        visible: {
+            if (portfolio.current === root.account)
+                return false;
+
+            return root.account.hasFreshTransactions
+        }
+    }
+
     Flowee.ArrowPoint {
         id: point
         x: 5
