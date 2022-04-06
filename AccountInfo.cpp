@@ -33,7 +33,9 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(balanceChanged()), this, SIGNAL(balanceChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(timeBehindChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
+    connect(FloweePay::instance(), SIGNAL(headerChainHeightChanged()), this, SIGNAL(timeBehindChanged()));
 }
 
 int AccountInfo::id() const
@@ -93,7 +95,31 @@ QDateTime AccountInfo::lastBlockSynchedTime() const
     auto timestamp = FloweePay::instance()->p2pNet()->blockchain().block(m_wallet->segment()->lastBlockSynched()).nTime;
    if (timestamp == 0)
        return QDateTime();
-    return QDateTime::fromTime_t(timestamp);
+   return QDateTime::fromTime_t(timestamp);
+}
+
+QString AccountInfo::timeBehind() const
+{
+    const int accountHeight = lastBlockSynched();
+    if (accountHeight <= 0) // For accounts that only expect tx in the future.
+        return tr("Up to date");
+    const int chainHeight = FloweePay::instance()->chainHeight();
+
+    const int diff = chainHeight - accountHeight;
+    if (diff < 0) // we are ahead???
+        return "--";
+    auto days = diff / 144.;
+    auto weeks = diff / 1008.;
+    if (days > 10)
+        return tr("%1 weeks behind", "", std::ceil(weeks)).arg(std::ceil(weeks));
+    auto hours = diff / 6.;
+    if (hours > 48)
+        return tr("%1 days behind", "", std::ceil(days)).arg(std::ceil(days));
+    if (diff == 0)
+        return tr("Up to date");
+    if (diff < 3 && !isArchived())
+        return tr("Updating");
+    return tr("%1 hours behind", "", std::ceil(hours)).arg(std::ceil(hours));
 }
 
 WalletHistoryModel *AccountInfo::historyModel()

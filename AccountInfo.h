@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +42,8 @@ class AccountInfo : public QObject
     Q_PROPERTY(int id READ id CONSTANT)
     Q_PROPERTY(int lastBlockSynched READ lastBlockSynched NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(QDateTime lastBlockSynchedTime READ lastBlockSynchedTime NOTIFY lastBlockSynchedChanged)
+    /// Return a user-readable indication of the amount of time 'behind' this account is
+    Q_PROPERTY(QString timeBehind READ timeBehind NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(WalletHistoryModel* transactions READ historyModel CONSTANT)
     Q_PROPERTY(WalletSecretsModel* secrets READ secretsModel CONSTANT)
@@ -79,6 +81,7 @@ public:
 
     int lastBlockSynched() const;
     QDateTime lastBlockSynchedTime() const;
+    QString timeBehind() const;
 
     WalletHistoryModel* historyModel();
     WalletSecretsModel* secretsModel();
@@ -132,6 +135,7 @@ signals:
     void utxosChanged();
     void nameChanged();
     void lastBlockSynchedChanged();
+    void timeBehindChanged();
     void isDefaultWalletChanged();
     void paymentRequestsChanged();
     void userOwnedChanged();

@@ -255,7 +255,10 @@ ApplicationWindow {
 
                             // copy the height so we know when the account height changes
                             // and we can restart our timer as a result
-                            property int height: syncIndicator.accountBlockHeight
+                            property int height: {
+                                if (isLoading) return 0;
+                                return portfolio.current.lastBlockSynched
+                            }
                             onHeightChanged: restart();
                         }
                     }
@@ -557,10 +560,17 @@ ApplicationWindow {
                     text: qsTr("Network status")
                     opacity: 0.6
                 }
-                SyncIndicator {
+                Label {
                     id: syncIndicator
-                    accountBlockHeight: isLoading || portfolio.current === null ? 0 : portfolio.current.lastBlockSynched
-                    visible: !isLoading && portfolio.current !== null
+                    text: {
+                        if (isLoading)
+                            return ""
+                        var account = portfolio.current
+                        if (account === null)
+                            return ""
+                        return account.timeBehind
+                    }
+                    font.italic: true
                 }
                 Item { // spacer
                     width: 10

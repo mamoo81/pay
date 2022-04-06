@@ -68,7 +68,7 @@ Item {
             width: parent.width - 20
             x: 20
             spacing: 10
-            visible: lastReceive.text !== ""
+            visible: lastReceive.text !== "" && !root.account.isArchived
             Label {
                 text: qsTr("Last Transaction") + ":"
             }
@@ -76,6 +76,11 @@ Item {
                 id: lastReceive
                 text: Pay.formatDate(account.lastMinedTransaction)
             }
+        }
+        Label {
+            x: 20
+            visible: root.account.isArchived
+            text: visible ? account.timeBehind : ""
         }
     }
 

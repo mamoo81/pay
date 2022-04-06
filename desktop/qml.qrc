@@ -25,7 +25,6 @@
         <file>NetView.qml</file>
         <file>ReceiveTransactionPane.qml</file>
         <file>SendTransactionPane.qml</file>
-        <file>SyncIndicator.qml</file>
         <file>WalletTransactionDetails.qml</file>
         <file>WalletTransaction.qml</file>
         <file>AccountListItem.qml</file>
