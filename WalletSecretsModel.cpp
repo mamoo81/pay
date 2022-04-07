@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -147,10 +147,25 @@ void WalletSecretsModel::update()
         endRemoveRows();
     }
 
+    /* Wallets typically generate a lot of private keys than they need in order to avoid
+     * having to save the 'secrets' file too often.
+     * But we do not want to share too many private keys with the user as those keys are also
+     * not searched for new transactions. The user would effectively lose their funds if they
+     * used the address we show them.
+     *
+     * As such we limit the amount we show the user to the same amounts as the wallet searches
+     * for usage of them.
+     */
+    // keep these numbers in line with Wallet::rebuildBloom()
+    int unusedToInclude = 20;
+    int hdUnusedToInclude = 10;
+    int changeUnusedToInclude = 30;
+
     auto iter = m_wallet->m_walletSecrets.begin();
     while (iter != m_wallet->m_walletSecrets.end()) {
         const auto &secret = iter->second;
         bool use = !secret.fromHdWallet || m_showChangeChain == secret.fromChangeChain;
+        bool unused = true;
         if (use && !m_wallet->isSingleAddressWallet()) {
             /*
              * Addresses (a) have money currently on them, (b) have had money
@@ -162,9 +177,20 @@ void WalletSecretsModel::update()
              */
             auto keyDetails = m_wallet->fetchKeyDetails(iter->first);
             const bool addressWasUsed = keyDetails.historicalCoins > 0 && keyDetails.coins == 0;
+            unused = keyDetails.historicalCoins == 0;
             use = addressWasUsed == m_showUsedAddresses;
         }
 
+        if (unused && use) {
+            // as described above, limit new ones we show the user to those we actively monitor
+            // on-chain.
+            if (secret.fromHdWallet && secret.fromChangeChain && --changeUnusedToInclude <= 0)
+                use = false;
+            else if (secret.fromHdWallet && !secret.fromChangeChain && --hdUnusedToInclude <= 0)
+                use = false;
+            else if (!secret.fromHdWallet && --unusedToInclude <= 0)
+                use = false;
+        }
         if (use)
             m_selectedPrivates.append(iter->first);
        ++iter;
