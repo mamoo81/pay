@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -617,6 +617,16 @@ Wallet::KeyDetails Wallet::fetchKeyDetails(int privKeyId) const
     }
 
     return details;
+}
+
+int Wallet::findPrivKeyId(const CKeyID &address) const
+{
+    for (const auto &priv : m_walletSecrets) {
+        if (priv.second.address == address) {
+            return priv.first;
+        }
+    }
+    return -1;
 }
 
 bool Wallet::isHDWallet() const

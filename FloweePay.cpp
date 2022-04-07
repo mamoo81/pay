@@ -18,6 +18,7 @@
 #include "FloweePay.h"
 #include "Wallet.h"
 #include "NewWalletConfig.h"
+#include "AddressInfo.h"
 
 #include <streaming/MessageParser.h>
 #include <streaming/BufferPool.h>
@@ -589,6 +590,34 @@ NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, cons
     p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
     return new NewWalletConfig(wallet);
+}
+
+QObject *FloweePay::researchAddress(const QString &address, QObject *parent)
+{
+    CashAddress::Content c = CashAddress::decodeCashAddrContent(address.toStdString(), m_chainPrefix);
+    if (c.hash.empty() || c.type != CashAddress::PUBKEY_TYPE) {
+        logWarning() << "researchAddress() only works with a propertly formatted cash-address!";
+        return nullptr;
+    }
+    const CKeyID key(reinterpret_cast<char *>(c.hash.data()));
+
+    // if we don't know the address, return a nullptr
+    AddressInfo *info = nullptr;
+
+    for (const auto *wallet : qAsConst(m_wallets)) {
+        int privKeyId = wallet->findPrivKeyId(key);
+        if (privKeyId != -1) {
+            info = new AddressInfo(address, parent);
+            auto details = wallet->fetchKeyDetails(privKeyId);
+            info->setCoins(details.coins);
+            info->setHistoricalCoins(details.historicalCoins);
+            info->setSaldo(details.saldo);
+            info->setWalletName(wallet->name());
+            info->setAccountId(wallet->segment()->segmentId());
+            break;
+        }
+    }
+    return info;
 }
 
 NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, int startHeight)

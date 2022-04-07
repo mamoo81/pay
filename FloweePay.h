@@ -31,6 +31,7 @@
 #include <QString>
 #include <QDateTime>
 
+
 namespace Streaming {
     class BufferPool;
 }
@@ -124,6 +125,9 @@ public:
     /// swipe a paper wallet with an optional name
     Q_INVOKABLE NewWalletConfig* createImportedWallet(const QString &privateKey, const QString &walletName, int startHeight);
 
+    /// Find out about the address and return an instance of AddressInfo if known.
+    Q_INVOKABLE QObject* researchAddress(const QString &address, QObject *parent);
+
     /**
      * Import a mnemonics based (BIP39)  wallet.
      * Warning; will throw if the mnemonic is invalid
@@ -142,6 +146,7 @@ public:
     /// take a bitcoin-address and identify the type.
     Q_INVOKABLE FloweePay::StringType identifyString(const QString &string) const;
 
+    /// return a string version of the \a unit name. tBCH for instance.
     Q_INVOKABLE QString nameOfUnit(FloweePay::UnitOfBitcoin unit) const;
 
     /// returns the unit of our prices. BCH, for instance.

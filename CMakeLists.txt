@@ -45,6 +45,7 @@ add_compile_definitions(QT_NO_DEPRECATED_WARNINGS)
 
 set (PAY_SOURCES
     AccountInfo.cpp
+    AddressInfo.cpp
     BitcoinValue.cpp
     FloweePay.cpp
     NetDataProvider.cpp

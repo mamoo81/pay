@@ -498,7 +498,15 @@ Item {
                             Layout.fillWidth: true
                             Layout.columnSpan: 3
                             onActiveFocusChanged: updateColor();
-                            onAddressOkChanged: updateColor()
+                            onAddressOkChanged: {
+                                updateColor()
+                                if (addressOk) {
+                                    var address = paymentDetail.formattedTarget
+                                    if (address === "") // it didn't need reformatting
+                                        address = paymentDetail.address
+                                    addressInfo.info = Pay.researchAddress(address, addressInfo)
+                                }
+                            }
 
                             placeholderText: qsTr("Enter Bitcoin Cash Address")
                             text: destinationPane.paymentDetail.address
@@ -527,6 +535,20 @@ Item {
                         horizontalAlignment: Qt.AlignRight
                         font.italic: true
                     }
+                    Item {
+                        id: addressInfo
+                        width: parent.width
+                        property QtObject info: null
+                        visible: info != null
+
+                        Rectangle {
+                            color: "red"
+                            width: 20
+                            height: 20
+                            anchors.right: parent.right
+                        }
+                    }
+
                     Label {
                         id: payAmount
                         text: qsTr("Amount") + ":"
