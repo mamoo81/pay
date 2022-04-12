@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -499,20 +499,15 @@ Item {
                             Layout.columnSpan: 3
                             onActiveFocusChanged: updateColor();
                             onAddressOkChanged: {
-                                updateColor()
-                                if (addressOk) {
-                                    var address = paymentDetail.formattedTarget
-                                    if (address === "") // it didn't need reformatting
-                                        address = paymentDetail.address
-                                    addressInfo.info = Pay.researchAddress(address, addressInfo)
-                                }
+                                updateColor();
+                                addressInfo.createInfo();
                             }
-
                             placeholderText: qsTr("Enter Bitcoin Cash Address")
                             text: destinationPane.paymentDetail.address
                             onTextChanged: {
                                 destinationPane.paymentDetail.address = text
                                 updateColor();
+                                addressInfo.createInfo();
                             }
 
                             function updateColor() {
@@ -541,11 +536,30 @@ Item {
                         property QtObject info: null
                         visible: info != null
 
-                        Rectangle {
-                            color: "red"
-                            width: 20
-                            height: 20
+                        function createInfo() {
+                            if (destination.addressOk) {
+                                var address = paymentDetail.formattedTarget
+                                if (address === "") // it didn't need reformatting
+                                    address = paymentDetail.address
+                                info = Pay.researchAddress(address, addressInfo)
+                            }
+                            else {
+                                delete info;
+                                info = null;
+                            }
+                        }
+
+                        Label {
                             anchors.right: parent.right
+                            font.italic: true
+                            text: {
+                                var info = addressInfo.info
+                                if (info == null)
+                                    return "";
+                                if (portfolio.current.id === info.accountId)
+                                    return qsTr("self", "payment to self")
+                                return info.accountName
+                            }
                         }
                     }
 

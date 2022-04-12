@@ -612,7 +612,7 @@ QObject *FloweePay::researchAddress(const QString &address, QObject *parent)
             info->setCoins(details.coins);
             info->setHistoricalCoins(details.historicalCoins);
             info->setSaldo(details.saldo);
-            info->setWalletName(wallet->name());
+            info->setAccountName(wallet->name());
             info->setAccountId(wallet->segment()->segmentId());
             break;
         }

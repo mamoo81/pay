@@ -29,14 +29,14 @@ const QString &AddressInfo::address() const
     return m_address;
 }
 
-const QString &AddressInfo::walletName() const
+const QString &AddressInfo::accountName() const
 {
-    return m_walletName;
+    return m_accountName;
 }
 
-void AddressInfo::setWalletName(const QString &newWalletName)
+void AddressInfo::setAccountName(const QString &name)
 {
-    m_walletName = newWalletName;
+    m_accountName = name;
 }
 
 double AddressInfo::saldo() const

@@ -27,7 +27,7 @@ class AddressInfo : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString address READ address CONSTANT)
-    Q_PROPERTY(QString walletName READ walletName CONSTANT)
+    Q_PROPERTY(QString accountName READ accountName CONSTANT)
     Q_PROPERTY(int coins READ coins CONSTANT)
     Q_PROPERTY(int historicalCoins READ historicalCoins CONSTANT)
     Q_PROPERTY(double saldo READ saldo CONSTANT)
@@ -37,8 +37,8 @@ public:
 
     const QString &address() const;
 
-    const QString &walletName() const;
-    void setWalletName(const QString &newWalletName);
+    const QString &accountName() const;
+    void setAccountName(const QString &name);
 
     double saldo() const;
     void setSaldo(double newSaldo);
@@ -54,7 +54,7 @@ public:
 
 private:
     QString m_address;
-    QString m_walletName;
+    QString m_accountName;
     double m_saldo = -1;
     int m_coins = -1;
     int m_historicalCoins = -1;
