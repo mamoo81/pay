@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,14 @@ struct UnspentOutput {
 
 int Wallet::scoreForSolution(const OutputSet &set, int64_t change, size_t unspentOutputCount) const
 {
+    /*
+     * The first selection criteria is the amount of outputs we have afterwards.
+     * A opposing metric is that we try to avoid combining fused inputs.
+     *
+     * The goal is to always have between 10 and 50 outputs of varying sizes in
+     * our wallet, this makes sure we avoid being without confirmed outputs. Even
+     * on medium-heavy usage.
+     */
     assert(unspentOutputCount > 0);
     assert(set.outputs.size() > 0);
     assert(change > 0);
@@ -56,6 +64,29 @@ int Wallet::scoreForSolution(const OutputSet &set, int64_t change, size_t unspen
             score = 500 - (resultingOutputCount - 15) * 40;
     }
     else {
+        // Check if there are Fused inputs. In that case we assume that the
+        // wallet utxo-count is managed by the fuser and output counts are
+        // not relevant to us.
+        // The priority lies in not joining fused outputs which is a big
+        // anonimity-diminishing thing and thus better avoided.
+
+        int foundFusionOutputs = 0;
+        for (const auto &output : set.outputs) {
+            const auto txIter = m_walletTransactions.find(output.txIndex());
+            assert(txIter != m_walletTransactions.end());
+            if (txIter->second.isCashFusionTx)
+                ++foundFusionOutputs;
+        }
+        if (foundFusionOutputs)
+            logUtxo() << foundFusionOutputs << "fusion, out of" << set.outputs.size() << "outputs";
+        if (foundFusionOutputs == 1 && set.outputs.size() == 1)
+            score = 1001; // perfection
+
+        // subtract points for combining fused outputs
+        // the more we combine, the more negative this gets, exponentially (2^n).
+        else if (foundFusionOutputs > 1)
+            score -= 30 * std::exp2(foundFusionOutputs);
+
         // aim to keep our output count between 10 and 50
         // Rationale:
         //  To keep privacy we ideally always have a single input and avoid
@@ -63,7 +94,7 @@ int Wallet::scoreForSolution(const OutputSet &set, int64_t change, size_t unspen
         //
         //  Additionally, we want to keep enough outputs to avoid reusing
         //  unconfirmed ones.
-        if (resultingOutputCount > 10 && resultingOutputCount <= 50)
+        else if (resultingOutputCount > 10 && resultingOutputCount <= 50)
             score = 1000; // perfection
         else if (resultingOutputCount > 5 && resultingOutputCount < 40)
             score = 250;
@@ -89,15 +120,11 @@ int Wallet::scoreForSolution(const OutputSet &set, int64_t change, size_t unspen
 Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSize, int64_t &change) const
 {
     /*
-     * The main selection criterea is the amount of outputs we have afterwards.
+     * Find a series of inputs that together pay (at least) the output amount, then rate them
+     * with the scoreForSolution() method and return the best rated option.
      *
-     * The goal is to always have between 10 and 15 outputs of varying sizes in
-     * our wallet, this makes sure we avoid being without confirmed outputs. Even
-     * on medium-heavy usage.
-     *
-     *
-     * As we assume the first items in the list of unspentOutputs are the oldest, all
-     * we need to do is find the combination of inputs that works best.
+     * We assume the first items in the list of unspentOutputs are the oldest, and based on that
+     * we will prioritize spending oldest first.
      */
 
     const int currentBlockHeight = FloweePay::instance()->headerChainHeight();
@@ -168,6 +195,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
               << bestSet.fee << "fee, gives change of:" << bestSet.totalSats - bestSet.fee - output
               << "got score" << bestScore << "+" << scoreAdjust;
     bestScore += scoreAdjust;
+
     // try a new set.
     OutputSet current;
     int score = 0;
@@ -231,7 +259,9 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         if (current.outputs.size() > MAX_INPUTS) {
             logUtxo() << "  + Skipping due to too-many-inputs";
         }
-        else if (score > bestScore) {
+        else if (score > bestScore
+                 // or if the score is the same, prefer a smaller change
+                 || (score == bestScore && current.totalSats < bestSet.totalSats)) {
             logUtxo() << "  + New BEST";
             bestScore = score;
             bestSet = current;

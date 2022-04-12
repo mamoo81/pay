@@ -265,8 +265,6 @@ void TestWallet::lockingOutputs()
         }
         walletSet = wallet->findInputsFor(12899000, 1, 1, change);
         QVERIFY(walletSet.outputs.empty());
-        walletSet = wallet->findInputsFor(906000, 1, 1, change); // all used outputs unavailable to us
-        QVERIFY(walletSet.outputs.empty());
     }
 
     {
@@ -274,8 +272,6 @@ void TestWallet::lockingOutputs()
         QCOMPARE(wallet->balanceUnconfirmed(), 5000);
         int64_t change = 0;
         auto walletSet = wallet->findInputsFor(12899000, 1, 1, change);
-        QVERIFY(walletSet.outputs.empty());
-        walletSet = wallet->findInputsFor(906000, 1, 1, change); // all used outputs unavailable to us
         QVERIFY(walletSet.outputs.empty());
 
         /* Chain the transaction and to spent an unconfirmed output. */
@@ -285,7 +281,7 @@ void TestWallet::lockingOutputs()
         bool unlockSuccess = wallet->unlockUTXO(unconfirmedOut);
         QVERIFY(unlockSuccess);
 
-        walletSet = wallet->findInputsFor(904000, 1, 1, change);
+        walletSet = wallet->findInputsFor(1801000, 1, 1, change);
         QCOMPARE(walletSet.outputs.size(), 4L); // should be all outputs, including the unconfirmed one.
         TransactionBuilder b1;
         for (auto ref : walletSet.outputs) {
@@ -492,9 +488,10 @@ void TestWallet::findInputs()
     // Test that we prefer a simple solution over one with multiple aged coins
     auto walletSet =  wallet->findInputsFor(4000000, 1, 1, change);
     QCOMPARE(walletSet.outputs.size(), 1);
-    QCOMPARE(walletSet.totalSats, 6000000);
+    // we also prefer the coin with the least overpayment, and lower change (within reason).
+    QCOMPARE(walletSet.totalSats, 5000000);
     QCOMPARE(walletSet.fee, 150);
-    QCOMPARE(change, 1999850);
+    QCOMPARE(change, 999850);
 
 }
 
