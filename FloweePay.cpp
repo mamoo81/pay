@@ -349,7 +349,13 @@ QString FloweePay::formatDateTime(QDateTime date) const
         return QString();
 
     const QDateTime now = QDateTime::currentDateTime();
-    if (now > date) {
+    // instead of simply checking if \a date is in the past, allow for a bit of
+    // imprecision based on the fact that blocks are not going to have the precise
+    // timestamps (due to how mining works) and they can be slightly in the future.
+    // So to avoid a timestamp that is up to a minute in the future being displayed
+    // with a full ISO date instead of 'now', we need to have the next line be a
+    // bit more lenient.
+    if (date.secsTo(now) > -60) { // in the past, or at most 1 min in the future.
         // use the 'yesterday' style if the date is reasonably close.
         const auto secs = date.secsTo(now);
         if (secs < 24 * 60) {
