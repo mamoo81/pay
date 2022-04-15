@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,6 @@ public:
 
 void TestWallet::transactionOrdering()
 {
-    std::deque<Tx> unsortedList;
     TransactionBuilder b1;
     uint256 prevTxId = uint256S("0x12830924807308721309128309128");
     b1.appendInput(prevTxId, 0);
@@ -146,7 +145,6 @@ void TestWallet::addingTransactions()
     QCOMPARE(wallet->balanceImmature(), 0);
 
     // since we signed, lets check the signature type
-    auto secrets = wallet->walletSecrets();
     for (auto ref : funding.outputs) {
         QCOMPARE(wallet->unlockKey(ref).sigType, Wallet::SignedAsEcdsa);
     }
@@ -240,10 +238,10 @@ void TestWallet::lockingOutputs()
         walletSet = wallet->findInputsFor(11000000, 1, 1, change);
         QCOMPARE(walletSet.outputs.size(), 3L);
         TransactionBuilder b1;
-        for (auto ref : walletSet.outputs) {
+        for (auto ref2 : walletSet.outputs) {
             try {
-                b1.appendInput(wallet->txid(ref), ref.outputIndex());
-                b1.pushInputSignature(wallet->unlockKey(ref).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
+                b1.appendInput(wallet->txid(ref2), ref2.outputIndex());
+                b1.pushInputSignature(wallet->unlockKey(ref2).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
             } catch (const std::exception &e) {
                 logFatal() << e;
             }
@@ -257,10 +255,10 @@ void TestWallet::lockingOutputs()
         QCOMPARE(wallet->balanceUnconfirmed(), 5000);
 
         // now, outputs from the walletSet should be locked.
-        for (auto ref : walletSet.outputs) {
-            bool lockSuccess = wallet->lockUTXO(ref);
+        for (auto ref2 : walletSet.outputs) {
+            bool lockSuccess = wallet->lockUTXO(ref2);
             QVERIFY(!lockSuccess); // can't lock them again.
-            bool unlockSuccess = wallet->unlockUTXO(ref);
+            bool unlockSuccess = wallet->unlockUTXO(ref2);
             QVERIFY(!unlockSuccess); // can't unlock auto-referenced outputs.
         }
         walletSet = wallet->findInputsFor(12899000, 1, 1, change);
@@ -301,10 +299,10 @@ void TestWallet::lockingOutputs()
         QCOMPARE(wallet->balanceUnconfirmed(), 700000);
 
         // now, outputs from the walletSet should be locked.
-        for (auto ref : walletSet.outputs) {
-            bool lockSuccess = wallet->lockUTXO(ref);
+        for (auto ref2 : walletSet.outputs) {
+            lockSuccess = wallet->lockUTXO(ref2);
             QVERIFY(!lockSuccess); // can't lock them again.
-            bool unlockSuccess = wallet->unlockUTXO(ref);
+            unlockSuccess = wallet->unlockUTXO(ref2);
             QVERIFY(!unlockSuccess); // can't unlock auto-referenced outputs.
         }
         walletSet = wallet->findInputsFor(904000, 1, 1, change);
