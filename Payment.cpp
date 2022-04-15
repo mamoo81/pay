@@ -222,6 +222,7 @@ void Payment::prepare()
         }
     }
     assert(m_assignedFee >= 0);
+    builder.setAnonimize(true); // sort created tx' inputs / outputs alphabetically
     m_tx = builder.createTransaction();
 
     // now double-check the fee since we can't predict the tx-size size perfectly.
