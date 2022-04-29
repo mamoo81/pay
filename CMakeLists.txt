@@ -1,5 +1,5 @@
 # This file is part of the Flowee project
-# Copyright (C) 2020 Tom Zander <tom@flowee.org>
+# Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
+find_package(Qt5 COMPONENTS Core Quick REQUIRED)
+find_package(Qt5 COMPONENTS DBus LinguistTools)
 find_package(QREncode REQUIRED)
 find_package(OpenSSL REQUIRED)
 message ("Using OpenSSL ${OPENSSL_VERSION}")
@@ -78,7 +79,7 @@ target_link_libraries(pay_lib
     flowee_p2p
     ${OPENSSL_LIBRARIES}
     ${Boost_LIBRARIES}
-    Qt5::Core Qt5::Quick ${QREncode_LIBRARIES})
+    Qt5::Core Qt5::Quick ${Qt5DBus_LIBRARIES} ${QREncode_LIBRARIES})
 
 #### Translations
 
@@ -164,8 +165,6 @@ target_link_libraries(blockheaders-meta-extractor
 )
 install(TARGETS blockheaders-meta-extractor DESTINATION bin)
 
-
-
 install(PROGRAMS desktop/org.flowee.pay.desktop DESTINATION share/applications)
 set (ICONIN desktop/icons/hicolor/)
 set (ICONOUT share/icons/hicolor/)
@@ -181,3 +180,19 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
 endif()
 
 add_subdirectory(testing)
+
+# Report ------
+message("")
+message("Configuration results:")
+message("----------------------")
+if (${Qt5DBus_FOUND})
+    message("Found optional lib: QtDBus")
+else ()
+    message("Missing QtDBus, skipping support for desktop notifications")
+endif ()
+if (${local_qml})
+    message("Using QML from source-dir. DO NOT DISTRIBUTE THIS BINARY!")
+endif ()
+
+message("")
+message("")
