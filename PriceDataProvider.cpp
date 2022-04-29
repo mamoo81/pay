@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,7 @@ void PriceDataProvider::start()
     m_timer.start(ReloadTimeout);
     fetch();
 }
+
 void PriceDataProvider::mock(int price)
 {
     m_currentPrice.price = price;
@@ -133,9 +134,26 @@ void PriceDataProvider::finishedDownload()
 {
     if (m_reply == nullptr)
         return;
-    auto data = m_reply->readAll();
+    const auto data = m_reply->readAll();
+    const bool failed = m_reply->error() != QNetworkReply::NoError || data.isEmpty();
     m_reply->deleteLater();
     m_reply = nullptr;
+    if (failed) {
+        m_timer.stop();
+        if (m_failedCount++ < 5) {
+            // things like a DNS caching server or a flaky wifi can add a lot
+            // of delays between a fetch() and a failed reply coming back.
+            // So we take a middle road that works for all cases, the first 5
+            // times we instantly check again. In the case of networking delays, those
+            // will be our waiting time.
+            // otherwise, should it return instantly, we just cycle through those 5 in
+            // a second and then we poll every 20 seconds below.
+            fetch();
+        } else {
+            m_timer.start(20 * 1000);
+        }
+        return;
+    }
     try {
         QJsonDocument doc = QJsonDocument::fromJson(data);
         if (doc.isEmpty())

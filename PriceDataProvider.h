@@ -74,6 +74,7 @@ private:
     QString m_currency;
     QString m_currencySymbolPrefix, m_currencySymbolPost;
     bool m_dispayCents = true; // if true, display 2 digits behind the unit-separator
+    int m_failedCount = 0;
     QTimer m_timer;
 };
 
