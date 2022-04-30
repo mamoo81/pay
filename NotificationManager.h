@@ -19,10 +19,8 @@
 #define NOTIFICATIONMANAGER_H
 
 #include <NotificationListener.h>
-// #include <QDBusAbstractAdaptor>
 #include <QObject>
 #include <QVariantMap>
-// #include <qdbusabstractinterface.h>
 
 class QDBusMessage;
 class QDBusInterface;
@@ -34,12 +32,12 @@ public:
     explicit NotificationManager(QObject *parent = nullptr);
 
     void notifyNewBlock(const P2PNet::Notification &notification) override;
-    void segmentUpdated(const P2PNet::Notification &notification) override;
+    void segmentUpdated(const P2PNet::Notification &) override;
 
 signals:
     // the above will happen in the network thread, lets move them to our thread with some slots.
     void newBlockSeenSignal(int blockHeight);
-    void segmentUpdatedSignal(const P2PNet::Notification &notification);
+    void segmentUpdatedSignal();
 
 private slots:
     // the above will happen in the network thread, lets move them to our thread with some slots.
@@ -48,7 +46,7 @@ private slots:
     void notificationClosed(uint id, uint subId);
     void actionInvoked(uint id, const QString &actionKey);
 
-    void walletUpdated(const P2PNet::Notification &notification);
+    void walletUpdated();
     void walletUpdateNotificationShown(uint id);
 
     void test();

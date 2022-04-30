@@ -16,9 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "NotificationManager.h"
+#include "FloweePay.h"
 #include <utils/Logger.h>
 #include <QDBusConnection>
 #include <QDBusInterface>
+
 #include <QTimer>
 
 NotificationManager::NotificationManager(QObject *parent)
@@ -28,10 +30,10 @@ NotificationManager::NotificationManager(QObject *parent)
 
     // We use the notification spec (v 1.2)
     // https://specifications.freedesktop.org/notification-spec/notification-spec-latest.html
-    m_newBlockHints["desktop-entry"] = "pay";
+    m_newBlockHints["desktop-entry"] = "org.flowee.pay";
     m_newBlockHints["urgency"] = 0; // low
     // "sound-file" // filename TODO
-    m_walletUpdateHints["desktop-entry"] = "pay";
+    m_walletUpdateHints["desktop-entry"] = "org.flowee.pay";
     m_walletUpdateHints["urgency"] = 1; // normal
 
 #if QT_DBUS_LIB
@@ -43,13 +45,11 @@ NotificationManager::NotificationManager(QObject *parent)
 #endif
 
     connect (this, SIGNAL(newBlockSeenSignal(int)), this, SLOT(newBlockSeen(int)), Qt::QueuedConnection);
-    qRegisterMetaType<P2PNet::Notification>("P2PNet::Notification");
-    connect (this, SIGNAL(segmentUpdatedSignal(P2PNet::Notification)), this,
-             SLOT(walletUpdated(P2PNet::Notification)), Qt::QueuedConnection);
+    connect (this, SIGNAL(segmentUpdatedSignal()), this, SLOT(walletUpdated()), Qt::QueuedConnection);
 
     // debug
-    // QTimer::singleShot(3000, this, SLOT(test()));
-    // QTimer::singleShot(5000, this, SLOT(test()));
+    QTimer::singleShot(3000, this, SLOT(test()));
+    QTimer::singleShot(5000, this, SLOT(test()));
 }
 
 void NotificationManager::notifyNewBlock(const P2PNet::Notification &notification)
@@ -57,9 +57,9 @@ void NotificationManager::notifyNewBlock(const P2PNet::Notification &notificatio
     emit newBlockSeenSignal(notification.blockHeight); // move to the Qt thread
 }
 
-void NotificationManager::segmentUpdated(const P2PNet::Notification &notification)
+void NotificationManager::segmentUpdated(const P2PNet::Notification&)
 {
-    emit segmentUpdatedSignal(notification); // move to the Qt thread
+    emit segmentUpdatedSignal(); // move to the Qt thread
 }
 
 void NotificationManager::newBlockSeen(int blockHeight)
@@ -73,9 +73,10 @@ void NotificationManager::newBlockSeen(int blockHeight)
     QVariantList args;
     args << QVariant("Flowee Pay"); // app-name
     args << QVariant(m_blockNotificationId); // replaces-id
-    args << "/home/zander/work/floweepay/images/FloweePay.png"; // app_icon // TODO
-    args << tr("BCH block mined %1").arg(blockHeight); // summary text
+    args << QString(); // app_icon (not needed since we say which desktop file we are)
     args << QString(); // body-text
+    args << tr("BCH block mined %1").arg(blockHeight); // summary text
+    // args << QString(); // body-text
     QStringList actions; // actions
     actions << "mute" << tr("Mute");
     args << actions;
@@ -102,8 +103,7 @@ void NotificationManager::notificationClosed(uint32_t id, uint32_t reason)
     }
     else if (m_newFundsNotificationId == id) {
         m_newFundsNotificationId = 0;
-        logFatal() << "-----------";
-        // TODO flush more
+        flushCollate();
     }
 }
 
@@ -113,22 +113,44 @@ void NotificationManager::actionInvoked(uint, const QString &actionKey)
         m_newBlockMuted = true;
 }
 
-void NotificationManager::walletUpdated(const P2PNet::Notification &notification)
+void NotificationManager::walletUpdated()
 {
-    logCritical() << "segment updated" << notification.privacySegment << "-"
-               << notification.spent << "+" << notification.deposited;
+    const auto data = collatedData();
+    if (data.empty())
+        return;
+
+    int64_t deposited = 0;
+    int64_t spent = 0;
+    int txCount = 0;
+    for (const auto &item : data) {
+        deposited += item.deposited;
+        spent += item.spent;
+        txCount += item.txCount;
+    }
+
 #if QT_DBUS_LIB
     auto iface = remote();
     if (!iface->isValid()) return;
     QVariantList args;
     args << QVariant("Flowee Pay"); // app-name
     args << QVariant(m_newFundsNotificationId); // replaces-id
-    args << "/home/zander/work/floweepay/images/FloweePay.png"; // app_icon // TODO
-    args << QString("got money: %1, lost money: %2").arg(notification.deposited).arg(notification.spent);
-    args << QString(); // body-text
+    args << QString(); // app_icon (not needed since we say which desktop file we are)
+    args << tr("New Transaction", "", txCount);
+
+    // body-text
+    if (data.size() > 1) {
+        args << tr("%1 new transactions across %2 wallets found (%3)")
+                .arg(txCount).arg(data.size())
+                .arg("bla");
+    } else {
+        args << tr("%1 new transactions found (%2)", "", txCount)
+                .arg(txCount)
+                .arg("bla");
+    }
+
     args << QStringList();
     args << m_walletUpdateHints;
-    args << 60 * 1000; // timeout (ms)
+    args << -1; // timeout (ms) -1 means to let the server decide
     if (!iface->callWithCallback("Notify", args, this,
                                  SLOT(walletUpdateNotificationShown(uint)))) {
         logWarning() << "dbus down, can't show notifications";
@@ -150,7 +172,8 @@ void NotificationManager::test()
     data.spent = 10;
     data.privacySegment = 9;
     data.txCount = 1;
-    emit segmentUpdatedSignal(data);
+    emit segmentUpdatedSignal();
+    updateSegment(data);
 }
 
 #if QT_DBUS_LIB
