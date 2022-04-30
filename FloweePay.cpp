@@ -19,6 +19,7 @@
 #include "Wallet.h"
 #include "NewWalletConfig.h"
 #include "AddressInfo.h"
+#include "PriceDataProvider.h"
 
 #include <streaming/MessageParser.h>
 #include <streaming/BufferPool.h>
@@ -64,7 +65,8 @@ static P2PNet::Chain s_chain = P2PNet::MainChain;
 
 FloweePay::FloweePay()
     : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)),
-    m_chain(s_chain)
+    m_chain(s_chain),
+    m_prices(new PriceDataProvider())
 {
     // make sure the lifetime of the lockedPoolManager exceeds mine (LIFO of globals)
     LockedPoolManager::instance();
@@ -206,6 +208,7 @@ void FloweePay::init()
         m_wallets.at(0)->setName(tr("Initial Wallet"));
         saveData();
     }
+
     emit loadComplete_priv(); // move execution to loadingCompleted, in a Qt thread
 }
 
@@ -214,6 +217,8 @@ void FloweePay::loadingCompleted()
     for (auto wallet : m_wallets) {
         wallet->performUpgrades();
     }
+    if (!m_offline && m_chain == P2PNet::MainChain)
+        m_prices->start();
 
     emit loadComplete();
 }
@@ -526,6 +531,11 @@ uint32_t FloweePay::walletStartHeightHint() const
     return time(nullptr);
 }
 
+PriceDataProvider *FloweePay::prices() const
+{
+    return m_prices.get();
+}
+
 bool FloweePay::isOffline() const
 {
     return m_offline;
@@ -534,6 +544,8 @@ bool FloweePay::isOffline() const
 void FloweePay::setOffline(bool offline)
 {
     m_offline = offline;
+    if (offline)
+        m_prices->mock(50000);
 }
 
 void FloweePay::startNet()

@@ -38,6 +38,7 @@ namespace Streaming {
 class Wallet;
 class NewWalletConfig;
 class CKeyID;
+class PriceDataProvider;
 
 const std::string &chainPrefix();
 QString renderAddress(const CKeyID &pubkeyhash);
@@ -94,6 +95,8 @@ public:
     QList<Wallet *> wallets() const;
 
     DownloadManager* p2pNet();
+
+    PriceDataProvider *prices() const;
 
     /// return the amount of milli-seconds we wait for a double-spent-proof
     int dspTimeout() const;
@@ -276,6 +279,7 @@ private:
     std::string m_chainPrefix;
     QString m_defaultDerivationPath;
     std::unique_ptr<DownloadManager> m_downloadManager;
+    std::unique_ptr<PriceDataProvider> m_prices;
     NotificationManager m_notifications;
     QList<Wallet*> m_wallets;
     int m_dspTimeout = 5000;

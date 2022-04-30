@@ -128,19 +128,12 @@ int main(int argc, char *argv[])
             delete translator;
     }
 
-    PriceDataProvider prices;
+    if (parser.isSet(offline))
+        FloweePay::instance()->setOffline(true);
     // select chain
     auto chain = P2PNet::MainChain;
     if (parser.isSet(testnet4))
         chain = P2PNet::Testnet4Chain;
-
-    if (parser.isSet(offline)) {
-        FloweePay::instance()->setOffline(true);
-        prices.mock(50000);
-    }
-    else if (!parser.isSet(testnet4)) {
-        prices.start();
-    }
     FloweePay::selectChain(chain);
 
     std::unique_ptr<QFile> blockheaders; // pointer to own the memmapped blockheaders file.
@@ -185,7 +178,7 @@ int main(int argc, char *argv[])
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
 
     engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
-    engine.rootContext()->setContextProperty("Fiat", &prices);
+    engine.rootContext()->setContextProperty("Fiat", FloweePay::instance()->prices());
     handleLocalQml(engine);
     engine.load(engine.baseUrl().url() + "/main.qml");
 
