@@ -30,7 +30,7 @@ MoneyValueField  {
 
     property alias fontPtSize: balance.font.pointSize
     property double baselineOffset: balance.baselineOffset + balance.y
-    valueObject.maxFractionalDigits: Fiat.dispayCents ? 2 : 0
+    valueObject.maxFractionalDigits: Fiat.displayCents ? 2 : 0
 
     Label {
         id: balance

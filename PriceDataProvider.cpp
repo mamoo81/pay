@@ -50,7 +50,7 @@ PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
         std::swap(m_currencySymbolPost, m_currencySymbolPrefix);
     }
     // drop the '.00' behind the prices as this country doesn't traditionlly do that
-    m_dispayCents = !(m_currency == QLatin1String("JPY")
+    m_displayCents = !(m_currency == QLatin1String("JPY")
                    || m_currency == QLatin1String("JPY"));
     QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetch()));
 }
@@ -106,7 +106,7 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
         actualPrice = dummy.leftRef(dummy.size());
     }
 
-    if (m_dispayCents) {
+    if (m_displayCents) {
         return (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
                 % m_currencySymbolPrefix
                 % actualPrice
@@ -174,7 +174,7 @@ void PriceDataProvider::finishedDownload()
         }
         m_currentPrice.price = price.toDouble() * 100;
         m_currentPrice.timestamp = time(nullptr);
-        emit priceChanged();
+        emit priceChanged(m_currentPrice.price);
     } catch (const std::runtime_error &error) {
         logWarning() << "PriceDataProvider failed." << error.what();
         if (!data.isEmpty())
@@ -186,7 +186,7 @@ void PriceDataProvider::finishedDownload()
     m_timer.start(ReloadTimeout);
 }
 
-bool PriceDataProvider::dispayCents() const
+bool PriceDataProvider::displayCents() const
 {
-    return m_dispayCents;
+    return m_displayCents;
 }

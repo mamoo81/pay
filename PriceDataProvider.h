@@ -27,7 +27,7 @@ class PriceDataProvider : public QObject
     Q_OBJECT
     Q_PROPERTY(int price READ price NOTIFY priceChanged)
     Q_PROPERTY(QString currencyName READ currencyName NOTIFY currencySymbolChanged)
-    Q_PROPERTY(bool dispayCents READ dispayCents NOTIFY dispayCentsChanged)
+    Q_PROPERTY(bool displayCents READ displayCents CONSTANT)
 public:
     explicit PriceDataProvider(QObject *parent = nullptr);
 
@@ -49,14 +49,23 @@ public:
      * based on \a price.
      */
     Q_INVOKABLE QString formattedPrice(double amountSats, int price) const;
+
+    /**
+     * Return a formatted string with the locale-defined price of a fiat price from \a cents.
+     */
     Q_INVOKABLE QString formattedPrice(int cents) const;
 
-    bool dispayCents() const;
+    /**
+     * Returns if the locale defined currency wants to display cents.
+     *
+     * Note: The typical 2 digits behind the separator are lazily called 'cents' here, even
+     * though the actual naming is differnt in different currencies.
+     */
+    bool displayCents() const;
 
 signals:
-    void priceChanged();
+    void priceChanged(int32_t price);
     void currencySymbolChanged();
-    void dispayCentsChanged();
 
 private slots:
     void fetch();
@@ -73,7 +82,7 @@ private:
     QNetworkReply *m_reply = nullptr;
     QString m_currency;
     QString m_currencySymbolPrefix, m_currencySymbolPost;
-    bool m_dispayCents = true; // if true, display 2 digits behind the unit-separator
+    bool m_displayCents = true; // if true, display 2 digits behind the unit-separator
     int m_failedCount = 0;
     QTimer m_timer;
 };
