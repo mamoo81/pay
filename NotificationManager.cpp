@@ -17,6 +17,7 @@
  */
 #include "NotificationManager.h"
 #include "FloweePay.h"
+#include "PriceDataProvider.h"
 #include <utils/Logger.h>
 #include <QDBusConnection>
 #include <QDBusInterface>
@@ -137,15 +138,30 @@ void NotificationManager::walletUpdated()
     args << QString(); // app_icon (not needed since we say which desktop file we are)
     args << tr("New Transaction", "", txCount);
 
+    const auto gained = deposited - spent;
+    auto pricesOracle = FloweePay::instance()->prices();
+    QString gainedStr;
+    if (pricesOracle->price() == 0)  {
+        // no price data available (yet). Display crypto units
+        gainedStr = QString("%1 %2")
+                .arg(FloweePay::instance()->priceToStringPretty((double) gained),
+                     FloweePay::instance()->unitName());
+
+    } else {
+        gainedStr = pricesOracle->formattedPrice(gained, pricesOracle->price());
+    }
+    if (gained > 0)
+        gainedStr = QString("+%1").arg(gainedStr); // since we indicate adding, we always want the plus there
+
     // body-text
     if (data.size() > 1) {
         args << tr("%1 new transactions across %2 wallets found (%3)")
                 .arg(txCount).arg(data.size())
-                .arg("bla");
+                .arg(gainedStr);
     } else {
         args << tr("%1 new transactions found (%2)", "", txCount)
                 .arg(txCount)
-                .arg("bla");
+                .arg(gainedStr);
     }
 
     args << QStringList();
@@ -168,8 +184,8 @@ void NotificationManager::test()
     emit newBlockSeenSignal(m_blockNotificationId == 0 ? 90 : 100);
     P2PNet::Notification data;
     data.blockHeight = 100;
-    data.deposited = 100;
-    data.spent = 10;
+    data.deposited = 10000000;
+    data.spent = 750000;
     data.privacySegment = 9;
     data.txCount = 1;
     emit segmentUpdatedSignal();
