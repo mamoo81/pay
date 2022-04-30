@@ -22,7 +22,10 @@
 #include <QDBusConnection>
 #include <QDBusInterface>
 
+#include <QSettings>
 #include <QTimer>
+
+constexpr const char *MUTE = "notificationNewblockMute";
 
 NotificationManager::NotificationManager(QObject *parent)
     : QObject(parent)
@@ -47,6 +50,9 @@ NotificationManager::NotificationManager(QObject *parent)
 
     connect (this, SIGNAL(newBlockSeenSignal(int)), this, SLOT(newBlockSeen(int)), Qt::QueuedConnection);
     connect (this, SIGNAL(segmentUpdatedSignal()), this, SLOT(walletUpdated()), Qt::QueuedConnection);
+
+    QSettings appConfig;
+    m_newBlockMuted = appConfig.value(MUTE, false).toBool();
 
     // debug
     QTimer::singleShot(3000, this, SLOT(test()));
@@ -110,8 +116,11 @@ void NotificationManager::notificationClosed(uint32_t id, uint32_t reason)
 
 void NotificationManager::actionInvoked(uint, const QString &actionKey)
 {
-    if (actionKey == "mute")
+    if (actionKey == "mute") {
         m_newBlockMuted = true;
+        QSettings appConfig;
+        appConfig.setValue(MUTE, true);
+    }
 }
 
 void NotificationManager::walletUpdated()
