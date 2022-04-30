@@ -19,11 +19,10 @@
 #include "FloweePay.h"
 #include "PriceDataProvider.h"
 #include <utils/Logger.h>
+
 #include <QDBusConnection>
 #include <QDBusInterface>
-
 #include <QSettings>
-#include <QTimer>
 
 constexpr const char *MUTE = "notificationNewblockMute";
 
@@ -53,10 +52,6 @@ NotificationManager::NotificationManager(QObject *parent)
 
     QSettings appConfig;
     m_newBlockMuted = appConfig.value(MUTE, false).toBool();
-
-    // debug
-    QTimer::singleShot(3000, this, SLOT(test()));
-    QTimer::singleShot(5000, this, SLOT(test()));
 }
 
 void NotificationManager::notifyNewBlock(const P2PNet::Notification &notification)
@@ -186,19 +181,6 @@ void NotificationManager::walletUpdated()
 void NotificationManager::walletUpdateNotificationShown(uint id)
 {
     m_newFundsNotificationId = id;
-}
-
-void NotificationManager::test()
-{
-    emit newBlockSeenSignal(m_blockNotificationId == 0 ? 90 : 100);
-    P2PNet::Notification data;
-    data.blockHeight = 100;
-    data.deposited = 10000000;
-    data.spent = 750000;
-    data.privacySegment = 9;
-    data.txCount = 1;
-    emit segmentUpdatedSignal();
-    updateSegment(data);
 }
 
 #if QT_DBUS_LIB

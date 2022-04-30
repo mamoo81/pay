@@ -49,8 +49,6 @@ private slots:
     void walletUpdated();
     void walletUpdateNotificationShown(uint id);
 
-    void test();
-
 private:
     QDBusInterface *remote();
 
