@@ -54,6 +54,7 @@ private:
     QDBusInterface *remote();
 
     bool m_newBlockMuted = false;
+    bool m_openingNewFundsNotification = false;
     QDateTime m_startupTime;
 
 #if QT_DBUS_LIB

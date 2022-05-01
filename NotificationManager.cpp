@@ -133,6 +133,12 @@ void NotificationManager::walletUpdated()
     if (data.empty())
         return;
 
+    if (m_openingNewFundsNotification) {
+        // we are currently (async) opening a notification, wait until its actually open.
+       QTimer::singleShot(50, this, SLOT(walletUpdated()));
+       return;
+    }
+
     int64_t deposited = 0;
     int64_t spent = 0;
     int txCount = 0;
@@ -184,12 +190,19 @@ void NotificationManager::walletUpdated()
                                  SLOT(walletUpdateNotificationShown(uint)))) {
         logWarning() << "dbus down, can't show notifications";
     }
+    if (m_newFundsNotificationId == 0) {
+        // The assignment of m_newFundsNotificationId is async, as such
+        // we want to remember we are opening one and not have multiple calls in
+        // flight at the same time
+        m_openingNewFundsNotification = true;
+    }
 #endif
 }
 
 void NotificationManager::walletUpdateNotificationShown(uint id)
 {
     m_newFundsNotificationId = id;
+    m_openingNewFundsNotification = false;
 }
 
 #if QT_DBUS_LIB
