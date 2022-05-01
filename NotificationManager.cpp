@@ -27,7 +27,8 @@
 constexpr const char *MUTE = "notificationNewblockMute";
 
 NotificationManager::NotificationManager(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_startupTime(QDateTime::currentDateTimeUtc())
 {
     setCollation(true);
 
@@ -68,6 +69,14 @@ void NotificationManager::newBlockSeen(int blockHeight)
 {
     if (m_newBlockMuted)
         return;
+    if (m_startupTime.secsTo(QDateTime::currentDateTimeUtc()) < 60) {
+        // When Flowee Pay first starts it synchronizes with the network
+        // and we get a 'new block seen' notification almost every time.
+        // This is annoying and useless, so lets ignore the new blocks
+        // happening the first minute or so. Which is almost always
+        // enough time to sync the headers.
+        return;
+    }
     logCritical() << "new block" << blockHeight;
 #if QT_DBUS_LIB
     auto iface = remote();

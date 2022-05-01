@@ -19,6 +19,7 @@
 #define NOTIFICATIONMANAGER_H
 
 #include <NotificationListener.h>
+#include <QDateTime>
 #include <QObject>
 #include <QVariantMap>
 
@@ -53,6 +54,7 @@ private:
     QDBusInterface *remote();
 
     bool m_newBlockMuted = false;
+    QDateTime m_startupTime;
 
 #if QT_DBUS_LIB
     uint32_t m_blockNotificationId = 0;
