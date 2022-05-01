@@ -77,6 +77,8 @@ Wallet::~Wallet()
 
 Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, std::map<uint64_t, SignatureType> &types, P2PNet::Notification *notifier) const
 {
+    if (notifier)
+        notifier->txCount++;
     WalletTransaction wtx;
     wtx.txid = txid;
 
