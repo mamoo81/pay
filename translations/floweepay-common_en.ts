@@ -117,9 +117,9 @@
     <message numerus="yes">
       <location filename="../NotificationManager.cpp" line="181"/>
       <source>%1 new transactions found (%2)</source>
-      <translation>
-        <numerusform>New transaction found (%2)</numerusform>
+      <translation type="unfinished">
         <numerusform>%1 new transaction found (%2)</numerusform>
+        <numerusform>%1 new transactions found (%2)</numerusform>
       </translation>
     </message>
   </context>

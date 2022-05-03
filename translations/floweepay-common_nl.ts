@@ -118,7 +118,7 @@
       <location filename="../NotificationManager.cpp" line="181"/>
       <source>%1 new transactions found (%2)</source>
       <translation>
-        <numerusform>Nieuwe transactie gevonden (%2)</numerusform>
+        <numerusform>%1 nieuwe transactie gevonden (%2)</numerusform>
         <numerusform>%1 nieuwe transacties gevonden (%2)</numerusform>
       </translation>
     </message>
