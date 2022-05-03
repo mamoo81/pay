@@ -14,92 +14,97 @@
       <translation>Naam</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="103"/>
+      <location filename="../desktop/AccountDetails.qml" line="104"/>
       <source>Sync Status</source>
       <translation>Synchronisatie status</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="111"/>
+      <location filename="../desktop/AccountDetails.qml" line="112"/>
       <source>This wallet is a single-address wallet.</source>
       <translation>Deze portemonnee heeft één enkel adres.</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="114"/>
+      <location filename="../desktop/AccountDetails.qml" line="115"/>
       <source>This wallet is based on a HD seed-phrase</source>
       <translation>Dit is een portemonnee gebaseerd op een HD-herstelzin</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="117"/>
+      <location filename="../desktop/AccountDetails.qml" line="118"/>
       <source>This wallet is a simple multiple-address wallet.</source>
       <translation>Dit is een eenvoudige portemonnee met diverse adressen.</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="160"/>
+      <location filename="../desktop/AccountDetails.qml" line="161"/>
       <source>Address List</source>
       <translation>Adreslijst</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="165"/>
+      <location filename="../desktop/AccountDetails.qml" line="166"/>
       <source>Change Addresses</source>
       <translation>Wisselgeldadres</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="168"/>
+      <location filename="../desktop/AccountDetails.qml" line="169"/>
       <source>Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</source>
       <translation>Schakelt tussen adressen waar anderen je op kunnen betalen, en adressen welke de portemonnee voor wisselgeld gebruikt.</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="172"/>
+      <location filename="../desktop/AccountDetails.qml" line="173"/>
       <source>Used Addresses</source>
       <translation>Gebruikte adressen</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="175"/>
+      <location filename="../desktop/AccountDetails.qml" line="176"/>
       <source>Switches between unused and used Bitcoin addresses</source>
       <translation>Schakelt tussen ongebruikt en gebruikte Bitcoin adressen</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="216"/>
+      <location filename="../desktop/AccountDetails.qml" line="217"/>
       <source>Coins: %1 / %2</source>
       <translation>Munten: %1 / %2</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="233"/>
+      <location filename="../desktop/AccountDetails.qml" line="234"/>
       <source>Signed with Schnorr signatures in the past</source>
       <translation>In het verleden ondertekend met Schnorr</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="248"/>
+      <location filename="../desktop/AccountDetails.qml" line="249"/>
       <source>Copy Address</source>
       <translation>Kopieer adres</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="252"/>
+      <location filename="../desktop/AccountDetails.qml" line="253"/>
       <source>Copy Private Key</source>
       <translation>Kopieer privésleutel</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="276"/>
+      <location filename="../desktop/AccountDetails.qml" line="277"/>
       <source>Backup details</source>
       <translation>Back-up details</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="288"/>
+      <location filename="../desktop/AccountDetails.qml" line="289"/>
       <source>Seed-phrase</source>
       <translation>Herstelzin</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="300"/>
+      <location filename="../desktop/AccountDetails.qml" line="301"/>
       <source>Derivation</source>
       <translation>Derivatie</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="312"/>
+      <location filename="../desktop/AccountDetails.qml" line="305"/>
+      <source>Copy</source>
+      <translation>Kopieer</translation>
+    </message>
+    <message>
+      <location filename="../desktop/AccountDetails.qml" line="314"/>
       <source>Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case of computer failure.</source>
       <translation>Schrijf de herstelzin op papier, in de juiste volgorde, samen met het derivatie pad. Deze herstelzin stelt u in staat om uw portemonnee te herstellen in geval van een computerfout.</translation>
     </message>
     <message>
-      <location filename="../desktop/AccountDetails.qml" line="321"/>
+      <location filename="../desktop/AccountDetails.qml" line="323"/>
       <source>&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</source>
       <translation>&lt;b&gt;Belangrijk&lt;/b&gt;: Deel nooit uw herstelzin met anderen!</translation>
     </message>
@@ -107,19 +112,17 @@
   <context>
     <name>AccountListItem</name>
     <message>
-      <location filename="../desktop/AccountListItem.qml" line="72"/>
+      <location filename="../desktop/AccountListItem.qml" line="73"/>
       <source>Last Transaction</source>
       <translation>Laatste Transactie</translation>
     </message>
+  </context>
+  <context>
+    <name>CashFusionIcon</name>
     <message>
-      <location filename="../desktop/AccountListItem.qml" line="103"/>
-      <source>Details</source>
-      <translation>Details</translation>
-    </message>
-    <message>
-      <location filename="../desktop/AccountListItem.qml" line="112"/>
-      <source>Main Wallet</source>
-      <translation>Prioriteit</translation>
+      <location filename="../desktop/widgets/CashFusionIcon.qml" line="12"/>
+      <source>Coin has been fused for increased anonymity</source>
+      <translation>Munt is gefuseerd voor verhoogde anonimiteit</translation>
     </message>
   </context>
   <context>
@@ -509,36 +512,9 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
   <context>
     <name>SendTransactionPane</name>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="479"/>
-      <source>Destination</source>
-      <translation>Bestemming</translation>
-    </message>
-    <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="486"/>
-      <source>Max available</source>
-      <comment>The maximum balance available</comment>
-      <translation>Max. beschikbaar</translation>
-    </message>
-    <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="495"/>
-      <source>%1 to %2</source>
-      <comment>summary text to pay X-euro to address M</comment>
-      <translation>%1 aan %2</translation>
-    </message>
-    <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="514"/>
-      <source>Enter Bitcoin Cash Address</source>
-      <translation>Voer Bitcoin Cash adres in</translation>
-    </message>
-    <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="536"/>
-      <source>Amount</source>
-      <translation>Bedrag</translation>
-    </message>
-    <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="560"/>
-      <source>Max</source>
-      <translation>Max</translation>
+      <location filename="../desktop/SendTransactionPane.qml" line="116"/>
+      <source>Add Destination</source>
+      <translation>Voeg bestemming toe</translation>
     </message>
     <message>
       <location filename="../desktop/SendTransactionPane.qml" line="122"/>
@@ -546,103 +522,152 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <translation>Bereid voor</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="116"/>
-      <source>Add Destination</source>
-      <translation>Voeg bestemming toe</translation>
-    </message>
-    <message>
       <location filename="../desktop/SendTransactionPane.qml" line="160"/>
       <source>Transaction Details</source>
       <translation>Transactiedetails</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="191"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="174"/>
       <source>Not prepared yet</source>
       <translation>Nog niet voorbereid</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="199"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="183"/>
       <source>Fee</source>
       <translation>Transactiekosten</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="209"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="193"/>
       <source>Transaction size</source>
       <translation>Transactie grootte</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="217"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="201"/>
       <source>%1 bytes</source>
       <translation>%1 bytes</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="222"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="206"/>
       <source>Fee per byte</source>
       <translation>Transactiekosten per byte</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="233"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="217"/>
       <source>%1 sat/byte</source>
       <comment>fee</comment>
       <translation>%1 sat/byte</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="250"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="231"/>
       <source>Send</source>
       <translation>Verstuur</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="256"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="654"/>
       <source>Cancel</source>
       <translation>Afbreken</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="319"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="300"/>
       <source>Transaction rejected by network</source>
       <translation>Transactie afgewezen door het netwerk</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="338"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="319"/>
       <source>Payment Sent</source>
       <translation>Betaling Verzonden</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="411"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="180"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="392"/>
       <source>Copy transaction-ID</source>
       <translation>Kopieer transactie-ID</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="415"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="396"/>
       <source>Your payment can be found by its identifyer: %1</source>
       <translation>Uw betaling kan worden gevonden onder ID: %1</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="427"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="408"/>
       <source>Copy</source>
       <translation>Kopieer</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="431"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="412"/>
       <source>Internet</source>
       <translation>Op Internet</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="439"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="420"/>
       <source>Comment</source>
       <translation>Opmerking</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="455"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="436"/>
       <source>Close</source>
       <translation>Sluiten</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="580"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="464"/>
+      <source>Destination</source>
+      <translation>Bestemming</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="471"/>
+      <source>Max available</source>
+      <comment>The maximum balance available</comment>
+      <translation>Max. beschikbaar</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="480"/>
+      <source>%1 to %2</source>
+      <comment>summary text to pay X-euro to address M</comment>
+      <translation>%1 aan %2</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="505"/>
+      <source>Enter Bitcoin Cash Address</source>
+      <translation>Voer Bitcoin Cash adres in</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="560"/>
+      <source>self</source>
+      <comment>payment to self</comment>
+      <translation>deze</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="568"/>
+      <source>Amount</source>
+      <translation>Bedrag</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="592"/>
+      <source>Max</source>
+      <translation>Max</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="633"/>
+      <source>Warning</source>
+      <translation>Waarschuwing</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="638"/>
+      <source>This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</source>
+      <translation>Dit is een verzoek om te betalen aan een BTC-adres, wat een incompatibele munt is. Uw tegoeden konden verloren gaan en Flowee zal geen manier hebben om ze te herstellen. Weet u zeker dat u aan dit BTC-adres wilt betalen?</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="650"/>
+      <source>Continue</source>
+      <translation>Doorgaan</translation>
+    </message>
+    <message>
+      <location filename="../desktop/SendTransactionPane.qml" line="678"/>
       <source>Coin Selector</source>
       <translation>Muntselectie</translation>
     </message>
     <message numerus="yes">
-      <location filename="../desktop/SendTransactionPane.qml" line="581"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="679"/>
       <source>Selected %1 %2 in %3 coins</source>
       <comment>selected 2 BCH in 5 coins</comment>
       <translation>
@@ -651,60 +676,55 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       </translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="592"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="690"/>
       <source>Total</source>
       <comment>Number of coins</comment>
       <translation>Totaal</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="599"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="697"/>
       <source>Needed</source>
       <translation>Benodigd</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="609"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="707"/>
       <source>Selected</source>
       <translation>Geselecteerd</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="616"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="714"/>
       <source>Value</source>
       <translation>Waarde</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="654"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="752"/>
       <source>Locked coins will never be used for payments. Right-click for menu.</source>
       <translation>Vergrendelde munten worden nooit gebruikt voor betalingen. Rechtsklik voor menu.</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="690"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="788"/>
       <source>Age</source>
       <translation>Leeftijd</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="728"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="826"/>
       <source>Unselect All</source>
       <translation>Alles deselecteren</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="728"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="826"/>
       <source>Select All</source>
       <translation>Alles selecteren</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="738"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="836"/>
       <source>Unlock coin</source>
       <translation>Ontgrendel munt</translation>
     </message>
     <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="738"/>
+      <location filename="../desktop/SendTransactionPane.qml" line="836"/>
       <source>Lock coin</source>
       <translation>Vergrendel munt</translation>
-    </message>
-    <message>
-      <location filename="../desktop/SendTransactionPane.qml" line="757"/>
-      <source>Coin has been fused for increased anonymity</source>
-      <translation>Munt is gefuseerd voor verhoogde anonimiteit</translation>
     </message>
   </context>
   <context>
@@ -738,44 +758,6 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <location filename="../desktop/SettingsPane.qml" line="123"/>
       <source>Network Status</source>
       <translation>Netwerk Status</translation>
-    </message>
-  </context>
-  <context>
-    <name>SyncIndicator</name>
-    <message>
-      <location filename="../desktop/SyncIndicator.qml" line="30"/>
-      <location filename="../desktop/SyncIndicator.qml" line="42"/>
-      <source>Up to date</source>
-      <translation>Is volledig bijgewerkt</translation>
-    </message>
-    <message numerus="yes">
-      <location filename="../desktop/SyncIndicator.qml" line="37"/>
-      <source>%1 weeks behind</source>
-      <translation>
-        <numerusform>%1 week achter</numerusform>
-        <numerusform>%1 weken achter</numerusform>
-      </translation>
-    </message>
-    <message numerus="yes">
-      <location filename="../desktop/SyncIndicator.qml" line="40"/>
-      <source>%1 days behind</source>
-      <translation>
-        <numerusform>%1 dag achter</numerusform>
-        <numerusform>%1 dagen achter</numerusform>
-      </translation>
-    </message>
-    <message>
-      <location filename="../desktop/SyncIndicator.qml" line="44"/>
-      <source>Updating</source>
-      <translation>Bijwerken</translation>
-    </message>
-    <message numerus="yes">
-      <location filename="../desktop/SyncIndicator.qml" line="45"/>
-      <source>%1 hours behind</source>
-      <translation>
-        <numerusform>%1 uur achter</numerusform>
-        <numerusform>%1 uren achter</numerusform>
-      </translation>
     </message>
   </context>
   <context>
@@ -847,17 +829,22 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       </translation>
     </message>
     <message>
-      <location filename="../desktop/WalletTransactionDetails.qml" line="70"/>
+      <location filename="../desktop/WalletTransactionDetails.qml" line="51"/>
+      <source>Copy block height</source>
+      <translation>Blokhoogte kopiëren</translation>
+    </message>
+    <message>
+      <location filename="../desktop/WalletTransactionDetails.qml" line="71"/>
       <source>Fees</source>
       <translation>Kosten</translation>
     </message>
     <message>
-      <location filename="../desktop/WalletTransactionDetails.qml" line="87"/>
+      <location filename="../desktop/WalletTransactionDetails.qml" line="88"/>
       <source>Size</source>
       <translation>Grootte</translation>
     </message>
     <message numerus="yes">
-      <location filename="../desktop/WalletTransactionDetails.qml" line="90"/>
+      <location filename="../desktop/WalletTransactionDetails.qml" line="91"/>
       <source>%1 bytes</source>
       <translation>
         <numerusform>%1 byte</numerusform>
@@ -865,18 +852,18 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       </translation>
     </message>
     <message>
-      <location filename="../desktop/WalletTransactionDetails.qml" line="93"/>
+      <location filename="../desktop/WalletTransactionDetails.qml" line="94"/>
       <source>Inputs</source>
       <translation>In</translation>
     </message>
     <message>
-      <location filename="../desktop/WalletTransactionDetails.qml" line="139"/>
-      <location filename="../desktop/WalletTransactionDetails.qml" line="222"/>
+      <location filename="../desktop/WalletTransactionDetails.qml" line="141"/>
+      <location filename="../desktop/WalletTransactionDetails.qml" line="225"/>
       <source>Copy Address</source>
       <translation>Kopieer adres</translation>
     </message>
     <message>
-      <location filename="../desktop/WalletTransactionDetails.qml" line="168"/>
+      <location filename="../desktop/WalletTransactionDetails.qml" line="170"/>
       <source>Outputs</source>
       <translation>Uitgaand</translation>
     </message>
@@ -889,65 +876,106 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <translation>Activiteit</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="235"/>
+      <location filename="../desktop/main.qml" line="208"/>
+      <source>Archived wallets do not check for activities. Balance may be out of date.</source>
+      <translation>Gearchiveerde portemonnees controleren niet op activiteiten. Saldo is mogelijk verouderd.</translation>
+    </message>
+    <message>
+      <location filename="../desktop/main.qml" line="212"/>
+      <location filename="../desktop/main.qml" line="679"/>
+      <source>Unarchive</source>
+      <translation>Uit archief halen</translation>
+    </message>
+    <message>
+      <location filename="../desktop/main.qml" line="275"/>
       <source>Send</source>
       <translation>Versturen</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="242"/>
+      <location filename="../desktop/main.qml" line="283"/>
       <source>Receive</source>
       <translation>Ontvangen</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="306"/>
+      <location filename="../desktop/main.qml" line="349"/>
       <source>Total balance</source>
       <translation>Totale saldo</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="354"/>
+      <location filename="../desktop/main.qml" line="397"/>
       <source>Balance</source>
       <translation>Saldo</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="380"/>
+      <location filename="../desktop/main.qml" line="423"/>
       <source>Show Wallet Details</source>
       <translation>Toon portemonnee details</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="439"/>
+      <location filename="../desktop/main.qml" line="482"/>
       <source>Main</source>
       <comment>balance (money), non specified</comment>
       <translation>Algemeen</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="448"/>
+      <location filename="../desktop/main.qml" line="491"/>
       <source>Unconfirmed</source>
       <comment>balance (money)</comment>
       <translation>Onbevestigd</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="457"/>
+      <location filename="../desktop/main.qml" line="500"/>
       <source>Immature</source>
       <comment>balance (money)</comment>
       <translation>Ongerijpt</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="493"/>
+      <location filename="../desktop/main.qml" line="536"/>
       <source>1 BCH is: %1</source>
       <translation>1 BCH is: %1</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="517"/>
+      <location filename="../desktop/main.qml" line="560"/>
       <source>Network status</source>
       <translation>Netwerkstatus</translation>
     </message>
     <message>
-      <location filename="../desktop/main.qml" line="552"/>
+      <location filename="../desktop/main.qml" line="587"/>
+      <location filename="../desktop/main.qml" line="672"/>
+      <source>Details</source>
+      <translation>Details</translation>
+    </message>
+    <message>
+      <location filename="../desktop/main.qml" line="595"/>
+      <source>Make Primary</source>
+      <translation>Maak primair</translation>
+    </message>
+    <message>
+      <location filename="../desktop/main.qml" line="595"/>
+      <source>★ Primary</source>
+      <translation>★ Primair</translation>
+    </message>
+    <message>
+      <location filename="../desktop/main.qml" line="599"/>
+      <source>Archive Wallet</source>
+      <translation>Portemonnee archiveren</translation>
+    </message>
+    <message>
+      <location filename="../desktop/main.qml" line="620"/>
       <source>Add Bitcoin Cash wallet</source>
       <translation>Bitcoin Cash portemonnee toevoegen</translation>
     </message>
+    <message numerus="yes">
+      <location filename="../desktop/main.qml" line="653"/>
+      <source>Archived wallets [%1]</source>
+      <comment>Arg is wallet count</comment>
+      <translation>
+        <numerusform>Gearchiveerde portemonnee</numerusform>
+        <numerusform>Gearchiveerde portemonnees [%1]</numerusform>
+      </translation>
+    </message>
     <message>
-      <location filename="../desktop/main.qml" line="573"/>
+      <location filename="../desktop/main.qml" line="695"/>
       <source>Preparing...</source>
       <translation>Voorbereiden...</translation>
     </message>
