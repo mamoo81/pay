@@ -160,8 +160,9 @@ add_executable(blockheaders-meta-extractor
 )
 target_link_libraries(blockheaders-meta-extractor
     flowee_p2p
-    ${Boost_LIBRARIES}
+    flowee_utils
     ${OPENSSL_LIBRARIES}
+    ${Boost_LIBRARIES}
 )
 install(TARGETS blockheaders-meta-extractor DESTINATION bin)
 
