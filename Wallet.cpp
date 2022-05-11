@@ -240,7 +240,7 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
         m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
         secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
 
-        const CPubKey pubkey = secret.privKey.GetPubKey();
+        const CPubKey pubkey = secret.privKey.getPubKey();
         secret.address = pubkey.getKeyId();
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
     }
@@ -1079,8 +1079,8 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId, PrivKeyType pkt)
     int answer;
     for (int i = 0; i < 50; ++i) {
         WalletSecret secret;
-        secret.privKey.MakeNewKey();
-        const CPubKey pubkey = secret.privKey.GetPubKey();
+        secret.privKey.makeNewKey();
+        const CPubKey pubkey = secret.privKey.getPubKey();
         secret.address = pubkey.getKeyId();
         if (i == 0) {
             answer = m_nextWalletSecretId;
@@ -1192,9 +1192,9 @@ void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
         secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
     }
     else {
-        secret.privKey.MakeNewKey();
+        secret.privKey.makeNewKey();
     }
-    const CPubKey pubkey = secret.privKey.GetPubKey();
+    const CPubKey pubkey = secret.privKey.getPubKey();
     secret.address = pubkey.getKeyId();
     secret.initialHeight = currentBlockheight;
     m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
@@ -1214,12 +1214,12 @@ bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
     encodedData.SetString(bytes.constData());
     if (encodedData.isMainnetPrivKey() || encodedData.isTestnetPrivKey()) {
         WalletSecret secret;
-        secret.privKey.Set(encodedData.data().begin(), encodedData.data().begin() + 32,
+        secret.privKey.set(encodedData.data().begin(), encodedData.data().begin() + 32,
                 encodedData.data().size() > 32 && encodedData.data()[32] == 1);
 
         // TODO loop over secrets and avoid adding one privkey twice.
 
-        const CPubKey pubkey = secret.privKey.GetPubKey();
+        const CPubKey pubkey = secret.privKey.getPubKey();
         secret.address = pubkey.getKeyId();
         secret.initialHeight = startBlockHeight;
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
@@ -1271,7 +1271,7 @@ void Wallet::loadSecrets()
         }
         else if (parser.tag() == WalletPriv::PrivKey) {
             auto d = parser.unsignedBytesData();
-            secret.privKey.Set(d.begin(), d.end(), true);
+            secret.privKey.set(d.begin(), d.end(), true);
         }
         else if (parser.tag() == WalletPriv::PubKeyHash) {
             auto d = parser.bytesDataBuffer();
