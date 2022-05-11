@@ -249,7 +249,7 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
     saveSecrets(); // no-op if secrets are unchanged
 }
 
-void Wallet::updateSignaturTypes(const std::map<uint64_t, SignatureType> &txData)
+void Wallet::updateSignatureTypes(const std::map<uint64_t, SignatureType> &txData)
 {
     // this basically processes the output argument received from createWalletTransactionFromTx
     for (auto i = txData.begin(); i != txData.end(); ++i) {
@@ -301,7 +301,7 @@ void Wallet::newTransaction(const Tx &tx)
         }
 
         // Remember the signature type used for specific private keys
-        updateSignaturTypes(signatureTypes);
+        updateSignatureTypes(signatureTypes);
 
         // Mark UTXOs locked that this tx spent to avoid double spending them.
         for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
@@ -395,7 +395,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             wtx.minedBlockHeight = blockHeight;
 
             // Remember the signature type used for specific private keys
-            updateSignaturTypes(signatureTypes);
+            updateSignatureTypes(signatureTypes);
 
             // remove UTXOs this Tx spent
             for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {

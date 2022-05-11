@@ -333,7 +333,7 @@ private:
     void rebuildBloom();
 
     // helper method called from both newTransaction and newTransactions
-    void updateSignaturTypes(const std::map<uint64_t, SignatureType> &txData);
+    void updateSignatureTypes(const std::map<uint64_t, SignatureType> &txData);
 
     /// Helper method for findInputsFor
     int scoreForSolution(const OutputSet &set, int64_t change,
