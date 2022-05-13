@@ -207,6 +207,47 @@ public:
 
     QList<PaymentRequest *> paymentRequests() const;
 
+    /**
+     * Returns a 'seed' to add to the user password on a (partially) encrypted
+     * wallet.
+     * \see encryptWallet()
+     */
+    uint32_t encryptionSeed() const;
+
+    void setEncryptionSeed(uint32_t newEncryptionSeed);
+
+    enum EncryptionLevel {
+        NotEncrypted,
+        /**
+         * This will encrypt the private keys of the wallet, which effectively
+         * removes only one functio of the wallet, to sign transactions spending funds.
+         */
+        SecretsEncrypted,
+        /**
+         * This level of encryption aims to encrypt all functionality of
+         * the wallet to the level that even reading the on-disk files
+         * an attacker will not be able to figure out which addresses are ours.
+         */
+        FullyEncrypted
+    };
+
+    /**
+     * Set the level of encryption applied to this wallet's saved state.
+     *
+     * When the wallet changes from NotEncrypted to a higher level, we
+     * calculate an encryptionSeed() and (re)write an encrypted version
+     * of the wallet to disk.
+     *
+     * Setting a level higher than NotEncrypted will remove the relevant
+     * data from the in-memory representation of this wallet, requiring
+     * a call to decryptWallet() before usage.
+     */
+    void setEncryption(EncryptionLevel level);
+    EncryptionLevel encryption() const;
+
+    /// Read encrypted secrets from disk into memory
+    bool decrypt(const QString &passphrase);
+
 #ifdef IN_TESTS
     /**
      * Unit tests can call this to populate a wallet with some dummy transactions.
@@ -465,6 +506,8 @@ private:
 
     // operational
     bool m_saveStarted = false;
+    uint32_t m_encryptionSeed = 0; // not saved by us (because, duh)
+    EncryptionLevel m_encryptionLevel = NotEncrypted;
 
     QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
 

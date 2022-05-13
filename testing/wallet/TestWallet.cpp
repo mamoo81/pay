@@ -681,6 +681,74 @@ void TestWallet::rejectTx()
     }
 }
 
+void TestWallet::testEncryption1()
+{
+    // Streaming::BufferPool pool;
+    {
+        auto wallet = createWallet();
+        wallet->addTestTransactions();
+        int64_t change = 0;
+        QCOMPARE(wallet->encryptionSeed(), 0);
+        QCOMPARE(wallet->encryption(), Wallet::NotEncrypted);
+        try {
+            auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
+        } catch (const std::exception &e) {
+            QFAIL(e.what());
+        }
+
+        wallet->setEncryption(Wallet::NotEncrypted);
+        QCOMPARE(wallet->encryptionSeed(), 0);
+        QCOMPARE(wallet->encryption(), Wallet::NotEncrypted);
+        try {
+            auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
+        } catch (const std::exception &e) {
+            QFAIL(e.what());
+        }
+    }
+
+    uint32_t seed = 0; // the seed is stored outside of the wallet.
+    {
+        auto wallet = openWallet();
+        QCOMPARE(wallet->encryption(), Wallet::NotEncrypted);
+        QCOMPARE(wallet->encryptionSeed(), 0);
+
+        wallet->setEncryption(Wallet::SecretsEncrypted);
+        QVERIFY(wallet->encryptionSeed() != 0);
+        seed = wallet->encryptionSeed();
+        int64_t change = 0;
+        try {
+            auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
+        } catch (const std::exception &e) {
+            QFAIL(e.what());
+        }
+
+        const auto &secrets = wallet->walletSecrets();
+        for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+            QVERIFY(i->second.privKey.isValid() == false);
+        }
+
+        // TODO decrypt wallet and check
+    }
+    {
+        auto wallet = openWallet();
+        wallet->setEncryptionSeed(seed); // we need to set it to allow decryption to work
+        QCOMPARE(wallet->encryption(), Wallet::SecretsEncrypted);
+        QCOMPARE(wallet->encryptionSeed(), seed);
+        int64_t change = 0;
+        try {
+            auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
+        } catch (const std::exception &e) {
+            QFAIL(e.what());
+        }
+        const auto &secrets = wallet->walletSecrets();
+        for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+            QVERIFY(i->second.privKey.isValid() == false);
+        }
+        // TODO decrypt wallet and check
+    }
+
+}
+
 std::unique_ptr<MockWallet> TestWallet::createWallet()
 {
     if (m_dir.isEmpty()) {

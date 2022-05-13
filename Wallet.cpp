@@ -27,6 +27,8 @@
 #include <streaming/MessageBuilder.h>
 #include <streaming/MessageParser.h>
 #include <base58.h>
+#include <random.h>
+#include <crypto/aes.h>
 
 #include <QFile>
 #include <QSet>
@@ -756,6 +758,53 @@ QList<PaymentRequest *> Wallet::paymentRequests() const
     return m_paymentRequests;
 }
 
+uint32_t Wallet::encryptionSeed() const
+{
+    return m_encryptionSeed;
+}
+
+void Wallet::setEncryptionSeed(uint32_t seed)
+{
+    m_encryptionSeed = seed;
+}
+
+
+void Wallet::setEncryption(EncryptionLevel level)
+{
+    QMutexLocker locker(&m_lock);
+    if (level < m_encryptionLevel)
+        throw std::runtime_error("Removing encryption from wallet not implemented");
+
+    if (level > m_encryptionLevel) {
+        m_encryptionLevel = level;
+        GetRandBytes((unsigned char*)&m_encryptionSeed, sizeof(m_encryptionSeed));
+        m_secretsChanged = true;
+        saveSecrets();
+    }
+
+    if (m_encryptionLevel == SecretsEncrypted) {
+        // remove the secrets from our in-memory dataset.
+        std::vector<uint8_t> empty;
+        for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+            i->second.privKey.set(empty.begin(), empty.end());
+            assert(i->second.privKey.isValid() == false);
+        }
+        // TODO implement cleaning for HD wallets too
+        assert(m_hdData.get() == nullptr);
+    }
+}
+
+Wallet::EncryptionLevel Wallet::encryption() const
+{
+    return m_encryptionLevel;
+}
+
+bool Wallet::decrypt(const QString &passphrase)
+{
+    // TODO
+    return true;
+}
+
 void Wallet::addPaymentRequest(PaymentRequest *pr)
 {
     QMutexLocker locker(&m_lock);
@@ -1250,6 +1299,7 @@ void Wallet::loadSecrets()
     int derivationPathChangeIndex = -1;
     int derivationPathMainIndex = -1;
     int index = 0;
+    std::unique_ptr<AES256Decrypt> crypto;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
             if (index > 0 && secret.address.size() > 0) {
@@ -1273,12 +1323,15 @@ void Wallet::loadSecrets()
             auto d = parser.unsignedBytesData();
             secret.privKey.set(d.begin(), d.end(), true);
         }
+        else if (parser.tag() == WalletPriv::PrivKeyEncrypted) {
+            m_encryptionLevel = SecretsEncrypted;
+        }
         else if (parser.tag() == WalletPriv::PubKeyHash) {
             auto d = parser.bytesDataBuffer();
             secret.address = CKeyID(d.begin());
         }
         else if (parser.tag() == WalletPriv::HeightCreated) {
-            if (parser.intData() == -1) // legacy 'unused' value. (changed in 2021.05)
+            if (parser.intData() == -1) // legacy indicator of 'unused'. (changed in 2021.05)
                 secret.initialHeight = 0;
             else
                 secret.initialHeight = parser.longData();
@@ -1353,8 +1406,14 @@ void Wallet::saveSecrets()
         hdDataSize += m_hdData->walletMnemonicPwd.length() * 5;
         hdDataSize += m_hdData->derivationPath.size() * 6;
     }
+
     Streaming::BufferPool pool(m_walletSecrets.size() * 70 + hdDataSize);
     Streaming::MessageBuilder builder(pool);
+
+    std::unique_ptr<AES256Encrypt> crypto;
+    if (m_encryptionLevel >= SecretsEncrypted) {
+        crypto.reset(new AES256Encrypt("111")); // TODO
+    }
     builder.add(WalletPriv::WalletVersion, m_walletVersion);
     if (m_hdData.get()) {
         builder.add(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic.toUtf8().constData());
@@ -1371,7 +1430,17 @@ void Wallet::saveSecrets()
     for (const auto &item : m_walletSecrets) {
         const auto &secret = item.second;
         builder.add(WalletPriv::Index, item.first);
-        builder.addByteArray(WalletPriv::PrivKey, secret.privKey.begin(), secret.privKey.size());
+        assert(secret.privKey.isValid());
+        if (m_encryptionLevel == SecretsEncrypted) {
+            char buf[32]; // private keys are always 32 bytes
+            // since AES block size is 16, we need 2 calls.
+            crypto->encrypt(buf, reinterpret_cast<const char*>(secret.privKey.begin()));
+            crypto->encrypt(buf + 16, reinterpret_cast<const char*>(secret.privKey.begin() + 16));
+            builder.addByteArray(WalletPriv::PrivKeyEncrypted, buf, 32);
+        }
+        else {
+            builder.addByteArray(WalletPriv::PrivKey, secret.privKey.begin(), secret.privKey.size());
+        }
         builder.addByteArray(WalletPriv::PubKeyHash, secret.address.begin(), secret.address.size());
         if (secret.initialHeight > 0)
             builder.add(WalletPriv::HeightCreated, (uint64_t) secret.initialHeight);
@@ -1785,7 +1854,6 @@ void Wallet::saveWallet()
     }
     m_walletChanged = false;
 }
-
 
 void Wallet::recalculateBalance()
 {

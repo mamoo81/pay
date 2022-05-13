@@ -49,10 +49,10 @@ private slots:
     void saveTransaction2();
     void findInputs();
     void unconfirmed();
-
     void hierarchicallyDeterministic();
-
     void rejectTx();
+
+    void testEncryption1();
 
 private:
     std::unique_ptr<MockWallet> createWallet();
