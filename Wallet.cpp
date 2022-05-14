@@ -29,6 +29,7 @@
 #include <base58.h>
 #include <random.h>
 #include <crypto/aes.h>
+#include <crypto/sha256.h>
 
 #include <QFile>
 #include <QSet>
@@ -54,15 +55,17 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
 Wallet::Wallet()
     : m_lock(QMutex::Recursive),
     m_walletChanged(true),
-    m_walletVersion(2)
+    m_walletVersion(2),
+    m_encryptionKey(32)
 {
 }
 
 Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
     : m_segment(new PrivacySegment(segmentId, this)),
-      m_lock(QMutex::Recursive),
-      m_walletVersion(1), // after version 1 we saved the version in the secrets file.
-      m_basedir(basedir / QString("wallet-%1/").arg(segmentId).toStdString())
+    m_lock(QMutex::Recursive),
+    m_walletVersion(1), // after version 1 we saved the version in the secrets file.
+    m_basedir(basedir / QString("wallet-%1/").arg(segmentId).toStdString()),
+    m_encryptionKey(32)
 {
     loadSecrets();
     loadWallet();
@@ -765,9 +768,27 @@ uint32_t Wallet::encryptionSeed() const
 
 void Wallet::setEncryptionSeed(uint32_t seed)
 {
+    assert(!m_haveEncryptionKey); // Wrong order of calls.
     m_encryptionSeed = seed;
 }
 
+void Wallet::setEncryptionPassword(const QString &password)
+{
+    CSHA256 hasher;
+    const auto bytes = password.toUtf8();
+    if (m_encryptionSeed == 0)
+        GetRandBytes((unsigned char*)&m_encryptionSeed, sizeof(m_encryptionSeed));
+    hasher.Write(reinterpret_cast<char*>(&m_encryptionSeed), sizeof(m_encryptionSeed));
+    hasher.Write(bytes.constData(), bytes.size());
+    hasher.Write(reinterpret_cast<char*>(&m_encryptionSeed), sizeof(m_encryptionSeed));
+    assert(m_encryptionKey.size() == 32);
+    hasher.Finalize(&m_encryptionKey[0]);
+    // second round
+    hasher.Reset();
+    hasher.Write(&m_encryptionKey[0], 32);
+    hasher.Finalize(&m_encryptionKey[0]);
+    m_haveEncryptionKey = true;
+}
 
 void Wallet::setEncryption(EncryptionLevel level)
 {
@@ -776,10 +797,11 @@ void Wallet::setEncryption(EncryptionLevel level)
         throw std::runtime_error("Removing encryption from wallet not implemented");
 
     if (level > m_encryptionLevel) {
+        if (!m_haveEncryptionKey)
+            throw std::runtime_error("Set encryption password first!");
         m_encryptionLevel = level;
-        GetRandBytes((unsigned char*)&m_encryptionSeed, sizeof(m_encryptionSeed));
         m_secretsChanged = true;
-        saveSecrets();
+        saveSecrets(); // don't delay as the next step will delete our private keys
     }
 
     if (m_encryptionLevel == SecretsEncrypted) {
@@ -799,10 +821,32 @@ Wallet::EncryptionLevel Wallet::encryption() const
     return m_encryptionLevel;
 }
 
-bool Wallet::decrypt(const QString &passphrase)
+void Wallet::decrypt()
 {
-    // TODO
-    return true;
+    QMutexLocker locker(&m_lock);
+    Streaming::MessageParser parser(readSecrets());
+    int index = 0;
+    std::unique_ptr<AES256Decrypt> crypto;
+    while (parser.next() == Streaming::FoundTag) {
+        if (parser.tag() == WalletPriv::Index) {
+            index = parser.intData();
+        }
+        else if (parser.tag() == WalletPriv::PrivKeyEncrypted) {
+            auto secret = m_walletSecrets.find(index);
+            assert (secret != m_walletSecrets.end());
+            if (crypto.get() == nullptr) {
+                crypto.reset(new AES256Decrypt(&m_encryptionKey[0]));
+                m_encryptionLevel = SecretsEncrypted;
+            }
+            std::vector<uint8_t> buf(32);
+            assert(buf.size() == 32);
+            auto data = parser.bytesDataBuffer();
+            crypto->decrypt(reinterpret_cast<char*>(&buf[0]), data.begin());
+            crypto->decrypt(reinterpret_cast<char*>(&buf[16]), data.begin() + 16);
+            secret->second.privKey.set(buf.begin(), buf.end(), 32);
+        }
+    }
+    // TODO read HD wallet keys
 }
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
@@ -1283,23 +1327,27 @@ bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
     return false;
 }
 
-void Wallet::loadSecrets()
+Streaming::ConstBuffer Wallet::readSecrets() const
 {
     std::ifstream in((m_basedir / "secrets.dat").string());
     if (!in.is_open())
         throw std::runtime_error("Missing secrets.dat");
-    QMutexLocker locker(&m_lock);
     const auto dataSize = boost::filesystem::file_size(m_basedir / "secrets.dat");
     Streaming::BufferPool pool(dataSize);
     in.read(pool.begin(), dataSize);
-    Streaming::MessageParser parser(pool.commit(dataSize));
+    return pool.commit(dataSize);
+}
+
+void Wallet::loadSecrets()
+{
+    QMutexLocker locker(&m_lock);
+    Streaming::MessageParser parser(readSecrets());
     WalletSecret secret;
     std::string mnemonic, mnemonicpwd;
     std::vector<uint32_t> derivationPath;
     int derivationPathChangeIndex = -1;
     int derivationPathMainIndex = -1;
     int index = 0;
-    std::unique_ptr<AES256Decrypt> crypto;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
             if (index > 0 && secret.address.size() > 0) {
@@ -1412,7 +1460,10 @@ void Wallet::saveSecrets()
 
     std::unique_ptr<AES256Encrypt> crypto;
     if (m_encryptionLevel >= SecretsEncrypted) {
-        crypto.reset(new AES256Encrypt("111")); // TODO
+        assert(m_haveEncryptionKey);
+        if (!m_haveEncryptionKey)
+            throw std::runtime_error("Can not save wallet, no password available");
+        crypto.reset(new AES256Encrypt(&m_encryptionKey[0]));
     }
     builder.add(WalletPriv::WalletVersion, m_walletVersion);
     if (m_hdData.get()) {

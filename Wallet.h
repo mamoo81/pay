@@ -214,7 +214,30 @@ public:
      */
     uint32_t encryptionSeed() const;
 
+    /**
+     * For an already encrypted wallet, set the seed.
+     * The usage is, in order;
+     * @code
+     *   setEncryptionSeed(walletSeed);
+     *   setEncryptionPassword(userPassword);
+     *   setEncryptionLevel(walletLevel);
+     * @code
+     *
+     * After this methods like decrypt() become available as well as the ability
+     * to sync a wallet that auto-generates its own keys.
+     */
     void setEncryptionSeed(uint32_t newEncryptionSeed);
+
+    /**
+     * A newly encrypted wallet needs a password before it can be saved or decrypted.
+     *
+     * Notice that if no seed is set (typically because this is currently an unencrypted
+     * wallet), we'll create a (good) random one.
+     *
+     * After this methods like decrypt() become available as well as the ability
+     * to sync a wallet that auto-generates its own keys.
+     */
+    void setEncryptionPassword(const QString &password);
 
     enum EncryptionLevel {
         NotEncrypted,
@@ -244,9 +267,8 @@ public:
      */
     void setEncryption(EncryptionLevel level);
     EncryptionLevel encryption() const;
-
     /// Read encrypted secrets from disk into memory
-    bool decrypt(const QString &passphrase);
+    void decrypt();
 
 #ifdef IN_TESTS
     /**
@@ -359,6 +381,8 @@ protected:
 private:
     /// see also saveWallet()
     void loadWallet();
+    // called by loadSecrets and decrypt()
+    Streaming::ConstBuffer readSecrets() const;
     void loadSecrets();
     void saveSecrets();
 
@@ -508,6 +532,8 @@ private:
     bool m_saveStarted = false;
     uint32_t m_encryptionSeed = 0; // not saved by us (because, duh)
     EncryptionLevel m_encryptionLevel = NotEncrypted;
+    bool m_haveEncryptionKey = false;
+    std::vector<char, secure_allocator<char>> m_encryptionKey;
 
     QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
 
