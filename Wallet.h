@@ -18,20 +18,19 @@
 #ifndef FLOWEE_WALLET_H
 #define FLOWEE_WALLET_H
 
+#include <QObject>
+#include <QMutex>
+
 #include <DataListenerInterface.h>
 #include <PrivacySegment.h>
 
+#include <HDMasterKey.h>
 #include <primitives/key.h>
 #include <primitives/pubkey.h>
 #include <primitives/Tx.h>
 
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem.hpp>
-
-#include <QMutex>
-#include <QString>
-#include <QObject>
-#include <HDMasterKey.h>
 
 class WalletInfoObject;
 class TransactionInfo;
@@ -534,6 +533,7 @@ private:
     EncryptionLevel m_encryptionLevel = NotEncrypted;
     bool m_haveEncryptionKey = false;
     std::vector<char, secure_allocator<char>> m_encryptionKey;
+    std::vector<char, secure_allocator<char>> m_encryptionIR;
 
     QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
 

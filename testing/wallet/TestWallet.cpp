@@ -763,7 +763,83 @@ void TestWallet::testEncryption1()
             QVERIFY(i->second.privKey.isValid());
         }
     }
+}
 
+// test wallet encryption level Full
+void TestWallet::testEncryption2()
+{
+    const QString PWD("Hello this is a password");
+    uint32_t seed = 0; // the seed is stored outside of the wallet.
+    QString txHash;
+    {
+        auto wallet = createWallet();
+        QCOMPARE(wallet->encryptionSeed(), 0);
+        wallet->addTestTransactions();
+        // add a transaction that will be saved on disk.
+        TransactionBuilder builder;
+        builder.appendInput(uint256S("7690458423233793949274923986540813794798131233949274923986540813"), 1);
+        builder.appendOutput(6012412);
+        CKeyID address;
+        wallet->reserveUnusedAddress(address);
+        builder.pushOutputPay2Address(address);
+        QCOMPARE(wallet->balanceUnconfirmed(), 0);
+        Tx newTx = builder.createTransaction();
+        wallet->newTransaction(newTx);
+        QCOMPARE(wallet->balanceUnconfirmed(), 6012412);
+        txHash = QString::fromStdString(newTx.createHash().ToString());
+    }
+    QString txFile("%1/wallet-1111/%2/%3");
+    txFile = txFile.arg(m_dir).arg(txHash.left(2)).arg(txHash.mid(2));
+    QVERIFY(QFile::exists(txFile));
+
+    {
+        auto wallet = openWallet();
+        auto secrets = wallet->walletSecrets();
+        QCOMPARE(secrets.size(), (size_t)10);
+        for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+            QVERIFY(i->second.privKey.isValid());
+        }
+
+        QCOMPARE(wallet->encryptionSeed(), 0);
+        wallet->setEncryptionPassword(PWD);
+        wallet->setEncryption(Wallet::FullyEncrypted);
+        QVERIFY(wallet->encryptionSeed() != 0);
+        seed = wallet->encryptionSeed();
+
+        secrets = wallet->walletSecrets();
+        for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+            QVERIFY(i->second.privKey.isValid() == false);
+        }
+    }
+
+    // a wallet that has been fully encrypted should have encrypted the
+    // on disk transactions and renamed the files.
+    QCOMPARE(QFile::exists(txFile), false);
+
+    {
+        auto wallet = openWallet();
+        QCOMPARE(wallet->encryption(), Wallet::FullyEncrypted);
+        QVERIFY(wallet->walletSecrets().empty());
+
+        // decrypt wallet and check
+        wallet->setEncryptionSeed(seed); // we need to set it to allow decryption to work
+        wallet->setEncryptionPassword(PWD);
+        wallet->decrypt();
+        int64_t change;
+        auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
+        const auto &secrets = wallet->walletSecrets();
+        QCOMPARE(secrets.size(), (size_t)10);
+        for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+            QVERIFY(i->second.privKey.isValid());
+        }
+
+        // TODO fetch tx info
+    }
+}
+
+void TestWallet::testEncryption3()
+{
+    // Test HD wallet encryption of level SecretsEncrypted
 }
 
 std::unique_ptr<MockWallet> TestWallet::createWallet()

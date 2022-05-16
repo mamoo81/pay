@@ -41,7 +41,7 @@ void Wallet::addTestTransactions()
             output.walletSecretId = 1;
             output.value = 100000;
             wtx.minedBlockHeight = 1;
-            wtx.txid = uint256S("394927492398654081379479813123");
+            wtx.txid = uint256S("7690458423233793949274923986540813794798131233949274923986540813");
             break;
         case 1:
             output.walletSecretId = 2;

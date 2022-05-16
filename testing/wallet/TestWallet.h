@@ -18,6 +18,7 @@
 #ifndef TEST_WALLET_H
 #define TEST_WALLET_H
 
+#include <QString> // for Logging
 #include <BlockHeader.h>
 #include <QObject>
 
@@ -53,6 +54,8 @@ private slots:
     void rejectTx();
 
     void testEncryption1();
+    void testEncryption2();
+    void testEncryption3();
 
 private:
     std::unique_ptr<MockWallet> createWallet();
