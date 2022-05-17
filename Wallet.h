@@ -53,7 +53,7 @@ public:
      * Load existing wallet.
      * This throws should there not be any data found.
      */
-    Wallet(const boost::filesystem::path &basedir, uint16_t segmentId);
+    Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint32_t encryptionSeed = 0);
     ~Wallet();
 
     class OutputRef {

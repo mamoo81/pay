@@ -71,6 +71,10 @@ enum PrivateSaveTags {
 
     // Versioning
     WalletVersion,            // int.
+
+
+    // insert new ones above this one. (and NEVER use this enum in a save-file)
+    END_OF_PRIV_SAVE_TAGS
 };
 
 enum WalletDataSaveTags {

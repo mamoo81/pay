@@ -798,7 +798,7 @@ void TestWallet::testEncryption2()
     QVERIFY(QFile::exists(txFile));
 
     {
-        auto wallet = openWallet();
+        auto wallet = openWallet(seed);
         auto secrets = wallet->walletSecrets();
         QCOMPARE(secrets.size(), (size_t)10);
         for (auto i = secrets.begin(); i != secrets.end(); ++i) {
@@ -827,7 +827,7 @@ void TestWallet::testEncryption2()
     QCOMPARE(QFile::exists(txFile), false);
 
     {
-        auto wallet = openWallet();
+        auto wallet = openWallet(seed);
         QCOMPARE(wallet->encryption(), Wallet::FullyEncrypted);
         QVERIFY(wallet->walletSecrets().empty());
 
@@ -869,11 +869,11 @@ std::unique_ptr<MockWallet> TestWallet::createWallet()
     return wallet;
 }
 
-std::unique_ptr<MockWallet> TestWallet::openWallet()
+std::unique_ptr<MockWallet> TestWallet::openWallet(uint32_t encryptionSeed)
 {
     Q_ASSERT(!m_dir.isEmpty());
     std::unique_ptr<MockWallet> wallet(
-                static_cast<MockWallet*>(new Wallet(m_dir.toStdString(), 1111)));
+                static_cast<MockWallet*>(new Wallet(m_dir.toStdString(), 1111, encryptionSeed)));
     return wallet;
 }
 

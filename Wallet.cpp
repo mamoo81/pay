@@ -59,11 +59,12 @@ Wallet::Wallet()
 {
 }
 
-Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId)
+Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint32_t encryptionSeed)
     : m_segment(new PrivacySegment(segmentId, this)),
     m_lock(QMutex::Recursive),
     m_walletVersion(1), // after version 1 we saved the version in the secrets file.
-    m_basedir(basedir / QString("wallet-%1/").arg(segmentId).toStdString())
+    m_basedir(basedir / QString("wallet-%1/").arg(segmentId).toStdString()),
+    m_encryptionSeed(encryptionSeed)
 {
     loadSecrets();
     loadWallet();
@@ -533,12 +534,19 @@ void Wallet::saveTransaction(const Tx &tx)
     dir = dir.arg(QString::fromStdString(m_basedir.string()));
     try {
         uint256 txid(tx.createHash());
-        if (m_encryptionLevel > NotEncrypted) {
+        auto data = tx.data();
+        if (m_encryptionLevel == FullyEncrypted) {
+            // we encrypt transactions on-disk. Also we scramble their filename
             if (!m_haveEncryptionKey)
                 throw std::runtime_error("No encryption password set");
             for (int i = 0; i < 32; ++i) {
                 txid.begin()[i] += m_encryptionIR[i % m_encryptionIR.size()];
             }
+
+            AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
+            auto &pool = Streaming::pool(data.size() + AES_BLOCKSIZE);
+            int size = crypto.encrypt(data.begin(), data.size(), pool.data());
+            data = pool.commit(size);
         }
         QString filename = QString::fromStdString(txid.ToString());
         QString localdir = dir.arg(filename.left(2));
@@ -548,7 +556,7 @@ void Wallet::saveTransaction(const Tx &tx)
 
         std::ofstream txSaver;
         txSaver.open((localdir + filename).toStdString());
-        txSaver.write(tx.data().begin(), tx.size());
+        txSaver.write(data.begin(), data.size());
     } catch (const std::exception &e) {
         logFatal() << "Could not store transaction" << e.what();
         throw;
@@ -906,32 +914,40 @@ Wallet::EncryptionLevel Wallet::encryption() const
 void Wallet::decrypt()
 {
     QMutexLocker locker(&m_lock);
+    assert(m_encryptionLevel > NotEncrypted); // misusage.
     if (!m_haveEncryptionKey)
         throw std::runtime_error("Need password set first");
 
-    Streaming::MessageParser parser(readSecrets());
-    int index = 0;
-    std::unique_ptr<AES256Decrypt> crypto;
-    while (parser.next() == Streaming::FoundTag) {
-        if (parser.tag() == WalletPriv::Index) {
-            index = parser.intData();
-        }
-        else if (parser.tag() == WalletPriv::PrivKeyEncrypted) {
-            auto secret = m_walletSecrets.find(index);
-            assert (secret != m_walletSecrets.end());
-            if (crypto.get() == nullptr) {
-                crypto.reset(new AES256Decrypt(&m_encryptionKey[0]));
-                m_encryptionLevel = SecretsEncrypted;
+    if (m_encryptionLevel == SecretsEncrypted) {
+        Streaming::MessageParser parser(readSecrets());
+        int index = 0;
+        std::unique_ptr<AES256Decrypt> crypto;
+        while (parser.next() == Streaming::FoundTag) {
+            if (parser.tag() == WalletPriv::Index) {
+                index = parser.intData();
             }
-            std::vector<uint8_t> buf(32);
-            assert(buf.size() == 32);
-            auto data = parser.bytesDataBuffer();
-            crypto->decrypt(reinterpret_cast<char*>(&buf[0]), data.begin());
-            crypto->decrypt(reinterpret_cast<char*>(&buf[16]), data.begin() + 16);
-            secret->second.privKey.set(buf.begin(), buf.end(), 32);
+            else if (parser.tag() == WalletPriv::PrivKeyEncrypted) {
+                auto secret = m_walletSecrets.find(index);
+                assert (secret != m_walletSecrets.end());
+                if (crypto.get() == nullptr) {
+                    crypto.reset(new AES256Decrypt(&m_encryptionKey[0]));
+                    m_encryptionLevel = SecretsEncrypted;
+                }
+                std::vector<uint8_t> buf(32);
+                assert(buf.size() == 32);
+                auto data = parser.bytesDataBuffer();
+                crypto->decrypt(reinterpret_cast<char*>(&buf[0]), data.begin());
+                crypto->decrypt(reinterpret_cast<char*>(&buf[16]), data.begin() + 16);
+                secret->second.privKey.set(buf.begin(), buf.end(), 32);
+            }
         }
+        // TODO read HD wallet keys
     }
-    // TODO read HD wallet keys
+    else if (m_encryptionLevel == FullyEncrypted) {
+        assert(m_walletSecrets.empty()); // should not call decrypt multiple times.
+        loadSecrets();
+        loadWallet();
+    }
 }
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
@@ -1426,7 +1442,40 @@ Streaming::ConstBuffer Wallet::readSecrets() const
 void Wallet::loadSecrets()
 {
     QMutexLocker locker(&m_lock);
-    Streaming::MessageParser parser(readSecrets());
+    auto fileData = readSecrets();
+    if (m_encryptionSeed) {
+        // that gives a good chance that we are dealing with an encrypted
+        // wallet. Now the question is, do we have a fully encrypted wallet or a partial one.
+        // On top of that we need to figure out if we have a key to decrypt it, or if we
+        // simply return without loading.
+        //    Also see decrypt()
+
+        Streaming::MessageParser checker(fileData);
+        while (true) {
+            auto rc = checker.next();
+            if (rc == Streaming::Error || checker.tag() >= WalletPriv::END_OF_PRIV_SAVE_TAGS) {
+                m_encryptionLevel = FullyEncrypted;
+                break;
+            }
+            else if (rc == Streaming::EndOfDocument) {
+                break;
+            }
+        }
+        if (m_encryptionLevel == FullyEncrypted) {
+            if (!m_haveEncryptionKey)
+                return;
+            // we decrypt it.
+            AES256CBCDecrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
+            Streaming::BufferPool pool(fileData.size());
+            int newSize = crypto.decrypt(fileData.begin(), fileData.size(), pool.data());
+            if (newSize == 0) {
+                logCritical() << "Reading (encrypted) secrets file failed";
+                return;
+            }
+            fileData = pool.commit(newSize);
+        }
+    }
+    Streaming::MessageParser parser(fileData);
     WalletSecret secret;
     std::string mnemonic, mnemonicpwd;
     std::vector<uint32_t> derivationPath;
@@ -1543,12 +1592,13 @@ void Wallet::saveSecrets()
     Streaming::BufferPool pool(m_walletSecrets.size() * 70 + hdDataSize);
     Streaming::MessageBuilder builder(pool);
 
-    std::unique_ptr<AES256Encrypt> crypto;
+    std::unique_ptr<AES256CBCEncrypt> crypto;
     if (m_encryptionLevel >= SecretsEncrypted) {
         assert(m_haveEncryptionKey);
         if (!m_haveEncryptionKey)
-            throw std::runtime_error("Can not save wallet, no password set");
-        crypto.reset(new AES256Encrypt(&m_encryptionKey[0]));
+            throw std::runtime_error("Can not save wallet encrypted, no password set");
+        crypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0],
+                m_encryptionLevel == FullyEncrypted));
     }
     builder.add(WalletPriv::WalletVersion, m_walletVersion);
     if (m_hdData.get()) {
@@ -1569,10 +1619,8 @@ void Wallet::saveSecrets()
         assert(secret.privKey.isValid());
         if (m_encryptionLevel == SecretsEncrypted) {
             char buf[32]; // private keys are always 32 bytes
-            // since AES block size is 16, we need 2 calls.
-            crypto->encrypt(buf, reinterpret_cast<const char*>(secret.privKey.begin()));
-            crypto->encrypt(buf + 16, reinterpret_cast<const char*>(secret.privKey.begin() + 16));
-            builder.addByteArray(WalletPriv::PrivKeyEncrypted, buf, 32);
+            crypto->encrypt(reinterpret_cast<const char*>(secret.privKey.begin()), sizeof(buf), buf);
+            builder.addByteArray(WalletPriv::PrivKeyEncrypted, buf, sizeof(buf));
         }
         else {
             builder.addByteArray(WalletPriv::PrivKey, secret.privKey.begin(), secret.privKey.size());
@@ -1599,6 +1647,11 @@ void Wallet::saveSecrets()
         boost::filesystem::create_directories(m_basedir);
         boost::filesystem::remove(m_basedir / "secrets.dat~");
 
+        if (m_encryptionLevel == FullyEncrypted) {
+            pool.reserve(data.size() + AES_BLOCKSIZE);
+            int size = crypto->encrypt(data.begin(), data.size(), pool.data());
+            data = pool.commit(size);
+        }
         std::ofstream outFile((m_basedir / "secrets.dat~").string());
         outFile.write(data.begin(), data.size());
         outFile.flush();
@@ -1626,9 +1679,23 @@ void Wallet::loadWallet()
     if (!in.is_open())
         return;
     QMutexLocker locker(&m_lock);
-    const auto dataSize = boost::filesystem::file_size(m_basedir / "wallet.dat");
+    auto dataSize = boost::filesystem::file_size(m_basedir / "wallet.dat");
     Streaming::BufferPool pool(dataSize);
     in.read(pool.begin(), dataSize);
+    if (m_encryptionLevel == FullyEncrypted) {
+        if (!m_haveEncryptionKey)
+            return;
+
+        // we decrypt it.
+        auto data = pool.commit(dataSize);
+        AES256CBCDecrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
+        pool.reserve(dataSize);
+        dataSize = crypto.decrypt(data.begin(), data.size(), pool.data());
+        if (dataSize == 0) {
+            logCritical() << "Reading (encrypted) wallet.dat file failed";
+            return;
+        }
+    }
     Streaming::MessageParser parser(pool.commit(dataSize));
     WalletTransaction wtx;
     int index = 0;
@@ -1906,6 +1973,9 @@ void Wallet::saveWallet()
             return;
     }
 
+    if (m_encryptionLevel == FullyEncrypted && !m_haveEncryptionKey)
+        throw std::runtime_error("Can not save without passphrase set");
+
     int saveFileSize = m_name.size() * 3 + 100;
     for (const auto &i : m_walletTransactions) {
         const auto &wtx = i.second;
@@ -1980,6 +2050,13 @@ void Wallet::saveWallet()
         boost::filesystem::create_directories(m_basedir);
         boost::filesystem::remove(m_basedir / "wallet.dat~");
 
+        if (m_encryptionLevel == FullyEncrypted) {
+            AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
+            pool.reserve(data.size() + AES_BLOCKSIZE);
+            int size = crypto.encrypt(data.begin(), data.size(), pool.data());
+            data = pool.commit(size);
+        }
+        
         std::ofstream outFile((m_basedir / "wallet.dat~").string());
         outFile.write(data.begin(), data.size());
         outFile.flush();

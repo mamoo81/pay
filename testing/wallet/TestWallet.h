@@ -59,7 +59,7 @@ private slots:
 
 private:
     std::unique_ptr<MockWallet> createWallet();
-    std::unique_ptr<MockWallet> openWallet();
+    std::unique_ptr<MockWallet> openWallet(uint32_t encryptionSeed = 0);
     QString m_dir;
     const ECC_State m_state;
 };
