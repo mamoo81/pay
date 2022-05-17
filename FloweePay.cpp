@@ -58,7 +58,9 @@ constexpr const char *DefaultDerivationPathTestnet = "m/44'/145'/0'";
 
 enum FileTags {
     WalletId,
-    WalletPriority   // int, maps to PrivacySegment::Priority
+    WalletPriority,   // int, maps to PrivacySegment::Priority
+    WalletName,       // string. Duplicate of the wallet name
+    WalletEncryptionSeed // uint32 (see wallet.h)
 };
 
 static P2PNet::Chain s_chain = P2PNet::MainChain;
@@ -171,10 +173,11 @@ void FloweePay::init()
         Streaming::BufferPool pool(dataSize);
         in.read(pool.begin(), dataSize);
         Streaming::MessageParser parser(pool.commit(dataSize));
+        uint32_t walletEncryptionSeed = 0;
         while (parser.next() == Streaming::FoundTag) {
             if (parser.tag() == WalletId) {
                 try {
-                    Wallet *w = new Wallet(m_basedir.toStdString(), parser.intData());
+                    Wallet *w = new Wallet(m_basedir.toStdString(), parser.intData(), walletEncryptionSeed);
                     w->moveToThread(thread());
                     dl->addDataListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
@@ -184,6 +187,7 @@ void FloweePay::init()
                     logWarning() << "Wallet load failed:" << e;
                     lastOpened = nullptr;
                 }
+                walletEncryptionSeed = 0;
             }
             else if (parser.tag() == WalletPriority) {
                 if (lastOpened) {
@@ -197,6 +201,13 @@ void FloweePay::init()
                 }
                 else
                     logWarning() << "Priority found, but no wallet to apply it to";
+            }
+            else if (parser.tag() == WalletName) {
+                if (lastOpened && lastOpened->name().isEmpty())
+                    lastOpened->setName(QString::fromUtf8(parser.stringData().c_str()));
+            }
+            else if (parser.tag() == WalletEncryptionSeed) {
+                walletEncryptionSeed = static_cast<uint32_t>(parser.longData());
             }
         }
     }
@@ -228,8 +239,15 @@ void FloweePay::saveData()
     Streaming::BufferPool data;
     Streaming::MessageBuilder builder(data);
     for (auto &wallet : m_wallets) {
+        if (wallet->encryptionSeed() != 0)
+            builder.add(WalletEncryptionSeed,
+                static_cast<uint64_t>(wallet->encryptionSeed()));
         builder.add(WalletId, wallet->segment()->segmentId());
         builder.add(WalletPriority, wallet->segment()->priority());
+        if (!wallet->name().isEmpty()) {
+            auto data = wallet->name().toUtf8();
+            builder.addByteArray(WalletName, data.constData(), data.size());
+        }
     }
     QString filebase = m_basedir + AppdataFilename;
     QFile out(filebase + "~");
