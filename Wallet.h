@@ -377,7 +377,9 @@ signals:
 protected:
     Wallet();
 
+#ifndef IN_TESTS
 private:
+#endif
     /// see also saveWallet()
     void loadWallet();
     // called by loadSecrets and decrypt()

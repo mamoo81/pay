@@ -39,6 +39,10 @@ public:
     void markTxRejected(int txIndex) {
         broadcastTxFinished(txIndex, false);
     }
+
+    Tx loadTx(const uint256 &txHash, Streaming::BufferPool &pool) const {
+        return loadTransaction(txHash, pool);
+    }
 };
 
 void TestWallet::transactionOrdering()
@@ -770,7 +774,8 @@ void TestWallet::testEncryption2()
 {
     const QString PWD("Hello this is a password");
     uint32_t seed = 0; // the seed is stored outside of the wallet.
-    QString txHash;
+    Tx theTx;
+    Streaming::BufferPool pool;
     {
         auto wallet = createWallet();
         QCOMPARE(wallet->encryptionSeed(), 0);
@@ -783,11 +788,11 @@ void TestWallet::testEncryption2()
         wallet->reserveUnusedAddress(address);
         builder.pushOutputPay2Address(address);
         QCOMPARE(wallet->balanceUnconfirmed(), 0);
-        Tx newTx = builder.createTransaction();
-        wallet->newTransaction(newTx);
+        theTx = builder.createTransaction();
+        wallet->newTransaction(theTx);
         QCOMPARE(wallet->balanceUnconfirmed(), 6012412);
-        txHash = QString::fromStdString(newTx.createHash().ToString());
     }
+    QString txHash = QString::fromStdString(theTx.createHash().ToString());
     QString txFile("%1/wallet-1111/%2/%3");
     txFile = txFile.arg(m_dir).arg(txHash.left(2)).arg(txHash.mid(2));
     QVERIFY(QFile::exists(txFile));
@@ -810,6 +815,11 @@ void TestWallet::testEncryption2()
         for (auto i = secrets.begin(); i != secrets.end(); ++i) {
             QVERIFY(i->second.privKey.isValid() == false);
         }
+        // fetch tx info + compare contents
+        Tx txCopy = wallet->loadTx(theTx.createHash(), pool);
+        QVERIFY(txCopy.isValid());
+        QCOMPARE(txCopy.size(), theTx.size());
+        QCOMPARE(txCopy.createHash(), theTx.createHash());
     }
 
     // a wallet that has been fully encrypted should have encrypted the
@@ -833,7 +843,10 @@ void TestWallet::testEncryption2()
             QVERIFY(i->second.privKey.isValid());
         }
 
-        // TODO fetch tx info
+        // fetch tx info + compare contents
+        Tx txCopy = wallet->loadTx(theTx.createHash(), pool);
+        QVERIFY(txCopy.isValid());
+        QCOMPARE(txCopy.createHash(), theTx.createHash());
     }
 }
 

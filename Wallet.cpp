@@ -558,7 +558,7 @@ void Wallet::saveTransaction(const Tx &tx)
 Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) const
 {
     uint256 filename(txid);
-    if (m_encryptionLevel > NotEncrypted) {
+    if (m_encryptionLevel == FullyEncrypted) {
         if (!m_haveEncryptionKey)
             throw std::runtime_error("No encryption password set");
         for (int i = 0; i < 32; ++i) {
@@ -567,13 +567,22 @@ Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) con
     }
     QString path = QString::fromStdString(filename.ToString());
     path.insert(2, '/');
-    path = QString::fromStdString(m_basedir.string()) + "/" + path;
+    path = QString::fromStdString(m_basedir.string()) + path;
 
     QFile reader(path);
     if (reader.open(QIODevice::ReadOnly)) {
-        pool.reserve(reader.size());
-        reader.read(pool.begin(), reader.size());
-        return Tx(pool.commit(reader.size()));
+        int txSize = reader.size();
+        pool.reserve(txSize);
+        reader.read(pool.begin(), txSize);
+        if (m_encryptionLevel == FullyEncrypted) {
+            // decrypt the tx
+            assert(m_haveEncryptionKey); // checked above
+            AES256CBCDecrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
+            auto encryptedTx = pool.commit(txSize);
+            pool.reserve(txSize);
+            txSize = crypto.decrypt(encryptedTx.begin(), txSize, pool.data());
+        }
+        return Tx(pool.commit(txSize));
     }
     // return empty tx
     return Tx();
@@ -863,7 +872,6 @@ void Wallet::setEncryption(EncryptionLevel level)
                 QString localdir = base + filename.left(2);
                 boost::system::error_code error;
                 boost::filesystem::create_directories(localdir.toStdString(), error);
-                filename = filename.mid(2);
 
                 const QString newPath(localdir + '/' + filename.mid(2));
                 QFile writer(newPath);
