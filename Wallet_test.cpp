@@ -19,7 +19,7 @@
 
 /*
  * Warning; this file is only compiled for unit tests.
- * Nothing in this fill will be seen by any released applications.
+ * Nothing in this file will be seen by any released applications.
  */
 
 void Wallet::addTestTransactions()
