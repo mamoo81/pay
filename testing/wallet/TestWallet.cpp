@@ -793,8 +793,8 @@ void TestWallet::testEncryption2()
         QCOMPARE(wallet->balanceUnconfirmed(), 6012412);
     }
     QString txHash = QString::fromStdString(theTx.createHash().ToString());
-    QString txFile("%1/wallet-1111/%2/%3");
-    txFile = txFile.arg(m_dir).arg(txHash.left(2)).arg(txHash.mid(2));
+    const QString baseName("%1/wallet-1111/%2/%3");
+    QString txFile = baseName.arg(m_dir).arg(txHash.left(2)).arg(txHash.mid(2));
     QVERIFY(QFile::exists(txFile));
 
     {
@@ -847,6 +847,32 @@ void TestWallet::testEncryption2()
         Tx txCopy = wallet->loadTx(theTx.createHash(), pool);
         QVERIFY(txCopy.isValid());
         QCOMPARE(txCopy.createHash(), theTx.createHash());
+
+        // does it detect duplicates?
+        QCOMPARE(wallet->balanceUnconfirmed(), 6012412);
+        wallet->newTransaction(theTx);
+        QCOMPARE(wallet->balanceUnconfirmed(), 6012412);
+
+        TransactionBuilder builder;
+        builder.appendInput(uint256S("7690458423233793949274923986540813794798131233949274923986540813"), 2);
+        builder.appendOutput(1283482);
+        CKeyID address;
+        wallet->reserveUnusedAddress(address);
+        builder.pushOutputPay2Address(address);
+        QCOMPARE(wallet->balanceUnconfirmed(), 6012412);
+        auto newTx = builder.createTransaction();
+        wallet->newTransaction(newTx);
+        QCOMPARE(wallet->balanceUnconfirmed(), 6012412 + 1283482);
+
+        // the name if it was saved without obfuscation
+        auto hash = QString::fromStdString(newTx.createHash().ToString());
+        txFile = baseName.arg(m_dir).arg(hash.left(2)).arg(hash.mid(2));
+        QVERIFY(QFile::exists(txFile) == false);
+
+        auto savedTx = wallet->loadTx(newTx.createHash(), pool);
+        QVERIFY(savedTx.isValid());
+        QCOMPARE(savedTx.size(), newTx.size());
+        QCOMPARE(savedTx.createHash(), newTx.createHash());
     }
 }
 
