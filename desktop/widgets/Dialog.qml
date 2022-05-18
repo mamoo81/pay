@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,14 +33,33 @@ Popup {
     id: root
 
     signal accepted
+    signal rejected
     property alias title: titleLabel.text
     property alias text: mainTextLabel.text
+    property alias contentComponent: content.sourceComponent
 
     modal: true
-    focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+    onVisibleChanged: {
+        // make sure any content gets focus on open
+        if (visible && content.item)
+            content.item.forceActiveFocus()
+    }
 
     Column {
+        width: {
+            let wanted = Math.max(mainTextLabel.implicitWidth, titleLabel.implicitWidth)
+            if (content.item)
+                wanted = Math.max(wanted, content.item.width)
+            let max = root.parent.width
+            let min = buttons.implicitWidth
+            let ideal = Math.max(min, max / 3)
+            if (wanted < ideal)
+                return ideal
+            if (wanted < max / 2 * 3)
+                return wanted
+            return max / 2 * 3;
+        }
         spacing: 10
         Label {
             id: titleLabel
@@ -49,15 +68,25 @@ Popup {
         }
         Label {
             id: mainTextLabel
+            width: parent.width
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        }
+        Loader {
+            id: content
+            width: parent.width
         }
         Flowee.DialogButtonBox {
+            id: buttons
             standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
             width: parent.width
             onAccepted: {
                 root.accepted();
                 root.close()
             }
-            onRejected: root.close()
+            onRejected: {
+                root.rejected();
+                root.close()
+            }
         }
     }
 }
