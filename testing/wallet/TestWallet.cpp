@@ -874,11 +874,50 @@ void TestWallet::testEncryption2()
         QCOMPARE(savedTx.size(), newTx.size());
         QCOMPARE(savedTx.createHash(), newTx.createHash());
     }
+
+    // clear the secrets and then decrypt to see if they come back.
+    {
+        auto wallet = openWallet(seed);
+        QCOMPARE(wallet->encryption(), Wallet::FullyEncrypted);
+        QVERIFY(wallet->walletSecrets().empty());
+
+        // decrypt wallet and check
+        wallet->setEncryptionSeed(seed); // we need to set it to allow decryption to work
+        wallet->setEncryptionPassword(PWD);
+        wallet->decrypt();
+        {
+            const auto &secrets = wallet->walletSecrets();
+            QCOMPARE(secrets.size(), (size_t)10);
+            for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+                QVERIFY(i->second.privKey.isValid());
+            }
+        }
+        wallet->clearDecryptedSecrets();
+        {
+            const auto &secrets = wallet->walletSecrets();
+            QCOMPARE(secrets.size(), (size_t)10);
+            for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+                QVERIFY(i->second.privKey.isValid() == false);
+            }
+        }
+
+        wallet->decrypt();
+        {
+            const auto &secrets = wallet->walletSecrets();
+            QCOMPARE(secrets.size(), (size_t)10);
+            for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+                QVERIFY(i->second.privKey.isValid());
+            }
+        }
+    }
 }
 
 void TestWallet::testEncryption3()
 {
     // Test HD wallet encryption of level SecretsEncrypted
+
+    // Test a wallet that is set to secrets encryption and then in
+    // encrypted state moved to fully encrypted. Check if it doesn't lose any secrets.
 }
 
 std::unique_ptr<MockWallet> TestWallet::createWallet()

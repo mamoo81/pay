@@ -35,6 +35,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(timeBehindChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(encryptionChanged()), this, SIGNAL(encryptionChanged()), Qt::QueuedConnection);
     connect(FloweePay::instance(), SIGNAL(headerChainHeightChanged()), this, SIGNAL(timeBehindChanged()));
 }
 
@@ -202,6 +203,16 @@ void AccountInfo::setHasFreshTransactions(bool fresh)
     emit hasFreshTransactionsChanged();
 }
 
+bool AccountInfo::needsPinToPay() const
+{
+    return m_wallet->encryption() == Wallet::SecretsEncrypted;
+}
+
+bool AccountInfo::needsPinToOpen() const
+{
+    return m_wallet->encryption() == Wallet::FullyEncrypted;
+}
+
 void AccountInfo::setDefaultWallet(bool isDefault)
 {
     auto segment = m_wallet->segment();
@@ -246,6 +257,31 @@ TransactionInfo* AccountInfo::txInfo(int walletIndex, QObject *parent)
 QObject *AccountInfo::createPaymentRequest(QObject *parent)
 {
     return new PaymentRequest(m_wallet, parent);
+}
+
+void AccountInfo::encryptPinToPay(const QString &password)
+{
+    m_wallet->setEncryptionPassword(password);
+    m_wallet->setEncryption(Wallet::SecretsEncrypted);
+}
+
+void AccountInfo::encryptPinToOpen(const QString &password)
+{
+    m_wallet->setEncryptionPassword(password);
+    m_wallet->setEncryption(Wallet::FullyEncrypted);
+}
+
+void AccountInfo::decrypt(const QString &password)
+{
+    m_wallet->setEncryptionPassword(password);
+    m_wallet->decrypt();
+}
+
+void AccountInfo::closeWallet()
+{
+    // this forgets secrets
+    m_wallet->clearEncryptionPassword();
+    m_wallet->clearDecryptedSecrets();
 }
 
 bool AccountInfo::isSingleAddressAccount() const

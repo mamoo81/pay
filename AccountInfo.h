@@ -57,6 +57,8 @@ class AccountInfo : public QObject
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath CONSTANT)
     Q_PROPERTY(QDateTime lastMinedTransaction READ lastMinedTransaction NOTIFY balanceChanged)
     Q_PROPERTY(bool hasFreshTransactions READ hasFreshTransactions WRITE setHasFreshTransactions NOTIFY hasFreshTransactionsChanged)
+    Q_PROPERTY(bool needsPinToPay READ needsPinToPay NOTIFY encryptionChanged)
+    Q_PROPERTY(bool needsPinToOpen READ needsPinToOpen NOTIFY encryptionChanged)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -109,6 +111,12 @@ public:
      */
     Q_INVOKABLE QObject* createPaymentRequest(QObject *parent);
 
+    Q_INVOKABLE void encryptPinToPay(const QString &password);
+    Q_INVOKABLE void encryptPinToOpen(const QString &password);
+    Q_INVOKABLE void decrypt(const QString &password);
+    /// revoke 'pin' on an encrypted account
+    Q_INVOKABLE void closeWallet();
+
     Wallet *wallet() const {
         return m_wallet;
     }
@@ -134,6 +142,9 @@ public:
     bool hasFreshTransactions() const;
     void setHasFreshTransactions(bool fresh);
 
+    bool needsPinToPay() const;
+    bool needsPinToOpen() const;
+
 signals:
     void balanceChanged();
     void utxosChanged();
@@ -145,6 +156,7 @@ signals:
     void userOwnedChanged();
     void isArchivedChanged();
     void hasFreshTransactionsChanged();
+    void encryptionChanged();
 
 private slots:
     // callback from wallet

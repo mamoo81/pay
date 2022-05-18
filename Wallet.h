@@ -268,6 +268,8 @@ public:
     EncryptionLevel encryption() const;
     /// Read encrypted secrets from disk into memory
     void decrypt();
+    void clearEncryptionPassword();
+    void clearDecryptedSecrets();
 
 #ifdef IN_TESTS
     /**
@@ -306,6 +308,8 @@ public:
         int hdDerivationIndex = -1;
         /// if true, this address has been reseved to receive funds on
         bool reserved = false; // in-mem-only
+
+        void setPrivKey(const Streaming::ConstBuffer &data);
     };
 
     /// Return the private keys and details owned by this wallet.
@@ -370,6 +374,7 @@ signals:
     void userOwnedChanged();
     void transactionChanged(int txIndex);
     void transactionConfirmed(int txIndex);
+    void encryptionChanged();
 
     // \internal
     void startDelayedSave();

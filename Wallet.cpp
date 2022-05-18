@@ -829,6 +829,30 @@ void Wallet::setEncryptionPassword(const QString &password)
     m_haveEncryptionKey = true;
 }
 
+void Wallet::clearEncryptionPassword()
+{
+    QMutexLocker locker(&m_lock);
+    m_haveEncryptionKey = false;
+    m_encryptionKey.resize(0);
+    m_encryptionIR.resize(0);
+}
+
+void Wallet::clearDecryptedSecrets()
+{
+    if (m_encryptionLevel > NotEncrypted) {
+        // remove the secrets from our in-memory dataset.
+        std::vector<uint8_t> empty;
+        for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+            i->second.privKey.set(empty.begin(), empty.end());
+            assert(i->second.privKey.isValid() == false);
+        }
+
+        // TODO implement cleaning for HD wallets too
+        assert(m_hdData.get() == nullptr);
+    }
+    emit encryptionChanged();
+}
+
 void Wallet::setEncryption(EncryptionLevel level)
 {
     QMutexLocker locker(&m_lock);
@@ -894,16 +918,7 @@ void Wallet::setEncryption(EncryptionLevel level)
         }
     }
 
-    if (m_encryptionLevel > NotEncrypted) {
-        // remove the secrets from our in-memory dataset.
-        std::vector<uint8_t> empty;
-        for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
-            i->second.privKey.set(empty.begin(), empty.end());
-            assert(i->second.privKey.isValid() == false);
-        }
-        // TODO implement cleaning for HD wallets too
-        assert(m_hdData.get() == nullptr);
-    }
+    clearDecryptedSecrets();
 }
 
 Wallet::EncryptionLevel Wallet::encryption() const
@@ -919,7 +934,8 @@ void Wallet::decrypt()
         throw std::runtime_error("Need password set first");
 
     if (m_encryptionLevel == SecretsEncrypted) {
-        Streaming::MessageParser parser(readSecrets());
+        auto data = readSecrets();
+        Streaming::MessageParser parser(data);
         int index = 0;
         std::unique_ptr<AES256Decrypt> crypto;
         while (parser.next() == Streaming::FoundTag) {
@@ -927,6 +943,11 @@ void Wallet::decrypt()
                 index = parser.intData();
             }
             else if (parser.tag() == WalletPriv::PrivKeyEncrypted) {
+                if (parser.dataLength() != 32) {
+                    logWarning() << "Privkey size invalid. Index:" << index << "size:"
+                                  << parser.dataLength();
+                    continue;
+                }
                 auto secret = m_walletSecrets.find(index);
                 assert (secret != m_walletSecrets.end());
                 if (crypto.get() == nullptr) {
@@ -938,16 +959,20 @@ void Wallet::decrypt()
                 auto data = parser.bytesDataBuffer();
                 crypto->decrypt(reinterpret_cast<char*>(&buf[0]), data.begin());
                 crypto->decrypt(reinterpret_cast<char*>(&buf[16]), data.begin() + 16);
-                secret->second.privKey.set(buf.begin(), buf.end(), 32);
+                secret->second.privKey.set(buf.begin(), buf.end());
             }
         }
         // TODO read HD wallet keys
     }
     else if (m_encryptionLevel == FullyEncrypted) {
-        assert(m_walletSecrets.empty()); // should not call decrypt multiple times.
+        // clear before load, allowing the user to call
+        // clearDecryptedSecrets() and then refresh from disk the secrets.
+        m_walletSecrets.clear();
         loadSecrets();
-        loadWallet();
+        if (m_walletTransactions.empty())
+            loadWallet();
     }
+    emit encryptionChanged();
 }
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
@@ -1434,7 +1459,7 @@ Streaming::ConstBuffer Wallet::readSecrets() const
     if (!in.is_open())
         throw std::runtime_error("Missing secrets.dat");
     const auto dataSize = boost::filesystem::file_size(m_basedir / "secrets.dat");
-    Streaming::BufferPool pool(dataSize);
+    auto &pool = Streaming::pool(dataSize);
     in.read(pool.begin(), dataSize);
     return pool.commit(dataSize);
 }
@@ -1451,15 +1476,12 @@ void Wallet::loadSecrets()
         //    Also see decrypt()
 
         Streaming::MessageParser checker(fileData);
-        while (true) {
+        while (m_encryptionLevel == NotEncrypted) {
             auto rc = checker.next();
-            if (rc == Streaming::Error || checker.tag() >= WalletPriv::END_OF_PRIV_SAVE_TAGS) {
+            if (rc == Streaming::Error || checker.tag() >= WalletPriv::END_OF_PRIV_SAVE_TAGS)
                 m_encryptionLevel = FullyEncrypted;
+            else if (rc == Streaming::EndOfDocument)
                 break;
-            }
-            else if (rc == Streaming::EndOfDocument) {
-                break;
-            }
         }
         if (m_encryptionLevel == FullyEncrypted) {
             if (!m_haveEncryptionKey)
@@ -1710,7 +1732,6 @@ void Wallet::loadWallet()
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
             assert(index > 0);
-            assert(m_walletTransactions.find(index) == m_walletTransactions.end());
             assert(!wtx.inputToWTX.empty() || !wtx.outputs.empty());
             m_walletTransactions.insert(std::make_pair(index, wtx));
             m_txidCache.insert(std::make_pair(wtx.txid, index));
