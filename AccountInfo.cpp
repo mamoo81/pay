@@ -213,6 +213,21 @@ bool AccountInfo::needsPinToOpen() const
     return m_wallet->encryption() == Wallet::FullyEncrypted;
 }
 
+bool AccountInfo::isDecrypted() const
+{
+    if (m_wallet->encryption() == Wallet::NotEncrypted)
+        return true;
+
+    const auto &secrets = m_wallet->walletSecrets();
+    if (secrets.empty())
+        return false;
+    for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+        if (i->second.privKey.isValid())
+            return true;
+    }
+    return false;
+}
+
 void AccountInfo::setDefaultWallet(bool isDefault)
 {
     auto segment = m_wallet->segment();

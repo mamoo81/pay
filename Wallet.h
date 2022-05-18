@@ -237,6 +237,7 @@ public:
      * to sync a wallet that auto-generates its own keys.
      */
     void setEncryptionPassword(const QString &password);
+    bool hasEncryptionPassword() const;
 
     enum EncryptionLevel {
         NotEncrypted,

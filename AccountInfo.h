@@ -59,6 +59,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(bool hasFreshTransactions READ hasFreshTransactions WRITE setHasFreshTransactions NOTIFY hasFreshTransactionsChanged)
     Q_PROPERTY(bool needsPinToPay READ needsPinToPay NOTIFY encryptionChanged)
     Q_PROPERTY(bool needsPinToOpen READ needsPinToOpen NOTIFY encryptionChanged)
+    Q_PROPERTY(bool isDecrypted READ isDecrypted NOTIFY encryptionChanged)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -144,6 +145,7 @@ public:
 
     bool needsPinToPay() const;
     bool needsPinToOpen() const;
+    bool isDecrypted() const;
 
 signals:
     void balanceChanged();

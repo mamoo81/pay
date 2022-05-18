@@ -829,6 +829,11 @@ void Wallet::setEncryptionPassword(const QString &password)
     m_haveEncryptionKey = true;
 }
 
+bool Wallet::hasEncryptionPassword() const
+{
+    return m_haveEncryptionKey;
+}
+
 void Wallet::clearEncryptionPassword()
 {
     QMutexLocker locker(&m_lock);
@@ -1616,7 +1621,6 @@ void Wallet::saveSecrets()
 
     std::unique_ptr<AES256CBCEncrypt> crypto;
     if (m_encryptionLevel >= SecretsEncrypted) {
-        assert(m_haveEncryptionKey);
         if (!m_haveEncryptionKey)
             throw std::runtime_error("Can not save wallet encrypted, no password set");
         crypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0],

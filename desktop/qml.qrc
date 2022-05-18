@@ -35,6 +35,7 @@
         <file>NewAccountCreateBasicAccount.qml</file>
         <file>NewAccountImportAccount.qml</file>
         <file>NewAccountCreateHDAccount.qml</file>
+        <file>WalletEncryption.qml</file>
         <file>widgets/ArrowPoint.qml</file>
         <file>widgets/BitcoinAmountLabel.qml</file>
         <file>widgets/Button.qml</file>

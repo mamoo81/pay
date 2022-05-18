@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,13 +91,20 @@ void PaymentRequest::setWallet(Wallet *wallet)
         m_wallet->removePaymentRequest(this);
         if (m_paymentState == Unpaid)
             m_wallet->unreserveAddress(m_privKeyId);
+        m_wallet = nullptr;
+    }
+
+    // if the wallet is encrypted we don't use it.
+    if (wallet && wallet->encryption() == Wallet::FullyEncrypted
+            // for this to work, it needs to have the password set
+            &&!wallet->hasEncryptionPassword()) {
+        wallet = nullptr;
     }
     m_wallet = wallet;
     if (m_wallet) {
         m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
         m_wallet->addPaymentRequest(this);
     }
-
     emit walletChanged();
     emit qrCodeStringChanged();
 }

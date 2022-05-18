@@ -292,7 +292,7 @@ ApplicationWindow {
 
         Loader {
             // This overlays the tabbed pane
-            id: accountDetails
+            id: accountOverlay
             anchors.bottom: parent.bottom
             anchors.left: overviewPane.right
             anchors.right: parent.right
@@ -306,15 +306,24 @@ ApplicationWindow {
                     name: "showTransactions"
                     PropertyChanges { target: tabbedPane; opacity: 1 }
                     PropertyChanges { target: tabbar; focus: true }
-                    PropertyChanges { target: accountDetails;
+                    PropertyChanges { target: accountOverlay;
                         opacity: 0;
                         source: "";
                     }
                 },
                 State {
                     name: "accountDetails"
-                    PropertyChanges { target: accountDetails;
+                    PropertyChanges { target: accountOverlay;
                         source: "./AccountDetails.qml"
+                        opacity: 1
+                        focus: true
+                    }
+                    PropertyChanges { target: tabbedPane; opacity: 0 }
+                },
+                State {
+                    name: "startWalletEncryption"
+                    PropertyChanges { target: accountOverlay;
+                        source: "./WalletEncryption.qml"
                         opacity: 1
                         focus: true
                     }
@@ -428,7 +437,7 @@ ApplicationWindow {
                         visible: !isLoading && !portfolio.current.isUserOwned
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: accountDetails.state = "accountDetails";
+                            onClicked: accountOverlay.state = "accountDetails";
                         }
                     }
                 }
@@ -587,13 +596,20 @@ ApplicationWindow {
                                 text: qsTr("Details")
                                 onTriggered: {
                                     portfolio.current = modelData;
-                                    accountDetails.state = "accountDetails";
+                                    accountOverlay.state = "accountDetails";
                                 }
                             }
                             MenuItem {
                                 enabled: !modelData.isDefaultWallet
                                 text: enabled ? qsTr("Make Primary") : qsTr("★ Primary")
                                 onTriggered: modelData.isDefaultWallet = !modelData.isDefaultWallet
+                            }
+                            MenuItem {
+                                text: qsTr("Set Pin")
+                                onTriggered: {
+                                    portfolio.current = modelData;
+                                    accountOverlay.state = "startWalletEncryption";
+                                }
                             }
                             MenuItem {
                                 text: qsTr("Archive Wallet")
@@ -672,7 +688,7 @@ ApplicationWindow {
                                 text: qsTr("Details")
                                 onTriggered: {
                                     portfolio.current = modelData;
-                                    accountDetails.state = "accountDetails";
+                                    accountOverlay.state = "accountDetails";
                                 }
                             }
                             MenuItem {
