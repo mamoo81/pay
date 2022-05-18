@@ -58,7 +58,7 @@ Item {
         }
         Flowee.Button {
             text: "Pin to Pay"
-            enabled: password.text.length > 3
+            enabled: !root.account.needsPinToPay && !root.account.needsPinToOpen && password.text.length > 3
             onClicked: {
                 root.account.encryptPinToPay(password.text);
                 password.text = ""
@@ -66,11 +66,25 @@ Item {
         }
         Flowee.Button {
             text: "Pin to Open"
-            enabled: password.text.length > 3
+            enabled: !root.account.needsPinToOpen && password.text.length > 3
             onClicked: {
                 root.account.encryptPinToOpen(password.text);
                 password.text = ""
             }
+        }
+        Flowee.Button {
+            text: "Open wallet"
+            enabled: (root.account.needsPinToPay || root.account.needsPinToOpen) && password.text.length > 1
+            onClicked: {
+                root.account.decrypt(password.text)
+                if (root.account.isDecrypted)
+                    password.text = ""
+            }
+        }
+        Flowee.Button {
+            text: "Close wallet"
+            enabled: (root.account.needsPinToPay || root.account.needsPinToOpen) &&  root.account.isDecrypted
+            onClicked: root.account.closeWallet()
         }
     }
 }

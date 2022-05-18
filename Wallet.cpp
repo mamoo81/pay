@@ -804,21 +804,32 @@ void Wallet::setEncryptionSeed(uint32_t seed)
     m_encryptionSeed = seed;
 }
 
-void Wallet::setEncryptionPassword(const QString &password)
+bool Wallet::setEncryptionPassword(const QString &password)
 {
-    if (m_encryptionSeed == 0)
-        GetRandBytes((unsigned char*)&m_encryptionSeed, sizeof(m_encryptionSeed));
-
+    uint32_t encryptionSeed = m_encryptionSeed;
+    const bool firstRun = encryptionSeed == 0;
+    if (firstRun)
+        GetRandBytes((unsigned char*)&encryptionSeed, sizeof(encryptionSeed));
     const auto bytes = password.toUtf8();
 
     CSHA512 hasher;
-    hasher.write(reinterpret_cast<char*>(&m_encryptionSeed), sizeof(m_encryptionSeed));
+    hasher.write(reinterpret_cast<char*>(&encryptionSeed), sizeof(encryptionSeed));
     hasher.write(bytes.constData(), bytes.size());
-    hasher.write(reinterpret_cast<char*>(&m_encryptionSeed), sizeof(m_encryptionSeed));
+    hasher.write(reinterpret_cast<char*>(&encryptionSeed), sizeof(encryptionSeed));
     char buf[CSHA512::OUTPUT_SIZE];
     hasher.finalize(buf);
     for (int i = 0; i < 20000; ++i) {
         hasher.reset().write(buf, sizeof(buf)).finalize(buf);
+    }
+
+    uint16_t *crc = reinterpret_cast<uint16_t*>(buf + 48);
+    if (firstRun) {
+        m_encryptionChecksum = *crc;
+        m_encryptionSeed = encryptionSeed;
+    }
+    else if (m_encryptionChecksum != *crc) {
+        logWarning() << "invalid password";
+        return false;
     }
 
     m_encryptionKey.resize(AES256_KEYSIZE);
@@ -827,6 +838,7 @@ void Wallet::setEncryptionPassword(const QString &password)
     memcpy(&m_encryptionIR[0], buf + m_encryptionKey.size(), m_encryptionIR.size());
     memory_cleanse(buf, sizeof(buf));
     m_haveEncryptionKey = true;
+    return true;
 }
 
 bool Wallet::hasEncryptionPassword() const
@@ -1528,6 +1540,11 @@ void Wallet::loadSecrets()
         else if (parser.tag() == WalletPriv::Index) {
             index = parser.intData();
         }
+        else if (parser.tag() == WalletPriv::CryptoChecksum) {
+            assert(parser.intData() >= 0);
+            assert(parser.intData() <= 0xFFFF);
+            m_encryptionChecksum = parser.intData();
+        }
         else if (parser.tag() == WalletPriv::PrivKey) {
             auto d = parser.unsignedBytesData();
             secret.privKey.set(d.begin(), d.end(), true);
@@ -1619,14 +1636,15 @@ void Wallet::saveSecrets()
     Streaming::BufferPool pool(m_walletSecrets.size() * 70 + hdDataSize);
     Streaming::MessageBuilder builder(pool);
 
+    builder.add(WalletPriv::WalletVersion, m_walletVersion);
     std::unique_ptr<AES256CBCEncrypt> crypto;
     if (m_encryptionLevel >= SecretsEncrypted) {
         if (!m_haveEncryptionKey)
             throw std::runtime_error("Can not save wallet encrypted, no password set");
         crypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0],
                 m_encryptionLevel == FullyEncrypted));
+        builder.add(WalletPriv::CryptoChecksum, (uint64_t) m_encryptionChecksum);
     }
-    builder.add(WalletPriv::WalletVersion, m_walletVersion);
     if (m_hdData.get()) {
         builder.add(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic.toUtf8().constData());
         if (!m_hdData->walletMnemonicPwd.isEmpty())

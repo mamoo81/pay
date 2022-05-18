@@ -236,7 +236,7 @@ public:
      * After this methods like decrypt() become available as well as the ability
      * to sync a wallet that auto-generates its own keys.
      */
-    void setEncryptionPassword(const QString &password);
+    bool setEncryptionPassword(const QString &password);
     bool hasEncryptionPassword() const;
 
     enum EncryptionLevel {
@@ -537,9 +537,10 @@ private:
 
     // operational
     bool m_saveStarted = false;
-    uint32_t m_encryptionSeed = 0; // not saved by us (because, duh)
-    EncryptionLevel m_encryptionLevel = NotEncrypted;
     bool m_haveEncryptionKey = false;
+    uint32_t m_encryptionSeed = 0; // not saved by us (because, duh)
+    uint16_t m_encryptionChecksum = 0;
+    EncryptionLevel m_encryptionLevel = NotEncrypted;
     std::vector<char, secure_allocator<char>> m_encryptionKey;
     std::vector<char, secure_allocator<char>> m_encryptionIR;
 

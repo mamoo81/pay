@@ -71,6 +71,7 @@ enum PrivateSaveTags {
 
     // Versioning
     WalletVersion,            // int.
+    CryptoChecksum,           // int. Useful to find out if the password was correct
 
 
     // insert new ones above this one. (and NEVER use this enum in a save-file)

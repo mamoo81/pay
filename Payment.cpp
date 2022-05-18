@@ -95,6 +95,36 @@ QString Payment::formattedTargetAddress()
     return soleOut()->formattedTarget();
 }
 
+bool Payment::walletNeedsPin() const
+{
+    if (!m_account)
+        return false;
+    if (m_account->wallet()->encryption() == Wallet::NotEncrypted)
+        return false;
+    const auto &secrets = m_account->wallet()->walletSecrets();
+    for (auto i = secrets.begin(); i != secrets.end(); ++i) {
+        if (i->second.privKey.isValid())
+            return false;
+    }
+    return true;
+}
+
+void Payment::decrypt(const QString &password)
+{
+    assert(m_account);
+    if (!m_error.isEmpty()) {
+        m_error.clear();
+        emit errorChanged();
+    }
+    if (m_account->wallet()->setEncryptionPassword(password)) {
+        m_account->wallet()->decrypt();
+    }
+    else {
+        m_error = tr("Invalid PIN");
+        emit errorChanged();
+    }
+}
+
 bool Payment::validate()
 {
     int64_t output = 0;
@@ -125,6 +155,10 @@ void Payment::prepare()
     if (!validate())
         throw std::runtime_error("can't prepare an invalid Payment");
     m_wallet = m_account->wallet();
+    if (m_wallet->encryption() > Wallet::NotEncrypted) {
+        if (!m_wallet->hasEncryptionPassword())
+            throw std::runtime_error("Wallet is needs to be decrypted first");
+    }
 
     TransactionBuilder builder;
     qint64 totalOut = 0;
@@ -198,6 +232,7 @@ void Payment::prepare()
         }
         TransactionBuilder::SignatureType typeToUse =
                 (priv.sigType == Wallet::SignedAsEcdsa) ? TransactionBuilder::ECDSA : TransactionBuilder::Schnorr;
+        assert(priv.key.isValid());
         builder.pushInputSignature(priv.key, output.outputScript, output.outputValue, typeToUse);
     }
 
@@ -373,6 +408,7 @@ void Payment::setCurrentAccount(AccountInfo *account)
         return;
     m_account = account;
     emit currentAccountChanged();
+    emit walletPinChanged();
 
     for (auto detail : m_paymentDetails) {
         detail->setWallet(account->wallet());

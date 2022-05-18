@@ -48,6 +48,7 @@ class Payment : public QObject
     Q_PROPERTY(int fiatPrice READ fiatPrice WRITE setFiatPrice NOTIFY fiatPriceChanged)
     Q_PROPERTY(AccountInfo *account READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
     Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY userCommentChanged)
+    Q_PROPERTY(bool walletNeedsPin READ walletNeedsPin NOTIFY walletPinChanged);
 
     // --- Stuff that becomes available / useful after prepare has been called:
     /// Tx has been prepared
@@ -136,6 +137,8 @@ public:
      */
     QString formattedTargetAddress();
 
+    bool walletNeedsPin() const;
+
     /// return true if all fields are correctly populated and we can prepare()
     bool validate();
     /// A user error occured during prepare()
@@ -147,6 +150,7 @@ public:
     Q_INVOKABLE void addExtraOutput();
     Q_INVOKABLE void addInputSelector();
     Q_INVOKABLE void remove(PaymentDetail *detail);
+    Q_INVOKABLE void decrypt(const QString &password);
 
     /// return the txid, should there be a transaction (otherwise empty string)
     QString txid() const;
@@ -207,8 +211,8 @@ signals:
     void txCreated();
     void fiatPriceChanged();
     void currentAccountChanged();
-
     void userCommentChanged();
+    void walletPinChanged();
 
 private:
     friend class PaymentDetailOutput;

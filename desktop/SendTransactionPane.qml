@@ -126,8 +126,36 @@ Item {
 
                     onClicked: {
                         portfolioUsed = portfolio.current
-                        payment.prepare(portfolioUsed);
+                        if (payment.walletNeedsPin) {
+                            passwdDialog.start()
+                        } else {
+                            payment.prepare();
+                        }
                     }
+                }
+                Flowee.Dialog {
+                    id: passwdDialog
+                    title: qsTr("Enter your PIN")
+                    function start() {
+                        contentComponent = textEntryField
+                        visible = true
+                    }
+                    property string pwd: ""
+                    Component {
+                        id: textEntryField
+                        Flowee.TextField {
+                            echoMode: TextInput.Password
+                            onTextChanged: passwdDialog.pwd = text
+                            focus: true
+                        }
+                    }
+                    onAccepted: {
+                        contentComponent = null
+                        payment.decrypt(pwd);
+                        if (payment.error === "")
+                            payment.prepare();
+                    }
+                    onClosed: pwd = ""
                 }
             }
             Item {

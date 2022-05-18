@@ -114,7 +114,7 @@ public:
 
     Q_INVOKABLE void encryptPinToPay(const QString &password);
     Q_INVOKABLE void encryptPinToOpen(const QString &password);
-    Q_INVOKABLE void decrypt(const QString &password);
+    Q_INVOKABLE bool decrypt(const QString &password);
     /// revoke 'pin' on an encrypted account
     Q_INVOKABLE void closeWallet();
 
