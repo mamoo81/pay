@@ -954,7 +954,7 @@ void Wallet::decrypt()
         auto data = readSecrets();
         Streaming::MessageParser parser(data);
         int index = 0;
-        std::unique_ptr<AES256Decrypt> crypto;
+        std::unique_ptr<AES256CBCDecrypt> crypto;
         while (parser.next() == Streaming::FoundTag) {
             if (parser.tag() == WalletPriv::Index) {
                 index = parser.intData();
@@ -968,14 +968,13 @@ void Wallet::decrypt()
                 auto secret = m_walletSecrets.find(index);
                 assert (secret != m_walletSecrets.end());
                 if (crypto.get() == nullptr) {
-                    crypto.reset(new AES256Decrypt(&m_encryptionKey[0]));
+                    crypto.reset(new AES256CBCDecrypt(&m_encryptionKey[0], &m_encryptionIR[0], false));
                     m_encryptionLevel = SecretsEncrypted;
                 }
                 std::vector<uint8_t> buf(32);
-                assert(buf.size() == 32);
                 auto data = parser.bytesDataBuffer();
-                crypto->decrypt(reinterpret_cast<char*>(&buf[0]), data.begin());
-                crypto->decrypt(reinterpret_cast<char*>(&buf[16]), data.begin() + 16);
+                int newSize = crypto->decrypt(data.begin(), data.size(), (char*)&buf[0]);
+                assert(newSize == 32);
                 secret->second.privKey.set(buf.begin(), buf.end());
             }
         }
@@ -1662,6 +1661,7 @@ void Wallet::saveSecrets()
         builder.add(WalletPriv::Index, item.first);
         assert(secret.privKey.isValid());
         if (m_encryptionLevel == SecretsEncrypted) {
+            assert(secret.privKey.isValid());
             char buf[32]; // private keys are always 32 bytes
             crypto->encrypt(reinterpret_cast<const char*>(secret.privKey.begin()), sizeof(buf), buf);
             builder.addByteArray(WalletPriv::PrivKeyEncrypted, buf, sizeof(buf));
