@@ -103,8 +103,8 @@ Item {
                     Flowee.Dialog {
                         id: okCancelDiag
                         onAccepted: payment.remove(modelData);
-                        title: "Confirm delete"
-                        text: "Do you really want to delete this detail?"
+                        title: qsTr("Confirm delete")
+                        text: qsTr("Do you really want to delete this detail?")
                     }
                 }
             }
