@@ -128,13 +128,13 @@ int main(int argc, char *argv[])
             delete translator;
     }
 
-    if (parser.isSet(offline))
-        FloweePay::instance()->setOffline(true);
-    // select chain
+    // select chain first (before we create the FloweePay singleton)
     auto chain = P2PNet::MainChain;
     if (parser.isSet(testnet4))
         chain = P2PNet::Testnet4Chain;
     FloweePay::selectChain(chain);
+    if (parser.isSet(offline))
+        FloweePay::instance()->setOffline(true);
 
     std::unique_ptr<QFile> blockheaders; // pointer to own the memmapped blockheaders file.
     // lets try by default to open the path /usr/share/floweepay/*
