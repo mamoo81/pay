@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
+import QtQuick.Controls 2.11
 
 Item {
     id: root
@@ -23,8 +24,21 @@ Item {
     height: column.height
     property color color: Pay.useDarkSkin ? "white" : "black"
     property bool wide: false
+    default property alias actions: ourMenu.contentData
+    /// emitted when the menu is about to open.
+    signal aboutToOpen;
 
-    property Component contextMenu: Component { Item {} }
+    // replaces the current menu content with a list of actions
+    function setMenuActions(actionList) {
+        // remove old ones first
+        while (ourMenu.count > 0) {
+            ourMenu.takeItem(0);
+        }
+        // set new ones
+        for (let i = 0; i < actionList.length; ++i) {
+            ourMenu.addAction(actionList[i]);
+        }
+    }
 
     Column {
         id: column
@@ -48,13 +62,12 @@ Item {
         acceptedButtons: Qt.RightButton | Qt.LeftButton
         cursorShape: Qt.PointingHandCursor
 
-        Loader { id: contextMenu }
+        Menu {
+            id: ourMenu
+        }
         onClicked: {
-            if (contextMenu.item == null) {
-                contextMenu.sourceComponent = root.contextMenu
-            }
-            // if there is no contextMenu set we just get an error printed here. No problem
-            contextMenu.item.popup()
+            root.aboutToOpen();
+            ourMenu.popup()
         }
     }
 }

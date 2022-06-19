@@ -663,33 +663,6 @@ ApplicationWindow {
                     delegate: AccountListItem {
                         width: leftColumn.width
                         account: modelData
-                        contextMenu:  Menu {
-                            MenuItem {
-                                enabled: !portfolio.current.needsPinToOpen
-                                text: qsTr("Details")
-                                onTriggered: {
-                                    portfolio.current = modelData;
-                                    accountOverlay.state = "accountDetails";
-                                }
-                            }
-                            MenuItem {
-                                enabled: !modelData.isDefaultWallet
-                                text: enabled ? qsTr("Make Primary") : qsTr("★ Primary")
-                                onTriggered: modelData.isDefaultWallet = !modelData.isDefaultWallet
-                            }
-                            MenuItem {
-                                enabled: !portfolio.current.needsPinToOpen
-                                text: qsTr("Protect With Pin...")
-                                onTriggered: {
-                                    portfolio.current = modelData;
-                                    accountOverlay.state = "startWalletEncryption";
-                                }
-                            }
-                            MenuItem {
-                                text: qsTr("Archive Wallet")
-                                onTriggered: modelData.isArchived = true
-                            }
-                        }
                     }
                 }
                 Item { // spacer
@@ -757,19 +730,6 @@ ApplicationWindow {
                     delegate: AccountListItem {
                         width: leftColumn.width
                         account: modelData
-                        contextMenu:  Menu {
-                            MenuItem {
-                                text: qsTr("Details")
-                                onTriggered: {
-                                    portfolio.current = modelData;
-                                    accountOverlay.state = "accountDetails";
-                                }
-                            }
-                            MenuItem {
-                                text: qsTr("Unarchive")
-                                onTriggered: modelData.isArchived = false
-                            }
-                        }
                         // archived accounts don't have access to anything but the activity tab
                         onClicked: tabbar.currentIndex = 0; // change to the 'activity' tab
                     }

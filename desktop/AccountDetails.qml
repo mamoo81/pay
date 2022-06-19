@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -243,22 +243,19 @@ Item {
                         anchors.right: parent.right
                         wide: true
                         y: 5
-                        contextMenu: Menu {
-                            id: contextMenu
-                            MenuItem {
-                                text: qsTr("Copy Address")
-                                onTriggered: Pay.copyToClipboard(address)
-                            }
-                            MenuItem {
-                                text: qsTr("Copy Private Key")
-                                onTriggered: Pay.copyToClipboard(privatekey)
-                            }
-                            /*
-                                MenuItem {
-                                    text: qsTr("Move to New Wallet")
-                                    onTriggered: ;
-                                } */
+                        Action {
+                            text: qsTr("Copy Address")
+                            onTriggered: Pay.copyToClipboard(address)
                         }
+                        Action {
+                            text: qsTr("Copy Private Key")
+                            onTriggered: Pay.copyToClipboard(privatekey)
+                        }
+                        /*
+                        Action {
+                            text: qsTr("Move to New Wallet")
+                            onTriggered: ;
+                        } */
                     }
                 }
                 ScrollBar.vertical: Flowee.ScrollThumb {

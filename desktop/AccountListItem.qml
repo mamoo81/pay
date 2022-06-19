@@ -24,7 +24,6 @@ Item {
     id: root
     property QtObject account: null
     height: column.height + 26
-    property alias contextMenu: configItem.contextMenu
     signal clicked;
 
     //background
@@ -153,5 +152,50 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 15
         y: 13
+
+        property QtObject detailsAction: Action {
+                text: qsTr("Details")
+                onTriggered: {
+                    portfolio.current = root.account;
+                    accountOverlay.state = "accountDetails";
+                }
+            }
+        property QtObject unarchiveAction: Action {
+                text: qsTr("Unarchive")
+                onTriggered: root.account.isArchived = false
+            }
+        property QtObject archiveAction: Action {
+                text: qsTr("Archive Wallet")
+                onTriggered: root.account.isArchived = true
+            }
+        property QtObject primaryAction: Action {
+                enabled: !root.account.isDefaultWallet
+                text: enabled ? qsTr("Make Primary") : qsTr("★ Primary")
+                onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
+            }
+        property QtObject encryptAction: Action {
+                text: qsTr("Protect With Pin...")
+                onTriggered: {
+                    portfolio.current = root.account;
+                    accountOverlay.state = "startWalletEncryption";
+                }
+            }
+
+        onAboutToOpen: {
+            var items = [];
+            var encrypted = root.account.needsPinToOpen;
+            if (!encrypted)
+                items.push(detailsAction);
+            var isArchived = root.account.isArchived;
+            if (!isArchived)
+                items.push(primaryAction);
+            if (!encrypted)
+                items.push(encryptAction);
+            if (isArchived)
+                items.push(unarchiveAction);
+            else
+                items.push(archiveAction);
+            setMenuActions(items);
+        }
     }
 }
