@@ -116,10 +116,7 @@ void Payment::decrypt(const QString &password)
         m_error.clear();
         emit errorChanged();
     }
-    if (m_account->wallet()->setEncryptionPassword(password)) {
-        m_account->wallet()->decrypt();
-    }
-    else {
+    if (!m_account->wallet()->decrypt(password)) {
         m_error = tr("Invalid PIN");
         emit errorChanged();
     }
@@ -156,7 +153,7 @@ void Payment::prepare()
         throw std::runtime_error("can't prepare an invalid Payment");
     m_wallet = m_account->wallet();
     if (m_wallet->encryption() > Wallet::NotEncrypted) {
-        if (!m_wallet->hasEncryptionPassword())
+        if (!m_wallet->isDecrypted())
             throw std::runtime_error("Wallet is needs to be decrypted first");
     }
 

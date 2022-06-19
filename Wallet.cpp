@@ -804,9 +804,9 @@ void Wallet::setEncryptionSeed(uint32_t seed)
     m_encryptionSeed = seed;
 }
 
-bool Wallet::setEncryptionPassword(const QString &password)
+bool Wallet::parsePassword(const QString &password)
 {
-    uint32_t encryptionSeed = m_encryptionSeed;
+    auto encryptionSeed = m_encryptionSeed;
     const bool firstRun = encryptionSeed == 0;
     if (firstRun)
         GetRandBytes((unsigned char*)&encryptionSeed, sizeof(encryptionSeed));
@@ -823,32 +823,40 @@ bool Wallet::setEncryptionPassword(const QString &password)
     }
 
     uint16_t *crc = reinterpret_cast<uint16_t*>(buf + 48);
-    if (firstRun) {
-        m_encryptionChecksum = *crc;
-        m_encryptionSeed = encryptionSeed;
+    if (!firstRun) { // that means we should check the validity.
+        auto data = readSecrets();
+        if (m_encryptionLevel == FullyEncrypted) {
+            AES256CBCDecrypt crypto(buf, buf + AES256_KEYSIZE, true);
+            Streaming::BufferPool pool(data.size());
+            int newSize = crypto.decrypt(data.begin(), data.size(), pool.data());
+            if (newSize == 0) {
+                logCritical() << "Reading (encrypted) secrets file failed";
+                return false;
+            }
+            data = pool.commit(newSize);
+        }
+        Streaming::MessageParser parser(data);
+        if (parser.next() != Streaming::FoundTag)
+            return false;
+        if (parser.tag() != WalletPriv::CryptoChecksum)
+            return false;
+        if (parser.longData() != *crc)
+            return false;
     }
-    else if (m_encryptionChecksum != *crc) {
-        logWarning() << "invalid password";
-        return false;
-    }
-
+    // password is correct, lets update internal wallet state
+    m_encryptionSeed = encryptionSeed;
+    m_encryptionChecksum = *crc;
     m_encryptionKey.resize(AES256_KEYSIZE);
     m_encryptionIR.resize(AES_BLOCKSIZE);
     memcpy(&m_encryptionKey[0], buf, m_encryptionKey.size());
     memcpy(&m_encryptionIR[0], buf + m_encryptionKey.size(), m_encryptionIR.size());
     memory_cleanse(buf, sizeof(buf));
-    m_haveEncryptionKey = true;
+    m_haveEncryptionKey = true; // this is optimistic, we check it in decrypt()
     return true;
 }
 
-bool Wallet::hasEncryptionPassword() const
+void Wallet::clearEncryptionKey()
 {
-    return m_haveEncryptionKey;
-}
-
-void Wallet::clearEncryptionPassword()
-{
-    QMutexLocker locker(&m_lock);
     m_haveEncryptionKey = false;
     m_encryptionKey.resize(0);
     m_encryptionIR.resize(0);
@@ -870,15 +878,21 @@ void Wallet::clearDecryptedSecrets()
     emit encryptionChanged();
 }
 
-void Wallet::setEncryption(EncryptionLevel level)
+void Wallet::setEncryption(EncryptionLevel level, const QString &password)
 {
     QMutexLocker locker(&m_lock);
     if (level < m_encryptionLevel)
         throw std::runtime_error("Removing encryption from wallet not implemented");
+    if (level == NotEncrypted) // nothing to do
+        return;
+
+    if (!parsePassword(password)) {
+        logCritical() << "Decrypt failed, bad password";
+        return;
+    }
 
     if (level > m_encryptionLevel) {
-        if (!m_haveEncryptionKey)
-            throw std::runtime_error("Set encryption password first!");
+        assert(m_haveEncryptionKey);
         m_encryptionLevel = level;
         m_secretsChanged = true;
         saveSecrets(); // don't delay as the next step will delete our private keys
@@ -943,12 +957,18 @@ Wallet::EncryptionLevel Wallet::encryption() const
     return m_encryptionLevel;
 }
 
-void Wallet::decrypt()
+bool Wallet::decrypt(const QString &password)
 {
     QMutexLocker locker(&m_lock);
-    assert(m_encryptionLevel > NotEncrypted); // misusage.
-    if (!m_haveEncryptionKey)
-        throw std::runtime_error("Need password set first");
+    assert(m_encryptionLevel > NotEncrypted); // misusage of API.
+    if (m_encryptionLevel == NotEncrypted)
+        return true;
+
+    // set, and check password correctness
+    if (!parsePassword(password)) {
+        logCritical() << "Decrypt() failed, bad password";
+        return false;
+    }
 
     if (m_encryptionLevel == SecretsEncrypted) {
         auto data = readSecrets();
@@ -981,14 +1001,26 @@ void Wallet::decrypt()
         // TODO read HD wallet keys
     }
     else if (m_encryptionLevel == FullyEncrypted) {
-        // clear before load, allowing the user to call
-        // clearDecryptedSecrets() and then refresh from disk the secrets.
+        // clear before load, allowing the user to call more than once
         m_walletSecrets.clear();
         loadSecrets();
         if (m_walletTransactions.empty())
             loadWallet();
     }
     emit encryptionChanged();
+    return true;
+}
+
+bool Wallet::isDecrypted()
+{
+    return m_haveEncryptionKey;
+}
+
+void Wallet::forgetEncryptedSecrets()
+{
+    QMutexLocker locker(&m_lock);
+    clearEncryptionKey();
+    clearDecryptedSecrets();
 }
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
@@ -1635,15 +1667,16 @@ void Wallet::saveSecrets()
     Streaming::BufferPool pool(m_walletSecrets.size() * 70 + hdDataSize);
     Streaming::MessageBuilder builder(pool);
 
-    builder.add(WalletPriv::WalletVersion, m_walletVersion);
     std::unique_ptr<AES256CBCEncrypt> crypto;
     if (m_encryptionLevel >= SecretsEncrypted) {
+        // Please note that this field HAS to be the first one.
         if (!m_haveEncryptionKey)
             throw std::runtime_error("Can not save wallet encrypted, no password set");
         crypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0],
                 m_encryptionLevel == FullyEncrypted));
         builder.add(WalletPriv::CryptoChecksum, (uint64_t) m_encryptionChecksum);
     }
+    builder.add(WalletPriv::WalletVersion, m_walletVersion);
     if (m_hdData.get()) {
         builder.add(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic.toUtf8().constData());
         if (!m_hdData->walletMnemonicPwd.isEmpty())

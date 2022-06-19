@@ -699,7 +699,7 @@ void TestWallet::testEncryption1()
             QFAIL(e.what());
         }
 
-        wallet->setEncryption(Wallet::NotEncrypted);
+        wallet->setEncryption(Wallet::NotEncrypted, QString());
         QCOMPARE(wallet->encryptionSeed(), 0);
         QCOMPARE(wallet->encryption(), Wallet::NotEncrypted);
         try {
@@ -716,12 +716,7 @@ void TestWallet::testEncryption1()
         QCOMPARE(wallet->encryption(), Wallet::NotEncrypted);
         QCOMPARE(wallet->encryptionSeed(), 0);
 
-        try {
-            wallet->setEncryption(Wallet::SecretsEncrypted);
-            QFAIL("Needs password");
-        } catch (...) {}
-        wallet->setEncryptionPassword(PWD);
-        wallet->setEncryption(Wallet::SecretsEncrypted);
+        wallet->setEncryption(Wallet::SecretsEncrypted, PWD);
         QVERIFY(wallet->encryptionSeed() != 0);
         seed = wallet->encryptionSeed();
         int64_t change = 0;
@@ -737,7 +732,7 @@ void TestWallet::testEncryption1()
         }
 
         // decrypt wallet and check
-        wallet->decrypt();
+        wallet->decrypt(PWD);
         auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
         const auto &secrets2 = wallet->walletSecrets();
         for (auto i = secrets2.begin(); i != secrets2.end(); ++i) {
@@ -759,8 +754,8 @@ void TestWallet::testEncryption1()
         }
         // decrypt wallet and check
         wallet->setEncryptionSeed(seed); // we need to set it to allow decryption to work
-        wallet->setEncryptionPassword(PWD);
-        wallet->decrypt();
+        bool success = wallet->decrypt(PWD);
+        QVERIFY(success);
         auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
         const auto &secrets2 = wallet->walletSecrets();
         for (auto i = secrets2.begin(); i != secrets2.end(); ++i) {
@@ -806,8 +801,7 @@ void TestWallet::testEncryption2()
         }
 
         QCOMPARE(wallet->encryptionSeed(), 0);
-        wallet->setEncryptionPassword(PWD);
-        wallet->setEncryption(Wallet::FullyEncrypted);
+        wallet->setEncryption(Wallet::FullyEncrypted, PWD);
         QVERIFY(wallet->encryptionSeed() != 0);
         seed = wallet->encryptionSeed();
 
@@ -833,8 +827,12 @@ void TestWallet::testEncryption2()
 
         // decrypt wallet and check
         wallet->setEncryptionSeed(seed); // we need to set it to allow decryption to work
-        wallet->setEncryptionPassword(PWD);
-        wallet->decrypt();
+        QCOMPARE(wallet->decrypt("Not the password"), false); // check if we correctly fail on wrong pwd
+        QCOMPARE(wallet->isDecrypted(), false);
+
+        bool ok = wallet->decrypt(PWD);
+        QVERIFY(ok);
+        QCOMPARE(wallet->isDecrypted(), true);
         int64_t change;
         auto walletSet =  wallet->findInputsFor(9000000, 1, 1, change);
         const auto &secrets = wallet->walletSecrets();
@@ -880,11 +878,13 @@ void TestWallet::testEncryption2()
         auto wallet = openWallet(seed);
         QCOMPARE(wallet->encryption(), Wallet::FullyEncrypted);
         QVERIFY(wallet->walletSecrets().empty());
+        QCOMPARE(wallet->isDecrypted(), false);
 
         // decrypt wallet and check
         wallet->setEncryptionSeed(seed); // we need to set it to allow decryption to work
-        wallet->setEncryptionPassword(PWD);
-        wallet->decrypt();
+        bool ok = wallet->decrypt(PWD);
+        QCOMPARE(wallet->isDecrypted(), true);
+        QVERIFY(ok);
         {
             const auto &secrets = wallet->walletSecrets();
             QCOMPARE(secrets.size(), (size_t)10);
@@ -892,7 +892,8 @@ void TestWallet::testEncryption2()
                 QVERIFY(i->second.privKey.isValid());
             }
         }
-        wallet->clearDecryptedSecrets();
+        wallet->forgetEncryptedSecrets();
+        QCOMPARE(wallet->isDecrypted(), false);
         {
             const auto &secrets = wallet->walletSecrets();
             QCOMPARE(secrets.size(), (size_t)10);
@@ -901,7 +902,8 @@ void TestWallet::testEncryption2()
             }
         }
 
-        wallet->decrypt();
+        wallet->decrypt(PWD);
+        QCOMPARE(wallet->isDecrypted(), true);
         {
             const auto &secrets = wallet->walletSecrets();
             QCOMPARE(secrets.size(), (size_t)10);

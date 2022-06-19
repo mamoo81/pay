@@ -97,7 +97,7 @@ void PaymentRequest::setWallet(Wallet *wallet)
     // if the wallet is encrypted we don't use it.
     if (wallet && wallet->encryption() == Wallet::FullyEncrypted
             // for this to work, it needs to have the password set
-            &&!wallet->hasEncryptionPassword()) {
+            && !wallet->isDecrypted()) {
         wallet = nullptr;
     }
     m_wallet = wallet;

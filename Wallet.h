@@ -218,26 +218,13 @@ public:
      * The usage is, in order;
      * @code
      *   setEncryptionSeed(walletSeed);
-     *   setEncryptionPassword(userPassword);
-     *   setEncryptionLevel(walletLevel);
+     *   setEncryptionLevel(walletLevel, userPassword);
      * @code
      *
      * After this methods like decrypt() become available as well as the ability
      * to sync a wallet that auto-generates its own keys.
      */
     void setEncryptionSeed(uint32_t newEncryptionSeed);
-
-    /**
-     * A newly encrypted wallet needs a password before it can be saved or decrypted.
-     *
-     * Notice that if no seed is set (typically because this is currently an unencrypted
-     * wallet), we'll create a (good) random one.
-     *
-     * After this methods like decrypt() become available as well as the ability
-     * to sync a wallet that auto-generates its own keys.
-     */
-    bool setEncryptionPassword(const QString &password);
-    bool hasEncryptionPassword() const;
 
     enum EncryptionLevel {
         NotEncrypted,
@@ -263,14 +250,16 @@ public:
      *
      * Setting a level higher than NotEncrypted will remove the relevant
      * data from the in-memory representation of this wallet, requiring
-     * a call to decryptWallet() before usage.
+     * a call to decrypt() before usage.
      */
-    void setEncryption(EncryptionLevel level);
+    void setEncryption(EncryptionLevel level, const QString &password);
     EncryptionLevel encryption() const;
     /// Read encrypted secrets from disk into memory
-    void decrypt();
-    void clearEncryptionPassword();
-    void clearDecryptedSecrets();
+    bool decrypt(const QString &password);
+    bool isDecrypted();
+
+    // forget all encrypted secrets.
+    void forgetEncryptedSecrets();
 
 #ifdef IN_TESTS
     /**
@@ -536,9 +525,15 @@ private:
     bool m_userOwnedWallet = true;
 
     // operational
+    /// Remove private keys, making the wallet unable to sign transactions.
+    void clearDecryptedSecrets();
+    /// Remove the encryption key (created from password), making the wallet unable to save private keys.
+    void clearEncryptionKey();
+    /// turn the password into a key. Return false if it is not the correct one.
+    bool parsePassword(const QString &password);
     bool m_saveStarted = false;
     bool m_haveEncryptionKey = false;
-    uint32_t m_encryptionSeed = 0; // not saved by us (because, duh)
+    uint32_t m_encryptionSeed = 0;
     uint16_t m_encryptionChecksum = 0;
     EncryptionLevel m_encryptionLevel = NotEncrypted;
     std::vector<char, secure_allocator<char>> m_encryptionKey;

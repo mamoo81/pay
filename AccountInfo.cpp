@@ -276,29 +276,23 @@ QObject *AccountInfo::createPaymentRequest(QObject *parent)
 
 void AccountInfo::encryptPinToPay(const QString &password)
 {
-    if (m_wallet->setEncryptionPassword(password))
-        m_wallet->setEncryption(Wallet::SecretsEncrypted);
+    m_wallet->setEncryption(Wallet::SecretsEncrypted, password);
 }
 
 void AccountInfo::encryptPinToOpen(const QString &password)
 {
-    if (m_wallet->setEncryptionPassword(password))
-        m_wallet->setEncryption(Wallet::FullyEncrypted);
+    m_wallet->setEncryption(Wallet::FullyEncrypted, password);
 }
 
 bool AccountInfo::decrypt(const QString &password)
 {
-    const bool ok = m_wallet->setEncryptionPassword(password);
-    if (ok)
-        m_wallet->decrypt();
-    return ok;
+    return m_wallet->decrypt(password);
 }
 
 void AccountInfo::closeWallet()
 {
     // this forgets secrets
-    m_wallet->clearEncryptionPassword();
-    m_wallet->clearDecryptedSecrets();
+    m_wallet->forgetEncryptedSecrets();
 }
 
 bool AccountInfo::isSingleAddressAccount() const
