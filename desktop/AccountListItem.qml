@@ -17,6 +17,7 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
+import QtQuick.Layouts 1.11
 import "widgets" as Flowee
 
 Item {
@@ -48,25 +49,55 @@ Item {
 
     Column {
         id: column
-        // spacing: 4
-        x: 11
-        y: 11
-        width: parent.width
+        spacing: 4
+        x: 30
+        y: 12
+        width: parent.width - 40
         /*
         Label {
             text: "Savings Account"
             opacity: 0.6
         }*/
         Label {
-            x: 20
             text: root.account.name
             font.bold: true
-            width: parent.width - 55
+            width: parent.width - 20
             clip: true
+            visible: !root.account.needsPinToOpen
+        }
+        Item {
+            // encrypted wallet status
+            height: encryptionStatusLabel.height
+            width: parent.width
+            visible: root.account.needsPinToPay || root.account.needsPinToOpen
+
+            Image {
+                id: lockIcon
+                source: Pay.useDarkSkin ? "qrc:/lock-light.svg" : "qrc:/lock-dark.svg"
+                height: parent.height + 4
+                width: height
+                y: -5
+            }
+            Label {
+                id: encryptionStatusLabel
+                wrapMode: Text.WordWrap
+                font.italic: true
+                anchors.left: lockIcon.right
+                anchors.leftMargin: 6
+                text: {
+                    var txt = "";
+                    if (root.account.needsPinToPay)
+                        txt = qsTr("Pin to Pay");
+                    else if (root.account.needsPinToOpen)
+                        txt = qsTr("Pin to Open");
+                    if (root.account.isDecrypted)
+                        txt += " " + qsTr("(Opened)", "Wallet is decrypted");
+                    return txt;
+                }
+            }
         }
         Flow {
-            width: parent.width - 20
-            x: 20
+            width: parent.width
             spacing: 10
             visible: lastReceive.text !== "" && !root.account.isArchived
             Label {
@@ -78,7 +109,6 @@ Item {
             }
         }
         Label {
-            x: 20
             visible: root.account.isArchived
             text: visible ? account.timeBehind : ""
         }

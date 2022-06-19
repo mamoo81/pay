@@ -18,6 +18,8 @@
         <file alias="eye-open.png">images/eye-open.png</file>
         <file alias="edit-delete.svg">images/edit-delete.svg</file>
         <file alias="edit-copy.svg">images/edit-copy.svg</file>
+        <file alias="lock-light.svg">images/lock-light.svg</file>
+        <file alias="lock-dark.svg">images/lock-dark.svg</file>
         <file>defaults.ini</file>
         <file>ConfigItem.qml</file>
         <file>ControlColors.js</file>

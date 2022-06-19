@@ -189,6 +189,7 @@ ApplicationWindow {
                     Column {
                         id: activityHeader
                         width: parent.width
+                        spacing: 10
                         Rectangle {
                             width: parent.width
                             height: warn.height + unarchiveButton.height + 26
@@ -207,7 +208,7 @@ ApplicationWindow {
                                 wrapMode: Text.WordWrap
                                 text: qsTr("Archived wallets do not check for activities. Balance may be out of date.")
                             }
-                            Button {
+                            Flowee.Button {
                                 id: unarchiveButton
                                 text: qsTr("Unarchive")
                                 anchors.right: warn.right
@@ -217,6 +218,77 @@ ApplicationWindow {
                                 onClicked: portfolio.current.isArchived = false
                             }
                         }
+
+                        Rectangle {
+                            id: needsDecryptPane
+                            width: parent.width
+                            height: decryptText.height + decryptPwd.height + decryptButton.height + 36
+                            color: Pay.useDarkSkin ? "#c1ba58" : "#f6e992"
+                            visible: !isLoading && portfolio.current.needsPinToOpen
+                                        && !portfolio.current.isDecrypted
+                            radius: 10
+                            onVisibleChanged: {
+                                decryptError.visible = false
+                                decryptPwd.text = ""
+                            }
+
+                            Text {
+                                id: decryptText
+                                y: 10
+                                x: 10
+                                width: parent.width - 20
+                                horizontalAlignment: Text.AlignHCenter
+
+                                color: "black"
+                                font.bold: true
+                                wrapMode: Text.WordWrap
+                                text: qsTr("This wallet needs a password to open.")
+                            }
+                            Text {
+                                id: decryptLabel
+                                anchors.left: decryptText.left
+                                anchors.verticalCenter: decryptPwd.verticalCenter
+                                color: decryptText.color
+                                text: qsTr("Password:")
+
+                            }
+                            Flowee.TextField {
+                                id: decryptPwd
+                                anchors.top: decryptText.bottom
+                                anchors.left: decryptLabel.right
+                                anchors.right: parent.right
+                                anchors.margins: 6
+                            }
+                            Text {
+                                id: decryptError
+                                anchors.left: decryptPwd.left
+                                anchors.verticalCenter: decryptButton.verticalCenter
+                                color: "#830000"
+                                text: qsTr("Invalid password")
+                                visible: false
+                            }
+                            Flowee.Button {
+                                id: decryptButton
+                                text: qsTr("Open")
+                                anchors.right: decryptText.right
+                                anchors.top: decryptPwd.bottom
+                                anchors.topMargin: 6
+                                enabled: decryptPwd.text !== ""
+
+                                onClicked: {
+                                    portfolio.current.decrypt(decryptPwd.text)
+                                    if (!portfolio.current.isDecrypted) {
+                                        decryptPwd.text = ""
+                                        decryptError.visible = false
+                                    } else {
+                                        decryptPwd.selectAll();
+                                        decryptError.visible = true
+                                        decryptPwd.forceActiveFocus();
+                                    }
+                                }
+                            }
+                        }
+
                     }
                     ListView {
                         id: activityView
@@ -593,6 +665,7 @@ ApplicationWindow {
                         account: modelData
                         contextMenu:  Menu {
                             MenuItem {
+                                enabled: !portfolio.current.needsPinToOpen
                                 text: qsTr("Details")
                                 onTriggered: {
                                     portfolio.current = modelData;
@@ -605,7 +678,8 @@ ApplicationWindow {
                                 onTriggered: modelData.isDefaultWallet = !modelData.isDefaultWallet
                             }
                             MenuItem {
-                                text: qsTr("Set Pin")
+                                enabled: !portfolio.current.needsPinToOpen
+                                text: qsTr("Protect With Pin...")
                                 onTriggered: {
                                     portfolio.current = modelData;
                                     accountOverlay.state = "startWalletEncryption";
