@@ -883,73 +883,72 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
     QMutexLocker locker(&m_lock);
     if (level < m_encryptionLevel)
         throw std::runtime_error("Removing encryption from wallet not implemented");
-    if (level == NotEncrypted) // nothing to do
-        return;
+    if (level <= m_encryptionLevel)
+        return; // nothing to do
 
     if (!parsePassword(password)) {
         logCritical() << "Decrypt failed, bad password";
         return;
     }
 
-    if (level > m_encryptionLevel) {
-        assert(m_haveEncryptionKey);
-        m_encryptionLevel = level;
-        m_secretsChanged = true;
-        saveSecrets(); // don't delay as the next step will delete our private keys
+    assert(m_haveEncryptionKey);
+    m_encryptionLevel = level;
+    m_secretsChanged = true;
+    saveSecrets(); // don't delay as the next step will delete our private keys
 
-        if (level == FullyEncrypted) {
-            m_walletChanged = true;
-            saveWallet();
+    if (level == FullyEncrypted) {
+        m_walletChanged = true;
+        saveWallet();
 
-            // iterate over all transactions and encrypt+rename those too.
-            std::unique_ptr<AES256CBCEncrypt> crypto;
-            const QString base = QString::fromStdString(m_basedir.string());
-            assert(base.endsWith('/'));
-            for (auto i = m_walletTransactions.begin(); i != m_walletTransactions.end(); ++i) {
-                QString path = QString::fromStdString(i->second.txid.ToString());
-                path.insert(2, '/');
+        // iterate over all transactions and encrypt+rename those too.
+        std::unique_ptr<AES256CBCEncrypt> crypto;
+        const QString base = QString::fromStdString(m_basedir.string());
+        assert(base.endsWith('/'));
+        for (auto i = m_walletTransactions.begin(); i != m_walletTransactions.end(); ++i) {
+            QString path = QString::fromStdString(i->second.txid.ToString());
+            path.insert(2, '/');
 
-                QFile reader(base + path);
-                reader.open(QIODevice::ReadOnly);
-                if (!reader.isOpen()) {
-                    logDebug() << "Missing transaction file";
-                    continue;
-                }
-                auto &pool = Streaming::pool(reader.size());
-                reader.read(pool.begin(), reader.size());
-                reader.close();
-                auto orig = pool.commit(reader.size());
-
-                if (crypto.get() == nullptr)
-                    crypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0], true));
-                pool.reserve(orig.size());
-                auto newSize = crypto->encrypt(orig.begin(), orig.size(), pool.data());
-                assert(newSize > 0);
-                auto newFile = pool.commit(newSize);
-
-                uint256 txid(i->second.txid);
-                for (int i = 0; i < 32; ++i) {
-                    txid.begin()[i] += m_encryptionIR[i % m_encryptionIR.size()];
-                }
-                QString filename = QString::fromStdString(txid.ToString());
-                QString localdir = base + filename.left(2);
-                boost::system::error_code error;
-                boost::filesystem::create_directories(localdir.toStdString(), error);
-
-                const QString newPath(localdir + '/' + filename.mid(2));
-                QFile writer(newPath);
-                writer.open(QIODevice::WriteOnly);
-                if (!writer.isOpen()) {
-                    logCritical() << "Could not write to" << newPath;
-                    continue;
-                }
-                writer.write(newFile.begin(), newFile.size());
-                reader.remove();
+            QFile reader(base + path);
+            reader.open(QIODevice::ReadOnly);
+            if (!reader.isOpen()) {
+                logDebug() << "Missing transaction file";
+                continue;
             }
+            auto &pool = Streaming::pool(reader.size());
+            reader.read(pool.begin(), reader.size());
+            reader.close();
+            auto orig = pool.commit(reader.size());
+
+            if (crypto.get() == nullptr)
+                crypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0], true));
+            pool.reserve(orig.size());
+            auto newSize = crypto->encrypt(orig.begin(), orig.size(), pool.data());
+            assert(newSize > 0);
+            auto newFile = pool.commit(newSize);
+
+            uint256 txid(i->second.txid);
+            for (int i = 0; i < 32; ++i) {
+                txid.begin()[i] += m_encryptionIR[i % m_encryptionIR.size()];
+            }
+            QString filename = QString::fromStdString(txid.ToString());
+            QString localdir = base + filename.left(2);
+            boost::system::error_code error;
+            boost::filesystem::create_directories(localdir.toStdString(), error);
+
+            const QString newPath(localdir + '/' + filename.mid(2));
+            QFile writer(newPath);
+            writer.open(QIODevice::WriteOnly);
+            if (!writer.isOpen()) {
+                logCritical() << "Could not write to" << newPath;
+                continue;
+            }
+            writer.write(newFile.begin(), newFile.size());
+            reader.remove();
         }
     }
 
     clearDecryptedSecrets();
+    emit encryptionChanged();
 }
 
 Wallet::EncryptionLevel Wallet::encryption() const
