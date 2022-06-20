@@ -45,8 +45,8 @@ class AccountInfo : public QObject
     /// Return a user-readable indication of the amount of time 'behind' this account is
     Q_PROPERTY(QString timeBehind READ timeBehind NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(WalletHistoryModel* transactions READ historyModel CONSTANT)
-    Q_PROPERTY(WalletSecretsModel* secrets READ secretsModel CONSTANT)
+    Q_PROPERTY(WalletHistoryModel* transactions READ historyModel NOTIFY modelsChanged)
+    Q_PROPERTY(WalletSecretsModel* secrets READ secretsModel NOTIFY modelsChanged)
     Q_PROPERTY(bool isDefaultWallet READ isDefaultWallet WRITE setDefaultWallet NOTIFY isDefaultWalletChanged)
     Q_PROPERTY(bool isUserOwned READ userOwnedWallet NOTIFY userOwnedChanged)
     Q_PROPERTY(bool isSingleAddressAccount READ isSingleAddressAccount CONSTANT)
@@ -159,10 +159,12 @@ signals:
     void isArchivedChanged();
     void hasFreshTransactionsChanged();
     void encryptionChanged();
+    void modelsChanged();
 
 private slots:
     // callback from wallet
     void balanceHasChanged();
+    void walletEncryptionChanged();
 
 private:
     Wallet *m_wallet;

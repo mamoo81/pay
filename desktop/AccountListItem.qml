@@ -62,7 +62,7 @@ Item {
             font.bold: true
             width: parent.width - 20
             clip: true
-            visible: !root.account.needsPinToOpen
+            visible: !root.account.needsPinToOpen || root.account.isDecrypted
         }
         Item {
             // encrypted wallet status
@@ -160,13 +160,9 @@ Item {
                     accountOverlay.state = "accountDetails";
                 }
             }
-        property QtObject unarchiveAction: Action {
-                text: qsTr("Unarchive")
-                onTriggered: root.account.isArchived = false
-            }
         property QtObject archiveAction: Action {
-                text: qsTr("Archive Wallet")
-                onTriggered: root.account.isArchived = true
+                text: root.account.isArchived ? qsTr("Unarchive") : qsTr("Archive Wallet")
+                onTriggered: root.account.isArchived = !root.account.isArchived
             }
         property QtObject primaryAction: Action {
                 enabled: !root.account.isDefaultWallet
@@ -180,21 +176,25 @@ Item {
                     accountOverlay.state = "startWalletEncryption";
                 }
             }
+        property QtObject closeWalletAction: Action {
+                text: qsTr("Close", "Close encrypted wallet")
+                onTriggered: root.account.closeWallet();
+            }
 
         onAboutToOpen: {
             var items = [];
             var encrypted = root.account.needsPinToOpen;
-            if (!encrypted)
+            var decrypted = root.account.isDecrypted;
+            if (!encrypted || decrypted)
                 items.push(detailsAction);
+            if ((encrypted || root.account.needsPinToPay) && decrypted)
+                items.push(closeWalletAction);
             var isArchived = root.account.isArchived;
             if (!isArchived)
                 items.push(primaryAction);
             if (!encrypted)
                 items.push(encryptAction);
-            if (isArchived)
-                items.push(unarchiveAction);
-            else
-                items.push(archiveAction);
+            items.push(archiveAction);
             setMenuActions(items);
         }
     }

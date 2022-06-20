@@ -258,6 +258,7 @@ ApplicationWindow {
                                 anchors.left: decryptLabel.right
                                 anchors.right: parent.right
                                 anchors.margins: 6
+                                onAccepted: decryptButton.clicked()
                             }
                             Text {
                                 id: decryptError
@@ -312,7 +313,7 @@ ApplicationWindow {
                                     id: label
                                     anchors.centerIn: parent
                                     color: palette.light
-                                    text: isLoading ? "" : activityView.model.dateForItem(thumb.position);
+                                    text: isLoading || activityView.model === null ? "" : activityView.model.dateForItem(thumb.position);
                                 }
                             }
                         }

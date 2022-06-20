@@ -35,7 +35,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(timeBehindChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
-    connect(wallet, SIGNAL(encryptionChanged()), this, SIGNAL(encryptionChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()), Qt::QueuedConnection);
     connect(FloweePay::instance(), SIGNAL(headerChainHeightChanged()), this, SIGNAL(timeBehindChanged()));
 }
 
@@ -125,15 +125,21 @@ QString AccountInfo::timeBehind() const
 
 WalletHistoryModel *AccountInfo::historyModel()
 {
-    if (m_model == nullptr)
+    if (m_model == nullptr) {
+        if (!m_wallet->isDecrypted() && m_wallet->encryption() == Wallet::FullyEncrypted)
+            return nullptr;
         m_model.reset(new WalletHistoryModel(m_wallet, this));
+    }
     return m_model.get();
 }
 
 WalletSecretsModel *AccountInfo::secretsModel()
 {
-    if (m_secretsModel == nullptr)
+    if (m_secretsModel == nullptr) {
+        if (!m_wallet->isDecrypted() && m_wallet->encryption() == Wallet::FullyEncrypted)
+            return nullptr;
         m_secretsModel.reset(new WalletSecretsModel(m_wallet, this));
+    }
     return m_secretsModel.get();
 }
 
@@ -188,6 +194,19 @@ void AccountInfo::balanceHasChanged()
         if (blockHeight == 0) // an unconfirmed one
             setHasFreshTransactions(true);
     }
+}
+
+void AccountInfo::walletEncryptionChanged()
+{
+    if (!m_wallet->isDecrypted() && m_wallet->encryption() == Wallet::FullyEncrypted) {
+        // in case we had a model with data, the wallet now no longer has any info.
+        // so simply remove the models as QML handles that.
+        m_model.reset();
+        m_secretsModel.reset();
+    }
+    emit modelsChanged();
+    emit encryptionChanged();
+    emit nameChanged();
 }
 
 bool AccountInfo::hasFreshTransactions() const
