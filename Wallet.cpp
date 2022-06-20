@@ -929,8 +929,8 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
             auto newFile = pool.commit(newSize);
 
             uint256 txid(i->second.txid);
-            for (int i = 0; i < 32; ++i) {
-                txid.begin()[i] += m_encryptionIR[i % m_encryptionIR.size()];
+            for (int j = 0; j < 32; ++j) {
+                txid.begin()[j] += m_encryptionIR[j % m_encryptionIR.size()];
             }
             QString filename = QString::fromStdString(txid.ToString());
             QString localdir = base + filename.left(2);
@@ -1185,12 +1185,12 @@ void Wallet::broadcastTxFinished(int txIndex, bool success)
                         // - utxo
                         // - balance
 
-                        auto i = m_lockedOutputs.begin();
-                        while (i != m_lockedOutputs.end()) {
-                            if (i->second == txIndex)
-                                i = m_lockedOutputs.erase(i);
+                        auto j = m_lockedOutputs.begin();
+                        while (j != m_lockedOutputs.end()) {
+                            if (j->second == txIndex)
+                                j = m_lockedOutputs.erase(j);
                             else
-                                ++i;
+                                ++j;
                         }
                         for (auto out = tx.outputs.begin(); out != tx.outputs.end(); ++out) {
                             auto utxo = m_unspentOutputs.find(OutputRef(txIndex, out->first).encoded());
