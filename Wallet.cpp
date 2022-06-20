@@ -36,6 +36,8 @@
 #include <QTimer>
 #include <QThread>
 
+#include <fstream>
+
 // #define DEBUGUTXO
 
 // static
