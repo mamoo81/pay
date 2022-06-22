@@ -213,7 +213,8 @@ void FloweePay::init()
     }
 
     if (m_wallets.isEmpty() && m_createStartWallet) {
-        createNewWallet(m_defaultDerivationPath);
+        auto config = createNewWallet(m_defaultDerivationPath);
+        delete config; // the config was just for QML, so avoid a dangling object.
         m_wallets.at(0)->setUserOwnedWallet(false);
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
         m_wallets.at(0)->setName(tr("Initial Wallet"));
@@ -245,8 +246,8 @@ void FloweePay::saveData()
         builder.add(WalletId, wallet->segment()->segmentId());
         builder.add(WalletPriority, wallet->segment()->priority());
         if (!wallet->name().isEmpty()) {
-            auto data = wallet->name().toUtf8();
-            builder.addByteArray(WalletName, data.constData(), data.size());
+            auto nameData = wallet->name().toUtf8();
+            builder.addByteArray(WalletName, nameData.constData(), nameData.size());
         }
     }
     QString filebase = m_basedir + AppdataFilename;
@@ -898,8 +899,8 @@ QString renderAddress(const CKeyID &pubkeyhash)
     CashAddress::Content c;
     c.type = CashAddress::PUBKEY_TYPE;
     c.hash = std::vector<uint8_t>(pubkeyhash.begin(), pubkeyhash.end());
-    const std::string &chainPrefix = FloweePay::instance()->chainPrefix();
-    auto s = CashAddress::encodeCashAddr(chainPrefix, c);
-    const auto size = chainPrefix.size();
+    const std::string &chainPref = FloweePay::instance()->chainPrefix();
+    auto s = CashAddress::encodeCashAddr(chainPref, c);
+    const auto size = chainPref.size();
     return QString::fromLatin1(s.c_str() + size + 1, s.size() - size -1); // the 1 is for the colon
 }
