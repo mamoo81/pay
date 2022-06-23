@@ -256,7 +256,7 @@ public:
     EncryptionLevel encryption() const;
     /// Read encrypted secrets from disk into memory
     bool decrypt(const QString &password);
-    bool isDecrypted();
+    bool isDecrypted() const;
 
     // forget all encrypted secrets.
     void forgetEncryptedSecrets();

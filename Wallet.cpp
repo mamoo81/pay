@@ -1012,7 +1012,7 @@ bool Wallet::decrypt(const QString &password)
     return true;
 }
 
-bool Wallet::isDecrypted()
+bool Wallet::isDecrypted() const
 {
     return m_haveEncryptionKey;
 }
