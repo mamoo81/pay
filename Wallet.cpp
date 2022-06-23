@@ -1002,8 +1002,8 @@ bool Wallet::decrypt(const QString &password)
                     m_encryptionLevel = SecretsEncrypted;
                 }
                 std::vector<uint8_t> buf(32);
-                auto data = parser.bytesDataBuffer();
-                int newSize = crypto->decrypt(data.begin(), data.size(), (char*)&buf[0]);
+                auto strData = parser.bytesDataBuffer();
+                int newSize = crypto->decrypt(strData.begin(), strData.size(), (char*)&buf[0]);
                 assert(newSize == 32);
                 secret->second.privKey.set(buf.begin(), buf.end());
             }

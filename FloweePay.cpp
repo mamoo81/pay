@@ -246,8 +246,7 @@ void FloweePay::saveData()
     Streaming::MessageBuilder builder(data);
     for (auto &wallet : m_wallets) {
         if (wallet->encryptionSeed() != 0)
-            builder.add(WalletEncryptionSeed,
-                static_cast<uint64_t>(wallet->encryptionSeed()));
+            builder.add(WalletEncryptionSeed, static_cast<uint64_t>(wallet->encryptionSeed()));
         builder.add(WalletId, wallet->segment()->segmentId());
         builder.add(WalletPriority, wallet->segment()->priority());
         if (!wallet->name().isEmpty()) {
