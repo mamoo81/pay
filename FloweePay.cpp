@@ -182,6 +182,11 @@ void FloweePay::init()
                     dl->addDataListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
                     m_wallets.append(w);
+                    connect (w, &Wallet::encryptionChanged, w, [=]() {
+                         // make sure that we get peers for the wallet directly after it gets decrypted
+                        if (w->isDecrypted())
+                            FloweePay::p2pNet()->addAction<SyncSPVAction>();
+                    });
                     lastOpened = w;
                 } catch (const std::runtime_error &e) {
                     logWarning() << "Wallet load failed:" << e;
