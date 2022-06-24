@@ -184,7 +184,7 @@ void FloweePay::init()
                     m_wallets.append(w);
                     connect (w, &Wallet::encryptionChanged, w, [=]() {
                          // make sure that we get peers for the wallet directly after it gets decrypted
-                        if (w->isDecrypted())
+                        if (!m_offline && w->isDecrypted())
                             FloweePay::p2pNet()->addAction<SyncSPVAction>();
                     });
                     lastOpened = w;
@@ -628,7 +628,8 @@ NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, cons
         startHeight = s_chain == P2PNet::MainChain ? 550000 : 1000;
     wallet->addPrivateKey(privateKey, startHeight);
     saveData();
-    p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
+    if (!m_offline)
+        p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
     return new NewWalletConfig(wallet);
 }
@@ -672,7 +673,8 @@ NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, cons
         wallet->segment()->blockSynched(startHeight);
         wallet->segment()->blockSynched(startHeight); // yes, twice
         saveData();
-        p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
+        if (!m_offline)
+            p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
         return new NewWalletConfig(wallet);
     } catch (const std::exception &e) {
@@ -765,7 +767,8 @@ NewWalletConfig* FloweePay::createNewBasicWallet(const QString &walletName)
 {
     auto wallet = createWallet(walletName);
     wallet->createNewPrivateKey(walletStartHeightHint());
-    p2pNet()->addAction<SyncSPVAction>();
+    if (!m_offline)
+        p2pNet()->addAction<SyncSPVAction>();
     return new NewWalletConfig(wallet);
 }
 
@@ -796,7 +799,8 @@ NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const
     auto mnemonic = m_hdSeedValidator.generateMnemonic(seed, "en");
     std::vector<uint32_t> dp = HDMasterKey::deriveFromString(derivationPath.toStdString());
     wallet->createHDMasterKey(mnemonic, password, dp, walletStartHeightHint());
-    p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
+    if (!m_offline)
+        p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
     return new NewWalletConfig(wallet);
 }
