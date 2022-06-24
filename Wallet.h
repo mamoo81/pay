@@ -404,6 +404,8 @@ private:
     mutable QMutex m_lock;
     /// used to determine if we need to persist the wallet
     bool m_walletChanged = false;
+    /// Used to determine if we need to save the wallet-name file
+    bool m_walletNameChanged = false;
     /// used to determine if we need to persist the private keys
     bool m_secretsChanged = false;
 

@@ -68,6 +68,19 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint3
     m_basedir(basedir / QString("wallet-%1/").arg(segmentId).toStdString()),
     m_encryptionSeed(encryptionSeed)
 {
+    // first try to load the wallet-name file.
+    try {
+        std::ifstream in((m_basedir / "name").string());
+        if (in.is_open()) {
+            char buf[100];
+            in.read(buf, 100);
+            m_name = QString::fromUtf8(buf, in.gcount());
+            in.close();
+        }
+    } catch (const std::exception &e) {
+        logInfo() << "Failed to read a wallet-name file" << e;
+    }
+
     loadSecrets();
     loadWallet();
     rebuildBloom();
@@ -1054,7 +1067,6 @@ void Wallet::forgetEncryptedSecrets()
         m_unspentOutputs.clear();
         m_lockedOutputs.clear();
         m_txidCache.clear();
-        m_name.clear(); // TODO move persistancy / ownership of name out of the wallet.
         m_balanceConfirmed = 0;
         m_balanceImmature = 0;
         m_balanceUnconfirmed = 0;
@@ -1259,7 +1271,7 @@ void Wallet::setName(const QString &name)
 {
     QMutexLocker locker(&m_lock);
     m_name = name;
-    m_walletChanged = true;
+    m_walletNameChanged = true;
 }
 
 const uint256 &Wallet::txid(int txIndex) const
@@ -1934,7 +1946,11 @@ void Wallet::loadWallet()
         }
         else if (parser.tag() == WalletPriv::WalletName) {
             assert(parser.isString());
-            m_name = QString::fromUtf8(parser.stringData().c_str(), parser.dataLength());
+            auto walletName = QString::fromUtf8(parser.stringData().c_str(), parser.dataLength());
+            if (m_name != walletName) {
+                m_name = walletName;
+                m_walletNameChanged = true;
+            }
         }
         else if (parser.tag() == WalletPriv::UserComment) {
             assert(parser.isString());
@@ -2079,6 +2095,21 @@ void Wallet::loadWallet()
 void Wallet::saveWallet()
 {
     QMutexLocker locker(&m_lock);
+    if (m_walletNameChanged) {
+        try {
+            boost::filesystem::create_directories(m_basedir);
+            boost::filesystem::remove(m_basedir / "name~");
+            std::ofstream outFile((m_basedir / "name~").string());
+            const auto nameBytes = m_name.toUtf8();
+            outFile.write(nameBytes.constBegin(), nameBytes.size());
+            outFile.flush();
+            outFile.close();
+            boost::filesystem::rename(m_basedir / "name~", m_basedir / "name");
+            m_walletNameChanged = false;
+        } catch (const std::exception &e) {
+            logFatal() << "Failed to save the wallet-name. Reason:" << e;
+        }
+    }
     if (!m_walletChanged) {
         bool changed = false;
         for (auto i = m_paymentRequests.begin(); !changed && i != m_paymentRequests.end(); ++i) {
@@ -2091,7 +2122,7 @@ void Wallet::saveWallet()
     if (m_encryptionLevel == FullyEncrypted && !m_haveEncryptionKey)
         throw std::runtime_error("Can not save without passphrase set");
 
-    int saveFileSize = m_name.size() * 3 + 100;
+    int saveFileSize = 100;
     for (const auto &i : m_walletTransactions) {
         const auto &wtx = i.second;
         saveFileSize += 110 + wtx.inputToWTX.size() * 22 + wtx.outputs.size() * 30;
@@ -2137,7 +2168,6 @@ void Wallet::saveWallet()
         builder.add(WalletPriv::Separator, true);
     }
     builder.add(WalletPriv::LastSynchedBlock, m_segment->lastBlockSynched());
-    builder.add(WalletPriv::WalletName, m_name.toUtf8().toStdString());
 
     for (auto pr : qAsConst(m_paymentRequests)) {
         builder.add(WalletPriv::PaymentRequestType, 0); // bip21 is the only one supported right now
@@ -2178,7 +2208,7 @@ void Wallet::saveWallet()
         outFile.close();
         boost::filesystem::rename(m_basedir / "wallet.dat~", m_basedir / "wallet.dat");
     } catch (const std::exception &e) {
-        logFatal() << "Failed to save the database. Reason:" << e.what();
+        logFatal() << "Failed to save the wallet.dat. Reason:" << e;
     }
     m_walletChanged = false;
 }
