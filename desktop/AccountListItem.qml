@@ -62,38 +62,11 @@ Item {
             font.bold: true
             width: parent.width - 20
             clip: true
-            visible: !root.account.needsPinToOpen || root.account.isDecrypted
         }
-        Item {
-            // encrypted wallet status
-            height: encryptionStatusLabel.height
+        WalletEncryptionStatus {
+            id: walletEncryptionStatus
             width: parent.width
-            visible: root.account.needsPinToPay || root.account.needsPinToOpen
-
-            Image {
-                id: lockIcon
-                source: Pay.useDarkSkin ? "qrc:/lock-light.svg" : "qrc:/lock-dark.svg"
-                height: parent.height + 4
-                width: height
-                y: -5
-            }
-            Label {
-                id: encryptionStatusLabel
-                wrapMode: Text.WordWrap
-                font.italic: true
-                anchors.left: lockIcon.right
-                anchors.leftMargin: 6
-                text: {
-                    var txt = "";
-                    if (root.account.needsPinToPay)
-                        txt = qsTr("Pin to Pay");
-                    else if (root.account.needsPinToOpen)
-                        txt = qsTr("Pin to Open");
-                    if (root.account.isDecrypted)
-                        txt += " " + qsTr("(Opened)", "Wallet is decrypted");
-                    return txt;
-                }
-            }
+            account: root.account
         }
         Flow {
             width: parent.width
@@ -183,10 +156,9 @@ Item {
 
         onAboutToOpen: {
             var items = [];
+            items.push(detailsAction);
             var encrypted = root.account.needsPinToOpen;
             var decrypted = root.account.isDecrypted;
-            if (!encrypted || decrypted)
-                items.push(detailsAction);
             if ((encrypted || root.account.needsPinToPay) && decrypted)
                 items.push(closeWalletAction);
             var isArchived = root.account.isArchived;

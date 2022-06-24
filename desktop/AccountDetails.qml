@@ -31,14 +31,18 @@ Item {
             // The model in this case follows the UI, so we need to have this not very
             // declarative code.
             // When a new model is offered, copy the UI settings into it.
-            root.account.secrets.showChangeChain = changeAddresses.checked
-            root.account.secrets.showUsedAddresses = usedAddresses.checked
+            if (root.account.isDecrypted) {
+                root.account.secrets.showChangeChain = changeAddresses.checked
+                root.account.secrets.showUsedAddresses = usedAddresses.checked
+            }
         }
     }
 
     Component.onCompleted: {
-        root.account.secrets.showChangeChain = changeAddresses.checked
-        root.account.secrets.showUsedAddresses = usedAddresses.checked
+        if (root.account.isDecrypted) {
+            root.account.secrets.showChangeChain = changeAddresses.checked
+            root.account.secrets.showUsedAddresses = usedAddresses.checked
+        }
     }
 
     Label {
@@ -57,12 +61,14 @@ Item {
         onClicked: accountOverlay.state = "showTransactions"
     }
 
-    RowLayout {
-        id: nameRow
+    GridLayout {
+        id: basicProperties
         anchors.top: walletDetailsLabel.bottom
         anchors.topMargin: 20
         x: 20
         width: parent.width - 30
+        columns: 2
+        rowSpacing: 10
 
         Label {
             text: qsTr("Name") + ":"
@@ -74,16 +80,28 @@ Item {
             Layout.fillWidth: true
             focus: true
         }
+        Label {
+            id: encLabel
+            text: qsTr("Encryption") + ":"
+            visible: encStatus.visible
+        }
+        WalletEncryptionStatus {
+            id: encStatus
+            Layout.fillWidth: true
+            account: root.account
+        }
     }
+
 
     Flickable {
         id: scrollablePage
-        anchors.top: nameRow.bottom
+        anchors.top: basicProperties.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.margins: 10
         clip: true
+        visible: root.account.isDecrypted
 
         contentHeight: detailsPane.height + 10 + addressesList.height + 10
 
