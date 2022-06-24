@@ -1032,9 +1032,34 @@ bool Wallet::isDecrypted() const
 
 void Wallet::forgetEncryptedSecrets()
 {
+    // save*() methods are no-ops if nothing is to be done.
+    saveWallet();
     QMutexLocker locker(&m_lock);
+    saveSecrets();
+
     clearEncryptionKey();
-    clearDecryptedSecrets();
+    if (m_encryptionLevel == SecretsEncrypted) {
+        clearDecryptedSecrets();
+        // above method emits encryptionChanged()
+    }
+    else if (m_encryptionLevel == FullyEncrypted) {
+        if (m_segment)
+            m_segment->setEnabled(false);
+        m_walletSecrets.clear();
+        m_walletTransactions.clear();
+        m_txidCache.clear();
+        m_nextWalletTransactionId = 1;
+        m_paymentRequests.clear();
+
+        m_unspentOutputs.clear();
+        m_lockedOutputs.clear();
+        m_txidCache.clear();
+        m_name.clear(); // TODO move persistancy / ownership of name out of the wallet.
+        m_balanceConfirmed = 0;
+        m_balanceImmature = 0;
+        m_balanceUnconfirmed = 0;
+        emit encryptionChanged();
+    }
 }
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
