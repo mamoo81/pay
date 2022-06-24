@@ -43,7 +43,7 @@ public:
 private:
     QString m_address;
     QString m_cloakedAddress;
-    qint64 m_value;
+    qint64 m_value = 0;
 };
 
 class TransactionOutputInfo : public QObject

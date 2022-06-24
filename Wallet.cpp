@@ -72,6 +72,11 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint3
     loadWallet();
     rebuildBloom();
     connect (this, SIGNAL(startDelayedSave()), this, SLOT(delayedSave()), Qt::QueuedConnection); // ensure right thread calls us.
+
+    if (m_encryptionLevel == FullyEncrypted) {
+        assert(!isDecrypted()); // because, how?
+        m_segment->setEnabled(false);
+    }
 }
 
 Wallet::~Wallet()
@@ -892,8 +897,11 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
         logCritical() << "Decrypt failed, bad password";
         return;
     }
-
     assert(m_haveEncryptionKey);
+
+    // the enabled flag is used purely for disabling network sync while the wallet is fully encrypted
+    if (m_segment) m_segment->setEnabled(false);
+
     m_encryptionLevel = level;
     m_secretsChanged = true;
     saveSecrets(); // don't delay as the next step will delete our private keys
@@ -970,6 +978,7 @@ bool Wallet::decrypt(const QString &password)
         logCritical() << "Decrypt() failed, bad password";
         return false;
     }
+    assert(m_haveEncryptionKey);
 
     if (m_encryptionLevel == SecretsEncrypted) {
         auto data = readSecrets();
@@ -993,8 +1002,8 @@ bool Wallet::decrypt(const QString &password)
                     m_encryptionLevel = SecretsEncrypted;
                 }
                 std::vector<uint8_t> buf(32);
-                auto data = parser.bytesDataBuffer();
-                int newSize = crypto->decrypt(data.begin(), data.size(), (char*)&buf[0]);
+                auto strData = parser.bytesDataBuffer();
+                int newSize = crypto->decrypt(strData.begin(), strData.size(), (char*)&buf[0]);
                 assert(newSize == 32);
                 secret->second.privKey.set(buf.begin(), buf.end());
             }
@@ -1007,12 +1016,16 @@ bool Wallet::decrypt(const QString &password)
         loadSecrets();
         if (m_walletTransactions.empty())
             loadWallet();
+
+        // the enabled flag is used purely for disabling network sync while the wallet is fully encrypted
+        if (m_segment) m_segment->setEnabled(true);
     }
+    rebuildBloom();
     emit encryptionChanged();
     return true;
 }
 
-bool Wallet::isDecrypted()
+bool Wallet::isDecrypted() const
 {
     return m_haveEncryptionKey;
 }

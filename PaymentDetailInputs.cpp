@@ -100,7 +100,6 @@ void PaymentDetailInputs::selectAll()
     auto &selection = m_selectionModels[m_wallet];
     for (int i = m_model.rowCount() - 1; i >= 0; --i) {
         auto const id = m_model.outRefForRow(i);
-        assert(id >= 0);
         if (selection.rows.find(id) == selection.rows.end()) {
             const Wallet::OutputRef ref(id);
             if (m_wallet->isLocked(ref))

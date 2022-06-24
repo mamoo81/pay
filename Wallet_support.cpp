@@ -57,9 +57,8 @@ QString renderAddress(const Streaming::ConstBuffer &outputScript)
         CashAddress::Content c;
         c.type = CashAddress::SCRIPT_TYPE;
         c.hash = vSolutions[0];
-        const std::string &chainPrefix = FloweePay::instance()->chainPrefix();
-        auto s = CashAddress::encodeCashAddr(chainPrefix, c);
-        const auto size = chainPrefix.size();
+        auto s = CashAddress::encodeCashAddr(chainPrefix(), c);
+        const auto size = chainPrefix().size();
         return QString::fromLatin1(s.c_str() + size + 1, s.size() - size -1); // the 1 is for the colon
     }
     default:
@@ -197,10 +196,10 @@ bool Wallet::WalletTransaction::isRejected() const
 // //////////////////////////////////////////////////
 
 Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::string &pwd)
-    : masterKey(HDMasterKey::fromMnemonic(seedWords, pwd))
+    : masterKey(HDMasterKey::fromMnemonic(seedWords, pwd)),
+      walletMnemonic(QString::fromUtf8(seedWords.c_str())),
+      walletMnemonicPwd(QString::fromUtf8(pwd.c_str()))
 {
-    walletMnemonic = QString::fromUtf8(seedWords.c_str());
-    walletMnemonicPwd = QString::fromUtf8(pwd.c_str());
 }
 
 
