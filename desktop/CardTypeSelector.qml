@@ -1,5 +1,5 @@
 /* * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,12 +19,12 @@ import QtQuick.Controls 2.11
 
 Item {
     id: root
-    property int accountType: 0
+    property int key: 0
     property alias title: name.text
     property var features: []
     signal clicked;
 
-    property bool selected: parent.selectedAccountType === accountType
+    property bool selected: parent.selectedKey === key
     width: name.width * 2
     height: 300
 
@@ -78,6 +78,6 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: optionsRow.selectedAccountType = parent.accountType
+        onClicked: optionsRow.selectedKey = parent.key
     }
 }

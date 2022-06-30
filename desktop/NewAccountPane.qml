@@ -79,10 +79,10 @@ FocusScope {
 
                 property int selectorWidth: (width - spacing * 2) / 3;
 
-                property int selectedAccountType: 1
-                AccountTypeSelector {
+                property int selectedKey: 1
+                CardTypeSelector {
                     id: accountTypeBasic
-                    accountType: 0
+                    key: 0
                     title: qsTr("Basic")
                     width: parent.selectorWidth
 
@@ -92,9 +92,9 @@ FocusScope {
                         qsTr("Great for brief usage", "Context: wallet type")
                     ]
                 }
-                AccountTypeSelector {
+                CardTypeSelector {
                     id: accountTypePreferred
-                    accountType: 1
+                    key: 1
                     title: qsTr("HD wallet")
                     width: parent.selectorWidth
 
@@ -104,9 +104,9 @@ FocusScope {
                         qsTr("Most compatible", "The most compatible wallet type")
                     ]
                 }
-                AccountTypeSelector {
+                CardTypeSelector {
                     id: accountTypeImport
-                    accountType: 2
+                    key: 2
                     title: qsTr("Import")
                     width: parent.selectorWidth
 
@@ -121,7 +121,7 @@ FocusScope {
                 id: description
                 anchors.left: optionsRow.left
                 text: {
-                    var type = optionsRow.selectedAccountType
+                    var type = optionsRow.selectedKey
                     if (type == 0)
                         return qsTr("Basic wallet with private keys")
                     if (type == 1)
@@ -132,7 +132,7 @@ FocusScope {
             }
             StackLayout {
                 id: stack
-                currentIndex: optionsRow.selectedAccountType
+                currentIndex: optionsRow.selectedKey
                 anchors.left: optionsRow.left
                 anchors.right: optionsRow.right
                 width: parent.width
@@ -151,11 +151,11 @@ FocusScope {
             event.accepted = true;
         }
         else if (event.key === Qt.Key_Left && optionsRow.activeFocus) {
-            optionsRow.selectedAccountType = Math.max(0, optionsRow.selectedAccountType - 1)
+            optionsRow.selectedKey = Math.max(0, optionsRow.selectedKey - 1)
             event.accepted = true;
         }
         else if (event.key === Qt.Key_Right && optionsRow.activeFocus) {
-            optionsRow.selectedAccountType = Math.min(2, optionsRow.selectedAccountType + 1)
+            optionsRow.selectedKey = Math.min(2, optionsRow.selectedKey + 1)
             event.accepted = true;
         }
     }

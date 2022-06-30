@@ -33,7 +33,7 @@
         <file>AccountDetails.qml</file>
         <file>SettingsPane.qml</file>
         <file>NewAccountPane.qml</file>
-        <file>AccountTypeSelector.qml</file>
+        <file>CardTypeSelector.qml</file>
         <file>NewAccountCreateBasicAccount.qml</file>
         <file>NewAccountImportAccount.qml</file>
         <file>NewAccountCreateHDAccount.qml</file>
