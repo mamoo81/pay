@@ -1034,7 +1034,9 @@ bool Wallet::decrypt(const QString &password)
         if (m_segment) m_segment->setEnabled(true);
     }
     rebuildBloom();
+    recalculateBalance();
     emit encryptionChanged();
+    emit paymentRequestsChanged();
     return true;
 }
 
@@ -1071,6 +1073,8 @@ void Wallet::forgetEncryptedSecrets()
         m_balanceImmature = 0;
         m_balanceUnconfirmed = 0;
         emit encryptionChanged();
+        emit balanceChanged();
+        emit paymentRequestsChanged();
     }
 }
 

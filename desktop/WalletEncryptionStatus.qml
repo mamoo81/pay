@@ -21,7 +21,7 @@ import QtQuick.Controls 2.11
 Item {
     id: root
     height: encryptionStatusLabel.height
-    visible: root.account.needsPinToPay || root.account.needsPinToOpen
+    visible: account.needsPinToPay || account.needsPinToOpen
 
     property QtObject account: null
 
@@ -30,6 +30,7 @@ Item {
         source: Pay.useDarkSkin ? "qrc:/lock-light.svg" : "qrc:/lock-dark.svg"
         height: parent.height + 4
         width: height
+        opacity: root.account.isDecrypted ? 0.65 : 1
         y: -5
     }
     Label {

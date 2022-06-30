@@ -344,13 +344,14 @@ ApplicationWindow {
                     id: sendTransactionPane
                     // Disable these tabs for archived accounts
                     enabled: !mainWindow.isLoading && !portfolio.current.isArchived
+                             && (!portfolio.current.needsPinToOpen || portfolio.current.isDecrypted)
                     anchors.fill: parent
                     property string title: qsTr("Send")
                     property string icon: "qrc:/sendIcon-light.png"
                 }
                 Loader {
                     id: receivePane
-                    enabled: sendTransactionPane.enabled
+                    enabled: sendtransactionpane.enabled && (!portfolio.current.needspintoopen || portfolio.current.isdecrypted)
                     anchors.fill: parent
                     property string icon: "qrc:/receiveIcon.png"
                     property string title: qsTr("Receive")
@@ -589,6 +590,7 @@ ApplicationWindow {
                         }
                     }
                     MouseArea {
+                        enabled: priceCover.visible === false
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
@@ -597,13 +599,25 @@ ApplicationWindow {
                         }
                     }
 
+                    Rectangle {
+                        id: priceCover // this covers the prices while the wallet is encrypted.
+                        color: mainWindow.palette.window
+                        opacity: 0.8
+                        anchors.fill: parent
+                        anchors.topMargin: 6
+                        visible: !mainWindow.isLoading && portfolio.current.needsPinToOpen && !portfolio.current.isDecrypted
+                    }
+
                     Behavior on height { NumberAnimation {} }
                 }
                 Label {
                     text: {
-                        if (Pay.hideBalance && Pay.isMainChain)
-                            return "-- " + Fiat.currencyName
-                        return Fiat.formattedPrice(balance.value, Fiat.price)
+                        if (mainWindow.isLoading)
+                            return "";
+                        if (Pay.hideBalance && Pay.isMainChain
+                                || (portfolio.current.needsPinToOpen && !portfolio.current.isDecrypted))
+                            return "-- " + Fiat.currencyName;
+                        return Fiat.formattedPrice(balance.value, Fiat.price);
                     }
                     opacity: 0.6
                 }
@@ -646,11 +660,13 @@ ApplicationWindow {
                     id: syncIndicator
                     text: {
                         if (isLoading)
-                            return ""
-                        var account = portfolio.current
+                            return "";
+                        var account = portfolio.current;
                         if (account === null)
-                            return ""
-                        return account.timeBehind
+                            return "";
+                        if (account.needsPinToOpen && !account.isDecrypted)
+                            return qsTr("Offline");
+                        return account.timeBehind;
                     }
                     font.italic: true
                 }
