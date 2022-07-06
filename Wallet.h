@@ -147,7 +147,7 @@ public:
 
     struct PrivKeyData {
         int privKeyId = 0;
-        CKey key;
+        PrivateKey key;
         SignatureType sigType;
     };
     /// Fetch UTXO key
@@ -284,7 +284,7 @@ public:
     void setTransactionComment(const Tx &transaction, const QString &comment);
 
     struct WalletSecret {
-        CKey privKey;
+        PrivateKey privKey;
         KeyId address;
         /*
          * initial height for a secret key is relevant for the getmerkleblock call.
