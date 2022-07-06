@@ -896,10 +896,7 @@ void TestWallet::testEncryption2()
         QCOMPARE(wallet->isDecrypted(), false);
         {
             const auto &secrets = wallet->walletSecrets();
-            QCOMPARE(secrets.size(), (size_t)10);
-            for (auto i = secrets.begin(); i != secrets.end(); ++i) {
-                QVERIFY(i->second.privKey.isValid() == false);
-            }
+            QVERIFY(secrets.empty()); // a fully encrypted wallet gets cleaned out
         }
 
         wallet->decrypt(PWD);
