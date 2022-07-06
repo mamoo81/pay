@@ -351,7 +351,7 @@ ApplicationWindow {
                 }
                 Loader {
                     id: receivePane
-                    enabled: sendtransactionpane.enabled && (!portfolio.current.needspintoopen || portfolio.current.isdecrypted)
+                    enabled: sendTransactionPane.enabled && (!portfolio.current.needSpinToOpen || portfolio.current.isDecrypted)
                     anchors.fill: parent
                     property string icon: "qrc:/receiveIcon.png"
                     property string title: qsTr("Receive")

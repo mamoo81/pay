@@ -50,9 +50,9 @@ QString renderAddress(const Streaming::ConstBuffer &outputScript)
 
     switch (whichType) {
     case Script::TX_PUBKEY:
-        return renderAddress(CPubKey(vSolutions[0]).getKeyId());
+        return renderAddress(PublicKey(vSolutions[0]).getKeyId());
     case Script::TX_PUBKEYHASH:
-        return renderAddress(CKeyID(uint160(vSolutions[0])));
+        return renderAddress(KeyId(uint160(vSolutions[0])));
     case Script::TX_SCRIPTHASH: {
         CashAddress::Content c;
         c.type = CashAddress::SCRIPT_TYPE;

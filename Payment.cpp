@@ -178,7 +178,7 @@ void Payment::prepare()
             CashAddress::Content c = CashAddress::decodeCashAddrContent(address.toStdString(), chainPrefix());
             assert(!c.hash.empty());
             if (c.type == CashAddress::PUBKEY_TYPE) {
-                builder.pushOutputPay2Address(CKeyID(reinterpret_cast<const char*>(c.hash.data())));
+                builder.pushOutputPay2Address(KeyId(reinterpret_cast<const char*>(c.hash.data())));
                 ok = true;
             }
             else if (c.type == CashAddress::SCRIPT_TYPE) {

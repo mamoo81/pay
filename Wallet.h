@@ -162,10 +162,10 @@ public:
     void updateSignatureType(const PrivKeyData &data);
 
     /// Return a bitcoin address (160 bits ripe key) for deposit.
-    CKeyID nextUnusedAddress();
+    KeyId nextUnusedAddress();
 
     /// Return a bitcoin address (160 bits ripe key) for change.
-    CKeyID nextUnusedChangeAddress();
+    KeyId nextUnusedChangeAddress();
 
     enum PrivKeyType {
         ChangePath,     ///< The private keys created from a HD wallets change derivation
@@ -173,7 +173,7 @@ public:
     };
 
     /// Return a private-key-index for deposits and reserve it from re-use.
-    int reserveUnusedAddress(CKeyID &keyId, PrivKeyType pkt = ReceivePath);
+    int reserveUnusedAddress(KeyId &keyId, PrivKeyType pkt = ReceivePath);
 
     /// The opposite of reserveUnusedAddress, free for usage an address.
     void unreserveAddress(int index);
@@ -285,7 +285,7 @@ public:
 
     struct WalletSecret {
         CKey privKey;
-        CKeyID address;
+        KeyId address;
         /*
          * initial height for a secret key is relevant for the getmerkleblock call.
          * The special value 0 implies that the key is created but not yet shared and thus
@@ -311,7 +311,7 @@ public:
         int historicalCoins;    ///< The amount of coins ever seen on this key.
     };
     KeyDetails fetchKeyDetails(int privKeyId) const;
-    int findPrivKeyId(const CKeyID &address) const;
+    int findPrivKeyId(const KeyId &address) const;
 
     /// Returns true if this wallet is backed by a Hierarchically Deterministic seed.
     bool isHDWallet() const;

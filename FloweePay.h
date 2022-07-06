@@ -37,11 +37,11 @@ namespace Streaming {
 }
 class Wallet;
 class NewWalletConfig;
-class CKeyID;
+class KeyId;
 class PriceDataProvider;
 
 const std::string &chainPrefix();
-QString renderAddress(const CKeyID &pubkeyhash);
+QString renderAddress(const KeyId &pubkeyhash);
 
 class FloweePay : public QObject, WorkerThreads, P2PNetInterface
 {

@@ -125,7 +125,7 @@ void TestWallet::addingTransactions()
     b2.appendOutput(500000);
     b2.pushOutputPay2Address(wallet->nextUnusedAddress());
     b2.appendOutput(290000);
-    CKeyID id("99999999999999999999");
+    KeyId id("99999999999999999999");
     b2.pushOutputPay2Address(id);
 
     int64_t change = -1;
@@ -251,7 +251,7 @@ void TestWallet::lockingOutputs()
             }
         }
         b1.appendOutput(5000); // 11000000 was available, so the fee is enormous. But this makes it easy to test.
-        CKeyID address;
+        KeyId address;
         wallet->reserveUnusedAddress(address);
         b1.pushOutputPay2Address(address);
         Tx t1 = b1.createTransaction(&pool);
@@ -295,7 +295,7 @@ void TestWallet::lockingOutputs()
             }
         }
         b1.appendOutput(700000);
-        CKeyID address;
+        KeyId address;
         wallet->reserveUnusedAddress(address);
         b1.pushOutputPay2Address(address);
         Tx t1 = b1.createTransaction(&pool);
@@ -347,7 +347,7 @@ void TestWallet::testSpam()
     b2.appendOutput(547); // Da SPAM.
     b2.pushOutputPay2Address(wallet->nextUnusedAddress());
     b2.appendOutput(290000);
-    CKeyID id("99999999999999999999");
+    KeyId id("99999999999999999999");
     b2.pushOutputPay2Address(id);
 
     int64_t change = -1;
@@ -397,7 +397,7 @@ void TestWallet::saveTransaction()
         b2.appendOutput(200000);
         b2.pushOutputPay2Address(wallet->nextUnusedAddress());
         b2.appendOutput(790000);
-        CKeyID id("99999999999999999999");
+        KeyId id("99999999999999999999");
         b2.pushOutputPay2Address(id);
 
         int64_t change = -1;
@@ -463,7 +463,7 @@ void TestWallet::saveTransaction2()
         b3.appendOutput(40);
         b3.pushOutputPay2Address(wallet->nextUnusedAddress());
         b3.appendOutput(10);
-        CKeyID id("66666666666666666666");
+        KeyId id("66666666666666666666");
         b3.pushOutputPay2Address(id);
         Tx t3 = b3.createTransaction(&pool);
         list[0] = t3;
@@ -590,7 +590,7 @@ void TestWallet::hierarchicallyDeterministic()
         QCOMPARE(wallet->hdWalletMnemonicPwd(), QString());
         QCOMPARE(wallet->derivationPath(), QString("m/44'/145'/0'"));
 
-        CKeyID id;
+        KeyId id;
         int num = wallet->reserveUnusedAddress(id);
         QCOMPARE(num, 1); // the first maps to the non-HD one created in our unit-test below (in createWallet())
 
@@ -650,7 +650,7 @@ void TestWallet::rejectTx()
             b1.pushInputSignature(wallet->unlockKey(ref).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
         }
         b1.appendOutput(5000); // 9000000 was available, so the fee is enormous. But this makes it easy to test.
-        CKeyID address;
+        KeyId address;
         wallet->reserveUnusedAddress(address);
         b1.pushOutputPay2Address(address);
         Tx t1 = b1.createTransaction(&pool);
@@ -779,7 +779,7 @@ void TestWallet::testEncryption2()
         TransactionBuilder builder;
         builder.appendInput(uint256S("7690458423233793949274923986540813794798131233949274923986540813"), 1);
         builder.appendOutput(6012412);
-        CKeyID address;
+        KeyId address;
         wallet->reserveUnusedAddress(address);
         builder.pushOutputPay2Address(address);
         QCOMPARE(wallet->balanceUnconfirmed(), 0);
@@ -854,7 +854,7 @@ void TestWallet::testEncryption2()
         TransactionBuilder builder;
         builder.appendInput(uint256S("7690458423233793949274923986540813794798131233949274923986540813"), 2);
         builder.appendOutput(1283482);
-        CKeyID address;
+        KeyId address;
         wallet->reserveUnusedAddress(address);
         builder.pushOutputPay2Address(address);
         QCOMPARE(wallet->balanceUnconfirmed(), 6012412);

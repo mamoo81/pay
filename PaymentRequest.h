@@ -132,7 +132,7 @@ private:
 
     Wallet *m_wallet;
     QString m_message;
-    CKeyID m_address;
+    KeyId m_address;
     int m_privKeyId = -1; // refers to the Wallets list of private keys
     bool m_unusedRequest = true; ///< true as long as the user did not decide to save the request
     bool m_useLegacyAddressFormat = false;

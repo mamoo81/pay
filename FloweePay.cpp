@@ -641,7 +641,7 @@ QObject *FloweePay::researchAddress(const QString &address, QObject *parent)
         logWarning() << "researchAddress() only works with a propertly formatted cash-address!";
         return nullptr;
     }
-    const CKeyID key(reinterpret_cast<char *>(c.hash.data()));
+    const KeyId key(reinterpret_cast<char *>(c.hash.data()));
 
     // if we don't know the address, return a nullptr
     AddressInfo *info = nullptr;
@@ -902,7 +902,7 @@ const std::string &chainPrefix()
     return FloweePay::instance()->chainPrefix();
 }
 
-QString renderAddress(const CKeyID &pubkeyhash)
+QString renderAddress(const KeyId &pubkeyhash)
 {
     CashAddress::Content c;
     c.type = CashAddress::PUBKEY_TYPE;

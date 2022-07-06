@@ -264,7 +264,7 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
         m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
         secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
 
-        const CPubKey pubkey = secret.privKey.getPubKey();
+        const PublicKey pubkey = secret.privKey.getPubKey();
         secret.address = pubkey.getKeyId();
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
     }
@@ -678,7 +678,7 @@ Wallet::KeyDetails Wallet::fetchKeyDetails(int privKeyId) const
     return details;
 }
 
-int Wallet::findPrivKeyId(const CKeyID &address) const
+int Wallet::findPrivKeyId(const KeyId &address) const
 {
     for (const auto &priv : m_walletSecrets) {
         if (priv.second.address == address) {
@@ -1101,14 +1101,14 @@ int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
     if (!Script::solver(outputScript, whichType, vSolutions))
         return -1;
 
-    CKeyID keyID;
+    KeyId keyID;
     switch (whichType)
     {
     case Script::TX_PUBKEY:
-        keyID = CPubKey(vSolutions[0]).getKeyId();
+        keyID = PublicKey(vSolutions[0]).getKeyId();
         break;
     case Script::TX_PUBKEYHASH:
-        keyID = CKeyID(uint160(vSolutions[0]));
+        keyID = KeyId(uint160(vSolutions[0]));
         break;
     case Script::TX_SCRIPTHASH:
     case Script::TX_MULTISIG:
@@ -1341,21 +1341,21 @@ void Wallet::updateSignatureType(const PrivKeyData &data)
     iter->second.signatureType = data.sigType;
 }
 
-CKeyID Wallet::nextUnusedAddress()
+KeyId Wallet::nextUnusedAddress()
 {
-    CKeyID answer;
+    KeyId answer;
     reserveUnusedAddress(answer);
     return answer;
 }
 
-CKeyID Wallet::nextUnusedChangeAddress()
+KeyId Wallet::nextUnusedChangeAddress()
 {
-    CKeyID answer;
+    KeyId answer;
     reserveUnusedAddress(answer, ChangePath);
     return answer;
 }
 
-int Wallet::reserveUnusedAddress(CKeyID &keyId, PrivKeyType pkt)
+int Wallet::reserveUnusedAddress(KeyId &keyId, PrivKeyType pkt)
 {
     QMutexLocker locker(&m_lock);
     for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
@@ -1402,7 +1402,7 @@ int Wallet::reserveUnusedAddress(CKeyID &keyId, PrivKeyType pkt)
     for (int i = 0; i < 50; ++i) {
         WalletSecret secret;
         secret.privKey.makeNewKey();
-        const CPubKey pubkey = secret.privKey.getPubKey();
+        const PublicKey pubkey = secret.privKey.getPubKey();
         secret.address = pubkey.getKeyId();
         if (i == 0) {
             answer = m_nextWalletSecretId;
@@ -1516,7 +1516,7 @@ void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
     else {
         secret.privKey.makeNewKey();
     }
-    const CPubKey pubkey = secret.privKey.getPubKey();
+    const PublicKey pubkey = secret.privKey.getPubKey();
     secret.address = pubkey.getKeyId();
     secret.initialHeight = currentBlockheight;
     m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
@@ -1541,7 +1541,7 @@ bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
 
         // TODO loop over secrets and avoid adding one privkey twice.
 
-        const CPubKey pubkey = secret.privKey.getPubKey();
+        const PublicKey pubkey = secret.privKey.getPubKey();
         secret.address = pubkey.getKeyId();
         secret.initialHeight = startBlockHeight;
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
@@ -1640,7 +1640,7 @@ void Wallet::loadSecrets()
         }
         else if (parser.tag() == WalletPriv::PubKeyHash) {
             auto d = parser.bytesDataBuffer();
-            secret.address = CKeyID(d.begin());
+            secret.address = KeyId(d.begin());
         }
         else if (parser.tag() == WalletPriv::HeightCreated) {
             if (parser.intData() == -1) // legacy indicator of 'unused'. (changed in 2021.05)
