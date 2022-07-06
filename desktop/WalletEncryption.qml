@@ -19,72 +19,191 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import "widgets" as Flowee
+import "ControlColors.js" as ControlColors
 
-Item {
+FocusScope {
     id: root
     property QtObject account: portfolio.current
     focus: true
 
-    Flowee.CloseIcon {
-        id: closeIcon
-        y: 30
-        anchors.margins: 6
-        anchors.right: parent.right
-        onClicked: accountOverlay.state = "showTransactions"
+    Flickable {
+        id: contentArea
+        anchors.fill: parent
+        anchors.margins: 10
+
+        contentWidth: width
+        contentHeight: contentAreaColumn.height + 20
+        flickableDirection: Flickable.VerticalFlick
+        clip: true
+        ScrollBar.vertical: ScrollBar { }
+
+        Flowee.CloseIcon {
+            id: closeIcon
+            anchors.right: parent.right
+            onClicked: accountOverlay.state = "showTransactions"
+        }
+        Column {
+            id: contentAreaColumn
+            width: contentArea.width - 40
+            y: 10
+            x: 20
+            spacing: 20
+            Label {
+                text: qsTr("Protect your wallet with a password")
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pointSize: 14
+            }
+            Flow {
+                id: optionsRow
+                anchors.horizontalCenter: parent.horizontalCenter
+                activeFocusOnTab: true
+                focus: true
+                height: 320
+                spacing: 20
+                width: Math.min(contentArea.width - 30, 900) // smaller is OK, wider not
+
+                property int selectorWidth: (width - spacing * 2) / 2;
+                property int selectedKey: 0
+
+                CardTypeSelector {
+                    id: pinToPay
+                    key: 0
+                    title: qsTr("Pin to Pay")
+                    width: parent.selectorWidth
+
+                    features: [
+                        qsTr("Protect your funds", "pin to pay"),
+                        qsTr("Fully open, except for sending funds", "pin to pay"),
+                        qsTr("Keeps in sync", "pin to pay"),
+                    ]
+                }
+                CardTypeSelector {
+                    id: pinToOpen
+                    key: 1
+                    title: qsTr("Pin to Open")
+                    width: parent.selectorWidth
+
+                    features: [
+                        qsTr("Protect your entire wallet", "pin to open"),
+                        qsTr("Balance or history protected", "pin to open"),
+                        qsTr("Requires PIN to view, sync or pay", "pin to open"),
+                    ]
+                }
+            }
+            Label {
+                id: description
+                anchors.left: optionsRow.left
+                text: {
+                    var type = optionsRow.selectedKey
+                    if (type == 0)
+                        return qsTr("Make \"%1\" require a pin to pay").arg(portfolio.current.name);
+                    return qsTr("Make \"%1\" require a pin to open").arg(portfolio.current.name);
+                }
+                font.pointSize: 14
+            }
+            StackLayout {
+                id: stack
+                currentIndex: optionsRow.selectedKey
+                width: parent.width
+
+                Label {
+                    text: {
+                        if (root.account.needsPinToPay)
+                            return qsTr("Wallet already has pin to pay applied")
+                        if (root.account.needsPinToOpen)
+                            return qsTr("Wallet already has pin to open applied")
+                        return qsTr("Your wallet will get partially encrypted and payments will become impossible without a password. If you don't have a backup of this wallet, make one first.")
+                    }
+                    wrapMode: Text.WordWrap
+                    width: stack.width
+                }
+                Label {
+                    text: {
+                        if (root.account.needsPinToOpen)
+                            return qsTr("Wallet already has pin to open applied")
+                        return qsTr("Your full wallet gets encrypted, opening it will need a password. If you don't have a backup of this wallet, make one first.")
+                    }
+                    wrapMode: Text.WordWrap
+                    width: stack.width
+                }
+            }
+
+            GridLayout {
+                enabled: optionsRow.selectedKey == 0 && !root.account.needsPinToPay
+                         || optionsRow.selectedKey == 1 && !root.account.needsPinToOpen
+                width: parent.width
+                columns: 2
+                Label {
+                    text: qsTr("Password") + ":"
+
+                    onEnabledChanged: updateColors();
+                    Connections {
+                        target: Pay
+                        function onUseDarkSkinChanged() { updateColors(); }
+                    }
+                    function updateColors() {
+                        ControlColors.applySkin(this);
+                        if (enabled)
+                            color = palette.text
+                        else
+                            color = Pay.useDarkSkin ? Qt.darker(palette.text) : Qt.lighter(palette.text, 2)
+                    }
+                }
+                Flowee.TextField {
+                    id: pwd
+                    Layout.fillWidth: true
+                    echoMode: TextInput.Password
+                }
+                Label {
+                    text: qsTr("Wallet") + ":"
+                }
+                Label {
+                    text: root.account.name
+                }
+            }
+
+            Item {
+                width: parent.width
+                height: closeButton.height
+                Flowee.Button {
+                    id: encryptButton
+                    enabled: pwd.enabled && pwd.text.length > 3
+                    text: qsTr("Encrypt")
+                    anchors.right: closeButton.left
+                    anchors.rightMargin: 10
+                    onClicked:  {
+                        // TODO unlock a wallet first with the given password if needed.
+
+                        if (optionsRow.selectedKey == 0)
+                            root.account.encryptPinToPay(pwd.text);
+                        if (optionsRow.selectedKey == 1)
+                            root.account.encryptPinToOpen(pwd.text);
+                        pwd.text = ""
+                        accountOverlay.state = "showTransactions" // aka close dialog
+                    }
+                }
+                Flowee.Button {
+                    id: closeButton
+                    text: qsTr("Close")
+                    anchors.right: parent.right
+                    onClicked: accountOverlay.state = "showTransactions"
+                }
+            }
+        }
     }
 
-    ColumnLayout {
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        // anchors.bottom: parent.bottom
-        anchors.margins: 10
-        spacing: 10
-        Label {
-            id: stateLabel
-            text: {
-                var isOpen = root.account.isDecrypted ? " (opened)" : "";
-                if (root.account.needsPinToPay)
-                    return "Has been light-encrypted" + isOpen;
-                if (root.account.needsPinToOpen)
-                    return "Has been fully-encrypted" + isOpen;
-                return "unencrypted"
-            }
-            color: "white"
+    Keys.onPressed: {
+        if (event.key === Qt.Key_Escape) {
+            accountOverlay.state = "showTransactions";
+            event.accepted = true;
         }
-
-        Flowee.TextField {
-            id: password
+        else if (event.key === Qt.Key_Left && optionsRow.activeFocus) {
+            optionsRow.selectedKey = Math.max(0, optionsRow.selectedKey - 1)
+            event.accepted = true;
         }
-        Flowee.Button {
-            text: "Pin to Pay"
-            enabled: !root.account.needsPinToPay && !root.account.needsPinToOpen && password.text.length > 3
-            onClicked: {
-                root.account.encryptPinToPay(password.text);
-                password.text = ""
-            }
-        }
-        Flowee.Button {
-            text: "Pin to Open"
-            enabled: !root.account.needsPinToOpen && password.text.length > 3
-            onClicked: {
-                root.account.encryptPinToOpen(password.text);
-                password.text = ""
-            }
-        }
-        Flowee.Button {
-            text: "Open wallet"
-            enabled: (root.account.needsPinToPay || root.account.needsPinToOpen) && password.text.length > 1
-            onClicked: {
-                root.account.decrypt(password.text)
-                if (root.account.isDecrypted)
-                    password.text = ""
-            }
-        }
-        Flowee.Button {
-            text: "Close wallet"
-            enabled: (root.account.needsPinToPay || root.account.needsPinToOpen) &&  root.account.isDecrypted
-            onClicked: root.account.closeWallet()
+        else if (event.key === Qt.Key_Right && optionsRow.activeFocus) {
+            optionsRow.selectedKey = Math.min(2, optionsRow.selectedKey + 1)
+            event.accepted = true;
         }
     }
 }
