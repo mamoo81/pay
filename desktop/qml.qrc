@@ -59,6 +59,7 @@
         <file>widgets/CashFusionIcon.qml</file>
         <file>PaymentTweakingPanel.qml</file>
         <file>widgets/DialogButtonBox.qml</file>
+        <file>widgets/WarningLabel.qml</file>
         <file>WalletEncryptionStatus.qml</file>
     </qresource>
 </RCC>

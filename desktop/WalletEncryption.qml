@@ -153,12 +153,23 @@ FocusScope {
                     id: pwd
                     Layout.fillWidth: true
                     echoMode: TextInput.Password
+                    onAccepted: encryptButton.clicked()
                 }
                 Label {
                     text: qsTr("Wallet") + ":"
                 }
                 Label {
                     text: root.account.name
+                }
+                Item {
+                    width: 1
+                    height: 1
+                }
+                Flowee.WarningLabel {
+                    Layout.fillWidth: true
+                    id: invalidPwd
+                    text: qsTr("Invalid password to open this wallet")
+                    visible: false
                 }
             }
 
@@ -172,12 +183,21 @@ FocusScope {
                     anchors.right: closeButton.left
                     anchors.rightMargin: 10
                     onClicked:  {
-                        // TODO unlock a wallet first with the given password if needed.
-
+                        var account = root.account;
+                        // unlock a wallet first with the given password if needed.
+                        if (account.needsPinToPay) {
+                            var ok = account.decrypt(pwd.text);
+                            if (!ok) {
+                                invalidPwd.visible = true;
+                                console.log("Decryption failed");
+                                return;
+                            }
+                        }
+                        invalidPwd.visible = false;
                         if (optionsRow.selectedKey == 0)
-                            root.account.encryptPinToPay(pwd.text);
+                            account.encryptPinToPay(pwd.text);
                         if (optionsRow.selectedKey == 1)
-                            root.account.encryptPinToOpen(pwd.text);
+                            account.encryptPinToOpen(pwd.text);
                         pwd.text = ""
                         accountOverlay.state = "showTransactions" // aka close dialog
                     }
