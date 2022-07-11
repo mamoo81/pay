@@ -82,6 +82,8 @@ public:
             return m_txid != 0;
         }
 
+        Wallet::OutputRef& operator=(const OutputRef&) = default;
+
     private:
         uint32_t m_txid = 0; // index in m_walletTransactions
         uint16_t m_outputIndex = 0;
