@@ -241,7 +241,6 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
 {
     // mutex already locked
     while (changeChain + mainChain > 0) {
-        m_secretsChanged = true;
         WalletSecret secret;
         secret.initialHeight = startHeight;
         secret.fromHdWallet = true;
@@ -261,10 +260,19 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
             m_hdData->derivationPath[count - 2] = 1;
         }
         m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
-        secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
+        if (!isDecrypted()) {
+            assert(secret.privKey.isValid());
+            secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
+            const PublicKey pubkey = secret.privKey.getPubKey();
+            secret.address = pubkey.getKeyId();
+            m_secretsChanged = true;
+        }
+        else { // the wallet is locked / encrypted, lets only use the public key for now
+            const PublicKey pubkey = m_hdData->masterPubkey.derive(m_hdData->derivationPath);
+            secret.address = pubkey.getKeyId();
+            // avoid setting m_secretsChanged as we can't save without being decrypted.
+        }
 
-        const PublicKey pubkey = secret.privKey.getPubKey();
-        secret.address = pubkey.getKeyId();
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
     }
 
@@ -1131,16 +1139,14 @@ int Wallet::reserveUnusedAddress(KeyId &keyId, PrivKeyType pkt)
         return reserveUnusedAddress(keyId);
     }
 
-    int answer;
+    int answer = m_nextWalletSecretId;
     for (int i = 0; i < 50; ++i) {
         WalletSecret secret;
         secret.privKey.makeNewKey();
         const PublicKey pubkey = secret.privKey.getPubKey();
         secret.address = pubkey.getKeyId();
-        if (i == 0) {
-            answer = m_nextWalletSecretId;
+        if (i == 0)
             keyId = secret.address;
-        }
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
     }
     m_secretsChanged = true;

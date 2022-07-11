@@ -74,7 +74,7 @@ bool Wallet::parsePassword(const QString &password)
         if (parser.tag() != WalletPriv::CryptoChecksum)
             return false;
         if (parser.longData() != *crc)
-            return false;
+            return false; // bad password
     }
     // password is correct, lets update internal wallet state
     m_encryptionSeed = encryptionSeed;
@@ -84,7 +84,7 @@ bool Wallet::parsePassword(const QString &password)
     memcpy(&m_encryptionKey[0], buf, m_encryptionKey.size());
     memcpy(&m_encryptionIR[0], buf + m_encryptionKey.size(), m_encryptionIR.size());
     memory_cleanse(buf, sizeof(buf));
-    m_haveEncryptionKey = true; // this is optimistic, we check it in decrypt()
+    m_haveEncryptionKey = true;
     return true;
 }
 
@@ -251,6 +251,24 @@ bool Wallet::decrypt(const QString &password)
         if (m_hdData && !m_hdData->masterKey.isValid()) {
             m_hdData->masterKey = HDMasterKey::fromMnemonic(m_hdData->walletMnemonic.toStdString(),
                                                             m_hdData->walletMnemonicPwd.toStdString());
+
+            // An 'pin to pay' wallet (aka SecretsEncrypted) uses the HDMasterPubkey during sync
+            // to generate more private key objects, just without the actual private keys.
+            // Now we are unlocked, lets see if any private keys need to be derived.
+            auto derivationPath (m_hdData->derivationPath);
+            const auto count = derivationPath.size();
+            for (int secretId = m_nextWalletSecretId -1; secretId >= 1; --secretId) {
+                auto secretIter = m_walletSecrets.find(secretId);
+                assert(secretIter != m_walletSecrets.end());
+                auto &secret = secretIter->second;
+                assert(secret.fromHdWallet);
+                if (secret.privKey.isValid())
+                    break;
+                derivationPath[count - 2] = secret.fromChangeChain ? 1 : 0;
+                derivationPath[count - 1] = secret.hdDerivationIndex;
+                secret.privKey = m_hdData->masterKey.derive(derivationPath);
+                m_secretsChanged = true;
+            }
         }
     }
     else if (m_encryptionLevel == FullyEncrypted) {
@@ -268,6 +286,7 @@ bool Wallet::decrypt(const QString &password)
     recalculateBalance();
     emit encryptionChanged();
     emit paymentRequestsChanged();
+    saveSecrets(); // no-op if secrets are unchanged
     return true;
 }
 
