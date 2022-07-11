@@ -101,7 +101,6 @@ Item {
         anchors.bottom: parent.bottom
         anchors.margins: 10
         clip: true
-        visible: root.account.isDecrypted
 
         contentHeight: detailsPane.height + 10 + addressesList.height + 10
 
@@ -178,6 +177,7 @@ Item {
             anchors.topMargin: 10
             title: qsTr("Address List")
             collapsed: !root.account.isSingleAddressAccount
+            visible: root.account.isDecrypted || !root.account.needsPinToOpen
 
             Flowee.CheckBox {
                 id: changeAddresses
@@ -261,11 +261,11 @@ Item {
                         anchors.right: parent.right
                         wide: true
                         y: 5
-                        Action {
+                        property QtObject copyAddress: Action {
                             text: qsTr("Copy Address")
                             onTriggered: Pay.copyToClipboard(address)
                         }
-                        Action {
+                        property QtObject copyPrivKey: Action {
                             text: qsTr("Copy Private Key")
                             onTriggered: Pay.copyToClipboard(privatekey)
                         }
@@ -274,6 +274,13 @@ Item {
                             text: qsTr("Move to New Wallet")
                             onTriggered: ;
                         } */
+                        onAboutToOpen: {
+                            var items = [];
+                            items.push(copyAddress);
+                            if (root.account.isDecrypted)
+                                items.push(copyPrivKey);
+                            setMenuActions(items)
+                        }
                     }
                 }
                 ScrollBar.vertical: Flowee.ScrollThumb {
@@ -290,7 +297,7 @@ Item {
             anchors.top: addressesList.bottom
             anchors.topMargin: 10
             title: qsTr("Backup details")
-            visible: root.account.isHDWallet
+            visible: root.account.isHDWallet && root.account.isDecrypted
             collapsed: true
 
             Item {
