@@ -25,6 +25,7 @@
 #include <PrivacySegment.h>
 
 #include <HDMasterKey.h>
+#include <HDMasterPubkey.h>
 #include <primitives/key.h>
 #include <primitives/pubkey.h>
 #include <primitives/Tx.h>
@@ -417,8 +418,10 @@ private:
 
     struct HierarchicallyDeterministicWalletData {
         /// the strings should have utf8 encoded text.
-        HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::string &pwd = std::string());
+        HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::vector<uint32_t> &derivationPath, const std::string &pwd);
+        HierarchicallyDeterministicWalletData(const std::string &xpub, const std::vector<uint32_t> &derivationPath);
         HDMasterKey masterKey;
+        HDMasterPubkey masterPubkey;
         QString walletMnemonic;
         QString walletMnemonicPwd;
         std::vector<uint32_t> derivationPath; // contains the last created privkey. (full derivation path)

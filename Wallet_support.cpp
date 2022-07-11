@@ -195,10 +195,18 @@ bool Wallet::WalletTransaction::isRejected() const
 
 // //////////////////////////////////////////////////
 
-Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::string &pwd)
+Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::vector<uint32_t> &derivationPath, const std::string &pwd)
     : masterKey(HDMasterKey::fromMnemonic(seedWords, pwd)),
+      masterPubkey(HDMasterPubkey::fromHDMaster(masterKey, derivationPath)),
       walletMnemonic(QString::fromUtf8(seedWords.c_str())),
-      walletMnemonicPwd(QString::fromUtf8(pwd.c_str()))
+      walletMnemonicPwd(QString::fromUtf8(pwd.c_str())),
+      derivationPath(derivationPath)
+{
+}
+
+Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const std::string &xpub, const std::vector<uint32_t> &derivationPath)
+      : masterPubkey(HDMasterPubkey::fromXPub(xpub)),
+      derivationPath(derivationPath)
 {
 }
 
