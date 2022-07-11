@@ -48,10 +48,14 @@ struct ECC_State
     ECC_State() {
         // Init crypto lib.
         ECC_Start();
+        globalVerifyHandle.reset(new ECCVerifyHandle());
     }
     ~ECC_State() {
+        globalVerifyHandle.reset();
         ECC_Stop();
     }
+
+    std::unique_ptr<ECCVerifyHandle> globalVerifyHandle;
 };
 }
 
