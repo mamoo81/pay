@@ -288,6 +288,7 @@ public:
 
     struct WalletSecret {
         PrivateKey privKey;
+        std::vector<char> encryptedPrivKey;
         KeyId address;
         /*
          * initial height for a secret key is relevant for the getmerkleblock call.
@@ -420,12 +421,16 @@ private:
 
     struct HierarchicallyDeterministicWalletData {
         /// the strings should have utf8 encoded text.
-        HierarchicallyDeterministicWalletData(const std::string &seedWords, const std::vector<uint32_t> &derivationPath, const std::string &pwd);
+        HierarchicallyDeterministicWalletData(const std::vector<char> &seedWords, const std::vector<uint32_t> &derivationPath, const std::vector<char> &pwd);
         HierarchicallyDeterministicWalletData(const std::string &xpub, const std::vector<uint32_t> &derivationPath);
         HDMasterKey masterKey;
         HDMasterPubkey masterPubkey;
-        QString walletMnemonic;
-        QString walletMnemonicPwd;
+        std::vector<char> walletMnemonic; // utf8-encoding
+        std::vector<char> walletMnemonicPwd;// utf8-encoding
+
+        std::vector<char> encryptedWalletMnemonic;
+        std::vector<char> encryptedWalletMnemonicPwd;
+
         std::vector<uint32_t> derivationPath; // contains the last created privkey. (full derivation path)
         int lastMainKey = -1;   // for derivation {BASE} + 0 / [num]
         int lastChangeKey = -1; // for derivation {BASE} + 1 / [num]

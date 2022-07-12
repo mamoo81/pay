@@ -82,13 +82,13 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint3
 
     loadSecrets();
     loadWallet();
-    rebuildBloom();
-    connect (this, SIGNAL(startDelayedSave()), this, SLOT(delayedSave()), Qt::QueuedConnection); // ensure right thread calls us.
 
     if (m_encryptionLevel == FullyEncrypted) {
         assert(!isDecrypted()); // because, how?
         m_segment->setEnabled(false);
     }
+    rebuildBloom();
+    connect (this, SIGNAL(startDelayedSave()), this, SLOT(delayedSave()), Qt::QueuedConnection); // ensure right thread calls us.
 }
 
 Wallet::~Wallet()
@@ -260,20 +260,19 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
             m_hdData->derivationPath[count - 2] = 1;
         }
         m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
-        if (!isDecrypted()) {
+        if (isDecrypted()) {
             assert(secret.privKey.isValid());
             secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
             const PublicKey pubkey = secret.privKey.getPubKey();
             secret.address = pubkey.getKeyId();
-            m_secretsChanged = true;
         }
         else { // the wallet is locked / encrypted, lets only use the public key for now
             const PublicKey pubkey = m_hdData->masterPubkey.derive(m_hdData->derivationPath);
             secret.address = pubkey.getKeyId();
-            // avoid setting m_secretsChanged as we can't save without being decrypted.
         }
 
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
+        m_secretsChanged = true;
     }
 
     rebuildBloom();
@@ -703,14 +702,14 @@ bool Wallet::isHDWallet() const
 QString Wallet::hdWalletMnemonic() const
 {
     if (m_hdData.get())
-        return m_hdData->walletMnemonic;
+        return QString::fromUtf8(m_hdData->walletMnemonic.data(), m_hdData->walletMnemonic.size());
     return QString();
 }
 
 QString Wallet::hdWalletMnemonicPwd() const
 {
     if (m_hdData.get())
-        return m_hdData->walletMnemonicPwd;
+        return QString::fromUtf8(m_hdData->walletMnemonicPwd.data(), m_hdData->walletMnemonicPwd.size());
     return QString();
 }
 
@@ -742,9 +741,14 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     // encoded properly, regardless of the underlying OS settings.
 
     // Explicitly use utf8 encoding.
-    std::string m(mnemonic.toUtf8().constData());
-    std::string p(pwd.toUtf8().constData());
-    m_hdData.reset(new HierarchicallyDeterministicWalletData(m, derivationPath, p));
+    const auto mnemonicBytes = mnemonic.toUtf8();
+    const auto pwdBytes = pwd.toUtf8();
+    // convert to stl containers.
+    std::vector<char> vMnemonic(mnemonicBytes.size());
+    memcpy(vMnemonic.data(), mnemonicBytes.constData(), mnemonicBytes.size());
+    std::vector<char> vPwd(pwdBytes.size());
+    memcpy(vPwd.data(), pwdBytes.constData(), pwdBytes.size());
+    m_hdData.reset(new HierarchicallyDeterministicWalletData(vMnemonic, derivationPath, vPwd));
     // append two random numbers, to make clear the full length
     m_hdData->derivationPath.push_back(0);
     m_hdData->derivationPath.push_back(0);
@@ -1341,7 +1345,9 @@ void Wallet::loadSecrets()
     }
     Streaming::MessageParser parser(fileData);
     WalletSecret secret;
-    std::string mnemonic, mnemonicpwd, xpub;
+    std::string xpub;
+    std::vector<char> mnemonic, mnemonicPwd;
+    std::vector<char> encryptedMnemonic, encryptedMnemonicPwd;
     std::vector<uint32_t> derivationPath;
     int derivationPathChangeIndex = -1;
     int derivationPathMainIndex = -1;
@@ -1375,8 +1381,8 @@ void Wallet::loadSecrets()
             secret.privKey.set(d.begin(), d.end(), true);
         }
         else if (parser.tag() == WalletPriv::PrivKeyEncrypted) {
+            secret.encryptedPrivKey = parser.bytesData();
             m_encryptionLevel = SecretsEncrypted;
-            // we actually parse this field in the decrypt() method
         }
         else if (parser.tag() == WalletPriv::PubKeyHash) {
             auto d = parser.bytesDataBuffer();
@@ -1407,10 +1413,18 @@ void Wallet::loadSecrets()
             secret.signatureType = static_cast<SignatureType>(parser.intData());
         }
         else if (parser.tag() == WalletPriv::HDWalletMnemonic) {
-            mnemonic = parser.stringData();
+            mnemonic = parser.bytesData();
+        }
+        else if (parser.tag() == WalletPriv::HDWalletMnemonicEncrypted) {
+            encryptedMnemonic = parser.bytesData();
+            m_encryptionLevel = SecretsEncrypted;
         }
         else if (parser.tag() == WalletPriv::HDWalletMnemonicPassword) {
-            mnemonicpwd = parser.stringData();
+            mnemonicPwd = parser.bytesData();
+        }
+        else if (parser.tag() == WalletPriv::HDWalletMnemonicPasswordEncrypted) {
+            encryptedMnemonicPwd = parser.bytesData();
+            m_encryptionLevel = SecretsEncrypted;
         }
         else if (parser.tag() == WalletPriv::HDWalletPathItem) {
             derivationPath.push_back(static_cast<uint32_t>(parser.longData()));
@@ -1433,12 +1447,14 @@ void Wallet::loadSecrets()
     if ((xpub.empty() && mnemonic.empty()) != derivationPath.empty())
         logFatal() << "Found incomplete data for HD wallet";
     else if (!mnemonic.empty())
-        m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, derivationPath, mnemonicpwd));
+        m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, derivationPath, mnemonicPwd));
     else if (!xpub.empty())
         m_hdData.reset(new HierarchicallyDeterministicWalletData(xpub, derivationPath));
     if (m_hdData) {
         m_hdData->lastChangeKey = derivationPathChangeIndex;
         m_hdData->lastMainKey = derivationPathMainIndex;
+        m_hdData->encryptedWalletMnemonic = encryptedMnemonic;
+        m_hdData->encryptedWalletMnemonicPwd = encryptedMnemonicPwd;
     }
 
     m_secretsChanged = false;
@@ -1452,49 +1468,33 @@ void Wallet::saveSecrets()
         return;
     int hdDataSize = 0;
     if (m_hdData.get()) {
-        assert (!m_hdData->walletMnemonic.isEmpty());
-        assert (m_hdData->masterKey.isValid());
+        assert (!m_hdData->encryptedWalletMnemonic.empty());
         // Reserve enough space. Notice that string-length and encoded length may be different.
-        hdDataSize = m_hdData->walletMnemonic.length() * 5 + AES_BLOCKSIZE;
-        hdDataSize += m_hdData->walletMnemonicPwd.length() * 5 + AES_BLOCKSIZE;
+        hdDataSize += m_hdData->encryptedWalletMnemonicPwd.size();
+        hdDataSize += m_hdData->encryptedWalletMnemonic.size();
         hdDataSize += m_hdData->derivationPath.size() * 6;
-        hdDataSize += 200; // for the xpub, lastChangeIndex, lastReceiveIndex
+        hdDataSize += 100; // for the xpub, lastChangeIndex, lastReceiveIndex
     }
 
     Streaming::MessageBuilder builder(Streaming::pool(100 + m_walletSecrets.size() * 90 + hdDataSize));
-    std::unique_ptr<AES256CBCEncrypt> privKeyCrypto;
-    std::unique_ptr<AES256CBCEncrypt> crypto;
     if (m_encryptionLevel >= SecretsEncrypted) {
         // Please note that this field HAS to be the first one.
-        if (!m_haveEncryptionKey)
-            throw std::runtime_error("Can not save wallet encrypted, no password set");
-        // we have two because padding adds a block (16 bytes), to the encrypted result, which is
-        // not needed if we know for a fact that the privkeys are a duplicate of the blocksize.
-        privKeyCrypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0], false));
-        crypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0], true));
         builder.add(WalletPriv::CryptoChecksum, (uint64_t) m_encryptionChecksum);
     }
     builder.add(WalletPriv::WalletVersion, m_walletVersion);
     if (m_hdData.get()) {
         if (m_encryptionLevel == SecretsEncrypted) {
-            // Encrypt the mnemonic and 'password' here.
-            auto orig = m_hdData->walletMnemonic.toUtf8();
-            QByteArray encrypted(orig.size() + AES_BLOCKSIZE, 0);
-            int byteCount = crypto->encrypt(orig.constData(), orig.size(), encrypted.data());
-            builder.addByteArray(WalletPriv::HDWalletMnemonicEncrypted, encrypted.constData(), byteCount);
-
-            if (!m_hdData->walletMnemonicPwd.isEmpty()) {
-                orig = m_hdData->walletMnemonicPwd.toUtf8();
-                encrypted = QByteArray(orig.size() + AES_BLOCKSIZE, 0);
-                byteCount = crypto->encrypt(orig.constData(), orig.size(), encrypted.data());
-                builder.addByteArray(WalletPriv::HDWalletMnemonicPasswordEncrypted, encrypted.constData(), byteCount);
-            }
+            // Save encrypted mnemonic and 'password' here, with the unencrypted xpub.
+            assert(!m_hdData->encryptedWalletMnemonic.empty());
+            builder.add(WalletPriv::HDWalletMnemonicEncrypted, m_hdData->encryptedWalletMnemonic);
+            if (!m_hdData->encryptedWalletMnemonicPwd.empty())
+                builder.add(WalletPriv::HDWalletMnemonicPasswordEncrypted, m_hdData->encryptedWalletMnemonicPwd);
             builder.add(WalletPriv::HDXPub, m_hdData->masterPubkey.toString());
         }
         else {
-            builder.add(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic.toUtf8().constData());
-            if (!m_hdData->walletMnemonicPwd.isEmpty())
-                builder.add(WalletPriv::HDWalletMnemonicPassword, m_hdData->walletMnemonicPwd.toUtf8().constData());
+            builder.add(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic);
+            if (!m_hdData->walletMnemonicPwd.empty())
+                builder.add(WalletPriv::HDWalletMnemonicPassword, m_hdData->walletMnemonicPwd);
         }
         for (const uint32_t item : m_hdData->derivationPath) {
             builder.add(WalletPriv::HDWalletPathItem,  static_cast<uint64_t>(item));
@@ -1507,16 +1507,13 @@ void Wallet::saveSecrets()
     for (const auto &item : m_walletSecrets) {
         const auto &secret = item.second;
         builder.add(WalletPriv::Index, item.first);
-        assert(secret.privKey.isValid());
-        if (m_encryptionLevel == SecretsEncrypted) {
-            assert(secret.privKey.isValid());
-            char buf[32]; // private keys are always 32 bytes
-            privKeyCrypto->encrypt(reinterpret_cast<const char*>(secret.privKey.begin()), sizeof(buf), buf);
-            builder.addByteArray(WalletPriv::PrivKeyEncrypted, buf, sizeof(buf));
-        }
-        else {
+        // In HD wallets the secret key may be missing totally in case this secret was auto-created
+        // on a SecretsEncrypted wallet (from the xpub).
+        // Be sure to only save what we have.
+        if (!secret.encryptedPrivKey.empty())
+            builder.add(WalletPriv::PrivKeyEncrypted, secret.encryptedPrivKey);
+        if (secret.privKey.isValid() && m_encryptionLevel != SecretsEncrypted)
             builder.addByteArray(WalletPriv::PrivKey, secret.privKey.begin(), secret.privKey.size());
-        }
         builder.addByteArray(WalletPriv::PubKeyHash, secret.address.begin(), secret.address.size());
         if (secret.initialHeight > 0)
             builder.add(WalletPriv::HeightCreated, (uint64_t) secret.initialHeight);
@@ -1541,7 +1538,8 @@ void Wallet::saveSecrets()
 
         if (m_encryptionLevel == FullyEncrypted) {
             auto &pool = Streaming::pool(data.size() + AES_BLOCKSIZE);
-            int size = crypto->encrypt(data.begin(), data.size(), pool.data());
+            AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
+            int size = crypto.encrypt(data.begin(), data.size(), pool.data());
             data = pool.commit(size);
         }
         std::ofstream outFile((m_basedir / "secrets.dat~").string());
@@ -1772,8 +1770,8 @@ void Wallet::loadWallet()
     }
 
     // after inserting all outputs during load, now remove all inputs these tx's spent.
-    for (auto index : newTx) {
-        auto iter = m_walletTransactions.find(index);
+    for (auto txIndex : newTx) {
+        auto iter = m_walletTransactions.find(txIndex);
         assert(iter != m_walletTransactions.end());
 
         if (iter->second.minedBlockHeight == WalletPriv::Rejected)

@@ -129,7 +129,7 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
     assert(m_haveEncryptionKey);
 
     // the enabled flag is used purely for disabling network sync while the wallet is fully encrypted
-    if (m_segment) m_segment->setEnabled(false);
+    if (level == FullyEncrypted && m_segment) m_segment->setEnabled(false);
 
     m_encryptionLevel = level;
     m_secretsChanged = true;
@@ -186,6 +186,31 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
         }
     }
 
+    // create encrypted versions of all the secrets.
+    if (m_encryptionLevel == SecretsEncrypted) {
+        AES256CBCEncrypt privKeyCrypto(&m_encryptionKey[0], &m_encryptionIR[0], false);
+
+        for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+            auto &secret = i->second;
+            assert(secret.privKey.isValid());
+            secret.encryptedPrivKey.resize(32);
+            privKeyCrypto.encrypt(reinterpret_cast<const char*>(secret.privKey.begin()), 32,
+                                  &secret.encryptedPrivKey[0]);
+        }
+
+        if (m_hdData) {
+            AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
+            m_hdData->encryptedWalletMnemonic.resize(m_hdData->walletMnemonic.size() + AES_BLOCKSIZE); // make sure we have enough space
+            int newSize = crypto.encrypt(m_hdData->walletMnemonic, &m_hdData->encryptedWalletMnemonic[0]);
+            m_hdData->encryptedWalletMnemonic.resize(newSize);
+
+            if (!m_hdData->walletMnemonicPwd.empty()) {
+                m_hdData->encryptedWalletMnemonicPwd.resize(m_hdData->walletMnemonicPwd.size() + AES_BLOCKSIZE);
+                newSize = crypto.encrypt(m_hdData->walletMnemonicPwd, &m_hdData->encryptedWalletMnemonicPwd[0]);
+                m_hdData->encryptedWalletMnemonicPwd.resize(newSize);
+            }
+        }
+    }
     clearDecryptedSecrets();
     emit encryptionChanged();
 }
@@ -210,64 +235,54 @@ bool Wallet::decrypt(const QString &password)
     assert(m_haveEncryptionKey);
 
     if (m_encryptionLevel == SecretsEncrypted) {
-        auto data = readSecrets();
-        Streaming::MessageParser parser(data);
-        int index = 0;
-        // that last arg; false is the 'padding' which has to be false since that is the same in the save method.
-        std::unique_ptr<AES256CBCDecrypt> privKeyCrypto(new AES256CBCDecrypt(&m_encryptionKey[0], &m_encryptionIR[0], false));
-        // last arg is the padding, which is true here since we don't know the length of the input
-        std::unique_ptr<AES256CBCDecrypt> crypto(new AES256CBCDecrypt(&m_encryptionKey[0], &m_encryptionIR[0], true));
-        while (parser.next() == Streaming::FoundTag) {
-            if (parser.tag() == WalletPriv::Index) {
-                index = parser.intData();
+        if (m_hdData) {
+            // last arg is the padding, which is true here since we don't know the length of the input
+            AES256CBCDecrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
+            m_hdData->walletMnemonic.resize(m_hdData->encryptedWalletMnemonic.size());
+            int newSize = crypto.decrypt(m_hdData->encryptedWalletMnemonic, &m_hdData->walletMnemonic[0]);
+            m_hdData->walletMnemonic.resize(newSize);
+            if (!m_hdData->encryptedWalletMnemonicPwd.empty()) {
+                m_hdData->walletMnemonicPwd.resize(m_hdData->encryptedWalletMnemonic.size());
+                newSize = crypto.decrypt(m_hdData->encryptedWalletMnemonicPwd, &m_hdData->walletMnemonicPwd[0]);
+                m_hdData->walletMnemonicPwd.resize(newSize);
             }
-            else if (parser.tag() == WalletPriv::PrivKeyEncrypted) {
-                if (parser.dataLength() != 32) {
-                    logWarning() << "Privkey size invalid. Index:" << index << "size:"
-                                  << parser.dataLength();
-                    continue;
-                }
-                auto secret = m_walletSecrets.find(index);
-                assert (secret != m_walletSecrets.end());
-                std::vector<uint8_t> buf(32);
-                auto strData = parser.bytesDataBuffer();
-                int newSize = privKeyCrypto->decrypt(strData.begin(), strData.size(), (char*)&buf[0]);
-                assert(newSize == 32);
-                secret->second.privKey.set(buf.begin(), buf.end());
-            }
-            else if (parser.tag() == WalletPriv::HDWalletMnemonicEncrypted
-                     || parser.tag() == WalletPriv::HDWalletMnemonicPasswordEncrypted) {
-                assert(m_hdData);
-                auto encrypted = parser.bytesDataBuffer();
-                auto &pool = Streaming::pool(encrypted.size());
-                const int newSize = crypto->decrypt(encrypted.begin(), encrypted.size(), pool.data());
-                auto decrypted = pool.commit(newSize);
-                if (parser.tag() == WalletPriv::HDWalletMnemonicEncrypted)
-                    m_hdData->walletMnemonic = QString::fromUtf8(decrypted.begin(), decrypted.size());
-                else // if (parser.tag() == WalletPriv::HDWalletMnemonicPasswordEncrypted)
-                    m_hdData->walletMnemonicPwd = QString::fromUtf8(decrypted.begin(), decrypted.size());
-            }
+            std::string seedWords(m_hdData->walletMnemonic.begin(), m_hdData->walletMnemonic.end());
+            std::string pwd(m_hdData->walletMnemonicPwd.begin(), m_hdData->walletMnemonicPwd.end());
+            m_hdData->masterKey = HDMasterKey::fromMnemonic(seedWords, pwd);
+            assert(m_hdData->masterKey.isValid());
         }
-        if (m_hdData && !m_hdData->masterKey.isValid()) {
-            m_hdData->masterKey = HDMasterKey::fromMnemonic(m_hdData->walletMnemonic.toStdString(),
-                                                            m_hdData->walletMnemonicPwd.toStdString());
 
-            // An 'pin to pay' wallet (aka SecretsEncrypted) uses the HDMasterPubkey during sync
-            // to generate more private key objects, just without the actual private keys.
-            // Now we are unlocked, lets see if any private keys need to be derived.
-            auto derivationPath (m_hdData->derivationPath);
-            const auto count = derivationPath.size();
-            for (int secretId = m_nextWalletSecretId -1; secretId >= 1; --secretId) {
-                auto secretIter = m_walletSecrets.find(secretId);
-                assert(secretIter != m_walletSecrets.end());
-                auto &secret = secretIter->second;
+        // that last arg; false is the 'padding' which has to be false since that is the same in the save method.
+        AES256CBCDecrypt privKeyDecrypto(&m_encryptionKey[0], &m_encryptionIR[0], false);
+        AES256CBCEncrypt privKeyEncryptor(&m_encryptionKey[0], &m_encryptionIR[0], false);
+        std::vector<uint8_t> buf(32);
+        std::vector<uint32_t> derivationPath;
+        for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+            auto &secret = i->second;
+            if (secret.encryptedPrivKey.size() == 32) {
+                privKeyDecrypto.decrypt(secret.encryptedPrivKey, reinterpret_cast<char*>(&buf[0]));
+                secret.privKey.set(buf.begin(), buf.end());
+                assert(secret.privKey.isValid());
+            }
+            else if (m_hdData) {
+                // An 'pin to pay' wallet (aka SecretsEncrypted) uses the HDMasterPubkey during sync
+                // to generate more private key objects, just without the actual private keys.
+                // Now we are unlocked, we can derive it the right way.
+                if (derivationPath.empty())
+                    derivationPath = m_hdData->derivationPath;
                 assert(secret.fromHdWallet);
-                if (secret.privKey.isValid())
-                    break;
-                derivationPath[count - 2] = secret.fromChangeChain ? 1 : 0;
-                derivationPath[count - 1] = secret.hdDerivationIndex;
+                derivationPath[derivationPath.size() - 2] = secret.fromChangeChain ? 1 : 0;
+                derivationPath[derivationPath.size() - 1] = secret.hdDerivationIndex;
                 secret.privKey = m_hdData->masterKey.derive(derivationPath);
+                secret.encryptedPrivKey.resize(32);
+                privKeyEncryptor.encrypt(reinterpret_cast<const char*>(secret.privKey.begin()), 32,
+                                  &secret.encryptedPrivKey[0]);
+
                 m_secretsChanged = true;
+            }
+            else {
+                // then why was the encrypted data missing??
+                assert(false);
             }
         }
     }
