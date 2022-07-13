@@ -182,6 +182,7 @@ void FloweePay::init()
                     dl->addDataListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
                     m_wallets.append(w);
+                    logDebug() << "Found wallet" << w->name() << "with segment ID:" << w->segment()->segmentId();
                     connect (w, &Wallet::encryptionChanged, w, [=]() {
                          // make sure that we get peers for the wallet directly after it gets decrypted
                         if (!m_offline && w->isDecrypted())
