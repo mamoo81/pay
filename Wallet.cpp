@@ -315,7 +315,7 @@ void Wallet::newTransaction(const Tx &tx)
         Q_ASSERT(wtx.isCoinbase == false);
         if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
             // no connection to our UTXOs
-            if (--m_bloomScore < 25)
+            if (++m_bloomScore > 25)
                 rebuildBloom();
             return;
         }
@@ -400,7 +400,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 notification.blockHeight = blockHeight;
                 if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
                     // no connection to our UTXOs
-                    if (--m_bloomScore < 25)
+                    if (++m_bloomScore > 25)
                         needNewBloom = true;
                     continue;
                 }
