@@ -1133,6 +1133,7 @@ int Wallet::reserveUnusedAddress(KeyId &keyId, PrivKeyType pkt)
             continue;
         secret.reserved = true;
         keyId = secret.address;
+        // TODO check if this address has already been sent and we can avoid the bloom rebuild
         rebuildBloom(); // make sure that we actually observe changes on this address
         return i->first;
     }
@@ -1171,10 +1172,17 @@ void Wallet::setLastSynchedBlockHeight(int height)
 {
     if (m_lastBlockHeightSeen == height)
         return;
+    if (m_encryptionLevel == FullyEncrypted && !isDecrypted()) {
+        // this protects against race conditions where the SPV action
+        // lags behind a wallet that gets closed.
+        return;
+    }
     m_walletChanged = true;
     m_lastBlockHeightSeen = height;
     emit lastBlockSynchedChanged();
 
+    // TODO the next line is very expensive and unneeded for 99.99% of the users.
+    // probably want a bool stating that this wallet has immature coinbases.
     recalculateBalance();
     emit utxosChanged(); // in case there was an immature coinbase, this updates the balance
 
