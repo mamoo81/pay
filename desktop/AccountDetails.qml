@@ -90,8 +90,53 @@ Item {
             Layout.fillWidth: true
             account: root.account
         }
-    }
 
+        Label {
+            id: pwdLabel
+            text: qsTr("Passphrase") + ":"
+            visible: encStatus.visible
+        }
+        Flowee.TextField {
+            id: passwordField
+            onAccepted: decryptButton.clicked()
+            enabled: !root.account.isDecrypted
+            Layout.fillWidth: true
+            visible: pwdLabel.visible
+        }
+        Item {
+            visible: pwdLabel.visible
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
+            implicitHeight: Math.max(decryptWarning.implicitHeight, decryptButton.implicitHeight)
+
+            Flowee.WarningLabel {
+                id: decryptWarning
+                anchors.left: parent.left
+                anchors.leftMargin: 20
+                anchors.right: decryptButton.left
+                anchors.rightMargin: 10
+            }
+
+            Flowee.Button {
+                id: decryptButton
+                anchors.right: parent.right
+                text: qsTr("Open")
+                enabled: passwordField.text.length > 3
+                onClicked: {
+                    var rc = root.account.decrypt(passwordField.text);
+                    if (rc) {
+                        // decrypt went Ok
+                        decryptWarning.text = ""
+                        passwordField.text = ""
+                    }
+                    else {
+                        decryptWarning.text = qsTr("Invalid PIN")
+                        passwordField.forceActiveFocus();
+                    }
+                }
+            }
+        }
+    }
 
     Flickable {
         id: scrollablePage
@@ -123,6 +168,7 @@ Item {
             }
             Label {
                 id: walletType
+                visible: root.account.isDecrypted || root.account.needsPinToPay
                 font.italic: true
                 text: {
                     if (root.account.isSingleAddressAccount)
@@ -146,16 +192,6 @@ Item {
                 id: schnorr
                 checked: true
                 text: qsTr("Use Schnorr signatures");
-            }
-            Flowee.CheckBox {
-                id: pinToTray
-                checked: false
-                text: qsTr("Pin to Pay");
-            }
-            Flowee.CheckBox {
-                id: pinToOpen
-                checked: false
-                text: qsTr("Pin to Open");
             }
             Flowee.CheckBox {
                 id: syncOnStart
@@ -297,14 +333,19 @@ Item {
             anchors.top: addressesList.bottom
             anchors.topMargin: 10
             title: qsTr("Backup details")
-            visible: root.account.isHDWallet && root.account.isDecrypted
+            visible: root.account.isHDWallet
             collapsed: true
 
             Item {
                 width: parent.width
-                implicitHeight: grid.height + helpText.height + warningText.height + 20
+                implicitHeight: {
+                    if (root.account.isDecrypted)
+                        return grid.height + helpText.height + warningText.height + 20
+                    return infoText.height
+                }
                 GridLayout {
                     id: grid
+                    visible: root.account.isDecrypted
                     width: parent.width
                     columns: 2
                     Label {
@@ -327,9 +368,9 @@ Item {
                         menuText: qsTr("Copy")
                     }
                 }
-
                 Label {
                     id: helpText
+                    visible: grid.visible
                     width: parent.width
                     anchors.top: grid.bottom
                     anchors.topMargin: 10
@@ -339,10 +380,19 @@ Item {
                 }
                 Label {
                     id: warningText
+                    visible: grid.visible
                     width: parent.width
                     anchors.top: helpText.bottom
                     anchors.topMargin: 10
                     text: qsTr("<b>Important</b>: Never share your seed-phrase with others!")
+                    textFormat: Text.StyledText
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                }
+                Label {
+                    id: infoText
+                    visible: !root.account.isDecrypted
+                    width: parent.width
+                    text: qsTr("This wallet is protected by password (pin-to-pay). To see the backup details you need to provide the password.")
                     textFormat: Text.StyledText
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 }
