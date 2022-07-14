@@ -201,12 +201,12 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
         if (m_hdData) {
             AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
             m_hdData->encryptedWalletMnemonic.resize(m_hdData->walletMnemonic.size() + AES_BLOCKSIZE); // make sure we have enough space
-            int newSize = crypto.encrypt(m_hdData->walletMnemonic, &m_hdData->encryptedWalletMnemonic[0]);
+            int newSize = crypto.encrypt(m_hdData->walletMnemonic.data(), m_hdData->walletMnemonic.size(), &m_hdData->encryptedWalletMnemonic[0]);
             m_hdData->encryptedWalletMnemonic.resize(newSize);
 
             if (!m_hdData->walletMnemonicPwd.empty()) {
                 m_hdData->encryptedWalletMnemonicPwd.resize(m_hdData->walletMnemonicPwd.size() + AES_BLOCKSIZE);
-                newSize = crypto.encrypt(m_hdData->walletMnemonicPwd, &m_hdData->encryptedWalletMnemonicPwd[0]);
+                newSize = crypto.encrypt(m_hdData->walletMnemonicPwd.data(), m_hdData->walletMnemonicPwd.size(), &m_hdData->encryptedWalletMnemonicPwd[0]);
                 m_hdData->encryptedWalletMnemonicPwd.resize(newSize);
             }
         }

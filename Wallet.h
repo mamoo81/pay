@@ -425,8 +425,8 @@ private:
         HierarchicallyDeterministicWalletData(const std::string &xpub, const std::vector<uint32_t> &derivationPath);
         HDMasterKey masterKey;
         HDMasterPubkey masterPubkey;
-        std::vector<char> walletMnemonic; // utf8-encoding
-        std::vector<char> walletMnemonicPwd;// utf8-encoding
+        std::vector<char, secure_allocator<char> > walletMnemonic; // utf8-encoding
+        std::vector<char, secure_allocator<char> >  walletMnemonicPwd;// utf8-encoding
 
         std::vector<char> encryptedWalletMnemonic;
         std::vector<char> encryptedWalletMnemonicPwd;

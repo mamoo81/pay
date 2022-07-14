@@ -1505,9 +1505,10 @@ void Wallet::saveSecrets()
             builder.add(WalletPriv::HDXPub, m_hdData->masterPubkey.toString());
         }
         else {
-            builder.add(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic);
+            builder.addByteArray(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic.data(), m_hdData->walletMnemonic.size());
             if (!m_hdData->walletMnemonicPwd.empty())
-                builder.add(WalletPriv::HDWalletMnemonicPassword, m_hdData->walletMnemonicPwd);
+                builder.addByteArray(WalletPriv::HDWalletMnemonicPassword,
+                                     m_hdData->walletMnemonicPwd.data(), m_hdData->walletMnemonicPwd.size());
         }
         for (const uint32_t item : m_hdData->derivationPath) {
             builder.add(WalletPriv::HDWalletPathItem,  static_cast<uint64_t>(item));
