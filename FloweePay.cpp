@@ -147,6 +147,13 @@ FloweePay::~FloweePay()
 {
     saveData();
 
+    for (auto wallet : m_wallets) {
+        try {
+            wallet->saveWallet();
+        } catch (const std::exception &e) {
+            logFatal() << e;
+        }
+    }
     qDeleteAll(m_wallets);
 }
 
