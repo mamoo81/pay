@@ -24,6 +24,7 @@
 #include "Wallet.h"
 #include "WalletHistoryModel.h"
 #include "WalletSecretsModel.h"
+#include "qtimer.h"
 
 #include <QDateTime>
 #include <memory>
@@ -167,7 +168,8 @@ private slots:
     void walletEncryptionChanged();
 
 private:
-    Wallet *m_wallet;
+    Wallet * const m_wallet;
+    QTimer *m_closeWalletTimer = nullptr;
     std::unique_ptr<WalletHistoryModel> m_model;
     std::unique_ptr<WalletSecretsModel> m_secretsModel;
     int m_lastTxHeight = -1; ///< last seen tx blockheight.

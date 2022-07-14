@@ -307,13 +307,27 @@ void AccountInfo::encryptPinToOpen(const QString &password)
 
 bool AccountInfo::decrypt(const QString &password)
 {
-    return m_wallet->decrypt(password);
+    const bool shouldAutoclose = m_wallet->encryption() == Wallet::SecretsEncrypted;
+    const bool success = m_wallet->decrypt(password);
+    if (shouldAutoclose && success) {
+        if (!m_closeWalletTimer) {
+            m_closeWalletTimer = new QTimer(this);
+            connect (m_closeWalletTimer, &QTimer::timeout, m_wallet, [=]() {
+                m_wallet->forgetEncryptedSecrets();
+            });
+        }
+        m_closeWalletTimer->stop();
+        m_closeWalletTimer->start(200 * 1000); // 200s
+    }
+    return success;
 }
 
 void AccountInfo::closeWallet()
 {
     // this forgets secrets
     m_wallet->forgetEncryptedSecrets();
+    if (m_closeWalletTimer)
+        m_closeWalletTimer->stop();
 }
 
 bool AccountInfo::isSingleAddressAccount() const

@@ -116,7 +116,7 @@ void Payment::decrypt(const QString &password)
         m_error.clear();
         emit errorChanged();
     }
-    if (!m_account->wallet()->decrypt(password)) {
+    if (!m_account->decrypt(password)) {
         m_error = tr("Invalid PIN");
         emit errorChanged();
     }
