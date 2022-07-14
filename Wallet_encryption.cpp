@@ -128,14 +128,11 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
     }
     assert(m_haveEncryptionKey);
 
-    // the enabled flag is used purely for disabling network sync while the wallet is fully encrypted
-    if (level == FullyEncrypted && m_segment) m_segment->setEnabled(false);
-
     m_encryptionLevel = level;
-    m_secretsChanged = true;
-    saveSecrets(); // don't delay as the next step will delete our private keys
-
-    if (level == FullyEncrypted) {
+    if (m_encryptionLevel == FullyEncrypted) {
+        // the enabled flag is used purely for disabling network sync while the wallet is fully encrypted
+        if (m_segment)
+            m_segment->setEnabled(false);
         m_walletChanged = true;
         saveWallet();
 
@@ -187,7 +184,7 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
     }
 
     // create encrypted versions of all the secrets.
-    if (m_encryptionLevel == SecretsEncrypted) {
+    else if (m_encryptionLevel == SecretsEncrypted) {
         AES256CBCEncrypt privKeyCrypto(&m_encryptionKey[0], &m_encryptionIR[0], false);
 
         for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
@@ -211,6 +208,9 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
             }
         }
     }
+
+    m_secretsChanged = true;
+    saveSecrets(); // last chance as the next step will delete our private keys
     clearDecryptedSecrets();
     emit encryptionChanged();
 }

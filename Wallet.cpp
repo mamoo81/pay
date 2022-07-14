@@ -1482,8 +1482,9 @@ void Wallet::saveSecrets()
         return;
     int hdDataSize = 0;
     if (m_hdData.get()) {
-        assert (!m_hdData->encryptedWalletMnemonic.empty());
         // Reserve enough space. Notice that string-length and encoded length may be different.
+        hdDataSize += m_hdData->walletMnemonic.size() * 5;
+        hdDataSize += m_hdData->walletMnemonicPwd.size() * 5;
         hdDataSize += m_hdData->encryptedWalletMnemonicPwd.size();
         hdDataSize += m_hdData->encryptedWalletMnemonic.size();
         hdDataSize += m_hdData->derivationPath.size() * 6;
