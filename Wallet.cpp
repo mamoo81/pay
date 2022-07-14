@@ -1894,8 +1894,11 @@ void Wallet::saveWallet()
             return;
     }
 
-    if (m_encryptionLevel == FullyEncrypted && !m_haveEncryptionKey)
-        throw std::runtime_error("Can not save without passphrase set");
+    if (m_encryptionLevel == FullyEncrypted && !m_haveEncryptionKey) {
+        logFatal() << "Wallet" << m_name << (m_walletChanged ? "was changed" : "had changed payment requests")
+                   << "We can't save it since its fully encrypted and not open right now";
+        throw std::runtime_error("Can not save a pin to open wallet that is closed.");
+    }
 
     int saveFileSize = 100;
     for (const auto &i : m_walletTransactions) {
