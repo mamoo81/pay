@@ -1144,6 +1144,11 @@ int Wallet::reserveUnusedAddress(KeyId &keyId, PrivKeyType pkt)
         return reserveUnusedAddress(keyId);
     }
 
+    const bool walletUnavailable = m_encryptionLevel > NotEncrypted && !isDecrypted();
+    assert(!walletUnavailable);
+    if (walletUnavailable)
+        return 0;
+
     int answer = m_nextWalletSecretId;
     for (int i = 0; i < 50; ++i) {
         WalletSecret secret;

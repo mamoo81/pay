@@ -28,7 +28,14 @@ QRCreator::QRCreator()
 
 QImage QRCreator::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
+    Q_UNUSED(size);
+    Q_UNUSED(requestedSize);
     QRcode *code = QRcode_encodeString(id.toLatin1().constData(), 0, QR_ECLEVEL_L, QR_MODE_8, 1);
+    if (code == nullptr) { // failed to encode.
+        QImage blank = QImage(37, 37, QImage::Format_RGB32);
+        blank.fill(0x232629); // gray
+        return blank;
+    }
     QImage result = QImage(code->width + 8, code->width + 8, QImage::Format_RGB32);
     result.fill(0xffffff);
     unsigned char *p = code->data;

@@ -99,6 +99,7 @@ void PaymentRequest::setWallet(Wallet *wallet)
             // for this to work, it needs to have the password set
             && !wallet->isDecrypted()) {
         wallet = nullptr;
+        m_address = KeyId();
     }
     m_wallet = wallet;
     if (m_wallet) {
@@ -245,6 +246,8 @@ qint64 PaymentRequest::amount() const
 QString PaymentRequest::qrCodeString() const
 {
     QString rc;
+    if (m_wallet == nullptr)
+        return rc;
     // add address
     if (m_useLegacyAddressFormat) {
         CBase58Data legacy;
