@@ -344,3 +344,20 @@ void Wallet::forgetEncryptedSecrets()
         emit paymentRequestsChanged();
     }
 }
+
+// //////////////////////////////////////////////////
+
+Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd)
+    : masterKey(HDMasterKey::fromMnemonic(std::string(seedWords.begin(), seedWords.end()), std::string(pwd.begin(), pwd.end()))),
+      masterPubkey(HDMasterPubkey::fromHDMaster(masterKey, derivationPath)),
+      walletMnemonic(seedWords.begin(), seedWords.end()),
+      walletMnemonicPwd(pwd.begin(), pwd.end()),
+      derivationPath(derivationPath)
+{
+}
+
+Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const std::string &xpub, const std::vector<uint32_t> &derivationPath)
+      : masterPubkey(HDMasterPubkey::fromXPub(xpub)),
+      derivationPath(derivationPath)
+{
+}

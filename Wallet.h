@@ -421,7 +421,7 @@ private:
 
     struct HierarchicallyDeterministicWalletData {
         /// the strings should have utf8 encoded text.
-        HierarchicallyDeterministicWalletData(const std::vector<char> &seedWords, const std::vector<uint32_t> &derivationPath, const std::vector<char> &pwd);
+        HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd);
         HierarchicallyDeterministicWalletData(const std::string &xpub, const std::vector<uint32_t> &derivationPath);
         HDMasterKey masterKey;
         HDMasterPubkey masterPubkey;

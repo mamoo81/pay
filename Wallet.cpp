@@ -743,12 +743,14 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     // Explicitly use utf8 encoding.
     const auto mnemonicBytes = mnemonic.toUtf8();
     const auto pwdBytes = pwd.toUtf8();
-    // convert to stl containers.
-    std::vector<char> vMnemonic(mnemonicBytes.size());
-    memcpy(vMnemonic.data(), mnemonicBytes.constData(), mnemonicBytes.size());
-    std::vector<char> vPwd(pwdBytes.size());
-    memcpy(vPwd.data(), pwdBytes.constData(), pwdBytes.size());
-    m_hdData.reset(new HierarchicallyDeterministicWalletData(vMnemonic, derivationPath, vPwd));
+    // convert to constBuf containers.
+    Streaming::BufferPool pool(mnemonicBytes.size() + pwdBytes.size());
+    pool.write(mnemonicBytes.constData(), mnemonicBytes.size());
+    auto mnemonicBuf = pool.commit();
+    pool.write(pwdBytes.constData(), pwdBytes.size());
+    auto pwdBuf = pool.commit();
+
+    m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonicBuf, derivationPath, pwdBuf));
     // append two random numbers, to make clear the full length
     m_hdData->derivationPath.push_back(0);
     m_hdData->derivationPath.push_back(0);
@@ -1359,7 +1361,7 @@ void Wallet::loadSecrets()
     Streaming::MessageParser parser(fileData);
     WalletSecret secret;
     std::string xpub;
-    std::vector<char> mnemonic, mnemonicPwd;
+    Streaming::ConstBuffer mnemonic, mnemonicPwd;
     std::vector<char> encryptedMnemonic, encryptedMnemonicPwd;
     std::vector<uint32_t> derivationPath;
     int derivationPathChangeIndex = -1;
@@ -1415,7 +1417,6 @@ void Wallet::loadSecrets()
             secret.fromHdWallet = true;
             secret.hdDerivationIndex = parser.intData();
         }
-
         else if (parser.tag() == WalletPriv::IsSingleAddressWallet) {
             m_singleAddressWallet = parser.boolData();
         }
@@ -1426,14 +1427,14 @@ void Wallet::loadSecrets()
             secret.signatureType = static_cast<SignatureType>(parser.intData());
         }
         else if (parser.tag() == WalletPriv::HDWalletMnemonic) {
-            mnemonic = parser.bytesData();
+            mnemonic = parser.bytesDataBuffer();
         }
         else if (parser.tag() == WalletPriv::HDWalletMnemonicEncrypted) {
             encryptedMnemonic = parser.bytesData();
             m_encryptionLevel = SecretsEncrypted;
         }
         else if (parser.tag() == WalletPriv::HDWalletMnemonicPassword) {
-            mnemonicPwd = parser.bytesData();
+            mnemonicPwd = parser.bytesDataBuffer();
         }
         else if (parser.tag() == WalletPriv::HDWalletMnemonicPasswordEncrypted) {
             encryptedMnemonicPwd = parser.bytesData();
@@ -1457,9 +1458,9 @@ void Wallet::loadSecrets()
     }
 
     assert(m_hdData.get() == nullptr);
-    if ((xpub.empty() && mnemonic.empty()) != derivationPath.empty())
+    if ((xpub.empty() && mnemonic.isEmpty()) != derivationPath.empty())
         logFatal() << "Found incomplete data for HD wallet";
-    else if (!mnemonic.empty())
+    else if (!mnemonic.isEmpty())
         m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, derivationPath, mnemonicPwd));
     else if (!xpub.empty())
         m_hdData.reset(new HierarchicallyDeterministicWalletData(xpub, derivationPath));
@@ -1505,10 +1506,10 @@ void Wallet::saveSecrets()
             builder.add(WalletPriv::HDXPub, m_hdData->masterPubkey.toString());
         }
         else {
-            builder.addByteArray(WalletPriv::HDWalletMnemonic, m_hdData->walletMnemonic.data(), m_hdData->walletMnemonic.size());
+            builder.add(WalletPriv::HDWalletMnemonic, std::string(m_hdData->walletMnemonic.data(), m_hdData->walletMnemonic.size()));
             if (!m_hdData->walletMnemonicPwd.empty())
-                builder.addByteArray(WalletPriv::HDWalletMnemonicPassword,
-                                     m_hdData->walletMnemonicPwd.data(), m_hdData->walletMnemonicPwd.size());
+                builder.add(WalletPriv::HDWalletMnemonicPassword,
+                                     std::string(m_hdData->walletMnemonicPwd.data(), m_hdData->walletMnemonicPwd.size()));
         }
         for (const uint32_t item : m_hdData->derivationPath) {
             builder.add(WalletPriv::HDWalletPathItem,  static_cast<uint64_t>(item));
