@@ -177,6 +177,8 @@ void AccountInfo::setIsArchived(bool archived)
          // make sure that we get peers for the no longer archived wallet.
         FloweePay::instance()->p2pNet()->addAction<SyncSPVAction>();
     }
+    if (archived)
+        closeWallet();
 }
 
 void AccountInfo::balanceHasChanged()
