@@ -300,6 +300,7 @@ bool Wallet::decrypt(const QString &password)
     rebuildBloom();
     recalculateBalance();
     emit encryptionChanged();
+    emit balanceChanged();
     emit paymentRequestsChanged();
     saveSecrets(); // no-op if secrets are unchanged
     return true;
