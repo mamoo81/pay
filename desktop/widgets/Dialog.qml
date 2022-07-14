@@ -20,15 +20,6 @@ import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import "." as Flowee;
 
-/*
- * This is a simple message-box style dialog that does not creat a new window.
- *
- * This popup is similar to various widges in the Qt library, but all
- * them suffer from the DialogButtonBox having really bad defaults.
- * Specifically, it doesn't align the buttons right, but uses the
- * full width (making the buttons too big).
- * Also it doesn't have any spacing between the buttons.
- */
 Popup {
     id: root
 
@@ -38,6 +29,11 @@ Popup {
     property alias text: mainTextLabel.text
     property alias contentComponent: content.sourceComponent
 
+    function accept() {
+        accepted();
+        close();
+    }
+
     modal: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
     onVisibleChanged: {
@@ -45,13 +41,27 @@ Popup {
         if (visible && content.item)
             content.item.forceActiveFocus()
     }
+    onAboutToShow: reposition()
+    onHeightChanged: reposition()
+    function reposition() {
+        // 'mainScreen' is defined in main.qml
+        var window = mainScreen;
+        var globalX = (window.width - root.width) / 2;
+        var globalY = window.height / 3 - root.height;
+        var local = mapFromItem(window, globalX, globalY);
+        x = local.x;
+        y = local.y;
+    }
 
     Column {
         width: {
-            let wanted = Math.max(mainTextLabel.implicitWidth, titleLabel.implicitWidth)
+            // 'mainScreen' is defined in main.qml
+            var window = mainScreen;
+
+            let wanted = Math.max(mainTextLabel.contentWidth, titleLabel.implicitWidth)
             if (content.item)
-                wanted = Math.max(wanted, content.item.width)
-            let max = root.parent.width
+                wanted = Math.max(wanted, content.item.implicitWidth)
+            let max = window.width
             let min = buttons.implicitWidth
             let ideal = Math.max(min, max / 3)
             if (wanted < ideal)

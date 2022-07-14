@@ -1898,7 +1898,7 @@ void Wallet::saveWallet()
     }
 
     if (m_encryptionLevel == FullyEncrypted && !m_haveEncryptionKey) {
-        logFatal() << "Wallet" << m_name << (m_walletChanged ? "was changed" : "had changed payment requests")
+        logFatal() << "Wallet" << m_name << (m_walletChanged ? "was changed" : "has changed payment requests")
                    << "We can't save it since its fully encrypted and not open right now";
         throw std::runtime_error("Can not save a pin to open wallet that is closed.");
     }

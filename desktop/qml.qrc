@@ -60,6 +60,7 @@
         <file>PaymentTweakingPanel.qml</file>
         <file>widgets/DialogButtonBox.qml</file>
         <file>widgets/WarningLabel.qml</file>
+        <file>widgets/PasswdDialog.qml</file>
         <file>WalletEncryptionStatus.qml</file>
     </qresource>
 </RCC>

@@ -133,33 +133,14 @@ Item {
                         }
                     }
                 }
-                Flowee.Dialog {
+                Flowee.PasswdDialog {
                     id: passwdDialog
                     title: qsTr("Enter your PIN")
-                    property string pwd: ""
 
-                    function start() {
-                        contentComponent = textEntryField
-                        visible = true
-                    }
-                    function process() {
-                        contentComponent = null
+                    onAccepted: {
                         payment.decrypt(pwd);
                         if (payment.error === "")
                             payment.prepare();
-                        close();
-                    }
-                    onAccepted: process();
-                    onClosed: pwd = ""
-
-                    Component {
-                        id: textEntryField
-                        Flowee.TextField {
-                            echoMode: TextInput.Password
-                            onTextChanged: passwdDialog.pwd = text
-                            onAccepted: passwdDialog.process();
-                            focus: true
-                        }
                     }
                 }
             }

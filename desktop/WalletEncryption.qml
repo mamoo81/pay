@@ -150,7 +150,7 @@ FocusScope {
                     }
                 }
                 Flowee.TextField {
-                    id: pwd
+                    id: passwordField
                     Layout.fillWidth: true
                     echoMode: TextInput.Password
                     onAccepted: encryptButton.clicked()
@@ -167,9 +167,7 @@ FocusScope {
                 }
                 Flowee.WarningLabel {
                     Layout.fillWidth: true
-                    id: invalidPwd
-                    text: qsTr("Invalid password to open this wallet")
-                    visible: false
+                    id: warningLabel
                 }
             }
 
@@ -178,29 +176,11 @@ FocusScope {
                 height: closeButton.height
                 Flowee.Button {
                     id: encryptButton
-                    enabled: pwd.enabled && pwd.text.length > 3
+                    enabled: passwordField.enabled && passwordField.text.length > 3
                     text: qsTr("Encrypt")
                     anchors.right: closeButton.left
                     anchors.rightMargin: 10
-                    onClicked:  {
-                        var account = root.account;
-                        // unlock a wallet first with the given password if needed.
-                        if (account.needsPinToPay) {
-                            var ok = account.decrypt(pwd.text);
-                            if (!ok) {
-                                invalidPwd.visible = true;
-                                console.log("Decryption failed");
-                                return;
-                            }
-                        }
-                        invalidPwd.visible = false;
-                        if (optionsRow.selectedKey == 0)
-                            account.encryptPinToPay(pwd.text);
-                        if (optionsRow.selectedKey == 1)
-                            account.encryptPinToOpen(pwd.text);
-                        pwd.text = ""
-                        accountOverlay.state = "showTransactions" // aka close dialog
-                    }
+                    onClicked: passwdDialog.start(); // on click, ask for the password again
                 }
                 Flowee.Button {
                     id: closeButton
@@ -211,6 +191,37 @@ FocusScope {
             }
         }
     }
+
+    Flowee.PasswdDialog {
+        id: passwdDialog
+        title: qsTr("Repeat password")
+        text: qsTr("Please confirm the password by entering it again")
+
+        onAccepted: {
+            if (pwd !== passwordField.text) {
+                // mismatching entries.
+                warningLabel.text = qsTr("Typed passwords do not match")
+                return;
+            }
+
+            var account = root.account;
+            // unlock a wallet first with the given password if needed.
+            if (account.needsPinToPay) {
+                var ok = account.decrypt(passwordField.text);
+                if (!ok) {
+                    warningLabel.text = qsTr("Invalid password to open this wallet")
+                    return;
+                }
+            }
+            if (optionsRow.selectedKey == 0)
+                account.encryptPinToPay(passwordField.text);
+            if (optionsRow.selectedKey == 1)
+                account.encryptPinToOpen(passwordField.text);
+            passwordField.text = ""
+            accountOverlay.state = "showTransactions" // should close this screen
+        }
+    }
+
 
     Keys.onPressed: {
         if (event.key === Qt.Key_Escape) {
