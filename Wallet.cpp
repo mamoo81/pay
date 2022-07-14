@@ -829,7 +829,6 @@ void Wallet::addPaymentRequest(PaymentRequest *pr)
 {
     QMutexLocker locker(&m_lock);
     m_paymentRequests.append(pr);
-    m_walletChanged = true;
     emit paymentRequestsChanged();
 }
 
@@ -837,7 +836,6 @@ void Wallet::removePaymentRequest(PaymentRequest *pr)
 {
     QMutexLocker locker(&m_lock);
     m_paymentRequests.removeAll(pr);
-    m_walletChanged = true;
     emit paymentRequestsChanged();
 }
 
@@ -1891,7 +1889,7 @@ void Wallet::saveWallet()
     if (!m_walletChanged) {
         bool changed = false;
         for (auto i = m_paymentRequests.begin(); !changed && i != m_paymentRequests.end(); ++i) {
-            changed = (*i)->m_dirty;
+            changed |= (*i)->m_dirty && (*i)->stored();
         }
         if (!changed)
             return;
@@ -1951,6 +1949,8 @@ void Wallet::saveWallet()
     builder.add(WalletPriv::LastSynchedBlock, m_segment->lastBlockSynched());
 
     for (auto pr : qAsConst(m_paymentRequests)) {
+        if (!pr->stored())
+            continue;
         builder.add(WalletPriv::PaymentRequestType, 0); // bip21 is the only one supported right now
         builder.add(WalletPriv::PaymentRequestAddress, pr->m_privKeyId);
         if (!pr->m_message.isEmpty())
