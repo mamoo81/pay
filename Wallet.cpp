@@ -96,6 +96,10 @@ Wallet::~Wallet()
     // these return instantly if nothing has to be saved.
     saveSecrets();
     saveWallet();
+    // tell the payment requests that we are no more. (and avoids callbacks to a deleted object)
+    for (auto prData = m_paymentRequests.begin(); prData != m_paymentRequests.end(); ++prData) {
+        prData->pr->setWallet(nullptr);
+    }
 }
 
 Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, const uint256 &txid, std::map<uint64_t, SignatureType> &types, P2PNet::Notification *notifier) const
@@ -347,10 +351,10 @@ void Wallet::newTransaction(const Tx &tx)
             m_unspentOutputs.insert(std::make_pair(key, i->second.value));
 
             const int privKeyId = i->second.walletSecretId;
-            for (auto pr : qAsConst(m_paymentRequests)) {
-                if (pr->m_privKeyId == privKeyId) {
-                    pr->addPayment(key, i->second.value);
-                    wtx.userComment = pr->message();
+            for (auto prData : qAsConst(m_paymentRequests)) {
+                if (prData.pr->m_privKeyId == privKeyId) {
+                    prData.pr->addPayment(key, i->second.value);
+                    wtx.userComment = prData.pr->message();
                 }
             }
         }
@@ -471,10 +475,10 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                     needNewBloom = true; // make sure we let the remote know about our 'gap' addresses
                 }
 
-                for (auto pr : qAsConst(m_paymentRequests)) {
-                    if (pr->m_privKeyId == privKeyId) {
-                        pr->addPayment(key, i->second.value, blockHeight);
-                        wtx.userComment = pr->message();
+                for (auto prData : qAsConst(m_paymentRequests)) {
+                    if (prData.pr->m_privKeyId == privKeyId) {
+                        prData.pr->addPayment(key, i->second.value, blockHeight);
+                        wtx.userComment = prData.pr->message();
                     }
                 }
             }
@@ -533,9 +537,9 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
 
                 // check the payment requests
                 const int privKeyId = i->second.walletSecretId;
-                for (auto pr : qAsConst(m_paymentRequests)) {
-                    if (pr->m_privKeyId == privKeyId)
-                        pr->paymentRejected(key, i->second.value);
+                for (auto prData : qAsConst(m_paymentRequests)) {
+                    if (prData.pr->m_privKeyId == privKeyId)
+                        prData.pr->paymentRejected(key, i->second.value);
                 }
             }
         }
@@ -822,21 +826,39 @@ void Wallet::performUpgrades()
 QList<PaymentRequest *> Wallet::paymentRequests() const
 {
     QMutexLocker locker(&m_lock);
-    return m_paymentRequests;
+    QList<PaymentRequest *> answer;
+    for (auto prData : m_paymentRequests) {
+        answer.append(prData.pr);
+    }
+    return answer;
 }
 
 void Wallet::addPaymentRequest(PaymentRequest *pr)
 {
     QMutexLocker locker(&m_lock);
-    m_paymentRequests.append(pr);
+    for (auto prData : m_paymentRequests) {
+        if (prData.pr == pr)
+            return;
+    }
+    PRData data;
+    data.pr = pr;
+    data.saved = false;
+    m_paymentRequests.append(data);
     emit paymentRequestsChanged();
 }
 
 void Wallet::removePaymentRequest(PaymentRequest *pr)
 {
     QMutexLocker locker(&m_lock);
-    m_paymentRequests.removeAll(pr);
-    emit paymentRequestsChanged();
+    for (auto prData = m_paymentRequests.begin(); prData != m_paymentRequests.end(); ++prData) {
+        if (prData->pr == pr) {
+            if (prData->saved)
+                m_walletChanged = true;
+            m_paymentRequests.erase(prData);
+            emit paymentRequestsChanged();
+            return;
+        }
+    }
 }
 
 int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
@@ -1609,7 +1631,7 @@ void Wallet::loadWallet()
     Output output;
     QSet<int> newTx;
     int highestBlockHeight = 0;
-    PaymentRequest *pr = nullptr;
+    PRData pr;
     OutputRef paymentRequestRef;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
@@ -1736,7 +1758,8 @@ void Wallet::loadWallet()
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
         else if (parser.tag() == WalletPriv::PaymentRequestType) {
-            pr = new PaymentRequest(this, parser.intData());
+            pr.pr = new PaymentRequest(this, parser.intData());
+            pr.saved = true;
             m_paymentRequests.append(pr);
             paymentRequestRef = OutputRef();
         }
@@ -1745,9 +1768,9 @@ void Wallet::loadWallet()
             // is private and trusted. The asserts are here to make sure that the saving code
             // matches the loading, in production there is then no need to doubt the correctness
             // of the loaded data.
-            assert(pr);
-            pr->m_privKeyId = parser.intData();
-            auto i = m_walletSecrets.find(pr->m_privKeyId);
+            assert(pr.pr);
+            pr.pr->m_privKeyId = parser.intData();
+            auto i = m_walletSecrets.find(pr.pr->m_privKeyId);
             if (i != m_walletSecrets.end()) {
                 i->second.reserved = true;
             } else {
@@ -1755,31 +1778,31 @@ void Wallet::loadWallet()
             }
         }
         else if (parser.tag() == WalletPriv::PaymentRequestMessage) {
-            assert(pr);
+            assert(pr.pr);
             auto data = parser.bytesDataBuffer();
-            pr->m_message = QString::fromUtf8(data.begin(), data.size());
+            pr.pr->m_message = QString::fromUtf8(data.begin(), data.size());
         }
         else if (parser.tag() == WalletPriv::PaymentRequestAmount) {
-            assert(pr);
-            pr->m_amountRequested = parser.longData();
+            assert(pr.pr);
+            pr.pr->m_amountRequested = parser.longData();
         }
         else if (parser.tag() == WalletPriv::PaymentRequestOldAddress) {
-            assert(pr);
-            pr->m_useLegacyAddressFormat = parser.boolData();
+            assert(pr.pr);
+            pr.pr->m_useLegacyAddressFormat = parser.boolData();
         }
         else if (parser.tag() == WalletPriv::PaymentRequestTxIndex) {
             paymentRequestRef.setTxIndex(parser.intData());
         }
         else if (parser.tag() == WalletPriv::PaymentRequestOutputIndex) {
             paymentRequestRef.setOutputIndex(parser.intData());
-            assert(pr);
-            pr->m_incomingOutputRefs.append(paymentRequestRef.encoded());
+            assert(pr.pr);
+            pr.pr->m_incomingOutputRefs.append(paymentRequestRef.encoded());
         }
         else if (parser.tag() == WalletPriv::PaymentRequestPaid) {
-            assert(pr);
-            pr->m_amountSeen = parser.longData();
-            if (pr->m_amountSeen >= pr->m_amountRequested)
-                pr->m_paymentState = PaymentRequest::PaymentSeenOk;
+            assert(pr.pr);
+            pr.pr->m_amountSeen = parser.longData();
+            if (pr.pr->m_amountSeen >= pr.pr->m_amountRequested)
+                pr.pr->m_paymentState = PaymentRequest::PaymentSeenOk;
         }
     }
 
@@ -1889,7 +1912,7 @@ void Wallet::saveWallet()
     if (!m_walletChanged) {
         bool changed = false;
         for (auto i = m_paymentRequests.begin(); !changed && i != m_paymentRequests.end(); ++i) {
-            changed |= (*i)->m_dirty && (*i)->stored();
+            changed |= i->pr->m_dirty && i->pr->stored();
         }
         if (!changed)
             return;
@@ -1906,8 +1929,10 @@ void Wallet::saveWallet()
         const auto &wtx = i.second;
         saveFileSize += 110 + wtx.inputToWTX.size() * 22 + wtx.outputs.size() * 30;
     }
-    for (const auto &pr : qAsConst(m_paymentRequests)) {
-        saveFileSize += 100 + pr->m_message.size() * 6 + pr->m_incomingOutputRefs.size() * 12;
+    for (const auto &prData : qAsConst(m_paymentRequests)) {
+        if (!prData.pr->stored())
+            continue;
+        saveFileSize += 100 + prData.pr->m_message.size() * 6 + prData.pr->m_incomingOutputRefs.size() * 12;
     }
 
     Streaming::BufferPool pool(saveFileSize);
@@ -1948,26 +1973,29 @@ void Wallet::saveWallet()
     }
     builder.add(WalletPriv::LastSynchedBlock, m_segment->lastBlockSynched());
 
-    for (auto pr : qAsConst(m_paymentRequests)) {
-        if (!pr->stored())
+    for (auto prData = m_paymentRequests.begin(); prData != m_paymentRequests.end(); ++prData) {
+        if (!prData->pr->stored()) {
+            prData->saved = false;
             continue;
+        }
+        prData->saved = true;
         builder.add(WalletPriv::PaymentRequestType, 0); // bip21 is the only one supported right now
-        builder.add(WalletPriv::PaymentRequestAddress, pr->m_privKeyId);
-        if (!pr->m_message.isEmpty())
-            builder.add(WalletPriv::PaymentRequestMessage, pr->m_message.toUtf8().constData());
-        assert(pr->m_amountRequested >= 0); // never negative
-        if (pr->m_amountRequested > 0)
-            builder.add(WalletPriv::PaymentRequestAmount, (uint64_t) pr->m_amountRequested);
-        if (pr->m_useLegacyAddressFormat)
+        builder.add(WalletPriv::PaymentRequestAddress, prData->pr->m_privKeyId);
+        if (!prData->pr->m_message.isEmpty())
+            builder.add(WalletPriv::PaymentRequestMessage, prData->pr->m_message.toUtf8().constData());
+        assert(prData->pr->m_amountRequested >= 0); // never negative
+        if (prData->pr->m_amountRequested > 0)
+            builder.add(WalletPriv::PaymentRequestAmount, (uint64_t) prData->pr->m_amountRequested);
+        if (prData->pr->m_useLegacyAddressFormat)
             builder.add(WalletPriv::PaymentRequestOldAddress, true);
 
-        for (auto outRefNum : qAsConst(pr->m_incomingOutputRefs)) {
+        for (auto outRefNum : qAsConst(prData->pr->m_incomingOutputRefs)) {
             OutputRef outRef(outRefNum);
             builder.add(WalletPriv::PaymentRequestTxIndex, outRef.txIndex());
             builder.add(WalletPriv::PaymentRequestOutputIndex, outRef.outputIndex());
         }
-        if (pr->m_amountSeen > 0)
-            builder.add(WalletPriv::PaymentRequestPaid, (uint64_t) pr->m_amountSeen);
+        if (prData->pr->m_amountSeen > 0)
+            builder.add(WalletPriv::PaymentRequestPaid, (uint64_t) prData->pr->m_amountSeen);
     }
 
     auto data = builder.buffer();

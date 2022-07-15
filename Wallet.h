@@ -553,7 +553,11 @@ private:
 
     QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
 
-    QList<PaymentRequest*> m_paymentRequests;
+    struct PRData {
+        PaymentRequest *pr = nullptr;
+        bool saved = false; // true if this PR has been persisted to disk
+    };
+    QList<PRData> m_paymentRequests;
 };
 
 #endif
