@@ -81,7 +81,7 @@ void PaymentRequest::setWallet(Wallet *wallet)
 {
     if (m_wallet == wallet)
         return;
-    if (!m_unusedRequest) {
+    if (!m_unusedRequest && wallet != nullptr) {
         logFatal() << "Can't change a wallet on an already saved payment request";
         assert(m_unusedRequest);
         return;
