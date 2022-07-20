@@ -88,6 +88,7 @@ void PaymentRequest::setWallet(Wallet *wallet)
     }
 
     if (m_wallet) {
+        disconnect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
         m_wallet->removePaymentRequest(this);
         if (m_paymentState == Unpaid)
             m_wallet->unreserveAddress(m_privKeyId);
@@ -95,18 +96,35 @@ void PaymentRequest::setWallet(Wallet *wallet)
     }
 
     // if the wallet is encrypted we don't use it.
-    if (wallet && wallet->encryption() == Wallet::FullyEncrypted
-            // for this to work, it needs to have the password set
-            && !wallet->isDecrypted()) {
-        wallet = nullptr;
-        m_address = KeyId();
-    }
     m_wallet = wallet;
     if (m_wallet) {
+        const bool closedWAllet = m_wallet->encryption() == Wallet::FullyEncrypted && !m_wallet->isDecrypted();
+        if (closedWAllet) {
+            // a closed wallet is barely a husk of a data-structure. So a payment request makes no sense for it.
+            // but we can listen to the signal and after that initialize our request.
+            connect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
+            m_address = KeyId();
+        }
+        else {
+            m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
+            m_wallet->addPaymentRequest(this);
+        }
+    }
+    emit walletChanged();
+    emit qrCodeStringChanged();
+}
+
+void PaymentRequest::walletEncryptionChanged()
+{
+    assert (m_wallet);
+    const bool closedWAllet = m_wallet->encryption() == Wallet::FullyEncrypted && !m_wallet->isDecrypted();
+    if (closedWAllet) {
+        m_address = KeyId();
+    }
+    else {
         m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
         m_wallet->addPaymentRequest(this);
     }
-    emit walletChanged();
     emit qrCodeStringChanged();
 }
 
@@ -246,7 +264,7 @@ qint64 PaymentRequest::amount() const
 QString PaymentRequest::qrCodeString() const
 {
     QString rc;
-    if (m_wallet == nullptr)
+    if (m_address.IsNull())
         return rc;
     // add address
     if (m_useLegacyAddressFormat) {

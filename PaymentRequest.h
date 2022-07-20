@@ -122,6 +122,9 @@ signals:
     void walletChanged();
     void storedChanged();
 
+private slots:
+    void walletEncryptionChanged();
+
 protected:
     friend class Wallet;
     explicit PaymentRequest(Wallet *wallet, int paymentType);
