@@ -126,8 +126,6 @@ QString AccountInfo::timeBehind() const
 WalletHistoryModel *AccountInfo::historyModel()
 {
     if (m_model == nullptr) {
-        if (!m_wallet->isDecrypted() && m_wallet->encryption() == Wallet::FullyEncrypted)
-            return nullptr;
         m_model.reset(new WalletHistoryModel(m_wallet, this));
     }
     return m_model.get();
@@ -136,8 +134,6 @@ WalletHistoryModel *AccountInfo::historyModel()
 WalletSecretsModel *AccountInfo::secretsModel()
 {
     if (m_secretsModel == nullptr) {
-        if (!m_wallet->isDecrypted() && m_wallet->encryption() == Wallet::FullyEncrypted)
-            return nullptr;
         m_secretsModel.reset(new WalletSecretsModel(m_wallet, this));
     }
     return m_secretsModel.get();
@@ -200,12 +196,12 @@ void AccountInfo::balanceHasChanged()
 
 void AccountInfo::walletEncryptionChanged()
 {
-    if (!m_wallet->isDecrypted() && m_wallet->encryption() == Wallet::FullyEncrypted) {
-        // in case we had a model with data, the wallet now no longer has any info.
-        // so simply remove the models as QML handles that.
-        m_model.reset();
-        m_secretsModel.reset();
-    }
+    auto m = m_model.release();
+    if (m)
+        m->deleteLater();
+    auto s = m_secretsModel.release();
+    if (s)
+        s->deleteLater();
     emit modelsChanged();
     emit encryptionChanged();
     emit nameChanged();

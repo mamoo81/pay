@@ -293,7 +293,12 @@ ApplicationWindow {
                     }
                     ListView {
                         id: activityView
-                        model: isLoading || portfolio.current === null ? 0 : portfolio.current.transactions
+                        /*
+                         Warning; (Qt5.15) do NOT guard the below `model` line with any isLoading stuff, it will
+                         break showing the model properly after the default wallet gets decrypted just
+                         after start.
+                        */
+                        model:  portfolio.current.transactions
                         clip: true
                         delegate: WalletTransaction { width: activityView.width }
                         anchors.top: activityHeader.bottom
