@@ -789,6 +789,7 @@ bool Wallet::lockUTXO(OutputRef outputRef)
     if (m_lockedOutputs.find(ref) != m_lockedOutputs.end())
         return false;
     m_lockedOutputs.insert(std::make_pair(ref, 0));
+    m_walletChanged = true;
     return true;
 }
 
@@ -802,6 +803,7 @@ bool Wallet::unlockUTXO(OutputRef outputRef)
     if (i->second > 0) // only allow manual unlocking manually locked outputs
         return false;
     m_lockedOutputs.erase(i);
+    m_walletChanged = true;
     return true;
 }
 
@@ -2034,9 +2036,14 @@ void Wallet::recalculateBalance()
         const int h = wtx->second.minedBlockHeight;
         if (h == WalletPriv::Rejected)
             continue;
-        else if (m_lockedOutputs.find(utxo.first) != m_lockedOutputs.end())
-            continue;
-        else if (h == WalletPriv::Unconfirmed)
+        const auto loi = m_lockedOutputs.find(utxo.first);
+        if (loi != m_lockedOutputs.end()) {
+            // locked utxos are the result of already sent but not yet mined transactions
+            // but also when the user goes and locks one manually.
+            if (loi->second != 0) // zero means user-locked.
+                continue;
+        }
+        if (h == WalletPriv::Unconfirmed)
             balanceUnconfirmed += utxo.second;
         else if (wtx->second.isCoinbase && h + MATURATION_AGE > m_lastBlockHeightSeen)
             balanceImmature += utxo.second;
