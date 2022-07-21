@@ -805,15 +805,11 @@ void TestWallet::testEncryption2()
         QVERIFY(wallet->encryptionSeed() != 0);
         seed = wallet->encryptionSeed();
 
-        secrets = wallet->walletSecrets();
-        for (auto i = secrets.begin(); i != secrets.end(); ++i) {
-            QVERIFY(i->second.privKey.isValid() == false);
-        }
-        // fetch tx info + compare contents
-        Tx txCopy = wallet->loadTx(theTx.createHash(), pool);
-        QVERIFY(txCopy.isValid());
-        QCOMPARE(txCopy.size(), theTx.size());
-        QCOMPARE(txCopy.createHash(), theTx.createHash());
+        QVERIFY(wallet->walletSecrets().empty());
+        try {
+            Tx txCopy = wallet->loadTx(theTx.createHash(), pool);
+            QFAIL("Loading from an encrypted wallet shoud fail");
+        } catch (...) {}
     }
 
     // a wallet that has been fully encrypted should have encrypted the

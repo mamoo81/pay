@@ -305,7 +305,7 @@ bool Wallet::decrypt(const QString &password)
 
 bool Wallet::isDecrypted() const
 {
-    return m_haveEncryptionKey;
+    return m_encryptionLevel == NotEncrypted || m_haveEncryptionKey;
 }
 
 void Wallet::forgetEncryptedSecrets()

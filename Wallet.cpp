@@ -265,8 +265,8 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
         }
         m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
         if (isDecrypted()) {
-            assert(secret.privKey.isValid());
             secret.privKey = m_hdData->masterKey.derive(m_hdData->derivationPath);
+            assert(secret.privKey.isValid());
             const PublicKey pubkey = secret.privKey.getPubKey();
             secret.address = pubkey.getKeyId();
         }
