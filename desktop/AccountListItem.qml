@@ -149,6 +149,11 @@ Item {
                     accountOverlay.state = "startWalletEncryption";
                 }
             }
+        property QtObject openWalletAction: Action {
+                text: qsTr("Open", "Open encrypted wallet")
+                onTriggered: tabbar.currentIndex = 0
+            }
+
         property QtObject closeWalletAction: Action {
                 text: qsTr("Close", "Close encrypted wallet")
                 onTriggered: root.account.closeWallet();
@@ -161,6 +166,8 @@ Item {
             var decrypted = root.account.isDecrypted;
             if ((encrypted || root.account.needsPinToPay) && decrypted)
                 items.push(closeWalletAction);
+            if (encrypted && !decrypted && tabbar.currentIndex != 0)
+                items.push(openWalletAction);
             var isArchived = root.account.isArchived;
             if (!isArchived)
                 items.push(primaryAction);
