@@ -259,6 +259,7 @@ ApplicationWindow {
                                 anchors.left: decryptLabel.right
                                 anchors.right: parent.right
                                 anchors.margins: 6
+                                echoMode: TextInput.Password
                                 onAccepted: decryptButton.clicked()
                             }
                             Text {
@@ -266,6 +267,7 @@ ApplicationWindow {
                                 anchors.left: decryptPwd.left
                                 anchors.verticalCenter: decryptButton.verticalCenter
                                 color: "#830000"
+                                font.bold: true
                                 text: qsTr("Invalid password")
                                 visible: false
                             }
@@ -279,7 +281,7 @@ ApplicationWindow {
 
                                 onClicked: {
                                     portfolio.current.decrypt(decryptPwd.text)
-                                    if (!portfolio.current.isDecrypted) {
+                                    if (portfolio.current.isDecrypted) {
                                         decryptPwd.text = ""
                                         decryptError.visible = false
                                     } else {
