@@ -2,7 +2,7 @@ This is the repository of Flowee Pay.
 
 Flowee Pay is a payment solution, also often called wallet, that allows
 users to pay and receive Bitcoin Cash in a simple application with little
-to no external parties we need to depend on.
+to no external parties or (indexing) servers it needs to depend on.
 The only really required dependent is the peer to peer network, and thus
 the Internet.
 
@@ -42,16 +42,19 @@ of calling:
   make install
 ```
 
-If you compile Flowee the Hub yourself you may want to export the
-following variable in case the build wasn't found in the 'cmake' line above.
-  export CMAKE_PREFIX_PATH=/path/to/the/flowee-build
-followed with again the call to cmake and make like above.
+We depend on the libraries shipped in 'theHub', also from Flowee.
+If you compile theHub yourself you may want to export the
+following variable in case the build wasn't found in the 'cmake' line above:
+
+    export CMAKE_PREFIX_PATH=/path/to/the/thehub-build
+
+Followed with again the call to cmake and make like above.
 
 
-DEVS
+## DEVS
 
-Hacking, and not already experienced with QML? Here is a video explaining
-the tech: https://www.youtube.com/playlist?list=PL6CJYn40gN6h3usMQY3BSZJs08isz3jqa
+Want to start Hacking, getting to know QML as well? Here is a video playlist of 5 short
+videos explaining the tech [youtube](https://www.youtube.com/playlist?list=PL6CJYn40gN6h3usMQY3BSZJs08isz3jqa)
 
 To develop on the app, especially if you will work on the QML, we suggest the
 following workflow:
@@ -63,12 +66,13 @@ following workflow:
   make install
 ```
 
-The executables will be in `floweepay/build/bin/` and the `local_qml` additional
-cmake option will bake into the executable that it should fetch the QML files from
-your git checkout directory. This allows you to change the QML files and simply
+The executables will be in `floweepay/build/bin/` and by passing the `local_qml`
+additional
+cmake option the app will renember that it should fetch the QML files from
+your local harddrive. This allows you to change the QML files and simply
 restart the app without recompile.
 
-For development you can run either `pay` or `pay_mobile`, depending on which
+For development you can run either **pay** or **pay_mobile**, depending on which
 front-end you are working on.
 
 To develop on the app we suggest starting one of those app with these
@@ -76,6 +80,5 @@ options:
 `bin/pay --offline --testnet4`
 
 
-
-Upstream; https://gitlab.com/FloweeTheHub/pay
+Upstream; https://codeberg.org/Flowee/pay
 Website: https://flowee.org
