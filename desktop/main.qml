@@ -254,6 +254,7 @@ ApplicationWindow {
                             }
                             Flowee.TextField {
                                 id: decryptPwd
+                                focus: needsDecryptPane.visible
                                 anchors.top: decryptText.bottom
                                 anchors.left: decryptLabel.right
                                 anchors.right: parent.right
