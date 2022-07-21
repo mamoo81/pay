@@ -80,5 +80,9 @@ options:
 `bin/pay --offline --testnet4`
 
 
-Upstream; https://codeberg.org/Flowee/pay
-Website: https://flowee.org
+# Links
+
+* Upstream: https://codeberg.org/Flowee/pay
+* Website: https://flowee.org
+* Twitter: https://twitter.com/floweethehub
+* Telegram: https://t.me/Flowee_org
