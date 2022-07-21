@@ -182,7 +182,7 @@ void AccountInfo::balanceHasChanged()
     emit balanceChanged();
 
     /* us getting called is very likely due to a new transaction that has been made known to the wallet. */
-    if (!m_hasFreshTransactions) {
+    if (!m_hasFreshTransactions && m_wallet->isDecrypted()) {
         // check this
         const int blockHeight = m_wallet->lastTransactionTimestamp();
         if (m_lastTxHeight < blockHeight) {
@@ -324,6 +324,7 @@ void AccountInfo::closeWallet()
     m_wallet->forgetEncryptedSecrets();
     if (m_closeWalletTimer)
         m_closeWalletTimer->stop();
+    setHasFreshTransactions(false);
 }
 
 bool AccountInfo::isSingleAddressAccount() const
