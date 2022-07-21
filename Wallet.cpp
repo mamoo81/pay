@@ -857,6 +857,7 @@ void Wallet::removePaymentRequest(PaymentRequest *pr)
             if (prData->saved)
                 m_walletChanged = true;
             m_paymentRequests.erase(prData);
+            pr->setWallet(nullptr); // note, this is recursive.
             emit paymentRequestsChanged();
             return;
         }

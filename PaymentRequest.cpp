@@ -89,10 +89,11 @@ void PaymentRequest::setWallet(Wallet *wallet)
 
     if (m_wallet) {
         disconnect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
-        m_wallet->removePaymentRequest(this);
+        auto w = m_wallet;
+        m_wallet = nullptr; // avoid recursion in the next line.
+        w->removePaymentRequest(this);
         if (m_paymentState == Unpaid)
-            m_wallet->unreserveAddress(m_privKeyId);
-        m_wallet = nullptr;
+            w->unreserveAddress(m_privKeyId);
     }
 
     // if the wallet is encrypted we don't use it.
@@ -102,13 +103,13 @@ void PaymentRequest::setWallet(Wallet *wallet)
         if (closedWAllet) {
             // a closed wallet is barely a husk of a data-structure. So a payment request makes no sense for it.
             // but we can listen to the signal and after that initialize our request.
-            connect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
             m_address = KeyId();
         }
         else {
             m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
             m_wallet->addPaymentRequest(this);
         }
+        connect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
     }
     emit walletChanged();
     emit qrCodeStringChanged();

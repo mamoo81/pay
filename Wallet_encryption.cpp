@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "PaymentRequest.h"
 #include "Wallet.h"
 #include "Wallet_p.h"
 
@@ -95,25 +96,6 @@ void Wallet::clearEncryptionKey()
     m_encryptionIR.resize(0);
 }
 
-void Wallet::clearDecryptedSecrets()
-{
-    if (m_encryptionLevel > NotEncrypted) {
-        // remove the secrets from our in-memory dataset.
-        std::vector<uint8_t> empty;
-        for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
-            i->second.privKey.set(empty.begin(), empty.end());
-            assert(i->second.privKey.isValid() == false);
-        }
-
-        if (m_hdData) {
-            m_hdData->walletMnemonic.clear();
-            m_hdData->walletMnemonicPwd.clear();
-            m_hdData->masterKey = HDMasterKey();
-        }
-    }
-    emit encryptionChanged();
-}
-
 void Wallet::setEncryption(EncryptionLevel level, const QString &password)
 {
     QMutexLocker locker(&m_lock);
@@ -122,7 +104,11 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
     if (level <= m_encryptionLevel)
         return; // nothing to do
 
-    if (!parsePassword(password)) {
+    if (m_encryptionLevel == SecretsEncrypted) {
+        if (!m_haveEncryptionKey)
+            throw std::runtime_error("Upgrading encryption requires you to decrypt first");
+    }
+    else if (!parsePassword(password)) {
         logCritical() << "Decrypt failed, bad password";
         return;
     }
@@ -181,6 +167,19 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
             writer.write(newFile.begin(), newFile.size());
             reader.remove();
         }
+
+        m_walletTransactions.clear();
+
+        // Make sure we don't keep encrypted fields. This would happen if we upgrade
+        // from SecretsEncrypted to FullEncryption
+        // They are unneeded and will mess up encryption-level-detection on load.
+        for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+            i->second.encryptedPrivKey.clear();
+        }
+        if (m_hdData) {
+            m_hdData->encryptedWalletMnemonic.clear();
+            m_hdData->encryptedWalletMnemonicPwd.clear();
+        }
     }
 
     // create encrypted versions of all the secrets.
@@ -210,9 +209,7 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
     }
 
     m_secretsChanged = true;
-    saveSecrets(); // last chance as the next step will delete our private keys
-    clearDecryptedSecrets();
-    emit encryptionChanged();
+    forgetEncryptedSecrets();
 }
 
 Wallet::EncryptionLevel Wallet::encryption() const
@@ -320,7 +317,18 @@ void Wallet::forgetEncryptedSecrets()
 
     clearEncryptionKey();
     if (m_encryptionLevel == SecretsEncrypted) {
-        clearDecryptedSecrets();
+        // selectively remove the secrets from our in-memory dataset.
+        std::vector<uint8_t> empty;
+        for (auto i = m_walletSecrets.begin(); i != m_walletSecrets.end(); ++i) {
+            i->second.privKey.set(empty.begin(), empty.end());
+            assert(i->second.privKey.isValid() == false);
+        }
+
+        if (m_hdData) {
+            m_hdData->walletMnemonic.clear();
+            m_hdData->walletMnemonicPwd.clear();
+            m_hdData->masterKey = HDMasterKey();
+        }
         // above method emits encryptionChanged()
     }
     else if (m_encryptionLevel == FullyEncrypted) {
@@ -331,6 +339,12 @@ void Wallet::forgetEncryptedSecrets()
         m_hdData.reset();
         m_txidCache.clear();
         m_nextWalletTransactionId = 1;
+        for (const auto &prData : m_paymentRequests) {
+            // delete all the items we own, but not the unstored one
+            // the UI is showing as that one handles us getting encrypted on its own.
+            if (prData.pr->stored())
+                delete prData.pr;
+        }
         m_paymentRequests.clear();
 
         m_unspentOutputs.clear();
@@ -339,10 +353,10 @@ void Wallet::forgetEncryptedSecrets()
         m_balanceConfirmed = 0;
         m_balanceImmature = 0;
         m_balanceUnconfirmed = 0;
-        emit encryptionChanged();
         emit balanceChanged();
         emit paymentRequestsChanged();
     }
+    emit encryptionChanged();
 }
 
 // //////////////////////////////////////////////////

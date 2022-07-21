@@ -537,8 +537,6 @@ private:
     bool m_userOwnedWallet = true;
 
     // operational
-    /// Remove private keys, making the wallet unable to sign transactions.
-    void clearDecryptedSecrets();
     /// Remove the encryption key (created from password), making the wallet unable to save private keys.
     void clearEncryptionKey();
     /// turn the password into a key. Return false if it is not the correct one.
