@@ -93,7 +93,7 @@ Item {
 
         Label {
             id: pwdLabel
-            text: qsTr("Passphrase") + ":"
+            text: qsTr("Password") + ":"
             visible: encStatus.visible
         }
         Flowee.TextField {
@@ -101,6 +101,7 @@ Item {
             onAccepted: decryptButton.clicked()
             enabled: !root.account.isDecrypted
             Layout.fillWidth: true
+            echoMode: TextInput.Password
             visible: pwdLabel.visible
         }
         Item {

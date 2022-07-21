@@ -37,6 +37,16 @@ FocusScope {
         clip: true
         ScrollBar.vertical: ScrollBar { }
 
+        function encryptAndExit() {
+            var account = root.account;
+            if (optionsRow.selectedKey == 0)
+                account.encryptPinToPay(passwordField.text);
+            if (optionsRow.selectedKey == 1)
+                account.encryptPinToOpen(passwordField.text);
+            passwordField.text = ""
+            accountOverlay.state = "showTransactions" // should close this screen
+        }
+
         Flowee.CloseIcon {
             id: closeIcon
             anchors.right: parent.right
@@ -85,8 +95,8 @@ FocusScope {
 
                     features: [
                         qsTr("Protect your entire wallet", "pin to open"),
-                        qsTr("Balance or history protected", "pin to open"),
-                        qsTr("Requires PIN to view, sync or pay", "pin to open"),
+                        qsTr("Balance and history protected", "pin to open"),
+                        qsTr("Requires Pin to view, sync or pay", "pin to open"),
                     ]
                 }
             }
@@ -96,8 +106,8 @@ FocusScope {
                 text: {
                     var type = optionsRow.selectedKey
                     if (type == 0)
-                        return qsTr("Make \"%1\" require a pin to pay").arg(portfolio.current.name);
-                    return qsTr("Make \"%1\" require a pin to open").arg(portfolio.current.name);
+                        return qsTr("Make \"%1\" wallet require a pin to pay").arg(portfolio.current.name);
+                    return qsTr("Make \"%1\" wallet require a pin to open").arg(portfolio.current.name);
                 }
                 font.pointSize: 14
             }
@@ -117,20 +127,34 @@ FocusScope {
                     wrapMode: Text.WordWrap
                     width: stack.width
                 }
-                Label {
-                    text: {
-                        if (root.account.needsPinToOpen)
-                            return qsTr("Wallet already has pin to open applied")
-                        return qsTr("Your full wallet gets encrypted, opening it will need a password. If you don't have a backup of this wallet, make one first.")
+                Column {
+                    Label {
+                        text: {
+                            if (root.account.needsPinToOpen)
+                                return qsTr("Wallet already has pin to open applied")
+                            return qsTr("Your full wallet gets encrypted, opening it will need a password. If you don't have a backup of this wallet, make one first.")
+                        }
+                        wrapMode: Text.WordWrap
+                        width: stack.width
                     }
-                    wrapMode: Text.WordWrap
-                    width: stack.width
+                    Label {
+                        visible: root.account.needsPinToPay
+                        text:  "This wallet already has pin to pay applied, you may upgrade it to pin to open but it will remove pin to pay. The password you provide must be the same as the one for pin to pay";
+                        wrapMode: Text.WordWrap
+                        width: stack.width
+                    }
                 }
             }
 
             GridLayout {
-                enabled: optionsRow.selectedKey == 0 && !root.account.needsPinToPay
-                         || optionsRow.selectedKey == 1 && !root.account.needsPinToOpen
+                visible: {
+                    if (root.account.needsPinToPay)
+                        return optionsRow.selectedKey == 1;
+                    if (root.account.needsPinToOpen)
+                        return false;
+                    return true;
+                }
+
                 width: parent.width
                 columns: 2
                 Label {
@@ -180,7 +204,19 @@ FocusScope {
                     text: qsTr("Encrypt")
                     anchors.right: closeButton.left
                     anchors.rightMargin: 10
-                    onClicked: passwdDialog.start(); // on click, ask for the password again
+                    onClicked: {
+                        if (account.needsPinToPay) {
+                            var ok = account.decrypt(passwordField.text);
+                            if (!ok) {
+                                warningLabel.text = qsTr("Invalid password to open this wallet")
+                                return;
+                            }
+                            contentArea.encryptAndExit();
+                        }
+                        else {
+                            passwdDialog.start(); // on click, ask for the password again
+                        }
+                    }
                 }
                 Flowee.Button {
                     id: closeButton
@@ -203,22 +239,7 @@ FocusScope {
                 warningLabel.text = qsTr("Typed passwords do not match")
                 return;
             }
-
-            var account = root.account;
-            // unlock a wallet first with the given password if needed.
-            if (account.needsPinToPay) {
-                var ok = account.decrypt(passwordField.text);
-                if (!ok) {
-                    warningLabel.text = qsTr("Invalid password to open this wallet")
-                    return;
-                }
-            }
-            if (optionsRow.selectedKey == 0)
-                account.encryptPinToPay(passwordField.text);
-            if (optionsRow.selectedKey == 1)
-                account.encryptPinToOpen(passwordField.text);
-            passwordField.text = ""
-            accountOverlay.state = "showTransactions" // should close this screen
+            contentArea.encryptAndExit();
         }
     }
 

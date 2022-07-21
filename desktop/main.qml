@@ -421,6 +421,7 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.right: tabbedPane.left
             anchors.bottom: parent.bottom
+            anchors.bottomMargin: 10
             anchors.top: header.bottom
             contentWidth: leftColumn.width
             contentHeight: leftColumn.height
