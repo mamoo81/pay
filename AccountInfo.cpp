@@ -298,6 +298,8 @@ void AccountInfo::encryptPinToPay(const QString &password)
 
 void AccountInfo::encryptPinToOpen(const QString &password)
 {
+    if (m_closeWalletTimer)
+        m_closeWalletTimer->stop();
     m_wallet->setEncryption(Wallet::FullyEncrypted, password);
 }
 
