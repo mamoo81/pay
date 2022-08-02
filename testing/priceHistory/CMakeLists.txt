@@ -1,5 +1,5 @@
 # This file is part of the Flowee project
-# Copyright (C) 2020 Tom Zander <tom@flowee.org>
+# Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,17 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-find_package(Qt5Test)
-if (${Qt5Test_FOUND})
-    enable_testing()
-    add_definitions(-DIN_TESTS)
-    add_subdirectory(wallet)
-    add_subdirectory(value)
-    add_subdirectory(priceHistory)
+set(CMAKE_AUTOMOC ON)
 
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS
-        test_wallet
-        test_value
-        test_price_history
-    )
-endif ()
+include_directories(${CMAKE_SOURCE_DIR} ${Qt5Test_INCLUDE_DIRS})
+
+add_executable(test_price_history
+    TestPriceHistory.cpp
+)
+target_link_libraries(test_price_history pay_lib Qt5::Test)
+add_test(NAME Pay_test_price_history COMMAND test_price_history)

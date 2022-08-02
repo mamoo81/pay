@@ -59,6 +59,7 @@ set (PAY_SOURCES
     PaymentDetailInputs.cpp
     PortfolioDataProvider.cpp
     PriceDataProvider.cpp
+    PriceHistoryDataProvider.cpp
     QRCreator.cpp
     TransactionInfo.cpp
     Wallet.cpp
