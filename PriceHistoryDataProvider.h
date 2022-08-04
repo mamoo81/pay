@@ -38,7 +38,7 @@ public:
     QString currencyName() const;
     void setCurrency(const QString &newCurrency);
 
-private slots:
+protected slots:
     void processLog();
 
 private:
@@ -50,13 +50,20 @@ private:
         Streaming::ConstBuffer valueBlob; // a raw list of time/value pairs.
 
         /// a append-only list of time/value pairs (as stored in the log file)
-        std::map<uint32_t, int> logValues;
+        std::vector<std::pair<uint32_t, int> > logValues;
         /// the log file where we append newly queries currency values
         QFile *log = nullptr;
     };
 
+    const Currency *currencyData(const QString &name) const;
+    enum AutoCreate {
+        FetchOnly,
+        FetchOrCreate
+    };
+    Currency *currencyData(const QString &name, AutoCreate autoCreate);
+
     std::vector<Currency> m_currencies;
-    boost::filesystem::path m_basedir;
+    QString m_basedir;
 };
 
 #endif

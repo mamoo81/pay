@@ -33,12 +33,48 @@ void TestPriceHistory::cleanup()
 void TestPriceHistory::testLog()
 {
     const uint32_t TimeStamp = 1650000000;
-    PriceHistoryDataProvider ph(basedir().toStdString(), "EURO");
+    PriceHistoryDataProvider ph(basedir().toStdString(), "euro");
     QCOMPARE(ph.historicalPrice(TimeStamp), 0);
     ph.addPrice("euro", TimeStamp, 12345);
     QCOMPARE(ph.historicalPrice(TimeStamp), 12345);
     QCOMPARE(ph.historicalPrice(TimeStamp + 10000), 12345);
     QCOMPARE(ph.historicalPrice(TimeStamp - 10000), 12345);
+
+    ph.addPrice("euro", TimeStamp + 10000, 22345);
+    QCOMPARE(ph.historicalPrice(TimeStamp), 12345);
+    QCOMPARE(ph.historicalPrice(TimeStamp - 10000), 12345);
+    QCOMPARE(ph.historicalPrice(TimeStamp + 4000), 12345);
+    QCOMPARE(ph.historicalPrice(TimeStamp + 5001), 22345);
+    QCOMPARE(ph.historicalPrice(TimeStamp + 99999), 22345);
+}
+
+class MockPHDP : public PriceHistoryDataProvider
+{
+public:
+    void compressLog() { processLog(); }
+};
+
+void TestPriceHistory::testFromBlob()
+{
+    const uint32_t TimeStampBase = 1650000000;
+    const uint32_t Day = 60 * 60 * 24;
+    {
+        PriceHistoryDataProvider ph(basedir().toStdString(), "euro");
+        for (int i = 0; i < 10; ++i) {
+            ph.addPrice("euro", TimeStampBase + Day * i, i + 1);
+        }
+        static_cast<MockPHDP*>(&ph)->compressLog(); // hack to access protected method
+
+        for (int i = 5; i < 10; ++i) {
+            QCOMPARE(ph.historicalPrice(TimeStampBase + Day * i), i + 1);
+        }
+    }
+    {
+        PriceHistoryDataProvider ph(basedir().toStdString(), "euro");
+        for (int i = 0; i < 10; ++i) {
+            QCOMPARE(ph.historicalPrice(TimeStampBase + Day * i), i + 1);
+        }
+    }
 }
 
 QString TestPriceHistory::basedir()

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the Flowee project
  * Copyright (C) 2022 Tom Zander <tom@flowee.org>
  *
@@ -16,46 +16,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "PriceHistoryDataProvider.h"
+#include "streaming/BufferPools.h"
 
+#include <QDirIterator>
 #include <QTimer>
 
 PriceHistoryDataProvider::PriceHistoryDataProvider(const boost::filesystem::path &basedir, const QString &currency, QObject *parent)
     : QObject{parent},
       m_currency(currency),
-      m_basedir(basedir / "fiat")
+      m_basedir(QString::fromStdString((basedir / "fiat").string()))
 {
+    if (!QDir("/").mkpath(m_basedir)) // in case it didn't exist, it should now
+        logFatal() << "Failed to create basedir" << m_basedir;
+
+    QDirIterator iter(m_basedir, QDir::Files);
+    while (iter.hasNext()) {
+        iter.next();
+        const qint64 fileSize = iter.fileInfo().size();
+        if (fileSize > 50000) {
+            logInfo() << "Big file in fiat dir, skipping:" << iter.fileName();
+            continue;
+        }
+        QString currency = iter.fileName();
+        const bool isLog = currency.endsWith(".LOG");
+        if (isLog) // cut off the extension
+            currency = currency.left(currency.size() - 4);
+        Currency *data = currencyData(currency, FetchOrCreate);
+        QFile input(iter.filePath());
+        if (!input.open(QIODevice::ReadOnly)) {
+            logCritical() << "Failed to read fiat file" << iter.filePath();
+            continue;
+        }
+        if (isLog) {
+            char buf[8];
+            while (input.read(buf, 8) > 0) {
+                data->logValues.push_back(std::make_pair(
+                    le32toh(*reinterpret_cast<uint32_t*>(buf)),
+                    le32toh(*reinterpret_cast<int*>(buf + 4))));
+            }
+        } else {
+            auto &pool = Streaming::pool(static_cast<int>(fileSize));
+            input.read(pool.begin(), fileSize);
+            data->valueBlob = pool.commit(fileSize);
+        }
+    }
 }
 
 void PriceHistoryDataProvider::addPrice(const QString &currency, uint32_t timestamp, int price)
 {
+    assert(price >= 0);
     // we add the price always to the LOG file (both the in-memory as well as the disk one)
-    Currency *data = nullptr;
-    for (auto i = m_currencies.begin(); i != m_currencies.end(); ++i) {
-        if (i->id == currency) {
-            data = &*i;
-            break;
-        }
-    }
-    if (!data) {
-        boost::filesystem::create_directories(m_basedir);
-        QString logPath("%1/%2.log");
-        logPath = logPath.arg(m_basedir.string().c_str());
-        logPath = logPath.arg(currency);
-        Currency c;
-        c.id = currency;
-        c.log = new QFile(logPath, this);
-        m_currencies.push_back(c);
-        data = &m_currencies.back();
-        if (!data->log->open(QIODevice::WriteOnly))
-            throw std::runtime_error("PriceHistory: Failed to open LOG file for write");
-    }
+    Currency *data = currencyData(currency, FetchOrCreate);
     assert(data);
     assert(data->log);
-    assert(price >= 0);
-    data->logValues.insert(std::make_pair(timestamp, price));
+    data->logValues.push_back(std::make_pair(timestamp, price));
     char buf[8];
-    *reinterpret_cast<uint32_t*>(buf) = le32toh(timestamp);
-    *reinterpret_cast<uint32_t*>(buf + 4) = le32toh(price);
+    *reinterpret_cast<uint32_t*>(buf) = htole32(timestamp);
+    *reinterpret_cast<uint32_t*>(buf + 4) = htole32(price);
     data->log->write(buf, 8);
     data->log->flush();
 
@@ -65,8 +82,60 @@ void PriceHistoryDataProvider::addPrice(const QString &currency, uint32_t timest
 
 int PriceHistoryDataProvider::historicalPrice(uint32_t timestamp) const
 {
-    // TODO
-    return 0;
+    const Currency *data = currencyData(m_currency);
+    int answer = 0;
+    if (!data)
+        return answer;
+    uint32_t prevTimestamp = 0;
+
+    // the log is per definition about newer values than the blob.
+    if (!data->logValues.empty()) {
+        prevTimestamp = data->logValues.front().first;
+        answer = data->logValues.front().second;
+
+        for (auto i = data->logValues.begin(); i != data->logValues.end(); ++i) {
+            if (i->first >= timestamp) {
+                const int diff1 = timestamp - prevTimestamp;
+                const int diff2 = i->first - timestamp;
+                if (diff1 > diff2) // closest one is 'i'
+                    answer = i->second;
+                break;
+            }
+            answer = i->second;
+            prevTimestamp = i->first;
+        }
+        if (timestamp >= prevTimestamp)
+            return answer;
+    }
+    // if we have a blob, check if we can improve our answer
+    // with a closer timestamp
+    if (!data->valueBlob.isEmpty()) {
+        const uint32_t *blob = reinterpret_cast<const uint32_t*>(data->valueBlob.begin());
+        const int count = data->valueBlob.size() / 4;
+
+        for (int i = 0; i < count; i += 2) {
+            const auto time = le32toh(blob[i]);
+            const auto value = le32toh(blob[i + 1]);
+
+            if (time >= timestamp) {
+                const int diff1 = timestamp - prevTimestamp;
+                const int diff2 = time - timestamp;
+                if (diff1 > diff2) // closest one is 'i'
+                    answer = value;
+                break;
+            }
+            answer = value;
+            prevTimestamp = time;
+        }
+        // if (timestamp >= prevTimestamp)
+            return answer;
+    }
+    // if the blob is non-empty
+    //   check first if the value is between the blob and the log
+    //   then check the blob
+
+    // TODO check historical blob
+    return answer;
 }
 
 QString PriceHistoryDataProvider::currencyName() const
@@ -81,5 +150,60 @@ void PriceHistoryDataProvider::setCurrency(const QString &newCurrency)
 
 void PriceHistoryDataProvider::processLog()
 {
+    Currency *data = currencyData(m_currency, FetchOnly);
+    if (!data)
+        return;
+
     // TODO
+    // Iterate over the log and for each 24h period compress all items into
+    // one entry for that day.
+
+    auto &pool = Streaming::pool(data->logValues.size() * 8 + data->valueBlob.size());
+    pool.write(data->valueBlob);
+
+    // Bad implementation today, we just copy all
+    for (auto i = data->logValues.begin(); i != data->logValues.end(); ++i) {
+        char buf[8];
+        if (i->second > 0) {
+            *reinterpret_cast<uint32_t*>(buf) = htole32(i->first);
+            *reinterpret_cast<uint32_t*>(buf + 4) = htole32(i->second);
+            pool.write(buf, 8);
+        }
+    }
+
+    QString logPath("%1/%2");
+    logPath = logPath.arg(m_basedir, m_currency);
+    QFile blobData(logPath);
+    if (!blobData.open(QIODevice::WriteOnly))
+        throw std::runtime_error("PriceHistory: Failed to open file for write");
+    data->valueBlob = pool.commit();
+    auto count = blobData.write(data->valueBlob.begin(), data->valueBlob.size());
+    assert(count == data->valueBlob.size());
+    data->logValues.clear();
+}
+
+const PriceHistoryDataProvider::Currency *PriceHistoryDataProvider::currencyData(const QString &name) const
+{
+    for (auto i = m_currencies.begin(); i != m_currencies.end(); ++i) {
+        if (i->id == name)
+            return &*i;
+    }
+    return nullptr;
+}
+
+PriceHistoryDataProvider::Currency *PriceHistoryDataProvider::currencyData(const QString &name, AutoCreate autoCreate)
+{
+    auto answer = currencyData(name);
+    if (!answer && autoCreate == FetchOrCreate) {
+        QString logPath("%1/%2.LOG");
+        logPath = logPath.arg(m_basedir, name);
+        Currency c;
+        c.id = name;
+        c.log = new QFile(logPath, this);
+        if (!c.log->open(QIODevice::WriteOnly | QIODevice::Append))
+            throw std::runtime_error("PriceHistory: Failed to open LOG file for write");
+        m_currencies.push_back(c);
+        return &m_currencies.back();
+    }
+    return const_cast<Currency*>(answer);
 }
