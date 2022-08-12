@@ -32,15 +32,15 @@ PriceHistoryDataProvider::PriceHistoryDataProvider(const boost::filesystem::path
     QDirIterator iter(m_basedir, QDir::Files);
     while (iter.hasNext()) {
         iter.next();
-        const qint64 fileSize = iter.fileInfo().size();
-        if (fileSize > 50000) {
-            logInfo() << "Big file in fiat dir, skipping:" << iter.fileName();
-            continue;
-        }
         QString currency = iter.fileName();
         const bool isLog = currency.endsWith(".LOG");
         if (isLog) // cut off the extension
             currency = currency.left(currency.size() - 4);
+        const qint64 fileSize = iter.fileInfo().size();
+        if (!isLog && fileSize > 50000) {
+            logInfo() << "Big file in fiat dir, skipping:" << iter.fileName();
+            continue;
+        }
         Currency *data = currencyData(currency, FetchOrCreate);
         QFile input(iter.filePath());
         if (!input.open(QIODevice::ReadOnly)) {
@@ -198,15 +198,20 @@ void PriceHistoryDataProvider::processLog()
     if (!data)
         return;
 
+    assert(data->log);
+    data->log->close();
+
     auto &pool = Streaming::pool(data->logValues.size() * 8 + data->valueBlob.size());
     pool.write(data->valueBlob);
 
     // Iterate over the log and for each 24h period compress all items into
     // one entry for that day.
     Day day;
+    int days = 0;
     for (auto i = data->logValues.begin(); i != data->logValues.end(); ++i) {
         if (i->second > 0) {
             if (day.isNewDay(i->first)) {
+                ++days;
                 day.writeAverage(pool);
                 day.reset();
             }
@@ -214,16 +219,20 @@ void PriceHistoryDataProvider::processLog()
         }
     }
     day.writeAverage(pool);
+    ++days;
+    logInfo() << "Extracted" << days << "days from LOG";
 
-    QString logPath("%1/%2");
-    logPath = logPath.arg(m_basedir, m_currency);
-    QFile blobData(logPath);
+    QString fiatPath("%1/%2");
+    fiatPath = fiatPath.arg(m_basedir, m_currency);
+    QFile blobData(fiatPath);
     if (!blobData.open(QIODevice::WriteOnly))
         throw std::runtime_error("PriceHistory: Failed to open file for write");
     data->valueBlob = pool.commit();
     auto count = blobData.write(data->valueBlob.begin(), data->valueBlob.size());
     assert(count == data->valueBlob.size());
     data->logValues.clear();
+
+    data->log->open(QIODevice::WriteOnly | QIODevice::Truncate);
 }
 
 const PriceHistoryDataProvider::Currency *PriceHistoryDataProvider::currencyData(const QString &name) const

@@ -46,7 +46,7 @@ public:
     void setAllowLogCompression(bool newAllowLogCompression);
     bool allowLogCompression() const;
 
-protected slots:
+public slots:
     void processLog();
 
 private:
