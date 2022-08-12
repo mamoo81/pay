@@ -21,9 +21,9 @@
 #include <QDirIterator>
 #include <QTimer>
 
-PriceHistoryDataProvider::PriceHistoryDataProvider(const boost::filesystem::path &basedir, const QString &currency, QObject *parent)
+PriceHistoryDataProvider::PriceHistoryDataProvider(const boost::filesystem::path &basedir, const QString &currency_, QObject *parent)
     : QObject{parent},
-      m_currency(currency),
+      m_currency(currency_),
       m_basedir(QString::fromStdString((basedir / "fiat").string()))
 {
     if (!QDir("/").mkpath(m_basedir)) // in case it didn't exist, it should now
@@ -130,11 +130,8 @@ int PriceHistoryDataProvider::historicalPrice(uint32_t timestamp) const
         // if (timestamp >= prevTimestamp)
             return answer;
     }
-    // if the blob is non-empty
-    //   check first if the value is between the blob and the log
-    //   then check the blob
+    // TODO maybe check if the value is between the blob and the log
 
-    // TODO check historical blob
     return answer;
 }
 
@@ -148,28 +145,70 @@ void PriceHistoryDataProvider::setCurrency(const QString &newCurrency)
     m_currency = newCurrency;
 }
 
+namespace {
+struct Day {
+    Day() { reset(); }
+
+    void add(const std::pair<uint32_t, int> &measurement) {
+        if (count++ == 0)
+            firstTimeStamp = measurement.first;
+        timestampCum += measurement.first;
+        valueCum += measurement.second;
+    }
+    bool isNewDay(uint32_t time) const {
+        if (count == 0)
+            return false;
+        auto diff = time - firstTimeStamp;
+        return diff >= 60 * 60 * 24;
+    }
+
+    void writeAverage(Streaming::BufferPool &pool)
+    {
+        if (count > 0) {
+            char buf[8];
+            *reinterpret_cast<uint32_t*>(buf) = htole32(timestampCum / count);
+            *reinterpret_cast<uint32_t*>(buf + 4) = htole32(valueCum / count);
+            pool.write(buf, 8);
+        }
+    }
+
+    void reset() {
+        count = 0;
+        firstTimeStamp = 0;
+        timestampCum = 0;
+        valueCum = 0;
+    }
+
+    int count;
+    uint32_t firstTimeStamp;
+    uint64_t timestampCum;
+    uint64_t valueCum;
+};
+}
+
+
 void PriceHistoryDataProvider::processLog()
 {
     Currency *data = currencyData(m_currency, FetchOnly);
     if (!data)
         return;
 
-    // TODO
-    // Iterate over the log and for each 24h period compress all items into
-    // one entry for that day.
-
     auto &pool = Streaming::pool(data->logValues.size() * 8 + data->valueBlob.size());
     pool.write(data->valueBlob);
 
-    // Bad implementation today, we just copy all
+    // Iterate over the log and for each 24h period compress all items into
+    // one entry for that day.
+    Day day;
     for (auto i = data->logValues.begin(); i != data->logValues.end(); ++i) {
-        char buf[8];
         if (i->second > 0) {
-            *reinterpret_cast<uint32_t*>(buf) = htole32(i->first);
-            *reinterpret_cast<uint32_t*>(buf + 4) = htole32(i->second);
-            pool.write(buf, 8);
+            if (day.isNewDay(i->first)) {
+                day.writeAverage(pool);
+                day.reset();
+            }
+            day.add(*i);
         }
     }
+    day.writeAverage(pool);
 
     QString logPath("%1/%2");
     logPath = logPath.arg(m_basedir, m_currency);
