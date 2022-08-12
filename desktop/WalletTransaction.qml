@@ -139,6 +139,8 @@ Item {
                 return inputs;
             return diff;
         }
+        fiatTimestamp: model.date;
+
         anchors.top: mainLabel.top
         fontPtSize: date.font.pointSize
         anchors.right: parent.right

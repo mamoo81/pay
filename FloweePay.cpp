@@ -244,7 +244,14 @@ void FloweePay::loadingCompleted()
     }
     if (!m_offline && m_chain == P2PNet::MainChain)
         m_prices->start();
-
+    if (m_chain == P2PNet::MainChain) {
+        m_priceHistory.reset(new PriceHistoryDataProvider(m_basedir,
+                                  QLocale::system().currencySymbol(QLocale::CurrencyIsoCode)));
+        connect (m_prices.get(), &PriceDataProvider::priceChanged,
+                 m_priceHistory.get(), [=](int price) {
+            m_priceHistory->addPrice(m_prices->currencyName(), QDateTime::currentSecsSinceEpoch(), price);
+        });
+    }
     emit loadComplete();
 }
 
@@ -565,6 +572,11 @@ uint32_t FloweePay::walletStartHeightHint() const
 PriceDataProvider *FloweePay::prices() const
 {
     return m_prices.get();
+}
+
+PriceHistoryDataProvider *FloweePay::priceHistory() const
+{
+    return m_priceHistory.get();
 }
 
 bool FloweePay::isOffline() const

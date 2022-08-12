@@ -33,7 +33,7 @@ void TestPriceHistory::cleanup()
 void TestPriceHistory::testLog()
 {
     const uint32_t TimeStamp = 1650000000;
-    PriceHistoryDataProvider ph(basedir().toStdString(), "euro");
+    PriceHistoryDataProvider ph(basedir(), "euro");
     QCOMPARE(ph.historicalPrice(TimeStamp), 0);
     ph.addPrice("euro", TimeStamp, 12345);
     QCOMPARE(ph.historicalPrice(TimeStamp), 12345);
@@ -59,7 +59,7 @@ void TestPriceHistory::testFromBlob()
     const uint32_t TimeStampBase = 1650000000;
     const uint32_t Day = 60 * 60 * 24;
     {
-        PriceHistoryDataProvider ph(basedir().toStdString(), "euro");
+        PriceHistoryDataProvider ph(basedir(), "euro");
         for (int i = 0; i < 10; ++i) {
             ph.addPrice("euro", TimeStampBase + Day * i, i + 1);
         }
@@ -70,7 +70,7 @@ void TestPriceHistory::testFromBlob()
         }
     }
     {
-        PriceHistoryDataProvider ph(basedir().toStdString(), "euro");
+        PriceHistoryDataProvider ph(basedir(), "euro");
         for (int i = 0; i < 10; ++i) {
             QCOMPARE(ph.historicalPrice(TimeStampBase + Day * i), i + 1);
         }

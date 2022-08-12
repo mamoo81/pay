@@ -18,6 +18,7 @@
 #ifndef PRICEHISTORYDATAPROVIDER_H
 #define PRICEHISTORYDATAPROVIDER_H
 
+#include <QDateTime>
 #include <QFile>
 #include <QObject>
 
@@ -29,11 +30,14 @@ class PriceHistoryDataProvider : public QObject
 {
     Q_OBJECT
 public:
-    explicit PriceHistoryDataProvider(const boost::filesystem::path &basedir, const QString &currency, QObject *parent = nullptr);
+    explicit PriceHistoryDataProvider(const QString &basedir, const QString &currency, QObject *parent = nullptr);
 
     void addPrice(const QString &currency, uint32_t timestamp, int price);
 
-    Q_INVOKABLE int historicalPrice(uint32_t timestamp) const;
+    Q_INVOKABLE int historicalPrice(const QDateTime &timestamp) const {
+        return historicalPrice(timestamp.toTime_t());
+    }
+    int historicalPrice(uint32_t timestamp) const;
 
     QString currencyName() const;
     void setCurrency(const QString &newCurrency);

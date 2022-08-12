@@ -29,6 +29,12 @@ Control {
     property bool colorize: true
     property bool includeUnit: true
     property bool showFiat: true
+    /**
+     * If this is set to something other than zero we assume its a unix
+     * date and the fiat price is calculated based on the historical price
+     * This is only used if you fill it with a date object.
+     */
+    property var fiatTimestamp: null
     property color color: palette.text
     property alias fontPtSize: main.font.pointSize
 
@@ -117,9 +123,16 @@ Control {
         }
 
         Label {
-             visible: root.showFiat
-             Layout.alignment: Qt.AlignBaseline
-             text: Fiat.formattedPrice(root.value, Fiat.price)
+            visible: root.showFiat
+            Layout.alignment: Qt.AlignBaseline
+            text: {
+                var fiatPrice;
+                if (root.fiatTimestamp == null)
+                    fiatPrice = Fiat.price; // todays price
+                else
+                    fiatPrice = fiatHistory.historicalPrice(root.fiatTimestamp);
+                Fiat.formattedPrice(root.value, fiatPrice)
+            }
         }
     }
 }

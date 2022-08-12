@@ -21,10 +21,10 @@
 #include <QDirIterator>
 #include <QTimer>
 
-PriceHistoryDataProvider::PriceHistoryDataProvider(const boost::filesystem::path &basedir, const QString &currency_, QObject *parent)
+PriceHistoryDataProvider::PriceHistoryDataProvider(const QString &basedir, const QString &currency_, QObject *parent)
     : QObject{parent},
       m_currency(currency_),
-      m_basedir(QString::fromStdString((basedir / "fiat").string()))
+      m_basedir(basedir + "/fiat")
 {
     if (!QDir("/").mkpath(m_basedir)) // in case it didn't exist, it should now
         logFatal() << "Failed to create basedir" << m_basedir;

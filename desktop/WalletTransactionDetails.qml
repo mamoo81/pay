@@ -24,6 +24,7 @@ GridLayout {
     id: root
 
     property QtObject infoObject: null
+    property var minedDate: model.date
 
     columns: 2
     Flowee.LabelWithClipboard {
@@ -41,7 +42,7 @@ GridLayout {
         text: {
             if (txRoot.isRejected)
                 return qsTr("rejected")
-            if (typeof  model.date === "undefined")
+            if (typeof root.minedDate === "undefined")
                 return qsTr("unconfirmed")
             var confirmations = Pay.headerChainHeight - model.height + 1;
             return qsTr("%1 confirmations (mined in block %2)", "", confirmations)
@@ -64,6 +65,7 @@ GridLayout {
     Flowee.BitcoinAmountLabel {
         visible: paymentTypeLabel.visible
         value: model.fundsOut - model.fundsIn
+        fiatTimestamp: root.minedDate
     }
     Label {
         id: feesLabel
@@ -82,6 +84,7 @@ GridLayout {
             }
             return amount
         }
+        fiatTimestamp: root.minedDate
         colorize: false
     }
     Label {
@@ -159,6 +162,7 @@ GridLayout {
                         id: amount
                         visible: modelData !== null
                         value: modelData === null ? 0 : (-1 * modelData.value)
+                        fiatTimestamp: root.minedDate
                         fontPtSize: date.font.pointSize
                         anchors.right: parent.right
                         anchors.bottom: arrowLine.top
@@ -242,6 +246,7 @@ GridLayout {
                         id: outAmount
                         visible: modelData !== null
                         value: modelData === null ? 0 : modelData.value
+                        fiatTimestamp: root.minedDate
                         colorize: modelData !== null && modelData.forMe
                         fontPtSize: date.font.pointSize
                         anchors.right: outArrowPoint.left

@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
         portfolio->selectDefaultWallet();
 
         engine.rootContext()->setContextProperty("net", netData);
+        engine.rootContext()->setContextProperty("fiatHistory", FloweePay::instance()->priceHistory());
         engine.rootContext()->setContextProperty("portfolio", portfolio);
         if (parser.isSet(connect)) {
             app->p2pNet()->connectionManager().peerAddressDb().addOne( // actually connect to it too.
