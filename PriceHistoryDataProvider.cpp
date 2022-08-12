@@ -76,8 +76,13 @@ void PriceHistoryDataProvider::addPrice(const QString &currency, uint32_t timest
     data->log->write(buf, 8);
     data->log->flush();
 
-    if (data->logValues.size() > 50)
+    if (m_allowLogCompression
+            && data->logValues.size() > 30 // check for people that rarely start the app
+            && timestamp - data->logValues.front().first > 3 * 30 * 24 * 60 * 60) {
+        // If we accumulated 3 months of log values,
+        // process the log and generate an averaged lookup.
         QTimer::singleShot(400, this, SLOT(processLog()));
+    }
 }
 
 int PriceHistoryDataProvider::historicalPrice(uint32_t timestamp) const
@@ -245,4 +250,14 @@ PriceHistoryDataProvider::Currency *PriceHistoryDataProvider::currencyData(const
         return &m_currencies.back();
     }
     return const_cast<Currency*>(answer);
+}
+
+bool PriceHistoryDataProvider::allowLogCompression() const
+{
+    return m_allowLogCompression;
+}
+
+void PriceHistoryDataProvider::setAllowLogCompression(bool newAllowLogCompression)
+{
+    m_allowLogCompression = newAllowLogCompression;
 }

@@ -38,6 +38,14 @@ public:
     QString currencyName() const;
     void setCurrency(const QString &newCurrency);
 
+    /**
+     * Adding values may trigger the 'processLog' method
+     * automatically unless this value is set to false.
+     * Default is true.
+     */
+    void setAllowLogCompression(bool newAllowLogCompression);
+    bool allowLogCompression() const;
+
 protected slots:
     void processLog();
 
@@ -64,6 +72,7 @@ private:
 
     std::vector<Currency> m_currencies;
     QString m_basedir;
+    bool m_allowLogCompression = true;
 };
 
 #endif
