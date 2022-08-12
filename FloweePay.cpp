@@ -251,6 +251,14 @@ void FloweePay::loadingCompleted()
                  m_priceHistory.get(), [=](int price) {
             m_priceHistory->addPrice(m_prices->currencyName(), QDateTime::currentSecsSinceEpoch(), price);
         });
+        if (m_offline) {
+            // if we are offline, take the last known price from our historical module
+            // to show to the user.
+            auto price = m_priceHistory->historicalPrice(QDateTime::currentDateTimeUtc());
+            if (price == 0)
+                price = 50000; // if we never fetched, set to 500,-
+            m_prices->mock(price);
+        }
     }
     emit loadComplete();
 }
@@ -587,8 +595,6 @@ bool FloweePay::isOffline() const
 void FloweePay::setOffline(bool offline)
 {
     m_offline = offline;
-    if (offline)
-        m_prices->mock(50000);
 }
 
 void FloweePay::startNet()
