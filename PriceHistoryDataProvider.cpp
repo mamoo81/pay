@@ -20,6 +20,7 @@
 
 #include <QDirIterator>
 #include <QTimer>
+#include <QNetworkReply>
 
 PriceHistoryDataProvider::PriceHistoryDataProvider(const QString &basedir, const QString &currency_, QObject *parent)
     : QObject{parent},
@@ -266,7 +267,59 @@ bool PriceHistoryDataProvider::allowLogCompression() const
     return m_allowLogCompression;
 }
 
+void PriceHistoryDataProvider::initialPopulate()
+{
+    if (m_currencies.empty()) {
+        logFatal() << "populate!";
+        InitialHistoryFetcher *f = new InitialHistoryFetcher(this);
+        f->fetch(m_basedir, m_currency);
+        connect (f, &InitialHistoryFetcher::success, f, [=](const QString &currency) {
+            // load this file into a currency object.
+            Currency *data = currencyData(currency, FetchOrCreate);
+            QFile input(m_basedir + '/' + currency);
+            if (input.open(QIODevice::ReadOnly)) {
+                const auto fileSize = input.size();
+                auto &pool = Streaming::pool(static_cast<int>(fileSize));
+                input.read(pool.begin(), fileSize);
+                data->valueBlob = pool.commit(fileSize);
+            }
+        });
+    }
+}
+
 void PriceHistoryDataProvider::setAllowLogCompression(bool newAllowLogCompression)
 {
     m_allowLogCompression = newAllowLogCompression;
+}
+
+
+// ---------------------------------
+
+InitialHistoryFetcher::InitialHistoryFetcher(QObject *parent)
+    : QObject(parent)
+{
+}
+
+void InitialHistoryFetcher::fetch(const QString &path, const QString &currency)
+{
+    assert(!path.isEmpty());
+    QNetworkRequest req(QUrl("https://flowee.org/products/pay/fiat/" + currency));
+    auto reply = m_network.get(req);
+    connect (reply, &QNetworkReply::finished, reply, [=]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QFile out(path + '/' + currency);
+            if (out.open(QIODevice::WriteOnly)) {
+                out.write(reply->readAll());
+            }
+            else {
+                logWarning() << "Failed to write to fiat file";
+            }
+        }
+        else {
+            logWarning() << "Download fiat history failed" << reply->errorString();
+        }
+        reply->deleteLater();
+        emit success(currency);
+        this->deleteLater();
+    });
 }

@@ -247,10 +247,6 @@ void FloweePay::loadingCompleted()
     if (m_chain == P2PNet::MainChain) {
         m_priceHistory.reset(new PriceHistoryDataProvider(m_basedir,
                                   QLocale::system().currencySymbol(QLocale::CurrencyIsoCode)));
-        connect (m_prices.get(), &PriceDataProvider::priceChanged,
-                 m_priceHistory.get(), [=](int price) {
-            m_priceHistory->addPrice(m_prices->currencyName(), QDateTime::currentSecsSinceEpoch(), price);
-        });
         if (m_offline) {
             // if we are offline, take the last known price from our historical module
             // to show to the user.
@@ -258,6 +254,13 @@ void FloweePay::loadingCompleted()
             if (price == 0)
                 price = 50000; // if we never fetched, set to 500,-
             m_prices->mock(price);
+        }
+        else {
+            m_priceHistory->initialPopulate();
+            connect (m_prices.get(), &PriceDataProvider::priceChanged,
+                     m_priceHistory.get(), [=](int price) {
+                m_priceHistory->addPrice(m_prices->currencyName(), QDateTime::currentSecsSinceEpoch(), price);
+            });
         }
     }
     emit loadComplete();

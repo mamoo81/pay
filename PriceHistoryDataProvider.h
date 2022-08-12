@@ -20,6 +20,7 @@
 
 #include <QDateTime>
 #include <QFile>
+#include <QNetworkAccessManager>
 #include <QObject>
 
 #include <streaming/ConstBuffer.h>
@@ -50,6 +51,9 @@ public:
     void setAllowLogCompression(bool newAllowLogCompression);
     bool allowLogCompression() const;
 
+    /// if there is no historical data, try to populate it
+    void initialPopulate();
+
 public slots:
     void processLog();
 
@@ -77,6 +81,21 @@ private:
     std::vector<Currency> m_currencies;
     QString m_basedir;
     bool m_allowLogCompression = true;
+};
+
+class InitialHistoryFetcher : public QObject
+{
+    Q_OBJECT
+public:
+    explicit InitialHistoryFetcher(QObject *parent = nullptr);
+
+    void fetch(const QString &path, const QString &currency);
+
+signals:
+    void success(const QString &currency);
+
+private:
+    QNetworkAccessManager m_network;
 };
 
 #endif
