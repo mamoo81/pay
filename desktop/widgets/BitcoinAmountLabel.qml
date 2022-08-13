@@ -127,7 +127,7 @@ Control {
             Layout.alignment: Qt.AlignBaseline
             text: {
                 var fiatPrice;
-                if (root.fiatTimestamp == null)
+                if (root.fiatTimestamp == null || fiatHistory == null)
                     fiatPrice = Fiat.price; // todays price
                 else
                     fiatPrice = fiatHistory.historicalPrice(root.fiatTimestamp);
