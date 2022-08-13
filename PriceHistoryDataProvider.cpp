@@ -19,6 +19,7 @@
 #include "streaming/BufferPools.h"
 
 #include <QDirIterator>
+#include <QCoreApplication>>
 #include <QTimer>
 #include <QNetworkReply>
 
@@ -304,6 +305,12 @@ void InitialHistoryFetcher::fetch(const QString &path, const QString &currency)
 {
     assert(!path.isEmpty());
     QNetworkRequest req(QUrl("https://flowee.org/products/pay/fiat/" + currency));
+    auto app = QCoreApplication::instance();
+    QString useragent = QString("%1%2/%3")
+            .arg(app->organizationName(),
+                 app->applicationName(),
+                 app->applicationVersion());
+    req.setRawHeader("User-Agent", useragent.toLatin1());
     auto reply = m_network.get(req);
     connect (reply, &QNetworkReply::finished, reply, [=]() {
         if (reply->error() == QNetworkReply::NoError) {
