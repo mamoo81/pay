@@ -415,23 +415,18 @@ ApplicationWindow {
             state: "showTransactions"
         }
 
-        Flickable {
+        Item {
             // the whole area left of the tabbed panels.
             id: overviewPane
             anchors.left: parent.left
             anchors.right: tabbedPane.left
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 10
             anchors.top: header.bottom
-            contentWidth: leftColumn.width
-            contentHeight: leftColumn.height
-            flickableDirection: Flickable.VerticalFlick
-            clip: true
 
             Column {
-                id: leftColumn
+                id: balances
                 x: 10
-                width: overviewPane.width - 60
+                width: parent.width - 60
 
                 // the total balance is for most people not this one, but the balanceInHeader one.
                 // we only show this one when the header one decides it can't be seen.
@@ -657,107 +652,125 @@ ApplicationWindow {
                         onTriggered: fiatValue.color = fiatValue.palette.text
                     }
                 }
-                Item { // spacer
-                    width: 10
-                    height: totalBalanceLabel.visible ? 40 : 10
-                }
-                Label {
-                    text: qsTr("Network status")
-                    opacity: 0.6
-                }
-                Label {
-                    id: syncIndicator
-                    text: {
-                        if (isLoading)
-                            return "";
-                        var account = portfolio.current;
-                        if (account === null)
-                            return "";
-                        if (account.needsPinToOpen && !account.isDecrypted)
-                            return qsTr("Offline");
-                        return account.timeBehind;
-                    }
-                    font.italic: true
-                }
-                Item { // spacer
-                    width: 10
-                    height: 60
-                }
-                Repeater { // the portfolio listing our accounts
-                    width: parent.width
-                    model: mainWindow.isLoading ? 0 : portfolio.accounts;
-                    delegate: AccountListItem {
-                        width: leftColumn.width
-                        account: modelData
-                    }
-                }
-                Item { // spacer
-                    width: 10
-                    height: 40
-                }
+            }
 
-                Rectangle { // button 'add bitcoin cash wallet'
-                    color: mainWindow.floweeGreen
-                    radius: 10
-                    width: leftColumn.width
-                    height: buttonLabel.height + 30
-                    Text {
-                        id: buttonLabel
-                        anchors.centerIn: parent
-                        width: parent.width - 20
-                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        text: qsTr("Add Bitcoin Cash wallet")
-                    }
+            Flickable {
+                anchors {
+                    left: balances.left
+                    right: balances.right
+                    top: balances.bottom
+                    topMargin: 10
+                    bottom: parent.bottom
+                    bottomMargin: 10
+                }
+                contentWidth: leftColumn.width
+                contentHeight: leftColumn.height
+                flickableDirection: Flickable.VerticalFlick
+                clip: true
 
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: newAccountPane.source = "./NewAccountPane.qml"
-                    }
-                }
-                Item { // spacer
-                    width: 10
-                    height: 40
-                }
-                Item {
-                    visible: !isLoading && portfolio.archivedAccounts.length > 0
-                    height: archivedLabel.height
-                    width: leftColumn.width
-                    Flowee.ArrowPoint {
-                        id: showArchivedWalletsList
-                        property bool on: false
-                        color: Pay.useDarkSkin ? "white" : "black"
-                        rotation: on ? 90 : 0
-                        transformOrigin: Item.Center
-                        Behavior on rotation { NumberAnimation {} }
+                Column {
+                    id: leftColumn
+                    width: balances.width
+
+                    Label {
+                        text: qsTr("Network status")
+                        opacity: 0.6
                     }
                     Label {
-                        id: archivedLabel
-                        x: showArchivedWalletsList.width + 10
+                        id: syncIndicator
                         text: {
                             if (isLoading)
-                                return ""
-                            var walletCount = portfolio.archivedAccounts.length
+                                return "";
+                            var account = portfolio.current;
+                            if (account === null)
+                                return "";
+                            if (account.needsPinToOpen && !account.isDecrypted)
+                                return qsTr("Offline");
+                            return account.timeBehind;
+                        }
+                        font.italic: true
+                    }
+                    Item { // spacer
+                        width: 10
+                        height: 40
+                    }
+                    Repeater { // the portfolio listing our accounts
+                        width: parent.width
+                        model: mainWindow.isLoading ? 0 : portfolio.accounts;
+                        delegate: AccountListItem {
+                            width: leftColumn.width
+                            account: modelData
+                        }
+                    }
+                    Item { // spacer
+                        width: 10
+                        height: 40
+                    }
 
-                            return qsTr("Archived wallets [%1]", "Arg is wallet count", walletCount).arg(walletCount);
+                    Rectangle { // button 'add bitcoin cash wallet'
+                        color: mainWindow.floweeGreen
+                        radius: 10
+                        width: leftColumn.width
+                        height: buttonLabel.height + 30
+                        Text {
+                            id: buttonLabel
+                            anchors.centerIn: parent
+                            width: parent.width - 20
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                            text: qsTr("Add Bitcoin Cash wallet")
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: newAccountPane.source = "./NewAccountPane.qml"
+                        }
+                    }
+                    Item { // spacer
+                        width: 10
+                        height: 40
+                    }
+                    Item {
+                        // archived wallets label with hide button
+                        visible: !isLoading && portfolio.archivedAccounts.length > 0
+                        height: archivedLabel.height
+                        width: leftColumn.width
+                        Flowee.ArrowPoint {
+                            id: showArchivedWalletsList
+                            property bool on: false
+                            color: Pay.useDarkSkin ? "white" : "black"
+                            rotation: on ? 90 : 0
+                            transformOrigin: Item.Center
+                            Behavior on rotation { NumberAnimation {} }
+                        }
+                        Label {
+                            id: archivedLabel
+                            x: showArchivedWalletsList.width + 10
+                            text: {
+                                if (isLoading)
+                                    return ""
+                                var walletCount = portfolio.archivedAccounts.length
+
+                                return qsTr("Archived wallets [%1]", "Arg is wallet count", walletCount).arg(walletCount);
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: showArchivedWalletsList.on = !showArchivedWalletsList.on
                         }
                     }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: showArchivedWalletsList.on = !showArchivedWalletsList.on
-                    }
-                }
-
-                Repeater { // the archived accounts
-                    width: parent.width
-                    model: showArchivedWalletsList.on ? portfolio.archivedAccounts : 0;
-                    delegate: AccountListItem {
-                        width: leftColumn.width
-                        account: modelData
-                        // archived accounts don't have access to anything but the activity tab
-                        onClicked: tabbar.currentIndex = 0; // change to the 'activity' tab
+                    Repeater { // the archived accounts
+                        width: parent.width
+                        model: showArchivedWalletsList.on ? portfolio.archivedAccounts : 0;
+                        delegate: AccountListItem {
+                            width: leftColumn.width
+                            account: modelData
+                            // archived accounts don't have access to anything but the activity tab
+                            onClicked: tabbar.currentIndex = 0; // change to the 'activity' tab
+                        }
                     }
                 }
             }
