@@ -109,17 +109,17 @@ public:
     QString basedir() const;
 
     /// for a price, in satoshis, return a formatted string in unitName().
-    Q_INVOKABLE inline QString priceToString(double price) const {
-        return FloweePay::priceToString(static_cast<qint64>(price), m_unit);
+    Q_INVOKABLE inline QString amountToString(double price) const {
+        return FloweePay::amountToString(static_cast<qint64>(price), m_unit);
     }
     /// for a price, in satoshis, return a formatted string in unitName(), removing trailing zeros.
-    Q_INVOKABLE QString priceToStringPretty(double price) const;
+    Q_INVOKABLE QString amountToStringPretty(double price) const;
     /// for a price, in satoshis, return a formatted string in unitName().
-    QString priceToString(qint64 price) const {
-        return FloweePay::priceToString(price, m_unit);
+    QString amountToString(qint64 price) const {
+        return FloweePay::amountToString(price, m_unit);
     }
     /// for a price, in satoshis, return a formatted string
-    static QString priceToString(qint64 price, UnitOfBitcoin unit);
+    static QString amountToString(qint64 price, UnitOfBitcoin unit);
 
     Q_INVOKABLE QString formatDate(QDateTime date) const;
     Q_INVOKABLE QString formatDateTime(QDateTime datetime) const;

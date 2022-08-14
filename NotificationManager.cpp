@@ -163,7 +163,7 @@ void NotificationManager::walletUpdated()
     if (pricesOracle->price() == 0)  {
         // no price data available (yet). Display crypto units
         gainedStr = QString("%1 %2")
-                .arg(FloweePay::instance()->priceToStringPretty((double) gained),
+                .arg(FloweePay::instance()->amountToStringPretty((double) gained),
                      FloweePay::instance()->unitName());
 
     } else {

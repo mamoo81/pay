@@ -285,7 +285,7 @@ QString PaymentRequest::qrCodeString() const
     bool separatorInserted = false; // the questionmark.
     if (m_amountRequested > 0) {
         // Amount is in whole BCHs
-        QString price = FloweePay::priceToString(m_amountRequested, FloweePay::BCH);
+        QString price = FloweePay::amountToString(m_amountRequested, FloweePay::BCH);
         // in case locale states we use commas:
         price.replace(',', '.');
         int length = price.size() - 1;

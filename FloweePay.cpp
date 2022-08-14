@@ -315,9 +315,9 @@ QString FloweePay::basedir() const
     return m_basedir;
 }
 
-QString FloweePay::priceToStringPretty(double price) const
+QString FloweePay::amountToStringPretty(double price) const
 {
-    QString answer = FloweePay::priceToString(static_cast<qint64>(price), m_unit);
+    QString answer = FloweePay::amountToString(static_cast<qint64>(price), m_unit);
     int c = answer.size();
     while (c > 0) {
         auto k = answer.at(c - 1).unicode();
@@ -333,7 +333,7 @@ QString FloweePay::priceToStringPretty(double price) const
 }
 
 // static
-QString FloweePay::priceToString(qint64 price, UnitOfBitcoin unit)
+QString FloweePay::amountToString(qint64 price, UnitOfBitcoin unit)
 {
     if (unit == Satoshis)
         return QString::number(price);

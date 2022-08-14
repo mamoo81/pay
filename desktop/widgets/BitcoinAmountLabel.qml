@@ -63,7 +63,7 @@ Control {
             }
         }
         function calcString(sats) {
-            amountString = Pay.priceToString(sats)
+            amountString = Pay.amountToString(sats)
         }
 
         Label {

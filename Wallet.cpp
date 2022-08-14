@@ -198,7 +198,7 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
         wtx.userComment = QString("Fused %1 ➜ %2 (%3 BCH)")
                 .arg(wtx.inputToWTX.size())
                 .arg(wtx.outputs.size())
-                .arg(FloweePay::priceToString(sats, FloweePay::BCH));
+                .arg(FloweePay::amountToString(sats, FloweePay::BCH));
     }
     return wtx;
 }

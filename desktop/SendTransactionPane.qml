@@ -467,7 +467,7 @@ Item {
                     if (paymentDetail.maxSelected)
                         var amount = qsTr("Max available", "The maximum balance available")
                     else
-                        amount = Pay.priceToStringPretty(paymentDetail.paymentAmount)
+                        amount = Pay.amountToStringPretty(paymentDetail.paymentAmount)
                                 + " " + Pay.unitName;
                 }
                 else {
@@ -674,7 +674,7 @@ Item {
             property QtObject paymentDetail: null
             title: qsTr("Coin Selector")
             summary: qsTr("Selected %1 %2 in %3 coins", "selected 2 BCH in 5 coins", paymentDetail.selectedCount)
-                            .arg(Pay.priceToStringPretty(paymentDetail.selectedValue))
+                            .arg(Pay.amountToStringPretty(paymentDetail.selectedValue))
                             .arg(Pay.unitName)
                             .arg(paymentDetail.selectedCount)
 
