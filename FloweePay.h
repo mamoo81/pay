@@ -61,6 +61,7 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(bool isMainChain READ isMainChain CONSTANT)
     Q_PROPERTY(bool hideBalance READ hideBalance WRITE setHideBalance NOTIFY hideBalanceChanged)
     Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
+    Q_PROPERTY(bool newBlockMuted READ newBlockMuted WRITE setNewBlockMuted NOTIFY newBlockMutedChanged);
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
     Q_PROPERTY(int dspTimeout READ dspTimeout WRITE setDspTimeout NOTIFY dspTimeoutChanged)
 public:
@@ -246,6 +247,12 @@ public:
     /// start the p2p networking, unless isOffline()
     void startNet();
 
+    /// If true, no notifications about new blocks will be shown
+    bool newBlockMuted() const;
+    /// If true, no notifications about new blocks will be shown
+    void setNewBlockMuted(bool mute);
+
+
 signals:
     void loadComplete();
     /// \internal
@@ -262,6 +269,7 @@ signals:
     void dspTimeoutChanged();
     void hideBalanceChanged();
     void preferSchnorrChanged();
+    void newBlockMutedChanged();
 
 private slots:
     void loadingCompleted();

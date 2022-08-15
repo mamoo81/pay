@@ -141,6 +141,9 @@ FloweePay::FloweePay()
     else {
         logCritical() << "Warning: No bip39 wordlists found. Looking in:" << base.absolutePath();
     }
+
+    // forward signal
+    connect (&m_notifications, SIGNAL(newBlockMutedChanged()), this, SIGNAL(newBlockMutedChanged()));
 }
 
 FloweePay::~FloweePay()
@@ -605,6 +608,16 @@ void FloweePay::startNet()
     if (m_offline)
         return;
     p2pNet()->start(); // lets go!
+}
+
+bool FloweePay::newBlockMuted() const
+{
+    return m_notifications.newBlockMuted();
+}
+
+void FloweePay::setNewBlockMuted(bool mute)
+{
+    m_notifications.setNewBlockMuted(mute);
 }
 
 bool FloweePay::preferSchnorr() const

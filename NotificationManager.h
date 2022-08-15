@@ -35,10 +35,14 @@ public:
     void notifyNewBlock(const P2PNet::Notification &notification) override;
     void segmentUpdated(const P2PNet::Notification &) override;
 
+    bool newBlockMuted() const;
+    void setNewBlockMuted(bool mute);
+
 signals:
     // the above will happen in the network thread, lets move them to our thread with some slots.
     void newBlockSeenSignal(int blockHeight);
     void segmentUpdatedSignal();
+    void newBlockMutedChanged();
 
 private slots:
     // the above will happen in the network thread, lets move them to our thread with some slots.

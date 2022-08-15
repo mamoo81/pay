@@ -65,6 +65,21 @@ void NotificationManager::segmentUpdated(const P2PNet::Notification&)
     emit segmentUpdatedSignal(); // move to the Qt thread
 }
 
+bool NotificationManager::newBlockMuted() const
+{
+    return m_newBlockMuted;
+}
+
+void NotificationManager::setNewBlockMuted(bool mute)
+{
+    if (m_newBlockMuted == mute)
+        return;
+    m_newBlockMuted = mute;
+    QSettings appConfig;
+    appConfig.setValue(MUTE, m_newBlockMuted);
+    emit newBlockMutedChanged();
+}
+
 void NotificationManager::newBlockSeen(int blockHeight)
 {
     if (m_newBlockMuted)
@@ -120,11 +135,8 @@ void NotificationManager::notificationClosed(uint32_t id, uint32_t reason)
 
 void NotificationManager::actionInvoked(uint, const QString &actionKey)
 {
-    if (actionKey == "mute") {
-        m_newBlockMuted = true;
-        QSettings appConfig;
-        appConfig.setValue(MUTE, true);
-    }
+    if (actionKey == "mute")
+        setNewBlockMuted(true);
 }
 
 void NotificationManager::walletUpdated()

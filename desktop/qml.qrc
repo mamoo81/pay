@@ -42,6 +42,7 @@
         <file>widgets/BitcoinAmountLabel.qml</file>
         <file>widgets/Button.qml</file>
         <file>widgets/CheckBox.qml</file>
+        <file>widgets/CheckBoxLabel.qml</file>
         <file>widgets/CloseIcon.qml</file>
         <file>widgets/GroupBox.qml</file>
         <file>widgets/LabelWithClipboard.qml</file>
