@@ -620,20 +620,6 @@ void FloweePay::setNewBlockMuted(bool mute)
     m_notifications.setNewBlockMuted(mute);
 }
 
-bool FloweePay::preferSchnorr() const
-{
-    return m_preferSchnorr;
-}
-
-void FloweePay::setPreferSchnorr(bool preferSchnorr)
-{
-    if (m_preferSchnorr == preferSchnorr)
-        return;
-
-    m_preferSchnorr = preferSchnorr;
-    emit preferSchnorrChanged();
-}
-
 QString FloweePay::version() const
 {
     return QCoreApplication::instance()->applicationVersion();
