@@ -94,7 +94,7 @@ Pane {
         Flowee.CheckBox {
             id: showBlockNotificationsChooser
             Layout.alignment: Qt.AlignRight
-            checked: Pay.newBlockMuted
+            checked: !Pay.newBlockMuted
             onCheckedChanged: Pay.newBlockMuted = !checked;
         }
         Flowee.CheckBoxLabel {
