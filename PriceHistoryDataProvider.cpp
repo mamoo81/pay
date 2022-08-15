@@ -19,7 +19,7 @@
 #include "streaming/BufferPools.h"
 
 #include <QDirIterator>
-#include <QCoreApplication>>
+#include <QCoreApplication>
 #include <QTimer>
 #include <QNetworkReply>
 
