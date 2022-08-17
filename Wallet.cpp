@@ -1242,15 +1242,18 @@ void Wallet::headerSyncComplete()
      *   Find the matching block and update the bloom filter.
      */
 
+    bool changedOne = false;
     for (auto iter = m_walletSecrets.begin(); iter != m_walletSecrets.end(); ++iter) {
         if (iter->second.initialHeight > 10000000) {
             // this is a time based height, lets resolve it to a real height.
             const Blockchain &blockchain = FloweePay::instance()->p2pNet()->blockchain();
             iter->second.initialHeight = blockchain.blockHeightAtTime(iter->second.initialHeight);
             m_secretsChanged = true;
-            rebuildBloom();
+            changedOne = true;
         }
     }
+    if (changedOne)
+        rebuildBloom();
 }
 
 void Wallet::broadcastUnconfirmed()
