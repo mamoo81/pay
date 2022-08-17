@@ -172,24 +172,28 @@ void NotificationManager::walletUpdated()
     const auto gained = deposited - spent;
     auto pricesOracle = FloweePay::instance()->prices();
     QString gainedStr;
-    if (pricesOracle->price() == 0)  {
+    if (pricesOracle->price())
+        gainedStr = pricesOracle->formattedPrice(gained, pricesOracle->price());
+    if (gainedStr.isEmpty())  {
         // no price data available (yet). Display crypto units
         gainedStr = QString("%1 %2")
                 .arg(FloweePay::instance()->amountToStringPretty((double) gained),
                      FloweePay::instance()->unitName());
-
-    } else {
-        gainedStr = pricesOracle->formattedPrice(gained, pricesOracle->price());
     }
-    if (gained > 0)
-        gainedStr = QString("+%1").arg(gainedStr); // since we indicate adding, we always want the plus there
+    if (gained > 0) // since we indicate adding, we always want the plus there
+        gainedStr = QString("+%1").arg(gainedStr);
 
     // body-text
     if (data.size() > 1) {
         args << tr("%1 new transactions across %2 wallets found (%3)")
                 .arg(txCount).arg(data.size())
                 .arg(gainedStr);
-    } else {
+    }
+    else if (gained < 0 && txCount == 1) {
+        args << tr("A payment of %1 has been sent")
+                .arg(gainedStr.mid(1));
+    }
+    else {
         args << tr("%1 new transactions found (%2)", "", txCount)
                 .arg(txCount)
                 .arg(gainedStr);
