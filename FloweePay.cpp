@@ -21,26 +21,26 @@
 #include "AddressInfo.h"
 #include "PriceDataProvider.h"
 
+#include <base58.h>
+#include <cashaddr.h>
 #include <streaming/MessageParser.h>
 #include <streaming/BufferPool.h>
 #include <streaming/MessageBuilder.h>
 #include <random.h>
 #include <config/flowee-config.h>
+#include <SyncSPVAction.h>
 
-#include <QStandardPaths>
-#include <QGuiApplication>
 #include <QClipboard>
 #include <QDesktopServices>
-#include <QLocale>
-#include <QSettings>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <base58.h>
-#include <cashaddr.h>
-#include <QTimer>
+#include <QGuiApplication>
+#include <QLocale>
 #include <QResource>
-#include <QDir>
-#include <SyncSPVAction.h>
+#include <QSettings>
+#include <QStandardPaths>
+#include <QTimer>
 #include <QUrl>
 
 constexpr const char *UNIT_TYPE = "unit";
