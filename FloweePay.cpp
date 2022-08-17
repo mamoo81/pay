@@ -522,8 +522,29 @@ int FloweePay::chainHeight()
     return headerChainHeight();
 }
 
-void FloweePay::blockchainHeightChanged(int)
+void FloweePay::blockchainHeightChanged(int newHeight)
 {
+    if (m_wallets.count() > 1) {
+        for (auto *wallet : m_wallets) {
+            if (!wallet->userOwnedWallet()) {
+                // we create a default wallet on first startup but we ignore that one
+                // should the user create a new one directly afterwards.
+                // We can't simply delete it as the QR code was visible, so we have to wait a while
+                // to make sure no funds have been sent there before we stop finding peers for it.
+
+                if (wallet->segment()->priority() != PrivacySegment::OnlyManual) {
+                    // not yet archived
+                    auto h = wallet->walletCreatedHeight();
+                    if (h < 0) break; // should not happen
+
+                    if (newHeight - h > 2100) // its been more than 2 weeks. Archive.
+                        wallet->segment()->setPriority(PrivacySegment::OnlyManual);
+                }
+                break;
+            }
+        }
+    }
+
     emit headerChainHeightChanged();
 }
 

@@ -350,6 +350,9 @@ public:
     bool unlockUTXO(OutputRef outputRef);
     bool isLocked(OutputRef outputRef) const;
 
+    /// Return the blockheight at which this wallet was created
+    int walletCreatedHeight() const;
+
     /// Check the loaded wallet version Id and make internal changes to upgrade it to current.
     void performUpgrades();
 

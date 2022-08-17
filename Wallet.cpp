@@ -821,6 +821,13 @@ bool Wallet::isLocked(OutputRef outputRef) const
     return m_lockedOutputs.find(outputRef.encoded()) != m_lockedOutputs.end();
 }
 
+int Wallet::walletCreatedHeight() const
+{
+    if (m_walletSecrets.empty() || m_walletSecrets.begin()->second.initialHeight >= 10000000)
+        return -1;
+    return m_walletSecrets.begin()->second.initialHeight;
+}
+
 void Wallet::performUpgrades()
 {
     if (m_walletVersion == 1 && !m_walletTransactions.empty() && !m_walletSecrets.empty()) {
