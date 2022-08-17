@@ -56,6 +56,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(QList<QObject*> paymentRequests READ paymentRequests NOTIFY paymentRequestsChanged)
     Q_PROPERTY(QString mnemonic READ hdWalletMnemonic CONSTANT)
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath CONSTANT)
+    Q_PROPERTY(QString xpub READ xpub CONSTANT)
     Q_PROPERTY(QDateTime lastMinedTransaction READ lastMinedTransaction NOTIFY balanceChanged)
     Q_PROPERTY(bool hasFreshTransactions READ hasFreshTransactions WRITE setHasFreshTransactions NOTIFY hasFreshTransactionsChanged)
     Q_PROPERTY(bool needsPinToPay READ needsPinToPay NOTIFY encryptionChanged)
@@ -131,6 +132,8 @@ public:
     QString hdWalletMnemonic() const;
     /// Return the derivation base path that is the basis of this wallet.
     QString hdDerivationPath() const;
+    /// Return the XPub for this wallet (or empty if its not a HD wallet)
+    QString xpub() const;
 
     /// Return the model that shares more info about the wallets private keys
     WalletSecretsModel *secretsModel() const;

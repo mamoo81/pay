@@ -734,6 +734,14 @@ QString Wallet::derivationPath() const
     return QString();
 }
 
+QString Wallet::xpub() const
+{
+    if (m_hdData.get())
+        return QString::fromStdString(m_hdData->masterPubkey.toString());
+
+    return QString();
+}
+
 void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight)
 {
     assert(m_hdData.get() == nullptr);

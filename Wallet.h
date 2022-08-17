@@ -325,6 +325,10 @@ public:
     QString hdWalletMnemonicPwd() const;
     /// Provided that this is a HD wallet, return the derivation path used for this wallet.
     QString derivationPath() const;
+    /// Provided that this is a HD wallet, return the xpub for this wallet.
+    QString xpub() const;
+
+
     /**
      * Create a HD masterkey that will be used for future creation of new private keys
      *

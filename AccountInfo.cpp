@@ -348,3 +348,8 @@ QString AccountInfo::hdDerivationPath() const
 {
     return m_wallet->derivationPath();
 }
+
+QString AccountInfo::xpub() const
+{
+    return m_wallet->xpub();
+}

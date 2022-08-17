@@ -182,6 +182,23 @@ Item {
                     return qsTr("This wallet is a simple multiple-address wallet.")
                 }
             }
+            RowLayout {
+                width: parent.width
+                Label {
+                    id: xpubLabel
+                    // at the moment I don't see a point if making this translatable. Let me know if that should change!
+                    text: "xpub" + ":"
+                    visible: root.account.isHDWallet
+                }
+                Flowee.LabelWithClipboard {
+                    Layout.fillWidth: true
+                    visible: xpubLabel.visible
+                    text: root.account.xpub
+                    clipboardText: text
+                    menuText: qsTr("Copy")
+                }
+            }
+
     /* TODO, features to add;
             Label {
                 text: qsTr("Security:")
@@ -211,7 +228,7 @@ Item {
             id: addressesList
             width: parent.width
             anchors.top: detailsPane.bottom
-            anchors.topMargin: 10
+            anchors.topMargin: 20
             title: qsTr("Address List")
             collapsed: !root.account.isSingleAddressAccount
             visible: root.account.isDecrypted || !root.account.needsPinToOpen
@@ -332,7 +349,7 @@ Item {
             id: hdDetails
             width: parent.width
             anchors.top: addressesList.bottom
-            anchors.topMargin: 10
+            anchors.topMargin: 20
             title: qsTr("Backup details")
             visible: root.account.isHDWallet
             collapsed: true
