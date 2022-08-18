@@ -41,7 +41,6 @@ Label {
         onClicked: {
             if (root.buddy != null) {
                 root.buddy.checked = !root.buddy.checked;
-                root.buddy.forceActiveFocus();
             }
         }
         hoverEnabled: root.toolTipText !== ""

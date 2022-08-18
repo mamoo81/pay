@@ -29,7 +29,6 @@ Item {
     implicitHeight: Math.max(slider.implicitHeight, title.implicitHeight)
     clip: true
     activeFocusOnTab: true
-    focus: true
 
     Item {
         id: slider
@@ -74,7 +73,6 @@ Item {
         cursorShape: Qt.PointingHandCursor
         onClicked: {
             root.checked = !root.checked
-            root.forceActiveFocus()
             root.clicked()
         }
         hoverEnabled: true
