@@ -45,8 +45,14 @@ PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
 QList<QObject *> PortfolioDataProvider::accounts() const
 {
     QList<QObject *> answer;
+    if (m_accountInfos.size() == 1) {
+        // We have a 'mode' where having exactly one wallet will
+        // hide the wallets-list to avoid confusing the user with multi wallets.
+        return answer;
+    }
     // we filter out the wallets that are NOT user-owned. Which is essentially the main initial
     // wallet created to allow people to deposit instantly.
+    // Such a wallet is migrated to user-owned the moment a deposit is detected.
     for (auto *account : m_accountInfos) {
         if (account->userOwnedWallet() && !account->isArchived())
             answer.append(account);
