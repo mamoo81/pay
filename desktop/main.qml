@@ -473,6 +473,7 @@ ApplicationWindow {
                     opacity: 0.6
                 }
                 Item { // spacer
+                    visible: totalBalanceLabel.visible
                     width: 10
                     height: 50
                 }
