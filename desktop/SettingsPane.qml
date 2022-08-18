@@ -134,14 +134,17 @@ Pane {
             text: Pay.libsVersion
             Layout.columnSpan: 2
         }
-    }
+        Label {
+            text: qsTr("Synchronization") + ":"
+        }
 
-    Button {
-        anchors.right: parent.right
-        text: qsTr("Network Status")
-        onClicked: {
-            netView.source = "./NetView.qml"
-            netView.item.show();
+        Button {
+            Layout.columnSpan: 2
+            text: qsTr("Network Status")
+            onClicked: {
+                netView.source = "./NetView.qml"
+                netView.item.show();
+            }
         }
     }
 }
