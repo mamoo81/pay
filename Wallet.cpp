@@ -46,9 +46,9 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
     wallet->m_basedir = basedir / QString("wallet-%1/").arg(segmentId).toStdString();
     wallet->m_segment.reset(new PrivacySegment(segmentId, wallet));
     if (name.isEmpty())
-        wallet->m_name = QString("unnamed-%1").arg(segmentId);
+        wallet->setName(QString("unnamed-%1").arg(segmentId));
     else
-        wallet->m_name = name;
+        wallet->setName(name);
 
     return wallet;
 }
