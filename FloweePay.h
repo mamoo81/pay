@@ -283,7 +283,6 @@ private:
     QString m_basedir;
     P2PNet::Chain m_chain = P2PNet::MainChain;
     std::string m_chainPrefix;
-    QString m_defaultDerivationPath;
     std::unique_ptr<DownloadManager> m_downloadManager;
     std::unique_ptr<PriceDataProvider> m_prices;
     std::unique_ptr<PriceHistoryDataProvider> m_priceHistory;

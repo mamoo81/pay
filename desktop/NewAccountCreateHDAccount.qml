@@ -80,7 +80,7 @@ ColumnLayout {
         }
         Flowee.TextField {
             id: derivationPath
-            text: "m/44'/145'/0'" // default for BCH wallets
+            text: "m/44'/0'/0'" // What most wallets use to import by default
             color: Pay.checkDerivation(text) ? palette.text : "red"
         }
         Item { width: 1; height: 1; Layout.fillWidth: true } // spacer

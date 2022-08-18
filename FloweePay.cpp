@@ -53,8 +53,8 @@ constexpr const char *USERAGENT = "net/useragent";
 constexpr const char *DSPTIMEOUT = "payment/dsp-timeout";
 
 constexpr const char *AppdataFilename = "/appdata";
-constexpr const char *DefaultDerivationPath = "m/44'/145'/0'";
-constexpr const char *DefaultDerivationPathTestnet = "m/44'/145'/0'";
+// used for the default wallet
+constexpr const char *DefaultDerivationPath = "m/44'/0'/0'";
 
 enum FileTags {
     WalletId,
@@ -76,10 +76,8 @@ FloweePay::FloweePay()
     if (m_chain == P2PNet::Testnet4Chain) {
         m_basedir += "/testnet4";
         m_chainPrefix = "bchtest";
-        m_defaultDerivationPath = QLatin1String(DefaultDerivationPathTestnet);
     } else {
         m_chainPrefix = "bitcoincash";
-        m_defaultDerivationPath = QLatin1String(DefaultDerivationPath);
     }
     boost::filesystem::create_directories(boost::filesystem::path(m_basedir.toStdString()));
 
@@ -229,7 +227,7 @@ void FloweePay::init()
     }
 
     if (m_wallets.isEmpty() && m_createStartWallet) {
-        auto config = createNewWallet(m_defaultDerivationPath);
+        auto config = createNewWallet(QLatin1String(DefaultDerivationPath));
         delete config; // the config was just for QML, so avoid a dangling object.
         m_wallets.at(0)->setUserOwnedWallet(false);
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
