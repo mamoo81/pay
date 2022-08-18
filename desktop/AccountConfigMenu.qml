@@ -57,18 +57,20 @@ ConfigItem {
 
     onAboutToOpen: {
         var items = [];
-        items.push(detailsAction);
+        var onMainView = (accountOverlay.state === "showTransactions")
+        if (onMainView)
+            items.push(detailsAction);
         var encrypted = root.account.needsPinToOpen;
         var decrypted = root.account.isDecrypted;
         if ((encrypted || root.account.needsPinToPay) && decrypted)
             items.push(closeWalletAction);
-        if (encrypted && !decrypted && tabbar.currentIndex != 0)
+        if (onMainView && encrypted && !decrypted && tabbar.currentIndex != 0)
             items.push(openWalletAction);
-        var singleAccountSetup =portfolio.singleAccountSetup
+        var singleAccountSetup = portfolio.singleAccountSetup
         var isArchived = root.account.isArchived;
         if (!singleAccountSetup && !isArchived)
             items.push(primaryAction);
-        if (!encrypted)
+        if (onMainView && !encrypted)
             items.push(encryptAction);
         if (!singleAccountSetup)
             items.push(archiveAction);
