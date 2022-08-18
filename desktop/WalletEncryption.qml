@@ -45,6 +45,7 @@ FocusScope {
                 account.encryptPinToOpen(passwordField.text);
             passwordField.text = ""
             accountOverlay.state = "showTransactions" // should close this screen
+            tabbar.currentIndex = 0
         }
 
         Flowee.CloseIcon {
