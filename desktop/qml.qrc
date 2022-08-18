@@ -63,5 +63,6 @@
         <file>widgets/WarningLabel.qml</file>
         <file>widgets/PasswdDialog.qml</file>
         <file>WalletEncryptionStatus.qml</file>
+        <file>AccountConfigMenu.qml</file>
     </qresource>
 </RCC>

@@ -138,6 +138,11 @@ double PortfolioDataProvider::totalBalance() const
     return rc;
 }
 
+bool PortfolioDataProvider::isSingleAccount() const
+{
+    return m_accounts.size() == 1;
+}
+
 void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
 {
     if (m_accounts.contains(wallet))

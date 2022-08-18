@@ -120,61 +120,11 @@ Item {
         onExited: background.hover = false
     }
 
-    ConfigItem {
-        id: configItem
+    AccountConfigMenu {
+        id: accountConfigMenu
         anchors.right: parent.right
         anchors.rightMargin: 15
         y: 13
-
-        property QtObject detailsAction: Action {
-                text: qsTr("Details")
-                onTriggered: {
-                    portfolio.current = root.account;
-                    accountOverlay.state = "accountDetails";
-                }
-            }
-        property QtObject archiveAction: Action {
-                text: root.account.isArchived ? qsTr("Unarchive") : qsTr("Archive Wallet")
-                onTriggered: root.account.isArchived = !root.account.isArchived
-            }
-        property QtObject primaryAction: Action {
-                enabled: !root.account.isDefaultWallet
-                text: enabled ? qsTr("Make Primary") : qsTr("★ Primary")
-                onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
-            }
-        property QtObject encryptAction: Action {
-                text: qsTr("Protect With Pin...")
-                onTriggered: {
-                    portfolio.current = root.account;
-                    accountOverlay.state = "startWalletEncryption";
-                }
-            }
-        property QtObject openWalletAction: Action {
-                text: qsTr("Open", "Open encrypted wallet")
-                onTriggered: tabbar.currentIndex = 0
-            }
-
-        property QtObject closeWalletAction: Action {
-                text: qsTr("Close", "Close encrypted wallet")
-                onTriggered: root.account.closeWallet();
-            }
-
-        onAboutToOpen: {
-            var items = [];
-            items.push(detailsAction);
-            var encrypted = root.account.needsPinToOpen;
-            var decrypted = root.account.isDecrypted;
-            if ((encrypted || root.account.needsPinToPay) && decrypted)
-                items.push(closeWalletAction);
-            if (encrypted && !decrypted && tabbar.currentIndex != 0)
-                items.push(openWalletAction);
-            var isArchived = root.account.isArchived;
-            if (!isArchived)
-                items.push(primaryAction);
-            if (!encrypted)
-                items.push(encryptAction);
-            items.push(archiveAction);
-            setMenuActions(items);
-        }
+        account: root.account
     }
 }

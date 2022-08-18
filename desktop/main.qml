@@ -426,7 +426,7 @@ ApplicationWindow {
             Column {
                 id: balances
                 x: 10
-                width: parent.width - 60
+                width: parent.width - 30
 
                 // the total balance is for most people not this one, but the balanceInHeader one.
                 // we only show this one when the header one decides it can't be seen.
@@ -502,21 +502,6 @@ ApplicationWindow {
                                 Pay.hideBalance = !Pay.hideBalance;
                                 balanceDetailsPane.showDetails = false;
                             }
-                        }
-                    }
-
-                    Label {
-                        id: questionMark
-                        text: "🛈"
-                        ToolTip.text: qsTr("Show Wallet Details")
-                        anchors.right: showBalanceButton.left
-                        anchors.baseline: balanceLabel.baseline
-                        anchors.rightMargin: 10
-                        opacity: 0.5
-                        visible: !isLoading && !portfolio.current.isUserOwned
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: accountOverlay.state = "accountDetails";
                         }
                     }
                 }
@@ -631,26 +616,36 @@ ApplicationWindow {
                     width: 10
                     height: 20
                 }
-                Label {
-                    id: fiatValue
-                    property double prevPrice: 0
-                    text: qsTr("1 BCH is: %1").arg(Fiat.formattedPrice(100000000, Fiat.price))
-                    visible: Pay.isMainChain
-                    font.pixelSize: 18
+                Item {
+                    width: parent.width
+                    height: fiatValue.height
+                    Label {
+                        id: fiatValue
+                        property double prevPrice: 0
+                        text: qsTr("1 BCH is: %1").arg(Fiat.formattedPrice(100000000, Fiat.price))
+                        visible: Pay.isMainChain
+                        font.pixelSize: 18
 
-                    Behavior on color { ColorAnimation { duration: 300 } }
-                    onTextChanged: {
-                        animTimer.start()
-                        if (prevPrice > Fiat.price)
-                            color = Pay.useDarkSkin ? "#5f1414" : "#ff3636"; // red
-                        else
-                            color = Pay.useDarkSkin ? "#154822" : "#4aff77"; // green
-                        prevPrice = Fiat.price
+                        Behavior on color { ColorAnimation { duration: 300 } }
+                        onTextChanged: {
+                            animTimer.start()
+                            if (prevPrice > Fiat.price)
+                                color = Pay.useDarkSkin ? "#5f1414" : "#ff3636"; // red
+                            else
+                                color = Pay.useDarkSkin ? "#154822" : "#4aff77"; // green
+                            prevPrice = Fiat.price
+                        }
+                        Timer {
+                            id: animTimer
+                            interval: 305
+                            onTriggered: fiatValue.color = fiatValue.palette.text
+                        }
                     }
-                    Timer {
-                        id: animTimer
-                        interval: 305
-                        onTriggered: fiatValue.color = fiatValue.palette.text
+
+                    AccountConfigMenu {
+                        anchors.right: parent.right
+                        visible: portfolio.singleAccountSetup
+                        account: portfolio.current
                     }
                 }
             }

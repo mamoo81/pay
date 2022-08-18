@@ -180,9 +180,11 @@ FocusScope {
                     onAccepted: encryptButton.clicked()
                 }
                 Label {
+                    visible: !portfolio.singleAccountSetup
                     text: qsTr("Wallet") + ":"
                 }
                 Label {
+                    visible: !portfolio.singleAccountSetup
                     text: root.account.name
                 }
                 Item {
