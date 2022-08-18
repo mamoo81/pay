@@ -4,13 +4,13 @@
   <context>
     <name>AccountInfo</name>
     <message>
-      <location filename="../AccountInfo.cpp" line="105"/>
-      <location filename="../AccountInfo.cpp" line="119"/>
+      <location filename="../AccountInfo.cpp" line="106"/>
+      <location filename="../AccountInfo.cpp" line="120"/>
       <source>Up to date</source>
       <translation>Is volledig bijgewerkt</translation>
     </message>
     <message numerus="yes">
-      <location filename="../AccountInfo.cpp" line="114"/>
+      <location filename="../AccountInfo.cpp" line="115"/>
       <source>%1 weeks behind</source>
       <translation>
         <numerusform>Een week achter</numerusform>
@@ -18,7 +18,7 @@
       </translation>
     </message>
     <message numerus="yes">
-      <location filename="../AccountInfo.cpp" line="117"/>
+      <location filename="../AccountInfo.cpp" line="118"/>
       <source>%1 days behind</source>
       <translation>
         <numerusform>Een dag achter</numerusform>
@@ -26,12 +26,12 @@
       </translation>
     </message>
     <message>
-      <location filename="../AccountInfo.cpp" line="121"/>
+      <location filename="../AccountInfo.cpp" line="122"/>
       <source>Updating</source>
       <translation>Bijwerken</translation>
     </message>
     <message numerus="yes">
-      <location filename="../AccountInfo.cpp" line="122"/>
+      <location filename="../AccountInfo.cpp" line="123"/>
       <source>%1 hours behind</source>
       <translation>
         <numerusform>Een uur achter</numerusform>
@@ -42,30 +42,30 @@
   <context>
     <name>FloweePay</name>
     <message>
-      <location filename="../FloweePay.cpp" line="208"/>
+      <location filename="../FloweePay.cpp" line="234"/>
       <source>Initial Wallet</source>
       <translation>Eerste portemonnee</translation>
     </message>
     <message>
-      <location filename="../FloweePay.cpp" line="340"/>
-      <location filename="../FloweePay.cpp" line="380"/>
+      <location filename="../FloweePay.cpp" line="390"/>
+      <location filename="../FloweePay.cpp" line="430"/>
       <source>Today</source>
       <translation>Vandaag</translation>
     </message>
     <message>
-      <location filename="../FloweePay.cpp" line="342"/>
-      <location filename="../FloweePay.cpp" line="382"/>
+      <location filename="../FloweePay.cpp" line="392"/>
+      <location filename="../FloweePay.cpp" line="432"/>
       <source>Yesterday</source>
       <translation>Gisteren</translation>
     </message>
     <message>
-      <location filename="../FloweePay.cpp" line="369"/>
+      <location filename="../FloweePay.cpp" line="419"/>
       <source>Now</source>
       <comment>timestamp</comment>
       <translation>Nu</translation>
     </message>
     <message numerus="yes">
-      <location filename="../FloweePay.cpp" line="370"/>
+      <location filename="../FloweePay.cpp" line="420"/>
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
       <translation>
@@ -74,13 +74,13 @@
       </translation>
     </message>
     <message>
-      <location filename="../FloweePay.cpp" line="374"/>
+      <location filename="../FloweePay.cpp" line="424"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
       <translation>Half uur geleden</translation>
     </message>
     <message numerus="yes">
-      <location filename="../FloweePay.cpp" line="376"/>
+      <location filename="../FloweePay.cpp" line="426"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
       <translation>
@@ -92,17 +92,17 @@
   <context>
     <name>NotificationManager</name>
     <message>
-      <location filename="../NotificationManager.cpp" line="89"/>
+      <location filename="../NotificationManager.cpp" line="104"/>
       <source>BCH block mined %1</source>
       <translation>BCH blok gedolven %1</translation>
     </message>
     <message>
-      <location filename="../NotificationManager.cpp" line="92"/>
+      <location filename="../NotificationManager.cpp" line="107"/>
       <source>Mute</source>
       <translation>Negeren</translation>
     </message>
     <message numerus="yes">
-      <location filename="../NotificationManager.cpp" line="158"/>
+      <location filename="../NotificationManager.cpp" line="170"/>
       <source>New Transaction</source>
       <translation>
         <numerusform>Nieuwe transactie</numerusform>
@@ -110,12 +110,17 @@
       </translation>
     </message>
     <message>
-      <location filename="../NotificationManager.cpp" line="177"/>
+      <location filename="../NotificationManager.cpp" line="188"/>
       <source>%1 new transactions across %2 wallets found (%3)</source>
       <translation>%1 nieuwe transacties in %2 portemonnees gevonden (%3)</translation>
     </message>
+    <message>
+      <location filename="../NotificationManager.cpp" line="193"/>
+      <source>A payment of %1 has been sent</source>
+      <translation>Een betaling van %1 is verzonden</translation>
+    </message>
     <message numerus="yes">
-      <location filename="../NotificationManager.cpp" line="181"/>
+      <location filename="../NotificationManager.cpp" line="197"/>
       <source>%1 new transactions found (%2)</source>
       <translation>
         <numerusform>%1 nieuwe transactie gevonden (%2)</numerusform>
@@ -126,17 +131,22 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../Payment.cpp" line="173"/>
+      <location filename="../Payment.cpp" line="120"/>
+      <source>Invalid PIN</source>
+      <translation>Ongeldige PIN</translation>
+    </message>
+    <message>
+      <location filename="../Payment.cpp" line="204"/>
       <source>Not enough funds selected for fees</source>
       <translation>Onvoldoende saldo voor transactiekosten</translation>
     </message>
     <message>
-      <location filename="../Payment.cpp" line="181"/>
+      <location filename="../Payment.cpp" line="212"/>
       <source>Not enough funds in wallet to make payment!</source>
       <translation>Niet genoeg saldo in portemonnee om te betalen!</translation>
     </message>
     <message>
-      <location filename="../Payment.cpp" line="243"/>
+      <location filename="../Payment.cpp" line="275"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Transactie te groot. Geselecteerd bedrag vereist te veel munten.</translation>
     </message>
@@ -144,8 +154,8 @@
   <context>
     <name>Wallet</name>
     <message>
-      <location filename="../Wallet_support.cpp" line="289"/>
-      <location filename="../Wallet_support.cpp" line="311"/>
+      <location filename="../Wallet_support.cpp" line="278"/>
+      <location filename="../Wallet_support.cpp" line="300"/>
       <source>Change #%1</source>
       <translation>Wisselmunt #%1</translation>
     </message>
