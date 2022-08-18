@@ -42,7 +42,9 @@ Item {
             anchors.fill: parent
             radius: parent.height / 3
             color: root.sliderOnIndicator && root.enabled && root.checked ? (Pay.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
-            border.color: root.activeFocus ? (Pay.useDarkSkin ? "white" : "black") : mainWindow.palette.button
+            border.color: root.activeFocus
+            ? mainWindow.palette.highlight
+            : mainWindow.palette.button
             border.width: 2
 
             Behavior on color { ColorAnimation {}}
