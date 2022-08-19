@@ -30,7 +30,15 @@ BUILDING
 Flowee Pay uses libraries from Flowee, you need to
 either install the main flowee package via your package manager
 or compile it before you compile Pay.
-The minimum version required for the Flowee libraries is 2021.06.0
+The minimum version required for the Flowee libraries is 2022.07.0
+
+For ubuntu getting the latest is a matter of calling:
+
+```
+  sudo add-apt-repository ppa:flowee/ppa
+  sudo apt update
+  sudo apt install flowee-libs
+```
 
 You need cmake and Qt5. When you have those installed it is just a matter
 of calling:
