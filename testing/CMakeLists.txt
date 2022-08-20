@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-find_package(Qt5Test)
-if (${Qt5Test_FOUND})
+find_package(Qt6Test)
+if (${Qt6Test_FOUND})
     enable_testing()
     add_definitions(-DIN_TESTS)
     add_subdirectory(wallet)

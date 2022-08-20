@@ -18,7 +18,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
-import QtGraphicalEffects 1.0
 import "widgets" as Flowee
 import "./ControlColors.js" as ControlColors
 
@@ -128,15 +127,7 @@ ApplicationWindow {
                     color: "white"
                     showFiat: false
                     fontPtSize: mainWindow.font.pointSize * 2
-                    opacity: blurredTotalBalance2.visible ? 0 : 1
-                }
-                FastBlur {
-                    id: blurredTotalBalance2
-                    anchors.fill: parent
-                    anchors.margins: 5
-                    visible: Pay.hideBalance
-                    source: totalBalance2
-                    radius: 58
+                    opacity: Pay.hideBalance ? 0.2 : 1
                 }
             }
             Label {
@@ -452,15 +443,7 @@ ApplicationWindow {
                         colorize: false
                         showFiat: false
                         fontPtSize: mainWindow.font.pointSize * 2
-                        opacity: blurredTotalBalance.visible ? 0 : 1
-                    }
-                    FastBlur {
-                        id: blurredTotalBalance
-                        anchors.fill: parent
-                        anchors.margins: -5
-                        visible: Pay.hideBalance
-                        source: totalBalance
-                        radius: 58
+                        opacity: Pay.hideBalance ? 0.2 : 1
                     }
                 }
                 Label {
@@ -513,7 +496,7 @@ ApplicationWindow {
                     height: balance.height + (showDetails ? extraBalances.height + 20 : 0)
                     Flowee.BitcoinAmountLabel {
                         id: balance
-                        opacity: blurredBalance.visible ? 0 : 1
+                        opacity: Pay.hideBalance ? 0.2 : 1
                         value: {
                             if (isLoading)
                                 return 0;
@@ -533,14 +516,7 @@ ApplicationWindow {
                             return mainWindow.font.pointSize * 3
                         }
                     }
-                    FastBlur {
-                        id: blurredBalance
-                        anchors.fill: parent
-                        anchors.margins: -5
-                        visible: Pay.hideBalance
-                        source: balance
-                        radius: 58
-                    }
+
                     GridLayout {
                         id: extraBalances
                         visible: parent.showDetails
@@ -594,7 +570,7 @@ ApplicationWindow {
                         color: mainWindow.palette.window
                         opacity: 0.8
                         anchors.fill: parent
-                        anchors.topMargin: 6
+                        anchors.topMargin: 2
                         visible: !mainWindow.isLoading && portfolio.current.needsPinToOpen && !portfolio.current.isDecrypted
                     }
 
