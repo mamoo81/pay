@@ -101,8 +101,10 @@ void NotificationManager::newBlockSeen(int blockHeight)
     args << QVariant(m_blockNotificationId); // replaces-id
     args << QString(); // app_icon (not needed since we say which desktop file we are)
     args << QString(); // body-text
-    args << tr("BCH block mined %1").arg(blockHeight); // summary text
-    // args << QString(); // body-text
+    if (FloweePay::instance()->chain() == P2PNet::MainChain)
+        args << tr("Bitcoin Cash block mined. Height: %1").arg(blockHeight); // summary text
+    else
+        args << tr("tBCH (testnet4) block mined: %1").arg(blockHeight); // summary text
     QStringList actions; // actions
     actions << "mute" << tr("Mute");
     args << actions;
