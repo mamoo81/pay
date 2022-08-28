@@ -20,8 +20,8 @@ import QtQuick 2.11
 Item {
     id: arrowPoint
     property alias color: rotatedRect.color
-    width: 10
-    height: 20
+    width: 7
+    height: 12
 
     clip: true
     Rectangle {

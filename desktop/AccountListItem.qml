@@ -23,7 +23,7 @@ import "widgets" as Flowee
 Item {
     id: root
     property QtObject account: null
-    height: column.height + 26
+    height: column.height + 18
     signal clicked;
 
     //background
@@ -31,12 +31,12 @@ Item {
         property bool selected: portfolio.current === account
 
         anchors.fill: parent
-        anchors.margins: 5
+        anchors.bottomMargin: 6
         id: background
         property bool hover: false
-        radius: 10
+        radius: 7
         color: selected && !Pay.useDarkSkin ? "white" : "#00000000" // transparant
-        border.width: 3
+        border.width: 1.5
         border.color: {
             if (portfolio.current === account)
                 return mainWindow.floweeGreen
@@ -48,10 +48,10 @@ Item {
 
     Column {
         id: column
-        spacing: 4
-        x: 30
-        y: 12
-        width: parent.width - 40
+        spacing: 3
+        x: 20
+        y: 6
+        width: parent.width // - 13
         /*
         Label {
             text: "Savings Account"
@@ -88,10 +88,10 @@ Item {
 
     Rectangle {
         color: Pay.useDarkSkin ? mainWindow.floweeSalmon : mainWindow.floweeBlue
-        width: 16
-        height: 16
-        radius: 8
-        x: 14
+        width: 7
+        height: 7
+        radius: 7
+        x: 12
         anchors.verticalCenter: parent.verticalCenter
 
         visible: {
@@ -104,7 +104,7 @@ Item {
 
     Flowee.ArrowPoint {
         id: point
-        x: 5
+        x: 1.3
         visible: portfolio.current === account;
         anchors.verticalCenter: parent.verticalCenter
         color: background.border.color
@@ -123,8 +123,8 @@ Item {
     AccountConfigMenu {
         id: accountConfigMenu
         anchors.right: parent.right
-        anchors.rightMargin: 15
-        y: 13
+        anchors.rightMargin: 6
+        y: 6
         account: root.account
     }
 }

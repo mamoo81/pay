@@ -105,7 +105,7 @@ GridLayout {
             delegate:
                 Item {
                     width: rightColumn.width
-                    height: modelData === null ? 8 : (10 + inAddress.height)
+                    height: modelData === null ? 6 : (5 + inAddress.height)
                     Flowee.ArrowPoint {
                         id: arrowPoint
                         anchors.bottom: parent.bottom
@@ -117,16 +117,16 @@ GridLayout {
                         anchors.left: arrowPoint.right
                         anchors.leftMargin: -2 // overlap the line and the arrow
                         anchors.bottom: arrowPoint.bottom
-                        anchors.bottomMargin: 9
+                        anchors.bottomMargin: 6
                         anchors.right: parent.horizontalCenter
-                        height: 3
+                        height: 1.6
                     }
                     Label {
                         id: inIndex
                         text: index
                         visible: modelData !== null
                         anchors.left: arrowPoint.right
-                        anchors.leftMargin: 10
+                        anchors.leftMargin: 6
                         anchors.bottom: arrowLine.top
                     }
                     Rectangle {
@@ -154,9 +154,9 @@ GridLayout {
                         visible: modelData !== null
                         anchors.bottom: arrowLine.top
                         anchors.left: inIndex.right
-                        anchors.leftMargin: 10
+                        anchors.leftMargin: 6
                         anchors.right: amount.left
-                        anchors.rightMargin: 20
+                        anchors.rightMargin: 10
                     }
                     Flowee.BitcoinAmountLabel {
                         id: amount
@@ -182,7 +182,7 @@ GridLayout {
             delegate:
                 Item {
                     width: rightColumn.width
-                    height: modelData === null ? 12 : (10 + outAddress.height)
+                    height: modelData === null ? 6 : (5 + outAddress.height)
                     Rectangle {
                         id: outArrowLine
                         /*
@@ -193,10 +193,10 @@ GridLayout {
                         color: modelData === null ? "grey" : (modelData.forMe ? "#c5c537" : "#67671d")
                         anchors.left: parent.horizontalCenter
                         anchors.bottom: outArrowPoint.bottom
-                        anchors.bottomMargin: 9
+                        anchors.bottomMargin: 6
                         anchors.right: outArrowPoint.right
-                        anchors.rightMargin: -2 // overlap the line and the arrow
-                        height: 3
+                        anchors.rightMargin: -1 // overlap the line and the arrow
+                        height: 1.6
                     }
                     Flowee.ArrowPoint {
                         id: outArrowPoint
@@ -209,7 +209,7 @@ GridLayout {
                         visible: modelData !== null
                         text: index
                         anchors.left: parent.left
-                        anchors.leftMargin: 10
+                        anchors.leftMargin: 6
                         anchors.bottom: outArrowLine.top
                     }
                     Rectangle {
@@ -237,8 +237,8 @@ GridLayout {
                         }
                         clipboardText: modelData === null ? "" : modelData.address
                         anchors.left: outIndex.right
-                        anchors.leftMargin: 10
-                        anchors.rightMargin: 20
+                        anchors.leftMargin: 6
+                        anchors.rightMargin: 10
                         anchors.right: outAmount.left
                         anchors.bottom: outArrowLine.top
                     }
@@ -250,9 +250,9 @@ GridLayout {
                         colorize: modelData !== null && modelData.forMe
                         fontPtSize: date.font.pointSize
                         anchors.right: outArrowPoint.left
-                        anchors.rightMargin: 4
+                        anchors.rightMargin: 2
                         anchors.bottom: outArrowLine.top
-                        anchors.bottomMargin: 10
+                        anchors.bottomMargin: 6
                     }
                 }
         }

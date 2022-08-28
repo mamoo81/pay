@@ -55,18 +55,20 @@ FocusScope {
         Repeater {
             model: stack.children.length
             delegate: Item {
-                height: payTabButtonText.height + 20
+                height: payTabButtonText.height + 10
                 width: floweeTabBar.width / stack.children.length;
 
                 Row {
                     height: parent.height
                     anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 10
+                    spacing: 6
                     Image {
                         visible: source != ""
                         source: stack.children[index].icon
                         anchors.bottom: payTabButtonText.baseline
                         anchors.bottomMargin: -2
+                        width: height
+                        height: payTabButtonText.height
                     }
                     Label {
                         id: payTabButtonText
@@ -85,8 +87,8 @@ FocusScope {
                 Rectangle {
                     id: highlight
                     width: parent.width - 6
-                    x: 3
-                    height: 4
+                    x: 1
+                    height: 2
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 1
                     property bool hover: false

@@ -47,8 +47,8 @@ ScrollBar {
         property bool open: false
         property bool moving: root.active || thumbInput.engaged
         onMovingChanged: if (moving) open = true
-        width: 26
-        height: 42
+        width: 18
+        height: 30
         x: moving || open ? parent.width - width: parent.width + 2
         y: {
             var pos = root.position
@@ -67,7 +67,7 @@ ScrollBar {
             id: column
             spacing: 2
             anchors.centerIn: parent
-            width: thumbRect.width - 10
+            width: thumbRect.width - 6
             Repeater {
                 model: 3
                 delegate: Rectangle {

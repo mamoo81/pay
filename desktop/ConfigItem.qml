@@ -20,7 +20,7 @@ import QtQuick.Controls 2.11
 
 Item {
     id: root
-    width: wide ? 10 : 4
+    width: wide ? 7 : 2
     height: column.height
     property color color: Pay.useDarkSkin ? "white" : "black"
     property bool wide: false
@@ -42,22 +42,22 @@ Item {
 
     Column {
         id: column
-        spacing: 3
+        spacing: 2
         y: 1 // move the column down to account for the anti-alias line of the rectangle below
 
         Repeater {
             model: 3
             delegate: Rectangle {
                 color: root.color
-                width: root.wide ? 14 : 3
-                height: 3
-                radius: 3
+                width: root.wide ? 9 : 2
+                height: 2
+                radius: 2
             }
         }
     }
     MouseArea {
         anchors.fill: parent
-        anchors.margins: -15
+        anchors.margins: -10
         hoverEnabled: true // to make sure we eat them and avoid the hover feedback.
         acceptedButtons: Qt.RightButton | Qt.LeftButton
         cursorShape: Qt.PointingHandCursor

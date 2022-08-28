@@ -28,17 +28,17 @@ Item {
     Image {
         id: lockIcon
         source: Pay.useDarkSkin ? "qrc:/lock-light.svg" : "qrc:/lock-dark.svg"
-        height: parent.height + 4
+        height: parent.height + 2
         width: height
         opacity: root.account.isDecrypted ? 0.65 : 1
-        y: -5
+        y: -3
     }
     Label {
         id: encryptionStatusLabel
         wrapMode: Text.WordWrap
         font.italic: true
         anchors.left: lockIcon.right
-        anchors.leftMargin: 6
+        anchors.leftMargin: 3
         text: {
             var txt = "";
             if (root.account.needsPinToPay)

@@ -26,8 +26,8 @@ ApplicationWindow {
     visible: true
     width: Pay.windowWidth === -1 ? 750 : Pay.windowWidth
     height: Pay.windowHeight === -1 ? 500 : Pay.windowHeight
-    minimumWidth: 800
-    minimumHeight: 600
+    minimumWidth: 400
+    minimumHeight: 300
     title: "Flowee Pay"
 
     onWidthChanged: Pay.windowWidth = width
@@ -67,9 +67,9 @@ ApplicationWindow {
             width: parent.width
             height: {
                 var h = mainWindow.height;
-                if (h > 800)
-                    return 120;
-                return h / 800 * 120;
+                if (h > 500)
+                    return 78;
+                return h / 8;
             }
 
             Rectangle {
@@ -87,7 +87,7 @@ ApplicationWindow {
             Image {
                 id: appLogo
                 anchors.verticalCenter: parent.verticalCenter
-                x: 20
+                x: 15
                 smooth: true
                 source: "qrc:/FloweePay-light.svg"
                 // ratio: 77 / 449
@@ -149,7 +149,7 @@ ApplicationWindow {
 
         Item {
             id: tabbedPane
-            width: parent.width * 65 / 100
+            width: Math.max(parent.width - 270, parent.width * 65 / 100)
             anchors.right: parent.right
             anchors.top: header.bottom
             anchors.topMargin: -1 * tabbar.headerHeight
@@ -180,18 +180,18 @@ ApplicationWindow {
                     Column {
                         id: activityHeader
                         width: parent.width
-                        spacing: 10
+                        spacing: 6
                         Rectangle {
                             width: parent.width
                             height: warn.height + unarchiveButton.height + 26
                             color: Pay.useDarkSkin ? "#c1ba58" : "#f6e992"
                             visible: !isLoading && portfolio.current.isArchived
-                            radius: 10
+                            radius: 7
                             Text {
                                 id: warn
-                                y: 10
-                                x: 10
-                                width: parent.width - 20
+                                y: 6
+                                x: 6
+                                width: parent.width - 10
                                 horizontalAlignment: Text.AlignHCenter
 
                                 color: "black"
@@ -217,7 +217,7 @@ ApplicationWindow {
                             color: Pay.useDarkSkin ? "#c1ba58" : "#f6e992"
                             visible: !isLoading && portfolio.current.needsPinToOpen
                                         && !portfolio.current.isDecrypted
-                            radius: 10
+                            radius: 7
                             onVisibleChanged: {
                                 decryptError.visible = false
                                 decryptPwd.text = ""
@@ -225,8 +225,8 @@ ApplicationWindow {
 
                             Text {
                                 id: decryptText
-                                y: 10
-                                x: 10
+                                y: 6
+                                x: 6
                                 width: parent.width - 20
                                 horizontalAlignment: Text.AlignHCenter
 
@@ -283,16 +283,10 @@ ApplicationWindow {
                                 }
                             }
                         }
-
                     }
                     ListView {
                         id: activityView
-                        /*
-                         Warning; (Qt5.15) do NOT guard the below `model` line with any isLoading stuff, it will
-                         break showing the model properly after the default wallet gets decrypted just
-                         after start.
-                        */
-                        model:  portfolio.current.transactions
+                        model: isLoading ? 0 :  portfolio.current.transactions
                         clip: true
                         delegate: WalletTransaction { width: activityView.width }
                         anchors.top: activityHeader.bottom
@@ -304,8 +298,8 @@ ApplicationWindow {
                             minimumSize: 20 / activityView.height
                             visible: size < 0.9
                             preview: Rectangle {
-                                width: label.width + 20
-                                height: label.height + 20
+                                width: label.width + 12
+                                height: label.height + 12
                                 radius: 5
                                 color: label.palette.dark
                                 Label {
@@ -410,14 +404,17 @@ ApplicationWindow {
             // the whole area left of the tabbed panels.
             id: overviewPane
             anchors.left: parent.left
+            anchors.leftMargin: 6
             anchors.right: tabbedPane.left
+            anchors.rightMargin: 12
             anchors.bottom: parent.bottom
+            anchors.bottomMargin: 6
             anchors.top: header.bottom
 
             Column {
                 id: balances
-                x: 10
-                width: parent.width - 30
+                spacing: 3
+                width: parent.width
 
                 // the total balance is for most people not this one, but the balanceInHeader one.
                 // we only show this one when the header one decides it can't be seen.
@@ -457,8 +454,8 @@ ApplicationWindow {
                 }
                 Item { // spacer
                     visible: totalBalanceLabel.visible
-                    width: 10
-                    height: 50
+                    width: 1
+                    height: 18
                 }
                 Item {
                     height: balanceLabel.height
@@ -478,6 +475,8 @@ ApplicationWindow {
                         }
                         smooth: true
                         opacity: 0.5
+                        height: 14
+                        width: 14
                         MouseArea {
                             anchors.fill: parent
                             cursorShape: Qt.PointingHandCursor
@@ -492,8 +491,8 @@ ApplicationWindow {
                 Item {
                     id: balanceDetailsPane
                     property bool showDetails: false
-                    width: balance.width
-                    height: balance.height + (showDetails ? extraBalances.height + 20 : 0)
+                    width: parent.width
+                    height: balance.height + (showDetails ? extraBalances.height + 10 : 0)
                     Flowee.BitcoinAmountLabel {
                         id: balance
                         opacity: Pay.hideBalance ? 0.2 : 1
@@ -520,11 +519,13 @@ ApplicationWindow {
                     GridLayout {
                         id: extraBalances
                         visible: parent.showDetails
-                        width: parent.width - 30
+                        width: parent.width / 0.9
                         anchors.top: balance.bottom
-                        anchors.topMargin: 10
+                        anchors.topMargin: 5
                         columns: 2
-                        x: 25
+                        scale: 0.9
+                        transformOrigin: Item.TopLeft
+                        clip: true
 
                         property QtObject account: mainWindow.isLoading ? null : portfolio.current
                         Label {
@@ -535,6 +536,7 @@ ApplicationWindow {
                             value: extraBalances.account == null ? 0 : extraBalances.account.balanceConfirmed
                             colorize: false
                             showFiat: false
+                            Layout.fillWidth: true
                         }
                         Label {
                             text: qsTr("Unconfirmed", "balance (money)") + ":"
@@ -600,7 +602,7 @@ ApplicationWindow {
                         property double prevPrice: 0
                         text: qsTr("1 BCH is: %1").arg(Fiat.formattedPrice(100000000, Fiat.price))
                         visible: Pay.isMainChain
-                        font.pixelSize: 18
+                        font.pixelSize: 12
 
                         Behavior on color { ColorAnimation { duration: 300 } }
                         onTextChanged: {
@@ -631,9 +633,9 @@ ApplicationWindow {
                     left: balances.left
                     right: balances.right
                     top: balances.bottom
-                    topMargin: 10
+                    topMargin: 8
                     bottom: parent.bottom
-                    bottomMargin: 10
+                    bottomMargin: 8
                 }
                 contentWidth: leftColumn.width
                 contentHeight: leftColumn.height
@@ -663,8 +665,8 @@ ApplicationWindow {
                         font.italic: true
                     }
                     Item { // spacer
-                        width: 10
-                        height: 40
+                        width: 1
+                        height: 20
                     }
                     Repeater { // the portfolio listing our accounts
                         width: parent.width
@@ -675,19 +677,19 @@ ApplicationWindow {
                         }
                     }
                     Item { // spacer
-                        width: 10
-                        height: 40
+                        width: 1
+                        height: 20
                     }
 
                     Rectangle { // button 'add bitcoin cash wallet'
                         color: mainWindow.floweeGreen
-                        radius: 10
+                        radius: 7
                         width: leftColumn.width
-                        height: buttonLabel.height + 30
+                        height: buttonLabel.height + 17
                         Text {
                             id: buttonLabel
                             anchors.centerIn: parent
-                            width: parent.width - 20
+                            width: parent.width - 10
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                             text: qsTr("Add Bitcoin Cash wallet")
                         }
@@ -699,8 +701,8 @@ ApplicationWindow {
                         }
                     }
                     Item { // spacer
-                        width: 10
-                        height: 40
+                        width: 1
+                        height: 20
                     }
                     Item {
                         // archived wallets label with hide button
@@ -717,7 +719,7 @@ ApplicationWindow {
                         }
                         Label {
                             id: archivedLabel
-                            x: showArchivedWalletsList.width + 10
+                            x: showArchivedWalletsList.width + 6
                             text: {
                                 if (isLoading)
                                     return ""
