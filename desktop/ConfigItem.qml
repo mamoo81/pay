@@ -20,7 +20,7 @@ import QtQuick.Controls 2.11
 
 Item {
     id: root
-    width: wide ? 7 : 2
+    width: wide ? 12 : 4
     height: column.height
     property color color: Pay.useDarkSkin ? "white" : "black"
     property bool wide: false
@@ -42,15 +42,15 @@ Item {
 
     Column {
         id: column
-        spacing: 2
+        spacing: 3
         y: 1 // move the column down to account for the anti-alias line of the rectangle below
 
         Repeater {
             model: 3
             delegate: Rectangle {
                 color: root.color
-                width: root.wide ? 9 : 2
-                height: 2
+                width: root.wide ? 12 : 4
+                height: 3
                 radius: 2
             }
         }

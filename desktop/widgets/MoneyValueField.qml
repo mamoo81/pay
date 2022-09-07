@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ FocusScope {
         }
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: (event)=> {
         if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
             privValue.insertNumber(event.key);
             event.accepted = true;
@@ -119,7 +119,7 @@ FocusScope {
             event.accepted = true;
         }
     }
-    Keys.onReleased: {
+    Keys.onReleased: (event)=> {
         if (event.matches(StandardKey.Paste)) {
             privValue.paste();
             event.accepted = true;

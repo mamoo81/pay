@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ ApplicationWindow {
 
         anchors.fill: parent
         focus: true
-        Keys.onPressed: {
+        Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_Escape) {
                 root.visible = false;
                 event.accepted = true

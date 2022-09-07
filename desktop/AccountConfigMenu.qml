@@ -30,11 +30,11 @@ ConfigItem {
         }
     }
     property QtObject archiveAction: Action {
-        text: root.account.isArchived ? qsTr("Unarchive") : qsTr("Archive Wallet")
+        text: root.account != null && root.account.isArchived ? qsTr("Unarchive") : qsTr("Archive Wallet")
         onTriggered: root.account.isArchived = !root.account.isArchived
     }
     property QtObject primaryAction: Action {
-        enabled: !root.account.isDefaultWallet
+        enabled: root.account != null && !root.account.isDefaultWallet
         text: enabled ? qsTr("Make Primary") : qsTr("★ Primary")
         onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
     }

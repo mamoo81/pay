@@ -65,33 +65,28 @@ ApplicationWindow {
             id: header
             color: Pay.useDarkSkin ? "#00000000" : mainWindow.floweeBlue
             width: parent.width
-            height: {
-                var h = mainWindow.height;
-                if (h > 500)
-                    return 78;
-                return h / 8;
-            }
+            height: 90
 
             Rectangle {
                 color: mainWindow.floweeBlue
                 opacity: Pay.useDarkSkin ? 1 : 0
 
-                width: parent.height / 5 * 4
-                height: width
-                radius: width / 2
-                x: 2
-                y: 8
+                width: 60
+                height: 60
+                radius: 30
+                x: 3
+                y: 11
                 Behavior on opacity { NumberAnimation { duration: 300 } }
             }
 
             Image {
                 id: appLogo
                 anchors.verticalCenter: parent.verticalCenter
-                x: 15
+                x: 17
                 smooth: true
                 source: "qrc:/FloweePay-light.svg"
                 // ratio: 77 / 449
-                height: (parent.height - 20) * 7 / 10
+                height: 40
                 width: height * 449 / 77
             }
 
@@ -106,16 +101,16 @@ ApplicationWindow {
                     var minX = appLogo.width + totalFiatLabel.width + 50 // 50 is spacing
                     return x > minX;
                 }
-                width: totalBalance2.width
-                height: totalBalance2.height
+                width: totalBalance.width
+                height: totalBalance.height
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: tabbar.headerHeight + 5
                 anchors.right: parent.right
                 anchors.rightMargin: 10
-                baselineOffset: totalBalance2.baselineOffset
+                baselineOffset: totalBalance.baselineOffset
 
                 Flowee.BitcoinAmountLabel {
-                    id: totalBalance2
+                    id: totalBalance
                     value: {
                         if (isLoading)
                             return 0;
@@ -416,47 +411,6 @@ ApplicationWindow {
                 spacing: 3
                 width: parent.width
 
-                // the total balance is for most people not this one, but the balanceInHeader one.
-                // we only show this one when the header one decides it can't be seen.
-                Label {
-                    id: totalBalanceLabel
-                    visible: (mainWindow.isLoading || portfolio.accounts.length > 1) && !balanceInHeader.visible
-                    text: qsTr("Total balance");
-                    height: implicitHeight / 10 * 9
-                }
-                Item {
-                    visible: totalBalanceLabel.visible
-                    width: totalBalance.width
-                    height: totalBalance.height
-                    Flowee.BitcoinAmountLabel {
-                        id: totalBalance
-                        value: {
-                            if (isLoading)
-                                return 0;
-                            if (Pay.hideBalance)
-                                return 88888888;
-                            return portfolio.totalBalance
-                        }
-                        colorize: false
-                        showFiat: false
-                        fontPtSize: mainWindow.font.pointSize * 2
-                        opacity: Pay.hideBalance ? 0.2 : 1
-                    }
-                }
-                Label {
-                    text: {
-                        if (Pay.hideBalance && Pay.isMainChain)
-                            return "-- " + Fiat.currencyName
-                        return Fiat.formattedPrice(totalBalance.value, Fiat.price)
-                    }
-                    visible: totalBalanceLabel.visible
-                    opacity: 0.6
-                }
-                Item { // spacer
-                    visible: totalBalanceLabel.visible
-                    width: 1
-                    height: 18
-                }
                 Item {
                     height: balanceLabel.height
                     width: parent.width
@@ -589,11 +543,7 @@ ApplicationWindow {
                     }
                     opacity: 0.6
                 }
-                Item { // spacer
-                    visible: fiatValue.visible
-                    width: 10
-                    height: 20
-                }
+                Item { width: 1; height: fiatValue.visible ? 10 : 0 } // spacer
                 Item {
                     width: parent.width
                     height: fiatValue.height
@@ -602,7 +552,6 @@ ApplicationWindow {
                         property double prevPrice: 0
                         text: qsTr("1 BCH is: %1").arg(Fiat.formattedPrice(100000000, Fiat.price))
                         visible: Pay.isMainChain
-                        font.pixelSize: 12
 
                         Behavior on color { ColorAnimation { duration: 300 } }
                         onTextChanged: {
@@ -622,8 +571,8 @@ ApplicationWindow {
 
                     AccountConfigMenu {
                         anchors.right: parent.right
-                        visible: portfolio.singleAccountSetup
-                        account: portfolio.current
+                        visible: isLoading ? false : portfolio.singleAccountSetup
+                        account: isLoading ? null : portfolio.current
                     }
                 }
             }
@@ -685,13 +634,14 @@ ApplicationWindow {
                         color: mainWindow.floweeGreen
                         radius: 7
                         width: leftColumn.width
-                        height: buttonLabel.height + 17
+                        height: buttonLabel.height + 28
                         Text {
                             id: buttonLabel
                             anchors.centerIn: parent
-                            width: parent.width - 10
+                            width: Math.min(parent.width - 10, implicitWidth)
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                             text: qsTr("Add Bitcoin Cash wallet")
+                            horizontalAlignment: Qt.AlignHCenter
                         }
 
                         MouseArea {
@@ -765,7 +715,7 @@ ApplicationWindow {
             Behavior on opacity { NumberAnimation { duration: 300 } }
         }
 
-        Keys.onPressed: {
+        Keys.onPressed: (event)=> {
             if ((event.modifiers & Qt.ControlModifier) !== 0) {
                 if (event.key === Qt.Key_Q) {
                     mainWindow.close()
