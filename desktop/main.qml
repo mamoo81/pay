@@ -121,7 +121,7 @@ ApplicationWindow {
                     colorize: false
                     color: "white"
                     showFiat: false
-                    fontPtSize: mainWindow.font.pointSize * 2
+                    fontPixelSize: 28
                     opacity: Pay.hideBalance ? 0.2 : 1
                 }
             }
@@ -131,6 +131,7 @@ ApplicationWindow {
                 anchors.right: balanceInHeader.left
                 anchors.rightMargin: 10
                 color: "white"
+                font.pixelSize: 15
 
                 text: {
                     if (Pay.hideBalance && Pay.isMainChain)
@@ -463,10 +464,10 @@ ApplicationWindow {
                         colorize: false
                         showFiat: false
                         color: mainWindow.palette.text
-                        fontPtSize: {
-                            if (leftColumn.width < 300)
-                                return mainWindow.font.pointSize * 2
-                            return mainWindow.font.pointSize * 3
+                        fontPixelSize: {
+                            if (leftColumn.width < 240) // max width is 252
+                                return leftColumn.width / 7
+                            return 36;
                         }
                     }
 
@@ -534,10 +535,9 @@ ApplicationWindow {
                 }
                 Label {
                     text: {
-                        if (mainWindow.isLoading)
+                        if (mainWindow.isLoading || !Pay.isMainChain)
                             return "";
-                        if (Pay.hideBalance && Pay.isMainChain
-                                || (portfolio.current.needsPinToOpen && !portfolio.current.isDecrypted))
+                        if (Pay.hideBalance || (portfolio.current.needsPinToOpen && !portfolio.current.isDecrypted))
                             return "-- " + Fiat.currencyName;
                         return Fiat.formattedPrice(balance.value, Fiat.price);
                     }

@@ -36,7 +36,7 @@ Control {
     signal editingFinished;
     property alias readOnly: textEdit.readOnly
 
-    implicitHeight: textEdit.implicitHeight + 20
+    implicitHeight: textEdit.implicitHeight + 10
     implicitWidth: 100
     width: 100
     height: implicitHeight
@@ -64,10 +64,10 @@ Control {
 
     TextEdit {
         id: textEdit
-        x: 10
-        y: 10
-        width: parent.width - 20
-        height: parent.height - 20
+        x: 5
+        y: 5
+        width: parent.width - 10
+        height: parent.height - 10
         activeFocusOnTab: true
         color: showingPlaceholder ? Qt.darker(root.palette.text, Pay.useDarkSkin ? 1.6 : 0.65) : root.palette.text
         selectedTextColor: root.palette.highlightedText
@@ -106,6 +106,6 @@ Control {
     background: Rectangle {
         color: "#00000000"
         border.color: textEdit.activeFocus ? root.palette.highlight : root.palette.mid
-        border.width: 1.5
+        border.width: 0.8
     }
 }

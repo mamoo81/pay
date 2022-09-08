@@ -23,10 +23,10 @@ import "widgets" as Flowee
 ApplicationWindow {
     id: root
     visible: false
-    minimumWidth: 300
-    minimumHeight: 400
-    width: 500
-    height: 600
+    minimumWidth: 200
+    minimumHeight: 200
+    width: 400
+    height: 500
     title: qsTr("Peers (%1)", "", net.peers.length).arg(net.peers.length)
     modality: Qt.NonModal
     flags: Qt.Dialog

@@ -246,7 +246,6 @@ Pane {
             spacing: 10
             Flowee.BitcoinValueField {
                 id: bitcoinValueField
-                fontPtSize: payAmount.font.pointSize
                 enabled: receivePane.request.state === PaymentRequest.Unpaid
                 onValueChanged: receivePane.request.amount = value
             }

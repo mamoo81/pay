@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11 as QQC2
 import "../ControlColors.js" as ControlColors
 
-// This is a silly hack to introduce a visual difference
+// This is silly to be needed, but we want to introduce a visual difference
 // between enabled and disabled buttons.
 QQC2.Button {
     id: button
@@ -33,7 +33,7 @@ QQC2.Button {
         ControlColors.applySkin(this);
         if (!enabled) {
             palette.buttonText = Pay.useDarkSkin
-                ? Qt.darker(palette.buttonText)
+                ? Qt.darker(palette.buttonText, 1.8)
                 : Qt.lighter(palette.buttonText, 2)
             palette.button = Qt.darker(palette.button, 1.2)
         }

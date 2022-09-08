@@ -58,7 +58,7 @@ ConfigItem {
     onAboutToOpen: {
         var items = [];
         var onMainView = (accountOverlay.state === "showTransactions")
-        if (onMainView)
+        if (onMainView || accountOverlay.state == "accountDetails")
             items.push(detailsAction);
         var encrypted = root.account.needsPinToOpen;
         var decrypted = root.account.isDecrypted;

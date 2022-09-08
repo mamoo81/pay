@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,5 +22,24 @@ import QtQuick.Controls 2.11 as QQC2
  * Sane defaults.
  */
 QQC2.TextField {
+    id: root
     selectByMouse: true
+    // In Qt6.3 this is just always black, so adjust to color
+    placeholderTextColor: Pay.useDarkSkin ? "#cecece" : "#3e3e3e"
+
+    background: Rectangle {
+            implicitHeight: root.implicitHeight
+            implicitWidth: 140
+            color: {
+                if (root.enabled)
+                    return Pay.useDarkSkin ? "#2c2f33" : "#e9e8e7";
+                return "#00000000";
+            }
+            border.color: {
+                if (root.enabled)
+                    return root.activeFocus ? root.palette.highlight : root.palette.button
+                return "transparant";
+            }
+            border.width: 0.8
+    }
 }

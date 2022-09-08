@@ -31,7 +31,7 @@ GridLayout {
         menuText: qsTr("Copy transaction-ID")
         Layout.columnSpan: 2
         text: model.txid
-        font.pointSize: 7
+        font.pixelSize: 12
     }
     Label {
         text: qsTr("Status") + ":"
@@ -163,7 +163,6 @@ GridLayout {
                         visible: modelData !== null
                         value: modelData === null ? 0 : (-1 * modelData.value)
                         fiatTimestamp: root.minedDate
-                        fontPtSize: date.font.pointSize
                         anchors.right: parent.right
                         anchors.bottom: arrowLine.top
                     }
@@ -248,7 +247,6 @@ GridLayout {
                         value: modelData === null ? 0 : modelData.value
                         fiatTimestamp: root.minedDate
                         colorize: modelData !== null && modelData.forMe
-                        fontPtSize: date.font.pointSize
                         anchors.right: outArrowPoint.left
                         anchors.rightMargin: 2
                         anchors.bottom: outArrowLine.top

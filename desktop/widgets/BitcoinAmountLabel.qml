@@ -36,7 +36,7 @@ Control {
      */
     property var fiatTimestamp: null
     property color color: palette.text
-    property alias fontPtSize: main.font.pointSize
+    property alias fontPixelSize: main.font.pixelSize
 
     implicitHeight: row.implicitHeight
     implicitWidth: Math.max(row.maxWidth, row.implicitWidth)

@@ -111,14 +111,14 @@ ScrollBar {
         property int startY: 0
         property real startPos: 0
         property bool engaged: false // seems that 'Mousearea.pressed' behaves different than I expect, this works better
-        onPressed: {
+        onPressed: (mouse)=> {
             startY = root.flickable.mapFromItem(thumbInput, mouse.x, mouse.y).y
             startPos = root.position
             engaged = true
         }
         onReleased: engaged = false
         preventStealing: true
-        onPositionChanged: {
+        onPositionChanged: (mouse)=> {
             // Most of the scroller properties are in the 0.0 - 1.0 range
             var absolutePos = root.flickable.mapFromItem(thumbInput, mouse.x, mouse.y);
             var diff = startY - absolutePos.y;

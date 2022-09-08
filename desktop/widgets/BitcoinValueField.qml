@@ -28,7 +28,7 @@ MoneyValueField  {
     implicitHeight: balance.height + 16
     implicitWidth: balance.width + 16
 
-    property alias fontPtSize: balance.fontPtSize
+    property alias fontPixelSize: balance.fontPixelSize
     property double baselineOffset: balance.baselineOffset + balance.y
 
     BitcoinAmountLabel {

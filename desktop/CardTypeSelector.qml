@@ -26,7 +26,7 @@ Item {
 
     property bool selected: parent.selectedKey === key
     width: name.width * 2
-    height: 300
+    height: 270
 
     Rectangle {
         color: {
@@ -35,7 +35,7 @@ Item {
                 return parent.selected ? Qt.lighter(base, 1.4) : Qt.darker(base, 0.9)
             return parent.selected ? Qt.darker(base, 1.04) : Qt.darker(base, 1.1)
         }
-        border.width: parent.selected ? 5 : 2
+        border.width: parent.selected ? 5 : 0.8
         border.color: parent.selected ? name.palette.mid : name.palette.alternateBase
         width: parent.width
         height: parent.selected ? parent.height : parent.height - 50

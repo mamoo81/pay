@@ -52,7 +52,7 @@ Pane {
             color: "#00000000"
             radius: 6
             border.color: mainWindow.palette.button
-            border.width: 2
+            border.width: 0.8
 
             implicitHeight: units.height + 10
             implicitWidth: units.width + 10
