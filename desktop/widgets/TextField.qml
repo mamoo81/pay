@@ -28,7 +28,7 @@ QQC2.TextField {
     placeholderTextColor: Pay.useDarkSkin ? "#cecece" : "#3e3e3e"
 
     background: Rectangle {
-            implicitHeight: root.implicitHeight
+            implicitHeight: root.contentHeight + 2
             implicitWidth: 140
             color: {
                 if (root.enabled)

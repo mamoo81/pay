@@ -25,16 +25,16 @@ import Flowee.org.pay 1.0
  */
 MoneyValueField  {
     id: root
-    implicitHeight: balance.height + 16
-    implicitWidth: balance.width + 16
+    implicitHeight: balance.height + 12
+    implicitWidth: balance.width + 12
 
     property alias fontPixelSize: balance.fontPixelSize
     property double baselineOffset: balance.baselineOffset + balance.y
 
     BitcoinAmountLabel {
         id: balance
-        x: 8
-        y: 8
+        x: 6
+        y: 6
         value: root.value
         colorize: false
         visible: !root.activeFocus
@@ -45,7 +45,7 @@ MoneyValueField  {
     Label {
         id: unit
         text: Pay.unitName
-        y: 8
+        y: 6
         anchors.right: parent.right
         anchors.rightMargin: 8
         visible: root.activeFocus

@@ -605,16 +605,16 @@ Item {
                     height: warningColumn.height + 20 + destination.height
                     Rectangle {
                         anchors.fill: warningColumn
-                        anchors.margins: -10
+                        anchors.margins: -7
                         color: warning.palette.window
-                        border.width: 3
+                        border.width: 2
                         border.color: "red"
                         radius: 10
                     }
                     Flowee.ArrowPoint {
                         x: 20
                         anchors.bottom: warningColumn.top
-                        anchors.bottomMargin: 5
+                        anchors.bottomMargin: 4
                         rotation: -90
                         color: "red"
                     }

@@ -64,7 +64,7 @@ FocusScope {
     Item { // edit-label
         visible: root.activeFocus
         x: 8
-        y: 8
+        y: 6
         Label {
             id: begin
             text: privValue.enteredString.substring(0, privValue.cursorPos)
@@ -73,7 +73,7 @@ FocusScope {
             id: cursor
             anchors.left: begin.right
             width: 1
-            height: root.height - 16
+            height: root.height - 12
             color: cursorVisible ? begin.palette.text : "#00000000"
             property bool cursorVisible: true
             Timer {
