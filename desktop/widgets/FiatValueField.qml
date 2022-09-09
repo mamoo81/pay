@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,17 +25,17 @@ import Flowee.org.pay 1.0
  */
 MoneyValueField  {
     id: root
-    implicitHeight: balance.height + 16
-    implicitWidth: Math.max(100, balance.width + 16)
+    implicitHeight: balance.height + 12
+    implicitWidth: Math.max(100, balance.width + 12)
 
-    property alias fontPtSize: balance.font.pointSize
+    property alias fontPixelSize: balance.font.pixelSize
     property double baselineOffset: balance.baselineOffset + balance.y
     valueObject.maxFractionalDigits: Fiat.displayCents ? 2 : 0
 
     Label {
         id: balance
-        x: 8
-        y: 8
+        x: 6
+        y: 6
         text: Fiat.formattedPrice(root.value)
         visible: !root.activeFocus
         color: root.enabled ? palette.text : palette.dark

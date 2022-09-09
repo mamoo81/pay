@@ -18,11 +18,11 @@ set(CMAKE_AUTOMOC ON)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}
-    ${Qt5Test_INCLUDE_DIRS}
+    ${Qt6Test_INCLUDE_DIRS}
 )
 
 add_executable(test_value TestValue.cpp)
 target_link_libraries(test_value
     pay_lib
-    Qt5::Test)
+    Qt6::Test)
 add_test(NAME Pay_test_value COMMAND test_value)

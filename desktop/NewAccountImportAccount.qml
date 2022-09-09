@@ -43,7 +43,6 @@ GridLayout {
     Flowee.MultilineTextField {
         id: secrets
         Layout.fillWidth: true
-        onTextChanged: if (!importAccount.isMnemonic) { text = text.trim(); }
         nextFocusTarget: accountName
         placeholderText: qsTr("Example: %1", "placeholder text").arg("L5bxhjPeQqVFgCLALiFaJYpptdX6Nf6R9TuKgHaAikcNwg32Q4aL")
     }
@@ -69,7 +68,7 @@ GridLayout {
 
         Label {
             id: detectedType
-            color: typedData === Pay.PartialMnemonicWithTypo ? "red" : feedback.color
+            color: typedData === Bitcoin.PartialMnemonicWithTypo ? "red" : feedback.color
             text: {
                 var typedData = importAccount.typedData
                 if (typedData === Bitcoin.PrivateKey)
@@ -151,7 +150,6 @@ GridLayout {
         }
         Flowee.TextField {
             id: startHeight
-            Layout.fillWidth: true
             validator: IntValidator{bottom: 0; top: 999999}
         }
         Label {
@@ -160,7 +158,7 @@ GridLayout {
         }
         Flowee.TextField {
             id: derivationPath
-            text: "m/44'/0'/0'" // What most BCH wallets are created with
+            text: "m/44'/0'/0'/0" // What most BCH wallets are created with
             visible: !importAccount.isPrivateKey
             color: Pay.checkDerivation(text) ? palette.text : "red"
         }

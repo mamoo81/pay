@@ -54,15 +54,13 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
 }
 
 Wallet::Wallet()
-    : m_lock(QMutex::Recursive),
-    m_walletChanged(true),
+    : m_walletChanged(true),
     m_walletVersion(2)
 {
 }
 
 Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint32_t encryptionSeed)
     : m_segment(new PrivacySegment(segmentId, this)),
-    m_lock(QMutex::Recursive),
     m_walletVersion(1), // after version 1 we saved the version in the secrets file.
     m_basedir(basedir / QString("wallet-%1/").arg(segmentId).toStdString()),
     m_encryptionSeed(encryptionSeed)

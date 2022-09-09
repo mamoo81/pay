@@ -247,7 +247,7 @@ FocusScope {
     }
 
 
-    Keys.onPressed: {
+    Keys.onPressed: (event)=> {
         if (event.key === Qt.Key_Escape) {
             accountOverlay.state = "showTransactions";
             event.accepted = true;

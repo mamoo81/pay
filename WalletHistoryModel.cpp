@@ -70,7 +70,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
         if (item.minedBlockHeight <= 0)
             return QVariant();
         auto header = FloweePay::instance()->p2pNet()->blockchain().block(item.minedBlockHeight);
-        return QVariant(QDateTime::fromTime_t(header.nTime));
+        return QVariant(QDateTime::fromSecsSinceEpoch(header.nTime));
     }
     case FundsIn: {
         qint64 value = 0;
@@ -142,7 +142,7 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     auto header = FloweePay::instance()->p2pNet()->blockchain().block(item.minedBlockHeight);
     if (header.nTime == 0)
         return QString();
-    return QDateTime::fromTime_t(header.nTime).toString("MMMM yyyy");
+    return QDateTime::fromSecsSinceEpoch(header.nTime).toString("MMMM yyyy");
 }
 
 void WalletHistoryModel::appendTransactions(int firstNew, int count)

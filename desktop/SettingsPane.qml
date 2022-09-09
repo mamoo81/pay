@@ -18,7 +18,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
-import QtGraphicalEffects 1.0
 
 import "./ControlColors.js" as ControlColors
 import "widgets" as Flowee
@@ -53,7 +52,7 @@ Pane {
             color: "#00000000"
             radius: 6
             border.color: mainWindow.palette.button
-            border.width: 2
+            border.width: 0.8
 
             implicitHeight: units.height + 10
             implicitWidth: units.width + 10

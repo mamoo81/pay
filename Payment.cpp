@@ -436,6 +436,28 @@ QList<QObject*> Payment::paymentDetails() const
 
 Payment::BroadcastStatus Payment::broadcastStatus() const
 {
+#if 0
+    // This default-disabled code-snippet is fun to allow developing the UX/GUI by stepping through the steps.
+    // Alter the 'i == 4' to another value to make it stop at the step you want to see longer.
+    static int i = 0;
+    static QTimer *timer = nullptr;
+    if (timer == nullptr) {
+        timer = new QTimer(const_cast<Payment*>(this));
+        timer->start(3000);
+        connect(timer, &QTimer::timeout, [=]() {
+            if (++i == 4)
+                timer->stop();
+            emit const_cast<Payment*>(this)->broadcastStatusChanged();
+        });
+    }
+    switch (i) {
+        case 0: return NotStarted;
+        case 1: return TxOffered;
+        case 3: return TxRejected;
+        case 4: return TxBroadcastSuccess;;
+        default: return TxWaiting;
+    }
+#endif
     if (!m_txBroadcastStarted)
         return NotStarted;
     if (m_sentPeerCount == 0)

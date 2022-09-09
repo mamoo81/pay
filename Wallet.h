@@ -412,7 +412,7 @@ private:
                          size_t unspentOutputCount) const;
 
     std::unique_ptr<PrivacySegment> m_segment;
-    mutable QMutex m_lock;
+    mutable QRecursiveMutex m_lock;
     /// used to determine if we need to persist the wallet
     bool m_walletChanged = false;
     /// Used to determine if we need to save the wallet-name file

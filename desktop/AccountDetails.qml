@@ -256,7 +256,8 @@ Item {
                 delegate: Rectangle {
                     id: delegateRoot
                     color: (index % 2) == 0 ? mainWindow.palette.base : mainWindow.palette.alternateBase
-                    width: ListView.view.width
+                    width: ListView.view.width + 10
+                    x: -5
                     height: addressLabel.height + 10 + amountLabel.height + 10
 
                     Label {
@@ -278,6 +279,7 @@ Item {
                         id: amountLabel
                         value: balance
                         anchors.right: parent.right
+                        anchors.rightMargin: 12
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 12
                     }
@@ -288,24 +290,33 @@ Item {
                         anchors.baseline: amountLabel.baseline
                         text: qsTr("Coins: %1 / %2").arg(numCoins).arg(historicalCoinCount)
                     }
-                    Label {
-                        id: schnorrIndicator
+                    Rectangle {
+                        visible: usedSchnorr
+                        width: schnorrIndicator.height
+                        height: width
+                        radius: width / 2
                         anchors.left: coinCountLabel.right
                         anchors.leftMargin: 10
-                        anchors.baseline: amountLabel.baseline
-                        visible: usedSchnorr
-                        text: "ⓢ"
-                        MouseArea {
-                            id: mousy
-                            anchors.fill: parent
-                            anchors.margins: -10
-                            hoverEnabled: true
+                        anchors.verticalCenter: amountLabel.verticalCenter
+                        anchors.margins: -4
+                        color: Pay.useDarkSkin ? "#838383" : "#ccc"
+                        Label {
+                            id: schnorrIndicator
+                            anchors.centerIn: parent/// .verticalCenter
+                            font.bold: true
+                            text: "S"
+                            MouseArea {
+                                id: mousy
+                                anchors.fill: parent
+                                anchors.margins: -10
+                                hoverEnabled: true
 
-                            ToolTip {
-                                parent: schnorrIndicator
-                                text: qsTr("Signed with Schnorr signatures in the past")
-                                delay: 700
-                                visible: mousy.containsMouse
+                                ToolTip {
+                                    parent: schnorrIndicator
+                                    text: qsTr("Signed with Schnorr signatures in the past")
+                                    delay: 700
+                                    visible: mousy.containsMouse
+                                }
                             }
                         }
                     }

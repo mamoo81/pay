@@ -145,7 +145,7 @@ FocusScope {
     }
 
     Component.onCompleted: forceActiveFocus() // we assume this component is used in a Loader
-    Keys.onPressed: {
+    Keys.onPressed: (event)=> {
         if (event.key === Qt.Key_Escape) {
             root.visible = false;
             event.accepted = true;

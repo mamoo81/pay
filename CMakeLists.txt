@@ -25,8 +25,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(Qt5 COMPONENTS Core Quick REQUIRED)
-find_package(Qt5 COMPONENTS DBus LinguistTools)
+find_package(Qt6 COMPONENTS Core Quick REQUIRED)
+find_package(Qt6 COMPONENTS DBus LinguistTools)
 find_package(QREncode REQUIRED)
 find_package(OpenSSL REQUIRED)
 message ("Using OpenSSL ${OPENSSL_VERSION}")
@@ -37,12 +37,6 @@ find_package(Boost 1.67.0
 )
 
 option(local_qml "Allow local QML loading" OFF)
-
-# starting with Qt5.15 we have a lot of deprecation warnings,
-# likely to make porting to Qt6 easier.
-# as long as we require linking to older Qt versions those warnings
-# are clutter. Remove this define when we start porting to Qt6.
-add_compile_definitions(QT_NO_DEPRECATED_WARNINGS)
 
 set (PAY_SOURCES
     AccountInfo.cpp
@@ -81,7 +75,7 @@ target_link_libraries(pay_lib
     flowee_p2p
     ${OPENSSL_LIBRARIES}
     ${Boost_LIBRARIES}
-    Qt5::Core Qt5::Quick ${Qt5DBus_LIBRARIES} ${QREncode_LIBRARIES})
+    Qt6::Core Qt6::Quick ${Qt6DBus_LIBRARIES} ${QREncode_LIBRARIES})
 
 #### Translations
 
@@ -90,18 +84,18 @@ set (TS_FILES_DESKTOP
     translations/floweepay-desktop_nl.ts
     translations/floweepay-desktop_pl.ts
 )
-qt5_add_translation(qmFiles1 ${TS_FILES_DESKTOP})
+qt6_add_translation(qmFiles1 ${TS_FILES_DESKTOP})
 set (TS_FILES_COMMON
     translations/floweepay-common_en.ts
     translations/floweepay-common_nl.ts
     translations/floweepay-common_pl.ts
 )
-qt5_add_translation(qmFiles2 ${TS_FILES_COMMON})
+qt6_add_translation(qmFiles2 ${TS_FILES_COMMON})
 set (TS_FILES_MOBILE
     translations/floweepay-mobile_nl.ts
     translations/floweepay-mobile_pl.ts
 )
-qt5_add_translation(qmFiles3 ${TS_FILES_MOBILE})
+qt6_add_translation(qmFiles3 ${TS_FILES_MOBILE})
 
 # notice that for this custom target we require CMake 3.13 minimum. But since
 # only the release manager will need to call this, we leave the project cmake
@@ -188,7 +182,7 @@ add_subdirectory(testing)
 message("")
 message("Configuration results:")
 message("----------------------")
-if (${Qt5DBus_FOUND})
+if (${Qt6DBus_FOUND})
     message("Found optional lib: QtDBus")
 else ()
     message("Missing QtDBus, skipping support for desktop notifications")

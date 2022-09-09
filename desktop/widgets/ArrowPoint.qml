@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,17 +20,17 @@ import QtQuick 2.11
 Item {
     id: arrowPoint
     property alias color: rotatedRect.color
-    width: 10
-    height: 20
+    width: 7
+    height: 12
 
     clip: true
     Rectangle {
         id: rotatedRect
-        width: parent.height / 1.41
+        width: parent.height / 1.41 - 1
         height: width
         rotation: 45
         transformOrigin: Item.Center
-        x: (width - parent.width) / 2 - (width / 2 * 1.41) + 2
-        y: (height - parent.width) / 2
+        x: (width - parent.width) / 2 - (width / 2 * 1.41) + 1
+        y: (height - parent.width) / 2 + 2.3
     }
 }

@@ -82,10 +82,10 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
     // since our fiat is in cents, we assume we may add up to two leading zeros.
     static const QString priceTemplate("00%1");
     QString centsPrice = priceTemplate.arg(std::abs(fiatValue));
-    const int offset = std::min(2, centsPrice.length() - 3); // number of those zeros to cut off again.
+    const int offset = std::min<int>(2, centsPrice.length() - 3); // number of those zeros to cut off again.
     const int length = centsPrice.length() - 2 - offset;
 
-    QStringRef actualPrice = centsPrice.midRef(offset, length);
+    QString actualPrice = centsPrice.mid(offset, length);
 
     QString dummy; // used when we inserted thousand separators. QStringRef needs the thing it refers to to outlive it.
     // group size is 3
@@ -97,13 +97,13 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
         for (int i = 0; i < actualPrice.length(); ++i) {
             // insert thousands separators.
             if (i > 0 && actualPrice.length() % 3  == i % 3)
-                buf[i + add++] = QLocale::system().groupSeparator().toLatin1();
+                buf[i + add++] = QLocale::system().groupSeparator().at(0).toLatin1();
 
             assert(actualPrice.at(i).unicode() < 127); // only digits
             buf[i + add] = actualPrice.at(i).unicode();
         }
         dummy = QString::fromLatin1(buf);
-        actualPrice = dummy.leftRef(dummy.size());
+        actualPrice = dummy.left(dummy.size());
     }
 
     if (m_displayCents) {

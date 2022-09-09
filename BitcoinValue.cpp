@@ -166,7 +166,7 @@ void BitcoinValue::setStringValue(const QString &value)
 
 QString BitcoinValue::enteredString() const
 {
-    const char decimalPoint = QLocale::system().decimalPoint().unicode();
+    const char decimalPoint = QLocale::system().decimalPoint().at(0).unicode();
     if (decimalPoint != '.') { // make the user-visible one always use the locale-aware decimalpoint.
         QString answer(m_typedNumber);
         answer.replace('.', decimalPoint);

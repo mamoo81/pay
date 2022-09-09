@@ -34,17 +34,15 @@ Item {
         id: slider
         width: implicitWidth
         height: implicitHeight
-        implicitWidth: 60
-        implicitHeight: 27
+        implicitWidth: 50
+        implicitHeight: 22
 
         Rectangle {
             anchors.fill: parent
             radius: parent.height / 3
             color: root.sliderOnIndicator && root.enabled && root.checked ? (Pay.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
-            border.color: root.activeFocus
-            ? mainWindow.palette.highlight
-            : mainWindow.palette.button
-            border.width: 2
+            border.color: root.activeFocus ? mainWindow.palette.highlight : mainWindow.palette.button
+            border.width: 0.8
 
             Behavior on color { ColorAnimation {}}
         }
@@ -116,7 +114,7 @@ Item {
             }
         }
     }
-    Keys.onPressed: {
+    Keys.onPressed: (event)=> {
         if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
             root.checked = !root.checked
             event.accepted = true

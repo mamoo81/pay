@@ -1,5 +1,5 @@
 /* * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ Control {
     signal editingFinished;
     property alias readOnly: textEdit.readOnly
 
-    implicitHeight: textEdit.implicitHeight + 20
+    implicitHeight: textEdit.implicitHeight + 10
     implicitWidth: 100
     width: 100
     height: implicitHeight
@@ -64,10 +64,10 @@ Control {
 
     TextEdit {
         id: textEdit
-        x: 10
-        y: 10
-        width: parent.width - 20
-        height: parent.height - 20
+        x: 5
+        y: 5
+        width: parent.width - 10
+        height: parent.height - 10
         activeFocusOnTab: true
         color: showingPlaceholder ? Qt.darker(root.palette.text, Pay.useDarkSkin ? 1.6 : 0.65) : root.palette.text
         selectedTextColor: root.palette.highlightedText
@@ -87,7 +87,7 @@ Control {
             }
         }
         onTextChanged: if (!showingPlaceholder) root.text = text
-        Keys.onPressed: {
+        Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_Tab && root.nextFocusTarget != null) {
                 // don't accept the tab, make it change focus
                 event.accepted = true;
@@ -106,6 +106,6 @@ Control {
     background: Rectangle {
         color: "#00000000"
         border.color: textEdit.activeFocus ? root.palette.highlight : root.palette.mid
-        border.width: 1.5
+        border.width: 0.8
     }
 }

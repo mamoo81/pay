@@ -20,7 +20,7 @@ import QtQuick.Controls 2.11
 
 Item {
     id: root
-    width: wide ? 10 : 4
+    width: wide ? 12 : 4
     height: column.height
     property color color: Pay.useDarkSkin ? "white" : "black"
     property bool wide: false
@@ -49,15 +49,15 @@ Item {
             model: 3
             delegate: Rectangle {
                 color: root.color
-                width: root.wide ? 14 : 3
+                width: root.wide ? 12 : 4
                 height: 3
-                radius: 3
+                radius: 2
             }
         }
     }
     MouseArea {
         anchors.fill: parent
-        anchors.margins: -15
+        anchors.margins: -10
         hoverEnabled: true // to make sure we eat them and avoid the hover feedback.
         acceptedButtons: Qt.RightButton | Qt.LeftButton
         cursorShape: Qt.PointingHandCursor

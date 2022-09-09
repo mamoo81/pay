@@ -96,7 +96,7 @@ QDateTime AccountInfo::lastBlockSynchedTime() const
     auto timestamp = FloweePay::instance()->p2pNet()->blockchain().block(m_wallet->segment()->lastBlockSynched()).nTime;
    if (timestamp == 0)
        return QDateTime();
-   return QDateTime::fromTime_t(timestamp);
+   return QDateTime::fromSecsSinceEpoch(timestamp);
 }
 
 QString AccountInfo::timeBehind() const
@@ -148,7 +148,7 @@ QDateTime AccountInfo::lastMinedTransaction() const
     auto timestamp = FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
     if (timestamp == 0)
         return QDateTime();
-    return QDateTime::fromTime_t(timestamp);
+    return QDateTime::fromSecsSinceEpoch(timestamp);
 }
 
 bool AccountInfo::isArchived() const

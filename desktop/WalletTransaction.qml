@@ -48,15 +48,15 @@ Item {
     Rectangle {
         id: isNewIndicator
         anchors.verticalCenter: mainLabel.verticalCenter
-        width: model.isNew ? mainLabel.height * 0.4 : 0
+        width: model.isNew ? 5 : 0 // avoid taking space
         height: width
-        radius: height
+        radius: width
         color: Pay.useDarkSkin ? mainWindow.floweeSalmon : mainWindow.floweeBlue
     }
     Label {
         id: mainLabel
         anchors.left: isNewIndicator.right
-        anchors.leftMargin: model.isNew ? 10 : 0
+        anchors.leftMargin: model.isNew ? 3 : 0
         text: {
             if (model.isCoinbase)
                 return qsTr("Miner Reward")
@@ -99,8 +99,10 @@ Item {
         id: fusedIcon
         visible: model.isCashFusion
         anchors.right: userComment.left
-        anchors.rightMargin: 10
+        anchors.rightMargin: 6
         anchors.verticalCenter: userComment.verticalCenter
+        width: 16
+        height: 16
     }
 
     Label {
@@ -111,7 +113,7 @@ Item {
             // Pick the widest label to be aligned to
             left: date.width > mainLabel.width ? date.right : mainLabel.right
             right: bitcoinAmountLabel.left
-            leftMargin: fusedIcon.visible ? 44 : 10
+            leftMargin: fusedIcon.visible ? 25 : 6
             rightMargin: 10
         }
         text: model.comment
@@ -142,7 +144,6 @@ Item {
         fiatTimestamp: model.date;
 
         anchors.top: mainLabel.top
-        fontPtSize: date.font.pointSize
         anchors.right: parent.right
     }
 
@@ -165,9 +166,9 @@ Item {
     Loader {
         id: detailsPane
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 10
-        x: 10 // indent it
-        width: parent.width - 10
+        anchors.bottomMargin: 6
+        x: 4 // indent it
+        width: parent.width - 6
         onLoaded: item.infoObject = portfolio.current.txInfo(model.walletIndex, item)
     }
 

@@ -290,7 +290,8 @@ Item {
                 name: "rejected" // a peer didn't like our tx
                 when: payment.broadcastStatus === Payment.TxRejected
                 extend: "preparing"
-                PropertyChanges { target: background; color: "#c80000" }
+                StateChangeScript { script: ControlColors.applyDarkSkin(broadcastFeedback) }
+                PropertyChanges { target: background; color: "#7f0000" }
                 PropertyChanges { target: circleShape; opacity: 0 }
                 PropertyChanges {
                     target: txidFeedbackLabel
@@ -367,7 +368,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: circleShape.bottom
                 anchors.topMargin: 10
-                font.pointSize: 24
+                font.pixelSize: 24
                 text: Fiat.formattedPrice(payment.effectiveFiatAmount)
                 visible: Fiat.price !== 0
             }
@@ -376,7 +377,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: fiatAmount.bottom
                 anchors.topMargin: 20
-                fontPtSize: 13
+                fontPixelSize: 28
                 value: payment.effectiveBchAmount
                 colorize: false
                 showFiat: false
@@ -604,16 +605,16 @@ Item {
                     height: warningColumn.height + 20 + destination.height
                     Rectangle {
                         anchors.fill: warningColumn
-                        anchors.margins: -10
+                        anchors.margins: -7
                         color: warning.palette.window
-                        border.width: 3
+                        border.width: 2
                         border.color: "red"
                         radius: 10
                     }
                     Flowee.ArrowPoint {
                         x: 20
                         anchors.bottom: warningColumn.top
-                        anchors.bottomMargin: 5
+                        anchors.bottomMargin: 4
                         rotation: -90
                         color: "red"
                     }

@@ -353,7 +353,7 @@ QString FloweePay::amountToString(qint64 price, UnitOfBitcoin unit)
         decimals = 2;
         break;
     }
-    const char decimalPoint = QLocale::system().decimalPoint().unicode();
+    const char decimalPoint = QLocale::system().decimalPoint().at(0).unicode();
 
     int stringLength = string.size();
     int neededSize = std::max(stringLength, decimals) + 1; // 1 for the decimalPoint.

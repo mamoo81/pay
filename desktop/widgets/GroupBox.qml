@@ -19,7 +19,7 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 
-Item {
+Control {
     id: root
 
     property bool collapsable: true
@@ -40,7 +40,7 @@ Item {
     onCollapsedChanged: effectiveCollapsed = collapsed
 
     width: 200 // should be changed by user
-    implicitHeight: arrowPoint.height + (effectiveCollapsed ? 0 : child.implicitHeight + 25) // 25 = 15 top, 5 bottom of content area
+    implicitHeight: Math.max(titleArea.height, arrowPoint.height) + (effectiveCollapsed ? 0 : child.implicitHeight + 25)
 
     Rectangle { // the outline
         width: parent.width
@@ -48,7 +48,7 @@ Item {
         height: root.effectiveCollapsed ? 1 : parent.height - y;
         color: "#00000000"
         border.color: titleLabel.palette.button
-        border.width: 2
+        border.width: 1.3
         radius: 3
     }
     MouseArea {
@@ -64,12 +64,13 @@ Item {
         id: titleArea
         visible: titleLabel.text !== ""
         color: titleLabel.palette.window
-        width: titleLabel.width + 18 + (summaryLabel.visible ? summaryLabel.width + 20 : 0)
+        width: titleLabel.width + 6 + (summaryLabel.visible ? summaryLabel.width + 6 : 0)
         height: titleLabel.height
         anchors.left: arrowPoint.right
-        Label {
+        Text {
             id: titleLabel
-            x: 12
+            x: 3
+            color: root.palette.text
 
             // focus indicator
             Rectangle {
@@ -78,17 +79,18 @@ Item {
                anchors.rightMargin: -2
                color: "#00000000"
                border.color: parent.palette.highlight
-               border.width: 2
+               border.width: 0.8
                visible: root.activeFocus
             }
         }
 
-        Label {
+        Text {
             id: summaryLabel
             anchors.left: titleLabel.right
             anchors.leftMargin: 20
             visible: root.effectiveCollapsed && text !== ""
             font.italic: true
+            color: root.palette.text
         }
     }
 
@@ -102,7 +104,8 @@ Item {
         y: 2
         ArrowPoint {
             id: point
-            x: 10
+            x: 6
+            y: 1
             color: Pay.useDarkSkin ? "white" : "black"
             rotation: root.effectiveCollapsed ? 0 : 90
             transformOrigin: Item.Center
@@ -113,16 +116,16 @@ Item {
 
     GridLayout { // user set content
         id: child
-        x: 10
+        x: 12
         y: titleArea.height + 10
-        width: root.width - 20
+        width: root.width - 24
         height: implicitHeight
         visible: !root.effectiveCollapsed
         columns: 1
     }
 
     Behavior on implicitHeight { NumberAnimation { } }
-    Keys.onPressed: {
+    Keys.onPressed: (event)=> {
         if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
             if (root.collapsable) {
                 root.effectiveCollapsed = !root.effectiveCollapsed

@@ -65,7 +65,6 @@ void handleLocalQml(QQmlApplicationEngine &engine);
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication qapp(argc, argv);
     qapp.setOrganizationName("flowee");
     qapp.setApplicationName("pay");

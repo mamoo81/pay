@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,14 +57,14 @@ FocusScope {
     Rectangle { // focus indicator
         anchors.fill: parent
         border.color: root.activeFocus ? begin.palette.highlight  : begin.palette.mid
-        border.width: 2
+        border.width: 0.8
         color: root.enabled && !Pay.useDarkSkin ? "white" : "#00000000" // transparant
     }
 
     Item { // edit-label
         visible: root.activeFocus
         x: 8
-        y: 8
+        y: 6
         Label {
             id: begin
             text: privValue.enteredString.substring(0, privValue.cursorPos)
@@ -73,7 +73,7 @@ FocusScope {
             id: cursor
             anchors.left: begin.right
             width: 1
-            height: root.height - 16
+            height: root.height - 12
             color: cursorVisible ? begin.palette.text : "#00000000"
             property bool cursorVisible: true
             Timer {
@@ -90,7 +90,7 @@ FocusScope {
         }
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: (event)=> {
         if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
             privValue.insertNumber(event.key);
             event.accepted = true;
@@ -119,7 +119,7 @@ FocusScope {
             event.accepted = true;
         }
     }
-    Keys.onReleased: {
+    Keys.onReleased: (event)=> {
         if (event.matches(StandardKey.Paste)) {
             privValue.paste();
             event.accepted = true;
