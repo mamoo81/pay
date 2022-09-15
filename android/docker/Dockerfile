@@ -44,17 +44,17 @@ RUN pacman -Sy --noconfirm base-devel \
     git \
     && pacman -Sc --noconfirm
 add scripts /usr/local/bin
-# to avoid lots of downloads every single time the build runs
-# consider uncommenting this one and the lines in the build-docker.sh
-# as well as removing the bottom `rm` here
-#add cache /usr/local/cache/
+# to enable caching, check the README.md
+add cache /usr/local/cache/
 RUN useradd builduser -d /home/builds -m -u 1000 -U && \
     mkdir -p /usr/local/cache && \
     git config --global advice.detachedHead false && \
     /usr/local/bin/aurs.sh && \
     /usr/local/bin/buildOpenSsl.sh && \
-    /usr/local/bin/buildQt.sh ${QtVersion} && \
-    /usr/local/bin/buildBoost.sh && \
-    rm -rf ~builduser/* && /
-    rm -rf /usr/local/cache
+    /usr/local/bin/buildQt.sh ${QtVersion}
+
+#&& \
+RUN /usr/local/bin/buildBoost.sh && \
+    rm -rf ~builduser/* && \
+    rm -rf /usr/local/
 

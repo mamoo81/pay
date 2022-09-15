@@ -26,7 +26,6 @@ echo "using clang : arm : /opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64
 ./b2 \
     --reconfigure \
     --user-config=user-config.jam \
-    --without-python \
     architecture=arm \
     address-model=64 \
     binary-format=elf \
