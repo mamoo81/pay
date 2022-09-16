@@ -8,7 +8,7 @@ ENTRYPOINT ["su", "-", "builduser", "-c"]
 
 add scripts /usr/local/bin
 # for europe you might want to copy your local mirrorlist
-copy mirrorlist /etc/pacman.d/
+#copy mirrorlist /etc/pacman.d/
 RUN useradd builduser -d /home/builds -m -u 1000 -U \
     && pacman -Sy --noconfirm base-devel \
     cmake \
@@ -44,7 +44,7 @@ RUN useradd builduser -d /home/builds -m -u 1000 -U \
     && /usr/local/bin/createRootPwd
 
 # to enable caching, check the README.md
-add cache /usr/local/cache/
+#add cache /usr/local/cache/
 RUN mkdir -p /usr/local/cache \
     && git config --global advice.detachedHead false \
     && /usr/local/bin/aurs.sh \
