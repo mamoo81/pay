@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.13)
 project(flowee_pay)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -26,41 +26,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Qt6 COMPONENTS Core Quick REQUIRED)
+find_package(flowee REQUIRED flowee_p2p)
+find_package(OpenSSL REQUIRED)
 if (ANDROID)
-    # boost 'find_package' doesn't like cross-compiled setups.
-    # we end up hardcoding the paths. (see floweepay/android/docker/)
-    # unfortunatly this doesn't do any sort of checks
-    # or detection. But since we build in a pre-designed docker
-    # we'll probably be Ok.
-    set(Boost_FOUND TRUE)
-    set(Boost_INCLUDE_DIRS /opt/android-boost/include)
-    set(Boost_LIBRARY_DIRS /opt/android-boost/lib)
-
-    set(Boost_LIBRARIES
-        /opt/android-boost/lib/libboost_filesystem.a
-        /opt/android-boost/lib/libboost_system.a
-        /opt/android-boost/lib/libboost_chrono.a
-        /opt/android-boost/lib/libboost_iostreams.a
-        /opt/android-boost/lib/libboost_program_options.a
-        /opt/android-boost/lib/libboost_thread.a
-    )
-    set(Boost_FILESYSTEM_FOUND ON)
-    set(Boost_SYSTEM_FOUND ON)
-    set(Boost_chrono_FOUND ON)
-    set(Boost_iostreams_FOUND ON)
-    set(Boost_program_options_FOUND ON)
-    set(Boost_thread_FOUND ON)
-    set(Boost_VERSION_STRING 1.67.0)
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+        ${CMAKE_SOURCE_DIR}/android/cmake)
 else ()
     find_package(Qt6 COMPONENTS DBus LinguistTools)
-    find_package(Boost 1.67.0
-        REQUIRED
-        filesystem chrono thread
-    )
 endif()
+find_package(Boost 1.67.0 REQUIRED filesystem chrono thread)
 find_package(QREncode REQUIRED)
-find_package(OpenSSL REQUIRED)
-find_package(flowee REQUIRED flowee_p2p)
 
 option(local_qml "Allow local QML loading" OFF)
 
@@ -105,88 +80,116 @@ target_link_libraries(pay_lib
 
 #### Translations
 
-set (TS_FILES_DESKTOP
-    translations/floweepay-desktop_en.ts
-    translations/floweepay-desktop_nl.ts
-    translations/floweepay-desktop_pl.ts
-)
-qt6_add_translation(qmFiles1 ${TS_FILES_DESKTOP})
-set (TS_FILES_COMMON
-    translations/floweepay-common_en.ts
-    translations/floweepay-common_nl.ts
-    translations/floweepay-common_pl.ts
-)
-qt6_add_translation(qmFiles2 ${TS_FILES_COMMON})
-set (TS_FILES_MOBILE
-    translations/floweepay-mobile_nl.ts
-    translations/floweepay-mobile_pl.ts
-)
-qt6_add_translation(qmFiles3 ${TS_FILES_MOBILE})
+if(NOT ANDROID)
+    # Linguist is too big a dependency, just use the native-build to get the qm files
+    set (TS_FILES_DESKTOP
+        translations/floweepay-desktop_en.ts
+        translations/floweepay-desktop_nl.ts
+        translations/floweepay-desktop_pl.ts
+    )
+    qt6_add_translation(qmFiles1 ${TS_FILES_DESKTOP})
+    set (TS_FILES_COMMON
+        translations/floweepay-common_en.ts
+        translations/floweepay-common_nl.ts
+        translations/floweepay-common_pl.ts
+    )
+    qt6_add_translation(qmFiles2 ${TS_FILES_COMMON})
+    set (TS_FILES_MOBILE
+        translations/floweepay-mobile_nl.ts
+        translations/floweepay-mobile_pl.ts
+    )
+    qt6_add_translation(qmFiles3 ${TS_FILES_MOBILE})
 
-# notice that for this custom target we require CMake 3.13 minimum. But since
-# only the release manager will need to call this, we leave the project cmake
-# minimum to be lower.
-add_custom_target(i18n
-    COMMAND lupdate desktop/qml.qrc -ts ${TS_FILES_DESKTOP} translations/floweepay-desktop.ts
-    COMMAND lupdate ${PAY_SOURCES} -ts ${TS_FILES_GENERIC} translations/floweepay-common.ts
-    COMMAND lupdate mobile/qml.qrc -ts ${TS_FILES_MOBILE} translations/floweepay-mobile.ts
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT
-        "Updating internationalization (i18n) translation files"
-)
+    add_custom_target(i18n
+        COMMAND lupdate desktop/qml.qrc -ts ${TS_FILES_DESKTOP} translations/floweepay-desktop.ts
+        COMMAND lupdate ${PAY_SOURCES} -ts ${TS_FILES_GENERIC} translations/floweepay-common.ts
+        COMMAND lupdate mobile/qml.qrc -ts ${TS_FILES_MOBILE} translations/floweepay-mobile.ts
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT
+            "Updating internationalization (i18n) translation files"
+    )
+endif()
 
 
 ###### Pay executable
 
-# The qm files are generated in the build tree, but the qrc file is inside the
-# source directory and the path to resources are relative to the location of
-# the qrc file itself. We use configure_file() to copy the qrc file in the build
-# directory such that it can find the qm translations files. The qrc file is
-# copied if it doesn't exist in the destination or if it is modified.
-configure_file(translations/desktop-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
-if (local_qml)
-    set (QML_PATH ${CMAKE_SOURCE_DIR}/desktop)
+if (NOT ANDROID)
+    set (NOT_ANDROID TRUE)
+    message("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 endif()
-configure_file(qml_path_helper.cpp.in desktop/qml_path_helper.cpp)
-add_executable(pay
-    main.cpp
-    desktop/qml_path_helper.cpp
-    desktop/qml.qrc
-    desktop-i18n.qrc
-)
-target_link_libraries(pay pay_lib)
-install(TARGETS pay DESTINATION bin)
+option (BUILD_DESKTOP_PAY
+    "Build the desktop (dev) client of Pay"
+    ${NOT_ANDROID})
+
+if(BUILD_DESKTOP_PAY)
+    # The qm files are generated in the build tree, but the qrc file is inside the
+    # source directory and the path to resources are relative to the location of
+    # the qrc file itself. We use configure_file() to copy the qrc file in the build
+    # directory such that it can find the qm translations files. The qrc file is
+    # copied if it doesn't exist in the destination or if it is modified.
+    configure_file(translations/desktop-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
+    if (local_qml)
+        set (QML_PATH ${CMAKE_SOURCE_DIR}/desktop)
+    endif()
+    configure_file(qml_path_helper.cpp.in desktop/qml_path_helper.cpp)
+    add_executable(pay
+        main.cpp
+        desktop/qml_path_helper.cpp
+        desktop/qml.qrc
+        desktop-i18n.qrc
+    )
+    target_link_libraries(pay pay_lib)
+    install(TARGETS pay DESTINATION bin)
+endif()
 
 
 ###### Pay-mobile executable
+option (BUILD_MOBILE_PAY "Build the mobile client of Pay" TRUE)
 
-configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
-if (local_qml)
-    set (QML_PATH ${CMAKE_SOURCE_DIR}/mobile)
+if(BUILD_MOBILE_PAY)
+    configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
+    if (local_qml)
+        set (QML_PATH ${CMAKE_SOURCE_DIR}/mobile)
+    endif()
+    configure_file(qml_path_helper.cpp.in mobile/qml_path_helper.cpp)
+    if(ANDROID)
+        # the dependency of linguist is pretty steep for cross-compilation
+        # so lets accept the lack of compiled translations here.
+        # A build that wants them should copy them from a native build.
+
+        if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qml")
+            set (MOBILE_PAY_I18N_QRC mobile-i18n.qrc)
+        endif()
+    endif()
+    add_executable(pay_mobile
+        main.cpp
+        mobile/qml_path_helper.cpp
+        mobile/qml.qrc
+        ${MOBILE_PAY_I18N_QRC}
+    )
+    target_link_libraries(pay_mobile pay_lib)
+    install(TARGETS pay_mobile DESTINATION bin)
 endif()
-configure_file(qml_path_helper.cpp.in mobile/qml_path_helper.cpp)
-add_executable(pay_mobile
-    main.cpp
-    mobile/qml_path_helper.cpp
-    mobile/qml.qrc
-    mobile-i18n.qrc
-)
-target_link_libraries(pay_mobile pay_lib)
-install(TARGETS pay_mobile DESTINATION bin)
 
 
 ###### blockheaders-meta-extractor executable
 
-add_executable(blockheaders-meta-extractor
-    MetaExtractor.cpp
-)
-target_link_libraries(blockheaders-meta-extractor
-    flowee_p2p
-    flowee_utils
-    ${OPENSSL_LIBRARIES}
-    ${Boost_LIBRARIES}
-)
-install(TARGETS blockheaders-meta-extractor DESTINATION bin)
+option (BUILD_PAY_TOOLS
+    "Build the tools Pay"
+    ${NOT_ANDROID})
+
+if(BUILD_PAY_TOOLS)
+    add_executable(blockheaders-meta-extractor
+        MetaExtractor.cpp
+    )
+    target_link_libraries(blockheaders-meta-extractor
+        flowee_p2p
+        flowee_utils
+        ${OPENSSL_LIBRARIES}
+        ${Boost_LIBRARIES}
+    )
+    install(TARGETS blockheaders-meta-extractor DESTINATION bin)
+endif()
 
 install(PROGRAMS desktop/org.flowee.pay.desktop DESTINATION share/applications)
 set (ICONIN desktop/icons/hicolor/)
@@ -202,19 +205,30 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
     install(FILES ${CMAKE_SOURCE_DIR}/data/blockheaders DESTINATION share/floweepay)
 endif()
 
-add_subdirectory(testing)
+if (NOT ANDROID)
+    add_subdirectory(testing)
+endif()
 
 # Report ------
 message("")
 message("Configuration results:")
 message("----------------------")
-if (${Qt6DBus_FOUND})
-    message("Found optional lib: QtDBus")
-else ()
-    message("Missing QtDBus, skipping support for desktop notifications")
-endif ()
+if (${BUILD_DESKTOP_PAY})
+    message ("-> Building Desktop-Pay...")
+    if (${Qt6DBus_FOUND})
+        message("   Found optional lib: QtDBus")
+    else ()
+        message("   Missing QtDBus, skipping support for desktop notifications")
+    endif ()
+endif()
+if (${BUILD_MOBILE_PAY})
+    message ("-> Building Pay for mobile")
+endif()
+if (${BUILD_PAY_TOOLS})
+    message ("-> Building Pay tools")
+endif()
 if (${local_qml})
-    message("Using QML from source-dir. DO NOT DISTRIBUTE THIS BINARY!")
+    message("   Using QML from source-dir. DO NOT DISTRIBUTE BINARIES!")
 endif ()
 
 message("")
