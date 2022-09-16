@@ -55,4 +55,6 @@ RUN mkdir -p /usr/local/cache \
     && rm -rf ~builduser/* \
     && /usr/local/bin/buildBoost.sh \
     && rm -rf ~builduser/* \
+    && /usr/local/bin/buildQrEncode.sh \
+    && rm -rf ~builduser/* \
     && rm -rf /usr/local/cache
