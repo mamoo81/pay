@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+# This script reads the system password backing store
+# takes out the line that forbids root from having any password
+# and replaces it with a proper password allowing us to
+# use 'su' in our image and become root.
+
+open(SOURCE, "/etc/shadow") || die "Failed to open shadow file";
+foreach $line (<SOURCE>) {
+    if (not $line=~/^root:/) {
+        push @lines, $line;
+    }
+}
+close SOURCE;
+
+open (OUT, ">", "/etc/shadow") || die "Can't write to shadow file";
+print (OUT "root:\$6\$WRwfPMlr3QKlTNrn\$/vBG5lRy4SGl0hA13AjR5JV/TUJN71nV15/ow1mm1WuJ7KVPy6COdeOVZPM8lW1TykaC7V04lIfOmlKdZENhY1:19251::::::\n");
+foreach $line (@lines) {
+    print (OUT $line);
+}
+
+close OUT;

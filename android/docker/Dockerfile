@@ -1,19 +1,16 @@
 ARG QtVersion=v6.3.1
 
-# We use a 'cache' feature where we place big downloads and compiled stuff.
-# We also use the 'FROM' multiple times to avoid inheriting an image
-# which had lots of intermediate stuff installed that we don't need in
-# the final image.
-
-# First get some native stuff built.
 FROM archlinux:latest
 ARG QtVersion
 LABEL maintainer="Tom Zander <tom@flowee.org>"
-LABEL qtVersion="${QtVersion}"
+LABEL qtversion="${QtVersion}"
+ENTRYPOINT ["su", "-", "builduser", "-c"]
 
+add scripts /usr/local/bin
 # for europe you might want to copy your local mirrorlist
-#copy mirrorlist /etc/pacman.d/
-RUN pacman -Sy --noconfirm base-devel \
+copy mirrorlist /etc/pacman.d/
+RUN useradd builduser -d /home/builds -m -u 1000 -U \
+    && pacman -Sy --noconfirm base-devel \
     cmake \
     ninja \
     git \
@@ -42,19 +39,20 @@ RUN pacman -Sy --noconfirm base-devel \
     md4c \
     jdk11-openjdk \
     git \
-    && pacman -Sc --noconfirm
-add scripts /usr/local/bin
+    && pacman -Sc --noconfirm \
+    && rm -rf /var/cache/pacman/pkg/* \
+    && /usr/local/bin/createRootPwd
+
 # to enable caching, check the README.md
 add cache /usr/local/cache/
-RUN useradd builduser -d /home/builds -m -u 1000 -U && \
-    mkdir -p /usr/local/cache && \
-    git config --global advice.detachedHead false && \
-    /usr/local/bin/aurs.sh && \
-    /usr/local/bin/buildOpenSsl.sh && \
-    /usr/local/bin/buildQt.sh ${QtVersion}
-
-#&& \
-RUN /usr/local/bin/buildBoost.sh && \
-    rm -rf ~builduser/* && \
-    rm -rf /usr/local/
-
+RUN mkdir -p /usr/local/cache \
+    && git config --global advice.detachedHead false \
+    && /usr/local/bin/aurs.sh \
+    && rm -rf ~builduser/* \
+    && /usr/local/bin/buildOpenSsl.sh \
+    && rm -rf ~builduser/* \
+    && /usr/local/bin/buildQt.sh ${QtVersion} \
+    && rm -rf ~builduser/* \
+    && /usr/local/bin/buildBoost.sh \
+    && rm -rf ~builduser/* \
+    && rm -rf /usr/local/cache

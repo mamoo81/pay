@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 project(flowee_pay)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -26,15 +26,41 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(Qt6 COMPONENTS Core Quick REQUIRED)
-find_package(Qt6 COMPONENTS DBus LinguistTools)
+if (ANDROID)
+    # boost 'find_package' doesn't like cross-compiled setups.
+    # we end up hardcoding the paths. (see floweepay/android/docker/)
+    # unfortunatly this doesn't do any sort of checks
+    # or detection. But since we build in a pre-designed docker
+    # we'll probably be Ok.
+    set(Boost_FOUND TRUE)
+    set(Boost_INCLUDE_DIRS /opt/android-boost/include)
+    set(Boost_LIBRARY_DIRS /opt/android-boost/lib)
+
+    set(Boost_LIBRARIES
+        /opt/android-boost/lib/libboost_filesystem.a
+        /opt/android-boost/lib/libboost_system.a
+        /opt/android-boost/lib/libboost_chrono.a
+        /opt/android-boost/lib/libboost_iostreams.a
+        /opt/android-boost/lib/libboost_program_options.a
+        /opt/android-boost/lib/libboost_thread.a
+    )
+    set(Boost_FILESYSTEM_FOUND ON)
+    set(Boost_SYSTEM_FOUND ON)
+    set(Boost_chrono_FOUND ON)
+    set(Boost_iostreams_FOUND ON)
+    set(Boost_program_options_FOUND ON)
+    set(Boost_thread_FOUND ON)
+    set(Boost_VERSION_STRING 1.67.0)
+else ()
+    find_package(Qt6 COMPONENTS DBus LinguistTools)
+    find_package(Boost 1.67.0
+        REQUIRED
+        filesystem chrono thread
+    )
+endif()
 find_package(QREncode REQUIRED)
 find_package(OpenSSL REQUIRED)
-message ("Using OpenSSL ${OPENSSL_VERSION}")
-find_package(Flowee REQUIRED flowee_p2p)
-find_package(Boost 1.67.0
-    REQUIRED
-    filesystem chrono thread
-)
+find_package(flowee REQUIRED flowee_p2p)
 
 option(local_qml "Allow local QML loading" OFF)
 
