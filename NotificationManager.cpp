@@ -20,8 +20,10 @@
 #include "PriceDataProvider.h"
 #include <utils/Logger.h>
 
+#if QT_DBUS_LIB
 #include <QDBusConnection>
 #include <QDBusInterface>
+#endif
 #include <QSettings>
 
 constexpr const char *MUTE = "notificationNewblockMute";
@@ -32,6 +34,7 @@ NotificationManager::NotificationManager(QObject *parent)
 {
     setCollation(true);
 
+#if QT_DBUS_LIB
     // We use the notification spec (v 1.2)
     // https://specifications.freedesktop.org/notification-spec/notification-spec-latest.html
     m_newBlockHints["desktop-entry"] = "org.flowee.pay";
@@ -40,7 +43,6 @@ NotificationManager::NotificationManager(QObject *parent)
     m_walletUpdateHints["desktop-entry"] = "org.flowee.pay";
     m_walletUpdateHints["urgency"] = 1; // normal
 
-#if QT_DBUS_LIB
     // setup slots for DBUS-signals. Essentially remote callbacks from the deskop notifications app
     QDBusConnection::sessionBus().connect(QString(), QString(), "org.freedesktop.Notifications",
                                           "NotificationClosed", this, SLOT(notificationClosed(uint,uint)));
@@ -119,12 +121,15 @@ void NotificationManager::newBlockSeen(int blockHeight)
 
 void NotificationManager::newBlockNotificationShown(uint id)
 {
+#if QT_DBUS_LIB
     m_blockNotificationId = id;
     logDebug() << "new block notification id:" << m_blockNotificationId;
+#endif
 }
 
 void NotificationManager::notificationClosed(uint32_t id, uint32_t reason)
 {
+#if QT_DBUS_LIB
     logDebug() << " something got closed" << id << reason;
     if (m_blockNotificationId == id) {
         m_blockNotificationId = 0;
@@ -133,6 +138,7 @@ void NotificationManager::notificationClosed(uint32_t id, uint32_t reason)
         m_newFundsNotificationId = 0;
         flushCollate();
     }
+#endif
 }
 
 void NotificationManager::actionInvoked(uint, const QString &actionKey)
@@ -219,8 +225,10 @@ void NotificationManager::walletUpdated()
 
 void NotificationManager::walletUpdateNotificationShown(uint id)
 {
+#if QT_DBUS_LIB
     m_newFundsNotificationId = id;
     m_openingNewFundsNotification = false;
+#endif
 }
 
 #if QT_DBUS_LIB
