@@ -52,7 +52,6 @@ cd ~builduser/build/qtbase
     -qt-host-path /usr/local \
     -android-abis arm64-v8a \
     -android-style-assets \
-    -static \
     -openssl-linked \
     -- \
     -DOPENSSL_USE_STATIC_LIBS=ON \
