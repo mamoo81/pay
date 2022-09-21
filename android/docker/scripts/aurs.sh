@@ -15,5 +15,6 @@ do
     done
     su builduser -c makepkg
     find . -type f -name '*zst' -exec ln "{}" /usr/local/cache ';'
-    pacman -U --noconfirm *zst
 done
+
+pacman -U --noconfirm /usr/local/cache/*zst
