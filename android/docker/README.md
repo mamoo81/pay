@@ -51,3 +51,19 @@ Please note that should the build fail, the cached items will not be recovered
 from that build, so better make sure you run though the stable build once to get
 the cache filled up.
 
+# Space requirements
+
+The resulting image, without caching, is some 4.5GB. You will need maybe double that
+during the build.
+If you turn on caching then the downloads will go down, but the image size will go up
+to some 7GB.
+
+# User-ID
+
+Due to the way that Docker works, the user-id is relevant for the build. For most people
+this will work out of the box, but please check you have user-id '1000' otherwise you'll
+get a failure on build regarding "Unable to (re)create".
+You can check your user-id with `id -u`. If it is not 1000, you may need to (re)create the
+docker image with altered Dockerfile.
+The 'useradd' line in the `Dockerfile` specifically has the value '1000', you can change
+to what your users `id` is and then build the image.
