@@ -39,13 +39,9 @@ So, good during development of the image, like a debug build.
 
 To enable this;
 
-1. edit the build-docker.sh to enable the last 4 lines and allow it to copy the
-downloaded stuff from the built image into the cache.
-
-2. comment out the 'rm -rf /usr/local' at the bottom of the Dockerfile
-
-3. remove comment (enable) the line in the Dockerfile:
+1. remove comment (enable) the line in the Dockerfile:
     add cache /usr/local/cache/
+2. comment out the 'rm -rf /usr/local' at the bottom of the Dockerfile
 
 Please note that should the build fail, the cached items will not be recovered
 from that build, so better make sure you run though the stable build once to get

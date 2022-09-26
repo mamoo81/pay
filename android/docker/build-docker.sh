@@ -17,11 +17,7 @@ fi
 QtVersion=v6.3.1
 
 cd `dirname $0`
-mkdir -p cache
 docker build . --tag flowee/buildenv-android:$QtVersion --build-arg QtVersion=$QtVersion
 
-# copy the cache out.
-cid=`docker run -d -ti -v cache:/mnt flowee/buildenv:android /bin/bash`
-docker container exec $cid /usr/local/bin/copyBack.sh
-docker container stop $cid
-docker container rm $cid
+# copy newly downloaded items to the cache (does nothing by default)
+docker run --rm -ti -v `pwd`:/mnt flowee/buildenv-android:$QtVersion /usr/local/bin/copyBack.sh
