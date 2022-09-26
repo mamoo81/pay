@@ -789,7 +789,7 @@ void TestWallet::testEncryption2()
     }
     QString txHash = QString::fromStdString(theTx.createHash().ToString());
     const QString baseName("%1/wallet-1111/%2/%3");
-    QString txFile = baseName.arg(m_dir).arg(txHash.left(2)).arg(txHash.mid(2));
+    QString txFile = baseName.arg(m_dir).arg(txHash.left(2), txHash.mid(2));
     QVERIFY(QFile::exists(txFile));
 
     {
@@ -803,8 +803,6 @@ void TestWallet::testEncryption2()
         QCOMPARE(wallet->encryptionSeed(), 0);
         wallet->setEncryption(Wallet::FullyEncrypted, PWD);
         QVERIFY(wallet->encryptionSeed() != 0);
-        seed = wallet->encryptionSeed();
-
         QVERIFY(wallet->walletSecrets().empty());
         try {
             Tx txCopy = wallet->loadTx(theTx.createHash(), pool);
@@ -860,7 +858,7 @@ void TestWallet::testEncryption2()
 
         // the name if it was saved without obfuscation
         auto hash = QString::fromStdString(newTx.createHash().ToString());
-        txFile = baseName.arg(m_dir).arg(hash.left(2)).arg(hash.mid(2));
+        txFile = baseName.arg(m_dir).arg(hash.left(2), hash.mid(2));
         QVERIFY(QFile::exists(txFile) == false);
 
         auto savedTx = wallet->loadTx(newTx.createHash(), pool);
