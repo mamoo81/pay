@@ -19,7 +19,6 @@
 #include <utils/cashaddr.h>
 #include <Wallet.h>
 #include <Wallet_p.h>
-#include <FloweePay.h>
 
 #include <QtTest/QtTest>
 #include <QStandardPaths>
@@ -793,7 +792,7 @@ void TestWallet::testEncryption2()
     QVERIFY(QFile::exists(txFile));
 
     {
-        auto wallet = openWallet(seed);
+        auto wallet = openWallet(/* seed = */ 0); // not encrypted yet
         auto secrets = wallet->walletSecrets();
         QCOMPARE(secrets.size(), (size_t)10);
         for (auto i = secrets.begin(); i != secrets.end(); ++i) {
@@ -808,6 +807,8 @@ void TestWallet::testEncryption2()
             Tx txCopy = wallet->loadTx(theTx.createHash(), pool);
             QFAIL("Loading from an encrypted wallet shoud fail");
         } catch (...) {}
+
+        seed = wallet->encryptionSeed();
     }
 
     // a wallet that has been fully encrypted should have encrypted the

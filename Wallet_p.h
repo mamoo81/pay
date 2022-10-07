@@ -83,8 +83,6 @@ enum PrivateSaveTags {
 };
 
 enum WalletDataSaveTags {
-    // Separator = 0
-    // Index = 1
     LastSynchedBlock = 2,
     WalletName, // deprecated. We no longer save the name in the wallet.dat (since that one can get encrypted)
 

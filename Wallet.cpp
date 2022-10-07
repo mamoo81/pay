@@ -1626,7 +1626,7 @@ void Wallet::loadWallet()
     QMutexLocker locker(&m_lock);
     auto dataSize = boost::filesystem::file_size(m_basedir / "wallet.dat");
     Streaming::BufferPool pool(dataSize);
-    in.read(pool.begin(), dataSize);
+    in.read(pool.data(), dataSize);
     if (m_encryptionLevel == FullyEncrypted) {
         if (!m_haveEncryptionKey)
             return;
