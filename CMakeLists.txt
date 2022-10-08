@@ -115,7 +115,6 @@ endif()
 
 if (NOT ANDROID)
     set (NOT_ANDROID TRUE)
-    message("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 endif()
 option (BUILD_DESKTOP_PAY
     "Build the desktop (dev) client of Pay"
