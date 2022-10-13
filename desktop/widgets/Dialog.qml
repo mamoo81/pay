@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
-import QtQuick.Layouts 1.11
+import QtQuick.Controls
+import QtQuick.Layouts
 import "." as Flowee;
 
 Popup {
@@ -78,6 +78,7 @@ Popup {
         }
         Label {
             id: mainTextLabel
+            // this next line will always create a binding loop. But its harmless, so ignore that comment.
             width: parent.width
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         }
@@ -88,7 +89,8 @@ Popup {
         Flowee.DialogButtonBox {
             id: buttons
             standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
-            width: parent.width
+            anchors.right: parent.right
+            anchors.rightMargin: 10
             onAccepted: {
                 root.accepted();
                 root.close()

@@ -793,7 +793,7 @@ Item {
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         hoverEnabled: locked
 
-                        onClicked: {
+                        onClicked: (mouse)=> {
                             // make it easy for the user to close a menu with either mouse
                             // button without instantly triggering another action.
                             if (coinsListView.menuIsOpen) {
