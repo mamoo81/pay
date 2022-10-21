@@ -26,7 +26,7 @@ Item {
     visible: warningText.text !== ""
     height: Math.max(warningIcon.height, warningText.height)
     implicitWidth: warningIcon.width + warningText.implicitWidth
-    implicitHeight: warningIcon.height + warningText.implicitHeight
+    implicitHeight: Math.max(warningIcon.height, warningText.implicitHeight)
     Image {
         id: warningIcon
         source: "qrc:/emblem-warning.svg"
