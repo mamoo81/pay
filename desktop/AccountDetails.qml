@@ -80,64 +80,8 @@ Item {
             Layout.fillWidth: true
             focus: true
         }
-        Label {
-            id: encLabel
-            text: qsTr("Encryption") + ":"
-            visible: encStatus.visible
-        }
-        WalletEncryptionStatus {
-            id: encStatus
-            Layout.fillWidth: true
-            account: root.account
-        }
-
-        Label {
-            id: pwdLabel
-            text: qsTr("Password") + ":"
-            visible: encStatus.visible
-        }
-        Flowee.TextField {
-            id: passwordField
-            onAccepted: decryptButton.clicked()
-            enabled: !root.account.isDecrypted
-            Layout.fillWidth: true
-            echoMode: TextInput.Password
-            visible: pwdLabel.visible
-        }
-        Item {
-            visible: pwdLabel.visible
-            Layout.fillWidth: true
-            Layout.columnSpan: 2
-            implicitHeight: Math.max(decryptWarning.implicitHeight, decryptButton.implicitHeight)
-
-            Flowee.WarningLabel {
-                id: decryptWarning
-                anchors.left: parent.left
-                anchors.leftMargin: 20
-                anchors.right: decryptButton.left
-                anchors.rightMargin: 10
-            }
-
-            Flowee.Button {
-                id: decryptButton
-                anchors.right: parent.right
-                text: qsTr("Open")
-                enabled: passwordField.text.length > 3
-                onClicked: {
-                    var rc = root.account.decrypt(passwordField.text);
-                    if (rc) {
-                        // decrypt went Ok
-                        decryptWarning.text = ""
-                        passwordField.text = ""
-                    }
-                    else {
-                        decryptWarning.text = qsTr("Invalid PIN")
-                        passwordField.forceActiveFocus();
-                    }
-                }
-            }
-        }
     }
+
 
     Flickable {
         id: scrollablePage
@@ -150,13 +94,14 @@ Item {
 
         contentHeight: detailsPane.height + 10 + addressesList.height + 10
 
-        ColumnLayout {
+        GridLayout {
             id: detailsPane
-            spacing: 10
             width: parent.width - 20
             x: 10
+            columns: 2
 
             Label {
+                Layout.columnSpan: 2
                 text: {
                     var height = root.account.lastBlockSynched
                     if (height < 1)
@@ -168,6 +113,7 @@ Item {
                 }
             }
             Label {
+                Layout.columnSpan: 2
                 id: walletType
                 visible: root.account.isDecrypted || root.account.needsPinToPay
                 font.italic: true
@@ -182,53 +128,85 @@ Item {
                     return qsTr("This wallet is a simple multiple-address wallet.")
                 }
             }
-            RowLayout {
-                width: parent.width
-                Label {
-                    id: xpubLabel
-                    // at the moment I don't see a point if making this translatable. Let me know if that should change!
-                    text: "xpub" + ":"
-                    visible: root.account.isHDWallet
-                }
-                Flowee.LabelWithClipboard {
-                    Layout.fillWidth: true
-                    visible: xpubLabel.visible
-                    text: root.account.xpub
-                    clipboardText: text
-                    menuText: qsTr("Copy")
-                }
-            }
-
-    /* TODO, features to add;
             Label {
-                text: qsTr("Security:")
-                Layout.columnSpan: 3
-                font.italic: true
+                id: xpubLabel
+                // at the moment I don't see a point if making this translatable. Let me know if that should change!
+                text: "xpub" + ":"
+                visible: root.account.isHDWallet
+            }
+            Flowee.LabelWithClipboard {
+                Layout.fillWidth: true
+                visible: xpubLabel.visible
+                text: root.account.xpub
+                clipboardText: text
+                menuText: qsTr("Copy")
             }
 
-            Flowee.CheckBox {
-                id: schnorr
-                checked: true
-                text: qsTr("Use Schnorr signatures");
+            Label {
+                id: encLabel
+                text: qsTr("Encryption") + ":"
+                visible: encStatus.visible
             }
-            Flowee.CheckBox {
-                id: syncOnStart
-                checked: false
-                text: qsTr("Sync on Start");
+            WalletEncryptionStatus {
+                id: encStatus
+                Layout.fillWidth: true
+                account: root.account
             }
-            Flowee.CheckBox {
-                id: useIndexServer
-                checked: false
-                text: qsTr("Use Indexing Server");
+
+            Label {
+                id: pwdLabel
+                text: qsTr("Password") + ":"
+                visible: encStatus.visible
             }
-    */
+            Flowee.TextField {
+                id: passwordField
+                onAccepted: decryptButton.clicked()
+                enabled: !root.account.isDecrypted
+                Layout.fillWidth: true
+                echoMode: TextInput.Password
+                visible: pwdLabel.visible
+            }
+            Item {
+                visible: pwdLabel.visible
+                Layout.fillWidth: true
+                Layout.columnSpan: 2
+                implicitHeight: Math.max(decryptWarning.implicitHeight, decryptButton.implicitHeight)
+
+                Flowee.WarningLabel {
+                    id: decryptWarning
+                    anchors.left: parent.left
+                    anchors.leftMargin: 20
+                    anchors.right: decryptButton.left
+                    anchors.rightMargin: 10
+                    anchors.baseline: decryptButton.baseline
+                }
+
+                Flowee.Button {
+                    id: decryptButton
+                    anchors.right: parent.right
+                    text: decryptWarning.implicitHeight// qsTr("Open")
+                    enabled: passwordField.text.length > 3
+                    onClicked: {
+                        var rc = root.account.decrypt(passwordField.text);
+                        if (rc) {
+                            // decrypt went Ok
+                            decryptWarning.text = ""
+                            passwordField.text = ""
+                        }
+                        else {
+                            decryptWarning.text = qsTr("Invalid PIN")
+                            passwordField.forceActiveFocus();
+                        }
+                    }
+                }
+            }
         }
 
         Flowee.GroupBox {
             id: addressesList
             width: parent.width
             anchors.top: detailsPane.bottom
-            anchors.topMargin: 20
+            anchors.topMargin: 10
             title: qsTr("Address List")
             collapsed: !root.account.isSingleAddressAccount
             visible: root.account.isDecrypted || !root.account.needsPinToOpen
