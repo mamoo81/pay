@@ -78,6 +78,6 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: optionsRow.selectedKey = parent.key
+        onClicked: root.clicked()
     }
 }

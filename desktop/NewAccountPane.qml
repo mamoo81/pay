@@ -1,5 +1,5 @@
 /* * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,13 +78,21 @@ FocusScope {
                 width: Math.min(contentArea.width - 30, 900) // smaller is OK, wider not
 
                 property int selectorWidth: (width - spacing * 2) / 3;
-
                 property int selectedKey: 1
+
+                function cardClicked(key) {
+                    if (selectedKey !== key)
+                        selectedKey = key;
+                    else // move scroll area.
+                        contentArea.flick(0, -1000);
+                }
+
                 CardTypeSelector {
                     id: accountTypeBasic
                     key: 0
                     title: qsTr("Basic")
                     width: parent.selectorWidth
+                    onClicked: parent.cardClicked(key);
 
                     features: [
                         qsTr("Private keys based", "Property of a wallet"),
@@ -97,6 +105,7 @@ FocusScope {
                     key: 1
                     title: qsTr("HD wallet")
                     width: parent.selectorWidth
+                    onClicked: parent.cardClicked(key);
 
                     features: [
                         qsTr("Seed-phrase based", "Context: wallet type"),

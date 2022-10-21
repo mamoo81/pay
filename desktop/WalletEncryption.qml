@@ -76,11 +76,19 @@ FocusScope {
                 property int selectorWidth: (width - spacing * 2) / 2;
                 property int selectedKey: 0
 
+                function cardClicked(key) {
+                    if (selectedKey !== key)
+                        selectedKey = key;
+                    else // move scroll area.
+                        contentArea.flick(0, -1000);
+                }
+
                 CardTypeSelector {
                     id: pinToPay
                     key: 0
                     title: qsTr("Pin to Pay")
                     width: parent.selectorWidth
+                    onClicked: parent.cardClicked(key);
 
                     features: [
                         qsTr("Protect your funds", "pin to pay"),
@@ -93,6 +101,7 @@ FocusScope {
                     key: 1
                     title: qsTr("Pin to Open")
                     width: parent.selectorWidth
+                    onClicked: parent.cardClicked(key);
 
                     features: [
                         qsTr("Protect your entire wallet", "pin to open"),
