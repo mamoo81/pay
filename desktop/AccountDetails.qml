@@ -92,7 +92,7 @@ Item {
         anchors.margins: 10
         clip: true
 
-        contentHeight: detailsPane.height + 10 + addressesList.height + 10
+        contentHeight: detailsPane.height + 10 + addressesList.height + 10 + hdDetails.height + 10
 
         GridLayout {
             id: detailsPane
