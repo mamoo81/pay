@@ -32,7 +32,7 @@ QQC2.TextField {
             implicitWidth: 140
             color: {
                 if (root.enabled)
-                    return Pay.useDarkSkin ? "#2c2f33" : "#e9e8e7";
+                    return root.palette.base;
                 return "#00000000";
             }
             border.color: {
