@@ -308,7 +308,6 @@ Item {
             color: mainWindow.floweeGreen
             y: height + 2
 
-
             Label {
                 id: title
                 anchors.horizontalCenter: parent.horizontalCenter
