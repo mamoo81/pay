@@ -44,7 +44,7 @@ Additionally you will want to have some development packages installed;
 
 ``` sh
     sudo apt install build-essential libboost-all-dev libssl-dev cmake \
-        qt6-tools-dev-tools qt6-tools-dev libqrencode-dev
+        qt6-tools-dev-tools qt6-tools-dev qt6-declarative-dev libqrencode-dev
 ```
 
 After installing that succesfull, it is just a matter of calling:
