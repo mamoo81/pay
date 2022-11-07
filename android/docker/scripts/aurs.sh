@@ -1,7 +1,7 @@
 #!/bin/bash
 # this runs as root.
 
-for i in android-ndk android-sdk-platform-tools android-sdk-cmdline-tools-latest android-platform
+for i in android-ndk android-sdk-platform-tools android-sdk-cmdline-tools-latest android-platform android-sdk-build-tools
 do
     cd ~builduser
     git clone https://aur.archlinux.org/$i.git

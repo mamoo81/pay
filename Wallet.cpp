@@ -656,6 +656,9 @@ void Wallet::setTransactionComment(const Tx &transaction, const QString &comment
             emit startDelayedSave();
         }
     }
+    else {
+        logCritical() << "Comment added to not known transaction";
+    }
 }
 
 std::map<int, Wallet::WalletSecret> Wallet::walletSecrets() const

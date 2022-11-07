@@ -34,30 +34,39 @@ The minimum version required for the Flowee libraries is 2022.07.0
 
 For ubuntu getting the latest is a matter of calling:
 
-```
+``` sh
   sudo add-apt-repository ppa:flowee/ppa
   sudo apt update
   sudo apt install flowee-libs
 ```
 
-You need cmake and Qt5. When you have those installed it is just a matter
-of calling:
+Additionally you will want to have some development packages installed;
 
+``` sh
+    sudo apt install build-essential libboost-all-dev libssl-dev cmake \
+        qt6-tools-dev-tools qt6-tools-dev libqrencode-dev
 ```
+
+After installing that succesfull, it is just a matter of calling:
+
+``` sh
   mkdir build
   cd build
   cmake ..
   make install
 ```
 
-We depend on the libraries shipped in 'theHub', also from Flowee.
-If you compile theHub yourself you may want to export the
-following variable in case the build wasn't found in the 'cmake' line above:
+### Manually compiling flowee-libs:
 
-    export CMAKE_PREFIX_PATH=/path/to/the/thehub-build
+We depend on the libraries shipped in 'theHub' git repo, also from Flowee.
+If you compile that yourself, you need to make sure you `make install` it.
+The Flowee Pay buildsystem may not find this if the install directory is not the
+same as the packaged. In that case you may want to replace the cmake call
+above with this slightly more complex one:
 
-Followed with again the call to cmake and make like above.
-
+``` sh
+   cmake -DCMAKE_PREFIX_PATH=/path/to/the/thehub-installed-dir ..
+```
 
 ## DEVS
 
@@ -74,9 +83,8 @@ following workflow:
   make install
 ```
 
-The executables will be in `floweepay/build/bin/` and by passing the `local_qml`
-additional
-cmake option the app will renember that it should fetch the QML files from
+The executables will be in `floweepay/build/bin/` and by adding the `local_qml`
+cmake option the build will bake in the path to your QML files. On
 your local harddrive. This allows you to change the QML files and simply
 restart the app without recompile.
 
