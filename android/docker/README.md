@@ -51,8 +51,8 @@ the cache filled up.
 
 The resulting image, without caching, is some 4.5GB. You will need maybe double that
 during the build.
-If you turn on caching then the downloads will go down, but the image size will go up
-to some 7GB.
+If you need to do the build of the image repeatedly you might want to turn on caching,
+then the downloads will go down, but the image size will go up to some 7GB.
 
 # User-ID
 
