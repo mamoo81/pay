@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 ApplicationWindow {
     id: mainWindow
@@ -31,21 +32,17 @@ ApplicationWindow {
     property color floweeBlue: "#0b1088"
     property color floweeGreen: "#90e4b5"
 
-    Rectangle {
-        focus: true
-        id: header
-        color: Pay.useDarkSkin ? "#232629" : mainWindow.floweeBlue
+    Loader {
+        id: content
         anchors.fill: parent
+        source: mainWindow.isLoading ? "" : "PeersOverview.qml"
+    }
 
-        Image {
-            id: appLogo
-            x: 10
-            y: 10
-            smooth: true
-            source: "qrc:/FloweePay-light.svg"
-            // ratio: 77 / 449
-            height: 50
-            width: height * 449 / 77
-        }
+    Text {
+        color: "white"
+        text: "Loading"
+        anchors.centerIn: parent
+        font.pointSize: 40
+        visible:  mainWindow.isLoading
     }
 }
