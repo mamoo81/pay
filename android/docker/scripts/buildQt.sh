@@ -8,7 +8,7 @@ fi
 echo "Based on Qt version $TAG" >> /etc/versions
 source /etc/profile
 
-for i in qtbase qtshadertools qtdeclarative
+for i in qtbase qtshadertools qtdeclarative qtsvg
 do
     cd /usr/local/cache
     if ! test -d $i.git; then
@@ -30,7 +30,7 @@ mkdir -p ~builduser/build-native/qtbase
 ninja install)
 
 # Others
-for i in qtshadertools qtdeclarative
+for i in qtshadertools qtdeclarative qtsvg
 do
     cd ~builduser/build-native
     mkdir -p $i
@@ -62,7 +62,7 @@ ninja install
 # -- Neither ANDROID_PLATFORM nor ANDROID_NATIVE_API_LEVEL were specified, using API level 23 as default
 
 # Others
-for i in qtshadertools qtdeclarative
+for i in qtshadertools qtdeclarative qtsvg
 do
     cd ~builduser/build
     mkdir -p $i
@@ -70,3 +70,8 @@ do
     /opt/android-qt6/bin/qt-configure-module ~builduser/$i
     ninja install
 done
+
+cd /opt/android-qt6/
+patch -p0 < /usr/local/bin/qtbase-cmake-macros.patch
+
+

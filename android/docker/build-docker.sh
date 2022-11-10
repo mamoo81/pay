@@ -9,7 +9,7 @@ if test "$1" != "force"; then
         echo "set your user-id in the 'useradd' line."
         echo -n "Your current users ID is: "
         id -u
-        echo "If you are ready to build the iamge, pass in 'force' to this build script"
+        echo "If you are ready to build the image, pass in 'force' to this build script"
         exit
     fi
 fi

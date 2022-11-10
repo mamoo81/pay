@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 _thehub_dir_="$1"
-_docker_name_="$2"
+_pay_native_name_="$2"
 
 if test -d .bin; then
     .bin/doBuild
@@ -25,11 +25,11 @@ fi
 
 if test -z "$_thehub_dir_"; then
     echo "Usage:"
-    echo "  build-android <HUB_BUILDDIR> [DOCKER_NAME]"
+    echo "  build-android <HUB_builddir> [PAY_NATIVCE_builddir]"
     echo ""
     echo "Start this client in your builddir"
-    echo "hub-builddir is the dir where the android build of hub is."
-    echo "docker-name (optional) is the image name to do the compile in"
+    echo "HUB-builddir is the dir where the android build of flowe-thehub is."
+    echo "Pay_NATIVE-builddir for a native build of flowee-pay (optional)."
     exit
 fi
 
@@ -44,12 +44,16 @@ if test -f $_thehub_dir_/lib/libflowee_p2p.a; then
 fi
 
 if test "$_ok" -eq 0; then
-    echo "Invalid or not compiled HUB build dir."
+    echo "Invalid or not compiled for Android HUB build dir."
     exit
 fi
 
 if test -z "$_docker_name_"; then
-    _docker_name_="flowee/buildenv-android:v6.3.1"
+    _docker_name_="flowee/buildenv-android:v6.4.0"
+fi
+
+if test -d "$_pay_native_name_"; then
+    cp -f "$_pay_native_name_"/*qm .
 fi
 
 floweePaySrcDir=`dirname $0`/..
