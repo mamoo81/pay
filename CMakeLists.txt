@@ -14,8 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.13)
-project(flowee_pay)
+cmake_minimum_required(VERSION 3.19)
+project(flowee_pay VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -25,7 +25,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(Qt6 COMPONENTS Core Quick REQUIRED)
+find_package(Qt6 COMPONENTS Core Quick Svg REQUIRED)
 find_package(flowee REQUIRED flowee_p2p)
 find_package(OpenSSL REQUIRED)
 if (ANDROID)
@@ -78,27 +78,24 @@ target_link_libraries(pay_lib
     ${Boost_LIBRARIES}
     Qt6::Core Qt6::Quick ${Qt6DBus_LIBRARIES} ${QREncode_LIBRARIES})
 
-#### Translations
+###### Translations
 
 if(NOT ANDROID)
-    # Linguist is too big a dependency, just use the native-build to get the qm files
-    set (TS_FILES_DESKTOP
+    # Skip for Android: Linguist is too big a dependency
+    # We check lower if they have magically appeared: just use the native-build
+    # and copy the resulting qm files to your android build.
+    set (TS_FILES
         translations/floweepay-desktop_en.ts
         translations/floweepay-desktop_nl.ts
         translations/floweepay-desktop_pl.ts
-    )
-    qt6_add_translation(qmFiles1 ${TS_FILES_DESKTOP})
-    set (TS_FILES_COMMON
+
         translations/floweepay-common_en.ts
         translations/floweepay-common_nl.ts
         translations/floweepay-common_pl.ts
-    )
-    qt6_add_translation(qmFiles2 ${TS_FILES_COMMON})
-    set (TS_FILES_MOBILE
         translations/floweepay-mobile_nl.ts
         translations/floweepay-mobile_pl.ts
     )
-    qt6_add_translation(qmFiles3 ${TS_FILES_MOBILE})
+    qt6_add_translation(qmFiles ${TS_FILES})
 
     add_custom_target(i18n
         COMMAND lupdate desktop/qml.qrc -ts ${TS_FILES_DESKTOP} translations/floweepay-desktop.ts
@@ -137,7 +134,7 @@ if(BUILD_DESKTOP_PAY)
         desktop/qml.qrc
         desktop-i18n.qrc
     )
-    target_link_libraries(pay pay_lib)
+    target_link_libraries(pay pay_lib Qt6::Svg)
     install(TARGETS pay DESTINATION bin)
 endif()
 
@@ -145,28 +142,43 @@ endif()
 ###### Pay-mobile executable
 option (BUILD_MOBILE_PAY "Build the mobile client of Pay" TRUE)
 
-if(BUILD_MOBILE_PAY)
-    configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
-    if (local_qml)
-        set (QML_PATH ${CMAKE_SOURCE_DIR}/mobile)
-    endif()
+if (ANDROID AND BUILD_MOBILE_PAY)
     configure_file(qml_path_helper.cpp.in mobile/qml_path_helper.cpp)
-    if(ANDROID)
-        # the dependency of linguist is pretty steep for cross-compilation
-        # so lets accept the lack of compiled translations here.
-        # A build that wants them should copy them from a native build.
-
-        if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qml")
-            set (MOBILE_PAY_I18N_QRC mobile-i18n.qrc)
-        endif()
+    if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qm")
+        message ("Found translation files, adding to build binary")
+        set (MOBILE_PAY_I18N_QRC mobile-i18n.qrc)
+        configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
     endif()
-    add_executable(pay_mobile
+
+    qt6_add_executable(pay_mobile
         main.cpp
         mobile/qml_path_helper.cpp
         mobile/qml.qrc
         ${MOBILE_PAY_I18N_QRC}
     )
-    target_link_libraries(pay_mobile pay_lib)
+    target_link_libraries(pay_mobile pay_lib Qt6::Svg)
+    set_target_properties(pay_mobile PROPERTIES
+       QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
+   )
+
+    qt6_android_generate_deployment_settings(pay_mobile)
+    qt_android_add_apk_target(pay_mobile)
+endif ()
+
+if(NOT ANDROID AND BUILD_MOBILE_PAY)
+    if(local_qml)
+        set (QML_PATH ${CMAKE_SOURCE_DIR}/mobile)
+    endif()
+    configure_file(qml_path_helper.cpp.in mobile/qml_path_helper.cpp)
+    configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
+
+    add_executable(pay_mobile
+        main.cpp
+        mobile/qml_path_helper.cpp
+        mobile/qml.qrc
+        mobile-i18n.qrc
+    )
+    target_link_libraries(pay_mobile pay_lib Qt6::Svg)
     install(TARGETS pay_mobile DESTINATION bin)
 endif()
 
@@ -177,7 +189,7 @@ option (BUILD_PAY_TOOLS
     "Build the tools Pay"
     ${NOT_ANDROID})
 
-if(BUILD_PAY_TOOLS)
+if (BUILD_PAY_TOOLS)
     add_executable(blockheaders-meta-extractor
         MetaExtractor.cpp
     )
@@ -222,6 +234,9 @@ if (${BUILD_DESKTOP_PAY})
 endif()
 if (${BUILD_MOBILE_PAY})
     message ("-> Building Pay for mobile")
+    if (ANDROID AND DEFINED MOBILE_PAY_I18N_QRC)
+        message ("   Found translation files, including in package")
+    endif ()
 endif()
 if (${BUILD_PAY_TOOLS})
     message ("-> Building Pay tools")
