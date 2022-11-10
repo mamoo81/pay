@@ -10,7 +10,8 @@ add scripts /usr/local/bin
 # for europe you might want to copy your local mirrorlist
 # copy mirrorlist /etc/pacman.d/
 RUN useradd builduser -d /home/builds -m -u 1000 -U \
-    && pacman -Sy --noconfirm base-devel \
+    && pacman -Suy --noconfirm --noprogressbar \
+    && pacman -Sy --noconfirm --noprogressbar --needed base-devel \
     cmake \
     ninja \
     git \
@@ -58,3 +59,4 @@ RUN mkdir -p /usr/local/cache \
     && /usr/local/bin/buildQrEncode.sh \
     && rm -rf ~builduser/* \
     && rm -rf /usr/local/cache
+

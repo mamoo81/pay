@@ -58,8 +58,8 @@ cd ~builduser/build/qtbase
     -DOPENSSL_ROOT_DIR=/opt/android-ssl
 ninja install
 
-# qtbase gives
-# -- Neither ANDROID_PLATFORM nor ANDROID_NATIVE_API_LEVEL were specified, using API level 23 as default
+# free up some 6GB
+rm -rf ~builduser/qtbase/ ~builduser/build/qtbase/ ~builduser/build-native/qtbase/
 
 # Others
 for i in qtshadertools qtdeclarative qtsvg
