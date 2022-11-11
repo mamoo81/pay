@@ -106,7 +106,7 @@ FloweePay::FloweePay()
     m_dspTimeout = appConfig.value(DSPTIMEOUT, m_dspTimeout).toInt();
     m_hideBalance = appConfig.value(HIDEBALANCE, false).toBool();
 
-    // Update expected chain-height ever 5 minutes
+    // Update expected chain-height every 5 minutes
     QTimer *timer = new QTimer(this);
     timer->setTimerType(Qt::VeryCoarseTimer);
     timer->start(5 * 60 * 1000);
