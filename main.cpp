@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
     parser.addOption(headers);
 #endif
     parser.process(qapp);
+
     auto *logger = Log::Manager::instance();
     logger->clearChannels();
     Log::Verbosity v = Log::WarningLevel;
@@ -180,8 +181,10 @@ int main(int argc, char *argv[])
     qmlRegisterType<TransactionInfo>("Flowee.org.pay", 1, 0, "TransactionInfo");
     qmlRegisterType<PaymentRequest>("Flowee.org.pay", 1, 0, "PaymentRequest");
     QQmlApplicationEngine engine;
-    engine.addImageProvider(QLatin1String("qr"), new QRCreator());
+    // quit on error in the QMLs
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &qapp, QCoreApplication::quit, Qt::QueuedConnection);
 
+    engine.addImageProvider(QLatin1String("qr"), new QRCreator());
     engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
     engine.rootContext()->setContextProperty("Fiat", FloweePay::instance()->prices());
     handleLocalQml(engine);
