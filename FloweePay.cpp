@@ -86,6 +86,19 @@ FloweePay::FloweePay()
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, [=]() {
         p2pNet()->shutdown();
     });
+#ifdef ANDROID
+    // on Android, an app is either full screen (active) or inactive and not visible.
+    // It is expected we save state as we move to inactive state in order to make the app
+    // trivial to kill without loss of data.
+    // The above 'aboutToQuit' will not be given enough CPU time to actually save much.
+    auto guiApp = qobject_cast<QGuiApplication*>(QCoreApplication::instance());
+    assert(guiApp);
+    connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationInactive) {
+            p2pNet()->saveData();
+        }
+    });
+#endif
 
     // start creation of downloadmanager and loading of data in a different thread
     ioService().post(std::bind(&FloweePay::init, this));
