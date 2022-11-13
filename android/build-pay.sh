@@ -18,18 +18,18 @@
 _thehub_dir_="$1"
 _pay_native_name_="$2"
 
-if test -d .bin; then
-    .bin/doBuild
+if test -f smartBuild.sh; then
+    ./smartBuild.sh
     exit
 fi
 
-if test -z "$_thehub_dir_"; then
+if test -z "$_pay_native_name_"; then
     echo "Usage:"
-    echo "  build-android <HUB_builddir> [PAY_NATIVE_builddir]"
+    echo "  build-pay <HUB_builddir> <PAY_NATIVE_builddir>"
     echo ""
     echo "Start this client in your builddir"
     echo "HUB-builddir is the dir where the android build of flowe-thehub is."
-    echo "Pay_NATIVE-builddir for a native build of flowee-pay (optional)."
+    echo "Pay_NATIVE-builddir for a native build of flowee-pay."
     exit
 fi
 
@@ -52,13 +52,18 @@ if test -z "$_docker_name_"; then
     _docker_name_="flowee/buildenv-android:v6.4.0"
 fi
 
-if test -d "$_pay_native_name_"; then
-    cp -f "$_pay_native_name_"/*qm .
+if ! test -f "$_pay_native_name_/blockheaders-meta-extractor"; then
+    echo "Invalid or not compiled for Android Pay-native dir."
+    exit
 fi
+
+mkdir -p imports
+cp -f "$_pay_native_name_"/*qm imports/
+cp -f "$_pay_native_name_"/blockheaders-meta-extractor imports/
 
 floweePaySrcDir=`dirname $0`/..
 
-if ! test -f .config; then
+if test ! -f .config; then
     cat << HERE > .config
 cd /home/builds/build
 
@@ -72,27 +77,46 @@ if ! test -f build.ninja; then
         -DOPENSSL_CRYPTO_LIBRARY=/opt/android-ssl/lib/libcrypto.a \\
         -DOPENSSL_SSL_LIBRARY=/opt/android-ssl/lib/libssl.a \\
         -DOPENSSL_INCLUDE_DIR=/opt/android-ssl/include/ \\
+        -DCMAKE_BUILD_TYPE=Release \\
         -G Ninja \\
-        -DCMAKE_INSTALL_PREFIX=\`pwd\` \\
         /home/builds/src
 fi
-
-ninja install
 HERE
     chmod 755 .config
 fi
 
-if ! test -d .bin; then
-    mkdir .bin
-cat << HERE > .bin/doBuild
+if ! test -f smartBuild.sh; then
+cat << HERE > smartBuild.sh
+#!/bin/bash
+#Created by build-pay.sh
+
+if test "\$1" = "distclean"; then
+    perl -e 'use File::Path qw(remove_tree); opendir DIR, "."; while (\$entry = readdir DIR) { if (\$entry=~/^\./) { next; } if (\$entry=~/smartBuild.sh$/ || \$entry=~/^imports$/) { next; } unlink "\$entry"; remove_tree "\$entry"; }'
+fi
+
+if test ! -f build.ninja; then
+    cp -n imports/*qm .
+    docker run --rm -ti\
+        --volume=`pwd`:/home/builds/build \
+        --volume=$floweePaySrcDir:/home/builds/src \
+        --volume=$_thehub_dir_:/home/builds/floweelibs \
+        $_docker_name_ \
+        build/.config
+fi
+
+if test -f android-build/assets/blockheaders -a ! -f android-build/assets/blockheaders.info; then
+    imports/blockheaders-meta-extractor android-build/assets
+fi
+
 docker run --rm -ti\
     --volume=`pwd`:/home/builds/build \
     --volume=$floweePaySrcDir:/home/builds/src \
     --volume=$_thehub_dir_:/home/builds/floweelibs \
     $_docker_name_ \
-    build/.config
+    "/usr/bin/ninja -C build"
+
 HERE
-    chmod 700 .bin/doBuild
+    chmod 700 smartBuild.sh
 fi
 
-.bin/doBuild
+./smartBuild.sh
