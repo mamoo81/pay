@@ -164,8 +164,20 @@ option (BUILD_MOBILE_PAY "Build the mobile client of Pay" TRUE)
 
 if (ANDROID AND BUILD_MOBILE_PAY)
     # blockheaders to be included in the APK
+    set (ASSETS_DIR ${CMAKE_BINARY_DIR}/android-build/assets/)
     download_file(https://flowee.org/products/pay/blockheaders
-        ${CMAKE_BINARY_DIR}/android-build/assets/blockheaders)
+        ${ASSETS_DIR}/blockheaders)
+    file(COPY ${CMAKE_SOURCE_DIR}/data/bip39-english
+              ${CMAKE_SOURCE_DIR}/data/bip39-chinese_simplified
+              ${CMAKE_SOURCE_DIR}/data/bip39-chinese_traditional
+              ${CMAKE_SOURCE_DIR}/data/bip39-czech
+              ${CMAKE_SOURCE_DIR}/data/bip39-french
+              ${CMAKE_SOURCE_DIR}/data/bip39-italian
+              ${CMAKE_SOURCE_DIR}/data/bip39-japanese
+              ${CMAKE_SOURCE_DIR}/data/bip39-korean
+              ${CMAKE_SOURCE_DIR}/data/bip39-portuguese
+              ${CMAKE_SOURCE_DIR}/data/bip39-spanish
+        DESTINATION ${ASSETS_DIR})
 
     configure_file(qml_path_helper.cpp.in mobile/qml_path_helper.cpp)
     if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qm")

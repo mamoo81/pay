@@ -125,8 +125,17 @@ FloweePay::FloweePay()
     timer->start(5 * 60 * 1000);
     connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
 
-    QDir base(QCoreApplication::applicationDirPath() + "/../share/floweepay/");
-    if (base.exists()) {
+    QString base;
+#if TARGET_OS_Android
+    base = QLatin1String("assets:/");
+#else
+    QDir baseDir(QCoreApplication::applicationDirPath() + "/../share/floweepay/");
+    if (baseDir.exists())
+        base = baseDir.absolutePath();
+    else
+        logCritical() << "Warning: No bip39 wordlists found. Looking in:" << baseDir.absolutePath();
+#endif
+    if (!base.isEmpty()) {
         // add Mnemonic (BIP39) dictionaries.
         struct LangPair { const char *id, *filename; };
         static const LangPair knownPairs[] = {
@@ -144,13 +153,10 @@ FloweePay::FloweePay()
         };
         for (int i = 0; knownPairs[i].id; ++i) {
             const LangPair lang = knownPairs[i];
-            QString fullPath(base.absoluteFilePath(lang.filename));
+            QString fullPath(base + '/' + lang.filename);
             if (QFile::exists(fullPath))
                 m_hdSeedValidator.registerWordList(lang.id, fullPath);
         }
-    }
-    else {
-        logCritical() << "Warning: No bip39 wordlists found. Looking in:" << base.absolutePath();
     }
 
     // forward signal
