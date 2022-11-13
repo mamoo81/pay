@@ -39,6 +39,26 @@ find_package(QREncode REQUIRED)
 
 option(local_qml "Allow local QML loading" OFF)
 
+add_definitions(-DTARGET_OS_${CMAKE_SYSTEM_NAME})
+# The cmake system name will hold values like Android, Linux or others.
+
+function(download_file url path)
+    if (NOT EXISTS "${path}")
+        get_filename_component(file "${path}" NAME)
+        message(STATUS "Downloading file ${file} from ${url}")
+
+        file(DOWNLOAD "${url}" "${path}" INACTIVITY_TIMEOUT 10 STATUS download_result)
+        list(GET download_result 0 status_code)
+        list(GET download_result 1 error_message)
+
+        if (NOT status_code EQUAL 0)
+            file(REMOVE "${path}")
+            message(FATAL_ERROR "Failed to download ${url}: ${error_message}")
+        endif()
+    endif()
+endfunction()
+
+
 set (PAY_SOURCES
     AccountInfo.cpp
     AddressInfo.cpp
@@ -143,9 +163,13 @@ endif()
 option (BUILD_MOBILE_PAY "Build the mobile client of Pay" TRUE)
 
 if (ANDROID AND BUILD_MOBILE_PAY)
+    # blockheaders to be included in the APK
+    download_file(https://flowee.org/products/pay/blockheaders
+        ${CMAKE_BINARY_DIR}/android-build/assets/blockheaders)
+
     configure_file(qml_path_helper.cpp.in mobile/qml_path_helper.cpp)
     if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qm")
-        message ("Found translation files, adding to build binary")
+        message ("pay_mobile: Found pre-compiled translations")
         set (MOBILE_PAY_I18N_QRC mobile-i18n.qrc)
         configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
     endif()
@@ -224,6 +248,7 @@ endif()
 message("")
 message("Configuration results:")
 message("----------------------")
+message("Target OS: ${CMAKE_SYSTEM_NAME}")
 if (${BUILD_DESKTOP_PAY})
     message ("-> Building Desktop-Pay...")
     if (${Qt6DBus_FOUND})

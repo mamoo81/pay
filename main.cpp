@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
     QCommandLineParser parser;
     QCommandLineOption connect(QStringList() << "connect", "Connect to HOST", "HOST");
-#ifndef ANDROID
+#ifndef TARGET_OS_Android
     parser.setApplicationDescription("Flowee pay");
     QCommandLineOption debug(QStringList() << "debug", "Use debug level logging");
     QCommandLineOption verbose(QStringList() << "verbose" << "v", "Be more verbose");
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
     // select chain first (before we create the FloweePay singleton)
     auto chain = P2PNet::MainChain;
-#ifndef ANDROID
+#ifndef TARGET_OS_Android
     if (parser.isSet(testnet4))
         chain = P2PNet::Testnet4Chain;
     if (parser.isSet(offline))
@@ -142,11 +142,19 @@ int main(int argc, char *argv[])
 #endif
     FloweePay::selectChain(chain);
 
+    // per OS code to find the static headers
+    QString osPath;
+#ifdef TARGET_OS_Linux
+    /* On Linux we try by default on /usr/share/floweepay */
+    osPath = QString("/usr/share/floweepay/");
+#endif
+#ifdef TARGET_OS_Android
+    osPath = QString("@assets:/");
+#endif
     std::unique_ptr<QFile> blockheaders; // pointer to own the memmapped blockheaders file.
-    // lets try by default to open the path /usr/share/floweepay/*
-    blockheaders.reset(new QFile(QString("/usr/share/floweepay/")
-                                 + (chain == P2PNet::MainChain ? "blockheaders" : "blockheaders-testnet4")));
-#if !defined(NDEBUG) && !defined(ANDROID)
+    if (!osPath.isEmpty())
+        blockheaders.reset(new QFile(osPath + (chain == P2PNet::MainChain ? "blockheaders" : "blockheaders-testnet4")));
+#if !defined(NDEBUG) && !defined(TARGET_OS_Android)
     // override only available in debug mode
     if (parser.isSet(headers)) {
         QFileInfo info(parser.value(headers));

@@ -25,7 +25,7 @@ fi
 
 if test -z "$_thehub_dir_"; then
     echo "Usage:"
-    echo "  build-android <HUB_builddir> [PAY_NATIVCE_builddir]"
+    echo "  build-android <HUB_builddir> [PAY_NATIVE_builddir]"
     echo ""
     echo "Start this client in your builddir"
     echo "HUB-builddir is the dir where the android build of flowe-thehub is."
