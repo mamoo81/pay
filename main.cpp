@@ -17,26 +17,23 @@
  */
 #include "BitcoinValue.h"
 #include "FloweePay.h"
-#include "NetDataProvider.h"
 #include "NewWalletConfig.h"
-#include "PortfolioDataProvider.h"
 #include "PriceDataProvider.h"
 #include "Payment.h"
+#include "TransactionInfo.h"
+#include "PaymentRequest.h"
 #include "QRCreator.h"
 
 #include <primitives/key.h> // for ECC_Start()
 
-#include <QCommandLineParser>
-#include <QDateTime>
-#include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include <QStandardPaths>
 #include <QTranslator>
 
 #include <signal.h>
+
 
 namespace {
 void HandleSigTerm(int) {
@@ -59,8 +56,21 @@ struct ECC_State
 };
 }
 
+#ifdef TARGET_OS_Android
+# include "main_utils_android.cpp"
+#else
+# include "main_utils.cpp"
+#endif
+
+
 // defined in qml_path_helper.cpp.in
 void handleLocalQml(QQmlApplicationEngine &engine);
+// defined in the utils file
+struct CommandLineParserData;
+CommandLineParserData* createCLD(QGuiApplication &app);
+void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *cld);
+std::unique_ptr<QFile> handleStaticChain(CommandLineParserData *cld);
+Log::Verbosity logVerbosity(CommandLineParserData *cld);
 
 
 int main(int argc, char *argv[])
@@ -76,51 +86,21 @@ int main(int argc, char *argv[])
     qmlRegisterType<NewWalletConfig>("Flowee.org.pay", 1, 0, "NewWalletConfig");
     qmlRegisterType<Payment>("Flowee.org.pay", 1, 0, "Payment");
 
-    QCommandLineParser parser;
-    QCommandLineOption connect(QStringList() << "connect", "Connect to HOST", "HOST");
-#ifndef TARGET_OS_Android
-    parser.setApplicationDescription("Flowee pay");
-    QCommandLineOption debug(QStringList() << "debug", "Use debug level logging");
-    QCommandLineOption verbose(QStringList() << "verbose" << "v", "Be more verbose");
-    QCommandLineOption quiet(QStringList() << "quiet" << "q", "Be quiet, only errors are shown");
-    QCommandLineOption testnet4(QStringList() << "testnet4", "Use testnet4");
-    parser.addHelpOption();
-    parser.addOption(debug);
-    parser.addOption(verbose);
-    parser.addOption(quiet);
-    parser.addOption(connect);
-    parser.addOption(testnet4);
-    // nice features to test your QML changes.
-    QCommandLineOption offline(QStringList() << "offline", "Do not connect");
-    parser.addOption(offline);
-#ifndef NDEBUG
-    // to protect people from the bad effect of having and later not having headers we only allow this
-    // override in debug mode.
-    QCommandLineOption headers(QStringList() << "headers", "Override location of blockheaders", "PATH");
-    parser.addOption(headers);
-#endif
-    parser.process(qapp);
-
+    auto cld = createCLD(qapp);
     auto *logger = Log::Manager::instance();
     logger->clearChannels();
-    Log::Verbosity v = Log::WarningLevel;
-#ifndef BCH_NO_DEBUG_OUTPUT
-    if (parser.isSet(debug))
-        v = Log::DebugLevel;
-    else
-#endif
-    if (parser.isSet(verbose))
-        v = Log::InfoLevel;
-    else if (parser.isSet(quiet))
-        v = Log::FatalLevel;
-    logger->clearLogLevels(v);
+    logger->clearLogLevels(logVerbosity(cld));
     logger->addConsoleChannel();
-#endif
+
+    auto blockheaders = handleStaticChain(cld);
 
     static const char* languagePacks[] = {
+#ifdef DESKTOP
         "floweepay-desktop",
-        "floweepay-common",
+#elif MOBILE
         "floweepay-mobile",
+#endif
+        "floweepay-common",
         nullptr
     };
 
@@ -130,59 +110,6 @@ int main(int argc, char *argv[])
             QCoreApplication::installTranslator(translator);
         else
             delete translator;
-    }
-
-    // select chain first (before we create the FloweePay singleton)
-    auto chain = P2PNet::MainChain;
-#ifndef TARGET_OS_Android
-    if (parser.isSet(testnet4))
-        chain = P2PNet::Testnet4Chain;
-    if (parser.isSet(offline))
-        FloweePay::instance()->setOffline(true);
-#endif
-    FloweePay::selectChain(chain);
-
-    // per OS code to find the static headers
-    QString osPath;
-#ifdef TARGET_OS_Linux
-    /* On Linux we try by default on /usr/share/floweepay */
-    osPath = QString("/usr/share/floweepay/");
-#endif
-#ifdef TARGET_OS_Android
-    osPath = QString("@assets:/");
-#endif
-    std::unique_ptr<QFile> blockheaders; // pointer to own the memmapped blockheaders file.
-    if (!osPath.isEmpty())
-        blockheaders.reset(new QFile(osPath + (chain == P2PNet::MainChain ? "blockheaders" : "blockheaders-testnet4")));
-#if !defined(NDEBUG) && !defined(TARGET_OS_Android)
-    // override only available in debug mode
-    if (parser.isSet(headers)) {
-        QFileInfo info(parser.value(headers));
-        if (info.exists()) {
-            if (info.isDir())
-                blockheaders.reset(new QFile(info.absoluteFilePath()
-                                             + (chain == P2PNet::MainChain ? "/blockheaders" : "/blockheaders-testnet4")));
-            else
-                blockheaders.reset(new QFile(info.absoluteFilePath()));
-        }
-        else {
-            // do not load if pointing to invalid path.
-            logWarning() << "Headers disabled by cli option";
-            blockheaders.reset();
-        }
-    }
-#endif
-
-    if (blockheaders) {
-       if (!blockheaders->open(QIODevice::ReadOnly)) { // can't be opened for reading.
-            blockheaders.reset();
-       }
-       else {
-           QFileInfo info(*blockheaders);
-           Blockchain::setStaticChain(blockheaders->map(0, blockheaders->size()), blockheaders->size(),
-                                      (info.absoluteFilePath() + ".info").toStdString());
-           blockheaders->close();
-       }
     }
 
     ECC_State crypo_state; // allows the secp256k1 to function.
@@ -200,27 +127,11 @@ int main(int argc, char *argv[])
     handleLocalQml(engine);
     engine.load(engine.baseUrl().url() + "/main.qml");
 
-    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &parser, &connect]() {
-        FloweePay *app = FloweePay::instance();
+    // make sure that FloweePay::instance() is not called above this line!
+    // since doing so will start initialization of the p2p stuff in a separate thread.
 
-        NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);
-        app->p2pNet()->addP2PNetListener(netData);
-        netData->startRefreshTimer();
-
-        PortfolioDataProvider *portfolio = new PortfolioDataProvider(&engine);
-        for (auto &wallet : app->wallets()) {
-            portfolio->addWalletAccount(wallet);
-        }
-        portfolio->selectDefaultWallet();
-
-        engine.rootContext()->setContextProperty("net", netData);
-        engine.rootContext()->setContextProperty("fiatHistory", FloweePay::instance()->priceHistory());
-        engine.rootContext()->setContextProperty("portfolio", portfolio);
-        if (parser.isSet(connect)) {
-            app->p2pNet()->connectionManager().peerAddressDb().addOne( // actually connect to it too.
-                        EndPoint(parser.value(connect).toStdString(), 8333));
-        }
-        app->startNet(); // lets go!
+    QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &cld]() {
+        loadCompleteHandler(engine, cld);
     });
 
     // Clean shutdown on SIGTERM

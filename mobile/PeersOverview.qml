@@ -22,7 +22,7 @@ import QtQuick.Layouts
 Item {
     Label {
         id: chainHeightLabel
-        text: "Headers synced height: " + Pay.chainHeight
+        text: "Headers synced height: " + Pay.headerChainHeight
     }
 
     ListView {

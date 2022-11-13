@@ -39,7 +39,7 @@ find_package(QREncode REQUIRED)
 
 option(local_qml "Allow local QML loading" OFF)
 
-add_definitions(-DTARGET_OS_${CMAKE_SYSTEM_NAME})
+add_compile_definitions(TARGET_OS_${CMAKE_SYSTEM_NAME})
 # The cmake system name will hold values like Android, Linux or others.
 
 function(download_file url path)
@@ -86,9 +86,12 @@ set (PAY_SOURCES
     Wallet_spending.cpp
 )
 
-add_library(pay_lib STATIC
-    ${PAY_SOURCES}
-)
+if (ANDROID)
+    list(APPEND PAY_SOURCES main_utils_android.cpp)
+else ()
+    list(APPEND PAY_SOURCES main_utils.cpp)
+endif ()
+add_library(pay_lib STATIC ${PAY_SOURCES})
 
 target_link_libraries(pay_lib
     flowee_apputils
@@ -154,10 +157,10 @@ if(BUILD_DESKTOP_PAY)
         desktop/qml.qrc
         desktop-i18n.qrc
     )
+    set_target_properties(pay PROPERTIES COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} DESKTOP")
     target_link_libraries(pay pay_lib Qt6::Svg)
     install(TARGETS pay DESTINATION bin)
 endif()
-
 
 ###### Pay-mobile executable
 option (BUILD_MOBILE_PAY "Build the mobile client of Pay" TRUE)
@@ -195,6 +198,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
     target_link_libraries(pay_mobile pay_lib Qt6::Svg)
     set_target_properties(pay_mobile PROPERTIES
        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
+       COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
    )
 
     qt6_android_generate_deployment_settings(pay_mobile)
@@ -213,6 +217,9 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
         mobile/qml_path_helper.cpp
         mobile/qml.qrc
         mobile-i18n.qrc
+    )
+    set_target_properties(pay_mobile PROPERTIES
+       COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
     )
     target_link_libraries(pay_mobile pay_lib Qt6::Svg)
     install(TARGETS pay_mobile DESTINATION bin)
