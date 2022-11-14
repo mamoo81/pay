@@ -304,7 +304,7 @@ InitialHistoryFetcher::InitialHistoryFetcher(QObject *parent)
 void InitialHistoryFetcher::fetch(const QString &path, const QString &currency)
 {
     assert(!path.isEmpty());
-    QNetworkRequest req(QUrl("https://flowee.org/products/pay/fiat/" + currency));
+    QNetworkRequest req(QUrl("http://flowee.org/products/pay/fiat/" + currency));
     auto app = QCoreApplication::instance();
     QString useragent = QString("%1%2/%3")
             .arg(app->organizationName(),
