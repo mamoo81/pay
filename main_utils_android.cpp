@@ -69,8 +69,10 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
         QFile::copy(orig.filePath(), target.absoluteFilePath());
         QFile::copy(orig.filePath() + ".info", infTarget.absoluteFilePath());
     }
-    assert(target.exists());
-    assert(infTarget.exists());
+    if (!target.exists())
+        abort();
+    if (!infTarget.exists())
+        abort();
 
     blockheaders.reset(new QFile(target.absoluteFilePath()));
     if (!blockheaders->open(QIODevice::ReadOnly)) { // can't be opened for reading.

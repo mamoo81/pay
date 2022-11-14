@@ -86,7 +86,7 @@ FloweePay::FloweePay()
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, [=]() {
         p2pNet()->shutdown();
     });
-#ifdef ANDROID
+#ifdef TARGET_OS_Android
     // on Android, an app is either full screen (active) or inactive and not visible.
     // It is expected we save state as we move to inactive state in order to make the app
     // trivial to kill without loss of data.
