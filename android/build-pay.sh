@@ -85,6 +85,23 @@ HERE
     chmod 755 .config
 fi
 
+if test ! -f .sign; then
+    cat << HERE > .sign
+#!/bin/bash
+
+cd /home/builds/build
+export QT_ANDROID_KEYSTORE_STORE_PASS=longPassword
+export QT_ANDROID_KEYSTORE_KEY_PASS=longPassword
+
+/usr/local/bin/androiddeployqt \
+    --input /home/builds/build/android-pay_mobile-deployment-settings.json \
+    --output /home/builds/build/android-build \
+    --apk /home/builds/floweepay.apk \
+    --sign /home/builds/src/android/selfsigned.keystore floweepay
+HERE
+    chmod 755 .sign
+fi
+
 if ! test -f smartBuild.sh; then
 cat << HERE > smartBuild.sh
 #!/bin/bash
@@ -113,7 +130,17 @@ docker run --rm -ti\
     --volume=$floweePaySrcDir:/home/builds/src \
     --volume=$_thehub_dir_:/home/builds/floweelibs \
     $_docker_name_ \
-    "/usr/bin/ninja -C build"
+    "/usr/bin/ninja -C build pay_mobile"
+
+if test "\$1" = "sign" -o "\$2" = "sign"
+then
+    docker run --rm -ti\
+        --volume=`pwd`:/home/builds/build \
+        --volume=$floweePaySrcDir:/home/builds/src \
+        --volume=$_thehub_dir_:/home/builds/floweelibs \
+        $_docker_name_ \
+        build/.sign
+fi
 
 HERE
     chmod 700 smartBuild.sh
