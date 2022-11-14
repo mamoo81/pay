@@ -3,5 +3,6 @@
         <file alias="FloweePay-light.svg">../images/FloweePay-light.svg</file>
         <file>main.qml</file>
         <file>PeersOverview.qml</file>
+        <file>defaults.ini</file>
     </qresource>
 </RCC>
