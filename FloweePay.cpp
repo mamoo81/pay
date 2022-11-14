@@ -691,7 +691,7 @@ NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, cons
     auto wallet = createWallet(walletName);
     wallet->setSingleAddressWallet(true);
     if (startHeight <= 1)
-        startHeight = s_chain == P2PNet::MainChain ? 550000 : 1000;
+        startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
     wallet->addPrivateKey(privateKey, startHeight);
     saveData();
     if (!m_offline)
@@ -734,7 +734,7 @@ NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, cons
     try {
         std::vector<uint32_t> derivationPath = HDMasterKey::deriveFromString(derivationPathStr.toStdString());
         if (startHeight <= 1)
-            startHeight = s_chain == P2PNet::MainChain ? 550000 : 1000;
+            startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
         wallet->createHDMasterKey(mnemonic, password, derivationPath, startHeight);
         wallet->segment()->blockSynched(startHeight);
         wallet->segment()->blockSynched(startHeight); // yes, twice
@@ -880,27 +880,27 @@ QString FloweePay::nameOfUnit(FloweePay::UnitOfBitcoin unit) const
 {
     switch (unit) {
     case FloweePay::BCH:
-        if (s_chain == P2PNet::MainChain)
+        if (m_chain == P2PNet::MainChain)
             return QLatin1String("BCH");
         else
             return QLatin1String("tBCH");
     case FloweePay::MilliBCH:
-        if (s_chain == P2PNet::MainChain)
+        if (m_chain == P2PNet::MainChain)
             return QLatin1String("mBCH");
         else
             return QLatin1String("m-tBCH");
     case FloweePay::MicroBCH:
-        if (s_chain == P2PNet::MainChain)
+        if (m_chain == P2PNet::MainChain)
             return QString("µBCH");
         else
             return QString("µ-tBCH");
     case FloweePay::Bits:
-        if (s_chain == P2PNet::MainChain)
+        if (m_chain == P2PNet::MainChain)
             return QLatin1String("bits");
         else
             return QLatin1String("tbits");
     case FloweePay::Satoshis:
-        if (s_chain == P2PNet::MainChain)
+        if (m_chain == P2PNet::MainChain)
             return QLatin1String("sats");
         else
             return QLatin1String("tsats");
