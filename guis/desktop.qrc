@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="FloweePay.png">images/FloweePay.png</file>
+        <file alias="FloweePay.svg">images/FloweePay.svg</file>
+        <file alias="FloweePay-light.svg">images/FloweePay-light.svg</file>
+        <file alias="cashfusion.svg">images/cashfusion.svg</file>
+        <file alias="emblem-warning.svg">images/emblem-warning.svg</file>
+        <file alias="sendIcon.png">desktop/images/sendIcon.png</file>
+        <file alias="sendIcon-light.png">desktop/images/sendIcon-light.png</file>
+        <file alias="receiveIcon.png">desktop/images/receiveIcon.png</file>
+        <file alias="settingsIcon.png">desktop/images/settingsIcon.png</file>
+        <file alias="settingsIcon-light.png">desktop/images/settingsIcon-light.png</file>
+        <file alias="activityIcon.png">desktop/images/activityIcon.png</file>
+        <file alias="activityIcon-light.png">desktop/images/activityIcon-light.png</file>
+        <file alias="eye-closed-light.png">desktop/images/eye-closed-light.png</file>
+        <file alias="eye-closed.png">desktop/images/eye-closed.png</file>
+        <file alias="eye-open-light.png">desktop/images/eye-open-light.png</file>
+        <file alias="eye-open.png">desktop/images/eye-open.png</file>
+        <file alias="edit-delete.svg">desktop/images/edit-delete.svg</file>
+        <file alias="edit-copy.svg">desktop/images/edit-copy.svg</file>
+        <file alias="lock-light.svg">desktop/images/lock-light.svg</file>
+        <file alias="lock-dark.svg">desktop/images/lock-dark.svg</file>
+        <file>desktop/defaults.ini</file>
+        <file>desktop/ConfigItem.qml</file>
+        <file>ControlColors.js</file>
+        <file>desktop/main.qml</file>
+        <file>desktop/NetView.qml</file>
+        <file>desktop/ReceiveTransactionPane.qml</file>
+        <file>desktop/SendTransactionPane.qml</file>
+        <file>desktop/WalletTransactionDetails.qml</file>
+        <file>desktop/WalletTransaction.qml</file>
+        <file>desktop/AccountListItem.qml</file>
+        <file>desktop/AccountDetails.qml</file>
+        <file>desktop/SettingsPane.qml</file>
+        <file>desktop/NewAccountPane.qml</file>
+        <file>desktop/CardTypeSelector.qml</file>
+        <file>desktop/NewAccountCreateBasicAccount.qml</file>
+        <file>desktop/NewAccountImportAccount.qml</file>
+        <file>desktop/NewAccountCreateHDAccount.qml</file>
+        <file>desktop/WalletEncryption.qml</file>
+        <file>desktop/PaymentTweakingPanel.qml</file>
+        <file>desktop/WalletEncryptionStatus.qml</file>
+        <file>desktop/AccountConfigMenu.qml</file>
+    </qresource>
+</RCC>

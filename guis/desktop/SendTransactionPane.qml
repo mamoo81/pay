@@ -20,8 +20,8 @@ import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtQuick.Window 2.11
 import QtQuick.Shapes 1.11 // for shape-path
-import "widgets" as Flowee
-import "./ControlColors.js" as ControlColors
+import "../Flowee" as Flowee
+import "../ControlColors.js" as ControlColors
 import Flowee.org.pay 1.0
 
 Item {

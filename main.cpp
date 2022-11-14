@@ -125,7 +125,13 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
     engine.rootContext()->setContextProperty("Fiat", FloweePay::instance()->prices());
     handleLocalQml(engine);
-    engine.load(engine.baseUrl().url() + "/main.qml");
+    engine.load(engine.baseUrl().url() +
+#ifdef DESKTOP
+        "/desktop"
+#elif MOBILE
+        "/mobile"
+#endif
+                "/main.qml");
 
     // make sure that FloweePay::instance() is not called above this line!
     // since doing so will start initialization of the p2p stuff in a separate thread.

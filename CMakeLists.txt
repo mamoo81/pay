@@ -121,9 +121,10 @@ if(NOT ANDROID)
     qt6_add_translation(qmFiles ${TS_FILES})
 
     add_custom_target(i18n
-        COMMAND lupdate desktop/qml.qrc -ts ${TS_FILES_DESKTOP} translations/floweepay-desktop.ts
-        COMMAND lupdate ${PAY_SOURCES} -ts ${TS_FILES_GENERIC} translations/floweepay-common.ts
-        COMMAND lupdate mobile/qml.qrc -ts ${TS_FILES_MOBILE} translations/floweepay-mobile.ts
+        COMMAND lupdate guis/desktop.qrc -ts ${TS_FILES_DESKTOP} translations/floweepay-desktop.ts
+        COMMAND lupdate ${PAY_SOURCES} guis/widgets.qrc
+                    -ts ${TS_FILES_GENERIC} translations/floweepay-common.ts
+        COMMAND lupdate guis/mobile.qrc -ts ${TS_FILES_MOBILE} translations/floweepay-mobile.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT
             "Updating internationalization (i18n) translation files"
@@ -148,13 +149,14 @@ if(BUILD_DESKTOP_PAY)
     # copied if it doesn't exist in the destination or if it is modified.
     configure_file(translations/desktop-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
     if (local_qml)
-        set (QML_PATH ${CMAKE_SOURCE_DIR}/desktop)
+        set (QML_PATH ${CMAKE_SOURCE_DIR}/guis/)
     endif()
-    configure_file(qml_path_helper.cpp.in desktop/qml_path_helper.cpp)
+    configure_file(qml_path_helper.cpp.in guis/desktop/qml_path_helper.cpp)
     add_executable(pay
         main.cpp
-        desktop/qml_path_helper.cpp
-        desktop/qml.qrc
+        guis/desktop/qml_path_helper.cpp
+        guis/desktop.qrc
+        guis/widgets.qrc
         desktop-i18n.qrc
     )
     set_target_properties(pay PROPERTIES COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} DESKTOP")
@@ -182,7 +184,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
               ${CMAKE_SOURCE_DIR}/data/bip39-spanish
         DESTINATION ${ASSETS_DIR})
 
-    configure_file(qml_path_helper.cpp.in mobile/qml_path_helper.cpp)
+    configure_file(qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
     if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qm")
         message ("pay_mobile: Found pre-compiled translations")
         set (MOBILE_PAY_I18N_QRC mobile-i18n.qrc)
@@ -191,8 +193,9 @@ if (ANDROID AND BUILD_MOBILE_PAY)
 
     qt6_add_executable(pay_mobile
         main.cpp
-        mobile/qml_path_helper.cpp
-        mobile/qml.qrc
+        guis/mobile/qml_path_helper.cpp
+        guis/mobile.qrc
+        guis/widgets.qrc
         ${MOBILE_PAY_I18N_QRC}
     )
     target_link_libraries(pay_mobile pay_lib Qt6::Svg)
@@ -207,15 +210,16 @@ endif ()
 
 if(NOT ANDROID AND BUILD_MOBILE_PAY)
     if(local_qml)
-        set (QML_PATH ${CMAKE_SOURCE_DIR}/mobile)
+        set (QML_PATH ${CMAKE_SOURCE_DIR}/guis)
     endif()
-    configure_file(qml_path_helper.cpp.in mobile/qml_path_helper.cpp)
+    configure_file(qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
     configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
 
     add_executable(pay_mobile
         main.cpp
-        mobile/qml_path_helper.cpp
-        mobile/qml.qrc
+        guis/mobile/qml_path_helper.cpp
+        guis/mobile.qrc
+        guis/widgets.qrc
         mobile-i18n.qrc
     )
     set_target_properties(pay_mobile PROPERTIES
@@ -245,8 +249,8 @@ if (BUILD_PAY_TOOLS)
     install(TARGETS blockheaders-meta-extractor DESTINATION bin)
 endif()
 
-install(PROGRAMS desktop/org.flowee.pay.desktop DESTINATION share/applications)
-set (ICONIN desktop/icons/hicolor/)
+install(PROGRAMS guis/desktop/org.flowee.pay.desktop DESTINATION share/applications)
+set (ICONIN guis/desktop/icons/hicolor/)
 set (ICONOUT share/icons/hicolor/)
 install(FILES ${ICONIN}16x16/apps/org.flowee.pay.png DESTINATION ${ICONOUT}16x16/apps)
 install(FILES ${ICONIN}22x22/apps/org.flowee.pay.png DESTINATION ${ICONOUT}22x22/apps)

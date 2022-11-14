@@ -20,7 +20,7 @@ import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 import QtQuick.Shapes 1.11 // for shape-path
 import Flowee.org.pay 1.0
-import "widgets" as Flowee
+import "../Flowee" as Flowee
 
 Pane {
     id: receivePane

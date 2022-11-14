@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Flowee/ArrowPoint.qml</file>
+        <file>Flowee/BitcoinAmountLabel.qml</file>
+        <file>Flowee/Button.qml</file>
+        <file>Flowee/CheckBox.qml</file>
+        <file>Flowee/CheckBoxLabel.qml</file>
+        <file>Flowee/CloseIcon.qml</file>
+        <file>Flowee/GroupBox.qml</file>
+        <file>Flowee/LabelWithClipboard.qml</file>
+        <file>Flowee/ListViewKeyHandler.qml</file>
+        <file>Flowee/MultilineTextField.qml</file>
+        <file>Flowee/ScrollThumb.qml</file>
+        <file>Flowee/TabBar.qml</file>
+        <file>Flowee/TextField.qml</file>
+        <file>Flowee/ComboBox.qml</file>
+        <file>Flowee/MoneyValueField.qml</file>
+        <file>Flowee/FiatValueField.qml</file>
+        <file>Flowee/BitcoinValueField.qml</file>
+        <file>Flowee/Dialog.qml</file>
+        <file>Flowee/DialogButtonBox.qml</file>
+        <file>Flowee/CashFusionIcon.qml</file>
+        <file>Flowee/DialogButtonBox.qml</file>
+        <file>Flowee/WarningLabel.qml</file>
+        <file>Flowee/PasswdDialog.qml</file>
+    </qresource>
+</RCC>

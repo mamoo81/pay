@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="FloweePay-light.svg">images/FloweePay-light.svg</file>
+        <file>mobile/main.qml</file>
+        <file alias="defaults.ini">mobile/defaults.ini</file>
+        <file>ControlColors.js</file>
+    </qresource>
+</RCC>

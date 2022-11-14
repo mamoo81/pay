@@ -19,8 +19,8 @@ import QtQuick 2.11
 import QtQuick.Controls 2.11
 import QtQuick.Layouts 1.11
 
-import "./ControlColors.js" as ControlColors
-import "widgets" as Flowee
+import "../ControlColors.js" as ControlColors
+import "../Flowee" as Flowee
 
 Pane {
     property string title: qsTr("Settings")

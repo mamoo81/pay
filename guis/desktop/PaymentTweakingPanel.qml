@@ -17,7 +17,7 @@
  */
 import QtQuick 2.11
 import QtQuick.Controls 2.11
-import "widgets" as Flowee
+import "../Flowee" as Flowee
 
 Item {
     id: root

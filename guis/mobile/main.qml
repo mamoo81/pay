@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../ControlColors.js" as ControlColors
 
 ApplicationWindow {
     id: mainWindow
@@ -25,24 +26,30 @@ ApplicationWindow {
     width: 360
     height: 720
     visible: true
+    onVisibleChanged: if (visible) ControlColors.applySkin(mainWindow)
 
     property bool isLoading: typeof portfolio === "undefined";
+    onIsLoadingChanged: {
+        if (!isLoading) {
+        }
+    }
 
     property color floweeSalmon: "#ff9d94"
     property color floweeBlue: "#0b1088"
     property color floweeGreen: "#90e4b5"
 
-    Loader {
-        id: content
-        anchors.fill: parent
-        source: mainWindow.isLoading ? "" : "PeersOverview.qml"
+    Item {
+        id: header
+        
     }
 
-    Text {
-        color: "white"
-        text: "Loading"
-        anchors.centerIn: parent
-        font.pointSize: 40
-        visible:  mainWindow.isLoading
+    StackView {
+        id: stackView
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: header.bottom
+        anchors.bottom: parent.bottom
     }
+
+    
 }
