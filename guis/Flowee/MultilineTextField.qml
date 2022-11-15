@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 import QtQuick.Layouts 1.11
 
 /*
@@ -27,7 +27,7 @@ import QtQuick.Layouts 1.11
  *
  * So, here we go, a basic multi line line-edit.
  */
-Control {
+QQC2.Control {
     id: root
 
     property string text: ""

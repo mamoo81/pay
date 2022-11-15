@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls
+import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import "." as Flowee;
 
-Popup {
+QQC2.Popup {
     id: root
 
     signal accepted
@@ -35,7 +35,7 @@ Popup {
     }
 
     modal: true
-    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+    closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
     onVisibleChanged: {
         // make sure any content gets focus on open
         if (visible && content.item)
@@ -71,12 +71,12 @@ Popup {
             return max / 2 * 3;
         }
         spacing: 10
-        Label {
+        QQC2.Label {
             id: titleLabel
             font.bold: true
             anchors.horizontalCenter: parent.horizontalCenter
         }
-        Label {
+        QQC2.Label {
             id: mainTextLabel
             // this next line will always create a binding loop. But its harmless, so ignore that comment.
             width: parent.width

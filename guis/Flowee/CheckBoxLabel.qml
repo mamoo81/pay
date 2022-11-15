@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 
 /**
  * This is a buddy that goes with a CheckBox component for when
@@ -25,12 +25,12 @@ import QtQuick.Controls 2.11
  * a text value, it will then become a clickable label which triggers
  * the checkbox when clicked.
  */
-Label {
+QQC2.Label {
     id: root
     property var buddy: null
     property string toolTipText: ""
 
-    ToolTip {
+    QQC2.ToolTip {
         delay: 600
         text: root.toolTipText
         visible: root.toolTipText !== "" && mouseArea.containsMouse

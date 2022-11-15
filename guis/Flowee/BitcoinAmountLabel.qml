@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 import QtQuick.Layouts 1.11
 
 /**
  * This class displays a Bitcoin value using the current settings
  * and renders it smartly to avoid it just being a long list of digits.
  */
-Control {
+QQC2.Control {
     id: root
     property double value: 5E8
     property bool colorize: true
@@ -66,7 +66,7 @@ Control {
             amountString = Pay.amountToString(sats)
         }
 
-        Label {
+        QQC2.Label {
             id: main
             text: {
                 var s = row.amountString
@@ -90,7 +90,7 @@ Control {
             Layout.alignment: Qt.AlignBaseline
         }
 
-        Label {
+        QQC2.Label {
             text: {
                 var s = row.amountString
                 var pos = s.length - 5
@@ -102,7 +102,7 @@ Control {
             Layout.alignment: Qt.AlignBaseline
             visible: Pay.unitAllowedDecimals === 8
         }
-        Label {
+        QQC2.Label {
             id: satsLabel
             text: {
                 var s = row.amountString
@@ -115,14 +115,14 @@ Control {
             visible: Pay.unitAllowedDecimals >= 2
         }
 
-        Label {
+        QQC2.Label {
             text: Pay.unitName
             color: main.color
             visible: root.includeUnit
             Layout.alignment: Qt.AlignBaseline
         }
 
-        Label {
+        QQC2.Label {
             visible: root.showFiat
             Layout.alignment: Qt.AlignBaseline
             text: {

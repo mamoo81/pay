@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 import Flowee.org.pay 1.0
 
 /*
@@ -65,7 +65,7 @@ FocusScope {
         visible: root.activeFocus
         x: 8
         y: 6
-        Label {
+        QQC2.Label {
             id: begin
             text: privValue.enteredString.substring(0, privValue.cursorPos)
         }
@@ -84,7 +84,7 @@ FocusScope {
                 onTriggered: parent.cursorVisible = !parent.cursorVisible
             }
         }
-        Label {
+        QQC2.Label {
             anchors.left: begin.right
             text: privValue.enteredString.substring(privValue.cursorPos)
         }

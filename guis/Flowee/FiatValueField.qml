@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 import Flowee.org.pay 1.0
 
 /*
@@ -32,7 +32,7 @@ MoneyValueField  {
     property double baselineOffset: balance.baselineOffset + balance.y
     valueObject.maxFractionalDigits: Fiat.displayCents ? 2 : 0
 
-    Label {
+    QQC2.Label {
         id: balance
         x: 6
         y: 6

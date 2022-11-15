@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 import Flowee.org.pay 1.0
 
 /*
@@ -42,7 +42,7 @@ MoneyValueField  {
         showFiat: false
     }
 
-    Label {
+    QQC2.Label {
         id: unit
         text: Pay.unitName
         y: 6

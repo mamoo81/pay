@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 
 Item {
     id: root
@@ -75,14 +75,14 @@ Item {
         }
         hoverEnabled: true
 
-        ToolTip {
+        QQC2.ToolTip {
             parent: root
             text: root.tooltipText
             delay: 1500
             visible: mousy.containsMouse && root.tooltipText !== ""
         }
     }
-    Label {
+    QQC2.Label {
         id: title
         anchors.left: slider.right
         anchors.verticalCenter: parent.verticalCenter
@@ -100,7 +100,7 @@ Item {
         anchors.leftMargin: 16
         radius: width
         color: q.palette.text
-        Label {
+        QQC2.Label {
             id: q
             text: "?"
             color: palette.base

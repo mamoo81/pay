@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 
 FocusScope {
     id: floweeTabBar
@@ -70,7 +70,7 @@ FocusScope {
                         width: height
                         height: payTabButtonText.height
                     }
-                    Label {
+                    QQC2.Label {
                         id: payTabButtonText
                         anchors.verticalCenter: parent.verticalCenter
                         font.bold: true

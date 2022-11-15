@@ -1,5 +1,5 @@
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 
 Image {
     id: fusedIcon
@@ -7,7 +7,7 @@ Image {
     source: "qrc:/cashfusion.svg"
     width: 24
     height: 24
-    ToolTip {
+    QQC2.ToolTip {
         delay: 600
         text: qsTr("Coin has been fused for increased anonymity")
         visible: mouseArea.inside

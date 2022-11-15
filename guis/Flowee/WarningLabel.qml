@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.11
-import QtQuick.Controls 2.11
+import QtQuick.Controls 2.11 as QQC2
 
 Item {
     id: warningLabel
@@ -35,7 +35,7 @@ Item {
         height: 32
         anchors.verticalCenter: parent.verticalCenter
     }
-    Label {
+    QQC2.Label {
         id: warningText
         anchors.left: warningIcon.right
         anchors.leftMargin: 5
