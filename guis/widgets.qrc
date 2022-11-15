@@ -18,7 +18,6 @@
         <file>Flowee/FiatValueField.qml</file>
         <file>Flowee/BitcoinValueField.qml</file>
         <file>Flowee/Dialog.qml</file>
-        <file>Flowee/DialogButtonBox.qml</file>
         <file>Flowee/CashFusionIcon.qml</file>
         <file>Flowee/DialogButtonBox.qml</file>
         <file>Flowee/WarningLabel.qml</file>
