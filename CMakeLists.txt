@@ -18,10 +18,7 @@ cmake_minimum_required(VERSION 3.19)
 project(flowee_pay VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -144,21 +141,24 @@ option (BUILD_DESKTOP_PAY
 if(BUILD_DESKTOP_PAY)
     # The qm files are generated in the build tree, but the qrc file is inside the
     # source directory and the path to resources are relative to the location of
-    # the qrc file itself. We use configure_file() to copy the qrc file in the build
+    # the qrc file itself. We copy the qrc file in the build
     # directory such that it can find the qm translations files. The qrc file is
     # copied if it doesn't exist in the destination or if it is modified.
-    configure_file(translations/desktop-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
+    file(COPY translations/desktop-i18n.qrc DESTINATION ${CMAKE_BINARY_DIR})
     if (local_qml)
         set (QML_PATH ${CMAKE_SOURCE_DIR}/guis/)
     endif()
     configure_file(qml_path_helper.cpp.in guis/desktop/qml_path_helper.cpp)
-    add_executable(pay
+    set (SOURCES_PAY
         main.cpp
         guis/desktop/qml_path_helper.cpp
+    )
+    qt6_add_resources(SOURCES_PAY
         guis/desktop.qrc
         guis/widgets.qrc
-        desktop-i18n.qrc
+        ${CMAKE_BINARY_DIR}/desktop-i18n.qrc
     )
+    add_executable(pay ${SOURCES_PAY})
     set_target_properties(pay PROPERTIES COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} DESKTOP")
     target_link_libraries(pay pay_lib Qt6::Svg)
     install(TARGETS pay DESTINATION bin)
@@ -185,27 +185,28 @@ if (ANDROID AND BUILD_MOBILE_PAY)
         DESTINATION ${ASSETS_DIR})
 
     configure_file(qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
-    if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qm")
-        message ("pay_mobile: Found pre-compiled translations")
-        set (MOBILE_PAY_I18N_QRC mobile-i18n.qrc)
-        configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
-    endif()
-
-    qt6_add_executable(pay_mobile
+    set (SOURCES_PAY_MOBILE
         main.cpp
         guis/mobile/qml_path_helper.cpp
+    )
+    qt6_add_resources(SOURCES_PAY_MOBILE
         guis/mobile.qrc
         guis/widgets.qrc
-        ${MOBILE_PAY_I18N_QRC}
     )
+    if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qm")
+        message ("pay_mobile: Found pre-compiled translations")
+        file(COPY translations/mobile-i18n.qrc DESTINATION ${CMAKE_BINARY_DIR})
+        qt6_add_resources(SOURCES_PAY_MOBILE ${CMAKE_BINARY_DIR}/mobile-i18n.qrc)
+    endif()
+
+    qt6_add_executable(pay_mobile ${SOURCES_PAY_MOBILE})
     target_link_libraries(pay_mobile pay_lib Qt6::Svg)
     set_target_properties(pay_mobile PROPERTIES
        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
    )
-
     qt6_android_generate_deployment_settings(pay_mobile)
-    qt_android_add_apk_target(pay_mobile)
+    qt6_android_add_apk_target(pay_mobile)
 endif ()
 
 if(NOT ANDROID AND BUILD_MOBILE_PAY)
@@ -213,15 +214,18 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
         set (QML_PATH ${CMAKE_SOURCE_DIR}/guis)
     endif()
     configure_file(qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
-    configure_file(translations/mobile-i18n.qrc ${CMAKE_BINARY_DIR} COPYONLY)
+    file(COPY translations/mobile-i18n.qrc DESTINATION ${CMAKE_BINARY_DIR})
 
-    add_executable(pay_mobile
+    set (SOURCES_PAY_MOBILE
         main.cpp
         guis/mobile/qml_path_helper.cpp
+    )
+    qt6_add_resources(SOURCES_PAY_MOBILE
         guis/mobile.qrc
         guis/widgets.qrc
-        mobile-i18n.qrc
+        ${CMAKE_BINARY_DIR}/mobile-i18n.qrc
     )
+    add_executable(pay_mobile ${SOURCES_PAY_MOBILE})
     set_target_properties(pay_mobile PROPERTIES
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
     )
