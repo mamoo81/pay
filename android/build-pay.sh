@@ -19,7 +19,7 @@ _thehub_dir_="$1"
 _pay_native_name_="$2"
 
 if test -f smartBuild.sh; then
-    ./smartBuild.sh
+    ./smartBuild.sh noapk
     exit
 fi
 
@@ -96,7 +96,6 @@ export QT_ANDROID_KEYSTORE_KEY_PASS=longPassword
 /usr/local/bin/androiddeployqt \
     --input /home/builds/build/android-pay_mobile-deployment-settings.json \
     --output /home/builds/build/android-build \
-    --apk /home/builds/floweepay.apk \
     --sign /home/builds/src/android/selfsigned.keystore floweepay
 HERE
     chmod 755 .sign
@@ -125,14 +124,23 @@ if test -f android-build/assets/blockheaders -a ! -f android-build/assets/blockh
     imports/blockheaders-meta-extractor android-build/assets
 fi
 
+if test "\$1" = "sign" -o "\$2" = "sign"
+then
+    MAKE_SIGNED_APK=1
+else
+  if test "\$1" != "noapk"; then
+    MAKE_UNSIGNED_APK=apk
+  fi
+fi
+
 docker run --rm -ti\
     --volume=`pwd`:/home/builds/build \
     --volume=$floweePaySrcDir:/home/builds/src \
     --volume=$_thehub_dir_:/home/builds/floweelibs \
     $_docker_name_ \
-    "/usr/bin/ninja -C build pay_mobile"
+    "/usr/bin/ninja -C build pay_mobile pay_mobile_prepare_apk_dir \$MAKE_UNSIGNED_APK"
 
-if test "\$1" = "sign" -o "\$2" = "sign"
+if test -n "\$MAKE_SIGNED_APK"
 then
     docker run --rm -ti\
         --volume=`pwd`:/home/builds/build \
@@ -140,10 +148,12 @@ then
         --volume=$_thehub_dir_:/home/builds/floweelibs \
         $_docker_name_ \
         build/.sign
+    echo -n "-- COPYING: "
+    cp -v android-build//build/outputs/apk/release/android-build-release-signed.apk floweepay.apk
 fi
 
 HERE
     chmod 700 smartBuild.sh
 fi
 
-./smartBuild.sh
+./smartBuild.sh noapk
