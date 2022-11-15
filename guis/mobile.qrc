@@ -1,8 +1,16 @@
 <RCC>
     <qresource prefix="/">
         <file alias="FloweePay-light.svg">images/FloweePay-light.svg</file>
+        <file alias="FloweePay.svg">images/FloweePay.svg</file>
+        <file alias="back-arrow.svg">mobile/images/back-arrow.svg</file>
+        <file alias="back-arrow-light.svg">mobile/images/back-arrow-light.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>
+        <file>mobile/MenuOverlay.qml</file>
+        <file>mobile/NetView.qml</file>
+        <file>mobile/Page.qml</file>
+        <file>mobile/MainViewBase.qml</file>
+        <file>mobile/MainView.qml</file>
     </qresource>
 </RCC>
