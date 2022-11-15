@@ -22,5 +22,6 @@
         <file>Flowee/DialogButtonBox.qml</file>
         <file>Flowee/WarningLabel.qml</file>
         <file>Flowee/PasswdDialog.qml</file>
+        <file>Flowee/Label.qml</file>
     </qresource>
 </RCC>

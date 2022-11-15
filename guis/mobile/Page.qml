@@ -18,12 +18,13 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as QQC2
 import QtQuick.Layouts 2.15
+import "../Flowee" as Flowee
 
 QQC2.Control {
     id: root
 
-    width: parent.width
-    height: parent.height
+    width: parent == null ? 10 : parent.width
+    height: parent == null ? 10 : parent.height
 
     default property alias content: child.children
     property alias headerText: headerLabel.text
@@ -50,7 +51,7 @@ QQC2.Control {
             }
         }
 
-        QQC2.Label {
+        Flowee.Label {
             id: headerLabel
             anchors.centerIn: parent
         }

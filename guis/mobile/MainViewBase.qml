@@ -18,6 +18,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as QQC2
 import QtQuick.Layouts 2.15
+import "../Flowee" as Flowee
 
 QQC2.Control {
     id: root
@@ -105,7 +106,7 @@ QQC2.Control {
             delegate: Item {
                 height: 80
                 width: root.width / stack.children.length;
-                QQC2.Label {
+                Flowee.Label {
                     text: modelData + 1
                     anchors.centerIn: parent
                 }

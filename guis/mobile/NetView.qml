@@ -45,23 +45,23 @@ Page {
                 x: 10
                 y: 6
 
-                QQC2.Label {
+                Flowee.Label {
                     text: modelData.userAgent
                 }
-                QQC2.Label {
+                Flowee.Label {
                     text: qsTr("Address", "network address (IP)") + ": " + modelData.address
                 }
                 RowLayout {
                     height: secondRow.height
-                    QQC2.Label {
+                    Flowee.Label {
                         id: secondRow
                         text: qsTr("Start-height: %1").arg(modelData.startHeight)
                     }
-                    QQC2.Label {
+                    Flowee.Label {
                         text: qsTr("ban-score: %1").arg(modelData.banScore)
                     }
                 }
-                QQC2.Label {
+                Flowee.Label {
                     id : accountStatus
                     font.bold: true
                     text: {
@@ -86,7 +86,7 @@ Page {
                 Flow {
                     Repeater {
                         model: modelData.services
-                        delegate: QQC2.Label { text: modelData }
+                        delegate: Flowee.Label { text: modelData }
                     }
                 }
             }

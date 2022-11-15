@@ -16,15 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick.Controls 2.15 as QQC2
 import QtQuick.Layouts 2.15
 import "../ControlColors.js" as ControlColors
+import "../Flowee" as Flowee
 
 Item {
     id: root
     property bool open: false
-
-    anchors.fill: parent
 
     Rectangle {
         anchors.fill: parent
@@ -62,7 +61,7 @@ Item {
             spacing: 10
             y: 40
             x: 15
-            Label {
+            Flowee.Label {
                 text: "Network Details"
                 width: parent.width
                 wrapMode: Text.WordWrap
