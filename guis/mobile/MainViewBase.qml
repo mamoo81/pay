@@ -25,7 +25,7 @@ QQC2.Control {
     width: parent.width
     height: parent.height
 
-    // This trick  means any child items the FloweeTabBar are actually added to the 'stack' item's children.
+    // This trick  means any child items are actually added to the 'stack' item's children.
     default property alias content: stack.children
     property int currentIndex: 0
     onCurrentIndexChanged: setOpacities()
@@ -61,8 +61,8 @@ QQC2.Control {
         Column {
             id: menuButton
             spacing: 3
-            y: 6
-            x: 5
+            y: 12
+            x: 10
 
             Repeater {
                 model: 3
@@ -76,18 +76,26 @@ QQC2.Control {
         }
         MouseArea {
             anchors.fill: menuButton
-            anchors.margins: -10
+            anchors.margins: -20
             cursorShape: Qt.PointingHandCursor
             onClicked: menuOverlay.open = true;
         }
 
-        Image {
-            source: Pay.useDarkSkin ? "qrc:/FloweePay-light.svg" : "qrc:/FloweePay.svg"
-            // ratio: 449 / 77
-            width: 150
-            height: 26
-            y: 4
+        Item {
+            // Here we just want the text part. So clip that out.
+            clip: true
+            y: 10
             x: 32
+            width: 122
+            height: 21
+            Image {
+                source: Pay.useDarkSkin ? "qrc:/FloweePay-light.svg" : "qrc:/FloweePay.svg"
+                // ratio: 449 / 77
+                width: 150
+                height: 26
+                x: -28
+                y: -5
+            }
         }
 
     }

@@ -12,5 +12,6 @@
         <file>mobile/Page.qml</file>
         <file>mobile/MainViewBase.qml</file>
         <file>mobile/MainView.qml</file>
+        <file>mobile/AccountHistory.qml</file>
     </qresource>
 </RCC>

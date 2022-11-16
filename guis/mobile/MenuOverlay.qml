@@ -25,9 +25,20 @@ Item {
     id: root
     property bool open: false
 
+    /*
+    onOpenChanged: {
+        // a little non-declarative, but needed due to the drag overwriting the X
+        menuArea.x = root.open ? 0 : 0 - width -3
+    } */
+
     Rectangle {
         anchors.fill: parent
-        opacity: root.open ? 0.5 : 0
+        opacity: {
+            if (!root.open)
+                return 0;
+            // we become 50% opaque when the menuArea is fully open (x == 0)
+            return (menuArea.x + 250) / 500;
+        }
         color: "black"
     }
 
@@ -76,7 +87,33 @@ Item {
             }
         }
 
-        Behavior on x { NumberAnimation { } }
+        Behavior on x { NumberAnimation { duration: 100 } }
+
+        property bool opened: false
+        onXChanged: {
+            if (!root.open)
+                opened = false;
+            else if (x === 0)
+                opened = true;
+            // close on user drag to the left
+            if (opened && x < -80)
+                root.open = false
+        }
+        // gesture (swipe right) to close menu
+        DragHandler {
+            id: dragHandler
+            enabled: root.open
+            yAxis.enabled: false
+            xAxis.minimum: -200
+            xAxis.maximum: 0
+
+            onActiveChanged: {
+                // should the user abort the swipe left, restore
+                // the original binding
+                if (!active && root.open)
+                    menuArea.x = root.open ? 0 : 0 - width -3
+            }
+        }
     }
     // allow close by clicking next to the menu
     MouseArea {
@@ -87,5 +124,4 @@ Item {
         onClicked: root.open = false;
     }
 
-    // TODO add gesture (swipe right) to close menu
 }

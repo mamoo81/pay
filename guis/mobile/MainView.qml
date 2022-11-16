@@ -21,20 +21,19 @@ import QtQuick.Layouts 2.15
 import "../Flowee" as Flowee
 
 MainViewBase {
-    Rectangle {
-        color: "blue";
+    AccountHistory {
         anchors.fill: parent
     }
-    Rectangle {
-        color: "red";
+    Item {
+        id: sendScreen
+        property string icon: "qrc:/bla"
         anchors.fill: parent
+
     }
-    Rectangle {
+    Item {
+        id: receiveScreen
+        property string icon: "qrc:/bla"
         anchors.fill: parent
-        color: "black";
-    }
-    Rectangle {
-        anchors.fill: parent
-        color: "white";
+
     }
 }
