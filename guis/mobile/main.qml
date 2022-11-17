@@ -32,8 +32,17 @@ ApplicationWindow {
 
     property bool isLoading: typeof portfolio === "undefined";
     onIsLoadingChanged: {
-        if (!isLoading) {
-        }
+        // only load our UI when the p2p layer is loaded and all
+        // variables are available.
+        if (!isLoading)
+            thePile.replace("./MainView.qml");
+    }
+    Component.onCompleted: {
+        var scale = Pay.fontScaling;
+        mainWindow.font.bold = scale > 90;
+        mainWindow.font.fontPtSize = scale > 90;
+        var baseFromOS = mainWindow.font.pointSize;
+        mainWindow.font.pointSize = baseFromOS + 2 * (scale / 100)
     }
 
     property color floweeSalmon: "#ff9d94"
@@ -43,10 +52,43 @@ ApplicationWindow {
     StackView {
         id: thePile
         anchors.fill: parent
-        initialItem: "./MainView.qml"
+        initialItem: "./Loading.qml";
     }
     MenuOverlay {
         id: menuOverlay
         anchors.fill: parent
+    }
+
+    Item {
+        id: touchFeedbackOverlay
+        anchors.fill: parent
+
+        Rectangle {
+            id: clickFeedback
+            color: "red"
+            opacity: 0.3
+            width: 70
+            height: 70
+            radius: 35
+            visible: opacity > 0
+
+            Timer {
+                running: parent.visible
+                interval: 50
+                onTriggered: clickFeedback.opacity = 0
+            }
+            Behavior on opacity { NumberAnimation { duration: 150 } }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            propagateComposedEvents: true
+            onClicked: (event) => {
+                event.accepted = false;
+                clickFeedback.x = event.x - clickFeedback.width / 2;
+                clickFeedback.y = event.y - clickFeedback.height / 2;
+                clickFeedback.opacity = 0.6
+            }
+        }
     }
 }

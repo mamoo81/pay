@@ -25,12 +25,6 @@ Item {
     id: root
     property bool open: false
 
-    /*
-    onOpenChanged: {
-        // a little non-declarative, but needed due to the drag overwriting the X
-        menuArea.x = root.open ? 0 : 0 - width -3
-    } */
-
     Rectangle {
         anchors.fill: parent
         opacity: {
@@ -50,14 +44,13 @@ Item {
         x: root.open ? 0 : 0 - width -3
         clip: true
 
-        Rectangle {
-            // TODO get little light-on/light-off icon instead
-            color: "black"
-            width: 20
-            height: 20
+        Image {
+            width: 25
+            height: 25
             anchors.right: parent.right
             anchors.rightMargin: 10
             y: 10
+            source: Pay.useDarkSkin ? "qrc:/maslenica.svg" : "qrc:/moon.svg"
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -96,7 +89,7 @@ Item {
             else if (x === 0)
                 opened = true;
             // close on user drag to the left
-            if (opened && x < -80)
+            if (opened && x < -50)
                 root.open = false
         }
         // gesture (swipe right) to close menu

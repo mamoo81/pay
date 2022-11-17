@@ -56,7 +56,7 @@ QQC2.Control {
         id: header
         width: parent.width
         height: 40
-        color: root.palette.base
+        color: Pay.useDarkSkin ? root.palette.base : mainWindow.floweeBlue
 
         Column {
             id: menuButton
@@ -67,7 +67,7 @@ QQC2.Control {
             Repeater {
                 model: 3
                 delegate: Rectangle {
-                    color: mainWindow.palette.text
+                    color: "white"
                     width: 12
                     height: 3
                     radius: 2
@@ -89,7 +89,7 @@ QQC2.Control {
             width: 122
             height: 21
             Image {
-                source: Pay.useDarkSkin ? "qrc:/FloweePay-light.svg" : "qrc:/FloweePay.svg"
+                source: "qrc:/FloweePay.svg"
                 // ratio: 449 / 77
                 width: 150
                 height: 26

@@ -621,6 +621,19 @@ uint32_t FloweePay::walletStartHeightHint() const
     return time(nullptr);
 }
 
+int FloweePay::fontScaling() const
+{
+    return m_fontScaling;
+}
+
+void FloweePay::setFontScaling(int newFontScaling)
+{
+    if (m_fontScaling == newFontScaling)
+        return;
+    m_fontScaling = newFontScaling;
+    emit fontScalingChanged();
+}
+
 PriceDataProvider *FloweePay::prices() const
 {
     return m_prices.get();

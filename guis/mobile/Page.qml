@@ -33,26 +33,25 @@ QQC2.Control {
         id: header
         width: parent.width
         height: 40
-        color: root.palette.base
+        color: Pay.useDarkSkin ? root.palette.base : mainWindow.floweeBlue
 
         Image {
             id: backButton
-            x: 6
-            y: 10
-            source: Pay.useDarkSkin ? "qrc:/back-arrow-light.svg" : "qrc:/back-arrow.svg"
-            width: 30
-            height: 20
+            x: 13
+            source: "qrc:/back-arrow.svg"
+            width: 20 * 1.1
+            height: 15 * 1.1
+            anchors.verticalCenter: parent.verticalCenter
             MouseArea {
                 anchors.fill: parent
-                onClicked: {
-                    console.log(" closing");
-                    thePile.pop();
-                }
+                anchors.margins: -15
+                onClicked: thePile.pop();
             }
         }
 
-        Flowee.Label {
+        Text {
             id: headerLabel
+            color: "white"
             anchors.centerIn: parent
         }
     }
@@ -74,7 +73,6 @@ QQC2.Control {
     Keys.onPressed: (event)=> {
         if (event.key === Qt.Key_Back) {
             event.accepted = true;
-                    console.log(" closing");
             thePile.pop();
         }
     }

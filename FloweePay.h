@@ -63,6 +63,7 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(bool newBlockMuted READ newBlockMuted WRITE setNewBlockMuted NOTIFY newBlockMutedChanged);
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
     Q_PROPERTY(int dspTimeout READ dspTimeout WRITE setDspTimeout NOTIFY dspTimeoutChanged)
+    Q_PROPERTY(int fontScaling READ fontScaling WRITE setFontScaling NOTIFY fontScalingChanged)
 public:
     enum StringType {
         Unknown = 0,
@@ -249,6 +250,9 @@ public:
     void setNewBlockMuted(bool mute);
 
 
+    int fontScaling() const;
+    void setFontScaling(int newFontScaling);
+
 signals:
     void loadComplete();
     /// \internal
@@ -265,6 +269,8 @@ signals:
     void dspTimeoutChanged();
     void hideBalanceChanged();
     void newBlockMutedChanged();
+
+    void fontScalingChanged();
 
 private slots:
     void loadingCompleted();
@@ -292,6 +298,7 @@ private:
     int m_windowWidth = 500;
     int m_windowHeight = 500;
     int m_initialHeaderChainHeight = 0;
+    int m_fontScaling = 100;
     bool m_darkSkin = true;
     bool m_createStartWallet = false;
     bool m_hideBalance = false;
