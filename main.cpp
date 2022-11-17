@@ -133,9 +133,6 @@ int main(int argc, char *argv[])
 #endif
                 "/main.qml");
 
-    // make sure that FloweePay::instance() is not called above this line!
-    // since doing so will start initialization of the p2p stuff in a separate thread.
-
     QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &cld]() {
         loadCompleteHandler(engine, cld);
     });
