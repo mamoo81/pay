@@ -19,7 +19,6 @@
 #define ACCOUNTINFO_H
 
 #include <QObject>
-#include "PaymentRequest.h"
 #include "TransactionInfo.h"
 #include "Wallet.h"
 #include "WalletHistoryModel.h"

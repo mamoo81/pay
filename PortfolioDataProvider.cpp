@@ -17,9 +17,7 @@
  */
 #include "PortfolioDataProvider.h"
 #include "AccountInfo.h"
-#include "BitcoinValue.h"
 #include "FloweePay.h"
-#include "Payment.h"
 #include "Wallet.h"
 
 #include <QSettings>

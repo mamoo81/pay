@@ -18,6 +18,7 @@
 #include "AccountInfo.h"
 #include "WalletHistoryModel.h"
 #include "FloweePay.h"
+#include "PaymentRequest.h"
 
 #include <p2p/PrivacySegment.h>
 #include <utils/base58.h>
