@@ -39,6 +39,16 @@ public:
         MissingLexicon
     };
 
+    enum Include {
+        IncludeNothing = 0,
+        IncludeRejected = 1,
+        IncludeUnconfirmed = 2,
+        IncludeConfirmed = 4,
+
+        IncludeAll = IncludeRejected  | IncludeUnconfirmed | IncludeConfirmed
+    };
+    Q_DECLARE_FLAGS(Includes, Include)
+    Q_FLAG(Includes)
     Q_ENUM(StringType UnitOfBitcoin)
 };
 

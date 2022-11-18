@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include <QLocale>
 #include <QDateTime>
+#include <QTimer>
 
 WalletHistoryModel::WalletHistoryModel(Wallet *wallet, QObject *parent)
     : QAbstractListModel(parent),
@@ -167,6 +168,7 @@ void WalletHistoryModel::transactionChanged(int txIndex)
 
 void WalletHistoryModel::createMap()
 {
+    m_recreateTriggered = false;
     m_rowsProxy.clear();
     m_rowsProxy.resize(m_wallet->m_walletTransactions.size());
 
@@ -177,8 +179,35 @@ void WalletHistoryModel::createMap()
     int i = m_rowsProxy.size() - 1;
     for (const auto &iter : m_wallet->m_walletTransactions) {
         assert(i >= 0);
+        if (!m_includeFlags.testFlag(WalletEnums::IncludeUnconfirmed)
+                && iter.second.isUnconfirmed())
+            continue;
+        if (!m_includeFlags.testFlag(WalletEnums::IncludeRejected)
+                && iter.second.isRejected())
+            continue;
+        if (!m_includeFlags.testFlag(WalletEnums::IncludeConfirmed)
+                && !iter.second.isUnconfirmed())
+            continue;
         m_rowsProxy[i--] = iter.first;
     }
+}
+
+const QFlags<WalletEnums::Include> &WalletHistoryModel::includeFlags() const
+{
+    return m_includeFlags;
+}
+
+void WalletHistoryModel::setIncludeFlags(const QFlags<WalletEnums::Include> &flags)
+{
+    if (m_includeFlags == flags)
+        return;
+    m_includeFlags = flags;
+    emit includeFlagsChanged();
+
+    if (m_recreateTriggered)
+        return;
+    m_recreateTriggered = true;
+    QTimer::singleShot(0, this, SLOT(createMap()));
 }
 
 int WalletHistoryModel::lastSyncIndicator() const

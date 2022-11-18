@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #define WALLETHSTORYMODEL_H
 
 #include <QAbstractListModel>
+#include "WalletEnums.h"
 
 class Wallet;
 
@@ -26,6 +27,7 @@ class WalletHistoryModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int lastSyncIndicator READ lastSyncIndicator WRITE setLastSyncIndicator RESET resetLastSyncIndicator NOTIFY lastSyncIndicatorChanged)
+    Q_PROPERTY(QFlags<WalletEnums::Include> includeFlags READ includeFlags WRITE setIncludeFlags NOTIFY includeFlagsChanged)
 
 public:
     explicit WalletHistoryModel(Wallet *wallet, QObject *parent = nullptr);
@@ -59,19 +61,24 @@ public:
     void setLastSyncIndicator(int x);
     void resetLastSyncIndicator();
 
+    const QFlags<WalletEnums::Include> &includeFlags() const;
+    void setIncludeFlags(const QFlags<WalletEnums::Include> &flags);
+
 signals:
     void lastSyncIndicatorChanged();
+    void includeFlagsChanged();
 
 private slots:
     void appendTransactions(int firstNew, int count);
     void transactionChanged(int txIndex);
-
-private:
     void createMap();
 
+private:
     QVector<int> m_rowsProxy;
     Wallet *m_wallet;
+    QFlags<WalletEnums::Include> m_includeFlags = WalletEnums::IncludeAll;
     int m_lastSyncIndicator = 0;
+    bool m_recreateTriggered = false;
 };
 
 #endif
