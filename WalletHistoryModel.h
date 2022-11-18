@@ -43,14 +43,17 @@ public:
         IsCoinbase,
         IsCashFusion,
         Comment,
-        ItemGroupInfo,
-        ItemGroupType,
+        ItemGroupId,    ///< Is an int indicating which group we are in.
+        ItemGroupInfo,  ///< Is an enum WalletEnums::ItemGroupInfo to help with painting outlines.
+        ItemGroupType,  ///< Is an enum WalletEnums::GroupingPeriod to help setting a group-title
         // SavedFiatRate, // TODO
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+
+    Q_INVOKABLE QString grouypingPeriod(int groupId) const;
 
     /**
      * Return a formatted date for an item in our list.
@@ -86,6 +89,12 @@ private:
         int endTxIndex;
     };
     std::vector<GroupInfo> m_groups;
+    struct GroupCache {
+        int txIndex;
+        int groupId;
+    };
+    int groupIdForTxIndex(int txIndex) const;
+    mutable GroupCache m_groupCache = { -1, 0 };
 
     int m_lastSyncIndicator = 0;
     bool m_recreateTriggered = false;
