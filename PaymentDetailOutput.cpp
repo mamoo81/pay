@@ -121,7 +121,7 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     std::string encodedAddress;
 
     switch (FloweePay::instance()->identifyString(address)) {
-    case FloweePay::LegacyPKH: {
+    case WalletEnums::LegacyPKH: {
         CBase58Data legacy;
         auto ok = legacy.SetString(m_address.toStdString());
         assert(ok);
@@ -132,13 +132,13 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
         break;
     }
-    case FloweePay::CashPKH: {
+    case WalletEnums::CashPKH: {
         auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefixCopy);
         assert (!c.hash.empty() && c.type == CashAddress::PUBKEY_TYPE);
         encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
         break;
     }
-    case FloweePay::LegacySH: {
+    case WalletEnums::LegacySH: {
         CBase58Data legacy;
         auto ok = legacy.SetString(m_address.toStdString());
         assert(ok);
@@ -149,7 +149,7 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
         break;
     }
-    case FloweePay::CashSH: {
+    case WalletEnums::CashSH: {
         auto c = CashAddress::decodeCashAddrContent(m_address.toStdString(), chainPrefixCopy);
         assert (!c.hash.empty() && c.type == CashAddress::SCRIPT_TYPE);
         encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);

@@ -27,9 +27,9 @@ GridLayout {
     rowSpacing: 10
 
     property var typedData: Pay.identifyString(secrets.text)
-    property bool finished: typedData === Bitcoin.PrivateKey || typedData === Bitcoin.CorrectMnemonic;
-    property bool isMnemonic: typedData === Bitcoin.CorrectMnemonic || typedData === Bitcoin.PartialMnemonic || typedData === Bitcoin.PartialMnemonicWithTypo;
-    property bool isPrivateKey: typedData === Bitcoin.PrivateKey
+    property bool finished: typedData === Wallet.PrivateKey || typedData === Wallet.CorrectMnemonic;
+    property bool isMnemonic: typedData === Wallet.CorrectMnemonic || typedData === Wallet.PartialMnemonic || typedData === Wallet.PartialMnemonicWithTypo;
+    property bool isPrivateKey: typedData === Wallet.PrivateKey
 
     Label {
         text: qsTr("Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.")
@@ -49,7 +49,7 @@ GridLayout {
     Label {
         id: feedback
         text: importAccount.finished ? "✔" : " "
-        color: Bitcoin.useDarkSkin ? "#37be2d" : "green"
+        color: Pay.useDarkSkin ? "#37be2d" : "green"
         font.pixelSize: 24
         Layout.alignment: Qt.AlignTop
     }
@@ -68,16 +68,16 @@ GridLayout {
 
         Label {
             id: detectedType
-            color: typedData === Bitcoin.PartialMnemonicWithTypo ? "red" : feedback.color
+            color: typedData === Wallet.PartialMnemonicWithTypo ? "red" : feedback.color
             text: {
                 var typedData = importAccount.typedData
-                if (typedData === Bitcoin.PrivateKey)
+                if (typedData === Wallet.PrivateKey)
                     return qsTr("Private key", "description of type") // TODO print address to go with it
-                if (typedData === Bitcoin.CorrectMnemonic)
+                if (typedData === Wallet.CorrectMnemonic)
                     return qsTr("BIP 39 seed-phrase", "description of type")
-                if (typedData === Bitcoin.PartialMnemonicWithTypo)
+                if (typedData === Wallet.PartialMnemonicWithTypo)
                     return qsTr("Unrecognized word", "Word from the seed-phrases lexicon")
-                if (typedData === Bitcoin.MissingLexicon)
+                if (typedData === Wallet.MissingLexicon)
                     return "Installation error; no lexicon found"; // intentionally not translated, end-users should not see this
                 return ""
             }

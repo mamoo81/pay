@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     qapp.setApplicationVersion("2022.09.0");
     qapp.setWindowIcon(QIcon(":/FloweePay.png"));
 
-    qmlRegisterType<FloweePay>("Flowee.org.pay", 1, 0, "Bitcoin");
+    qmlRegisterType<WalletEnums>("Flowee.org.pay", 1, 0, "Wallet");
     qmlRegisterType<BitcoinValue>("Flowee.org.pay", 1, 0, "BitcoinValue");
     qmlRegisterType<NewWalletConfig>("Flowee.org.pay", 1, 0, "NewWalletConfig");
     qmlRegisterType<Payment>("Flowee.org.pay", 1, 0, "Payment");

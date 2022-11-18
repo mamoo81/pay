@@ -489,8 +489,8 @@ Item {
                         Flowee.TextField {
                             id: destination
                             focus: true
-                            property bool addressOk: (addressType === Bitcoin.CashPKH || addressType === Bitcoin.CashSH)
-                                                     || (paymentDetail.forceLegacyOk && (addressType === Bitcoin.LegacySH || addressType === Bitcoin.LegacyPKH))
+                            property bool addressOk: (addressType === Wallet.CashPKH || addressType === Wallet.CashSH)
+                                                     || (paymentDetail.forceLegacyOk && (addressType === Wallet.LegacySH || addressType === Wallet.LegacyPKH))
                             property var addressType: Pay.identifyString(text);
                             Layout.fillWidth: true
                             Layout.columnSpan: 3
@@ -597,7 +597,7 @@ Item {
                 Item {
                     id: warningArea
                     // BTC address entered warning.
-                    visible: (destination.addressType === Bitcoin.LegacySH || destination.addressType === Bitcoin.LegacyPKH)
+                    visible: (destination.addressType === Wallet.LegacySH || destination.addressType === Wallet.LegacyPKH)
                              && paymentDetail.forceLegacyOk === false;
 
                     width: parent.width - 40

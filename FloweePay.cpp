@@ -772,34 +772,34 @@ bool FloweePay::checkDerivation(const QString &path) const
     }
 }
 
-FloweePay::StringType FloweePay::identifyString(const QString &string) const
+WalletEnums::StringType FloweePay::identifyString(const QString &string) const
 {
     const QString string_ = string.trimmed();
     const std::string s = string_.toStdString();
     if (string_.isEmpty()) {
         m_hdSeedValidator.clearSelectedLanguage();
-        return Unknown;
+        return WalletEnums::Unknown;
     }
 
     CBase58Data legacy;
     if (legacy.SetString(s)) {
         if ((m_chain == P2PNet::MainChain && legacy.isMainnetPkh())
             || (m_chain == P2PNet::Testnet4Chain && legacy.isTestnetPkh()))
-            return LegacyPKH;
+            return WalletEnums::LegacyPKH;
         if ((m_chain == P2PNet::MainChain && legacy.isMainnetSh())
             || (m_chain == P2PNet::Testnet4Chain && legacy.isTestnetSh()))
-            return LegacySH;
+            return WalletEnums::LegacySH;
         if ((m_chain == P2PNet::MainChain && legacy.isMainnetPrivKey())
             || (m_chain == P2PNet::Testnet4Chain && legacy.isTestnetPrivKey()))
-            return PrivateKey;
+            return WalletEnums::PrivateKey;
     }
 
     CashAddress::Content c = CashAddress::decodeCashAddrContent(s, m_chainPrefix);
     if (!c.hash.empty()) {
         if (c.type == CashAddress::PUBKEY_TYPE)
-            return CashPKH;
+            return WalletEnums::CashPKH;
         if (c.type == CashAddress::SCRIPT_TYPE)
-            return CashSH;
+            return WalletEnums::CashSH;
     }
 
     try {
@@ -816,7 +816,7 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
                     if (index != -1) {
                         auto validity = m_hdSeedValidator.validateMnemonic(string_, index);
                         if (validity == Mnemonic::Valid)
-                            return CorrectMnemonic;
+                            return WalletEnums::CorrectMnemonic;
                     }
                     else { // not a recognized word
                         break;
@@ -824,7 +824,7 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
                 }
                 else if (index == -1) { // a not-first-word failed the lookup.
                     if (space2 != -1) // this is the last word, don't highlight while writing.
-                        return PartialMnemonicWithTypo;
+                        return WalletEnums::PartialMnemonicWithTypo;
                     break;
                 }
                 // if we get to this point in the loop then we have a real word that we found in the dictionary.
@@ -833,13 +833,13 @@ FloweePay::StringType FloweePay::identifyString(const QString &string) const
             space = space2;
         } while (space != -1);
         if (firstWord >= 0)
-            return PartialMnemonic;
+            return WalletEnums::PartialMnemonic;
     } catch (const std::exception &e) {
         // probably deployment issues (faulty word list)
         logFatal() << e;
-        return MissingLexicon;
+        return WalletEnums::MissingLexicon;
     }
-    return Unknown;
+    return WalletEnums::Unknown;
 }
 
 NewWalletConfig* FloweePay::createNewBasicWallet(const QString &walletName)

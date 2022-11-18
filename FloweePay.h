@@ -20,6 +20,7 @@
 
 #include "NotificationManager.h"
 #include "PriceHistoryDataProvider.h"
+#include "WalletEnums.h"
 
 #include <QObject>
 
@@ -65,18 +66,6 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(int dspTimeout READ dspTimeout WRITE setDspTimeout NOTIFY dspTimeoutChanged)
     Q_PROPERTY(int fontScaling READ fontScaling WRITE setFontScaling NOTIFY fontScalingChanged)
 public:
-    enum StringType {
-        Unknown = 0,
-        PrivateKey,
-        CashPKH,
-        CashSH,
-        LegacyPKH,
-        LegacySH,
-        PartialMnemonic,
-        PartialMnemonicWithTypo,
-        CorrectMnemonic,
-        MissingLexicon
-    };
     enum UnitOfBitcoin {
         BCH,
         MilliBCH,
@@ -151,7 +140,7 @@ public:
     Q_INVOKABLE bool checkDerivation(const QString &path) const;
 
     /// take a bitcoin-address and identify the type.
-    Q_INVOKABLE FloweePay::StringType identifyString(const QString &string) const;
+    Q_INVOKABLE WalletEnums::StringType identifyString(const QString &string) const;
 
     /// return a string version of the \a unit name. tBCH for instance.
     Q_INVOKABLE QString nameOfUnit(FloweePay::UnitOfBitcoin unit) const;
@@ -230,8 +219,6 @@ public:
 
     Q_INVOKABLE void copyToClipboard(const QString &text);
     Q_INVOKABLE void openInExplorer(const QString &text);
-
-    Q_ENUM(StringType UnitOfBitcoin)
 
     QString version() const;
     QString libsVersion() const;

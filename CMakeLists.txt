@@ -81,6 +81,7 @@ set (PAY_SOURCES
     Wallet_encryption.cpp
     Wallet_support.cpp
     Wallet_spending.cpp
+    WalletEnums.cpp
 )
 
 if (ANDROID)
