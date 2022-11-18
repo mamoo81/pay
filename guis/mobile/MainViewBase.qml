@@ -111,12 +111,26 @@ QQC2.Control {
 
         Repeater {
             model: stack.children.length
-            delegate: Item {
+            delegate: Rectangle {
                 height: 80
                 width: root.width / stack.children.length;
+                color: {
+                    modelData == root.currentIndex
+                        ? root.palette.button
+                        : root.palette.base
+                }
+                Image {
+                    source: stack.children[modelData].icon
+                    width: 35
+                    height: 35
+                    y: 12
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
                 Flowee.Label {
-                    text: modelData + 1
-                    anchors.centerIn: parent
+                    text: stack.children[modelData].title
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 8
                 }
                 MouseArea {
                     anchors.fill: parent

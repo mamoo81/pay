@@ -49,7 +49,7 @@ QQC2.Control {
             }
         }
 
-        Text {
+        QQC2.Label {
             id: headerLabel
             color: "white"
             anchors.centerIn: parent

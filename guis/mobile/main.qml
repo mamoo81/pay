@@ -65,19 +65,27 @@ ApplicationWindow {
 
         Rectangle {
             id: clickFeedback
-            color: "red"
+            color: mainWindow.floweeGreen
             opacity: 0.3
             width: 70
             height: 70
             radius: 35
             visible: opacity > 0
 
+            Rectangle {
+                width: 7
+                height: 7
+                anchors.centerIn: parent
+            }
+
             Timer {
+                id: fadeTimer
                 running: parent.visible
                 interval: 50
+                repeat: true
                 onTriggered: clickFeedback.opacity = 0
             }
-            Behavior on opacity { NumberAnimation { duration: 150 } }
+            Behavior on opacity { NumberAnimation { duration: 100 } }
         }
 
         MouseArea {
@@ -85,9 +93,11 @@ ApplicationWindow {
             propagateComposedEvents: true
             onClicked: (event) => {
                 event.accepted = false;
+                fadeTimer.stop();
                 clickFeedback.x = event.x - clickFeedback.width / 2;
                 clickFeedback.y = event.y - clickFeedback.height / 2;
-                clickFeedback.opacity = 0.6
+                clickFeedback.opacity = 0.4
+                fadeTimer.start();
             }
         }
     }

@@ -1,3 +1,20 @@
+/*
+ * This file is part of the Flowee project
+ * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 import QtQuick 2.15
 import QtQuick.Controls 2.15 as QQC2
 import QtQuick.Layouts 2.15
@@ -5,7 +22,8 @@ import "../Flowee" as Flowee
 
 Flickable {
     id: accountHistory
-    property string icon: "qrc:/bla" // TODO make icon and show on tab
+    property string icon: "qrc:/homeButtonIcon" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+    property string  title: qsTr("Home")
 
     contentHeight: column.height + 20
     clip: true
@@ -107,6 +125,11 @@ Flickable {
                             delegate: Item {
                                 width: extraWallets.width
                                 height: accountName.height * 2 + 12
+                                Rectangle {
+                                    color: mainWindow.palette.button
+                                    anchors.fill: parent
+                                    visible: modelData === portfolio.current
+                                }
                                 Flowee.Label {
                                     id: accountName
                                     y: 6
@@ -122,14 +145,16 @@ Flickable {
                                 Flowee.Label {
                                     anchors.top: lastActive.top
                                     anchors.left: lastActive.right
-                                    text: "today";
+                                    text: Pay.formatDate(modelData.lastMinedTransaction)
                                     font.pointSize: mainWindow.font.pointSize * 0.8
                                     font.bold: false
                                 }
-                                Flowee.Label {
+                                Flowee.BitcoinAmountLabel {
                                     anchors.right: parent.right
                                     anchors.top: accountName.top
-                                    text: "€ 123.00";
+                                    showFiat: true
+                                    value: modelData.balanceConfirmed + modelData.balanceUnconfirmed
+                                    colorize: false
                                 }
                                 MouseArea {
                                     anchors.fill: parent
@@ -161,77 +186,69 @@ Flickable {
                     }
                 }
             }
-            Flowee.Label {
-                id: balanceLabel
-                text: "€ 100";
+            Flowee.BitcoinAmountLabel {
+                opacity: Pay.hideBalance ? 0.2 : 1
+                value: {
+                    if (Pay.hideBalance)
+                        return 88888888;
+                    return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
+                }
+                colorize: false
             }
 
-            GridLayout {
+            Row {
                 width: parent.width
-                columns: 3
-
-                Rectangle {
-                    Layout.alignment: Qt.AlignHCenter
-                    width: 60
-                    height: 60
-                    radius: 30
-                    color: "#00000000"
-                    border.color: "yellow"
-                    border.width: 1
+                height: 60
+                IconButton {
+                    width: parent.width / 3
+                    text: qsTr("Send Money")
                 }
-                Rectangle {
-                    Layout.alignment: Qt.AlignHCenter
-                    width: 60
-                    height: 60
-                    radius: 30
-                    color: "#00000000"
-                    border.color: "yellow"
-                    border.width: 1
+                IconButton {
+                    width: parent.width / 3
+                    text: qsTr("Scheduled")
                 }
-                Rectangle {
-                    Layout.alignment: Qt.AlignHCenter
-                    width: 60
-                    height: 60
-                    radius: 30
-                    color: "#00000000"
-                    border.color: "yellow"
-                    border.width: 1
-                }
-                Flowee.Label {
-                    text: "Send Money"
-                    horizontalAlignment: Qt.AlignHCenter
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.fillWidth: true
-                }
-                Flowee.Label {
-                    text: "Scheduled"
-                    Layout.alignment: Qt.AlignHCenter
-                    horizontalAlignment: Qt.AlignHCenter
-                    Layout.fillWidth: true
-                }
-                Flowee.Label {
-                    text: "Receive"
-                    Layout.alignment: Qt.AlignHCenter
-                    horizontalAlignment: Qt.AlignHCenter
-                    Layout.fillWidth: true
+                IconButton {
+                    width: parent.width / 3
+                    text: qsTr("Receive")
                 }
             }
 
-            Item { width: 1; height: 10 } // spacer
+            /* TODO
+              "Is archive" / "Unrchive""
 
-            Flowee.Label {
-                text: "Earlier this month"
-            }
-            Item {
+              Is Encryopted / Decrypt
+             */
+            ListView {
+                id: activityVIew
+                model: portfolio.current.transactions
+                clip: true
                 width: parent.width
-                height: 100
-                Rectangle {
-                    width: parent.width - 30
-                    x: 15
-                    radius: 10
-                    height: 100
-                    color: mainWindow.palette.window
+                delegate: Item {
+                    width: activityVIew.width
+                    height: 40
                 }
+
+                ScrollBar.vertical: Flowee.ScrollThumb {
+                    id: thumb
+                    minimumSize: 20 / activityView.height
+                    visible: size < 0.9
+                    preview: Rectangle {
+                        width: label.width + 12
+                        height: label.height + 12
+                        radius: 5
+                        color: label.palette.dark
+                        QQC2.Label {
+                            id: label
+                            anchors.centerIn: parent
+                            color: palette.light
+                            text: isLoading || activityView.model === null ? "" : activityView.model.dateForItem(thumb.position);
+                        }
+                    }
+                }
+                Keys.forwardTo: Flowee.ListViewKeyHandler {
+                    target: activityView
+                }
+
             }
         }
     }
