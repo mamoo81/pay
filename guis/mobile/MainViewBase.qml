@@ -97,7 +97,6 @@ QQC2.Control {
                 y: -5
             }
         }
-
     }
 
     Item {
@@ -115,7 +114,7 @@ QQC2.Control {
                 height: 80
                 width: root.width / stack.children.length;
                 color: {
-                    modelData == root.currentIndex
+                    modelData === root.currentIndex
                         ? root.palette.button
                         : root.palette.base
                 }

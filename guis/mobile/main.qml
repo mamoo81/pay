@@ -59,6 +59,7 @@ ApplicationWindow {
         anchors.fill: parent
     }
 
+    /*
     Item {
         id: touchFeedbackOverlay
         anchors.fill: parent
@@ -101,4 +102,5 @@ ApplicationWindow {
             }
         }
     }
+    */
 }
