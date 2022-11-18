@@ -170,15 +170,11 @@ void WalletHistoryModel::createMap()
 {
     m_recreateTriggered = false;
     m_rowsProxy.clear();
-    m_rowsProxy.resize(m_wallet->m_walletTransactions.size());
+    m_rowsProxy.reserve(m_wallet->m_walletTransactions.size());
 
     // we insert the key used in the m_wallet->m_walletTransaction map
     // in the order of how our rows work here.
-
-    // the simplest form; reverse order. This assumes the last entry is the newest one
-    int i = m_rowsProxy.size() - 1;
     for (const auto &iter : m_wallet->m_walletTransactions) {
-        assert(i >= 0);
         if (!m_includeFlags.testFlag(WalletEnums::IncludeUnconfirmed)
                 && iter.second.isUnconfirmed())
             continue;
@@ -188,8 +184,10 @@ void WalletHistoryModel::createMap()
         if (!m_includeFlags.testFlag(WalletEnums::IncludeConfirmed)
                 && !iter.second.isUnconfirmed())
             continue;
-        m_rowsProxy[i--] = iter.first;
+        m_rowsProxy.push_back(iter.first);
     }
+    // the simplest form; reverse order. This assumes the last entry is the newest one
+    std::reverse(m_rowsProxy.begin(), m_rowsProxy.end());
 }
 
 const QFlags<WalletEnums::Include> &WalletHistoryModel::includeFlags() const
