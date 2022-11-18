@@ -38,6 +38,7 @@ public:
         CorrectMnemonic,
         MissingLexicon
     };
+    Q_ENUM(StringType)
 
     enum Include {
         IncludeNothing = 0,
@@ -49,7 +50,25 @@ public:
     };
     Q_DECLARE_FLAGS(Includes, Include)
     Q_FLAG(Includes)
-    Q_ENUM(StringType UnitOfBitcoin)
+
+    /// used by the WalletHistoryModel to group items visually
+    enum ItemGroupInfo {
+        GroupStart,
+        GroupMiddle,
+        GroupEnd,
+        Ungrouped
+    };
+    Q_ENUM(ItemGroupInfo)
+    // Grouping period
+    enum GroupingPeriod {
+        Today,
+        Yesterday,
+        EarlierThisWeek, // this week, but we grouped some in the previous category(s)
+        Week,
+        EarlierThisMonth, // this month, but we grouped some in the previous category(s)
+        Month
+    };
+    Q_ENUM(GroupingPeriod)
 };
 
 #endif

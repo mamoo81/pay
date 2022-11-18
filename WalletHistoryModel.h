@@ -43,6 +43,8 @@ public:
         IsCoinbase,
         IsCashFusion,
         Comment,
+        ItemGroupInfo,
+        ItemGroupType,
         // SavedFiatRate, // TODO
     };
 
@@ -77,6 +79,14 @@ private:
     QVector<int> m_rowsProxy;
     Wallet *m_wallet;
     QFlags<WalletEnums::Include> m_includeFlags = WalletEnums::IncludeAll;
+
+    struct GroupInfo {
+        WalletEnums::GroupingPeriod period;
+        int startTxIndex;
+        int endTxIndex;
+    };
+    std::vector<GroupInfo> m_groups;
+
     int m_lastSyncIndicator = 0;
     bool m_recreateTriggered = false;
 };
