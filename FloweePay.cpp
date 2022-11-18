@@ -412,6 +412,24 @@ QString FloweePay::formatDate(QDateTime date) const
         if (days < 9) // return day of the week
             return date.toString("dddd");
     }
+
+    if (date.date().year() == QDate::currentDate().year()) {
+        static QString shortFormat;
+        if (shortFormat.isEmpty()) {
+            // We basically just need to know if this locale has months first or not
+            int m = format.indexOf('m');
+            if (m == -1)
+                m = format.indexOf('M');
+            int d = format.indexOf('d');
+            if (d == -1)
+                d = format.indexOf('D');
+            if (m < d)
+                shortFormat = "d MMM";
+            else
+                shortFormat = "MMM d";
+        }
+        return date.toString(shortFormat);
+    }
     return date.toString(format);
 }
 
