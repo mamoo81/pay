@@ -28,6 +28,10 @@ QQC2.Control {
 
     default property alias content: child.children
     property alias headerText: headerLabel.text
+    property alias headerButtonVisible: headerButton.visible
+    property alias headerButtonText: headerButton.text
+    property alias headerButtonEnabled: headerButton.enabled
+    signal headerButtonClicked
 
     Rectangle {
         id: header
@@ -52,7 +56,18 @@ QQC2.Control {
         QQC2.Label {
             id: headerLabel
             color: "white"
-            anchors.centerIn: parent
+            anchors.left: backButton.right
+            anchors.right: headerButton.left
+            horizontalAlignment: Text.AlignHCenter
+            anchors.verticalCenter: parent.verticalCenter
+        }
+
+        Flowee.Button {
+            id: headerButton
+            visible: false
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            onClicked: root.headerButtonClicked()
         }
     }
 

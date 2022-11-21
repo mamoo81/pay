@@ -13,6 +13,7 @@
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>
         <file>mobile/MenuOverlay.qml</file>
+        <file>mobile/NewAccount.qml</file>
         <file>mobile/NetView.qml</file>
         <file>mobile/Page.qml</file>
         <file>mobile/MainViewBase.qml</file>
