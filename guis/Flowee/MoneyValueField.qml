@@ -65,7 +65,7 @@ FocusScope {
         visible: root.activeFocus
         x: 8
         y: 6
-        QQC2.Label {
+        Label {
             id: begin
             text: privValue.enteredString.substring(0, privValue.cursorPos)
         }
@@ -84,7 +84,7 @@ FocusScope {
                 onTriggered: parent.cursorVisible = !parent.cursorVisible
             }
         }
-        QQC2.Label {
+        Label {
             anchors.left: begin.right
             text: privValue.enteredString.substring(privValue.cursorPos)
         }

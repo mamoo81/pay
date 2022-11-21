@@ -82,7 +82,7 @@ Item {
             visible: mousy.containsMouse && root.tooltipText !== ""
         }
     }
-    QQC2.Label {
+    Label {
         id: title
         anchors.left: slider.right
         anchors.verticalCenter: parent.verticalCenter
@@ -100,7 +100,7 @@ Item {
         anchors.leftMargin: 16
         radius: width
         color: q.palette.text
-        QQC2.Label {
+        Label {
             id: q
             text: "?"
             color: palette.base

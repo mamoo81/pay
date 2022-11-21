@@ -32,7 +32,7 @@ MoneyValueField  {
     property double baselineOffset: balance.baselineOffset + balance.y
     valueObject.maxFractionalDigits: Fiat.displayCents ? 2 : 0
 
-    QQC2.Label {
+    Label {
         id: balance
         x: 6
         y: 6

@@ -71,12 +71,12 @@ QQC2.Popup {
             return max / 2 * 3;
         }
         spacing: 10
-        QQC2.Label {
+        Label {
             id: titleLabel
             font.bold: true
             anchors.horizontalCenter: parent.horizontalCenter
         }
-        QQC2.Label {
+        Label {
             id: mainTextLabel
             // this next line will always create a binding loop. But its harmless, so ignore that comment.
             width: parent.width

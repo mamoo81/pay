@@ -70,7 +70,7 @@ FocusScope {
                         width: height
                         height: payTabButtonText.height
                     }
-                    QQC2.Label {
+                    Label {
                         id: payTabButtonText
                         anchors.verticalCenter: parent.verticalCenter
                         font.bold: true

@@ -25,7 +25,7 @@ import QtQuick.Controls 2.11 as QQC2
  * a text value, it will then become a clickable label which triggers
  * the checkbox when clicked.
  */
-QQC2.Label {
+Label {
     id: root
     property var buddy: null
     property string toolTipText: ""

@@ -35,7 +35,7 @@ Item {
         height: 32
         anchors.verticalCenter: parent.verticalCenter
     }
-    QQC2.Label {
+    Label {
         id: warningText
         anchors.left: warningIcon.right
         anchors.leftMargin: 5

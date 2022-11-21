@@ -66,7 +66,7 @@ QQC2.Control {
             amountString = Pay.amountToString(sats)
         }
 
-        QQC2.Label {
+        Label {
             id: main
             text: {
                 var s = row.amountString
@@ -90,7 +90,7 @@ QQC2.Control {
             Layout.alignment: Qt.AlignBaseline
         }
 
-        QQC2.Label {
+        Label {
             text: {
                 var s = row.amountString
                 var pos = s.length - 5
@@ -98,11 +98,11 @@ QQC2.Control {
             }
             font.pointSize: satsLabel.font.pointSize
             color: main.color
-            opacity: (satsLabel.opacity !== 1 && text == "000") ? 0.3 : 1
+            opacity: (satsLabel.opacity !== 1 && text === "000") ? 0.3 : 1
             Layout.alignment: Qt.AlignBaseline
             visible: Pay.unitAllowedDecimals === 8
         }
-        QQC2.Label {
+        Label {
             id: satsLabel
             text: {
                 var s = row.amountString
@@ -110,19 +110,19 @@ QQC2.Control {
             }
             font.pointSize: main.font.pointSize / 10 * 8
             color: main.color
-            opacity: text == "00" ? 0.3 : 1
+            opacity: text === "00" ? 0.3 : 1
             Layout.alignment: Qt.AlignBaseline
             visible: Pay.unitAllowedDecimals >= 2
         }
 
-        QQC2.Label {
+        Label {
             text: Pay.unitName
             color: main.color
             visible: root.includeUnit
             Layout.alignment: Qt.AlignBaseline
         }
 
-        QQC2.Label {
+        Label {
             visible: root.showFiat
             Layout.alignment: Qt.AlignBaseline
             text: {

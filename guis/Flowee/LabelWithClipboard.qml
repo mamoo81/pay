@@ -18,7 +18,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.11 as QQC2
 
-QQC2.Label {
+Label {
     id: root
     elide: Text.ElideMiddle
 

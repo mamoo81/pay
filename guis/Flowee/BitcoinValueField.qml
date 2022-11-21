@@ -42,7 +42,7 @@ MoneyValueField  {
         showFiat: false
     }
 
-    QQC2.Label {
+    Label {
         id: unit
         text: Pay.unitName
         y: 6
