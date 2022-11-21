@@ -36,7 +36,7 @@ ListView {
     header: ColumnLayout {
         id: column
         spacing: 20
-        width: parent.width - 20
+        width: root.width - 20
         x: 10
         y: 10
 
@@ -338,7 +338,7 @@ ListView {
 
             property int amountBch: model.fundsOut - model.fundsIn
             color: amountBch < 0 ? "#00000000"
-                    : (Flowee.useDarkSkin ? "#1d6828" : "#8cff94") // green background
+                     : (Pay.useDarkSkin ? "#1d6828" : "#97e282") // green background
             Flowee.Label {
                 id: amount
                 text: Fiat.formattedPrice(parent.amountBch, fiatHistory.historicalPrice(model.date));
