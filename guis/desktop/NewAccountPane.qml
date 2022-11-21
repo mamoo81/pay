@@ -118,6 +118,7 @@ FocusScope {
                     key: 2
                     title: qsTr("Import")
                     width: parent.selectorWidth
+                    onClicked: parent.cardClicked(key);
 
                     features: [
                         qsTr("Imports seed-phrase"),
