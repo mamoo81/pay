@@ -33,7 +33,6 @@
         <file>desktop/AccountDetails.qml</file>
         <file>desktop/SettingsPane.qml</file>
         <file>desktop/NewAccountPane.qml</file>
-        <file>desktop/CardTypeSelector.qml</file>
         <file>desktop/NewAccountCreateBasicAccount.qml</file>
         <file>desktop/NewAccountImportAccount.qml</file>
         <file>desktop/NewAccountCreateHDAccount.qml</file>

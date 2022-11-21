@@ -83,7 +83,7 @@ FocusScope {
                         contentArea.flick(0, -1000);
                 }
 
-                CardTypeSelector {
+                Flowee.CardTypeSelector {
                     id: pinToPay
                     key: 0
                     title: qsTr("Pin to Pay")
@@ -96,7 +96,7 @@ FocusScope {
                         qsTr("Keeps in sync", "pin to pay"),
                     ]
                 }
-                CardTypeSelector {
+                Flowee.CardTypeSelector {
                     id: pinToOpen
                     key: 1
                     title: qsTr("Pin to Open")

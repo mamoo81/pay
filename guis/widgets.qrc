@@ -3,6 +3,7 @@
         <file>Flowee/ArrowPoint.qml</file>
         <file>Flowee/BitcoinAmountLabel.qml</file>
         <file>Flowee/Button.qml</file>
+        <file>Flowee/CardTypeSelector.qml</file>
         <file>Flowee/CheckBox.qml</file>
         <file>Flowee/CheckBoxLabel.qml</file>
         <file>Flowee/CloseIcon.qml</file>

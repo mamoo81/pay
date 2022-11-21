@@ -87,7 +87,7 @@ FocusScope {
                         contentArea.flick(0, -1000);
                 }
 
-                CardTypeSelector {
+                Flowee.CardTypeSelector {
                     id: accountTypeBasic
                     key: 0
                     title: qsTr("Basic")
@@ -100,7 +100,7 @@ FocusScope {
                         qsTr("Great for brief usage", "Context: wallet type")
                     ]
                 }
-                CardTypeSelector {
+                Flowee.CardTypeSelector {
                     id: accountTypePreferred
                     key: 1
                     title: qsTr("HD wallet")
@@ -113,7 +113,7 @@ FocusScope {
                         qsTr("Most compatible", "The most compatible wallet type")
                     ]
                 }
-                CardTypeSelector {
+                Flowee.CardTypeSelector {
                     id: accountTypeImport
                     key: 2
                     title: qsTr("Import")
