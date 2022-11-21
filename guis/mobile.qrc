@@ -7,6 +7,8 @@
         <file alias="moon.svg">mobile/images/moon.svg</file>
         <file alias="homeButtonIcon.svg">mobile/images/homeButtonIcon.svg</file>
         <file alias="homeButtonIcon-light.svg">mobile/images/homeButtonIcon-light.svg</file>
+        <file alias="smallArrow-light.svg">mobile/images/smallArrow-light.svg</file>
+        <file alias="smallArrow.svg">mobile/images/smallArrow.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>
@@ -18,5 +20,6 @@
         <file>mobile/AccountHistory.qml</file>
         <file>mobile/Loading.qml</file>
         <file>mobile/IconButton.qml</file>
+        <file>mobile/TextButton.qml</file>
     </qresource>
 </RCC>
