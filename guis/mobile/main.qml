@@ -59,10 +59,10 @@ ApplicationWindow {
         anchors.fill: parent
     }
 
-    /*
     Item {
         id: touchFeedbackOverlay
         anchors.fill: parent
+        visible: Pay.platform === "Android"
 
         Rectangle {
             id: clickFeedback
@@ -102,5 +102,4 @@ ApplicationWindow {
             }
         }
     }
-    */
 }

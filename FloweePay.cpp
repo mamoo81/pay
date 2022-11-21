@@ -335,6 +335,17 @@ QString FloweePay::basedir() const
     return m_basedir;
 }
 
+QString FloweePay::platform() const
+{
+#ifdef TARGET_OS_Android
+    return "Android";
+#endif
+#ifdef TARGET_OS_Linux
+    return "Linux";
+#endif
+    return "unknown"; // TODO for other platforms check which names CMake uses.
+}
+
 QString FloweePay::amountToStringPretty(double price) const
 {
     QString answer = FloweePay::amountToString(static_cast<qint64>(price), m_unit);

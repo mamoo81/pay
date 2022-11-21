@@ -65,6 +65,7 @@ class FloweePay : public QObject, WorkerThreads, P2PNetInterface
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
     Q_PROPERTY(int dspTimeout READ dspTimeout WRITE setDspTimeout NOTIFY dspTimeoutChanged)
     Q_PROPERTY(int fontScaling READ fontScaling WRITE setFontScaling NOTIFY fontScalingChanged)
+    Q_PROPERTY(QString platform READ platform CONSTANT)
 public:
     enum UnitOfBitcoin {
         BCH,
@@ -97,6 +98,9 @@ public:
 
     /// return the app data location
     QString basedir() const;
+
+    /// returns platform name, Linux / Android / etc
+    QString platform() const;
 
     /// for a price, in satoshis, return a formatted string in unitName().
     Q_INVOKABLE inline QString amountToString(double price) const {
