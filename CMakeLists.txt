@@ -61,6 +61,7 @@ set (PAY_SOURCES
     AddressInfo.cpp
     BitcoinValue.cpp
     FloweePay.cpp
+    MenuModel.cpp
     NetDataProvider.cpp
     NetPeer.cpp
     NewWalletConfig.cpp

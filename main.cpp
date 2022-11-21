@@ -23,6 +23,7 @@
 #include "TransactionInfo.h"
 #include "PaymentRequest.h"
 #include "QRCreator.h"
+#include "MenuModel.h"
 
 #include <primitives/key.h> // for ECC_Start()
 
@@ -124,6 +125,8 @@ int main(int argc, char *argv[])
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
     engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
     engine.rootContext()->setContextProperty("Fiat", FloweePay::instance()->prices());
+    MenuModel menuModel;
+    engine.rootContext()->setContextProperty("MenuModel", &menuModel);
     handleLocalQml(engine);
     engine.load(engine.baseUrl().url() +
 #ifdef DESKTOP

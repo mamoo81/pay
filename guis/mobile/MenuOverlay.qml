@@ -65,16 +65,23 @@ Item {
             spacing: 10
             y: 40
             x: 15
-            Flowee.Label {
-                text: "Network Details"
-                width: parent.width
-                wrapMode: Text.WordWrap
-                MouseArea {
-                    anchors.fill: parent
-                    anchors.margins: -4
-                    onClicked: {
-                        thePile.push("NetView.qml");
-                        root.open = false;
+            Repeater {
+                model: MenuModel
+
+                Flowee.Label {
+                    text: model.name
+                    width: menuArea.width
+                    wrapMode: Text.WordWrap
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.margins: -4
+                        onClicked: {
+                            var target = model.target
+                            if (target !== "") {
+                                thePile.push(model.target)
+                                root.open = false;
+                            }
+                        }
                     }
                 }
             }
