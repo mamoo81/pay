@@ -228,9 +228,8 @@ ListView {
     height: contentHeight
     focus: true
     reuseItems: true
-    section.property: "groupId"
+    section.property: "grouping"
     section.delegate: Item {
-        required property int section
         height: label.height + 15
         width: root.width
         Rectangle {
@@ -241,7 +240,7 @@ ListView {
             id: label
             x: 10
             y: 12
-            text: portfolio.current.transactions.grouypingPeriod(parent.section)
+            text: section
         }
 
 /* TODO; to-top button
@@ -257,7 +256,7 @@ ListView {
     }
     delegate: Item {
         id: transactionDelegate
-        property var grouping: model.grouping
+        property var groupType: model.groupType
 
         width: root.width
         height: 80
@@ -266,17 +265,17 @@ ListView {
         Rectangle {
             width: parent.width - 16
             x: 8
-            visible: transactionDelegate.grouping !== Wallet.Ungrouped;
+            visible: transactionDelegate.groupType !== Wallet.Ungrouped;
             // we always have the rounded circles, but if we should not see them, we move them out of the screen.
             height: {
                 var h = 80
-                if (transactionDelegate.grouping !== Wallet.GroupStart)
+                if (transactionDelegate.groupType !== Wallet.GroupStart)
                     h += 20;
-                if (transactionDelegate.grouping !== Wallet.GroupEnd)
+                if (transactionDelegate.groupType !== Wallet.GroupEnd)
                     h += 20;
                 return h;
             }
-            y: transactionDelegate.grouping === Wallet.GroupStart ? 0 : -20;
+            y: transactionDelegate.groupType === Wallet.GroupStart ? 0 : -20;
 
             radius: 20
             color: mainWindow.palette.base
@@ -349,8 +348,8 @@ ListView {
         }
 
         Rectangle {
-            visible: transactionDelegate.grouping !== Wallet.GroupEnd
-                         && transactionDelegate.grouping !== Wallet.Ungrouped;
+            visible: transactionDelegate.groupType !== Wallet.GroupEnd
+                         && transactionDelegate.groupType !== Wallet.Ungrouped;
             anchors.bottom: parent.bottom
             height: 1
             width: parent.width - 16

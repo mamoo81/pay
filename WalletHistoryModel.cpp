@@ -234,10 +234,27 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
             return WalletEnums::GroupStart;
         return WalletEnums::GroupMiddle;
     }
-    case ItemGroupType:
-        return m_groups.at(groupIdForTxIndex(txIndex)).period;
-    case ItemGroupId:
-        return groupIdForTxIndex(txIndex);
+    case ItemGroupPeriod:
+        switch (m_groups.at(groupIdForTxIndex(txIndex)).period) {
+        case WalletEnums::Today:
+            return tr("Today");
+        case WalletEnums::Yesterday:
+            return tr("Yesterday");
+        case WalletEnums::EarlierThisWeek:
+            return tr("Earlier this week");
+        case WalletEnums::Week:
+            return tr("This week");
+        case WalletEnums::EarlierThisMonth:
+            return tr("Earlier this month");
+        case WalletEnums::Month:
+        default: {
+            const auto &bc = FloweePay::instance()->p2pNet()->blockchain();
+            uint32_t timestamp = bc.block(itemIter->second.minedBlockHeight).nTime;
+            assert(timestamp > 0);
+            QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
+            return date.toString("MMMM");
+        }
+        }
     }
 
     return QVariant();
@@ -271,43 +288,11 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
     answer[IsCoinbase] = "isCoinbase";
     answer[IsCashFusion] = "isCashFusion";
     answer[Comment] = "comment";
-    answer[ItemGroupId] = "groupId";
-    answer[ItemGroupInfo] = "grouping";
-    answer[ItemGroupType] = "groupType";
+    answer[ItemGroupInfo] = "groupType";
+    answer[ItemGroupPeriod] = "grouping";
     // answer[SavedFiatRate] = "savedFiatRate";
 
     return answer;
-}
-
-QString WalletHistoryModel::grouypingPeriod(int groupId) const
-{
-    if (groupId < 0 || groupId >= m_groups.size())
-        throw std::runtime_error("Out of bounds");
-
-    switch (m_groups.at(groupId).period) {
-    case WalletEnums::Today:
-        return tr("Today");
-    case WalletEnums::Yesterday:
-        return tr("Yesterday");
-    case WalletEnums::EarlierThisWeek:
-        return tr("Earlier this week");
-    case WalletEnums::Week:
-        return tr("This week");
-    case WalletEnums::EarlierThisMonth:
-        return tr("Earlier this month");
-    case WalletEnums::Month:
-    default: {
-        auto txIndex = m_groups.at(groupId).startTxIndex;
-        auto itemIter = m_wallet->m_walletTransactions.find(txIndex);
-        assert(itemIter != m_wallet->m_walletTransactions.end());
-
-        const auto &bc = FloweePay::instance()->p2pNet()->blockchain();
-        uint32_t timestamp = bc.block(itemIter->second.minedBlockHeight).nTime;
-        assert(timestamp > 0);
-        QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
-        return date.toString("MMMM");
-    }
-    }
 }
 
 QString WalletHistoryModel::dateForItem(qreal offset) const

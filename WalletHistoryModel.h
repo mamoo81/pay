@@ -43,17 +43,14 @@ public:
         IsCoinbase,
         IsCashFusion,
         Comment,
-        ItemGroupId,    ///< Is an int indicating which group we are in.
-        ItemGroupInfo,  ///< Is an enum WalletEnums::ItemGroupInfo to help with painting outlines.
-        ItemGroupType,  ///< Is an enum WalletEnums::GroupingPeriod to help setting a group-title
+        ItemGroupInfo,      ///< Is an enum WalletEnums::ItemGroupInfo to help with painting outlines.
+        ItemGroupPeriod,    ///< Is a string describing/identifying the group
         // SavedFiatRate, // TODO
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
-
-    Q_INVOKABLE QString grouypingPeriod(int groupId) const;
 
     /**
      * Return a formatted date for an item in our list.
