@@ -110,7 +110,7 @@ Item {
                 anchors.margins: -7
                 cursorShape: Qt.PointingHandCursor
                 id: clicky
-                onClicked: ToolTip.show(root.tooltipText, 15000);
+                onClicked: QQC2.ToolTip.show(root.tooltipText, 15000);
             }
         }
     }
