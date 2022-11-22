@@ -28,6 +28,7 @@ QQC2.Control {
 
     default property alias content: child.children
     property alias headerText: headerLabel.text
+    property alias columns: child.columns
     property alias headerButtonVisible: headerButton.visible
     property alias headerButtonText: headerButton.text
     property alias headerButtonEnabled: headerButton.enabled
@@ -66,6 +67,7 @@ QQC2.Control {
             id: headerButton
             visible: false
             anchors.right: parent.right
+            anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             onClicked: root.headerButtonClicked()
         }
@@ -76,11 +78,12 @@ QQC2.Control {
         y: header.height
         height: parent.height - y
         clip: true
-        contentHeight: child.height
+        contentHeight: child.implicitHeight
         contentWidth: width
         GridLayout {
             id: child
-            width: parent.width
+            width: root.width - 20
+            x: 10 // default margin
             height: implicitHeight
             columns: 1
         }
