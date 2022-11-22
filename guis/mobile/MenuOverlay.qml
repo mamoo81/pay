@@ -114,11 +114,14 @@ Item {
                 width: 20
                 height: 7
 
-                MouseArea {
-                    anchors.fill: parent
-                    anchors.margins: -10
-                    onClicked: baseArea.openAccounts = !baseArea.openAccounts
-                }
+            }
+            MouseArea {
+                anchors.top: currentAccountName.top
+                anchors.bottom: openButton.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.margins: -10
+                onClicked: baseArea.openAccounts = !baseArea.openAccounts
             }
 
             ColumnLayout {
