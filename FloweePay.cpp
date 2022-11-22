@@ -734,7 +734,7 @@ NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, cons
     wallet->setSingleAddressWallet(true);
     if (startHeight <= 1)
         startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
-    wallet->addPrivateKey(privateKey, startHeight);
+    wallet->addPrivateKey(privateKey.trimmed().remove('\n'), startHeight);
     saveData();
     if (!m_offline)
         p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
@@ -777,7 +777,8 @@ NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, cons
         std::vector<uint32_t> derivationPath = HDMasterKey::deriveFromString(derivationPathStr.toStdString());
         if (startHeight <= 1)
             startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
-        wallet->createHDMasterKey(mnemonic, password, derivationPath, startHeight);
+        wallet->createHDMasterKey(mnemonic.trimmed().remove('\n'), password.trimmed().remove('\n'),
+                                  derivationPath, startHeight);
         wallet->segment()->blockSynched(startHeight);
         wallet->segment()->blockSynched(startHeight); // yes, twice
         saveData();
@@ -803,7 +804,7 @@ bool FloweePay::checkDerivation(const QString &path) const
 
 WalletEnums::StringType FloweePay::identifyString(const QString &string) const
 {
-    const QString string_ = string.trimmed();
+    const QString string_ = string.trimmed().remove('\n');
     const std::string s = string_.toStdString();
     if (string_.isEmpty()) {
         m_hdSeedValidator.clearSelectedLanguage();
