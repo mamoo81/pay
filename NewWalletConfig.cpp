@@ -31,7 +31,7 @@ NewWalletConfig::NewWalletConfig(Wallet *wallet)
 NewWalletConfig::~NewWalletConfig()
 {
     if (m_wallet)
-        m_wallet->startDelayedSave();
+        emit m_wallet->startDelayedSave();
     m_wallet = nullptr;
 }
 
