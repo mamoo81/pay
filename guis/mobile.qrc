@@ -25,5 +25,6 @@
         <file>mobile/Loading.qml</file>
         <file>mobile/IconButton.qml</file>
         <file>mobile/TextButton.qml</file>
+        <file>mobile/AccountSyncState.qml</file>
     </qresource>
 </RCC>

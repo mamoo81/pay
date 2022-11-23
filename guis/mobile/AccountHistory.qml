@@ -215,6 +215,12 @@ ListView {
             }
         }
 
+        AccountSyncState {
+            account: portfolio.current
+            hideWhenDone: true
+            width: parent.width
+        }
+
         /* TODO
           "Is archive" / "Unrchive""
 
