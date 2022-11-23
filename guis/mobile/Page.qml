@@ -34,6 +34,10 @@ QQC2.Control {
     property alias headerButtonEnabled: headerButton.enabled
     signal headerButtonClicked
 
+    function takeFocus() {
+        focusScope.forceActiveFocus();
+    }
+
     Rectangle {
         id: header
         width: parent.width
@@ -80,12 +84,15 @@ QQC2.Control {
         clip: true
         contentHeight: child.implicitHeight
         contentWidth: width
-        GridLayout {
-            id: child
-            width: root.width - 20
-            x: 10 // default margin
-            height: implicitHeight
-            columns: 1
+        FocusScope {
+            id: focusScope
+            GridLayout {
+                id: child
+                width: root.width - 20
+                x: 10 // default margin
+                height: implicitHeight
+                columns: 1
+            }
         }
     }
     Keys.onPressed: (event)=> {

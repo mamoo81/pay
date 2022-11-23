@@ -21,6 +21,10 @@ Rectangle {
     color: "#0b1088"
     width: parent.width
     height: parent.height
+    function takeFocus() {
+        // method called from main.qml
+        // We don't need focus, though. Empty method.
+    }
 
     Image {
         source: "qrc:/FloweePay-light.svg"

@@ -53,6 +53,7 @@ ApplicationWindow {
         id: thePile
         anchors.fill: parent
         initialItem: "./Loading.qml";
+        onCurrentItemChanged: if (currentItem != null) currentItem.takeFocus();
     }
     MenuOverlay {
         id: menuOverlay

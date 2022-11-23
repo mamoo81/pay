@@ -32,18 +32,20 @@ QQC2.Control {
     Component.onCompleted: setOpacities()
 
     function setOpacities() {
-        var visibleChild = null;
         for (let i = 0; i < stack.children.length; ++i) {
             let on = i === currentIndex;
             let child = stack.children[i];
             child.visible = on;
-            if (on)
-                visibleChild = child;
         }
+        takeFocus();
+    }
 
+    // called from main when this page becomes active, as well as when we change tabs
+    function takeFocus() {
         // try to make sure the current tab gets keyboard focus properly.
         // We do some extra work in case the tab itself is a loader.
         forceActiveFocus();
+        let visibleChild = stack.children[currentIndex];
         visibleChild.focus = true
         if (visibleChild instanceof Loader) {
             var child = visibleChild.item;
@@ -51,7 +53,6 @@ QQC2.Control {
                 child.focus = true;
         }
     }
-
     Rectangle {
         id: header
         width: parent.width
