@@ -22,6 +22,7 @@
 #include "PriceDataProvider.h"
 
 #include <base58.h>
+#include <ripemd160.h>
 #include <cashaddr.h>
 #include <streaming/MessageParser.h>
 #include <streaming/BufferPool.h>
@@ -96,6 +97,7 @@ FloweePay::FloweePay()
     connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
         if (state == Qt::ApplicationInactive) {
             p2pNet()->saveData();
+            saveData();
         }
     });
 #endif
@@ -300,11 +302,31 @@ void FloweePay::saveData()
             builder.addByteArray(WalletName, nameData.constData(), nameData.size());
         }
     }
-    QString filebase = m_basedir + AppdataFilename;
+
+    auto buf = builder.buffer();
+
+    const QString filebase = m_basedir + AppdataFilename;
+    QFile origFile(filebase);
+    if (origFile.open(QIODevice::ReadOnly)) {
+        CRIPEMD160 fileHasher;
+        auto origContent = origFile.readAll();
+        fileHasher.write(origContent.data(), origContent.size());
+        char fileHash[CRIPEMD160::OUTPUT_SIZE];
+        fileHasher.finalize(fileHash);
+
+        CRIPEMD160 memHasher;
+        memHasher.write(buf.begin(), buf.size());
+        char memHash[CRIPEMD160::OUTPUT_SIZE];
+        memHasher.finalize(memHash);
+        if (memcmp(fileHash, memHash, CRIPEMD160::OUTPUT_SIZE) == 0) {
+            // no changes, so don't write.
+            return;
+        }
+    }
+
     QFile out(filebase + "~");
     out.remove(); // avoid overwrite issues.
     if (out.open(QIODevice::WriteOnly)) {
-        auto buf = builder.buffer();
         auto rc = out.write(buf.begin(), buf.size());
         if (rc == -1) {
             logFatal() << "Failed to write. Disk full?";
@@ -312,13 +334,12 @@ void FloweePay::saveData()
             return;
         }
         out.close();
-        QFile::remove(filebase);
         if (!out.rename(filebase)) {
-            logFatal() << "Failed to write to" << filebase;
+            logFatal() << "Failed to rename to" << filebase;
         // TODO have an app-wide error
         }
     } else {
-        logFatal() << "Failed to create data file. Disk full?";
+        logFatal() << "Failed to create data file. Permissions issue?";
         // TODO have an app-wide error
     }
 }
@@ -502,6 +523,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     m_wallets.append(w);
 
     emit walletsChanged();
+    QTimer::singleShot(1000, this, SLOT(saveData()));
     return w;
 }
 
