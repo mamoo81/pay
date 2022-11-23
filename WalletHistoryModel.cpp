@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "WalletHistoryModel.h"
-#include "Wallet.h"
 #include "FloweePay.h"
 
 #include <BlockHeader.h>
@@ -313,12 +312,19 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
 
 void WalletHistoryModel::appendTransactions(int firstNew, int count)
 {
-    // lets assume sorting newest to oldest here.
-    beginInsertRows(QModelIndex(), 0, count - 1);
+    auto oldCount = m_rowsProxy.size();
     for (auto i = firstNew; i < firstNew + count; ++i) {
+        auto iter = m_wallet->m_walletTransactions.find(i);
+        if (filterTransaction(iter->second))
+            continue;
+        // lets assume sorting newest to oldest here.
         m_rowsProxy.insert(0, i);
     }
-    endInsertRows();
+    auto insertedCount = m_rowsProxy.size() - oldCount;
+    if (insertedCount) {
+        beginInsertRows(QModelIndex(), 0, insertedCount - 1);
+        endInsertRows();
+    }
 }
 
 void WalletHistoryModel::transactionChanged(int txIndex)
@@ -342,14 +348,7 @@ void WalletHistoryModel::createMap()
     // we insert the key used in the m_wallet->m_walletTransaction map
     // in the order of how our rows work here.
     for (const auto &iter : m_wallet->m_walletTransactions) {
-        if (!m_includeFlags.testFlag(WalletEnums::IncludeUnconfirmed)
-                && iter.second.isUnconfirmed())
-            continue;
-        if (!m_includeFlags.testFlag(WalletEnums::IncludeRejected)
-                && iter.second.isRejected())
-            continue;
-        if (!m_includeFlags.testFlag(WalletEnums::IncludeConfirmed)
-                && !iter.second.isUnconfirmed())
+        if (filterTransaction(iter.second))
             continue;
         m_rowsProxy.push_back(iter.first);
     }
@@ -375,6 +374,17 @@ void WalletHistoryModel::createMap()
         m_groups.push_back(groupInfo);
     }
     m_groupCache = { -1 , 0 };
+}
+
+bool WalletHistoryModel::filterTransaction(const Wallet::WalletTransaction &wtx) const
+{
+    if (!m_includeFlags.testFlag(WalletEnums::IncludeUnconfirmed) && wtx.isUnconfirmed())
+        return false;
+    if (!m_includeFlags.testFlag(WalletEnums::IncludeRejected) && wtx.isRejected())
+        return false;
+    if (!m_includeFlags.testFlag(WalletEnums::IncludeConfirmed) && !wtx.isUnconfirmed())
+        return false;
+    return true;
 }
 
 const QFlags<WalletEnums::Include> &WalletHistoryModel::includeFlags() const

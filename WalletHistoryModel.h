@@ -19,6 +19,7 @@
 #define WALLETHSTORYMODEL_H
 
 #include <QAbstractListModel>
+#include "Wallet.h"
 #include "WalletEnums.h"
 
 class Wallet;
@@ -76,6 +77,9 @@ private slots:
     void createMap();
 
 private:
+    /// returns true if the filters indicate the transaction should stay.
+    bool filterTransaction(const Wallet::WalletTransaction &wtx) const;
+
     QVector<int> m_rowsProxy;
     Wallet *m_wallet;
     QFlags<WalletEnums::Include> m_includeFlags = WalletEnums::IncludeAll;
