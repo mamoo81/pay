@@ -728,6 +728,12 @@ void FloweePay::setHideBalance(bool hideBalance)
     appConfig.setValue(HIDEBALANCE, m_hideBalance);
 }
 
+NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName, const QDateTime &date)
+{
+    const int height = p2pNet()->blockchain().blockHeightAtTime(date.toSecsSinceEpoch());
+    return createImportedWallet(privateKey, walletName, height);
+}
+
 NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName, int startHeight)
 {
     auto wallet = createWallet(walletName);
@@ -768,6 +774,12 @@ QObject *FloweePay::researchAddress(const QString &address, QObject *parent)
         }
     }
     return info;
+}
+
+NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, const QDateTime &date)
+{
+    const int height = p2pNet()->blockchain().blockHeightAtTime(date.toSecsSinceEpoch());
+    return createImportedHDWallet(mnemonic, password, derivationPathStr, walletName, height);
 }
 
 NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, int startHeight)

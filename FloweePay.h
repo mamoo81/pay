@@ -124,6 +124,8 @@ public:
     Q_INVOKABLE NewWalletConfig* createNewBasicWallet(const QString &walletName = QString());
     /// swipe a paper wallet with an optional name
     Q_INVOKABLE NewWalletConfig* createImportedWallet(const QString &privateKey, const QString &walletName, int startHeight);
+    /// Alternative arguments version. With date instead of block-height
+    Q_INVOKABLE NewWalletConfig* createImportedWallet(const QString &privateKey, const QString &walletName, const QDateTime &date);
 
     /// Find out about the address and return an instance of AddressInfo if known.
     Q_INVOKABLE QObject* researchAddress(const QString &address, QObject *parent);
@@ -139,7 +141,11 @@ public:
      * @param startHeight the first block we should check for transactions, or zero for "future blocks"
      *        If you set this to 1 then we set it to a more sane value of when Bitcoin became more well known.
      */
-    Q_INVOKABLE NewWalletConfig *createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPath, const QString &walletName, int startHeight = 0);
+    Q_INVOKABLE NewWalletConfig *createImportedHDWallet(const QString &mnemonic, const QString &password,
+                                                        const QString &derivationPath, const QString &walletName, int startHeight = 0);
+    /// Alternative arguments version. With date instead of block-height
+    Q_INVOKABLE NewWalletConfig *createImportedHDWallet(const QString &mnemonic, const QString &password,
+                                                        const QString &derivationPath, const QString &walletName, const QDateTime &date);
 
     Q_INVOKABLE bool checkDerivation(const QString &path) const;
 

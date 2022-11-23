@@ -213,9 +213,7 @@ Page {
             property bool isPrivateKey: typedData === Wallet.PrivateKey
 
             onHeaderButtonClicked: {
-                var sh = parseInt("0" + startHeight.text, 10);
-                if (sh === 0) // the genesis was block 1, zero doesn't exist
-                    sh = 1;
+                var sh = new Date(year.currentIndex + 2010, month.currentIndex, 1);
                 if (importAccount.isMnemonic)
                     var options = Pay.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh);
                 else
@@ -292,13 +290,33 @@ Page {
             }
             Flowee.Label {
                 Layout.columnSpan: 2
-                text: qsTr("Start Height") + ":"
+                text: qsTr("Oldest Transaction") + ":"
             }
-            Flowee.TextField {
-                id: startHeight
-                Layout.columnSpan: 2
-                Layout.fillWidth: true
-                validator: IntValidator{bottom: 0; top: 999999}
+            Flow {
+                spacing: 10
+                QQC2.ComboBox {
+                    id: month
+                    model: {
+                        let locale = Qt.locale();
+                        var list = [];
+                        for (let i = QQC2.Calendar.January; i <= QQC2.Calendar.December; ++i) {
+                            list.push(locale.monthName(i));
+                        }
+                        return list;
+                    }
+                }
+                QQC2.ComboBox {
+                    id: year
+                    model: {
+                        var list = [];
+                        let last = new Date().getFullYear();
+                        for (let i = 2010; i <= last; ++i) {
+                            list.push(i);
+                        }
+                        return list;
+                    }
+                    currentIndex: 9;
+                }
             }
             Flowee.Label {
                 text: qsTr("Derivation") + ":"
