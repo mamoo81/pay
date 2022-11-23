@@ -139,6 +139,7 @@ Page {
             }
             Flowee.TextField {
                 id: accountName
+                focus: true
                 Layout.fillWidth: true
             }
             Item { width: 10; height: 10 }
@@ -191,6 +192,7 @@ Page {
             Flowee.TextField {
                 id: accountName
                 Layout.fillWidth: true
+                focus: true
             }
         }
     }
@@ -245,8 +247,8 @@ Page {
             }
             Flowee.MultilineTextField {
                 id: secrets
-                focus: true
                 Layout.fillWidth: true
+                focus: true
                 nextFocusTarget: accountName
                 clip: true
             }

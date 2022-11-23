@@ -41,6 +41,12 @@ QQC2.Control {
     width: 100
     height: implicitHeight
 
+    onActiveFocusChanged: {
+        // delegate our focus to the child textedit.
+        if (activeFocus)
+            textEdit.forceActiveFocus();
+    }
+
     Connections {
         function onTextChanged() { textEdit.text = text; }
         function onPlaceholderTextChanged() {
