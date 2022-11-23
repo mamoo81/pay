@@ -257,6 +257,25 @@ Page {
                 font.pixelSize: 24
                 Layout.alignment: Qt.AlignTop
             }
+
+            Flowee.Label {
+                id: detectedType
+                color: typedData === Wallet.PartialMnemonicWithTypo ? "red" : feedback.color
+                text: {
+                    var typedData = importAccount.typedData
+                    if (typedData === Wallet.PrivateKey)
+                        return qsTr("Private key", "description of type") // TODO print address to go with it
+                    if (typedData === Wallet.CorrectMnemonic)
+                        return qsTr("BIP 39 seed-phrase", "description of type")
+                    if (typedData === Wallet.PartialMnemonicWithTypo)
+                        return qsTr("Unrecognized word", "Word from the seed-phrases lexicon")
+                    if (typedData === Wallet.MissingLexicon)
+                        return "Installation error; no lexicon found"; // intentionally not translated, end-users should not see this
+                    return ""
+                }
+                Layout.columnSpan: 2
+            }
+
             Flowee.Label {
                 text: qsTr("Name") + ":"
                 Layout.columnSpan: 2
