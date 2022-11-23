@@ -9,9 +9,12 @@
         <file alias="homeButtonIcon-light.svg">mobile/images/homeButtonIcon-light.svg</file>
         <file alias="smallArrow-light.svg">mobile/images/smallArrow-light.svg</file>
         <file alias="smallArrow.svg">mobile/images/smallArrow.svg</file>
+        <file alias="external.svg">mobile/images/external.svg</file>
+        <file alias="external-light.svg">mobile/images/external-light.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>
+        <file>mobile/About.qml</file>
         <file>mobile/MenuOverlay.qml</file>
         <file>mobile/NewAccount.qml</file>
         <file>mobile/NetView.qml</file>

@@ -41,7 +41,7 @@ QQC2.Control {
     Rectangle {
         id: header
         width: parent.width
-        height: 40
+        height: 50
         color: Pay.useDarkSkin ? root.palette.base : mainWindow.floweeBlue
 
         Image {
@@ -77,9 +77,16 @@ QQC2.Control {
         }
     }
 
-    Flickable {
+    Rectangle {
         width: parent.width
         y: header.height
+        height: parent.height - y
+        color: root.palette.base
+    }
+
+    Flickable {
+        width: parent.width
+        y: header.height + 10
         height: parent.height - y
         clip: true
         contentHeight: child.implicitHeight

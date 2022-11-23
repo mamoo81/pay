@@ -141,6 +141,7 @@ Item {
                 TextButton {
                     id: textButton
                     text: qsTr("Add Wallet")
+                    showPageIcon: true
                     onClicked: {
                         thePile.push("./NewAccount.qml")
                         root.open = false
@@ -157,13 +158,13 @@ Item {
             anchors.topMargin: 10
             width: parent.width - 20
             x: 10
-            spacing: 30
 
             Repeater {
                 model: MenuModel
 
                 TextButton {
                     text: model.name
+                    showPageIcon: true
                     onClicked: {
                         var target = model.target
                         if (target !== "") {

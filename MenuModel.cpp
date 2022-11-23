@@ -21,12 +21,12 @@ MenuModel::MenuModel(QObject *parent)
     : QAbstractListModel{parent},
       m_current(&m_root)
 {
-    // m_root.children.append({tr("Add Wallet "), "NewWallet.qml", {}});
     // m_root.children.append({tr("Accounts"), "AccountsList.qml", {}});
-    m_root.children.append({tr("Network Details"), "NetView.qml", {}});
+    m_root.children.append({tr("Network Details"), "./NetView.qml", {}});
+    m_root.children.append({tr("About"), "./About.qml", {}});
     /*
     m_root.children.append({tr("Settings"), "", {
-            { tr("Settings 1"), "", {} },
+            { tr("Security"), "", {} },
             { tr("Settings 2"), "", {} },
     }}); */
 

@@ -21,19 +21,61 @@ import "../Flowee" as Flowee
 Item {
     id: root
     width: parent.width
-    height: label.height + 20
+    height: label.height + (smallLabel.text === "" ? 0 : smallLabel.height + 6) + 20
 
     signal clicked
     property alias text: label.text
+    property alias subtext: smallLabel.text
+    property bool showPageIcon: false
+    property string imageSource: ""
+    property int imageWidth: 16
+    property int imageHeight: 16
 
     Flowee.Label {
         id: label
-        anchors.verticalCenter: parent.verticalCenter
+        y: 10
         width: parent.width
         wrapMode: Text.WordWrap
+    }
+    Flowee.Label {
+        id: smallLabel
+        anchors.top: label.bottom
+        anchors.topMargin: 6
+        font.pointSize: mainWindow.font.poinSize * 0.7
+        font.bold: false
+        color: Qt.darker(palette.text, 1.5)
     }
     MouseArea {
         anchors.fill: parent
         onClicked: root.clicked()
+    }
+
+    Loader {
+        sourceComponent: {
+            if (root.showPageIcon)
+                return pageIcon;
+            if (root.imageSource !== "")
+                return genericImage;
+            return undefined;
+        }
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+    }
+    Component {
+        id: pageIcon
+        Image {
+            width: 12
+            height: 8
+            source: Pay.useDarkSkin ? "qrc:/smallArrow-light.svg" : "qrc:/smallArrow.svg";
+            rotation: 270
+        }
+    }
+    Component {
+        id: genericImage
+        Image {
+            source: root.imageSource
+            width: root.imageWidth
+            height: root.imageHeight
+        }
     }
 }

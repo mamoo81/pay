@@ -56,7 +56,7 @@ QQC2.Control {
     Rectangle {
         id: header
         width: parent.width
-        height: 40
+        height: 50
         color: Pay.useDarkSkin ? root.palette.base : mainWindow.floweeBlue
 
         Column {
