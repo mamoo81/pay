@@ -24,6 +24,9 @@
 #include "PaymentRequest.h"
 #include "QRCreator.h"
 #include "MenuModel.h"
+#ifdef NETWORK_LOGGER
+# include "NetworkLogClient.h"
+#endif
 
 #include <primitives/key.h> // for ECC_Start()
 
@@ -91,6 +94,7 @@ int main(int argc, char *argv[])
     auto *logger = Log::Manager::instance();
     logger->clearChannels();
     logger->clearLogLevels(logVerbosity(cld));
+
     logger->addConsoleChannel();
 
     auto blockheaders = handleStaticChain(cld);
@@ -139,6 +143,9 @@ int main(int argc, char *argv[])
     QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &cld]() {
         loadCompleteHandler(engine, cld);
     });
+#ifdef NETWORK_LOGGER
+    logger->addChannel(new NetworkLogClient(FloweePay::instance()->ioService()));
+#endif
 
     // Clean shutdown on SIGTERM
     struct sigaction sa;

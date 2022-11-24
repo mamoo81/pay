@@ -46,7 +46,7 @@ class PriceHistoryDataProvider;
 const std::string &chainPrefix();
 QString renderAddress(const KeyId &pubkeyhash);
 
-class FloweePay : public QObject, WorkerThreads, P2PNetInterface
+class FloweePay : public QObject, public WorkerThreads, P2PNetInterface
 {
     Q_OBJECT
     Q_PROPERTY(QString unitName READ unitName NOTIFY unitChanged)

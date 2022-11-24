@@ -35,6 +35,7 @@ find_package(Boost 1.67.0 REQUIRED filesystem chrono thread)
 find_package(QREncode REQUIRED)
 
 option(local_qml "Allow local QML loading" OFF)
+option(networkLog "Include network-logging client" OFF)
 
 add_compile_definitions(TARGET_OS_${CMAKE_SYSTEM_NAME})
 # The cmake system name will hold values like Android, Linux or others.
@@ -84,6 +85,10 @@ set (PAY_SOURCES
     Wallet_spending.cpp
     WalletEnums.cpp
 )
+
+if (NetworkLogClient)
+    list(APPEND PAY_SOURCES NetworkLogClient.cpp)
+endif()
 
 if (ANDROID)
     list(APPEND PAY_SOURCES main_utils_android.cpp)
@@ -278,6 +283,10 @@ message("")
 message("Configuration results:")
 message("----------------------")
 message("Target OS: ${CMAKE_SYSTEM_NAME}")
+if (NetworkLogClient)
+    message ("-> Including network-logging capability")
+    add_compile_definitions(NETWORK_LOGGER)
+endif()
 if (${BUILD_DESKTOP_PAY})
     message ("-> Building Desktop-Pay...")
     if (${Qt6DBus_FOUND})
