@@ -246,7 +246,7 @@ ListView {
             id: label
             x: 10
             y: 12
-            text: section
+            text: portfolio.current.transactions.groupingPeriod(section);
         }
 
 /* TODO; to-top button
@@ -262,7 +262,7 @@ ListView {
     }
     delegate: Item {
         id: transactionDelegate
-        property var groupType: model.groupType
+        property var placementInGroup: model.placementInGroup
 
         width: root.width
         height: 80
@@ -271,17 +271,17 @@ ListView {
         Rectangle {
             width: parent.width - 16
             x: 8
-            visible: transactionDelegate.groupType !== Wallet.Ungrouped;
+            visible: transactionDelegate.placementInGroup !== Wallet.Ungrouped;
             // we always have the rounded circles, but if we should not see them, we move them out of the screen.
             height: {
                 var h = 80
-                if (transactionDelegate.groupType !== Wallet.GroupStart)
+                if (transactionDelegate.placementInGroup !== Wallet.GroupStart)
                     h += 20;
-                if (transactionDelegate.groupType !== Wallet.GroupEnd)
+                if (transactionDelegate.placementInGroup !== Wallet.GroupEnd)
                     h += 20;
                 return h;
             }
-            y: transactionDelegate.groupType === Wallet.GroupStart ? 0 : -20;
+            y: transactionDelegate.placementInGroup === Wallet.GroupStart ? 0 : -20;
 
             radius: 20
             color: mainWindow.palette.base
@@ -354,8 +354,8 @@ ListView {
         }
 
         Rectangle {
-            visible: transactionDelegate.groupType !== Wallet.GroupEnd
-                         && transactionDelegate.groupType !== Wallet.Ungrouped;
+            visible: transactionDelegate.placementInGroup !== Wallet.GroupEnd
+                         && transactionDelegate.placementInGroup !== Wallet.Ungrouped;
             anchors.bottom: parent.bottom
             height: 1
             width: parent.width - 16

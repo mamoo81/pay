@@ -44,8 +44,8 @@ public:
         IsCoinbase,
         IsCashFusion,
         Comment,
-        ItemGroupInfo,      ///< Is an enum WalletEnums::ItemGroupInfo to help with painting outlines.
-        ItemGroupPeriod,    ///< Is a string describing/identifying the group
+        PlacementInGroup,   ///< Is an enum WalletEnums::PlacementInGroup to help with painting outlines.
+        GroupId             ///< The index in the m_groups vector
         // SavedFiatRate, // TODO
     };
 
@@ -59,6 +59,7 @@ public:
      *        The value 0.0 is the most recent item.
      */
     Q_INVOKABLE QString dateForItem(qreal offset) const;
+    Q_INVOKABLE QString groupingPeriod(int groupId) const;
 
     int lastSyncIndicator() const;
     void setLastSyncIndicator(int x);
@@ -66,6 +67,18 @@ public:
 
     const QFlags<WalletEnums::Include> &includeFlags() const;
     void setIncludeFlags(const QFlags<WalletEnums::Include> &flags);
+
+    // Indicates a grouping of transactions, specifically based on a time-period
+    struct TransactionGroup
+    {
+        WalletEnums::GroupingPeriod period = WalletEnums::Month;
+        int startTxIndex = -1;
+        int endTxIndex = -1;
+        uint32_t endTime = 0;
+
+        /// returns true if added, false if the tx-index is not for this group
+        bool add(int txIndex, uint32_t timestamp);
+    };
 
 signals:
     void lastSyncIndicatorChanged();
@@ -79,17 +92,14 @@ private slots:
 private:
     /// returns true if the filters indicate the transaction should stay.
     bool filterTransaction(const Wallet::WalletTransaction &wtx) const;
+    /// Update m_groups to include this transaction.
+    void addTxIndexToGroups(int txIndex, int blockheight);
 
     QVector<int> m_rowsProxy;
     Wallet *m_wallet;
     QFlags<WalletEnums::Include> m_includeFlags = WalletEnums::IncludeAll;
 
-    struct GroupInfo {
-        WalletEnums::GroupingPeriod period;
-        int startTxIndex;
-        int endTxIndex;
-    };
-    std::vector<GroupInfo> m_groups;
+    std::vector<TransactionGroup> m_groups;
     struct GroupCache {
         int txIndex;
         int groupId;

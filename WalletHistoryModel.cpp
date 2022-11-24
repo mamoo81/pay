@@ -24,118 +24,58 @@
 #include <QDateTime>
 #include <QTimer>
 
-namespace {
-
-struct TransactionGroup;
-class TransactionGroupingResolver
-{
-public:
-    std::vector<TransactionGroup> m_groups;
-
-    void add(int index, int blockheight);
-};
-
-struct TransactionGroup
-{
-    enum GroupingPeriod {
-        Today,
-        Yesterday,
-        EarlierThisWeek, // this week, but we grouped some in the previous category(s)
-        Week,
-        EarlierThisMonth, // this month, but we grouped some in the previous category(s)
-        Month,
-        Unset
-    };
-
-    GroupingPeriod period = Unset;
-    int startTxIndex = -1;
-    int endTxIndex = -1;
-    uint32_t startTime = 0;
-    uint32_t endTime = 0;
-
-    bool add(int index, uint32_t timestamp);
-};
-
-void TransactionGroupingResolver::add(int index, int blockheight)
-{
-    if (m_groups.empty())
-        m_groups.push_back(TransactionGroup());
-
-    if (blockheight <= 0) {
-        assert(m_groups.size() == 1);
-        // not (yet) confirmed.
-        m_groups.back().add(index, 0);
-        return;
-    }
-
-    const auto &bc = FloweePay::instance()->p2pNet()->blockchain();
-    uint32_t timestamp = bc.block(blockheight).nTime;
-    assert(timestamp > 0);
-
-    if (!m_groups.back().add(index, timestamp)) {
-        TransactionGroup newGroup;
-        newGroup.period = m_groups.back().period;
-        bool ok = newGroup.add(index, timestamp);
-        assert (ok);
-        m_groups.push_back(newGroup);
-    }
-}
-
 /*
  * Attempt to add a transaction to this group.
+ * Retuns false if the txIndex is not meant for this group
  */
-bool TransactionGroup::add(int index, uint32_t timestamp)
+bool WalletHistoryModel::TransactionGroup::add(int txIndex, uint32_t timestamp)
 {
     if (startTxIndex == -1) {
-        endTxIndex = index;
+        startTxIndex = txIndex;
 
         // first one in this group. Now we need to decide which period we area actually looking at.
         QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
         int days = 0;
-
-        if (period != Month) {
-            QDate today = QDate::currentDate();
-            if (date == today) {
-                period = Today;
-                days = 1;
-            }
-            else if (date == today.addDays(-1)) {
-                period = Yesterday;
-                date = date.addDays(-1);
-                days = 1;
-            }
-            else if (date > today.addDays(-1 * today.dayOfWeek() + 1)) {
-                // this week
-                period = period == Unset ? Week : EarlierThisWeek;
-                date = date.addDays(-1 * date.dayOfWeek());
-                days = 7;
-            }
-            else if (date > today.addDays(-1 * today.day() + 1)) {
-                // this month
-                period = EarlierThisMonth;
-                date = date.addDays(-1 * date.day() + 1);
-                days = date.daysInMonth();
-            }
+        QDate today = QDate::currentDate();
+        if (date == today) {
+            period = WalletEnums::Today;
+            days = 1;
         }
-        if (days == 0) { // any (other) month
-            period = Month;
+        else if (date == today.addDays(-1)) {
+            period = WalletEnums::Yesterday;
+            date = date.addDays(-1);
+            days = 1;
+        }
+        else if (date > today.addDays(-1 * today.dayOfWeek() + 1)) {
+            // this week
+            period = WalletEnums::EarlierThisWeek;
+            date = date.addDays(-1 * date.dayOfWeek());
+            days = 7;
+        }
+        else if (date > today.addDays(-1 * today.day() + 1)) {
+            // this month
+            period = WalletEnums::EarlierThisMonth;
+            date = date.addDays(-1 * date.day() + 1);
+            days = date.daysInMonth();
+        }
+        else { // any (other) month
+            period = WalletEnums::Month;
             date = date.addDays(-1 * date.day() + 1);
             days = date.daysInMonth();
         }
         assert(days > 0);
         const QDateTime dt(date, QTime());
-        startTime = dt.toSecsSinceEpoch();
         endTime = dt.addDays(days).toSecsSinceEpoch() - 1;
     }
-    else if (timestamp < startTime) {
+    else if (timestamp > endTime) {
         // doesn't fit in our time-period.
         return false;
     }
-    startTxIndex = index;
+    endTxIndex = txIndex;
     return true;
 }
 
-};
+// -------
 
 
 WalletHistoryModel::WalletHistoryModel(Wallet *wallet, QObject *parent)
@@ -169,7 +109,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
 
     assert(m_rowsProxy.size() > index.row());
     assert(index.row() >= 0);
-    const int txIndex = m_rowsProxy.at(index.row());
+    const int txIndex = m_rowsProxy.at(m_rowsProxy.size() - index.row() - 1); // reverse index to make the VIEW have newest at the top
     // logDebug() << " getting" << index.row() << "=>" << txIndex;
     auto itemIter = m_wallet->m_walletTransactions.find(txIndex);
     assert(itemIter != m_wallet->m_walletTransactions.end());
@@ -211,7 +151,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
         return QVariant(double(value));
     }
     case WalletIndex:
-        return QVariant(m_rowsProxy.at(index.row()));
+        return QVariant(txIndex);
     case NewTransaction:
         return QVariant(item.minedBlockHeight > m_lastSyncIndicator || item.isUnconfirmed());
     case IsCoinbase:
@@ -220,40 +160,21 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
         return QVariant(item.isCashFusionTx);
     case Comment:
         return QVariant(item.userComment);
-    case ItemGroupInfo: {
+    case PlacementInGroup: {
+        // notice that since we invert the ordering, the end/start get inverted too
         const auto &group = m_groups.at(groupIdForTxIndex(txIndex));
         const bool start = group.startTxIndex == txIndex;
         const bool end = group.endTxIndex == txIndex;
         if (start && end)
             return WalletEnums::Ungrouped;
-        // notice that since we invert the ordering, the end/start get inverted too
         if (start)
             return WalletEnums::GroupEnd;
         if (end)
             return WalletEnums::GroupStart;
         return WalletEnums::GroupMiddle;
     }
-    case ItemGroupPeriod:
-        switch (m_groups.at(groupIdForTxIndex(txIndex)).period) {
-        case WalletEnums::Today:
-            return tr("Today");
-        case WalletEnums::Yesterday:
-            return tr("Yesterday");
-        case WalletEnums::EarlierThisWeek:
-            return tr("Earlier this week");
-        case WalletEnums::Week:
-            return tr("This week");
-        case WalletEnums::EarlierThisMonth:
-            return tr("Earlier this month");
-        case WalletEnums::Month:
-        default: {
-            const auto &bc = FloweePay::instance()->p2pNet()->blockchain();
-            uint32_t timestamp = bc.block(itemIter->second.minedBlockHeight).nTime;
-            assert(timestamp > 0);
-            QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
-            return date.toString("MMMM");
-        }
-        }
+    case GroupId:
+        return groupIdForTxIndex(txIndex);
     }
 
     return QVariant();
@@ -274,6 +195,33 @@ int WalletHistoryModel::groupIdForTxIndex(int txIndex) const
     return m_groupCache.groupId;
 }
 
+
+QString WalletHistoryModel::groupingPeriod(int groupId) const
+{
+    if (groupId < 0 || groupId >= static_cast<int>(m_groups.size()))
+        return "bad groupId";
+    switch (m_groups.at(groupId).period) {
+    case WalletEnums::Today:
+        return tr("Today");
+    case WalletEnums::Yesterday:
+        return tr("Yesterday");
+    case WalletEnums::EarlierThisWeek:
+        return tr("Earlier this week");
+    case WalletEnums::Week:
+        return tr("This week");
+    case WalletEnums::EarlierThisMonth:
+        return tr("Earlier this month");
+    case WalletEnums::Month:
+    default: {
+        uint32_t timestamp = m_groups.at(groupId).endTime;
+        QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
+        if (date.year() == QDate::currentDate().year())
+            return date.toString("MMMM");
+        return date.toString("MMMM yyyy");
+    }
+    }
+}
+
 QHash<int, QByteArray> WalletHistoryModel::roleNames() const
 {
     QHash<int, QByteArray> answer;
@@ -287,8 +235,8 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
     answer[IsCoinbase] = "isCoinbase";
     answer[IsCashFusion] = "isCashFusion";
     answer[Comment] = "comment";
-    answer[ItemGroupInfo] = "groupType";
-    answer[ItemGroupPeriod] = "grouping";
+    answer[PlacementInGroup] = "placementInGroup";
+    answer[GroupId] = "grouping";
     // answer[SavedFiatRate] = "savedFiatRate";
 
     return answer;
@@ -296,11 +244,11 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
 
 QString WalletHistoryModel::dateForItem(qreal offset) const
 {
-    if (std::isnan(offset))
+    if (m_rowsProxy.isEmpty())
+        return QString();
+    if (std::isnan(offset) || offset < 0 || offset > 1.0)
         return QString();
     const size_t row = std::round(offset * m_rowsProxy.size());
-    if (row >= m_wallet->m_walletTransactions.size())
-        return QString();
     auto item = m_wallet->m_walletTransactions.at(m_rowsProxy.at(row));
     if (item.minedBlockHeight <= 0)
         return QString();
@@ -312,16 +260,25 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
 
 void WalletHistoryModel::appendTransactions(int firstNew, int count)
 {
-    auto oldCount = m_rowsProxy.size();
+    const auto oldCount = m_rowsProxy.size();
     for (auto i = firstNew; i < firstNew + count; ++i) {
         auto iter = m_wallet->m_walletTransactions.find(i);
-        if (filterTransaction(iter->second))
+        if (!filterTransaction(iter->second))
             continue;
-        // lets assume sorting newest to oldest here.
-        m_rowsProxy.insert(0, i);
+        m_rowsProxy.push_back(i);
+        addTxIndexToGroups(iter->first, iter->second.minedBlockHeight);
     }
     auto insertedCount = m_rowsProxy.size() - oldCount;
     if (insertedCount) {
+        if (oldCount) {
+            // Due to grouping being drawn in relation, we need to force
+            // a change in the previously top item
+            // remove the top one
+            beginRemoveRows(QModelIndex(), 0, 0);
+            endRemoveRows();
+            ++insertedCount;
+        }
+        // and insert the new ones, plus the one we just removed.
         beginInsertRows(QModelIndex(), 0, insertedCount - 1);
         endInsertRows();
     }
@@ -342,37 +299,19 @@ void WalletHistoryModel::createMap()
     m_recreateTriggered = false;
     m_rowsProxy.clear();
     m_rowsProxy.reserve(m_wallet->m_walletTransactions.size());
-
-    TransactionGroupingResolver resolver;
+    m_groups.clear();
 
     // we insert the key used in the m_wallet->m_walletTransaction map
     // in the order of how our rows work here.
+    // This is oldest to newest, which is how our model is also structured.
     for (const auto &iter : m_wallet->m_walletTransactions) {
-        if (filterTransaction(iter.second))
+        if (!filterTransaction(iter.second))
             continue;
         m_rowsProxy.push_back(iter.first);
-    }
-    // the simplest form; reverse order. This assumes the last entry is the newest one
-    std::reverse(m_rowsProxy.begin(), m_rowsProxy.end());
-
-    // Last, resolve grouping
-    for (int id : m_rowsProxy) {
-        auto iter = m_wallet->m_walletTransactions.find(id);
-        assert(iter != m_wallet->m_walletTransactions.end());
-        resolver.add(iter->first, iter->second.minedBlockHeight);
+        // Last, resolve grouping
+        addTxIndexToGroups(iter.first, iter.second.minedBlockHeight);
     }
 
-    // copy out the resolved groups to the lower-overhead ones.
-    m_groups.clear();
-    for (auto g : resolver.m_groups) {
-        GroupInfo groupInfo;
-        groupInfo.startTxIndex = g.startTxIndex;
-        groupInfo.endTxIndex = g.endTxIndex;
-        assert(g.period != TransactionGroup::Unset);
-        static_assert(static_cast<WalletEnums::GroupingPeriod>(TransactionGroup::Week) == WalletEnums::Week);
-        groupInfo.period = static_cast<WalletEnums::GroupingPeriod>(g.period);
-        m_groups.push_back(groupInfo);
-    }
     m_groupCache = { -1 , 0 };
 }
 
@@ -385,6 +324,30 @@ bool WalletHistoryModel::filterTransaction(const Wallet::WalletTransaction &wtx)
     if (!m_includeFlags.testFlag(WalletEnums::IncludeConfirmed) && !wtx.isUnconfirmed())
         return false;
     return true;
+}
+
+void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
+{
+    if (m_groups.empty())
+        m_groups.push_back(TransactionGroup());
+
+    uint32_t timestamp;
+    if (blockheight <= 0) {
+        timestamp = time(nullptr);
+    } else {
+        const auto &bc = FloweePay::instance()->p2pNet()->blockchain();
+        timestamp = bc.block(blockheight).nTime;
+    }
+    assert(timestamp > 0);
+
+    if (!m_groups.back().add(txIndex, timestamp)) {
+        // didn't fit, make a new group and add it there.
+        TransactionGroup newGroup;
+        newGroup.period = m_groups.back().period;
+        bool ok = newGroup.add(txIndex, timestamp);
+        assert (ok);
+        m_groups.push_back(newGroup);
+    }
 }
 
 const QFlags<WalletEnums::Include> &WalletHistoryModel::includeFlags() const

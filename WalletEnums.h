@@ -52,13 +52,13 @@ public:
     Q_FLAG(Includes)
 
     /// used by the WalletHistoryModel to group items visually
-    enum ItemGroupInfo {
+    enum PlacementInGroup {
         GroupStart,
         GroupMiddle,
         GroupEnd,
         Ungrouped
     };
-    Q_ENUM(ItemGroupInfo)
+    Q_ENUM(PlacementInGroup)
     // Grouping period
     enum GroupingPeriod {
         Today,
