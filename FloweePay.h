@@ -254,11 +254,11 @@ signals:
     void loadComplete();
     /// \internal
     void loadComplete_priv();
-
+    /// \internal
+    void startSaveDate_priv();
     void unitChanged();
     void walletsChanged();
     void darkSkinChanged();
-
     void windowWidthChanged();
     void windowHeightChanged();
     void headerChainHeightChanged();
@@ -266,7 +266,6 @@ signals:
     void dspTimeoutChanged();
     void hideBalanceChanged();
     void newBlockMutedChanged();
-
     void fontScalingChanged();
 
 private slots:

@@ -163,6 +163,12 @@ FloweePay::FloweePay()
 
     // forward signal
     connect (&m_notifications, SIGNAL(newBlockMutedChanged()), this, SIGNAL(newBlockMutedChanged()));
+    connect (this, &FloweePay::startSaveDate_priv, this, [=]() {
+        // As Qt does not allow starting a timer from any thread, we first use a signal
+        // to move the request to save to the main thread, after which we schedule it with
+        // the singleshot below.
+        QTimer::singleShot(1000, this, SLOT(saveData()));
+    }, Qt::QueuedConnection);
 }
 
 FloweePay::~FloweePay()
@@ -253,7 +259,6 @@ void FloweePay::init()
         m_wallets.at(0)->setUserOwnedWallet(false);
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
         m_wallets.at(0)->setName(tr("Initial Wallet"));
-        saveData();
     }
 
     emit loadComplete_priv(); // move execution to loadingCompleted, in a Qt thread
@@ -334,6 +339,7 @@ void FloweePay::saveData()
             return;
         }
         out.close();
+        QFile::remove(filebase);
         if (!out.rename(filebase)) {
             logFatal() << "Failed to rename to" << filebase;
         // TODO have an app-wide error
@@ -523,7 +529,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     m_wallets.append(w);
 
     emit walletsChanged();
-    QTimer::singleShot(1000, this, SLOT(saveData()));
+    emit startSaveDate_priv(); // schedule a save of the new wallet
     return w;
 }
 
@@ -763,7 +769,6 @@ NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, cons
     if (startHeight <= 1)
         startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
     wallet->addPrivateKey(privateKey.trimmed().remove('\n'), startHeight);
-    saveData();
     if (!m_offline)
         p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
@@ -815,7 +820,6 @@ NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, cons
                                   derivationPath, startHeight);
         wallet->segment()->blockSynched(startHeight);
         wallet->segment()->blockSynched(startHeight); // yes, twice
-        saveData();
         if (!m_offline)
             p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
