@@ -1,20 +1,44 @@
+/*
+ * This file is part of the Flowee project
+ * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 import QtQuick
-import QtQuick.Controls as QQC2
-// import QtQuick.Layouts
 import "../Flowee" as Flowee
 import Flowee.org.pay;
 import QtQuick.Shapes // for shape-path
 
 Item {
     id: root
-    height: indicator.height + 3 + (circleShape.visible ? circleShape.height : 0)
+    height: indicator.height + 3 + (done ? 0 : circleShape.height)
     property QtObject account: null
     property bool hideWhenDone: false
-    property int startPos: 1
-
-    Component.onCompleted: {
-        // remember the position we started the sync at.
-        startPos = root.account.lastBlockSynched
+    property bool done: false
+    property int startPos: account.initialBlockHeight
+    onAccountChanged: {
+        let startPos = account.initialBlockHeight;
+        if (startPos === -2) {
+            // special number, the account is just created and waits for transactions.
+            done = true;
+            return;
+        }
+        let end = Pay.expectedChainHeight;
+        let currentPos = account.lastBlockSynched;
+        // only show the progress-circle when its more than 2 days behind
+        // and we are not synched
+        done = end - startPos < 300 || end - currentPos < 2;
     }
 
     // The 'progress' circle.
@@ -22,8 +46,7 @@ Item {
         id: circleShape
 
         property int goalHeight: Pay.expectedChainHeight
-        visible: goalHeight - root.startPos > 500
-
+        visible: !root.done
         anchors.horizontalCenter: parent.horizontalCenter
         width: 200
         height: 100
@@ -62,20 +85,21 @@ Item {
     Flowee.Label {
         id: indicator
         width: parent.width
-        anchors.top: circleShape.bottom
-        anchors.topMargin: 3
-        horizontalAlignment: Text.AlignHCenter
+        y: root.done ? 0 : circleShape.height + 3
         wrapMode: Text.Wrap
         text: {
+            var buddy = qsTr("Network Status") + ": ";
             if (isLoading)
-                return "";
+                return buddy;
             var account = portfolio.current;
             if (account === null)
-                return "";
+                return buddy;
             if (account.needsPinToOpen && !account.isDecrypted)
-                return qsTr("Offline");
-            return account.timeBehind;
+                return buddy + qsTr("Offline");
+            return buddy + account.timeBehind;
         }
         font.italic: true
+        Behavior on y {  NumberAnimation { duration: 100 } }
     }
+    Behavior on height {  NumberAnimation { duration: 100 } }
 }

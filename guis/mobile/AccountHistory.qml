@@ -27,6 +27,34 @@ ListView {
     property string icon: "qrc:/homeButtonIcon" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
     property string  title: qsTr("Home")
 
+    Rectangle {
+        width: 60
+        height: 60
+        anchors.right: parent.right
+        y: (root.contentY > (root.height / 4)) ? 0 : height * -1
+        color: "#66000000"
+
+        Image {
+            id: upIcon
+            source: "qrc:/back-arrow.svg"
+            rotation: 90
+            width: 15
+            height: 20
+            anchors.centerIn: parent
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.positionViewAtIndex(0, ListView.Contain);
+        }
+
+        Behavior on y {
+            NumberAnimation {
+                easing.type: Easing.OutElastic
+                duration: 500
+            }
+        }
+    }
+
     /*
       The structure here is a bit funny.
       But we want to have the entire page scroll in order to show all the transactions we can.
@@ -35,10 +63,28 @@ ListView {
      */
     header: ColumnLayout {
         id: column
-        spacing: 20
+        spacing: 10
         width: root.width - 20
         x: 10
         y: 10
+        z: 10 // make sure the wallet Selector can cover the historical items
+
+        Row {
+            width: parent.width
+            height: 60
+            IconButton {
+                width: parent.width / 3
+                text: qsTr("Send Money")
+            }
+            IconButton {
+                width: parent.width / 3
+                text: qsTr("Scheduled")
+            }
+            IconButton {
+                width: parent.width / 3
+                text: qsTr("Receive")
+            }
+        }
 
         Item {
             id: smallAccountSelector
@@ -50,7 +96,11 @@ ListView {
 
             visible: {
                 // if there is only an initial, not user-owned wallet, there is nothing to show here.
-                return portfolio.current.isUserOwned
+                if (!portfolio.current.isUserOwned)
+                    return false;
+                if (portfolio.accounts.length === 1)
+                    return false;
+                return true;
             }
 
             Rectangle {
@@ -198,23 +248,6 @@ ListView {
             colorize: false
         }
 
-        Row {
-            width: parent.width
-            height: 60
-            IconButton {
-                width: parent.width / 3
-                text: qsTr("Send Money")
-            }
-            IconButton {
-                width: parent.width / 3
-                text: qsTr("Scheduled")
-            }
-            IconButton {
-                width: parent.width / 3
-                text: qsTr("Receive")
-            }
-        }
-
         AccountSyncState {
             account: portfolio.current
             hideWhenDone: true
@@ -226,6 +259,8 @@ ListView {
 
           Is Encryopted / Decrypt
          */
+
+        Item { width: 10; height: 15 } // spacer
     }
 
     model: portfolio.current.transactions
@@ -248,17 +283,6 @@ ListView {
             y: 12
             text: portfolio.current.transactions.groupingPeriod(section);
         }
-
-/* TODO; to-top button
-        Image {
-            source: "qrc:/back-arrow.svg"
-            rotation: 90
-            width: 15
-            height: 20
-            anchors.right: parent.right
-            anchors.rightMargin: 20
-            anchors.bottom: parent.bottom
-        } */
     }
     delegate: Item {
         id: transactionDelegate
@@ -272,7 +296,7 @@ ListView {
             width: parent.width - 16
             x: 8
             visible: transactionDelegate.placementInGroup !== Wallet.Ungrouped;
-            // we always have the rounded circles, but if we should not see them, we move them out of the screen.
+            // we always have the rounded circles, but if we should not see them, we move them out of the clipped area.
             height: {
                 var h = 80
                 if (transactionDelegate.placementInGroup !== Wallet.GroupStart)
@@ -363,6 +387,8 @@ ListView {
             color: root.palette.highlight
         }
     }
+    displaced: Transition { NumberAnimation { properties: "y"; duration: 400 } }
+
     Keys.forwardTo: Flowee.ListViewKeyHandler {
         target: root
     }

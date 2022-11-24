@@ -41,6 +41,11 @@ class AccountInfo : public QObject
     Q_PROPERTY(int historicalOutputCount READ historicalOutputCount NOTIFY utxosChanged)
     Q_PROPERTY(int id READ id CONSTANT)
     Q_PROPERTY(int lastBlockSynched READ lastBlockSynched NOTIFY lastBlockSynchedChanged)
+    /**
+     * This is the first block that on this instantiation we need to sync.
+     * This property is useful to determine how much we need to sync this session.
+     */
+    Q_PROPERTY(int initialBlockHeight READ initialBlockHeight NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(QDateTime lastBlockSynchedTime READ lastBlockSynchedTime NOTIFY lastBlockSynchedChanged)
     /// Return a user-readable indication of the amount of time 'behind' this account is
     Q_PROPERTY(QString timeBehind READ timeBehind NOTIFY lastBlockSynchedChanged)
@@ -150,6 +155,8 @@ public:
     bool needsPinToOpen() const;
     bool isDecrypted() const;
 
+    int initialBlockHeight() const;
+
 signals:
     void balanceChanged();
     void utxosChanged();
@@ -175,6 +182,7 @@ private:
     std::unique_ptr<WalletHistoryModel> m_model;
     std::unique_ptr<WalletSecretsModel> m_secretsModel;
     int m_lastTxHeight = -1; ///< last seen tx blockheight.
+    int m_initialBlockHeight;
     bool m_hasFreshTransactions = false;
 
     friend class WalletSecret;

@@ -29,12 +29,17 @@
 
 AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     : QObject(parent),
-      m_wallet(wallet)
+      m_wallet(wallet),
+      m_initialBlockHeight(wallet->segment()->lastBlockSynched())
 {
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(balanceChanged()), this, SLOT(balanceHasChanged()), Qt::QueuedConnection);
-    connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(lastBlockSynchedChanged()), Qt::QueuedConnection);
-    connect(wallet, SIGNAL(lastBlockSynchedChanged()), this, SIGNAL(timeBehindChanged()), Qt::QueuedConnection);
+    connect(wallet, &Wallet::lastBlockSynchedChanged, m_wallet, [=]() {
+        if (m_initialBlockHeight < 0)
+            m_initialBlockHeight = m_wallet->segment()->lastBlockSynched();
+        emit lastBlockSynchedChanged();
+        emit timeBehindChanged();
+    }, Qt::QueuedConnection);
     connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()), Qt::QueuedConnection);
     connect(FloweePay::instance(), SIGNAL(headerChainHeightChanged()), this, SIGNAL(timeBehindChanged()));
@@ -206,6 +211,11 @@ void AccountInfo::walletEncryptionChanged()
     emit modelsChanged();
     emit encryptionChanged();
     emit nameChanged();
+}
+
+int AccountInfo::initialBlockHeight() const
+{
+    return m_initialBlockHeight;
 }
 
 bool AccountInfo::hasFreshTransactions() const
