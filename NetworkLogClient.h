@@ -38,7 +38,6 @@ public:
     void pushLog(int64_t timeMillis, std::string *timestamp, const std::string &line, const char *filename, int lineNumber, const char *methodName, short logSection, short logLevel);
 
 private:
-    NetworkManager m_network;
     bool m_enabled = false;
     NetworkConnection m_con;
     std::string m_logPath;

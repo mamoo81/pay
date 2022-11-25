@@ -38,7 +38,11 @@ CommandLineParserData* createCLD(QGuiApplication &)
 
 Log::Verbosity logVerbosity(CommandLineParserData*)
 {
+#ifdef NETWORK_LOGGER
+    return  Log::DebugLevel;
+#else
     return  Log::FatalLevel;
+#endif
 }
 
 std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)

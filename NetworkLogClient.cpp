@@ -17,12 +17,12 @@
  */
 
 #include "NetworkLogClient.h"
-#include "streaming/BufferPools.h"
+#include <streaming/BufferPools.h>
+#include <streaming/MessageBuilder.h>
 
 #include <QSettings>
 #include <QStandardPaths>
 
-#include <streaming/MessageBuilder.h>
 
 enum NetworkTags {
     Locator = 1, // a byte-array
@@ -36,8 +36,7 @@ enum ContentPayloadTags {
 };
 
 NetworkLogClient::NetworkLogClient(boost::asio::io_service &ioService)
-    : Log::Channel(NoTime),
-      m_network(ioService)
+    : Log::Channel(NoTime)
 {
     QString filename;
 #if TARGET_OS_Android
@@ -53,7 +52,13 @@ NetworkLogClient::NetworkLogClient(boost::asio::io_service &ioService)
         m_enabled = true;
         if (m_logPath.size() < 1 || m_logPath[0] != '/' || m_logPath[m_logPath.size() - 1] != '/')
             throw std::runtime_error("Incorrect or missing logpath config. Needs to start and end with a slash");
-        m_con = m_network.connection({server.toStdString(), uint16_t(port)});
+
+        // This is a workaround for a lifetime issue.
+        // See, the ioService is owned by the application-singleton.
+        // we are owned by the logging framework. Which, sanely, has a longer lifetime than the application singleton.
+        // Solution; let the OS delete the network manager the hard way.
+        auto network = new NetworkManager(ioService);
+        m_con = network->connection({server.toStdString(), uint16_t(port)});
     }
 }
 

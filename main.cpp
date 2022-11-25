@@ -94,7 +94,6 @@ int main(int argc, char *argv[])
     auto *logger = Log::Manager::instance();
     logger->clearChannels();
     logger->clearLogLevels(logVerbosity(cld));
-
     logger->addConsoleChannel();
 
     auto blockheaders = handleStaticChain(cld);
