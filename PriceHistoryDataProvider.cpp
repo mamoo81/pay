@@ -271,9 +271,8 @@ bool PriceHistoryDataProvider::allowLogCompression() const
 void PriceHistoryDataProvider::initialPopulate()
 {
     if (m_currencies.empty()) {
-        logFatal() << "populate!";
+        logCritical() << "populate!";
         InitialHistoryFetcher *f = new InitialHistoryFetcher(this);
-        f->fetch(m_basedir, m_currency);
         connect (f, &InitialHistoryFetcher::success, f, [=](const QString &currency) {
             // load this file into a currency object.
             Currency *data = currencyData(currency, FetchOrCreate);
@@ -285,6 +284,7 @@ void PriceHistoryDataProvider::initialPopulate()
                 data->valueBlob = pool.commit(fileSize);
             }
         });
+        f->fetch(m_basedir, m_currency);
     }
 }
 
@@ -304,7 +304,7 @@ InitialHistoryFetcher::InitialHistoryFetcher(QObject *parent)
 void InitialHistoryFetcher::fetch(const QString &path, const QString &currency)
 {
     assert(!path.isEmpty());
-    QNetworkRequest req(QUrl("http://flowee.org/products/pay/fiat/" + currency));
+    QNetworkRequest req(QUrl("https://flowee.org/products/pay/fiat/" + currency));
     auto app = QCoreApplication::instance();
     QString useragent = QString("%1%2/%3")
             .arg(app->organizationName(),
