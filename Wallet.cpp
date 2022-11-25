@@ -1925,6 +1925,7 @@ void Wallet::saveWallet()
             outFile.write(nameBytes.constBegin(), nameBytes.size());
             outFile.flush();
             outFile.close();
+            boost::filesystem::remove(m_basedir / "name");
             boost::filesystem::rename(m_basedir / "name~", m_basedir / "name");
             m_walletNameChanged = false;
         } catch (const std::exception &e) {

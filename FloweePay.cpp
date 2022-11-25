@@ -96,6 +96,8 @@ FloweePay::FloweePay()
     assert(guiApp);
     connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
         if (state == Qt::ApplicationInactive) {
+            logInfo() << "App went Inactive. Start saving data";
+            saveAll();
             p2pNet()->saveData();
             saveData();
         }
@@ -254,11 +256,13 @@ void FloweePay::init()
     }
 
     if (m_wallets.isEmpty() && m_createStartWallet) {
+        logInfo() << "Creating startup (initial) wallet";
         auto config = createNewWallet(QLatin1String(DefaultDerivationPath));
         delete config; // the config was just for QML, so avoid a dangling object.
         m_wallets.at(0)->setUserOwnedWallet(false);
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
         m_wallets.at(0)->setName(tr("Initial Wallet"));
+        m_wallets.at(0)->saveWallet();
     }
 
     emit loadComplete_priv(); // move execution to loadingCompleted, in a Qt thread
@@ -526,6 +530,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     Wallet *w = Wallet::createWallet(m_basedir.toStdString(), id, name);
     dl->addDataListener(w);
     dl->connectionManager().addPrivacySegment(w->segment());
+    w->moveToThread(thread());
     m_wallets.append(w);
 
     emit walletsChanged();
