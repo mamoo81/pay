@@ -72,6 +72,7 @@ void NetworkLogClient::pushLog(int64_t timeMillis, std::string *timestamp, const
     Q_UNUSED(timestamp);
     Q_UNUSED(filename);
     Q_UNUSED(methodName);
+    Q_UNUSED(lineNumber);
 
     if (!m_enabled)
         return;
@@ -87,6 +88,15 @@ void NetworkLogClient::pushLog(int64_t timeMillis, std::string *timestamp, const
     auto &pool = Streaming::pool(m_logPath.size() + 20);
     pool.write(m_logPath);
     pool.write(std::to_string(timeMillis));
+    if (timeMillis == m_lastTimestamp) {
+        // if we have multiple items with the same timetamp, differntiate to avoid the remote thinking we repeat outselves
+         pool.write("/");
+         pool.write(std::to_string(m_milliIndex++));
+    }
+    else {
+        m_lastTimestamp = timeMillis;
+        m_milliIndex = 1;
+    }
     auto locator = pool.commit();
 
     pool.reserve(payload.body().size() + locator.size() + 20);

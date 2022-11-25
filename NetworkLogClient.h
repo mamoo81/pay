@@ -41,6 +41,8 @@ private:
     bool m_enabled = false;
     NetworkConnection m_con;
     std::string m_logPath;
+    int64_t m_lastTimestamp = 0;
+    int m_milliIndex = 1;
 };
 
 #endif
