@@ -387,7 +387,6 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
     {
         QMutexLocker locker(&m_lock);
         firstNewTransaction = m_nextWalletTransactionId;
-        setUserOwnedWallet(true);
         for (auto &tx: transactions) {
             const uint256 txid = tx.createHash();
             WalletTransaction wtx;
@@ -544,6 +543,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
     } // mutex scope
 
     if (!transactionsToSave.empty()) {
+        setUserOwnedWallet(true);
         emit utxosChanged();
         emit appendedTransactions(firstNewTransaction, transactionsToSave.size());
         for (auto &tx : transactionsToSave) { // save the Tx to disk.
