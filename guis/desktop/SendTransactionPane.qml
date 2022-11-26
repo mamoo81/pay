@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.11
-import QtQuick.Controls 2.11
-import QtQuick.Layouts 1.11
-import QtQuick.Window 2.11
-import QtQuick.Shapes 1.11 // for shape-path
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
+import QtQuick.Shapes
 import "../Flowee" as Flowee
 import "../ControlColors.js" as ControlColors
-import Flowee.org.pay 1.0
+import Flowee.org.pay
 
 Item {
     id: sendPanel

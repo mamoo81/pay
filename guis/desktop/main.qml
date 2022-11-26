@@ -17,7 +17,7 @@
  */
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts 1.11
+import QtQuick.Layouts
 import "../Flowee" as Flowee
 import "../ControlColors.js" as ControlColors
 
