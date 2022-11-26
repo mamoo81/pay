@@ -26,5 +26,6 @@
         <file>mobile/IconButton.qml</file>
         <file>mobile/TextButton.qml</file>
         <file>mobile/AccountSyncState.qml</file>
+        <file>mobile/SendTransactionsTab.qml</file>
     </qresource>
 </RCC>

@@ -16,23 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
-import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 
 MainViewBase {
     AccountHistory {
         anchors.fill: parent
     }
-    Item {
-        id: sendScreen
-        property string icon: "qrc:/bla"
+    SendTransactionsTab {
         anchors.fill: parent
-
     }
     Item {
         id: receiveScreen
-        property string icon: "qrc:/bla"
+        property string icon: Pay.useDarkSkin ? "qrc:/external-light.svg" : "qrc:/external.svg"
+        property string  title: qsTr("Bla")
         anchors.fill: parent
-
     }
 }
