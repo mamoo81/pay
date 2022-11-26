@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.15
-import QtQuick.Controls 2.15 as QQC2
-import QtQuick.Layouts 2.15
+import QtQuick
+import QtQuick.Controls as QQC2
+import QtQuick.Layouts
 import "../Flowee" as Flowee
 import Flowee.org.pay;
 
