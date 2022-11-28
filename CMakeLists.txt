@@ -22,7 +22,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(Qt6 COMPONENTS Core Quick Svg REQUIRED)
+find_package(Qt6 COMPONENTS Core Quick Svg REQUIRED
+    OPTIONAL_COMPONENTS Multimedia)
 find_package(flowee REQUIRED flowee_p2p)
 find_package(OpenSSL REQUIRED)
 if (ANDROID)
@@ -145,7 +146,7 @@ option (BUILD_DESKTOP_PAY
     "Build the desktop (dev) client of Pay"
     ${NOT_ANDROID})
 
-if(BUILD_DESKTOP_PAY)
+if (BUILD_DESKTOP_PAY)
     # The qm files are generated in the build tree, but the qrc file is inside the
     # source directory and the path to resources are relative to the location of
     # the qrc file itself. We copy the qrc file in the build
@@ -172,7 +173,7 @@ if(BUILD_DESKTOP_PAY)
 endif()
 
 ###### Pay-mobile executable
-option (BUILD_MOBILE_PAY "Build the mobile client of Pay" TRUE)
+option (BUILD_MOBILE_PAY "Build the mobile client of Pay" ${Qt6Multimedia_FOUND})
 
 if (ANDROID AND BUILD_MOBILE_PAY)
     # blockheaders to be included in the APK
@@ -236,7 +237,7 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
     set_target_properties(pay_mobile PROPERTIES
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
     )
-    target_link_libraries(pay_mobile pay_lib Qt6::Svg)
+    target_link_libraries(pay_mobile pay_lib Qt6::Svg Qt6::Multimedia)
     install(TARGETS pay_mobile DESTINATION bin)
 endif()
 
@@ -283,6 +284,9 @@ message("")
 message("Configuration results:")
 message("----------------------")
 message("Target OS: ${CMAKE_SYSTEM_NAME}")
+if (${local_qml})
+    message("   Using QML from source-dir. DO NOT DISTRIBUTE BINARIES!")
+endif ()
 if (NetworkLogClient)
     message ("-> Including network-logging capability")
     add_compile_definitions(NETWORK_LOGGER)
@@ -295,6 +299,9 @@ if (${BUILD_DESKTOP_PAY})
         message("   Missing QtDBus, skipping support for desktop notifications")
     endif ()
 endif()
+if (${Qt6Multimedia_NOTFOUND})
+message("ww Missing QtMultimedia libs, not building Pay for mobile ")
+endif ()
 if (${BUILD_MOBILE_PAY})
     message ("-> Building Pay for mobile")
     if (ANDROID AND DEFINED MOBILE_PAY_I18N_QRC)
@@ -304,9 +311,6 @@ endif()
 if (${BUILD_PAY_TOOLS})
     message ("-> Building Pay tools")
 endif()
-if (${local_qml})
-    message("   Using QML from source-dir. DO NOT DISTRIBUTE BINARIES!")
-endif ()
 
 message("")
 message("")

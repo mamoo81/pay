@@ -20,6 +20,7 @@ import QtQuick.Controls as QQC2
 // import QtQuick.Layouts
 import "../Flowee" as Flowee
 // import Flowee.org.pay;
+import QtMultimedia
 
 FocusScope {
     id: root
@@ -95,6 +96,7 @@ FocusScope {
             }
         }
         FocusScope {
+            id: scanQrTab
             property string title: qsTr("Scan QR")
             Rectangle {
                 width: 10
@@ -102,9 +104,30 @@ FocusScope {
                 x: 20
                 color: "blue"
             }
-            QQC2.TextField {
-                focus: true
+            MediaDevices {
+                id: mediaDevices
+            }
+            CaptureSession {
+                camera: Camera {
+                    id: camera
+                    active: scanQrTab.focus
 
+                    // focusMode: Camera.FocusModeAutoNear
+                    // customFocusPoint: Qt.point(0.2, 0.2) // Focus relative to top-left corner
+                }
+                videoOutput: videoOutput
+            }
+            VideoOutput {
+                id: videoOutput
+                width: 320
+                height: 240
+                x: 20
+                y: 30
+            }
+            Flowee.Label {
+                text: camera.errorString
+                x: 10
+                y: 350
             }
         }
         FocusScope {
