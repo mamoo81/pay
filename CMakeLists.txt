@@ -29,6 +29,10 @@ find_package(OpenSSL REQUIRED)
 if (ANDROID)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
         ${CMAKE_SOURCE_DIR}/android/cmake)
+    # For 6.2 - 6.4 the Qt Core permission APIs are only available as Android private apis
+    if (${Qt6Multimedia_FOUND})
+        include_directories(${Qt6Core_PRIVATE_INCLUDE_DIRS})
+    endif ()
 else ()
     find_package(Qt6 COMPONENTS DBus LinguistTools)
 endif()
@@ -96,6 +100,11 @@ if (ANDROID)
 else ()
     list(APPEND PAY_SOURCES main_utils.cpp)
 endif ()
+
+if (${Qt6Multimedia_FOUND})
+    list(APPEND PAY_SOURCES Camera.cpp)
+endif()
+
 add_library(pay_lib STATIC ${PAY_SOURCES})
 
 target_link_libraries(pay_lib

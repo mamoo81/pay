@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "Camera.h"
 #include "BitcoinValue.h"
 #include "FloweePay.h"
 #include "NewWalletConfig.h"
@@ -129,10 +130,12 @@ int main(int argc, char *argv[])
 #endif
 
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
-    engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
-    engine.rootContext()->setContextProperty("Fiat", FloweePay::instance()->prices());
     MenuModel menuModel;
     engine.rootContext()->setContextProperty("MenuModel", &menuModel);
+    Camera camera;
+    engine.rootContext()->setContextProperty("CameraHandler", &camera);
+    engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
+    engine.rootContext()->setContextProperty("Fiat", FloweePay::instance()->prices());
     handleLocalQml(engine);
     engine.load(engine.baseUrl().url() +
 #ifdef DESKTOP

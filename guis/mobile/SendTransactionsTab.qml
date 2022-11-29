@@ -98,34 +98,44 @@ FocusScope {
         FocusScope {
             id: scanQrTab
             property string title: qsTr("Scan QR")
-            Rectangle {
-                width: 10
-                height: 10
-                x: 20
-                color: "blue"
+            onFocusChanged: {
+                console.log("focus received " + focus)
+                CameraHandler.activate();
             }
-            MediaDevices {
-                id: mediaDevices
-            }
-            CaptureSession {
-                camera: Camera {
-                    id: camera
-                    active: scanQrTab.focus
 
-                    // focusMode: Camera.FocusModeAutoNear
-                    // customFocusPoint: Qt.point(0.2, 0.2) // Focus relative to top-left corner
-                }
-                videoOutput: videoOutput
-            }
-            VideoOutput {
-                id: videoOutput
+            // only load this after authorization has become available.
+            Loader {
+                id: cameraStufff
+                sourceComponent: CameraHandler.authorized ? cameraStuffComponent : undefined
                 width: 320
                 height: 240
                 x: 20
                 y: 30
             }
+
+            Component {
+                id: cameraStuffComponent
+                Item {
+                    anchors.fill: parent
+                    /*
+                    MediaDevices {
+                        id: mediaDevices
+                    }*/
+                    CaptureSession {
+                        id: captureSession
+                        videoOutput: videoOutput
+                        camera: Camera { active: true }
+                    }
+                    VideoOutput {
+                        id: videoOutput
+                        anchors.fill: parent
+                    }
+                }
+
+            }
+
             Flowee.Label {
-                text: camera.errorString
+                text: CameraHandler.denied ? qsTr("Camera permission denied. Change permissions to scan") : camera.errorString
                 x: 10
                 y: 350
             }
