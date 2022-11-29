@@ -39,7 +39,6 @@ RUN useradd builduser -d /home/builds -m -u 1000 -U \
     libb2 \
     md4c \
     jdk11-openjdk \
-    git \
     && pacman -Sc --noconfirm \
     && rm -rf /var/cache/pacman/pkg/* \
     && /usr/local/bin/createRootPwd
