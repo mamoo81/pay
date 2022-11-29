@@ -17,7 +17,6 @@
  */
 import QtQuick
 import QtQuick.Controls as QQC2
-import QtQuick.Layout
 import "../Flowee" as Flowee
 
 MainViewBase {
