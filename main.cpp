@@ -122,7 +122,10 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
     // quit on error in the QMLs
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &qapp, QCoreApplication::quit, Qt::QueuedConnection);
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &qapp, [=]() {
+        logFatal() << "QML has errors, aborting on purpose now";
+        abort();
+    }, Qt::QueuedConnection);
 #endif
 
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
