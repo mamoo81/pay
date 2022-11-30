@@ -17,6 +17,8 @@
  */
 #include "Camera.h"
 
+#include <QCamera>
+#include <QGuiApplication>
 #ifdef TARGET_OS_Android
 #include <private/qandroidextras_p.h>
 #endif
@@ -27,6 +29,15 @@ Camera::Camera(QObject *parent)
     : QObject(parent),
       m_state(NotAsked)
 {
+    auto guiApp = qobject_cast<QGuiApplication*>(QCoreApplication::instance());
+    assert(guiApp);
+    connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationInactive) {
+            // when the user leaves the app screen, the permissions granted to us
+            // may have changed, so we need to re-ask.
+            m_state = NotAsked;
+        }
+    });
 }
 
 bool Camera::authorized() const
@@ -76,4 +87,48 @@ void Camera::activate()
         emit authorizationChanged();
 #endif
     }
+}
+
+void Camera::setQmlCamera(QObject *object)
+{
+    if (object == m_qmlCamera)
+        return;
+    m_qmlCamera = object;
+    emit qmlCameraChanged();
+    fetchCameraDetails();
+}
+
+QObject *Camera::qmlCamera() const
+{
+    return m_qmlCamera;
+}
+
+void Camera::fetchCameraDetails()
+{
+    QCamera *camera = qobject_cast<QCamera *>(m_qmlCamera);
+    if (!camera)
+        return;
+    QCameraFormat preferred;
+    for (const auto &format : camera->cameraDevice().videoFormats()) {
+        if (preferred.isNull()) {
+            preferred = format;
+        }
+        else {
+            auto size = format.resolution();
+            auto oldSize = preferred.resolution();
+            // avoid going for the biggest feed, but not too small either.
+            if (oldSize.width() < 190 || (size.width() < oldSize.width() && size.width() >= 190)) {
+                preferred = format;
+            }
+            else if (size == oldSize && format.maxFrameRate() < preferred.maxFrameRate()) {
+                preferred = format;
+            }
+        }
+    }
+    logInfo().nospace() << "Changing camera resolution to " << preferred.resolution().width() << "x" << preferred.resolution().height();
+    camera->setCameraFormat(preferred);
+    camera->setFocusMode(QCamera::FocusModeAutoNear); // macro focus mode.
+    camera->setWhiteBalanceMode(QCamera::WhiteBalanceShade); // avoid flash
+
+    camera->start();
 }

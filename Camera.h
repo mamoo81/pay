@@ -28,6 +28,7 @@ class Camera : public QObject
     Q_OBJECT
     Q_PROPERTY(bool authorized READ authorized NOTIFY authorizationChanged)
     Q_PROPERTY(bool denied READ denied NOTIFY authorizationChanged)
+    Q_PROPERTY(QObject* qmlCamera READ qmlCamera WRITE setQmlCamera NOTIFY qmlCameraChanged)
 public:
     explicit Camera(QObject *parent = nullptr);
 
@@ -38,10 +39,16 @@ public:
 
     Q_INVOKABLE void activate();
 
+    void setQmlCamera(QObject *object);
+    QObject *qmlCamera() const;
+
 signals:
     void authorizationChanged();
+    void qmlCameraChanged();
 
 private:
+    void fetchCameraDetails();
+
     // std::atomic<CheckState*> m_checkState;
     enum AskingState {
         NotAsked,
@@ -50,6 +57,7 @@ private:
         Authorized
     };
     AskingState m_state;
+    QObject *m_qmlCamera = nullptr;
 };
 
 #endif

@@ -81,6 +81,7 @@ FocusScope {
 
         FocusScope {
             id: tab1
+            anchors.fill: parent
             property string title: qsTr("Rejected")
             /*
             Payment { // the model behind the Payment logic
@@ -97,6 +98,7 @@ FocusScope {
         }
         FocusScope {
             id: scanQrTab
+            anchors.fill: parent
             property string title: qsTr("Scan QR")
             onFocusChanged: {
                 console.log("focus received " + focus)
@@ -106,42 +108,54 @@ FocusScope {
             // only load this after authorization has become available.
             Loader {
                 id: cameraStufff
-                sourceComponent: CameraHandler.authorized ? cameraStuffComponent : undefined
-                width: 320
-                height: 240
-                x: 20
-                y: 30
+                sourceComponent: CameraHandler.authorized ? videoFeedPanel : undefined
+                anchors.fill: parent
+                anchors.margins: 6
             }
 
             Component {
-                id: cameraStuffComponent
+                id: videoFeedPanel
                 Item {
                     anchors.fill: parent
-                    /*
-                    MediaDevices {
-                        id: mediaDevices
-                    }*/
+
+                    Component.onCompleted:  CameraHandler.qmlCamera = camera
                     CaptureSession {
                         id: captureSession
                         videoOutput: videoOutput
-                        camera: Camera { active: true }
+                        camera: Camera { id: camera; }
                     }
                     VideoOutput {
                         id: videoOutput
-                        anchors.fill: parent
+                        fillMode: VideoOutput.Stretch
+                        width: parent.width
+                        height: {
+                            var feedSize = camera.cameraFormat.resolution;
+                            // on all phones I tried, the width and height are swapped. (Qt641)
+                            // This fixed it, but makes it look weird on Desktop or when Qt gets fixed.
+                            return width * (feedSize.width / feedSize.height);
+                        }
                     }
                 }
-
             }
 
             Flowee.Label {
-                text: CameraHandler.denied ? qsTr("Camera permission denied. Change permissions to scan") : camera.errorString
+                wrapMode: Text.Wrap
+                text: {
+                    if (CameraHandler.denied)
+                        return qsTr("Camera permission denied. Change permissions to scan");
+                    var cam = CameraHandler.qmlCamera;
+                    if (cam == null)
+                        return "waiting for permission";
+                    return cam.errorString
+                }
                 x: 10
                 y: 350
+                width: parent.width
             }
         }
         FocusScope {
             property string title: "Tab C"
+            anchors.fill: parent
             Rectangle {
                 width: 10
                 height: 10
