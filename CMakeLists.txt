@@ -99,20 +99,7 @@ else ()
     list(APPEND PAY_SOURCES main_utils.cpp)
 endif ()
 
-if (${Qt6Multimedia_FOUND})
-    list(APPEND PAY_SOURCES Camera.cpp)
-endif()
-
 add_library(pay_lib STATIC ${PAY_SOURCES})
-
-if (ANDROID)
-    # For 6.2 - 6.4 the Qt Core permission APIs are only available as Android private apis
-    if (${Qt6Multimedia_FOUND} AND ${QT_VERSION_MINOR} GREATER_EQUAL 2 AND ${QT_VERSION_MINOR} LESS_EQUAL 4)
-        set (PayLib_PRIVATE_LIBS Qt6::CorePrivate)
-        message(STATUS "including private QtCore APIs")
-    endif ()
-endif ()
-
 
 target_link_libraries(pay_lib
     flowee_apputils
@@ -211,6 +198,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
     configure_file(qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
     set (SOURCES_PAY_MOBILE
         main.cpp
+        Camera.cpp
         guis/mobile/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
@@ -224,7 +212,13 @@ if (ANDROID AND BUILD_MOBILE_PAY)
     endif()
 
     qt6_add_executable(pay_mobile ${SOURCES_PAY_MOBILE})
-    target_link_libraries(pay_mobile pay_lib Qt6::Svg)
+
+    # For 6.2 - 6.4 the Qt Core permission APIs are only available as Android private apis
+    if (${Qt6Multimedia_FOUND} AND ${QT_VERSION_MINOR} GREATER_EQUAL 2 AND ${QT_VERSION_MINOR} LESS_EQUAL 4)
+        set (PAY_MOBILE_LIBS Qt6::CorePrivate)
+        message(STATUS "including private QtCore APIs for Android support")
+    endif ()
+    target_link_libraries(pay_mobile pay_lib Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
     set_target_properties(pay_mobile PROPERTIES
        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
@@ -242,6 +236,7 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
 
     set (SOURCES_PAY_MOBILE
         main.cpp
+        Camera.cpp
         guis/mobile/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
