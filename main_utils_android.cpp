@@ -67,15 +67,24 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
         abort();
     }
 
-    bool install = !target.exists() || !infTarget.exists() || orig.size() != target.size();
+    bool install = !target.exists() || !infTarget.exists() || orig.size() != target.size()
+            || infOrig.size() != infTarget.size();
     if (install) {
         // make sure we have a local up-to-date copy
-        QFile::copy(orig.filePath(), target.absoluteFilePath());
-        QFile::copy(orig.filePath() + ".info", infTarget.absoluteFilePath());
+        QFile::remove(target.absoluteFilePath());
+        bool ok = QFile::copy(orig.filePath(), target.absoluteFilePath());
+        if (!ok) {
+            logFatal() << "Failed copying blockheaders";
+            abort();
+        }
+        QFile::remove(infTarget.absoluteFilePath());
+        ok = QFile::copy(orig.filePath() + ".info", infTarget.absoluteFilePath());
+        if (!ok) {
+            logFatal() << "Failed copying blockheaders.info";
+            abort();
+        }
     }
-    if (!target.exists())
-        abort();
-    if (!infTarget.exists())
+    if (!target.exists() || !infTarget.exists()) // should be impossible...
         abort();
 
     blockheaders.reset(new QFile(target.absoluteFilePath()));
@@ -83,6 +92,7 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
         blockheaders.reset();
         return blockheaders;
     }
+
     Blockchain::setStaticChain(blockheaders->map(0, blockheaders->size()), blockheaders->size(),
                               infTarget.absoluteFilePath().toStdString());
     blockheaders->close();
