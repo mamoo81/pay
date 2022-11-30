@@ -22,6 +22,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
+# calling find_package Qt two times seems to be needed to get the Qt version :shrug:
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 COMPONENTS Core Quick Svg REQUIRED
     OPTIONAL_COMPONENTS Multimedia)
 find_package(flowee REQUIRED flowee_p2p)
@@ -29,10 +31,6 @@ find_package(OpenSSL REQUIRED)
 if (ANDROID)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
         ${CMAKE_SOURCE_DIR}/android/cmake)
-    # For 6.2 - 6.4 the Qt Core permission APIs are only available as Android private apis
-    if (${Qt6Multimedia_FOUND})
-        include_directories(${Qt6Core_PRIVATE_INCLUDE_DIRS})
-    endif ()
 else ()
     find_package(Qt6 COMPONENTS DBus LinguistTools)
 endif()
@@ -107,13 +105,22 @@ endif()
 
 add_library(pay_lib STATIC ${PAY_SOURCES})
 
+if (ANDROID)
+    # For 6.2 - 6.4 the Qt Core permission APIs are only available as Android private apis
+    if (${Qt6Multimedia_FOUND} AND ${QT_VERSION_MINOR} GREATER_EQUAL 2 AND ${QT_VERSION_MINOR} LESS_EQUAL 4)
+        set (PayLib_PRIVATE_LIBS Qt6::CorePrivate)
+        message(STATUS "including private QtCore APIs")
+    endif ()
+endif ()
+
+
 target_link_libraries(pay_lib
     flowee_apputils
     flowee_utils
     flowee_p2p
     ${OPENSSL_LIBRARIES}
     ${Boost_LIBRARIES}
-    Qt6::Core Qt6::Quick ${Qt6DBus_LIBRARIES} ${QREncode_LIBRARIES})
+    Qt6::Core Qt6::Quick ${Qt6DBus_LIBRARIES} ${PayLib_PRIVATE_LIBS} ${QREncode_LIBRARIES})
 
 ###### Translations
 
@@ -292,7 +299,8 @@ endif()
 message("")
 message("Configuration results:")
 message("----------------------")
-message("Target OS: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "Target OS: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "Qt version: ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}")
 if (${local_qml})
     message("   Using QML from source-dir. DO NOT DISTRIBUTE BINARIES!")
 endif ()
