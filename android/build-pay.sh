@@ -62,6 +62,9 @@ cp -f "$_pay_native_name_"/*qm imports/
 cp -f "$_pay_native_name_"/blockheaders-meta-extractor imports/
 
 floweePaySrcDir=`dirname $0`/..
+if test -f $floweePaySrcDir/android/netlog.conf; then
+    netLogSwitch="-DNetworkLogClient=ON"
+fi
 
 if test ! -f .config; then
     cat << HERE > .config
@@ -77,7 +80,7 @@ if ! test -f build.ninja; then
         -DOPENSSL_CRYPTO_LIBRARY=/opt/android-ssl/lib/libcrypto.a \\
         -DOPENSSL_SSL_LIBRARY=/opt/android-ssl/lib/libssl.a \\
         -DOPENSSL_INCLUDE_DIR=/opt/android-ssl/include/ \\
-        -DCMAKE_BUILD_TYPE=Release \\
+        -DCMAKE_BUILD_TYPE=Release $netLogSwitch \\
         -G Ninja \\
         /home/builds/src
 fi
@@ -122,6 +125,9 @@ fi
 
 if test -f android-build/assets/blockheaders -a ! -f android-build/assets/blockheaders.info; then
     imports/blockheaders-meta-extractor android-build/assets
+fi
+if test -f $floweePaySrcDir/android/netlog.conf; then
+    cp $floweePaySrcDir/android/netlog.conf android-build/assets/
 fi
 
 if test "\$1" = "sign" -o "\$2" = "sign"
