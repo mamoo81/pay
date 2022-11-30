@@ -96,8 +96,9 @@ int main(int argc, char *argv[])
     logger->clearChannels();
     logger->clearLogLevels(logVerbosity(cld));
     logger->addConsoleChannel();
-
-    auto blockheaders = handleStaticChain(cld);
+#ifdef NETWORK_LOGGER
+    logger->addChannel(new NetworkLogClient(FloweePay::instance()->ioService()));
+#endif
 
     static const char* languagePacks[] = {
 #ifdef DESKTOP
@@ -130,12 +131,14 @@ int main(int argc, char *argv[])
 #endif
 
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
-    MenuModel menuModel;
-    engine.rootContext()->setContextProperty("MenuModel", &menuModel);
-    Camera camera;
-    engine.rootContext()->setContextProperty("CameraHandler", &camera);
     engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
     engine.rootContext()->setContextProperty("Fiat", FloweePay::instance()->prices());
+    MenuModel menuModel;
+    engine.rootContext()->setContextProperty("MenuModel", &menuModel);
+#if MOBILE
+    Camera camera;
+    engine.rootContext()->setContextProperty("CameraHandler", &camera);
+#endif
     handleLocalQml(engine);
     engine.load(engine.baseUrl().url() +
 #ifdef DESKTOP
@@ -145,12 +148,11 @@ int main(int argc, char *argv[])
 #endif
                 "/main.qml");
 
+    auto blockheaders = handleStaticChain(cld);
     QObject::connect(FloweePay::instance(), &FloweePay::loadComplete, &engine, [&engine, &cld]() {
         loadCompleteHandler(engine, cld);
     });
-#ifdef NETWORK_LOGGER
-    logger->addChannel(new NetworkLogClient(FloweePay::instance()->ioService()));
-#endif
+    FloweePay::instance()->startP2PInit();
 
     // Clean shutdown on SIGTERM
     struct sigaction sa;

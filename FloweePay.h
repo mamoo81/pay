@@ -102,6 +102,9 @@ public:
     /// returns platform name, Linux / Android / etc
     QString platform() const;
 
+    /// Load p2p layer.
+    void startP2PInit();
+
     /// for a price, in satoshis, return a formatted string in unitName().
     Q_INVOKABLE inline QString amountToString(double price) const {
         return FloweePay::amountToString(static_cast<qint64>(price), m_unit);

@@ -104,9 +104,6 @@ FloweePay::FloweePay()
     });
 #endif
 
-    // start creation of downloadmanager and loading of data in a different thread
-    ioService().post(std::bind(&FloweePay::init, this));
-
     QSettings defaultConfig(":/defaults.ini", QSettings::IniFormat);
     m_unit = static_cast<UnitOfBitcoin>(defaultConfig.value(UNIT_TYPE, BCH).toInt());
     m_windowHeight = defaultConfig.value(WINDOW_HEIGHT, -1).toInt();
@@ -375,6 +372,12 @@ QString FloweePay::platform() const
     return "Linux";
 #endif
     return "unknown"; // TODO for other platforms check which names CMake uses.
+}
+
+void FloweePay::startP2PInit()
+{
+    // start creation of downloadmanager and loading of data in a different thread
+    ioService().post(std::bind(&FloweePay::init, this));
 }
 
 QString FloweePay::amountToStringPretty(double price) const
