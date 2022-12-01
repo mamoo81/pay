@@ -31,8 +31,23 @@ find_package(OpenSSL REQUIRED)
 if (ANDROID)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
         ${CMAKE_SOURCE_DIR}/android/cmake)
+
+    # Config ZXing here.
+    if (EXISTS "/opt/android-zxing/include/ZXing/DecodeHints.h")
+        add_library(ZXing::ZXing STATIC IMPORTED)
+        set_property(TARGET ZXing::ZXing PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+            "/opt/android-zxing/include")
+        set_target_properties(ZXing::ZXing PROPERTIES IMPORTED_LOCATION
+                "/opt/android-zxing/lib/libZXing.a")
+        set_property(TARGET ZXing::ZXing PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES
+                "/opt/android-zxing/lib/libZXing.a;/opt/android-zxing/lib/libzueci-static.a")
+        set (ZXing_FOUND TRUE)
+    else ()
+        find_package(ZXing REQUIRED)
+    endif()
 else ()
     find_package(Qt6 COMPONENTS DBus LinguistTools)
+    find_package(ZXing)
 endif()
 find_package(Boost 1.67.0 REQUIRED filesystem chrono thread)
 find_package(QREncode REQUIRED)
@@ -58,7 +73,6 @@ function(download_file url path)
         endif()
     endif()
 endfunction()
-
 
 set (PAY_SOURCES
     AccountInfo.cpp
@@ -176,7 +190,11 @@ if (BUILD_DESKTOP_PAY)
 endif()
 
 ###### Pay-mobile executable
-option (BUILD_MOBILE_PAY "Build the mobile client of Pay" ${Qt6Multimedia_FOUND})
+option (BUILD_MOBILE_PAY "Build the mobile client of Pay" ON)
+
+if (${Qt6Multimedia_NOTFOUND} OR ${ZXing_NOTFOUND})
+    set (BUILD_MOBILE_PAY OFF)
+endif ()
 
 if (ANDROID AND BUILD_MOBILE_PAY)
     # blockheaders to be included in the APK
@@ -218,7 +236,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
         set (PAY_MOBILE_LIBS Qt6::CorePrivate)
         message(STATUS "including private QtCore APIs for Android support")
     endif ()
-    target_link_libraries(pay_mobile pay_lib Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
+    target_link_libraries(pay_mobile pay_lib ZXing::ZXing Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
     set_target_properties(pay_mobile PROPERTIES
        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
@@ -248,7 +266,7 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
     set_target_properties(pay_mobile PROPERTIES
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
     )
-    target_link_libraries(pay_mobile pay_lib Qt6::Svg Qt6::Multimedia)
+    target_link_libraries(pay_mobile pay_lib ZXing::ZXing Qt6::Svg Qt6::Multimedia)
     install(TARGETS pay_mobile DESTINATION bin)
 endif()
 
@@ -312,7 +330,10 @@ if (${BUILD_DESKTOP_PAY})
     endif ()
 endif()
 if (${Qt6Multimedia_NOTFOUND})
-message("ww Missing QtMultimedia libs, not building Pay for mobile ")
+    message("ww Missing QtMultimedia libs, not building Pay for mobile ")
+endif ()
+if (${ZXing_NOTFOUND})
+    message("ww Missing ZXing lib, not building Pay for mobile ")
 endif ()
 if (${BUILD_MOBILE_PAY})
     message ("-> Building Pay for mobile")

@@ -19,7 +19,10 @@
 #define CAMERA_H
 
 #include <QObject>
+#include <QString>
 #include <atomic>
+
+#include <ZXing/DecodeHints.h>
 
 class CheckState;
 
@@ -28,7 +31,9 @@ class Camera : public QObject
     Q_OBJECT
     Q_PROPERTY(bool authorized READ authorized NOTIFY authorizationChanged)
     Q_PROPERTY(bool denied READ denied NOTIFY authorizationChanged)
+	Q_PROPERTY(QString text READ text NOTIFY textChanged)
     Q_PROPERTY(QObject* qmlCamera READ qmlCamera WRITE setQmlCamera NOTIFY qmlCameraChanged)
+	Q_PROPERTY(QObject* videoSink READ videoSink WRITE setVideoSink NOTIFY videoSinkChanged)
 public:
     explicit Camera(QObject *parent = nullptr);
 
@@ -41,10 +46,18 @@ public:
 
     void setQmlCamera(QObject *object);
     QObject *qmlCamera() const;
-
+    
+    void setVideoSink(QObject *object);
+    QObject *videoSink() const;
+    
+    QString text() const;
+    void setText(const QString &text);
+    
 signals:
     void authorizationChanged();
     void qmlCameraChanged();
+    void videoSinkChanged();
+    void textChanged();
 
 private:
     void fetchCameraDetails();
@@ -58,6 +71,11 @@ private:
     };
     AskingState m_state;
     QObject *m_qmlCamera = nullptr;
+    QObject *m_videoSink = nullptr;
+    
+    QString m_text;
+    
+    ZXing::DecodeHints m_decodeHints;
 };
 
 #endif

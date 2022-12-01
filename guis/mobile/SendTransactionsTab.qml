@@ -118,9 +118,11 @@ FocusScope {
                 Item {
                     anchors.fill: parent
 
-                    Component.onCompleted:  CameraHandler.qmlCamera = camera
+                    Component.onCompleted: {
+                        CameraHandler.qmlCamera = camera
+                        CameraHandler.videoSink = videoOutput.videoSink
+                    }
                     CaptureSession {
-                        id: captureSession
                         videoOutput: videoOutput
                         camera: Camera { id: camera; }
                     }
