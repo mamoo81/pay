@@ -21,6 +21,8 @@ import QtQuick.Layouts
 import "../Flowee" as Flowee
 import "../ControlColors.js" as ControlColors
 
+import QtQuick.Controls.Basic
+
 ApplicationWindow {
     id: mainWindow
     visible: true
