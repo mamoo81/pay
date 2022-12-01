@@ -38,6 +38,7 @@ RUN useradd builduser -d /home/builds -m -u 1000 -U \
     brotli \
     libb2 \
     md4c \
+    wget \
     jdk11-openjdk \
     && pacman -Sc --noconfirm \
     && rm -rf /var/cache/pacman/pkg/* \
@@ -56,6 +57,8 @@ RUN mkdir -p /usr/local/cache \
     && /usr/local/bin/buildBoost.sh \
     && rm -rf ~builduser/* \
     && /usr/local/bin/buildQrEncode.sh \
+    && rm -rf ~builduser/* \
+    && /usr/local/bin/buildZXing.sh \
     && rm -rf ~builduser/* \
     && rm -rf /usr/local/cache
 
