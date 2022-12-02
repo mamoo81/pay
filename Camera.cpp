@@ -18,7 +18,7 @@
  */
 #include "Camera.h"
 
-#include <ZXing/ReadBarcode.h> 
+#include <ZXing/ReadBarcode.h>
 
 #include <QImage>
 #include <QVideoFrame>
@@ -53,10 +53,10 @@ std::vector<ZXing::Result> ReadBarcodes(const QImage &img, const ZXing::DecodeHi
     case QImage::Format_Grayscale8: zxImageFormat = ZXing::ImageFormat::Lum; break;
     default: break;
     }
-    
+
     if (zxImageFormat == ZXing::ImageFormat::None) {
         QImage gray = img.convertToFormat(QImage::Format_Grayscale8) ;
-		return ZXing::ReadBarcodes({gray.bits(), gray.width(), gray.height(), ZXing::ImageFormat::Lum, static_cast<int>(gray.bytesPerLine())}, hints);
+        return ZXing::ReadBarcodes({gray.bits(), gray.width(), gray.height(), ZXing::ImageFormat::Lum, static_cast<int>(gray.bytesPerLine())}, hints);
     }
 
     ZXing::ImageView buf(img.bits(), img.width(), img.height(), zxImageFormat, static_cast<int>(img.bytesPerLine()));
@@ -64,80 +64,80 @@ std::vector<ZXing::Result> ReadBarcodes(const QImage &img, const ZXing::DecodeHi
 }
 
 std::vector<ZXing::Result> ReadBarcodes(const QVideoFrame &frame, const ZXing::DecodeHints &hints) {
-	auto img = frame; // shallow copy just get access to non-const map() function
-	if (!frame.isValid() || !img.map(QVideoFrame::ReadOnly)){
-		logDebug() << "invalid QVideoFrame: could not map memory";
-		return {};
-	}
-	auto unmap = qScopeGuard([&] { img.unmap(); });
-
     ZXing::ImageFormat fmt = ZXing::ImageFormat::None;
-	int pixStride = 0;
-	int pixOffset = 0;
+    int pixStride = 0;
+    int pixOffset = 0;
 
 #define FORMAT(F5, F6) QVideoFrameFormat::Format_##F6
 
-	switch (img.pixelFormat()) {
-	case FORMAT(ARGB32, ARGB8888):
-	case FORMAT(ARGB32_Premultiplied, ARGB8888_Premultiplied):
-	case FORMAT(RGB32, RGBX8888):
-		fmt = ZXing::ImageFormat::BGRX;
-		break;
+    switch (frame.pixelFormat()) {
+    case FORMAT(ARGB32, ARGB8888):
+    case FORMAT(ARGB32_Premultiplied, ARGB8888_Premultiplied):
+    case FORMAT(RGB32, RGBX8888):
+        fmt = ZXing::ImageFormat::BGRX;
+        break;
 
-	case FORMAT(BGRA32, BGRA8888):
-	case FORMAT(BGRA32_Premultiplied, BGRA8888_Premultiplied):
-	case FORMAT(BGR32, BGRX8888):
+    case FORMAT(BGRA32, BGRA8888):
+    case FORMAT(BGRA32_Premultiplied, BGRA8888_Premultiplied):
+    case FORMAT(BGR32, BGRX8888):
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		fmt = ZXing::ImageFormat::RGBX;
+        fmt = ZXing::ImageFormat::RGBX;
 #else
-		fmt = ImageFormat::XBGR;
+        fmt = ImageFormat::XBGR;
 #endif
-		break;
+        break;
 
-	case QVideoFrameFormat::Format_P010:
-	case QVideoFrameFormat::Format_P016: fmt = ZXing::ImageFormat::Lum, pixStride = 1; break;
+    case QVideoFrameFormat::Format_P010:
+    case QVideoFrameFormat::Format_P016: fmt = ZXing::ImageFormat::Lum, pixStride = 1; break;
 
-	case FORMAT(AYUV444, AYUV):
-	case FORMAT(AYUV444_Premultiplied, AYUV_Premultiplied):
+    case FORMAT(AYUV444, AYUV):
+    case FORMAT(AYUV444_Premultiplied, AYUV_Premultiplied):
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		fmt = ZXing::ImageFormat::Lum, pixStride = 4, pixOffset = 3;
+        fmt = ZXing::ImageFormat::Lum, pixStride = 4, pixOffset = 3;
 #else
-		fmt = ImageFormat::Lum, pixStride = 4, pixOffset = 2;
+        fmt = ImageFormat::Lum, pixStride = 4, pixOffset = 2;
 #endif
-		break;
+        break;
 
-	case FORMAT(YUV420P, YUV420P):
-	case FORMAT(NV12, NV12):
-	case FORMAT(NV21, NV21):
-	case FORMAT(IMC1, IMC1):
-	case FORMAT(IMC2, IMC2):
-	case FORMAT(IMC3, IMC3):
-	case FORMAT(IMC4, IMC4):
-	case FORMAT(YV12, YV12): fmt = ZXing::ImageFormat::Lum; break;
-	case FORMAT(UYVY, UYVY): fmt = ZXing::ImageFormat::Lum, pixStride = 2, pixOffset = 1; break;
-	case FORMAT(YUYV, YUYV): fmt = ZXing::ImageFormat::Lum, pixStride = 2; break;
+    case FORMAT(YUV420P, YUV420P):
+    case FORMAT(NV12, NV12):
+    case FORMAT(NV21, NV21):
+    case FORMAT(IMC1, IMC1):
+    case FORMAT(IMC2, IMC2):
+    case FORMAT(IMC3, IMC3):
+    case FORMAT(IMC4, IMC4):
+    case FORMAT(YV12, YV12): fmt = ZXing::ImageFormat::Lum; break;
+    case FORMAT(UYVY, UYVY): fmt = ZXing::ImageFormat::Lum, pixStride = 2, pixOffset = 1; break;
+    case FORMAT(YUYV, YUYV): fmt = ZXing::ImageFormat::Lum, pixStride = 2; break;
 
-	case FORMAT(Y8, Y8): fmt = ZXing::ImageFormat::Lum; break;
-	case FORMAT(Y16, Y16): fmt = ZXing::ImageFormat::Lum, pixStride = 2, pixOffset = 1; break;
+    case FORMAT(Y8, Y8): fmt = ZXing::ImageFormat::Lum; break;
+    case FORMAT(Y16, Y16): fmt = ZXing::ImageFormat::Lum, pixStride = 2, pixOffset = 1; break;
 
-	case FORMAT(ABGR32, ABGR8888):
+    case FORMAT(ABGR32, ABGR8888):
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		fmt = ZXing::ImageFormat::RGBX;
+        fmt = ZXing::ImageFormat::RGBX;
 #else
-		fmt = ZXing::ImageFormat::XBGR;
+        fmt = ZXing::ImageFormat::XBGR;
 #endif
-		break;
-	case FORMAT(YUV422P, YUV422P): fmt = ZXing::ImageFormat::Lum; break;
-	default: break;
-	}
+        break;
+    case FORMAT(YUV422P, YUV422P): fmt = ZXing::ImageFormat::Lum; break;
+    default: break;
+    }
 
-    constexpr int FirstPlane = 0;
-	if (fmt != ZXing::ImageFormat::None) {
-		return ZXing::ReadBarcodes(
-			{img.bits(FirstPlane) + pixOffset, img.width(), img.height(), fmt, img.bytesPerLine(FirstPlane), pixStride}, hints);
-	} else {
-		return ReadBarcodes(img.toImage(), hints);
-	}
+    if (fmt != ZXing::ImageFormat::None) {
+        auto img = frame; // shallow copy just get access to non-const map() function
+        if (!img.isValid() || !img.map(QVideoFrame::ReadOnly)){
+            logDebug() << "invalid QVideoFrame: could not map memory";
+            return {};
+        }
+        QScopeGuard unmap([&] { img.unmap(); });
+
+        constexpr int FirstPlane = 0;
+        return ZXing::ReadBarcodes(
+            {img.bits(FirstPlane) + pixOffset, img.width(), img.height(), fmt, img.bytesPerLine(FirstPlane), pixStride}, hints);
+    } else {
+        return ReadBarcodes(frame.toImage(), hints);
+    }
 }
 
 }
@@ -149,7 +149,7 @@ Camera::Camera(QObject *parent)
 {
     m_decodeHints.setFormats(ZXing::BarcodeFormat::QRCode);
     m_decodeHints.setTryHarder(true);
-    
+
     auto guiApp = qobject_cast<QGuiApplication*>(QCoreApplication::instance());
     assert(guiApp);
     connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
@@ -187,6 +187,7 @@ void Camera::activate()
             if (res == QtAndroidPrivate::PermissionResult::Authorized) {
                 m_state = Authorized;
                 emit authorizationChanged();
+                setShowCamera(true);
             }
             else {
                 logCritical() << "We are starting to request permissions";
@@ -194,10 +195,12 @@ void Camera::activate()
                 auto future = QtAndroidPrivate::requestPermission(QtAndroidPrivate::Camera);
                 future.then([=](QtAndroidPrivate::PermissionResult res) {
                     logCritical() << "Permission request result: " << res << (res == QtAndroidPrivate::Authorized);
-                    if (res == QtAndroidPrivate::Authorized)
+                    if (res == QtAndroidPrivate::Authorized) {
                         m_state = Authorized;
-                    else
+                        setShowCamera(true);
+                    } else {
                         m_state = Denied;
+                    }
                     emit authorizationChanged();
                 });
             }
@@ -208,6 +211,8 @@ void Camera::activate()
         emit authorizationChanged();
 #endif
     }
+    if (m_state == Authorized)
+        setShowCamera(true);
 }
 
 void Camera::setQmlCamera(QObject *object)
@@ -263,13 +268,29 @@ void Camera::setText(const QString &text)
     m_text = text;
     emit textChanged();
     logFatal() << "Scanned: " << text;
-    
+
     // TODO check barcode for usefulness (encoding etc).
-    
+
     QCamera *camera = qobject_cast<QCamera *>(m_qmlCamera);
     if (!camera)
         return;
     camera->stop();
+    setQmlCamera(nullptr);
+    setVideoSink(nullptr);
+    setShowCamera(false);
+}
+
+bool Camera::showCamera() const
+{
+    return m_showCamera;
+}
+
+void Camera::setShowCamera(bool on)
+{
+    if (m_showCamera == on)
+        return;
+    m_showCamera = on;
+    emit showCameraChanged();
 }
 
 void Camera::fetchCameraDetails()
@@ -278,6 +299,7 @@ void Camera::fetchCameraDetails()
     if (!camera)
         return;
     QCameraFormat preferred;
+// TODO check the reader code above about which kind of video feeds it likes and prefer those in the selection
     for (const auto &format : camera->cameraDevice().videoFormats()) {
         if (preferred.isNull()) {
             preferred = format;

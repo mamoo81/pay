@@ -100,22 +100,24 @@ FocusScope {
             id: scanQrTab
             anchors.fill: parent
             property string title: qsTr("Scan QR")
+            // on activate the CameraHandler will check if we have permissions and if so, turn on 'showCamera'
             onFocusChanged: {
-                console.log("focus received " + focus)
-                CameraHandler.activate();
+                console.log("focus changed: " + focus)
+                if (focus) CameraHandler.activate();
             }
 
             // only load this after authorization has become available.
             Loader {
                 id: cameraStufff
-                sourceComponent: CameraHandler.authorized ? videoFeedPanel : undefined
+                sourceComponent: CameraHandler.showCamera ? videoFeedPanel : undefined
                 anchors.fill: parent
                 anchors.margins: 6
             }
 
             Component {
                 id: videoFeedPanel
-                Item {
+                Rectangle {
+                    color: "red"
                     anchors.fill: parent
 
                     Component.onCompleted: {
@@ -145,8 +147,11 @@ FocusScope {
                 text: {
                     if (CameraHandler.denied)
                         return qsTr("Camera permission denied. Change permissions to scan");
+                    var txt = CameraHandler.text;
+                    if (txt !== "")
+                        return txt;
                     var cam = CameraHandler.qmlCamera;
-                    if (cam == null)
+                    if (cam === null)
                         return "waiting for permission";
                     return cam.errorString
                 }
