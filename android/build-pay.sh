@@ -63,7 +63,7 @@ cp -f "$_pay_native_name_"/blockheaders-meta-extractor imports/
 
 floweePaySrcDir=`dirname $0`/..
 if test -f $floweePaySrcDir/android/netlog.conf; then
-    netLogSwitch="-DNetworkLogClient=ON"
+    developerSwitches="-DNetworkLogClient=ON -Dquick_deploy=ON"
 fi
 
 if test ! -f .config; then
@@ -80,7 +80,7 @@ if ! test -f build.ninja; then
         -DOPENSSL_CRYPTO_LIBRARY=/opt/android-ssl/lib/libcrypto.a \\
         -DOPENSSL_SSL_LIBRARY=/opt/android-ssl/lib/libssl.a \\
         -DOPENSSL_INCLUDE_DIR=/opt/android-ssl/include/ \\
-        -DCMAKE_BUILD_TYPE=Release $netLogSwitch \\
+        -DCMAKE_BUILD_TYPE=Release $developerSwitches \\
         -G Ninja \\
         /home/builds/src
 fi

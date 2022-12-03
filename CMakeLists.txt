@@ -29,6 +29,7 @@ find_package(Qt6 COMPONENTS Core Quick Svg REQUIRED
 find_package(flowee REQUIRED flowee_p2p)
 find_package(OpenSSL REQUIRED)
 if (ANDROID)
+    option(quick_deploy "Do not include the blockchain in the APK, for a smaller (developer ONLY) deployment" OFF)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
         ${CMAKE_SOURCE_DIR}/android/cmake)
 
@@ -199,8 +200,10 @@ endif ()
 if (ANDROID AND BUILD_MOBILE_PAY)
     # blockheaders to be included in the APK
     set (ASSETS_DIR ${CMAKE_BINARY_DIR}/android-build/assets/)
-    download_file(https://flowee.org/products/pay/blockheaders
-        ${ASSETS_DIR}/blockheaders)
+    if (NOT quick_deploy)
+        download_file(https://flowee.org/products/pay/blockheaders
+            ${ASSETS_DIR}/blockheaders)
+    endif()
     file(COPY ${CMAKE_SOURCE_DIR}/data/bip39-english
               ${CMAKE_SOURCE_DIR}/data/bip39-chinese_simplified
               ${CMAKE_SOURCE_DIR}/data/bip39-chinese_traditional

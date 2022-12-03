@@ -61,13 +61,9 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
     QFileInfo orig("assets:/blockheaders");
     QFileInfo infOrig("assets:/blockheaders.info");
 
-    if (!orig.exists() || !infOrig.exists()) {
-        logFatal() << "MIssing blockheader assets";
-        abort();
-    }
-
-    bool install = !target.exists() || !infTarget.exists() || orig.size() != target.size()
-            || infOrig.size() != infTarget.size();
+    bool install = orig.exists() && infOrig.exists()
+            && (!target.exists() || !infTarget.exists() || orig.size() != target.size()
+                || infOrig.size() != infTarget.size());
     if (install) {
         // make sure we have a local up-to-date copy
         QFile::remove(target.absoluteFilePath());
@@ -83,7 +79,7 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
             abort();
         }
     }
-    if (!target.exists() || !infTarget.exists()) // should be impossible...
+    if (!target.exists() || !infTarget.exists()) // We didn't find a source for the headers
         abort();
 
     blockheaders.reset(new QFile(target.absoluteFilePath()));
