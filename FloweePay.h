@@ -42,6 +42,7 @@ class NewWalletConfig;
 class KeyId;
 class PriceDataProvider;
 class PriceHistoryDataProvider;
+class CameraController;
 
 const std::string &chainPrefix();
 QString renderAddress(const KeyId &pubkeyhash);
@@ -249,6 +250,10 @@ public:
     /// If true, no notifications about new blocks will be shown
     void setNewBlockMuted(bool mute);
 
+    // return the CameraController previously set on this app singleton
+    CameraController *cameraController();
+    // set the cameraController for the singleton to take ownership of.
+    void setCameraController(CameraController *cc);
 
     int fontScaling() const;
     void setFontScaling(int newFontScaling);
@@ -292,6 +297,7 @@ private:
     std::unique_ptr<PriceDataProvider> m_prices;
     std::unique_ptr<PriceHistoryDataProvider> m_priceHistory;
     NotificationManager m_notifications;
+    CameraController* m_cameraController;
     QList<Wallet*> m_wallets;
     int m_dspTimeout = 5000;
     int m_windowWidth = 500;

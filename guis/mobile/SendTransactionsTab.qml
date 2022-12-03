@@ -19,8 +19,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 // import QtQuick.Layouts
 import "../Flowee" as Flowee
-// import Flowee.org.pay;
-import QtMultimedia
+import Flowee.org.pay;
 
 FocusScope {
     id: root
@@ -101,64 +100,18 @@ FocusScope {
             anchors.fill: parent
             property string title: qsTr("Scan QR")
             // on activate the CameraHandler will check if we have permissions and if so, turn on 'showCamera'
-            onFocusChanged: {
-                console.log("focus changed: " + focus)
-                if (focus) CameraHandler.activate();
+            onFocusChanged: if (focus) scanner.start();
+
+            QRScanner {
+                id: scanner
             }
 
-            // only load this after authorization has become available.
-            Loader {
-                id: cameraStufff
-                sourceComponent: CameraHandler.showCamera ? videoFeedPanel : undefined
-                anchors.fill: parent
-                anchors.margins: 6
-            }
-
-            Component {
-                id: videoFeedPanel
-                Rectangle {
-                    color: "red"
-                    anchors.fill: parent
-
-                    Component.onCompleted: {
-                        CameraHandler.qmlCamera = camera
-                        CameraHandler.videoSink = videoOutput.videoSink
-                    }
-                    CaptureSession {
-                        videoOutput: videoOutput
-                        camera: Camera { id: camera; }
-                    }
-                    VideoOutput {
-                        id: videoOutput
-                        fillMode: VideoOutput.Stretch
-                        width: parent.width
-                        height: {
-                            var feedSize = camera.cameraFormat.resolution;
-                            // on all phones I tried, the width and height are swapped. (Qt641)
-                            // This fixed it, but makes it look weird on Desktop or when Qt gets fixed.
-                            return width * (feedSize.width / feedSize.height);
-                        }
-                    }
-                }
-            }
-
-            Flowee.Label {
-                wrapMode: Text.Wrap
-                text: {
-                    if (CameraHandler.denied)
-                        return qsTr("Camera permission denied. Change permissions to scan");
-                    var txt = CameraHandler.text;
-                    if (txt !== "")
-                        return txt;
-                    var cam = CameraHandler.qmlCamera;
-                    if (cam === null)
-                        return "waiting for permission";
-                    return cam.errorString
-                }
-                x: 10
-                y: 350
-                width: parent.width
-            }
+            /*
+                Also consider to fetch the actual resolution from the actual cpp stream and report that to QML for better scaling / preview.
+                And try to move the actual parsing of the QR to a different thread.
+                  A simple member of the latest frame can exist in the gui thread, protected by a mutex.
+                  Then the other thread will take the latest one, scan for the QR and finish. Meaning it will basically skip all the frames without blocking the GUI
+            } */
         }
         FocusScope {
             property string title: "Tab C"

@@ -736,6 +736,16 @@ void FloweePay::setNewBlockMuted(bool mute)
     m_notifications.setNewBlockMuted(mute);
 }
 
+CameraController *FloweePay::cameraController()
+{
+    return m_cameraController;
+}
+
+void FloweePay::setCameraController(CameraController *cc)
+{
+    m_cameraController = cc;
+}
+
 QString FloweePay::version() const
 {
     return QCoreApplication::instance()->applicationVersion();

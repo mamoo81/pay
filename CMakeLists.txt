@@ -216,7 +216,8 @@ if (ANDROID AND BUILD_MOBILE_PAY)
     configure_file(qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
     set (SOURCES_PAY_MOBILE
         main.cpp
-        Camera.cpp
+        CameraController.cpp
+        QRScanner.cpp
         guis/mobile/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
@@ -254,7 +255,8 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
 
     set (SOURCES_PAY_MOBILE
         main.cpp
-        Camera.cpp
+        CameraController.cpp
+        QRScanner.cpp
         guis/mobile/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE

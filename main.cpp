@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Camera.h"
 #include "BitcoinValue.h"
 #include "FloweePay.h"
 #include "NewWalletConfig.h"
@@ -27,6 +26,10 @@
 #include "MenuModel.h"
 #ifdef NETWORK_LOGGER
 # include "NetworkLogClient.h"
+#endif
+#ifdef MOBILE
+#include "CameraController.h"
+#include "QRScanner.h"
 #endif
 
 #include <primitives/key.h> // for ECC_Start()
@@ -131,14 +134,19 @@ int main(int argc, char *argv[])
 #endif
 
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
-    engine.rootContext()->setContextProperty("Pay", FloweePay::instance());
-    engine.rootContext()->setContextProperty("Fiat", FloweePay::instance()->prices());
+    auto app = FloweePay::instance();
+    engine.rootContext()->setContextProperty("Pay", app);
+    engine.rootContext()->setContextProperty("Fiat", app->prices());
     MenuModel menuModel;
     engine.rootContext()->setContextProperty("MenuModel", &menuModel);
-#if MOBILE
-    Camera camera;
-    engine.rootContext()->setContextProperty("CameraHandler", &camera);
+
+#ifdef MOBILE
+    qmlRegisterType<QRScanner>("Flowee.org.pay", 1, 0, "QRScanner");
+    CameraController *cc = new CameraController(app);
+    app->setCameraController(cc);
+    engine.rootContext()->setContextProperty("CameraController", cc);
 #endif
+
     handleLocalQml(engine);
     engine.load(engine.baseUrl().url() +
 #ifdef DESKTOP

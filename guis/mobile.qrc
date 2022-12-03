@@ -27,5 +27,6 @@
         <file>mobile/TextButton.qml</file>
         <file>mobile/AccountSyncState.qml</file>
         <file>mobile/SendTransactionsTab.qml</file>
+        <file>mobile/QRScannerOverlay.qml</file>
     </qresource>
 </RCC>

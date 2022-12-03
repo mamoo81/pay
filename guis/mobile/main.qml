@@ -54,9 +54,15 @@ ApplicationWindow {
         anchors.fill: parent
         initialItem: "./Loading.qml";
         onCurrentItemChanged: if (currentItem != null) currentItem.takeFocus();
+        enabled: !menuOverlay.open
     }
     MenuOverlay {
         id: menuOverlay
         anchors.fill: parent
+    }
+
+    QRScannerOverlay {
+        anchors.fill: parent
+        visible: CameraController.visible
     }
 }

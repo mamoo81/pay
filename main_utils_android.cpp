@@ -15,17 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "qqmlcontext.h"
-#include <P2PNet.h>
-#include <FloweePay.h>
+#include "FloweePay.h"
+#include "PortfolioDataProvider.h"
+#include "NetDataProvider.h"
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QCommandLineParser>
-#include <QStringList>
 #include <QFileInfo>
-#include <NetDataProvider.h>
-#include <PortfolioDataProvider.h>
+#include <qqmlcontext.h>
+
+#include <P2PNet.h>
 
 struct CommandLineParserData
 {
@@ -102,7 +101,6 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
 void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData*)
 {
     FloweePay *app = FloweePay::instance();
-
     NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);
     app->p2pNet()->addP2PNetListener(netData);
     netData->startRefreshTimer();
