@@ -158,7 +158,7 @@ GridLayout {
         }
         Flowee.TextField {
             id: derivationPath
-            text: "m/44'/0'/0" // What most BCH wallets are created with
+            text: "m/44'/0'/0'" // What most BCH wallets are created with
             visible: !importAccount.isPrivateKey
             color: Pay.checkDerivation(text) ? palette.text : "red"
         }
