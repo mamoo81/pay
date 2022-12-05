@@ -21,14 +21,10 @@ import "../Flowee" as Flowee
 import Flowee.org.pay;
 
 Page {
-    headerText: qsTr("Scan QR")
+    id: root
+    headerText: qsTr("Approve Payment")
 
-    columns: 2
-
-    Item {
-        id: data
-        Layout.columnSpan: 2
-
+    Item { // data
         QRScanner {
             id: scanner
             scanType: QRScanner.PaymentDetails
@@ -40,22 +36,130 @@ Page {
         }
     }
 
-    Flowee.Label {
-        text: "to:"
+    Flowee.BitcoinAmountLabel {
+        id: priceBch
+        value: payment.paymentAmount
+        fontPixelSize: 38
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: 30
+        colorize: false
+        showFiat: false
     }
     Flowee.Label {
-        text: payment.targetAddress
+        id: priceFiat
+        text: Fiat.formattedPrice(payment.paymentAmount, Fiat.price)
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: priceBch.bottom
+        anchors.topMargin: 12
+        color: Qt.darker(palette.text, 1.2)
+    }
+
+
+    Flowee.Label {
+        id: commentLabel
+        text: qsTr("Payment description" + ":")
+        visible: userComment.text !== ""
+        color: palette.highlight
+
+        anchors.top: priceFiat.bottom
+        anchors.topMargin: 30
     }
     Flowee.Label {
-        text: "amount:"
-    }
-    Flowee.Label {
-        text: payment.paymentAmount
-    }
-    Flowee.Label {
-        text: "comment:"
-    }
-    Flowee.Label {
+        id: userComment
         text: payment.userComment
+        visible: text !== ""
+        font.italic: true
+        anchors.top: commentLabel.bottom
+        anchors.topMargin: 5
     }
+
+    Flowee.Label {
+        id: currentWalletLabel
+        text: portfolio.current.name
+        anchors.baseline: parent.width > currentWalletLabel.width + currentWalletValue.width
+                    ? currentWalletValue.baseline : undefined
+        anchors.bottom: parent.width > currentWalletLabel.width + currentWalletValue.width
+                    ? undefined : currentWalletValue.top
+    }
+    Flowee.BitcoinAmountLabel {
+        id: currentWalletValue
+        anchors.right: parent.right
+        anchors.bottom: numericKeyboard.top
+        anchors.bottomMargin: 20
+        value: {
+            var wallet = portfolio.current;
+            return wallet.balanceConfirmed + wallet.balanceUnconfirmed;
+        }
+    }
+
+    Flow {
+        id: numericKeyboard
+        anchors.bottom: slideToApprove.top
+        width: parent.width
+        Repeater {
+            model: 12
+            delegate: Item {
+                width: numericKeyboard.width / 3
+                height: text.height + 20
+                Flowee.Label {
+                    id: text
+                    anchors.centerIn: parent
+                    font.pixelSize: 28
+                    text: {
+                        if (index < 9)
+                            return index + 1;
+                        if (index === 9)
+                            return Locale.decimalPoint
+                        if (index === 10)
+                            return "0"
+                        if (index === 11)
+                            return "<-" // TODO use a backspace icon instead.
+                    }
+                }
+            }
+        }
+    }
+    Item {
+        id: slideToApprove
+        width: parent.width
+        height: 60
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 10
+        Rectangle {
+            x: 30
+            width: parent.height
+            height: width
+            radius: width / 2
+            color: root.palette.window
+        }
+        Rectangle {
+            x: parent.width - width - 30
+            width: parent.height
+            height: width
+            radius: width / 2
+            color: root.palette.window
+        }
+        Rectangle {
+            x: 30 + parent.height / 2
+            width: parent.width - 30 - 30 - parent.height
+            height: parent.height
+            color: root.palette.window
+        }
+        Flowee.Label {
+            text: qsTr("SLIDE TO SEND")
+            anchors.centerIn: parent
+        }
+
+        Rectangle {
+            width: parent.height - 5
+            height: width
+            radius: width / 2
+            // opacity: 0.8
+            x: 35
+            y: 2.5
+            color: Pay.useDarkSkin ? mainWindow.floweeGreen : mainWindow.floweeBlue
+        }
+
+    }
+
 }
