@@ -17,26 +17,45 @@
  */
 import QtQuick
 import QtQuick.Layouts
+import "../Flowee" as Flowee
+import Flowee.org.pay;
 
-FocusScope {
-    id: root
-    property string icon: "qrc:/homeButtonIcon" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
-    property string  title: qsTr("Send")
+Page {
+    headerText: qsTr("Scan QR")
 
-    ColumnLayout {
-        width: parent.width - 20
-        x: 10
+    columns: 2
 
-        TextButton {
-            text: qsTr("Scan a QR code")
-            showPageIcon: true
-            onClicked: thePile.push("PayWithQR.qml")
+    Item {
+        id: data
+        Layout.columnSpan: 2
+
+        QRScanner {
+            id: scanner
+            scanType: QRScanner.PaymentDetails
+            Component.onCompleted: scanner.start();
+            onFinished: payment.targetAddress = scanResult
         }
-        TextButton {
-            text: qsTr("My Wallets")
-            subtext: qsTr("Move between wallets")
-            showPageIcon: true
-            onClicked: thePile.push("MoveBetweeWallets.qml")
+        Payment {
+            id: payment
         }
+    }
+
+    Flowee.Label {
+        text: "to:"
+    }
+    Flowee.Label {
+        text: payment.targetAddress
+    }
+    Flowee.Label {
+        text: "amount:"
+    }
+    Flowee.Label {
+        text: payment.paymentAmount
+    }
+    Flowee.Label {
+        text: "comment:"
+    }
+    Flowee.Label {
+        text: payment.userComment
     }
 }

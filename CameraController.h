@@ -49,13 +49,8 @@ class CameraController : public QObject
 public:
     explicit CameraController(QObject *parent = nullptr);
 
-    /// return true if the camera is authorized for usage.
-    // bool authorized() const;
-    /// return true if the camera usage has been denied after being requested.
-    // bool denied() const;
-
     void startRequest(QRScanner *request);
-    // void activate();
+    void abortRequest(QRScanner *request);
 
     void setCamera(QObject *object);
     QObject *camera() const;
@@ -68,11 +63,9 @@ public:
     bool visible() const;
 
 signals:
-    // void authorizationChanged();
     void cameraChanged();
     void videoSinkChanged();
     void textChanged();
-    // void showCameraChanged();
     void loadCameraChanged();
     void cameraActiveChanged();
     void visibleChanged();

@@ -25,13 +25,40 @@
 class QRScanner : public QObject
 {
     Q_OBJECT
-    // Q_PROPERTY(bool showCamera READ showCamera NOTIFY showCameraChanged)
+    Q_PROPERTY(ScanType scanType READ scanType WRITE setScanType NOTIFY scanTypeChanged REQUIRED)
+    Q_PROPERTY(QString scanResult READ scanResult WRITE setScanResult RESET resetScanResult NOTIFY scanResultChanged)
 public:
     explicit QRScanner(QObject *parent = nullptr);
 
     Q_INVOKABLE void start();
+    Q_INVOKABLE void abort();
+
+    enum ScanType {
+        Seed,
+        PaymentDetails,
+        PaymentDetailsTestnet
+        // others like private key or cashId
+    };
+    Q_ENUM(ScanType)
+
+    ScanType scanType() const;
+    void setScanType(ScanType type);
+
+    /// Notice that resultString may be empty if we didn't scan any valid QR
+    void finishedScan(const QString &resultString);
+
+    QString scanResult() const;
+    void setScanResult(const QString &newScanResult);
+    void resetScanResult();
+
+signals:
+    void finished();
+    void scanTypeChanged();
+    void scanResultChanged();
 
 private:
+    ScanType m_scanType;
+    QString m_scanResult;
 };
 
 #endif

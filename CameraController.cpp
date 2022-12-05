@@ -90,6 +90,7 @@ private:
 
     CameraControllerPrivate *m_parent;
     ZXing::DecodeHints m_decodeHints;
+    QRScanner::ScanType m_scanType;
 };
 
 
@@ -109,11 +110,11 @@ CameraControllerPrivate::CameraControllerPrivate(CameraController *qq)
             state = NotAsked;
             if (cameraStarted) {
                 // QtMultimedia doesn't like us not turning off the camera when we get small.
-                // so make sure we do.
+                // so make sure we do, we also cancel the scan request.
+                lock.lock();
                 cameraStarted = false;
+                lock.unlock();
                 emit q->cameraActiveChanged();
-
-                // TODO update state, probably want to cancel the request.
             }
         }
     });
@@ -152,7 +153,7 @@ void CameraControllerPrivate::initCamera()
         if (preferred.isNull()) {
             preferred = format;
             preferredIsCheap = formatIsCheap;
-            logFatal() << "picked";
+            logInfo() << "picked";
         }
         else {
             auto size = format.resolution();
@@ -162,11 +163,11 @@ void CameraControllerPrivate::initCamera()
             // avoid going for the biggest feed, but not too small either.
             if (oldSize.width() < 210 || (size.width() < oldSize.width() && size.width() >= 210)) {
                 preferred = format;
-                logFatal() << "picked";
+                logInfo() << "picked";
             }
             else if (size == oldSize && format.maxFrameRate() < preferred.maxFrameRate()) {
                 preferred = format;
-                logFatal() << "picked";
+                logInfo() << "picked";
             }
         }
     }
@@ -188,16 +189,16 @@ void CameraControllerPrivate::checkState()
         visible = true;
         emit q->visibleChanged();
     }
-    if (camera && videoSink && !cameraStarted) {
+    if (camera && videoSink && !cameraStarted && scanRequest.get()) {
         logFatal() << "Camera active is now true";
         cameraStarted = true;
         emit q->cameraActiveChanged();
         QCamera *cam = qobject_cast<QCamera *>(camera);
-        if (cam)
-            logFatal() << "cam error:" << cam->errorString();
+        if (cam && cam->error() != QCamera::NoError)
+            logFatal() << "CameraController found cam error:" << cam->errorString();
 
         auto sink = qobject_cast<QVideoSink*>(videoSink);
-        assert(sink); // likely bug in QML
+        assert(sink); // likely bug in your QML
         QObject::connect(sink, &QVideoSink::videoFrameChanged, q, [=](const QVideoFrame &frame) {
             currentFrame = frame;
 
@@ -213,7 +214,8 @@ void CameraControllerPrivate::checkState()
 // --------------------------------------------------------------------
 
 QRScanningThread::QRScanningThread(CameraControllerPrivate *parent)
-    : m_parent(parent)
+    : m_parent(parent),
+      m_scanType(parent->scanRequest->scanType())
 {
     m_decodeHints.setFormats(ZXing::BarcodeFormat::QRCode);
     m_decodeHints.setTryHarder(true);
@@ -229,15 +231,59 @@ void QRScanningThread::run()
         if (exit)
             return;
 
-        auto res = readBarcodes(frame);
-        if (!res.empty()) {
-            // we have a result!
-            const auto &bytes = res.at(0).bytes();
-            logFatal() << "result: " << QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+        auto results = readBarcodes(frame);
+        for (const auto &result : results) {
+            const auto &bytes = result.bytes();
+            logFatal() << "result:" << QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 
-            text = QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
-            return; // makes the 'finished()' signal get emitted.
+            switch (m_scanType) {
+            case QRScanner::Seed: {
+                // We can't be certain something is a seed here, we can just check the basics
+                // only normal characters and spaces
+                QString possibleSeed = QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+                int wordCount = 0;
+                bool seenSpace = false;
+                bool failedChecks = false;
+                for (auto i = 0; i < possibleSeed.size(); ++i) {
+                    auto c = possibleSeed.at(i);
+                    if (c.isDigit() || c.isSymbol())
+                        failedChecks = true;
+                    else if (c.isSpace()) {
+                        if (seenSpace || i == 0)
+                            failedChecks = true; // double space or leading space
+                        seenSpace = true;
+                        ++wordCount;
+                    }
+                    else if (c.isLetter()) {
+                        seenSpace = false;
+                    }
+                    if (failedChecks)
+                        break;
+                }
+                if (!failedChecks && (wordCount == 12 || wordCount == 24)) {
+                    text = possibleSeed;
+                    return; // makes the 'QThread::finished()' signal get emitted.
+                }
+                break;
+            }
+            case QRScanner::PaymentDetails:
+                // starts with bitcoincash: (which is 12 chars, including that colon)
+                if (bytes.size() > 12 + 40 && memcmp("bitcoincash:", bytes.data(), 12) == 0) {
+                    text = QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+                    return;
+                }
+                break;
+            case QRScanner::PaymentDetailsTestnet:
+                assert(false);  // TODO
+                break;
+            default:
+                logFatal() << "Unknown scanType provided";
+                return;
+            }
         }
+
+        // No matches. We go for another round.
+        // we assume at least 33ms has passed (at 30 frames that is the frame-rate) and we'll be parsing the next frame on loop
     }
 }
 
@@ -400,6 +446,17 @@ void CameraController::startRequest(QRScanner *request)
     d->checkState();
 }
 
+void CameraController::abortRequest(QRScanner *request)
+{
+    if (d->scanRequest == request) {
+        // The scanning thread will abort and nicely shutdown on change of this variable
+        d->lock.lock();
+        d->cameraStarted = false;
+        d->lock.unlock();
+        emit cameraActiveChanged();
+    }
+}
+
 void CameraController::setCamera(QObject *object)
 {
     if (object == d->camera)
@@ -449,6 +506,7 @@ void CameraController::qrScanFinished()
 {
     assert(d->m_scanningThread);
     logFatal() << " -> " << d->m_scanningThread->text;
+    auto resultText = d->m_scanningThread->text;
 
     delete d->m_scanningThread;
     d->m_scanningThread = nullptr;
@@ -457,6 +515,10 @@ void CameraController::qrScanFinished()
     emit cameraActiveChanged();
     d->visible = false;
     emit visibleChanged();
-    d->scanRequest = nullptr;
     QObject::disconnect(d->videoSink, nullptr, this, nullptr);
+
+    if (d->scanRequest) {
+        d->scanRequest->finishedScan(resultText);
+        d->scanRequest = nullptr;
+    }
 }

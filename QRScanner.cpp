@@ -21,11 +21,57 @@
 #include "CameraController.h"
 
 QRScanner::QRScanner(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+      m_scanType(static_cast<ScanType>(100))
 {
 }
 
 void QRScanner::start()
 {
+    resetScanResult();
+    if (m_scanType == static_cast<ScanType>(100))
+        throw std::runtime_error("Required property scanType not set");
     FloweePay::instance()->cameraController()->startRequest(this);
+}
+
+void QRScanner::abort()
+{
+    FloweePay::instance()->cameraController()->abortRequest(this);
+}
+
+QRScanner::ScanType QRScanner::scanType() const
+{
+    return m_scanType;
+}
+
+void QRScanner::setScanType(ScanType type)
+{
+    if (m_scanType == type)
+        return;
+    m_scanType = type;
+    emit scanTypeChanged();
+}
+
+void QRScanner::finishedScan(const QString &resultString)
+{
+    setScanResult(resultString);
+    emit finished();
+}
+
+QString QRScanner::scanResult() const
+{
+    return m_scanResult;
+}
+
+void QRScanner::setScanResult(const QString &newScanResult)
+{
+    if (m_scanResult == newScanResult)
+        return;
+    m_scanResult = newScanResult;
+    emit scanResultChanged();
+}
+
+void QRScanner::resetScanResult()
+{
+    setScanResult({});
 }
