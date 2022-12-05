@@ -31,6 +31,7 @@ class PaymentDetailOutput : public PaymentDetail
     Q_PROPERTY(bool maxAllowed READ maxAllowed WRITE setMaxAllowed NOTIFY maxAllowedChanged)
     Q_PROPERTY(bool fiatFollows READ fiatFollows WRITE setFiatFollows NOTIFY fiatFollowsChanged)
     Q_PROPERTY(bool maxSelected READ maxSelected WRITE setMaxSelected NOTIFY maxSelectedChanged)
+    Q_PROPERTY(bool forceLegacyOk READ forceLegacyOk WRITE setForceLegacyOk NOTIFY forceLegacyOkChanged)
 public:
     explicit PaymentDetailOutput(Payment *parent);
 
@@ -89,7 +90,6 @@ private:
     bool m_forceLegacyOk = false;
     QString m_address;
     QString m_formattedTarget;
-    Q_PROPERTY(bool forceLegacyOk READ forceLegacyOk WRITE setForceLegacyOk NOTIFY forceLegacyOkChanged)
 };
 
 inline PaymentDetailOutput* PaymentDetail::toOutput() {
