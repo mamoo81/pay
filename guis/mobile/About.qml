@@ -22,41 +22,44 @@ import "../Flowee" as Flowee
 Page {
     headerText: qsTr("About")
 
-    Image {
-        source: Pay.useDarkSkin ? "qrc:/FloweePay-light.svg" : "qrc:/FloweePay.svg"
-        Layout.fillWidth: true
-        fillMode: Image.PreserveAspectFit
-    }
+    ColumnLayout {
+        width: parent.width
 
-    Flowee.Label {
-        text: "Flowee Pay (mobile) v" + Application.version
-    }
-    Item { width: 10; height: 10 } // spacer
+        Image {
+            source: Pay.useDarkSkin ? "qrc:/FloweePay-light.svg" : "qrc:/FloweePay.svg"
+            Layout.fillWidth: true
+            fillMode: Image.PreserveAspectFit
+        }
 
-    TextButton {
-        id: translate
-        text: qsTr("Help translate this app")
-        imageSource: Pay.useDarkSkin ? "qrc:/external-light.svg" : "qrc:/external.svg"
-        onClicked: Qt.openUrlExternally("https://crowdin.com/project/floweepay");
-    }
-    TextButton {
-        text: qsTr("License")
-        imageSource: translate.imageSource
-        onClicked: Qt.openUrlExternally("https://www.gnu.org/licenses/gpl-3.0")
-    }
-    TextButton {
-        text: qsTr("Credits")
-        subtext: qsTr("© 2020-2022 Tom Zander and contributors")
-        showPageIcon: true
-        onClicked: thePile.push(creditsPage)
+        Flowee.Label {
+            text: "Flowee Pay (mobile) v" + Application.version
+        }
+        Item { width: 10; height: 10 } // spacer
 
-        Component {
-            id: creditsPage
-            Page {
-                headerText: qsTr("Credits")
+        TextButton {
+            id: translate
+            text: qsTr("Help translate this app")
+            imageSource: Pay.useDarkSkin ? "qrc:/external-light.svg" : "qrc:/external.svg"
+            onClicked: Qt.openUrlExternally("https://crowdin.com/project/floweepay");
+        }
+        TextButton {
+            text: qsTr("License")
+            imageSource: translate.imageSource
+            onClicked: Qt.openUrlExternally("https://www.gnu.org/licenses/gpl-3.0")
+        }
+        TextButton {
+            text: qsTr("Credits")
+            subtext: qsTr("© 2020-2022 Tom Zander and contributors")
+            showPageIcon: true
+            onClicked: thePile.push(creditsPage)
 
-                Flowee.Label {
-                    text: "## Author and maintainer
+            Component {
+                id: creditsPage
+                Page {
+                    headerText: qsTr("Credits")
+
+                    Flowee.Label {
+                        text: "## Author and maintainer
 Tom Zander
 
 ## Code Contributors
@@ -76,23 +79,24 @@ Nederland<dl>
 <dd>yantri</dd>
 </dl>
 "
-                    textFormat: Text.MarkdownText
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    wrapMode: Text.WordWrap
+                        textFormat: Text.MarkdownText
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        wrapMode: Text.WordWrap
+                    }
                 }
             }
         }
-    }
-    TextButton {
-        text: qsTr("Project Home")
-        subtext: qsTr("With git repository and issues tracker")
-        imageSource: translate.imageSource
-        onClicked: Qt.openUrlExternally("https://codeberg.org/Flowee/pay");
-    }
-    TextButton {
-        text: qsTr("Telegram")
-        imageSource: translate.imageSource
-        onClicked: Qt.openUrlExternally("https://t.me/Flowee_org");
+        TextButton {
+            text: qsTr("Project Home")
+            subtext: qsTr("With git repository and issues tracker")
+            imageSource: translate.imageSource
+            onClicked: Qt.openUrlExternally("https://codeberg.org/Flowee/pay");
+        }
+        TextButton {
+            text: qsTr("Telegram")
+            imageSource: translate.imageSource
+            onClicked: Qt.openUrlExternally("https://t.me/Flowee_org");
+        }
     }
 }

@@ -28,7 +28,6 @@ QQC2.Control {
 
     default property alias content: child.children
     property alias headerText: headerLabel.text
-    property alias columns: child.columns
     property alias headerButtonVisible: headerButton.visible
     property alias headerButtonText: headerButton.text
     property alias headerButtonEnabled: headerButton.enabled
@@ -83,23 +82,16 @@ QQC2.Control {
         height: parent.height - y
         color: root.palette.base
     }
-
-    Flickable {
-        width: parent.width
-        y: header.height + 10
-        height: parent.height - y
-        clip: true
-        contentHeight: child.implicitHeight
-        contentWidth: width
-        FocusScope {
-            id: focusScope
-            GridLayout {
-                id: child
-                width: root.width - 20
-                x: 10 // default margin
-                height: implicitHeight
-                columns: 1
-            }
+    FocusScope {
+        id: focusScope
+        anchors.fill: parent
+        Flickable {
+            id: child
+            width: root.width - 20
+            x: 10
+            y: header.height + 10
+            height: root.height - y
+            clip: true
         }
     }
     Keys.onPressed: (event)=> {

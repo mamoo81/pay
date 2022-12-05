@@ -25,6 +25,7 @@ Page {
     ListView {
         id: listView
         model: net.peers
+        anchors.fill: parent
         QQC2.ScrollBar.vertical: QQC2.ScrollBar { }
 
         focus: true
