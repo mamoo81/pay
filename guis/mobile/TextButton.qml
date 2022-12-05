@@ -26,6 +26,7 @@ Item {
     signal clicked
     property alias text: label.text
     property alias subtext: smallLabel.text
+    /// When true, show an arrow indicating we open a new page on click
     property bool showPageIcon: false
     property string imageSource: ""
     property int imageWidth: 16
