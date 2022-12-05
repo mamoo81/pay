@@ -74,7 +74,8 @@ ListView {
             height: 60
             IconButton {
                 width: parent.width / 3
-                text: qsTr("Send Money")
+                text: qsTr("Pay")
+                onClicked: thePile.push("PayWithQR.qml")
             }
             IconButton {
                 width: parent.width / 3
@@ -240,6 +241,7 @@ ListView {
         }
         Flowee.BitcoinAmountLabel {
             opacity: Pay.hideBalance ? 0.2 : 1
+            Layout.alignment: Qt.AlignRight
             value: {
                 if (Pay.hideBalance)
                     return 88888888;
