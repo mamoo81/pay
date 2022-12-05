@@ -95,28 +95,7 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     const QString address = address_.trimmed();
     if (m_address == address)
         return;
-
-    /*
-     * Users may paste an address that is really a payment url.
-     * This basically means we may have a price added after a questionmark.
-     * bitcoincash:qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45?amount=2.1
-     */
     m_address = address;
-    int urlStart = address.indexOf('?');
-    if (urlStart > 0) {
-        m_address = address.left(urlStart);
-        QUrl url(address);
-        auto query = QUrlQuery(url.query(QUrl::FullyDecoded));
-        for (const auto &item : query.queryItems()) {
-            if (item.first == "amount") {
-                bool ok;
-                auto amount = item.second.toLongLong(&ok);
-                if (ok)
-                    setPaymentAmount(amount * 1E8);
-            }
-        }
-    }
-
     const std::string &chainPrefixCopy = chainPrefix();
     std::string encodedAddress;
 

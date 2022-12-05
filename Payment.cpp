@@ -26,6 +26,7 @@
 #include <cashaddr.h>
 #include <TransactionBuilder.h>
 #include <QTimer>
+#include <QUrlQuery>
 
 // #define DEBUG_TX_CREATION
 #ifdef DEBUG_TX_CREATION
@@ -80,9 +81,39 @@ double Payment::paymentAmount()
     return static_cast<double>(sats);
 }
 
-void Payment::setTargetAddress(const QString &address)
+void Payment::setTargetAddress(const QString &address_)
 {
-    soleOut()->setAddress(address);
+    QString address = address_.trimmed();
+
+    auto out = soleOut();
+    /*
+     * Users may paste an address that is really a payment url.
+     * This basically means we may have a price added after a questionmark.
+     * bitcoincash:qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45?amount=2.1
+     */
+    int urlStart = address.indexOf('?');
+    if (urlStart > 0) {
+        QUrl url(address);
+        auto query = QUrlQuery(url.query(QUrl::FullyDecoded));
+        for (const auto &item : query.queryItems()) {
+            if (item.first == "amount") {
+                bool ok;
+                auto amount = item.second.toLongLong(&ok);
+                if (ok) {
+                    out->setPaymentAmount(amount * 1E8);
+                    emit amountChanged();
+                }
+            }
+            else if (item.first == "label") {
+                setUserComment(item.second);
+            }
+        }
+
+        address = address.left(urlStart);
+    }
+
+    out->setAddress(address);
+    emit targetAddressChanged();
 }
 
 QString Payment::targetAddress()
