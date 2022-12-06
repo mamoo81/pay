@@ -15,39 +15,138 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.11
-import QtQuick.Controls 2.11 as QQC2
-import Flowee.org.pay 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls as QQC2
+import Flowee.org.pay
 
-/*
- * Similar to TextField, this is a wrapper around BitcoinAmountLabel
- * in order to provide a background and ediing capabilities.
- */
-MoneyValueField  {
+FocusScope  {
     id: root
-    implicitHeight: balance.height + 12
-    implicitWidth: balance.width + 12
+    focus: true
+    activeFocusOnTab: true
 
-    property alias fontPixelSize: balance.fontPixelSize
-    property double baselineOffset: balance.baselineOffset + balance.y
+    property alias value: privValue.value
+    property alias fontPixelSize: beginOfValue.fontPixelSize
+    property alias contentWidth: row.width
+    property alias color: beginOfValue.color
+    baselineOffset: beginOfValue.baselineOffset
+    signal valueEdited;
 
-    BitcoinAmountLabel {
-        id: balance
-        x: 6
-        y: 6
-        value: root.value
-        colorize: false
-        visible: !root.activeFocus
-        color: unit.palette.text
-        showFiat: false
+    implicitHeight: beginOfValue.implicitHeight
+    implicitWidth: row.width
+
+    BitcoinValue {
+        id: privValue
     }
 
-    Label {
-        id: unit
-        text: Pay.unitName
-        y: 6
-        anchors.right: parent.right
-        anchors.rightMargin: 8
+    RowLayout {
+        id: row
+        spacing: 4
+        height: parent.height
+        property string amountString: Pay.amountToString(privValue.value)
+
+        LabelWithCursor {
+            id: beginOfValue
+            fullString: row.amountString
+            stringLength: {
+                /*
+                  Behavior differs based on the unitAllowedDecimals.
+                  Basically this labelWithCursor eats up all the characters
+                  not taken by the other two. But based on the unit they may not
+                  be used at all (since they show smaller fonts).
+                 */
+                var allowedDecimals = Pay.unitAllowedDecimals;
+                var removeChars = 0;
+                if (allowedDecimals === 8)
+                    removeChars = 5;
+                else if (allowedDecimals > 0)
+                    removeChars = 2 + 1;
+                return fullString.length - removeChars
+            }
+            cursorPos: root.activeFocus ? privValue.cursorPos :  -1
+            Layout.alignment: Qt.AlignBaseline
+            showCursor: root.activeFocus
+        }
+        LabelWithCursor {
+            id: middle
+            Layout.alignment: Qt.AlignBaseline
+            color: beginOfValue.color
+            cursorPos: root.activeFocus ? privValue.cursorPos :  -1
+            fontPixelSize: beginOfValue.fontPixelSize / 10 * 8
+            fullString: row.amountString
+            textOpacity: text === "000" ? 0.3 : 1
+            startPos: beginOfValue.startPos + beginOfValue.stringLength
+            stringLength: 3
+            // visible: Pay.unitAllowedDecimals === 8
+            showCursor: root.activeFocus
+        }
+        LabelWithCursor {
+            id: satsLabel
+            color: beginOfValue.color
+            cursorPos: root.activeFocus ? privValue.cursorPos :  -1
+            fontPixelSize: beginOfValue.fontPixelSize / 10 * 8
+            fullString: row.amountString
+            Layout.alignment: Qt.AlignBaseline
+            textOpacity: text === "00" ? 0.3 : 1
+            startPos: middle.startPos + middle.stringLength
+            stringLength: 2
+            visible: Pay.unitAllowedDecimals >= 2
+            showCursor: root.activeFocus
+        }
+
+        Label {
+            text: Pay.unitName
+            color: beginOfValue.color
+            Layout.alignment: Qt.AlignBaseline
+        }
+    }
+
+    Rectangle {
+        anchors.top: row.bottom
+        anchors.left: row.left
+        anchors.right: row.right
+        height: 1.3
+        color: mainWindow.palette.highlight
         visible: root.activeFocus
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: root.forceActiveFocus();
+    }
+
+    Keys.onPressed: (event)=> {
+        if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
+            privValue.insertNumber(event.key);
+            event.accepted = true;
+            root.valueEdited();
+        }
+        else if (event.key === 44 || event.key === 46) {
+            privValue.addSeparator();
+            event.accepted = true;
+            root.valueEdited();
+        }
+        else if (event.key === Qt.Key_Backspace) {
+            privValue.backspacePressed();
+            event.accepted = true;
+            root.valueEdited();
+        }
+        else if (event.key === Qt.Key_Left) {
+            privValue.moveLeft();
+            cursor.cursorVisible = true;
+            event.accepted = true;
+        }
+        else if (event.key === Qt.Key_Right) {
+            privValue.moveRight();
+            cursor.cursorVisible = true;
+            event.accepted = true;
+        }
+    }
+    Keys.onReleased: (event)=> {
+        if (event.matches(StandardKey.Paste)) {
+            privValue.paste();
+            event.accepted = true;
+            root.valueEdited();
+        }
     }
 }

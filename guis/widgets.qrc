@@ -24,5 +24,6 @@
         <file>Flowee/WarningLabel.qml</file>
         <file>Flowee/PasswdDialog.qml</file>
         <file>Flowee/Label.qml</file>
+        <file>Flowee/LabelWithCursor.qml</file>
     </qresource>
 </RCC>
