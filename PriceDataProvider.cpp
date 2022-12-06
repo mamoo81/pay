@@ -70,10 +70,15 @@ QString PriceDataProvider::formattedPrice(double amountSats, int price) const
 {
     if (price == 0)
         return QString();
+    return formattedPrice(priceFor(amountSats, price));
+}
+
+int PriceDataProvider::priceFor(double amountSats, int price) const
+{
     qint64 fiatValue = amountSats * price;
     fiatValue = (fiatValue + 50000000) / qint64(100000000);
     assert(fiatValue < INT_MAX);
-    return formattedPrice(static_cast<int>(fiatValue));
+    return static_cast<int>(fiatValue);
 }
 
 QString PriceDataProvider::formattedPrice(int fiatValue) const
@@ -120,6 +125,21 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
                 % actualPrice
                 % m_currencySymbolPost;
     }
+}
+
+QString PriceDataProvider::priceToStringSimple(int cents) const
+{
+    auto value = QString::number(cents);
+    if (m_displayCents) {
+        const QChar comma = QLocale::system().decimalPoint().at(0);
+        if (cents < 10)
+            value = "0" + value;
+        if (cents < 100)
+            value = "0" % comma % value;
+        else
+            value = value.left(value.size() - 2) % comma % value.right(2);
+    }
+    return value;
 }
 
 void PriceDataProvider::fetch()
@@ -184,6 +204,16 @@ void PriceDataProvider::finishedDownload()
     }
     logInfo() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
     m_timer.start(ReloadTimeout);
+}
+
+QString PriceDataProvider::currencySymbolPost() const
+{
+    return m_currencySymbolPost;
+}
+
+QString PriceDataProvider::currencySymbolPrefix() const
+{
+    return m_currencySymbolPrefix;
 }
 
 bool PriceDataProvider::displayCents() const
