@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,6 +188,25 @@ void TestValue::fiatValues()
     testObject.insertNumber('3');
     QCOMPARE(testObject.cursorPos(), 1);
     QCOMPARE(testObject.value(), 3457);
+}
+
+void TestValue::setText()
+{
+    BitcoinValue testObject;
+    testObject.setEnteredString("1.23456789");
+    QCOMPARE(testObject.value(), 123456789);
+    FloweePay::instance()->setUnit(FloweePay::BCH);
+    QCOMPARE(testObject.value(), 123456789);
+    FloweePay::instance()->setUnit(FloweePay::MilliBCH);
+    QCOMPARE(testObject.value(), 123456);
+    FloweePay::instance()->setUnit(FloweePay::MicroBCH);
+    QCOMPARE(testObject.value(), 123);
+    FloweePay::instance()->setUnit(FloweePay::Bits);
+    QCOMPARE(testObject.value(), 123);
+    FloweePay::instance()->setUnit(FloweePay::Satoshis);
+    QCOMPARE(testObject.value(), 1);
+    FloweePay::instance()->setUnit(FloweePay::BCH);
+    QCOMPARE(testObject.value(), 123456789);
 }
 
 QTEST_MAIN(TestValue)

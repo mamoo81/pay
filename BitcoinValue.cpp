@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ BitcoinValue::BitcoinValue(QObject *parent)
       m_value(0)
 {
     connect (FloweePay::instance(), &FloweePay::unitChanged, this, [this]() {
+        // we follow what the user actually typed.
         setStringValue(m_typedNumber);
     });
 }
@@ -41,6 +42,16 @@ void BitcoinValue::setValue(qint64 value)
         return;
     m_value = value;
     emit valueChanged();
+    if (value && m_typedNumber.isEmpty()) {
+        const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
+        m_typedNumber = QString::number(m_value / pow(10, unitConfigDecimals), 'f', unitConfigDecimals);
+        if (unitConfigDecimals > 0) { // there is a comma separator in the string
+            // remove trailing zeros
+            while (m_typedNumber.endsWith('0') || m_typedNumber.endsWith('.'))
+                m_typedNumber = m_typedNumber.left(m_typedNumber.size() - 1);
+        }
+        m_cursorPos = m_typedNumber.size();
+    }
 }
 
 void BitcoinValue::moveLeft()
@@ -144,12 +155,13 @@ void BitcoinValue::setEnteredString(const QString &value)
 void BitcoinValue::setStringValue(const QString &value)
 {
     int separator = value.indexOf('.');
-    QString before, after;
+    QStringView before;
+    QString after;
     if (separator == -1) {
         before = value;
         after = "000000000";
     } else {
-        before = value.left(separator);
+        before = QStringView(value).left(separator);
         after = value.mid(separator + 1);
     }
     qint64 newVal = before.toLong();
@@ -160,7 +172,7 @@ void BitcoinValue::setStringValue(const QString &value)
     while (after.size() < unitConfigDecimals)
         after += '0';
 
-    newVal += after.toInt();
+    newVal += QStringView(after).left(unitConfigDecimals).toInt();
     setValue(newVal);
 }
 
@@ -186,6 +198,13 @@ void BitcoinValue::setMaxFractionalDigits(int newMaxFractionalDigits)
         return;
     m_maxFractionalDigits = newMaxFractionalDigits;
     emit maxFractionalDigitsChanged();
+
+    // the behavior here assumes that this is a property most won't set and those that do
+    // only set it once
+    if (m_value) {
+        m_typedNumber = QString::number(m_value / pow(10, m_maxFractionalDigits), 'f', m_maxFractionalDigits);
+        m_cursorPos = m_typedNumber.size();
+    }
 }
 
 void BitcoinValue::resetMaxFractionalDigits()
