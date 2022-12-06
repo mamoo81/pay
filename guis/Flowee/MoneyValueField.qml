@@ -15,81 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.11
-import QtQuick.Controls 2.11 as QQC2
-import Flowee.org.pay 1.0
+import QtQuick
+import Flowee.org.pay
 
-/*
- * Similar to TextField, this is a wrapper around BitcoinAmountLabel
- * in order to provide a background and ediing capabilities.
- */
 FocusScope {
     id: root
+    focus: true
     activeFocusOnTab: true
-
     property alias value: privValue.value
-    property alias valueObject: privValue
-
+    property alias cursorPos: privValue.cursorPos
+    property alias maxFractionalDigits: privValue.maxFractionalDigits
     signal valueEdited;
-
-    onEnabledChanged: {
-        if (!enabled)
-            root.focus = false
-    }
-
-    function reset() {
-        privValue.reset();
-    }
 
     BitcoinValue {
         id: privValue
     }
     MouseArea {
-        cursorShape: Qt.IBeamCursor
         anchors.fill: parent
-        enabled: root.enabled
-        onClicked: {
-            root.focus = true
-            root.forceActiveFocus()
-        }
+        onClicked: root.forceActiveFocus();
     }
-
-    Rectangle { // focus indicator
-        anchors.fill: parent
-        border.color: root.activeFocus ? begin.palette.highlight  : begin.palette.mid
-        border.width: 0.8
-        color: root.enabled && !Pay.useDarkSkin ? "white" : "#00000000" // transparant
-    }
-
-    Item { // edit-label
+    Rectangle {
+        anchors.bottom: root.bottom
+        anchors.left: root.left
+        anchors.right: root.right
+        height: 1.3
+        color: mainWindow.palette.highlight
         visible: root.activeFocus
-        x: 8
-        y: 6
-        Label {
-            id: begin
-            text: privValue.enteredString.substring(0, privValue.cursorPos)
-        }
-        Rectangle {
-            id: cursor
-            anchors.left: begin.right
-            width: 1
-            height: root.height - 12
-            color: cursorVisible ? begin.palette.text : "#00000000"
-            property bool cursorVisible: true
-            Timer {
-                id: blinkingCursor
-                running: root.activeFocus
-                repeat: true
-                interval: 500
-                onTriggered: parent.cursorVisible = !parent.cursorVisible
-            }
-        }
-        Label {
-            anchors.left: begin.right
-            text: privValue.enteredString.substring(privValue.cursorPos)
-        }
     }
-
     Keys.onPressed: (event)=> {
         if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9) {
             privValue.insertNumber(event.key);
@@ -108,14 +60,10 @@ FocusScope {
         }
         else if (event.key === Qt.Key_Left) {
             privValue.moveLeft();
-            blinkingCursor.restart();
-            cursor.cursorVisible = true;
             event.accepted = true;
         }
         else if (event.key === Qt.Key_Right) {
             privValue.moveRight();
-            cursor.cursorVisible = true;
-            blinkingCursor.restart();
             event.accepted = true;
         }
     }

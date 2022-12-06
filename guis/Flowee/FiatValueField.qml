@@ -15,29 +15,44 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.11
-import QtQuick.Controls 2.11 as QQC2
-import Flowee.org.pay 1.0
+import QtQuick
+import QtQuick.Layouts
+import Flowee.org.pay
 
-/*
- * Similar to TextField, this is a wrapper around BitcoinValue
- * in order to provide a background and ediing capabilities.
- */
 MoneyValueField  {
     id: root
-    implicitHeight: balance.height + 12
-    implicitWidth: Math.max(100, balance.width + 12)
 
-    property alias fontPixelSize: balance.font.pixelSize
-    property double baselineOffset: balance.baselineOffset + balance.y
-    valueObject.maxFractionalDigits: Fiat.displayCents ? 2 : 0
+    property alias fontPixelSize: fiat.fontPixelSize
+    property alias contentWidth: row.width
+    property alias color: fiat.color
+    baselineOffset: fiat.baselineOffset
+    implicitHeight: fiat.implicitHeight
+    implicitWidth: row.width
+    maxFractionalDigits: Fiat.displayCents ? 2 : 0
 
-    Label {
-        id: balance
-        x: 6
-        y: 6
-        text: Fiat.formattedPrice(root.value)
-        visible: !root.activeFocus
-        color: root.enabled ? palette.text : palette.dark
+    RowLayout {
+        id: row
+        spacing: 4
+        height: parent.height
+        property string amountString: Fiat.priceToStringSimple(root.value)
+
+        Label {
+            text: Fiat.currencySymbolPrefix
+            font.pixelSize: fiat.fontPixelSize
+            color: fiat.color
+        }
+
+        LabelWithCursor {
+            id: fiat
+            fullString: row.amountString
+            cursorPos: root.activeFocus ? root.cursorPos :  -1
+            Layout.alignment: Qt.AlignBaseline
+            showCursor: root.activeFocus
+        }
+        Label {
+            text: Fiat.currencySymbolPost
+            font.pixelSize: fiat.fontPixelSize
+            color: fiat.color
+        }
     }
 }
