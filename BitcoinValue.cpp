@@ -68,6 +68,8 @@ void BitcoinValue::moveRight()
 
 void BitcoinValue::insertNumber(QChar number)
 {
+    if (!number.isNumber())
+        throw std::runtime_error("Only numbers can be inserted in insertNumber");
     int pos = m_typedNumber.indexOf('.');
     const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
     if (pos > -1 && m_cursorPos > pos && m_typedNumber.size() - pos - unitConfigDecimals > 0)

@@ -36,24 +36,34 @@ Page {
         }
     }
 
-    Flowee.BitcoinAmountLabel {
+    // if true, the bitcoin value is provided by the user (or QR), and the fiat follows
+    // if false, the user edits the fiat price and the bitcoin value is calculated.
+    property bool fiatFollowsSats: true
+
+    Flowee.BitcoinValueField {
         id: priceBch
-        value: payment.paymentAmount
-        fontPixelSize: 38
-        anchors.horizontalCenter: parent.horizontalCenter
         y: 30
-        colorize: false
-        showFiat: false
+        value: payment.paymentAmount
+        focus: true
+        anchors.horizontalCenter: parent.horizontalCenter
+        onValueEdited: payment.paymentAmount = value
+        fontPixelSize: size
+        property double size: fiatFollowsSats ? 38 : commentLabel.font.pixelSize
+        Behavior on size { NumberAnimation { } }
+        onActiveFocusChanged: if (activeFocus) fiatFollowsSats = true
     }
-    Flowee.Label {
+    Flowee.FiatValueField  {
         id: priceFiat
-        text: Fiat.formattedPrice(payment.paymentAmount, Fiat.price)
+        value: Fiat.priceFor(payment.paymentAmount)
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: priceBch.bottom
-        anchors.topMargin: 12
-        color: Qt.darker(palette.text, 1.2)
+        anchors.topMargin: 18
+        focus: true
+        fontPixelSize: size
+        property double size: !fiatFollowsSats ? 38 : commentLabel.font.pixelSize
+        Behavior on size { NumberAnimation { } }
+        onActiveFocusChanged: if (activeFocus) fiatFollowsSats = false
     }
-
 
     Flowee.Label {
         id: commentLabel
@@ -100,20 +110,38 @@ Page {
             model: 12
             delegate: Item {
                 width: numericKeyboard.width / 3
-                height: text.height + 20
+                height: textLabel.height + 20
                 Flowee.Label {
-                    id: text
+                    id: textLabel
                     anchors.centerIn: parent
                     font.pixelSize: 28
                     text: {
                         if (index < 9)
                             return index + 1;
                         if (index === 9)
-                            return Locale.decimalPoint
+                            return Qt.locale().decimalPoint
                         if (index === 10)
                             return "0"
-                        if (index === 11)
+                        // if (index === 11)
                             return "<-" // TODO use a backspace icon instead.
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        var editor = undefined;
+                        if (priceBch.activeFocus)
+                            editor = priceBch.moneyEditor;
+                        else if (priceFiat.activeFocus)
+                            editor = priceFiat.moneyEditor;
+                        if (index < 9) // these are digits
+                            editor.insertNumber("" + (index + 1));
+                        else if (index === 9)
+                            editor.addSeparator();
+                        else if (index === 10)
+                            editor.insertNumber("0");
+                        else
+                            editor.backspacePressed();
                     }
                 }
             }

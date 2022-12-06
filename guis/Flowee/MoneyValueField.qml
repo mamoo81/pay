@@ -24,6 +24,7 @@ FocusScope {
     activeFocusOnTab: true
     property alias value: privValue.value
     property alias cursorPos: privValue.cursorPos
+    property alias moneyEditor: privValue
     property alias maxFractionalDigits: privValue.maxFractionalDigits
     signal valueEdited;
 
