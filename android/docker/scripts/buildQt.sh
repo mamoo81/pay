@@ -68,7 +68,3 @@ do
     rm -rf build/*
 done
 
-cd /opt/android-qt6/
-patch -p0 < /usr/local/bin/qtbase-cmake-macros.patch
-
-
