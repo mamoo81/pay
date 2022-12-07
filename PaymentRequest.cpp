@@ -307,7 +307,7 @@ QString PaymentRequest::qrCodeString() const
             rc += "&";
         else
             rc += "?";
-        rc += QString("message=%1").arg(m_message);
+        rc += QString("label=%1").arg(m_message);
         QUrl url(rc);
         rc = QString::fromLatin1(url.toEncoded());
     }
