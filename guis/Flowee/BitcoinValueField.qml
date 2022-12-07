@@ -34,7 +34,20 @@ MoneyValueField  {
         id: row
         spacing: 4
         height: parent.height
-        property string amountString: Pay.amountToString(root.value)
+        property string amountString: {
+            var fullString = Pay.amountToString(root.value);
+            // for editing we should remove the trailing zeros
+            // but leave the separator if that is what the user typed. So a valid string is "6."
+            var userTypedString = moneyEditor.enteredString;
+            let length = userTypedString.length;
+            for (let i = fullString.length - 1; i > length; i = i - 1) {
+                if (fullString.charAt(i) !== '0') {
+                    length = i;
+                    break;
+                }
+            }
+            return fullString.substring(0, length);
+        }
 
         LabelWithCursor {
             id: beginOfValue
