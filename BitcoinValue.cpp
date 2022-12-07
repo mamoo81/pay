@@ -47,10 +47,17 @@ void BitcoinValue::setValue(qint64 value)
         m_typedNumber = QString::number(m_value / pow(10, unitConfigDecimals), 'f', unitConfigDecimals);
         if (unitConfigDecimals > 0) { // there is a comma separator in the string
             // remove trailing zeros
-            while (m_typedNumber.endsWith('0') || m_typedNumber.endsWith('.'))
-                m_typedNumber = m_typedNumber.left(m_typedNumber.size() - 1);
+            bool done = false;
+            while (!done) {
+                if (m_typedNumber.endsWith('.'))
+                    done = true;
+                if (done || m_typedNumber.endsWith('0'))
+                    m_typedNumber = m_typedNumber.left(m_typedNumber.size() - 1);
+                else
+                    done = true;
+            }
         }
-        m_cursorPos = m_typedNumber.size();
+        setCursorPos(m_typedNumber.size());
     }
 }
 

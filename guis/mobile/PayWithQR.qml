@@ -29,10 +29,20 @@ Page {
             id: scanner
             scanType: QRScanner.PaymentDetails
             Component.onCompleted: scanner.start();
-            onFinished: payment.targetAddress = scanResult
+            onFinished: {
+                payment.targetAddress = scanResult
+                if (payment.isValid)
+                    payment.prepare();
+            }
         }
         Payment {
             id: payment
+            account: portfolio.current
+            onIsValidChanged: if (isValid) prepare()
+
+            // easier testing values (for when you don't have a camera)
+            // paymentAmount: 1000000
+            // targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
         }
     }
 
@@ -45,12 +55,13 @@ Page {
         y: 30
         value: payment.paymentAmount
         focus: true
-        onValueEdited: payment.paymentAmount = value
         fontPixelSize: size
         property double size: fiatFollowsSats ? 38 : commentLabel.font.pixelSize
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = true
         Behavior on size { NumberAnimation { } }
         Flowee.ObjectShaker { id: bchShaker }
+
+        onValueEdited: payment.paymentAmount = value
     }
     Flowee.FiatValueField  {
         id: priceFiat
@@ -69,7 +80,6 @@ Page {
         id: commentLabel
         text: qsTr("Payment description" + ":")
         visible: userComment.text !== ""
-        color: palette.highlight
 
         anchors.top: priceFiat.bottom
         anchors.topMargin: 30
@@ -78,9 +88,20 @@ Page {
         id: userComment
         text: payment.userComment
         visible: text !== ""
+        color: palette.highlight
         font.italic: true
         anchors.top: commentLabel.bottom
         anchors.topMargin: 5
+    }
+    Flowee.Label {
+        id: errorLabel
+        text: payment.error
+        visible: payment.isValid
+        color: Pay.useDarkSkin ? "#cc1818" : "#6a0c0c"
+        anchors.top: userComment.bottom
+        wrapMode: Text.Wrap
+        anchors.topMargin: 20
+        width: parent.width
     }
 
     Flowee.Label {
@@ -105,6 +126,7 @@ Page {
     Flow {
         id: numericKeyboard
         anchors.bottom: slideToApprove.top
+        anchors.bottomMargin: 15
         width: parent.width
         Repeater {
             model: 12
@@ -130,7 +152,7 @@ Page {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        let editor = fiatFollowsSats ? priceBch.moneyEditor : priceFiat.moneyEditor;
+                        let editor = fiatFollowsSats ? priceBch.money : priceFiat.money;
                         if (index < 9) // these are digits
                             var shake = !editor.insertNumber("" + (index + 1));
                         else if (index === 9)
@@ -146,47 +168,26 @@ Page {
             }
         }
     }
-    Item {
+    SlideToApprove {
         id: slideToApprove
-        width: parent.width
-        height: 60
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 10
-        Rectangle {
-            x: 30
-            width: parent.height
-            height: width
-            radius: width / 2
-            color: root.palette.window
+        width: parent.width
+        enabled: payment.isValid && payment.txPrepared
+        onActivated: {
+            payment.prepare()
+            broadcastPage.x = 0
+            root.headerText = qsTr("Sending out Payment")
         }
-        Rectangle {
-            x: parent.width - width - 30
-            width: parent.height
-            height: width
-            radius: width / 2
-            color: root.palette.window
-        }
-        Rectangle {
-            x: 30 + parent.height / 2
-            width: parent.width - 30 - 30 - parent.height
-            height: parent.height
-            color: root.palette.window
-        }
-        Flowee.Label {
-            text: qsTr("SLIDE TO SEND")
-            anchors.centerIn: parent
-        }
-
-        Rectangle {
-            width: parent.height - 5
-            height: width
-            radius: width / 2
-            // opacity: 0.8
-            x: 35
-            y: 2.5
-            color: Pay.useDarkSkin ? mainWindow.floweeGreen : mainWindow.floweeBlue
-        }
-
     }
 
+    Rectangle {
+        id: broadcastPage
+        width: parent.width
+        height: parent.height
+        x: 0 - width - 10
+        color: root.palette.base
+
+        Behavior on x { NumberAnimation {}  }
+    }
 }

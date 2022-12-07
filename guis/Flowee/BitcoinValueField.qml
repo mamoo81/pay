@@ -38,11 +38,12 @@ MoneyValueField  {
             var fullString = Pay.amountToString(root.value);
             // for editing we should remove the trailing zeros
             // but leave the separator if that is what the user typed. So a valid string is "6."
-            var userTypedString = moneyEditor.enteredString;
+            var userTypedString = money.enteredString;
             let length = userTypedString.length;
             for (let i = fullString.length - 1; i > length; i = i - 1) {
-                if (fullString.charAt(i) !== '0') {
-                    length = i;
+                let k = fullString.charAt(i);
+                if (k !== '0' && k !== '.' && k !== ',') {
+                    length = i + 1;
                     break;
                 }
             }

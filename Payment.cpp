@@ -98,7 +98,7 @@ void Payment::setTargetAddress(const QString &address_)
         for (const auto &item : query.queryItems()) {
             if (item.first == "amount") {
                 bool ok;
-                auto amount = item.second.toLongLong(&ok);
+                auto amount = item.second.toDouble(&ok);
                 if (ok) {
                     out->setPaymentAmount(amount * 1E8);
                     emit amountChanged();
@@ -234,6 +234,8 @@ void Payment::prepare()
             // This can only be due to fees as we called 'verify' above.
             m_error = tr("Not enough funds selected for fees");
             emit errorChanged();
+            m_txPrepared = false;
+            emit txPreparedChanged();
             return;
         }
     }
@@ -242,6 +244,8 @@ void Payment::prepare()
         if (funding.outputs.empty()) { // not enough funds.
             m_error = tr("Not enough funds in wallet to make payment!");
             emit errorChanged();
+            m_txPrepared = false;
+            emit txPreparedChanged();
             return;
         }
     }

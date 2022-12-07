@@ -24,9 +24,32 @@ FocusScope {
     activeFocusOnTab: true
     property alias value: privValue.value
     property alias cursorPos: privValue.cursorPos
-    property alias moneyEditor: privValue
     property alias maxFractionalDigits: privValue.maxFractionalDigits
     signal valueEdited;
+
+    // provide nested access to the BitcoinValue
+    // this allows us to wrap methods
+    property Item money: Item {
+        property alias enteredString: privValue.enteredString
+        function insertNumber(character) {
+            let rc = privValue.insertNumber(character);
+            if (rc)
+                root.valueEdited();
+            return rc;
+        }
+        function addSeparator() {
+            let rc = privValue.addSeparator();
+            if (rc)
+                root.valueEdited();
+            return rc;
+        }
+        function backspacePressed() {
+            let rc = privValue.backspacePressed();
+            if (rc)
+                root.valueEdited();
+            return rc;
+        }
+    }
 
     BitcoinValue {
         id: privValue
