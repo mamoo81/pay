@@ -25,5 +25,6 @@
         <file>Flowee/PasswdDialog.qml</file>
         <file>Flowee/Label.qml</file>
         <file>Flowee/LabelWithCursor.qml</file>
+        <file>Flowee/ObjectShaker.qml</file>
     </qresource>
 </RCC>

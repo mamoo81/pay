@@ -45,24 +45,24 @@ Page {
         y: 30
         value: payment.paymentAmount
         focus: true
-        anchors.horizontalCenter: parent.horizontalCenter
         onValueEdited: payment.paymentAmount = value
         fontPixelSize: size
         property double size: fiatFollowsSats ? 38 : commentLabel.font.pixelSize
-        Behavior on size { NumberAnimation { } }
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = true
+        Behavior on size { NumberAnimation { } }
+        Flowee.ObjectShaker { id: bchShaker }
     }
     Flowee.FiatValueField  {
         id: priceFiat
         value: Fiat.priceFor(payment.paymentAmount)
-        anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: priceBch.bottom
         anchors.topMargin: 18
         focus: true
         fontPixelSize: size
         property double size: !fiatFollowsSats ? 38 : commentLabel.font.pixelSize
-        Behavior on size { NumberAnimation { } }
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = false
+        Behavior on size { NumberAnimation { } }
+        Flowee.ObjectShaker { id: fiatShaker }
     }
 
     Flowee.Label {
@@ -126,22 +126,21 @@ Page {
                             return "<-" // TODO use a backspace icon instead.
                     }
                 }
+
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        var editor = undefined;
-                        if (priceBch.activeFocus)
-                            editor = priceBch.moneyEditor;
-                        else if (priceFiat.activeFocus)
-                            editor = priceFiat.moneyEditor;
+                        let editor = fiatFollowsSats ? priceBch.moneyEditor : priceFiat.moneyEditor;
                         if (index < 9) // these are digits
-                            editor.insertNumber("" + (index + 1));
+                            var shake = !editor.insertNumber("" + (index + 1));
                         else if (index === 9)
-                            editor.addSeparator();
+                            shake = !editor.addSeparator()
                         else if (index === 10)
-                            editor.insertNumber("0");
+                            shake = !editor.insertNumber("0");
                         else
-                            editor.backspacePressed();
+                            shake = !editor.backspacePressed();
+                        if (shake)
+                            fiatFollowsSats ? bchShaker.start() : fiatShaker.start();
                     }
                 }
             }

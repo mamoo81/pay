@@ -43,10 +43,10 @@ public:
 
     Q_INVOKABLE void moveLeft();
     Q_INVOKABLE void moveRight();
-    Q_INVOKABLE void insertNumber(QChar number);
-    Q_INVOKABLE void addSeparator();
+    Q_INVOKABLE bool insertNumber(QChar number);
+    Q_INVOKABLE bool addSeparator();
     Q_INVOKABLE void paste();
-    Q_INVOKABLE void backspacePressed();
+    Q_INVOKABLE bool backspacePressed();
     Q_INVOKABLE void reset();
 
     QString enteredString() const;

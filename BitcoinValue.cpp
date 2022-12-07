@@ -66,14 +66,14 @@ void BitcoinValue::moveRight()
         setCursorPos(m_cursorPos + 1);
 }
 
-void BitcoinValue::insertNumber(QChar number)
+bool BitcoinValue::insertNumber(QChar number)
 {
     if (!number.isNumber())
         throw std::runtime_error("Only numbers can be inserted in insertNumber");
     int pos = m_typedNumber.indexOf('.');
     const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
     if (pos > -1 && m_cursorPos > pos && m_typedNumber.size() - pos - unitConfigDecimals > 0)
-        return;
+        return false;
     int cursorPos = m_cursorPos;
     m_typedNumber.insert(cursorPos, number);
     while (((pos < 0 && m_typedNumber.size() > 1) || pos > 1) && m_typedNumber.startsWith('0')) {
@@ -84,21 +84,23 @@ void BitcoinValue::insertNumber(QChar number)
     setStringValue(m_typedNumber);
     setCursorPos(cursorPos + 1);
     emit enteredStringChanged();
+    return true;
 }
 
-void BitcoinValue::addSeparator()
+bool BitcoinValue::addSeparator()
 {
-    if (m_typedNumber.indexOf('.') == -1) {
-        m_typedNumber.insert(m_cursorPos, '.');
-        int movedPlaces = 1;
-        if (m_typedNumber.size() == 1) {
-            ++movedPlaces;
-            m_typedNumber = "0.";
-        }
-        setCursorPos(m_cursorPos + movedPlaces);
-        setStringValue(m_typedNumber);
-        emit enteredStringChanged();
+    if (m_typedNumber.indexOf('.') != -1)
+        return false;
+    m_typedNumber.insert(m_cursorPos, '.');
+    int movedPlaces = 1;
+    if (m_typedNumber.size() == 1) {
+        ++movedPlaces;
+        m_typedNumber = "0.";
     }
+    setCursorPos(m_cursorPos + movedPlaces);
+    setStringValue(m_typedNumber);
+    emit enteredStringChanged();
+    return true;
 }
 
 void BitcoinValue::paste()
@@ -108,18 +110,21 @@ void BitcoinValue::paste()
     setEnteredString(clipboard->text().trimmed());
 }
 
-void BitcoinValue::backspacePressed()
+bool BitcoinValue::backspacePressed()
 {
-    int cursorPos = m_cursorPos;
+    int cursorPosition = m_cursorPos;
+    if (m_typedNumber.isEmpty())
+        return false;
     if (m_typedNumber.size() <= 1) {
         m_typedNumber.clear();
-        cursorPos = 0;
+        cursorPosition = 0;
     } else {
-        m_typedNumber.remove(--cursorPos, 1);
+        m_typedNumber.remove(--cursorPosition, 1);
     }
     setStringValue(m_typedNumber);
     emit enteredStringChanged();
-    setCursorPos(cursorPos);
+    setCursorPos(cursorPosition);
+    return true;
 }
 
 void BitcoinValue::reset()
