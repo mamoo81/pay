@@ -7,7 +7,7 @@ source /etc/profile
 
 cd /usr/local/cache
 if ! test -f zxing-cpp-v${VERSION}.tar.gz; then
-    wget https://github.com/zxing-cpp/zxing-cpp/archive/refs/tags/v${VERSION}.tar.gz
+    wget --quiet -O zxing-cpp-v${VERSION}.tar.gz https://github.com/zxing-cpp/zxing-cpp/archive/refs/tags/v${VERSION}.tar.gz
 fi
 cd ~builduser
 tar xf /usr/local/cache/zxing-cpp-v${VERSION}.tar.gz
@@ -24,8 +24,5 @@ cmake -DCMAKE_TOOLCHAIN_FILE=/opt/android-qt6/lib/cmake/Qt6/qt.toolchain.cmake \
     -G Ninja \
     ..
 
-cd ..
 ninja install
-
-
 
