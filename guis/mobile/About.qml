@@ -75,7 +75,7 @@ You?
 Nederland<dl>
 <dt>s</dt>
 <dd>Tom Zander</dd>
-<dt>Polska</dt>
+<dt>Polski</dt>
 <dd>yantri</dd>
 </dl>
 "
