@@ -457,6 +457,11 @@ void CameraController::abortRequest(QRScanner *request)
     }
 }
 
+void CameraController::abort()
+{
+    abortRequest(d->scanRequest);
+}
+
 void CameraController::setCamera(QObject *object)
 {
     if (object == d->camera)

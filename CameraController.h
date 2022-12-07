@@ -52,6 +52,8 @@ public:
     void startRequest(QRScanner *request);
     void abortRequest(QRScanner *request);
 
+    Q_INVOKABLE void abort();
+
     void setCamera(QObject *object);
     QObject *camera() const;
 

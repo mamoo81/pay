@@ -30,9 +30,15 @@ Page {
             scanType: QRScanner.PaymentDetails
             Component.onCompleted: scanner.start();
             onFinished: {
-                payment.targetAddress = scanResult
-                if (payment.isValid)
-                    payment.prepare();
+                var rc = scanResult
+                if (rc === "") { // scanning failed
+                    thePile.pop();
+                }
+                else {
+                    payment.targetAddress = rc
+                    if (payment.isValid)
+                        payment.prepare();
+                }
             }
         }
         Payment {
