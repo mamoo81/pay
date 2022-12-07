@@ -8,7 +8,7 @@ ENTRYPOINT ["su", "-", "builduser", "-c"]
 
 add scripts /usr/local/bin
 # for europe you might want to copy your local mirrorlist
-copy mirrorlist /etc/pacman.d/
+#copy mirrorlist /etc/pacman.d/
 RUN useradd builduser -d /home/builds -m -u 1000 -U \
     && pacman -Suy --noconfirm --noprogressbar \
     && pacman -Sy --noconfirm --noprogressbar --needed base-devel \
