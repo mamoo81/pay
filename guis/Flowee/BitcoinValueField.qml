@@ -67,7 +67,7 @@ MoneyValueField  {
                     removeChars = 2 + 1;
                 return fullString.length - removeChars
             }
-            cursorPos: root.activeFocus ? root.cursorPos :  -1
+            cursorPos: root.cursorPos
             Layout.alignment: Qt.AlignBaseline
             showCursor: root.activeFocus
         }
@@ -81,7 +81,6 @@ MoneyValueField  {
             textOpacity: text === "000" ? 0.3 : 1
             startPos: beginOfValue.startPos + beginOfValue.stringLength
             stringLength: 3
-            // visible: Pay.unitAllowedDecimals === 8
             showCursor: root.activeFocus
         }
         LabelWithCursor {

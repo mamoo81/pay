@@ -57,6 +57,8 @@ Item {
         width: 1.3
         height: root.height
         visible: {
+            if (!showCursor)
+                return false;
             var cutPoint = parent.cursorPos - parent.startPos;
             var lastSegment = parent.fullString.length === parent.startPos + parent.stringLength
             if (cutPoint < 0)
