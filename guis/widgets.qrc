@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
+        <file alias="edit-copy.svg">images/edit-copy.svg</file>
+        <file alias="internet.svg">images/internet.svg</file>
         <file>Flowee/ArrowPoint.qml</file>
         <file>Flowee/BitcoinAmountLabel.qml</file>
         <file>Flowee/Button.qml</file>
@@ -26,5 +28,7 @@
         <file>Flowee/Label.qml</file>
         <file>Flowee/LabelWithCursor.qml</file>
         <file>Flowee/ObjectShaker.qml</file>
+        <file>Flowee/BroadcastFeedback.qml</file>
+        <file>Flowee/ImageButton.qml</file>
     </qresource>
 </RCC>

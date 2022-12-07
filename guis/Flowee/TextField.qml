@@ -29,18 +29,19 @@ QQC2.TextField {
     color: palette.text
 
     background: Rectangle {
-            implicitHeight: root.contentHeight + 2
-            implicitWidth: 140
-            color: {
-                if (root.enabled)
-                    return root.palette.base;
-                return "#00000000";
-            }
-            border.color: {
-                if (root.enabled)
-                    return root.activeFocus ? root.palette.highlight : root.palette.button
-                return "transparant";
-            }
-            border.width: 0.8
+        implicitHeight: root.contentHeight + 2
+        implicitWidth: 140
+        radius: 3
+        color: {
+            if (root.enabled)
+                return root.palette.base;
+            return "#00000000";
+        }
+        border.color: {
+            if (root.enabled)
+                return root.activeFocus ? root.palette.highlight : root.palette.button
+            return "transparant";
+        }
+        border.width: 0.8
     }
 }

@@ -47,7 +47,7 @@ MoneyValueField  {
                     break;
                 }
             }
-            return fullString.substring(0, length);
+            return fullString.substring(0, Math.max(1, length));
         }
 
         LabelWithCursor {

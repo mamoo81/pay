@@ -46,7 +46,7 @@ Item {
         }
         property bool finished: false
         onXChanged: {
-            if (x >= root.width - 70) {
+            if (x >= root.width - 80) {
                 finished = true;
                 root.activated();
             }

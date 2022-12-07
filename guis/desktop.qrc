@@ -17,7 +17,6 @@
         <file alias="eye-open-light.png">desktop/images/eye-open-light.png</file>
         <file alias="eye-open.png">desktop/images/eye-open.png</file>
         <file alias="edit-delete.svg">desktop/images/edit-delete.svg</file>
-        <file alias="edit-copy.svg">desktop/images/edit-copy.svg</file>
         <file alias="lock-light.svg">desktop/images/lock-light.svg</file>
         <file alias="lock-dark.svg">desktop/images/lock-dark.svg</file>
         <file>desktop/defaults.ini</file>

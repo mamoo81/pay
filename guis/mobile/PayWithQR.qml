@@ -44,6 +44,7 @@ Page {
         Payment {
             id: payment
             account: portfolio.current
+            fiatPrice: Fiat.price
             onIsValidChanged: if (isValid) prepare()
 
             // easier testing values (for when you don't have a camera)
@@ -103,7 +104,7 @@ Page {
         id: errorLabel
         text: payment.error
         visible: payment.isValid
-        color: Pay.useDarkSkin ? "#cc1818" : "#6a0c0c"
+        color: Pay.useDarkSkin ? "#cc5454" : "#6a0c0c"
         anchors.top: userComment.bottom
         wrapMode: Text.Wrap
         anchors.topMargin: 20
@@ -180,20 +181,18 @@ Page {
         anchors.bottomMargin: 10
         width: parent.width
         enabled: payment.isValid && payment.txPrepared
-        onActivated: {
-            payment.prepare()
-            broadcastPage.x = 0
-            root.headerText = qsTr("Sending out Payment")
-        }
+        onActivated: payment.broadcast()
     }
 
-    Rectangle {
+    Flowee.BroadcastFeedback {
         id: broadcastPage
-        width: parent.width
-        height: parent.height
-        x: 0 - width - 10
-        color: root.palette.base
+        anchors.leftMargin: -10 // go against the margins Page gave us to show more fullscreen.
+        anchors.rightMargin: -10
+        onStatusChanged: {
+            if (status !== "")
+                root.headerText = status;
+        }
 
-        Behavior on x { NumberAnimation {}  }
+        onCloseButtonPressed: thePile.pop();
     }
 }
