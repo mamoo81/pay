@@ -163,6 +163,17 @@ QQC2.Control {
             showFiat: false
         }
 
+        TextField {
+            id: transactionComment
+            anchors.top: txIdFeedback.bottom
+            anchors.topMargin: 20
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: Math.min(400, parent.width - 40);
+            onTextChanged: payment.userComment = text
+            placeholderText: qsTr("Add a personal note")
+            placeholderTextColor: "#3e3e3e"
+        }
+
         RowLayout {
             id: txIdFeedback
             spacing: 30
@@ -181,17 +192,6 @@ QQC2.Control {
                 responseText: qsTr("Opening Website")
             }
         }
-        TextField {
-            id: transactionComment
-            anchors.top: txIdFeedback.bottom
-            anchors.topMargin: 20
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: Math.min(400, parent.width - 40);
-            onTextChanged: payment.userComment = text
-            placeholderText: qsTr("Add a personal note")
-            placeholderTextColor: "#3e3e3e"
-        }
-
         Button {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 30
