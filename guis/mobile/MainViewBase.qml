@@ -39,6 +39,9 @@ QQC2.Control {
         }
         takeFocus();
     }
+    function switchToTab(index) {
+        currentIndex = index
+    }
 
     // called from main when this page becomes active, as well as when we change tabs
     function takeFocus() {

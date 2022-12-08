@@ -25,7 +25,9 @@ MainViewBase {
     SendTransactionsTab {
         anchors.fill: parent
     }
-    ReceiveScreen {
+    ReceiveTab {
         anchors.fill: parent
+        anchors.leftMargin: 10
+        anchors.rightMargin: 10
     }
 }

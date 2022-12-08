@@ -14,6 +14,8 @@
         <file alias="sending-light.svg">mobile/images/sending-light.svg</file>
         <file alias="sending.svg">mobile/images/sending.svg</file>
         <file alias="receive.svg">mobile/images/receive.svg</file>
+        <file alias="qr-code.svg">mobile/images/qr-code.svg</file>
+        <file alias="qr-code-light.svg">mobile/images/qr-code-light.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>
@@ -33,5 +35,7 @@
         <file>mobile/QRScannerOverlay.qml</file>
         <file>mobile/PayWithQR.qml</file>
         <file>mobile/SlideToApprove.qml</file>
+        <file>mobile/ReceiveTab.qml</file>
+        <file>mobile/SmallAccountSelector.qml</file>
     </qresource>
 </RCC>

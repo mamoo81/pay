@@ -20,7 +20,7 @@ import "../Flowee" as Flowee
 
 Item {
     id: root
-    height: 60 + label.height + 10
+    height: 60 + label.height
     width: height
     signal clicked;
     property alias text: label.text

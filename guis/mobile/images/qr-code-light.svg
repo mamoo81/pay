@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="448" height="448" viewBox="0 0 448 448" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+<rect x="304" y="304" width="80" height="80" rx="8" ry="8" style="fill:#fffffb;fill-opacity:1"/>
+<rect x="240" y="240" width="64" height="64" rx="8" ry="8" style="fill:#fffffb;fill-opacity:1"/>
+<rect x="384" y="384" width="64" height="64" rx="8" ry="8" style="fill:#fffffb;fill-opacity:1"/>
+<rect x="400" y="240" width="48" height="48" rx="8" ry="8" style="fill:#fffffb;fill-opacity:1"/>
+<rect x="240" y="400" width="48" height="48" rx="8" ry="8" style="fill:#fffffb;fill-opacity:1"/>
+<path d="M 416,0 H 272 a 32,32 0 0 0 -32,32 v 144 a 32,32 0 0 0 32,32 h 144 a 32,32 0 0 0 32,-32 V 32 A 32,32 0 0 0 416,0 Z m -32,136 a 8,8 0 0 1 -8,8 h -64 a 8,8 0 0 1 -8,-8 V 72 a 8,8 0 0 1 8,-8 h 64 a 8,8 0 0 1 8,8 z" style="fill:#fffffb;fill-opacity:1"/>
+<path d="M 176,0 H 32 A 32,32 0 0 0 0,32 v 144 a 32,32 0 0 0 32,32 h 144 a 32,32 0 0 0 32,-32 V 32 A 32,32 0 0 0 176,0 Z m -32,136 a 8,8 0 0 1 -8,8 H 72 a 8,8 0 0 1 -8,-8 V 72 a 8,8 0 0 1 8,-8 h 64 a 8,8 0 0 1 8,8 z" style="fill:#fffffb;fill-opacity:1"/>
+<path d="M 176,240 H 32 A 32,32 0 0 0 0,272 v 144 a 32,32 0 0 0 32,32 h 144 a 32,32 0 0 0 32,-32 V 272 a 32,32 0 0 0 -32,-32 z m -32,136 a 8,8 0 0 1 -8,8 H 72 a 8,8 0 0 1 -8,-8 v -64 a 8,8 0 0 1 8,-8 h 64 a 8,8 0 0 1 8,8 z" style="fill:#fffffb;fill-opacity:1"/>
+</svg>

@@ -21,11 +21,12 @@ import QtQuick.Controls as QQC2
 
 QQC2.Control {
     width: 42
-    height: 42
+    height: width
 
     signal clicked;
     property alias source: imageIcon.source;
     property alias responseText: comment.text;
+    property int iconSize: width
 
     Rectangle {
         id: highlight
@@ -36,8 +37,9 @@ QQC2.Control {
     }
     Image {
         id: imageIcon
-        anchors.fill: parent
-        anchors.margins: 4
+        width: Math.min(parent.width - 8, iconSize)
+        height: Math.min(parent.height - 8, iconSize)
+        anchors.centerIn: parent
         smooth: true
     }
     MouseArea {
@@ -54,9 +56,9 @@ QQC2.Control {
     Rectangle {
         id: feedbackPopup
         radius: 6
-        color: palette.window
+        color: mainWindow.palette.window
         border.width: 2
-        border.color: palette.highlight
+        border.color: mainWindow.palette.highlight
         visible: false
         width: comment.width + 12
         height: comment.height + 12
@@ -72,5 +74,10 @@ QQC2.Control {
             id: comment
             anchors.centerIn: parent
         }
+    }
+
+    Label {
+        id: textArea
+
     }
 }
