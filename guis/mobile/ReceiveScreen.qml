@@ -16,27 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
-import QtQuick.Layouts
+import "../Flowee" as Flowee
 
-FocusScope {
-    id: root
-    property string icon: "qrc:/sending" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
-    property string  title: qsTr("Send")
-
-    ColumnLayout {
-        width: parent.width - 20
-        x: 10
-
-        TextButton {
-            text: qsTr("Scan a QR code")
-            showPageIcon: true
-            onClicked: thePile.push("PayWithQR.qml")
-        }
-        TextButton {
-            text: qsTr("My Wallets")
-            subtext: qsTr("Move between wallets")
-            showPageIcon: true
-            onClicked: thePile.push("MoveBetweeWallets.qml")
-        }
-    }
+Item {
+    id: receiveScreen
+    property string icon: "qrc:/receive.svg"
+    property string  title: qsTr("Receive")
 }

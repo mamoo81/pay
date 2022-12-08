@@ -123,6 +123,7 @@ QQC2.Control {
                     source: stack.children[modelData].icon
                     width: 35
                     height: 35
+                    smooth: true
                     y: 12
                     anchors.horizontalCenter: parent.horizontalCenter
                 }

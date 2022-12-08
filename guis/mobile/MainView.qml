@@ -25,10 +25,7 @@ MainViewBase {
     SendTransactionsTab {
         anchors.fill: parent
     }
-    Item {
-        id: receiveScreen
-        property string icon: Pay.useDarkSkin ? "qrc:/external-light.svg" : "qrc:/external.svg"
-        property string  title: qsTr("Bla")
+    ReceiveScreen {
         anchors.fill: parent
     }
 }
