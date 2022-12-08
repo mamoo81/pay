@@ -114,6 +114,7 @@ Page {
     Flowee.Label {
         id: currentWalletLabel
         text: portfolio.current.name
+        visible: portfolio.current.isUserOwned
         anchors.baseline: parent.width > currentWalletLabel.width + currentWalletValue.width
                     ? currentWalletValue.baseline : undefined
         anchors.bottom: parent.width > currentWalletLabel.width + currentWalletValue.width
