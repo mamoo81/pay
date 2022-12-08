@@ -74,6 +74,7 @@ signals:
 
 private slots:
     void qrScanFinished();
+    void checkState();
 
 private:
     CameraControllerPrivate * d;

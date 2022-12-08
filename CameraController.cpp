@@ -174,7 +174,7 @@ void CameraControllerPrivate::initCamera()
     logCritical().nospace() << "Changing camera resolution to " << preferred.resolution().width() << "x" << preferred.resolution().height();
     cam->setCameraFormat(preferred);
     cam->setFocusMode(QCamera::FocusModeAutoNear); // macro focus mode.
-    cam->setWhiteBalanceMode(QCamera::WhiteBalanceShade); // avoid flash
+    cam->setWhiteBalanceMode(QCamera::WhiteBalanceAuto); // avoid flash
 }
 
 void CameraControllerPrivate::checkState()
@@ -431,7 +431,8 @@ void CameraController::startRequest(QRScanner *request)
                     logCritical() << "Permission request result: " << res << (res == QtAndroidPrivate::Authorized);
                     if (res == QtAndroidPrivate::Authorized) {
                         d->state = Authorized;
-                        d->checkState();
+                        // move the actual turning on of the camera to the next event.
+                        QTimer::singleShot(10, this, SLOT(checkState()));
                     } else {
                         d->state = Denied;
                     }
@@ -454,6 +455,11 @@ void CameraController::abortRequest(QRScanner *request)
         d->cameraStarted = false;
         d->lock.unlock();
         emit cameraActiveChanged();
+
+        if (d->m_scanningThread == nullptr) {
+            // then the above would have no effect;
+            qrScanFinished();
+        }
     }
 }
 
@@ -509,9 +515,11 @@ bool CameraController::visible() const
 
 void CameraController::qrScanFinished()
 {
-    assert(d->m_scanningThread);
-    logFatal() << " -> " << d->m_scanningThread->text;
-    auto resultText = d->m_scanningThread->text;
+    QString resultText;
+    if (d->m_scanningThread) {
+        resultText = d->m_scanningThread->text;
+        logFatal() << " -> " << d->m_scanningThread->text;
+    }
 
     delete d->m_scanningThread;
     d->m_scanningThread = nullptr;
@@ -526,4 +534,12 @@ void CameraController::qrScanFinished()
         d->scanRequest->finishedScan(resultText);
         d->scanRequest = nullptr;
     }
+    QCamera *cam = qobject_cast<QCamera *>(d->camera);
+    if (cam)
+        cam->setTorchMode(QCamera::TorchOff);
+}
+
+void CameraController::checkState()
+{
+    d->checkState();
 }
