@@ -41,7 +41,7 @@ if (ANDROID)
         set_target_properties(ZXing::ZXing PROPERTIES IMPORTED_LOCATION
                 "/opt/android-zxing/lib/libZXing.a")
         set_property(TARGET ZXing::ZXing PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES
-                "/opt/android-zxing/lib/libZXing.a;/opt/android-zxing/lib/libzueci-static.a")
+                "/opt/android-zxing/lib/libZXing.a")
         set (ZXing_FOUND TRUE)
     else ()
         find_package(ZXing REQUIRED)
