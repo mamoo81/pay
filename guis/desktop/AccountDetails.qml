@@ -184,7 +184,7 @@ Item {
                 Flowee.Button {
                     id: decryptButton
                     anchors.right: parent.right
-                    text: decryptWarning.implicitHeight// qsTr("Open")
+                    text: qsTr("Open")
                     enabled: passwordField.text.length > 3
                     onClicked: {
                         var rc = root.account.decrypt(passwordField.text);
