@@ -16,10 +16,7 @@
 
 set(CMAKE_AUTOMOC ON)
 
-include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${Qt6Test_INCLUDE_DIRS}
-)
+include_directories(${Qt6Test_INCLUDE_DIRS})
 
 add_executable(test_value TestValue.cpp)
 target_link_libraries(test_value

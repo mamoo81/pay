@@ -17,7 +17,6 @@
 cmake_minimum_required(VERSION 3.19)
 project(flowee_pay VERSION 0.2 LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
@@ -53,12 +52,6 @@ endif()
 find_package(Boost 1.67.0 REQUIRED filesystem chrono thread)
 find_package(QREncode REQUIRED)
 
-option(local_qml "Allow local QML loading" OFF)
-option(networkLog "Include network-logging client" OFF)
-
-add_compile_definitions(TARGET_OS_${CMAKE_SYSTEM_NAME})
-# The cmake system name will hold values like Android, Linux or others.
-
 function(download_file url path)
     if (NOT EXISTS "${path}")
         get_filename_component(file "${path}" NAME)
@@ -74,55 +67,6 @@ function(download_file url path)
         endif()
     endif()
 endfunction()
-
-set (PAY_SOURCES
-    AccountInfo.cpp
-    AddressInfo.cpp
-    BitcoinValue.cpp
-    FloweePay.cpp
-    MenuModel.cpp
-    NetDataProvider.cpp
-    NetPeer.cpp
-    NewWalletConfig.cpp
-    NotificationManager.cpp
-    Payment.cpp
-    PaymentRequest.cpp
-    PaymentDetailOutput.cpp
-    PaymentDetailInputs.cpp
-    PortfolioDataProvider.cpp
-    PriceDataProvider.cpp
-    PriceHistoryDataProvider.cpp
-    QRCreator.cpp
-    TransactionInfo.cpp
-    Wallet.cpp
-    WalletCoinsModel.cpp
-    WalletHistoryModel.cpp
-    WalletSecretsModel.cpp
-    Wallet_encryption.cpp
-    Wallet_support.cpp
-    Wallet_spending.cpp
-    WalletEnums.cpp
-)
-
-if (NetworkLogClient)
-    list(APPEND PAY_SOURCES NetworkLogClient.cpp)
-endif()
-
-if (ANDROID)
-    list(APPEND PAY_SOURCES main_utils_android.cpp)
-else ()
-    list(APPEND PAY_SOURCES main_utils.cpp)
-endif ()
-
-add_library(pay_lib STATIC ${PAY_SOURCES})
-
-target_link_libraries(pay_lib
-    flowee_apputils
-    flowee_utils
-    flowee_p2p
-    ${OPENSSL_LIBRARIES}
-    ${Boost_LIBRARIES}
-    Qt6::Core Qt6::Quick ${Qt6DBus_LIBRARIES} ${PayLib_PRIVATE_LIBS} ${QREncode_LIBRARIES})
 
 ###### Translations
 
@@ -156,6 +100,7 @@ endif()
 
 
 ###### Pay executable
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 if (NOT ANDROID)
     set (NOT_ANDROID TRUE)
@@ -174,9 +119,9 @@ if (BUILD_DESKTOP_PAY)
     if (local_qml)
         set (QML_PATH ${CMAKE_SOURCE_DIR}/guis/)
     endif()
-    configure_file(qml_path_helper.cpp.in guis/desktop/qml_path_helper.cpp)
+    configure_file(src/qml_path_helper.cpp.in guis/desktop/qml_path_helper.cpp)
     set (SOURCES_PAY
-        main.cpp
+        src/main.cpp
         guis/desktop/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY
@@ -216,11 +161,11 @@ if (ANDROID AND BUILD_MOBILE_PAY)
               ${CMAKE_SOURCE_DIR}/data/bip39-spanish
         DESTINATION ${ASSETS_DIR})
 
-    configure_file(qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
+    configure_file(src/qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
     set (SOURCES_PAY_MOBILE
-        main.cpp
-        CameraController.cpp
-        QRScanner.cpp
+        src/main.cpp
+        src/CameraController.cpp
+        src/QRScanner.cpp
         guis/mobile/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
@@ -253,13 +198,13 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
     if(local_qml)
         set (QML_PATH ${CMAKE_SOURCE_DIR}/guis)
     endif()
-    configure_file(qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
+    configure_file(src/qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
     file(COPY translations/mobile-i18n.qrc DESTINATION ${CMAKE_BINARY_DIR})
 
     set (SOURCES_PAY_MOBILE
-        main.cpp
-        CameraController.cpp
-        QRScanner.cpp
+        src/main.cpp
+        src/CameraController.cpp
+        src/QRScanner.cpp
         guis/mobile/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
@@ -284,7 +229,7 @@ option (BUILD_PAY_TOOLS
 
 if (BUILD_PAY_TOOLS)
     add_executable(blockheaders-meta-extractor
-        MetaExtractor.cpp
+        src/MetaExtractor.cpp
     )
     target_link_libraries(blockheaders-meta-extractor
         flowee_p2p
@@ -309,6 +254,7 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/data/blockheaders)
     install(FILES ${CMAKE_SOURCE_DIR}/data/blockheaders DESTINATION share/floweepay)
 endif()
 
+add_subdirectory(src)
 if (NOT ANDROID)
     add_subdirectory(testing)
 endif()

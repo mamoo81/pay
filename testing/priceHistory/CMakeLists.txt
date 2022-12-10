@@ -16,7 +16,7 @@
 
 set(CMAKE_AUTOMOC ON)
 
-include_directories(${CMAKE_SOURCE_DIR} ${Qt6Test_INCLUDE_DIRS})
+include_directories(${Qt6Test_INCLUDE_DIRS})
 
 add_executable(test_price_history
     TestPriceHistory.cpp
