@@ -198,7 +198,7 @@ void CameraControllerPrivate::checkState()
             logFatal() << "CameraController found cam error:" << cam->errorString();
 
         auto sink = qobject_cast<QVideoSink*>(videoSink);
-        assert(sink); // likely bug in your QML
+        assert(sink); // here to detect bug in QML
         QObject::connect(sink, &QVideoSink::videoFrameChanged, q, [=](const QVideoFrame &frame) {
             currentFrame = frame;
 
@@ -223,7 +223,15 @@ QRScanningThread::QRScanningThread(CameraControllerPrivate *parent)
 
 void QRScanningThread::run()
 {
+    auto lastFrameScanned = time(nullptr);
     while (true) {
+        const auto now = time(nullptr);
+        auto sleep = 34 - (now - lastFrameScanned); // assume 30 - FPS
+        // Sleep if we are too fast and (assuming 33.3 ms per frame) we would end up
+        // parsing the same frame twice.
+        if (sleep > 0)
+            QThread::msleep(sleep);
+
         m_parent->lock.lock();
         bool exit = !m_parent->cameraStarted;
         QVideoFrame frame = m_parent->currentFrame;
@@ -231,6 +239,7 @@ void QRScanningThread::run()
         if (exit)
             return;
 
+        lastFrameScanned = time(nullptr);
         auto results = readBarcodes(frame);
         for (const auto &result : results) {
             const auto &bytes = result.bytes();
