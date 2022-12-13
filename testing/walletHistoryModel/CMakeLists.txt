@@ -1,5 +1,5 @@
 # This file is part of the Flowee project
-# Copyright (C) 2020 Tom Zander <tom@flowee.org>
+# Copyright (C) 2022 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,19 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-find_package(Qt6Test)
-if (${Qt6Test_FOUND})
-    enable_testing()
-    add_definitions(-DIN_TESTS)
-    add_subdirectory(wallet)
-    add_subdirectory(walletHistoryModel)
-    add_subdirectory(value)
-    add_subdirectory(priceHistory)
+set(CMAKE_AUTOMOC ON)
 
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS
-        test_wallet
-        test_wallet_history_model
-        test_value
-        test_price_history
-    )
-endif ()
+include_directories(${Qt6Test_INCLUDE_DIRS})
+
+add_executable(test_wallethistorymodel
+    TestWalletHistoryModel.cpp
+)
+target_link_libraries(test_wallethistorymodel pay_lib Qt6::Test)
+add_test(NAME Pay_test_wallet_history_model COMMAND test_wallethistorymodel)

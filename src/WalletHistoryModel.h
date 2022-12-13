@@ -84,7 +84,12 @@ signals:
     void lastSyncIndicatorChanged();
     void includeFlagsChanged();
 
-private slots:
+protected:
+    // virtual to allow the unit test to not use p2pNet for this
+    /// return the timestamp of a block (aka nTime) as defined by the block-header
+    virtual uint32_t secsSinceEpochFor(int blockHeight) const;
+
+protected slots:
     void appendTransactions(int firstNew, int count);
     void transactionChanged(int txIndex);
     void createMap();

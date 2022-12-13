@@ -43,27 +43,33 @@ bool WalletHistoryModel::TransactionGroup::add(int txIndex, uint32_t timestamp)
         }
         else if (date == today.addDays(-1)) {
             period = WalletEnums::Yesterday;
-            date = date.addDays(-1);
             days = 1;
         }
-        else if (date > today.addDays(-1 * today.dayOfWeek() + 1)) {
+        else if (date >= today.addDays(-1 * today.dayOfWeek() + 1)) {
             // this week
             period = WalletEnums::EarlierThisWeek;
             date = date.addDays(-1 * date.dayOfWeek());
-            days = 7;
+            const auto yesterday = today.addDays(-1);
+            days = yesterday.day() - date.day();
         }
-        else if (date > today.addDays(-1 * today.day() + 1)) {
+        else if (date >= today.addDays(-1 * today.day() + 1)) {
             // this month
             period = WalletEnums::EarlierThisMonth;
             date = date.addDays(-1 * date.day() + 1);
-            days = date.daysInMonth();
+            const auto weekStart = today.addDays(-1 * today.dayOfWeek() + 1);
+            days = weekStart.day() - 1;
         }
         else { // any (other) month
             period = WalletEnums::Month;
             date = date.addDays(-1 * date.day() + 1);
             days = date.daysInMonth();
+
+            const auto yesterday = today.addDays(-1);
+            if (yesterday.year() == date.year() && yesterday.month() == date.month()) {
+                // don't eat the events that happend yesterday.
+                days -= 1;
+            }
         }
-        assert(days > 0);
         const QDateTime dt(date, QTime());
         endTime = dt.addDays(days).toSecsSinceEpoch() - 1;
     }
@@ -124,8 +130,9 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
     case MinedDate: {
         if (item.minedBlockHeight <= 0)
             return QVariant();
-        auto header = FloweePay::instance()->p2pNet()->blockchain().block(item.minedBlockHeight);
-        return QVariant(QDateTime::fromSecsSinceEpoch(header.nTime));
+
+        auto timestamp = secsSinceEpochFor(item.minedBlockHeight);
+        return QVariant(QDateTime::fromSecsSinceEpoch(timestamp));
     }
     case FundsIn: {
         qint64 value = 0;
@@ -252,10 +259,10 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     auto item = m_wallet->m_walletTransactions.at(m_rowsProxy.at(row));
     if (item.minedBlockHeight <= 0)
         return QString();
-    auto header = FloweePay::instance()->p2pNet()->blockchain().block(item.minedBlockHeight);
-    if (header.nTime == 0)
+    auto timestamp = secsSinceEpochFor(item.minedBlockHeight);
+    if (timestamp == 0)
         return QString();
-    return QDateTime::fromSecsSinceEpoch(header.nTime).toString("MMMM yyyy");
+    return QDateTime::fromSecsSinceEpoch(timestamp).toString("MMMM yyyy");
 }
 
 void WalletHistoryModel::appendTransactions(int firstNew, int count)
@@ -335,8 +342,7 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
     if (blockheight <= 0) {
         timestamp = time(nullptr);
     } else {
-        const auto &bc = FloweePay::instance()->p2pNet()->blockchain();
-        timestamp = bc.block(blockheight).nTime;
+        timestamp = secsSinceEpochFor(blockheight);
     }
     assert(timestamp > 0);
 
@@ -366,6 +372,11 @@ void WalletHistoryModel::setIncludeFlags(const QFlags<WalletEnums::Include> &fla
         return;
     m_recreateTriggered = true;
     QTimer::singleShot(0, this, SLOT(createMap()));
+}
+
+uint32_t WalletHistoryModel::secsSinceEpochFor(int blockHeight) const
+{
+    return FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
 }
 
 int WalletHistoryModel::lastSyncIndicator() const
