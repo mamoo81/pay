@@ -24,7 +24,6 @@ Item {
     id: root
     height: indicator.height + 3 + (done ? 0 : circleShape.height)
     property QtObject account: null
-    property bool hideWhenDone: false
     property bool done: false
     property int startPos: account.initialBlockHeight
     onAccountChanged: {
@@ -38,7 +37,7 @@ Item {
         let currentPos = account.lastBlockSynched;
         // only show the progress-circle when its more than 2 days behind
         // and we are not synched
-        done = end - startPos < 300 || end - currentPos < 2;
+        done = end - startPos < 300 || end - currentPos <= 6;
     }
 
     // The 'progress' circle.
