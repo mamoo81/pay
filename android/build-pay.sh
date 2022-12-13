@@ -33,12 +33,11 @@ if test -z "$_pay_native_name_"; then
     exit
 fi
 
-
 # check if the provided dir is really an android HUB-libs dir
 _thehub_dir_=`realpath $_thehub_dir_`
 _ok=0
 if test -f $_thehub_dir_/lib/libflowee_p2p.a; then
-    if grep -q OS_ANDROID $_thehub_dir_/build.ninja; then
+    if grep -q -- -DANDROID $_thehub_dir_/build.ninja; then
     _ok=1
     fi
 fi
