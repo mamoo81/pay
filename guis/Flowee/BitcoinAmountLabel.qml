@@ -35,7 +35,7 @@ QQC2.Control {
      * This is only used if you fill it with a date object.
      */
     property var fiatTimestamp: null
-    property color color: palette.text
+    property color color: palette.windowText
     property alias fontPixelSize: main.font.pixelSize
 
     implicitHeight: row.implicitHeight

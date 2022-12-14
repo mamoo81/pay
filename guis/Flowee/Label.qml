@@ -20,5 +20,5 @@ import QtQuick.Controls as QQC2
 QQC2.Label {
     // With Qt6.4 on Android, this extra line is needed to
     // get the label to follow the app-color-style
-    color: mainWindow.palette.text
+    color: mainWindow.palette.windowText
 }

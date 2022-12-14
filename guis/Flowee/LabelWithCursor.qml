@@ -41,7 +41,7 @@ Item {
 
     Label {
         id: begin
-        color: palette.text
+        color: palette.windowText
         text: {
             var fullText = root.text
             var cutPoint = parent.cursorPos - parent.startPos;
@@ -67,7 +67,7 @@ Item {
                 return cutPoint <= parent.stringLength
             return cutPoint < parent.stringLength
         }
-        color: cursorVisible ? begin.palette.text : "#00000000"
+        color: cursorVisible ? begin.palette.windowText : "#00000000"
         property bool cursorVisible: true
         Timer {
             id: blinkingCursor

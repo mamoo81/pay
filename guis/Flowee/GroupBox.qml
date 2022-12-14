@@ -70,7 +70,7 @@ QQC2.Control {
         Text {
             id: titleLabel
             x: 3
-            color: root.palette.text
+            color: root.palette.windowText
 
             // focus indicator
             Rectangle {
@@ -90,7 +90,7 @@ QQC2.Control {
             anchors.leftMargin: 20
             visible: root.effectiveCollapsed && text !== ""
             font.italic: true
-            color: root.palette.text
+            color: root.palette.windowText
         }
     }
 

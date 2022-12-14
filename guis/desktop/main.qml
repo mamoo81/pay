@@ -465,7 +465,7 @@ ApplicationWindow {
                         }
                         colorize: false
                         showFiat: false
-                        color: mainWindow.palette.text
+                        color: mainWindow.palette.windowText
                         fontPixelSize: {
                             if (leftColumn.width < 240) // max width is 252
                                 return leftColumn.width / 7
@@ -567,7 +567,7 @@ ApplicationWindow {
                         Timer {
                             id: animTimer
                             interval: 305
-                            onTriggered: fiatValue.color = fiatValue.palette.text
+                            onTriggered: fiatValue.color = fiatValue.palette.windowText
                         }
                     }
 

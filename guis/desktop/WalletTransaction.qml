@@ -84,7 +84,7 @@ Item {
         }
         opacity: txRoot.isRejected ? 1 : 0.5
         font.pointSize: mainLabel.font.pointSize * 0.8
-        color: txRoot.isRejected ? (Pay.useDarkSkin ? "#ec2327" : "#b41214") : palette.text
+        color: txRoot.isRejected ? (Pay.useDarkSkin ? "#ec2327" : "#b41214") : palette.windowText
 
         Component.onCompleted: updateText()
         Timer {

@@ -56,7 +56,7 @@ Item {
                 if (!root.enabled)
                     return "darkgray"
                 if (root.checked && Pay.useDarkSkin)
-                    return mainWindow.palette.text;
+                    return mainWindow.palette.windowText;
                 return mainWindow.palette.highlight
             }
             Behavior on x { NumberAnimation {}}
@@ -87,7 +87,7 @@ Item {
         anchors.left: slider.right
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 6
-        color: enabled ? palette.text : "darkgray"
+        color: enabled ? palette.windowText : "darkgray"
     }
 
     Rectangle {
@@ -99,7 +99,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 16
         radius: width
-        color: q.palette.text
+        color: q.palette.windowText
         Label {
             id: q
             text: "?"

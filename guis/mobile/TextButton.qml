@@ -44,7 +44,7 @@ Item {
         anchors.topMargin: 6
         font.pointSize: mainWindow.font.poinSize * 0.7
         font.bold: false
-        color: Qt.darker(palette.text, 1.5)
+        color: Qt.darker(palette.windowText, 1.5)
     }
     MouseArea {
         anchors.fill: parent

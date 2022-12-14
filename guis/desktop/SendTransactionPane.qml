@@ -171,8 +171,8 @@ Item {
                         Layout.fillWidth: true
                         // Change the color when the portfolio changed since 'prepare' was clicked.
                         color: prepareButton.portfolioUsed === portfolio.current
-                                ? palette.text
-                                : Qt.darker(palette.text, (Pay.useDarkSkin ? 1.6 : 0.4))
+                                ? palette.windowText
+                                : Qt.darker(palette.windowText, (Pay.useDarkSkin ? 1.6 : 0.4))
                         menuText: qsTr("Copy transaction-ID")
                     }
                     Label {
@@ -317,7 +317,7 @@ Item {
                                 if (!activeFocus && text !== "" && !addressOk)
                                     color = Pay.useDarkSkin ? "#ff6568" : "red"
                                 else
-                                    color = mainWindow.palette.text
+                                    color = mainWindow.palette.windowText
                             }
                         }
                         Label {
