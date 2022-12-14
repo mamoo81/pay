@@ -67,6 +67,7 @@ fi
 
 if test ! -f .config; then
     cat << HERE > .config
+#!/bin/bash
 cd /home/builds/build
 
 if ! test -f build.ninja; then
@@ -112,23 +113,6 @@ if test "\$1" = "distclean"; then
     perl -e 'use File::Path qw(remove_tree); opendir DIR, "."; while (\$entry = readdir DIR) { if (\$entry=~/^\./) { next; } if (\$entry=~/smartBuild.sh$/ || \$entry=~/^imports$/) { next; } unlink "\$entry"; remove_tree "\$entry"; }'
 fi
 
-if test ! -f build.ninja; then
-    cp -n imports/*qm .
-    docker run --rm -ti\
-        --volume=`pwd`:/home/builds/build \
-        --volume=$floweePaySrcDir:/home/builds/src \
-        --volume=$_thehub_dir_:/home/builds/floweelibs \
-        $_docker_name_ \
-        build/.config
-fi
-
-if test -f android-build/assets/blockheaders -a ! -f android-build/assets/blockheaders.info; then
-    imports/blockheaders-meta-extractor android-build/assets
-fi
-if test -f $floweePaySrcDir/android/netlog.conf; then
-    cp $floweePaySrcDir/android/netlog.conf android-build/assets/
-fi
-
 if test "\$1" = "sign" -o "\$2" = "sign"
 then
     MAKE_SIGNED_APK=1
@@ -138,21 +122,44 @@ else
   fi
 fi
 
-docker run --rm -ti\
-    --volume=`pwd`:/home/builds/build \
-    --volume=$floweePaySrcDir:/home/builds/src \
-    --volume=$_thehub_dir_:/home/builds/floweelibs \
-    $_docker_name_ \
-    "/usr/bin/ninja -C build pay_mobile pay_mobile_prepare_apk_dir \$MAKE_UNSIGNED_APK"
+if test -f .docker; then
+    DOCKERID=\`cat .docker\`
+    if test -n "\$DOCKERID"; then
+        if test -z "\`docker container inspect \$DOCKERID | grep '"Status": "running"'\`"; then
+            echo "docker image died, removing"
+            docker container rm \$DOCKERID
+            DOCKERID=""
+        fi
+    fi
+fi
+if test -z "\$DOCKERID"; then
+    echo "starting docker container"
+    DOCKERID=\`docker run -d -ti \\
+        --volume=`pwd`:/home/builds/build \\
+        --volume=$floweePaySrcDir:/home/builds/src \\
+        --volume=$_thehub_dir_:/home/builds/floweelibs \\
+        flowee/buildenv-android:v6.4.1 /bin/bash\`
+    echo "\$DOCKERID" > .docker
+fi
+execInDocker="docker container exec --workdir /home/builds --user \`id -u\` \$DOCKERID"
+
+if test ! -f build.ninja; then
+    cp -n imports/*qm .
+    \$execInDocker build/.config
+fi
+
+if test -f android-build/assets/blockheaders -a ! -f android-build/assets/blockheaders.info; then
+    imports/blockheaders-meta-extractor android-build/assets
+fi
+if test -f $floweePaySrcDir/android/netlog.conf; then
+    cp $floweePaySrcDir/android/netlog.conf android-build/assets/
+fi
+
+\$execInDocker /usr/bin/ninja -C build pay_mobile pay_mobile_prepare_apk_dir \$MAKE_UNSIGNED_APK
 
 if test -n "\$MAKE_SIGNED_APK"
 then
-    docker run --rm -ti\
-        --volume=`pwd`:/home/builds/build \
-        --volume=$floweePaySrcDir:/home/builds/src \
-        --volume=$_thehub_dir_:/home/builds/floweelibs \
-        $_docker_name_ \
-        build/.sign
+    \$execInDocker build/.sign
     echo -n "-- COPYING: "
     cp -v android-build//build/outputs/apk/release/android-build-release-signed.apk floweepay.apk
 fi
