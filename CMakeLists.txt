@@ -68,6 +68,9 @@ function(download_file url path)
     endif()
 endfunction()
 
+# The cmake system name will hold values like Android, Linux or others.
+add_compile_definitions(TARGET_OS_${CMAKE_SYSTEM_NAME})
+
 ###### Translations
 
 if(NOT ANDROID)

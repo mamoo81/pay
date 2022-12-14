@@ -20,9 +20,6 @@ option(local_qml "Allow local QML loading" OFF)
 option(networkLog "Include network-logging client" OFF)
 option(NetworkLogClient "Include the network based logging in the executables" OFF)
 
-add_compile_definitions(TARGET_OS_${CMAKE_SYSTEM_NAME})
-# The cmake system name will hold values like Android, Linux or others.
-
 set (PAY_SOURCES
     AccountInfo.cpp
     AddressInfo.cpp
