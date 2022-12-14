@@ -19,7 +19,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
-import QtQuick.Shapes
 import "../Flowee" as Flowee
 import "../ControlColors.js" as ControlColors
 import Flowee.org.pay
