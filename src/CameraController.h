@@ -79,6 +79,7 @@ private slots:
     void initialize();
     void qrScanFinished();
     void checkState();
+    void checkState2();
 
 private:
     CameraControllerPrivate * d;

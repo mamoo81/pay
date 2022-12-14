@@ -133,6 +133,7 @@ void CameraControllerPrivate::initCamera()
     QCamera *cam = qobject_cast<QCamera *>(camera);
     if (!cam)
         return;
+    cam->stop(); // workaround for why some phones don't scan the first time.
     QCameraFormat preferred;
     bool preferredIsCheap = false;
     for (const auto &format : cam->cameraDevice().videoFormats()) {
@@ -206,23 +207,29 @@ void CameraControllerPrivate::checkState()
         if (cam->error() != QCamera::NoError)
             logFatal() << "CameraController found cam error:" << cam->errorString();
 
+        cam->stop(); // workaround for why some phones don't scan the first time.
         cam->setCameraFormat(preferredFormat);
         cam->setFocusMode(QCamera::FocusModeAutoNear); // macro focus mode.
         cam->setWhiteBalanceMode(QCamera::WhiteBalanceAuto); // avoid flash
-        cameraStarted = true;
-
-        QObject::connect(sink, &QVideoSink::videoFrameChanged, q, [=](const QVideoFrame &frame) {
-            currentFrame = frame;
-
-            if (!m_scanningThread) {
-                m_scanningThread = new QRScanningThread(this);
-                QObject::connect (m_scanningThread, SIGNAL(finished()), q, SLOT(qrScanFinished()), Qt::QueuedConnection);
-                m_scanningThread->start();
-            }
-        });
-        logDebug() << "Camera active is now true";
-        emit q->cameraActiveChanged(); // this emit makes QML activate the camera
+        QTimer::singleShot(300, q, SLOT(checkState2()));
     }
+}
+
+void CameraController::checkState2()
+{
+    d->cameraStarted = true;
+    auto sink = qobject_cast<QVideoSink*>(d->videoSink);
+    QObject::connect(sink, &QVideoSink::videoFrameChanged, this, [=](const QVideoFrame &frame) {
+        d->currentFrame = frame;
+
+        if (!d->m_scanningThread) {
+            d->m_scanningThread = new QRScanningThread(d);
+            QObject::connect (d->m_scanningThread, SIGNAL(finished()), this, SLOT(qrScanFinished()), Qt::QueuedConnection);
+            d->m_scanningThread->start();
+        }
+    });
+    logDebug() << "Camera active is now true";
+    emit cameraActiveChanged(); // this emit makes QML activate the camera
 }
 
 // --------------------------------------------------------------------
