@@ -63,6 +63,5 @@ ApplicationWindow {
 
     QRScannerOverlay {
         anchors.fill: parent
-        visible: CameraController.visible
     }
 }

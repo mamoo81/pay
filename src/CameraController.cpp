@@ -63,6 +63,7 @@ public:
 
     mutable QMutex lock;
     QVideoFrame currentFrame;
+    QCameraFormat preferredFormat;
 
     bool cameraLoaded = false;
     bool cameraStarted = false;
@@ -104,7 +105,13 @@ CameraControllerPrivate::CameraControllerPrivate(CameraController *qq)
     auto guiApp = qobject_cast<QGuiApplication*>(QCoreApplication::instance());
     assert(guiApp);
     QObject::connect(guiApp, &QGuiApplication::applicationStateChanged, qq, [=](Qt::ApplicationState appState) {
-        if (appState == Qt::ApplicationInactive) {
+        // the application state will turn to "Inactive" when the Android dialog
+        // asking permissions is put on top, and when the user enters data, we are
+        // turned into active again.
+        // So check if we are already authorized as that avoid us turning off
+        // the camera just after turning it on the first time.
+        if (state == Authorized && appState == Qt::ApplicationInactive) {
+            logInfo() << "App state inactive, turning off camera";
             // when the user leaves the app screen, the permissions granted to us
             // may have changed, so we need to re-ask.
             state = NotAsked;
@@ -161,7 +168,7 @@ void CameraControllerPrivate::initCamera()
             if (preferredIsCheap && !formatIsCheap)
                 continue;
             // avoid going for the biggest feed, but not too small either.
-            if (oldSize.width() < 210 || (size.width() < oldSize.width() && size.width() >= 210)) {
+            if (oldSize.width() < 600 || (size.width() < oldSize.width() && size.width() >= 600)) {
                 preferred = format;
                 logInfo() << "picked";
             }
@@ -171,34 +178,39 @@ void CameraControllerPrivate::initCamera()
             }
         }
     }
-    logCritical().nospace() << "Changing camera resolution to " << preferred.resolution().width() << "x" << preferred.resolution().height();
-    cam->setCameraFormat(preferred);
-    cam->setFocusMode(QCamera::FocusModeAutoNear); // macro focus mode.
-    cam->setWhiteBalanceMode(QCamera::WhiteBalanceAuto); // avoid flash
+    logCritical().nospace() << "Selected camera resolution: " << preferred.resolution().width() << "x" << preferred.resolution().height();
+    preferredFormat = preferred;
 }
 
 void CameraControllerPrivate::checkState()
 {
     if (state != Authorized)
         return;
-    if (!cameraLoaded) {
+    if (!cameraLoaded || !visible) {
         cameraLoaded = true;
-        emit q->loadCameraChanged();
-    }
-    if (!visible) {
         visible = true;
         emit q->visibleChanged();
+        emit q->loadCameraChanged();
+
+        // then wait 300ms before turning on the actual camera
+        QTimer::singleShot(300, q, SLOT(checkState()));
+        return;
     }
     if (camera && videoSink && !cameraStarted && scanRequest.get()) {
-        logFatal() << "Camera active is now true";
-        cameraStarted = true;
-        emit q->cameraActiveChanged();
         QCamera *cam = qobject_cast<QCamera *>(camera);
-        if (cam && cam->error() != QCamera::NoError)
+        auto sink = qobject_cast<QVideoSink*>(videoSink);
+        if (!cam || !sink) { // here to detect bug in QML
+            logFatal() << "invalid or no camera or sink object set";
+            return;
+        }
+        if (cam->error() != QCamera::NoError)
             logFatal() << "CameraController found cam error:" << cam->errorString();
 
-        auto sink = qobject_cast<QVideoSink*>(videoSink);
-        assert(sink); // here to detect bug in QML
+        cam->setCameraFormat(preferredFormat);
+        cam->setFocusMode(QCamera::FocusModeAutoNear); // macro focus mode.
+        cam->setWhiteBalanceMode(QCamera::WhiteBalanceAuto); // avoid flash
+        cameraStarted = true;
+
         QObject::connect(sink, &QVideoSink::videoFrameChanged, q, [=](const QVideoFrame &frame) {
             currentFrame = frame;
 
@@ -208,6 +220,8 @@ void CameraControllerPrivate::checkState()
                 m_scanningThread->start();
             }
         });
+        logDebug() << "Camera active is now true";
+        emit q->cameraActiveChanged(); // this emit makes QML activate the camera
     }
 }
 
@@ -290,9 +304,6 @@ void QRScanningThread::run()
                 return;
             }
         }
-
-        // No matches. We go for another round.
-        // we assume at least 33ms has passed (at 30 frames that is the frame-rate) and we'll be parsing the next frame on loop
     }
 }
 
@@ -411,43 +422,73 @@ CameraController::CameraController(QObject *parent)
     : QObject(parent),
     d(new CameraControllerPrivate(this))
 {
+    // pre-load the camera for stability sake
+    QTimer::singleShot(3000, this, SLOT(initialize()));
+
+    // The Android permissions requesting stuff returns results in a different thread,
+    // allow an easy way to move back to the main thread using a connection.
+    QObject::connect(this, SIGNAL(startCheckState()), this, SLOT(checkState()), Qt::QueuedConnection);
 }
+
+void CameraController::initialize()
+{
+#ifdef TARGET_OS_Android
+    QMutexLocker locker(&d->lock);
+    if (d->state == NotAsked) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+        auto future = QtAndroidPrivate::checkPermission(QtAndroidPrivate::Camera);
+        future.then([=](QtAndroidPrivate::PermissionResult res) {
+            if (res == QtAndroidPrivate::PermissionResult::Authorized) {
+                // the camera had been authorized before, load the camera components in the UI.
+                d->cameraLoaded = true;
+                emit loadCameraChanged();
+            }
+        });
+#endif
+    }
+#endif
+}
+
 
 void CameraController::startRequest(QRScanner *request)
 {
     assert(request);
     d->scanRequest = request;
+
+    if (!d->visible) {
+        d->visible = true;
+        emit visibleChanged();
+    }
+
     if (d->state == NotAsked) {
 #ifdef TARGET_OS_Android
 #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
         // we expect that in Qt65 this API will be changed or removed as the QCoreApplication::requestPermission will then become available.
         // for now, use the private APIs (since 6.5 is still 4 months from release)
-
         d->state = Asking;
-        logCritical() << "Starting to ask for permission for camera usage";
         auto future = QtAndroidPrivate::checkPermission(QtAndroidPrivate::Camera);
         future.then([=](QtAndroidPrivate::PermissionResult res) {
-            logCritical() << "Check permission returned: " << res;
             if (res == QtAndroidPrivate::PermissionResult::Authorized) {
                 d->state = Authorized;
-                d->checkState();
+                emit startCheckState();
             }
             else {
-                logCritical() << "We are starting to request permissions";
                 // then ask
                 auto future = QtAndroidPrivate::requestPermission(QtAndroidPrivate::Camera);
                 future.then([=](QtAndroidPrivate::PermissionResult res) {
-                    logCritical() << "Permission request result: " << res << (res == QtAndroidPrivate::Authorized);
                     if (res == QtAndroidPrivate::Authorized) {
                         d->state = Authorized;
                         // move the actual turning on of the camera to the next event.
-                        QTimer::singleShot(10, this, SLOT(checkState()));
+                        // please notice that this reply came in a different thread than the main one.
+                        // We must move back to the main one before doing anything.
+                        emit startCheckState();
                     } else {
                         d->state = Denied;
                     }
                 });
             }
         });
+        return;
 #endif // version check
 #else
         d->state = Authorized;

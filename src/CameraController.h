@@ -30,8 +30,8 @@ class QRScanner;
  *
  * a. user action causes a QRScanner QML object to be populated and activated,
       which is backed by a cpp class of the same name.
- * b. we get a 'startRequest' call, we set visible to true.
- * c. we check for authorization, if granted we set loadCamera to true.
+ * b. we get a 'startRequest' call, we set loadCamera to true.
+ * c. we check for authorization, if granted we set visible to true.
  * d. the QML populates our qmlCamera and videoSink properties
  * e. we check the camera setup, setting the best resolution and stuff.
  * f. we 'start' the camera by setting the cameraActive bool to true, which the QML uses.
@@ -72,7 +72,11 @@ signals:
     void cameraActiveChanged();
     void visibleChanged();
 
+    // \internal (used to move thread)
+    void startCheckState();
+
 private slots:
+    void initialize();
     void qrScanFinished();
     void checkState();
 
