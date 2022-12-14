@@ -25,6 +25,8 @@ Item {
     id: root
     property bool open: false
 
+    onOpenChanged: if (!open) baseArea.openAccounts = false; // close the accounts when the menu is closed
+
     Rectangle {
         anchors.fill: parent
         opacity: {
