@@ -104,7 +104,7 @@ void Payment::setTargetAddress(const QString &address_)
                     emit amountChanged();
                 }
             }
-            else if (item.first == "label") {
+            else if (item.first == "label" || item.first == "message") {
                 setUserComment(item.second);
             }
         }
