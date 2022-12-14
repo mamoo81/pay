@@ -9,12 +9,13 @@ echo "Based on Qt version $TAG" >> /etc/versions
 source /etc/profile
 
 function checkout (
+    repo=$1
     (cd /usr/local/cache
-    if ! test -d $1.git; then
-        git clone --bare https://code.qt.io/qt/$1.git
+    if ! test -d $repo.git; then
+        git clone --bare https://code.qt.io/qt/$repo.git
     fi
     cd ~builduser
-    git clone -l /usr/local/cache/$1.git -b $TAG)
+    git clone -l /usr/local/cache/$repo.git -b $TAG)
 )
 
 # The QtBase builds are different.
