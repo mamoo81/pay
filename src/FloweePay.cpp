@@ -48,6 +48,7 @@ constexpr const char *UNIT_TYPE = "unit";
 constexpr const char *CREATE_START_WALLET = "create-start-wallet";
 constexpr const char *WINDOW_WIDTH = "window/width";
 constexpr const char *WINDOW_HEIGHT = "window/height";
+constexpr const char *FONTSCALING = "window/font-scaling";
 constexpr const char *DARKSKIN = "darkSkin";
 constexpr const char *HIDEBALANCE = "hideBalance";
 constexpr const char *USERAGENT = "net/useragent";
@@ -110,6 +111,7 @@ FloweePay::FloweePay()
     m_windowWidth = defaultConfig.value(WINDOW_WIDTH, -1).toInt();
     m_darkSkin = defaultConfig.value(DARKSKIN, true).toBool();
     m_dspTimeout = defaultConfig.value(DSPTIMEOUT, 3000).toInt();
+    m_fontScaling = defaultConfig.value(FONTSCALING, 100).toInt();
     m_createStartWallet = defaultConfig.value(CREATE_START_WALLET, false).toBool();
 
     QSettings appConfig;
@@ -117,6 +119,7 @@ FloweePay::FloweePay()
     m_windowHeight = appConfig.value(WINDOW_HEIGHT, m_windowHeight).toInt();
     m_windowWidth = appConfig.value(WINDOW_WIDTH, m_windowWidth).toInt();
     m_darkSkin = appConfig.value(DARKSKIN, m_darkSkin).toBool();
+    m_fontScaling = appConfig.value(FONTSCALING, m_fontScaling).toInt();
     m_dspTimeout = appConfig.value(DSPTIMEOUT, m_dspTimeout).toInt();
     m_hideBalance = appConfig.value(HIDEBALANCE, false).toBool();
 
@@ -697,6 +700,8 @@ void FloweePay::setFontScaling(int newFontScaling)
         return;
     m_fontScaling = newFontScaling;
     emit fontScalingChanged();
+    QSettings appConfig;
+    appConfig.setValue(FONTSCALING, m_fontScaling);
 }
 
 PriceDataProvider *FloweePay::prices() const

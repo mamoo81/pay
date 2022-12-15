@@ -37,12 +37,14 @@ ApplicationWindow {
         if (!isLoading)
             thePile.replace("./MainView.qml");
     }
-    Component.onCompleted: {
-        var scale = Pay.fontScaling;
-        mainWindow.font.bold = scale > 90;
-        mainWindow.font.fontPtSize = scale > 90;
-        var baseFromOS = mainWindow.font.pointSize;
-        mainWindow.font.pointSize = baseFromOS + 2 * (scale / 100)
+    Component.onCompleted: updateFontSize();
+    function updateFontSize() {
+        // 75% = > 14.25,  100% => 19,  200% => 28
+        mainWindow.font.pixelSize = 17 + (11 * (Pay.fontScaling-100) / 100)
+    }
+    Connections {
+        target: Pay
+        function onFontScalingChanged() { updateFontSize(); }
     }
 
     property color floweeSalmon: "#ff9d94"

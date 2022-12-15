@@ -24,7 +24,6 @@ import "../Flowee" as Flowee
 Item {
     id: root
     property bool open: false
-    clip: true
 
     onOpenChanged: if (!open) baseArea.openAccounts = false; // close the accounts when the menu is closed
 
@@ -45,6 +44,7 @@ Item {
         width: 300
         height: parent.height
         x: root.open ? 0 : 0 - width -3
+        clip: true
 
         Rectangle {
             id: baseArea

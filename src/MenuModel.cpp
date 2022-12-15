@@ -24,6 +24,7 @@ MenuModel::MenuModel(QObject *parent)
     // m_root.children.append({tr("Accounts"), "AccountsList.qml", {}});
     m_root.children.append({tr("Network Details"), "./NetView.qml", {}});
     m_root.children.append({tr("About"), "./About.qml", {}});
+    m_root.children.append({tr("Settings"), "./GuiSettings.qml", {}});
     /*
     m_root.children.append({tr("Settings"), "", {
             { tr("Security"), "", {} },
