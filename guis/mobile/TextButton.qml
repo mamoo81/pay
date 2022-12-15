@@ -22,6 +22,7 @@ Item {
     id: root
     width: parent.width
     height: label.height + (smallLabel.text === "" ? 0 : smallLabel.height + 6) + 20
+    baselineOffset: label.baselineOffset + 10
 
     signal clicked
     property alias text: label.text
