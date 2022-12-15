@@ -49,8 +49,17 @@ Item {
         Rectangle {
             id: baseArea
             width: parent.width
-            height: logo.height + 20 + Math.max(currentAccountName.height, 12) + 10
-                    + (openAccounts ? extraOptions.height  + 10: 0)
+            height: {
+                var h = logo.height + 20;
+                // if its opened
+                if (openAccounts)
+                    h = h + extraOptions.height + 10
+                // but we just don't show the accounts at all if
+                // this is the initial empty wallet.
+                if (!isLoading && portfolio.current.isUserOwned)
+                    h = h+ Math.max(currentAccountName.height, 12) + 10
+                return h;
+            }
             color: Qt.lighter(mainWindow.palette.base)
             property bool openAccounts: false
             clip: true
@@ -102,8 +111,6 @@ Item {
                 text: {
                     if (mainWindow.isLoading)
                         return ""
-                    if (!portfolio.current.isUserOwned || portfolio.accounts.length === 1)
-                        return qsTr("My Wallet");
                     return portfolio.current.name
                 }
             }
@@ -132,50 +139,24 @@ Item {
             ColumnLayout {
                 id: extraOptions
                 width: baseArea.width - 20
-                anchors.top: currentAccountName.bottom
-                anchors.topMargin: 20
+                y: logo.height + 20 + (currentAccountName.visible ? currentAccountName.height + 10 : 0)
                 x: 10
                 Repeater { // portfolio holds all our accounts
                     width: parent.width
                     model: mainWindow.isLoading ? 0 : portfolio.accounts
                     TextButton {
                         text: modelData.name
-                        onClicked: portfolio.current = modelData
-                    }
-                }
-                Item {
-                    id: addWalletRow
-                    width: parent.width
-                    height: addWalletButton.height
-                    Rectangle {
-                        id: horizontalBar
-                        width: 10
-                        height: 2
-                        x: 2
-                        color: mainWindow.palette.mid
-                        anchors.verticalCenter:verticalBar.verticalCenter
-                    }
-                    Rectangle {
-                        id: verticalBar
-                        y: 18 // base on our height and the TextButton 10px spacing at the top
-                        width: 2
-                        height: 10
-                        anchors.horizontalCenter: horizontalBar.horizontalCenter
-                        color: mainWindow.palette.mid
-                    }
-                    TextButton {
-                        id: addWalletButton
-                        text: qsTr("Add Wallet")
-                        showPageIcon: true
-                        anchors.left: horizontalBar.right
-                        anchors.leftMargin: 6
-                        anchors.right: parent.right
+                        visible: portfolio.current !== modelData
                         onClicked: {
-                            thePile.push("./NewAccount.qml")
-                            root.open = false
+                            portfolio.current = modelData
                             baseArea.openAccounts = false
                         }
                     }
+                }
+                Loader {
+                    width: parent.width
+                    active: !isLoading && portfolio.current.isUserOwned
+                    sourceComponent: addWalletRow
                 }
             }
 
@@ -202,6 +183,11 @@ Item {
                         }
                     }
                 }
+            }
+            Loader {
+                width: parent.width
+                active: isLoading || !portfolio.current.isUserOwned
+                sourceComponent: addWalletRow
             }
         }
 
@@ -251,4 +237,39 @@ Item {
         onClicked: root.open = false;
     }
 
+    Component {
+        id: addWalletRow
+        Item {
+            height: addWalletButton.height
+            Rectangle {
+                id: horizontalBar
+                width: 13
+                height: 2
+                x: 2
+                color: mainWindow.palette.mid
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Rectangle {
+                id: verticalBar
+                width: 2
+                height: 13
+                anchors.horizontalCenter: horizontalBar.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                color: mainWindow.palette.mid
+            }
+            TextButton {
+                id: addWalletButton
+                text: qsTr("Add Wallet")
+                showPageIcon: true
+                anchors.left: horizontalBar.right
+                anchors.leftMargin: 6
+                anchors.right: parent.right
+                onClicked: {
+                    thePile.push("./NewAccount.qml")
+                    root.open = false
+                    baseArea.openAccounts = false
+                }
+            }
+        }
+    }
 }
