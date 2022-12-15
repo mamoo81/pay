@@ -20,10 +20,19 @@
 #include "FloweePay.h"
 #include "CameraController.h"
 
+#include <QTimer>
+
 QRScanner::QRScanner(QObject *parent)
     : QObject(parent),
       m_scanType(static_cast<ScanType>(100))
 {
+    // after construction and after QML setting all the properties, run the 'completed' slot.
+    QTimer::singleShot(1, this, SLOT(completed()));
+}
+
+QRScanner::~QRScanner()
+{
+    abort();
 }
 
 void QRScanner::start()
@@ -74,4 +83,23 @@ void QRScanner::setScanResult(const QString &newScanResult)
 void QRScanner::resetScanResult()
 {
     setScanResult({});
+}
+
+bool QRScanner::autostart() const
+{
+    return m_autostart;
+}
+
+void QRScanner::setAutostart(bool newAutostart)
+{
+    if (m_autostart == newAutostart)
+        return;
+    m_autostart = newAutostart;
+    emit autostartChanged();
+}
+
+void QRScanner::completed()
+{
+    if (m_autostart)
+        start();
 }

@@ -27,8 +27,10 @@ class QRScanner : public QObject
     Q_OBJECT
     Q_PROPERTY(ScanType scanType READ scanType WRITE setScanType NOTIFY scanTypeChanged REQUIRED)
     Q_PROPERTY(QString scanResult READ scanResult WRITE setScanResult RESET resetScanResult NOTIFY scanResultChanged)
+    Q_PROPERTY(bool autostart READ autostart WRITE setAutostart NOTIFY autostartChanged)
 public:
     explicit QRScanner(QObject *parent = nullptr);
+    ~QRScanner();
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void abort();
@@ -51,14 +53,22 @@ public:
     void setScanResult(const QString &newScanResult);
     void resetScanResult();
 
+    bool autostart() const;
+    void setAutostart(bool newAutostart);
+
+private slots:
+    void completed();
+
 signals:
     void finished();
     void scanTypeChanged();
     void scanResultChanged();
+    void autostartChanged();
 
 private:
     ScanType m_scanType;
     QString m_scanResult;
+    bool m_autostart = false;
 };
 
 #endif

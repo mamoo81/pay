@@ -28,7 +28,7 @@ Page {
         QRScanner {
             id: scanner
             scanType: QRScanner.PaymentDetails
-            Component.onCompleted: scanner.start();
+            autostart: true
             onFinished: {
                 var rc = scanResult
                 if (rc === "") { // scanning failed
