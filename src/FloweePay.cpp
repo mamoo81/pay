@@ -25,7 +25,7 @@
 #include <ripemd160.h>
 #include <cashaddr.h>
 #include <streaming/MessageParser.h>
-#include <streaming/BufferPool.h>
+#include <streaming/BufferPools.h>
 #include <streaming/MessageBuilder.h>
 #include <random.h>
 #include <config/flowee-config.h>
@@ -299,7 +299,7 @@ void FloweePay::loadingCompleted()
 
 void FloweePay::saveData()
 {
-    Streaming::BufferPool data;
+    auto &data = Streaming::pool(m_wallets.size() * 100);
     Streaming::MessageBuilder builder(data);
     for (auto &wallet : m_wallets) {
         if (wallet->encryptionSeed() != 0)
@@ -314,6 +314,7 @@ void FloweePay::saveData()
 
     auto buf = builder.buffer();
 
+    // hash the new file and check if its different lest we can skip saving
     const QString filebase = m_basedir + AppdataFilename;
     QFile origFile(filebase);
     if (origFile.open(QIODevice::ReadOnly)) {
