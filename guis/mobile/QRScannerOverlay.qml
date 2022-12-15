@@ -23,18 +23,12 @@ import "../Flowee" as Flowee
 
 FocusScope {
     id: root
-    focus: true
     visible: CameraController.visible
+    enabled: visible
+    onVisibleChanged: if (visible) root.forceActiveFocus();
 
-    Connections {
-        target: CameraController
-        function onVisibleChanged() {
-            if (CameraController.visible)
-                root.forceActiveFocus();
-        }
-    }
     Keys.onPressed: (event)=> {
-        if (event.key === Qt.Key_Back) {
+        if (event.key === Qt.Key_Back || event.key === Qt.Key_Escape) {
             event.accepted = true;
             CameraController.abort();
         }
@@ -44,7 +38,6 @@ FocusScope {
         anchors.fill: parent
         color: mainWindow.palette.window
     }
-
 
     // We put the 'Camera' in a loader to avoid Android permissions to be popped up until the
     // feature is actually requisted by the user.
@@ -144,6 +137,7 @@ FocusScope {
 
             Camera {
                 id: camera
+                active: false
             }
             CaptureSession {
                 camera: camera
@@ -151,7 +145,6 @@ FocusScope {
             }
             VideoOutput {
                 id: videoOutput
-                visible: CameraController.cameraActive
                 fillMode: VideoOutput.Stretch
                 width: parent.width
                 height: parent.height
