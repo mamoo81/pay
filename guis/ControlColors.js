@@ -21,7 +21,7 @@ function applyDarkSkin(item) {
     item.palette.mid = "#6b6b6b"
     item.palette.midlight = "#41464c"
     item.palette.shadow = "#111111"
-    item.palette.text = "#fcfcfc"
+    item.palette.text = "#b2b2b2"
     item.palette.toolTipBase = "#31363b"
     item.palette.toolTipText = "#eff0f1"
     item.palette.window = "#232629"

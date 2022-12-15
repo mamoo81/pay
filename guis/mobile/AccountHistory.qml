@@ -211,10 +211,24 @@ ListView {
                 return qsTr("Sent");
             }
         }
-        Flowee.Label {
+        QQC2.Label {
             anchors.top: ruler.bottom
             anchors.left: commentLabel.left
-            text: Pay.formatDate(model.date);
+            color: palette.text
+            text: {
+                var date = model.date;
+                var today = new Date();
+                if (date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth()) {
+                    let day = today.getDate();
+                    if (date.getDate() === day || date.getDate() === day - 1) {
+                        // Then this is an item in the 'today' or the 'yesterday' group.
+                        // specify more specific date/time
+                        return date.getHours() + ":" + date.getMinutes()
+                    }
+                }
+
+                return Pay.formatDate(model.date);
+            }
         }
 
         Rectangle {
