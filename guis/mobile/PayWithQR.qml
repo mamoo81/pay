@@ -72,7 +72,7 @@ Page {
     }
     Flowee.FiatValueField  {
         id: priceFiat
-        value: Fiat.priceFor(payment.paymentAmount)
+        value: Fiat.priceFor(payment.paymentAmount, Fiat.price)
         anchors.top: priceBch.bottom
         anchors.topMargin: 18
         focus: true

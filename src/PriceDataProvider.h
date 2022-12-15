@@ -53,10 +53,6 @@ public:
     Q_INVOKABLE QString formattedPrice(double amountSats, int price) const;
     /// Return the price as int (in cents) for the number of sats and the given price.
     Q_INVOKABLE int priceFor(double amountSats, int price) const;
-    /// Return the price as int (in cents) for the number of sats and the current price.
-    Q_INVOKABLE int priceFor(double amountSats) const {
-        return priceFor(amountSats, m_currentPrice.price);
-    }
 
     /**
      * Return a formatted string with the locale-defined price of a fiat price from \a cents.
