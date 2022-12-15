@@ -36,7 +36,6 @@
         <file>mobile/PayWithQR.qml</file>
         <file>mobile/SlideToApprove.qml</file>
         <file>mobile/ReceiveTab.qml</file>
-        <file>mobile/SmallAccountSelector.qml</file>
         <file>mobile/GuiSettings.qml</file>
     </qresource>
 </RCC>

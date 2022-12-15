@@ -102,6 +102,8 @@ Item {
                 text: {
                     if (mainWindow.isLoading)
                         return ""
+                    if (!portfolio.current.isUserOwned || portfolio.accounts.length === 1)
+                        return qsTr("My Wallet");
                     return portfolio.current.name
                 }
             }

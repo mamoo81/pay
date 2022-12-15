@@ -63,11 +63,26 @@ ListView {
      */
     header: ColumnLayout {
         id: column
-        spacing: 10
         width: root.width - 20
         x: 10
         y: 10
         z: 10 // make sure the wallet Selector can cover the historical items
+
+        Flowee.BitcoinAmountLabel {
+            opacity: Pay.hideBalance ? 0.2 : 1
+            fontPixelSize: 34
+            value: {
+                if (Pay.hideBalance)
+                    return 88888888;
+                return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
+            }
+            colorize: false
+        }
+
+        AccountSyncState {
+            account: portfolio.current
+            width: parent.width
+        }
 
         Row {
             width: parent.width
@@ -91,27 +106,6 @@ ListView {
                 source: "qrc:/receive.svg"
                 onClicked: switchToTab(2) // receive tab
             }
-        }
-
-        SmallAccountSelector {
-            id: smallAccountSelector
-            width: parent.width
-            z: 10
-        }
-        Flowee.BitcoinAmountLabel {
-            opacity: Pay.hideBalance ? 0.2 : 1
-            Layout.alignment: Qt.AlignRight
-            value: {
-                if (Pay.hideBalance)
-                    return 88888888;
-                return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
-            }
-            colorize: false
-        }
-
-        AccountSyncState {
-            account: portfolio.current
-            width: parent.width
         }
 
         /* TODO
@@ -141,6 +135,8 @@ ListView {
             id: label
             x: 10
             y: 12
+            font.bold: true
+            font.pixelSize: mainWindow.font.pixelSize * 1.1
             text: portfolio.current.transactions.groupingPeriod(section);
         }
     }
