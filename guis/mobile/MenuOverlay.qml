@@ -24,6 +24,7 @@ import "../Flowee" as Flowee
 Item {
     id: root
     property bool open: false
+    clip: true
 
     onOpenChanged: if (!open) baseArea.openAccounts = false; // close the accounts when the menu is closed
 
@@ -140,14 +141,38 @@ Item {
                         onClicked: portfolio.current = modelData
                     }
                 }
-                TextButton {
-                    id: textButton
-                    text: qsTr("Add Wallet")
-                    showPageIcon: true
-                    onClicked: {
-                        thePile.push("./NewAccount.qml")
-                        root.open = false
-                        baseArea.openAccounts = false
+                Item {
+                    id: addWalletRow
+                    width: parent.width
+                    height: addWalletButton.height
+                    Rectangle {
+                        id: horizontalBar
+                        width: 10
+                        height: 2
+                        x: 2
+                        color: mainWindow.palette.mid
+                        anchors.verticalCenter:verticalBar.verticalCenter
+                    }
+                    Rectangle {
+                        id: verticalBar
+                        y: 18 // base on our height and the TextButton 10px spacing at the top
+                        width: 2
+                        height: 10
+                        anchors.horizontalCenter: horizontalBar.horizontalCenter
+                        color: mainWindow.palette.mid
+                    }
+                    TextButton {
+                        id: addWalletButton
+                        text: qsTr("Add Wallet")
+                        showPageIcon: true
+                        anchors.left: horizontalBar.right
+                        anchors.leftMargin: 6
+                        anchors.right: parent.right
+                        onClicked: {
+                            thePile.push("./NewAccount.qml")
+                            root.open = false
+                            baseArea.openAccounts = false
+                        }
                     }
                 }
             }
