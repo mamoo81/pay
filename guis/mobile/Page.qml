@@ -61,7 +61,7 @@ QQC2.Control {
             id: headerLabel
             color: "white"
             anchors.left: backButton.right
-            anchors.right: headerButton.left
+            anchors.right: headerButton.visible ? headerButton.left : parent.right
             horizontalAlignment: Text.AlignHCenter
             anchors.verticalCenter: parent.verticalCenter
         }
