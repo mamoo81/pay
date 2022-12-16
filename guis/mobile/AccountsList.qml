@@ -21,6 +21,15 @@ Page {
     id: root
     headerText: qsTr("Wallet Information")
 
+    function indexOfCurrentAccount() {
+        var list = tabBar.model;
+        var cur = portfolio.current
+        for (let i = 0; i < list.length; i = i + 1) {
+            if (list[i] === cur) return i;
+        }
+        return 0;
+    }
+
     ListView {
         id: tabBar
         model: {
@@ -28,6 +37,8 @@ Page {
             for (let a of portfolio.archivedAccounts) {
                 accounts.push(a);
             }
+            if (accounts.length === 0)
+                accounts.push(portfolio.current)
             return accounts;
         }
 
@@ -35,7 +46,8 @@ Page {
         width: parent.width
         anchors.top: parent.top
         height: 50
-        boundsBehavior: Flickable.DragOverBounds
+        boundsBehavior: Flickable.StopAtBounds
+        currentIndex: indexOfCurrentAccount();
 
         delegate: Rectangle {
             color: {
@@ -77,6 +89,7 @@ Page {
         boundsBehavior: Flickable.DragOverBounds
         clip: true
         cacheBuffer: 2
+        currentIndex: indexOfCurrentAccount();
         onCurrentIndexChanged: tabBar.currentIndex = currentIndex
         onContentXChanged: {
             var pos = contentX;
