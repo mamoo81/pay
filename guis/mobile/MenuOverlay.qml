@@ -163,41 +163,50 @@ Item {
             Behavior on height { NumberAnimation { } }
         }
 
-        ColumnLayout {
+        Flickable {
             anchors.top: baseArea.bottom
             anchors.topMargin: 10
+            anchors.bottom: versionLabel.top
+            contentHeight: contentLayout.height
             width: parent.width - 20
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds // don't show this is a flickable if there is no space issues
             x: 10
-
-            Repeater {
-                model: MenuModel
-
-                TextButton {
-                    text: model.name
-                    showPageIcon: true
-                    onClicked: {
-                        var target = model.target
-                        if (target !== "") {
-                            thePile.push(model.target)
-                            root.open = false;
+            ColumnLayout {
+                id: contentLayout
+                width: parent.width
+                Repeater {
+                    model: MenuModel
+                    TextButton {
+                        text: model.name
+                        showPageIcon: true
+                        onClicked: {
+                            var target = model.target
+                            if (target !== "") {
+                                thePile.push(model.target)
+                                root.open = false;
+                            }
                         }
                     }
                 }
-            }
-            Loader {
-                width: parent.width
-                active: isLoading || !portfolio.current.isUserOwned
-                sourceComponent: addWalletRow
+                Loader {
+                    width: parent.width
+                    active: isLoading || !portfolio.current.isUserOwned
+                    sourceComponent: addWalletRow
+                }
             }
         }
 
         Flowee.Label {
+            id: versionLabel
+            x: 10
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 5
-            x: 10
             text: "Flowee Pay (mobile) v" + Application.version
             font.pointSize: mainWindow.font.pointSize * 0.9
             font.bold: false
+            wrapMode: Text.Wrap
+            width: parent.width - 20
         }
 
         Behavior on x { NumberAnimation { duration: 100 } }
