@@ -332,6 +332,7 @@ Item {
                         text: paymentDetail.formattedTarget
                         horizontalAlignment: Qt.AlignRight
                         font.italic: true
+                        menuText: qsTr("Copy Address")
                     }
                     Item {
                         id: addressInfo

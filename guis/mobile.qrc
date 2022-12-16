@@ -37,5 +37,8 @@
         <file>mobile/SlideToApprove.qml</file>
         <file>mobile/ReceiveTab.qml</file>
         <file>mobile/GuiSettings.qml</file>
+        <file>mobile/AccountsList.qml</file>
+        <file>mobile/AccountPageListItem.qml</file>
+        <file>mobile/VisualSeparator.qml</file>
     </qresource>
 </RCC>

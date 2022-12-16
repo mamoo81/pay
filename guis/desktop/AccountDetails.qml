@@ -112,21 +112,9 @@ Item {
                     return qsTr("Sync Status") + ": " + height + " / " + Pay.chainHeight + time;
                 }
             }
-            Label {
+            Flowee.AccountTypeLabel {
                 Layout.columnSpan: 2
-                id: walletType
-                visible: root.account.isDecrypted || root.account.needsPinToPay
-                font.italic: true
-                text: {
-                    if (root.account.isSingleAddressAccount)
-                        return qsTr("This wallet is a single-address wallet.")
-
-                    if (root.account.isHDWallet)
-                        return qsTr("This wallet is based on a HD seed-phrase")
-
-                     // ok we only have one more type so far, so this is rather simple...
-                    return qsTr("This wallet is a simple multiple-address wallet.")
-                }
+                account: root.account
             }
             Label {
                 id: xpubLabel
@@ -138,8 +126,6 @@ Item {
                 Layout.fillWidth: true
                 visible: xpubLabel.visible
                 text: root.account.xpub
-                clipboardText: text
-                menuText: qsTr("Copy")
             }
 
             Label {
@@ -251,6 +237,7 @@ Item {
                         y: 5
                         x: root.account.isHDWallet ? 50 : 0
                         text: address
+                        menuText: qsTr("Copy Address")
                     }
 
                     Flowee.BitcoinAmountLabel {
@@ -372,7 +359,6 @@ Item {
                     }
                     Flowee.LabelWithClipboard {
                         text: root.account.hdDerivationPath
-                        menuText: qsTr("Copy")
                     }
                 }
                 Label {

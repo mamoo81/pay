@@ -20,11 +20,11 @@ import QtQuick.Controls 2.11 as QQC2
 
 Label {
     id: root
-    elide: Text.ElideMiddle
+    elide: wrapMode === Text.NoWrap ? Text.ElideMiddle : Text.ElideNone
 
     // override the text to be copied to clipboard
     property string clipboardText: ""
-    property string menuText: qsTr("Copy Address")
+    property string menuText: qsTr("Copy")
 
     MouseArea {
         anchors.fill: parent
