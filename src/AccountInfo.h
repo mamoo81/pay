@@ -52,7 +52,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(WalletHistoryModel* transactions READ historyModel NOTIFY modelsChanged)
     Q_PROPERTY(WalletSecretsModel* secrets READ secretsModel NOTIFY modelsChanged)
-    Q_PROPERTY(bool isDefaultWallet READ isDefaultWallet WRITE setDefaultWallet NOTIFY isDefaultWalletChanged)
+    Q_PROPERTY(bool isPrimaryAccount READ isPrimaryAccount WRITE setPrimaryAccount NOTIFY isPrimaryAccountChanged)
     Q_PROPERTY(bool isUserOwned READ userOwnedWallet NOTIFY userOwnedChanged)
     Q_PROPERTY(bool isSingleAddressAccount READ isSingleAddressAccount NOTIFY encryptionChanged)
     Q_PROPERTY(bool isHDWallet READ isHDWallet NOTIFY encryptionChanged)
@@ -97,11 +97,11 @@ public:
     WalletSecretsModel* secretsModel();
 
     /**
-     * Sets a wallet to be the first to open (aka default) wallet.
+     * Sets a account to be the first to open (aka primary).
      */
-    void setDefaultWallet(bool isDefault);
-    /// returns if a wallet is the main, first, wallet
-    bool isDefaultWallet();
+    void setPrimaryAccount(bool isPrimary);
+    /// returns if a wallet is the Primary wallet
+    bool isPrimaryAccount() const;
 
     // maps to Wallet::userOwnedWallet
     bool userOwnedWallet();
@@ -163,7 +163,7 @@ signals:
     void nameChanged();
     void lastBlockSynchedChanged();
     void timeBehindChanged();
-    void isDefaultWalletChanged();
+    void isPrimaryAccountChanged();
     void paymentRequestsChanged();
     void userOwnedChanged();
     void isArchivedChanged();

@@ -51,7 +51,7 @@ Page {
 
         delegate: Rectangle {
             color: {
-                if (index == tabBar.currentIndex)
+                if (index === tabBar.currentIndex)
                     return "#1a1a1a"
                 return "#303030"
             }
@@ -60,7 +60,7 @@ Page {
 
             Text {
                 id: tabName
-                color: index == tabBar.currentIndex ? "white" : "#c2c2c2"
+                color: index === tabBar.currentIndex ? "white" : "#c2c2c2"
                 text: modelData.name
                 anchors.centerIn: parent
             }
@@ -86,7 +86,7 @@ Page {
         orientation: Qt.Horizontal
         model: tabBar.model
         snapMode: ListView.SnapToItem
-        boundsBehavior: Flickable.DragOverBounds
+        boundsBehavior: Flickable.StopAtBounds
         clip: true
         cacheBuffer: 2
         currentIndex: indexOfCurrentAccount();

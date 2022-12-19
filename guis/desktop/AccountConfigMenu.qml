@@ -34,9 +34,9 @@ ConfigItem {
         onTriggered: root.account.isArchived = !root.account.isArchived
     }
     property QtObject primaryAction: Action {
-        enabled: root.account != null && !root.account.isDefaultWallet
+        enabled: root.account != null && !root.account.isPrimaryAccount
         text: enabled ? qsTr("Make Primary") : qsTr("★ Primary")
-        onTriggered: root.account.isDefaultWallet = !root.account.isDefaultWallet
+        onTriggered: root.account.isPrimaryAccount = !root.account.isPrimaryAccount
     }
     property QtObject encryptAction: Action {
         text: qsTr("Protect With Pin...")

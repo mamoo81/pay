@@ -256,18 +256,20 @@ bool AccountInfo::isDecrypted() const
     return false;
 }
 
-void AccountInfo::setDefaultWallet(bool isDefault)
+void AccountInfo::setPrimaryAccount(bool isPrimary)
 {
     auto segment = m_wallet->segment();
     if (!segment)
         return;
-    if ((segment->priority() == PrivacySegment::First) == isDefault)
+    if ((segment->priority() == PrivacySegment::First) == isPrimary)
         return;
-    segment->setPriority(isDefault ? PrivacySegment::First : PrivacySegment::Normal);
-    emit isDefaultWalletChanged();
+    segment->setPriority(isPrimary ? PrivacySegment::First : PrivacySegment::Normal);
+    // emit also notifies the portfolio manager that makes sure
+    // other accounts get their primary-ness unset. There can be only one!
+    emit isPrimaryAccountChanged();
 }
 
-bool AccountInfo::isDefaultWallet()
+bool AccountInfo::isPrimaryAccount() const
 {
     auto segment =m_wallet->segment();
     if (!segment)

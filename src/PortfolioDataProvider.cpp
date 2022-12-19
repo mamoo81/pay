@@ -154,7 +154,7 @@ void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
     m_accounts.append(wallet);
     auto info = new AccountInfo(wallet, this);
     m_accountInfos.append(info);
-    connect (info, SIGNAL(isDefaultWalletChanged()), this, SLOT(walletChangedPriority()));
+    connect (info, SIGNAL(isPrimaryAccountChanged()), this, SLOT(walletChangedPriority()));
     connect (info, SIGNAL(isArchivedChanged()), this, SLOT(walletChangedPriority()));
     connect (info, SIGNAL(balanceChanged()), this, SIGNAL(totalBalanceChanged()));
     emit accountsChanged();
@@ -162,15 +162,19 @@ void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
 
 void PortfolioDataProvider::walletChangedPriority()
 {
-    AccountInfo *wallet = qobject_cast<AccountInfo*>(sender());
+    const AccountInfo * const wallet = qobject_cast<AccountInfo*>(sender());
     if (!wallet)
         return;
-    if (wallet->isDefaultWallet()) {
+    if (wallet->isPrimaryAccount()) {
         // as this just changed, through the UI, we have to mark any other
-        // wallet that was a default wallet as no longer being one.
-        for (auto &info : m_accountInfos) {
-            if (info != wallet && info->isDefaultWallet())
-                info->setDefaultWallet(false);
+        // account that was the primary wallet as no longer being one.
+        for (auto iter = m_accountInfos.begin(); iter != m_accountInfos.end(); ++iter) {
+        // for (auto &info : m_accountInfos) {
+            logFatal() << (*iter)->name();
+            if (*iter != wallet && (*iter)->isPrimaryAccount()) {
+                logFatal() << "   setting to false";
+                (*iter)->setPrimaryAccount(false);
+            }
         }
     }
     if (wallet == current() && wallet->isArchived()) {

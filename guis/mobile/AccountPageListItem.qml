@@ -31,49 +31,38 @@ QQC2.Control {
         id: column
         width: parent.width
 
-        Item {
-            id: nameRow
-            width: parent.width
-            height: accountName.height + 10
-            y: 5
-
-            Flowee.Label {
-                id: accountName
-                text: account.name
-                font.pixelSize: root.font.pixelSize * 1.1
-            }
-
-            Rectangle {
-                width: 20
-                visible: false // TODO make this work.
-                height: 20
-                anchors.left: accountName.width > root.width ? accountName.left : accountName.right
-
-                MouseArea {
-                    anchors.fill: parent
-                    anchors.margins: -10
-                    // onClicked: // TODO start editing the name
-                }
-            }
-        }
-
         Flowee.AccountTypeLabel {
             Layout.fillWidth: true
             account: root.account
         }
+        Flowee.TextField {
+            text: account.name
+            onTextChanged: root.account.name = text
+            Layout.fillWidth: true
+        }
         TextButton {
+            visible: root.account.isUserOwned
             Layout.fillWidth: true
             text: qsTr("Primary Wallet")
-            onClicked: root.account.isDefaultWallet = !root.account.isDefaultWallet
+            onClicked: if (!root.account.isArchived) root.account.isPrimaryAccount = !root.account.isPrimaryAccount
 
             Flowee.CheckBox {
+                enabled: !root.account.isArchived
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                checked: root.account.isDefaultWallet
-                onClicked: root.account.isDefaultWallet = checked
+                checked: root.account.isPrimaryAccount
+                onClicked: root.account.isPrimaryAccount = checked
+            }
+
+            Connections {
+                target: root.account
+                function onIsPrimaryAccountChanged() {
+                    console.log("prim changed " + root.account.name + " = " + root.account.isPrimaryAccount)
+                }
             }
         }
 
+        /*
         TextButton {
             Layout.fillWidth: true
             visible: !root.account.needsPinToOpen
@@ -92,7 +81,7 @@ QQC2.Control {
             }
 
             onClicked: {} // TODO
-        }
+        } */
         /*
           TODO Give opportunity to decrypt here.
          */
@@ -101,12 +90,13 @@ QQC2.Control {
           TODO archived wallets functionality
          */
 
+        /* // TODO
         TextButton {
             text: qsTr("Wallet Settings")
             showPageIcon: true
             Layout.fillWidth: true
-            onClicked: {} // TODO
-        }
+            onClicked: {}
+        }*/
 
         TextButton {
             text: qsTr("Backup information")
@@ -130,6 +120,7 @@ QQC2.Control {
                         Flowee.Label {
                             text: qsTr("Wallet seed-phrase")
                         }
+                        // TODO allow showing the seed phrase as a QR
                         Flowee.LabelWithClipboard {
                             Layout.fillWidth: true
                             text: root.account.mnemonic
