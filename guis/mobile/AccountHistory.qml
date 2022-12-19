@@ -212,6 +212,11 @@ ListView {
             anchors.left: commentLabel.left
             color: palette.text
             text: {
+                var minedHeight = model.height;
+                if (minedHeight === -1)
+                    return qsTr("Unconfirmed")
+                if (minedHeight === -2)
+                    return qsTr("Rejected")
                 var date = model.date;
                 var today = new Date();
                 if (date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth()) {
@@ -255,6 +260,105 @@ ListView {
             width: parent.width - 16
             x: 8
             color: root.palette.highlight
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                var newItem = popupOverlay.open(selectedItem, transactionDelegate);
+                newItem.infoObject = portfolio.current.txInfo(model.walletIndex, newItem)
+            }
+        }
+        Component {
+            id: selectedItem
+            GridLayout {
+                id: transactionOptions
+                columns: 2
+                rowSpacing: 10
+                property QtObject infoObject: null
+                Flowee.LabelWithClipboard {
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 2
+                    text: {
+                        if (model.height === -2)// -2 is the magic block-height indicating 'rejected'
+                            return qsTr("rejected")
+                        if (typeof model.date === "undefined")
+                            return qsTr("unconfirmed")
+                        var confirmations = Pay.headerChainHeight - model.height + 1;
+                        return qsTr("%1 confirmations (mined in block %2)", "", confirmations)
+                            .arg(confirmations).arg(model.height);
+                    }
+                    clipboardText: model.height
+                    menuText: qsTr("Copy block height")
+                }
+                Flowee.Label {
+                    id: paymentTypeLabel
+                    visible: {
+                        let diff = model.fundsOut - model.fundsIn;
+                        if (diff < 0 && diff > -1000) // this is our heuristic to mark it as 'moved'
+                            return false;
+                        return true;
+                    }
+                    text: {
+                        if (model.isCoinbase)
+                            return qsTr("Miner Reward") + ":";
+                        if (model.isCashFusion)
+                            return qsTr("Cash Fusion") + ":";
+                        if (model.fundsIn === 0)
+                            return qsTr("Received") + ":";
+                        let diff = model.fundsOut - model.fundsIn;
+                        if (diff < 0 && diff > -1000) // then the diff is likely just fees.
+                            return qsTr("Moved") + ":";
+                        return qsTr("Sent") + ":";
+                    }
+                }
+                Flowee.BitcoinAmountLabel {
+                    visible: paymentTypeLabel.visible
+                    value: model.fundsOut - model.fundsIn
+                    fiatTimestamp: model.date
+                }
+                Flowee.Label {
+                    id: feesLabel
+                    visible: transactionOptions.infoObject != null && transactionOptions.infoObject.createdByUs
+                    text: qsTr("Fees") + ":"
+                }
+                Flowee.BitcoinAmountLabel {
+                    visible: feesLabel.visible
+                    value: {
+                        if (transactionOptions.infoObject == null)
+                            return 0;
+                        if (!transactionOptions.infoObject.createdByUs)
+                            return 0;
+                        var amount = model.fundsIn;
+                        var outputs = transactionOptions.infoObject.outputs
+                        for (var i in outputs) {
+                            amount -= outputs[i].value
+                        }
+                        return amount
+                    }
+                    fiatTimestamp: model.date
+                    colorize: false
+                }
+                Flowee.Label {
+                    text: qsTr("Size") + ":"
+                }
+                Flowee.Label {
+                    text: transactionOptions.infoObject == null ? "" :
+                            qsTr("%1 bytes", "", transactionOptions.infoObject.size).arg(transactionOptions.infoObject.size)
+                }
+
+                TextButton {
+                    id: txDetailsButton
+                    Layout.columnSpan: 2
+                    text: qsTr("Transaction Details")
+                    showPageIcon: true
+                    onClicked: {
+                        var newItem = thePile.push("./TransactionDetails.qml")
+                        popupOverlay.close();
+                        newItem.transaction = model;
+                    }
+                }
+            }
         }
     }
     displaced: Transition { NumberAnimation { properties: "y"; duration: 400 } }

@@ -21,6 +21,7 @@ import "../Flowee" as Flowee
 MainViewBase {
     AccountHistory {
         anchors.fill: parent
+        PopupOverlay { id: popupOverlay }
     }
     SendTransactionsTab {
         anchors.fill: parent
