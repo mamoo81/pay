@@ -15,22 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.11
-import QtQuick.Controls 2.11 as QQC2
+import QtQuick
+import QtQuick.Controls as QQC2
+import QtQuick.Templates as T
 
-Item {
-    id: root
-    property bool checked: false
+T.CheckBox {
+    id: control
+
     property bool sliderOnIndicator: true
-    property alias text: title.text
     property string tooltipText: ""
-    signal clicked;
+
     implicitWidth: slider.width + 6 + title.width + (tooltipText === "" ? 0 : (questionMarkIcon.width + 16))
     implicitHeight: Math.max(slider.implicitHeight, title.implicitHeight)
     clip: true
-    activeFocusOnTab: true
 
-    Item {
+    indicator: Item {
         id: slider
         width: implicitWidth
         height: implicitHeight
@@ -40,8 +39,8 @@ Item {
         Rectangle {
             anchors.fill: parent
             radius: parent.height / 3
-            color: root.sliderOnIndicator && root.enabled && root.checked ? (Pay.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
-            border.color: root.activeFocus ? mainWindow.palette.highlight : mainWindow.palette.button
+            color: control.sliderOnIndicator && control.enabled && control.checked ? (Pay.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
+            border.color: control.activeFocus ? mainWindow.palette.highlight : mainWindow.palette.button
             border.width: 0.8
 
             Behavior on color { ColorAnimation {}}
@@ -50,12 +49,12 @@ Item {
             width: parent.height / 5 * 4
             height: width
             radius: width
-            x: root.checked ? parent.width - width - 3 : 3
+            x: control.checked ? parent.width - width - 3 : 3
             anchors.verticalCenter: parent.verticalCenter
             color: {
-                if (!root.enabled)
+                if (!control.enabled)
                     return "darkgray"
-                if (root.checked && Pay.useDarkSkin)
+                if (control.checked && Pay.useDarkSkin)
                     return mainWindow.palette.windowText;
                 return mainWindow.palette.highlight
             }
@@ -64,26 +63,9 @@ Item {
         }
     }
 
-    MouseArea {
-        id: mousy
-        width: slider.width + 6 + title.width
-        height: parent.height
-        cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            root.checked = !root.checked
-            root.clicked()
-        }
-        hoverEnabled: true
-
-        QQC2.ToolTip {
-            parent: root
-            text: root.tooltipText
-            delay: 1500
-            visible: mousy.containsMouse && root.tooltipText !== ""
-        }
-    }
     Label {
         id: title
+        text: control.text
         anchors.left: slider.right
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 6
@@ -92,7 +74,7 @@ Item {
 
     Rectangle {
         id: questionMarkIcon
-        visible: root.tooltipText !== "" && root.enabled
+        visible: control.tooltipText !== "" && control.enabled
         width: q.width + 14
         height: width
         anchors.left: title.right
@@ -110,22 +92,8 @@ Item {
                 anchors.margins: -7
                 cursorShape: Qt.PointingHandCursor
                 id: clicky
-                onClicked: QQC2.ToolTip.show(root.tooltipText, 15000);
+                onClicked: QQC2.ToolTip.show(control.tooltipText, 15000);
             }
-        }
-    }
-    Keys.onPressed: (event)=> {
-        if (event.key === Qt.Key_Space || event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
-            root.checked = !root.checked
-            event.accepted = true
-        }
-        else if (root.checked && event.key === Qt.Key_Left) {
-            root.checked = false;
-            event.accepted = true
-        }
-        else if (!root.checked && event.key === Qt.Key_Right) {
-            root.checked = true;
-            event.accepted = true
         }
     }
 }
