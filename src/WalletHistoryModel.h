@@ -46,7 +46,6 @@ public:
         Comment,
         PlacementInGroup,   ///< Is an enum WalletEnums::PlacementInGroup to help with painting outlines.
         GroupId             ///< The index in the m_groups vector
-        // SavedFiatRate, // TODO
     };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
