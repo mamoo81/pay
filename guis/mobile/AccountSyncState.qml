@@ -22,22 +22,28 @@ import QtQuick.Shapes // for shape-path
 
 Item {
     id: root
-    height: indicator.height + 3 + (done ? 0 : circleShape.height)
+    height: indicator.height + 3 + (root.uptodate ? 0 : circleShape.height)
     property QtObject account: null
-    property bool done: false
+    property bool uptodate: false
     property int startPos: account.initialBlockHeight
-    onAccountChanged: {
+    onAccountChanged: checkIfDone();
+    function checkIfDone() {
         let startPos = account.initialBlockHeight;
         if (startPos === -2) {
             // special number, the account is just created and waits for transactions.
-            done = true;
+            uptodate = true;
             return;
         }
         let end = Pay.expectedChainHeight;
         let currentPos = account.lastBlockSynched;
         // only show the progress-circle when its more than 2 days behind
         // and we are not synched
-        done = end - startPos < 300 || end - currentPos <= 6;
+        uptodate = end - startPos < 300 || end - currentPos <= 6;
+    }
+
+    Connections {
+        target: account
+        function onLastBlockSynchedChanged() { checkIfDone(); }
     }
 
     // The 'progress' circle.
@@ -45,7 +51,7 @@ Item {
         id: circleShape
 
         property int goalHeight: Pay.expectedChainHeight
-        visible: !root.done
+        visible: !root.uptodate
         anchors.horizontalCenter: parent.horizontalCenter
         width: 200
         height: 100
@@ -70,8 +76,8 @@ Item {
                         return 0;
                     let currentPos = root.account.lastBlockSynched;
                     let totalDistance = end - startPos;
-                    if (totalDistance == 0)
-                        return 180; // done
+                    if (totalDistance <= 6)
+                        return 180; // uptodate
                     let ourProgress = currentPos - startPos;
                     return 180 * (ourProgress / totalDistance);
                 }
@@ -84,7 +90,7 @@ Item {
     Flowee.Label {
         id: indicator
         width: parent.width
-        y: root.done ? 0 : circleShape.height + 3
+        y: root.uptodate ? 0 : circleShape.height + 3
         wrapMode: Text.Wrap
         text: {
             var buddy = qsTr("Network Status") + ": ";
