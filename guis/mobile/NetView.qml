@@ -40,6 +40,7 @@ Page {
             width: listView.width
             height: peerPane.height + 12
             color: index % 2 === 0 ? secondRow.palette.button : secondRow.palette.base
+            opacity: modelData.headersReceived ? 1 : 0.5
             ColumnLayout {
                 id: peerPane
                 width: listView.width - 20
