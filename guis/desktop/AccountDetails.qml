@@ -211,114 +211,15 @@ Item {
                 onClicked: root.account.secrets.showUsedAddresses = checked
                 tooltipText: qsTr("Switches between unused and used Bitcoin addresses")
             }
-            ListView {
+            Flowee.WalletSecretsView {
                 id: historyView
-                model: root.account.secrets
                 Layout.fillWidth: true
-                implicitHeight: root.account.isSingleAddressAccount ? contentHeight : scrollablePage.height / 10 * 7
-                clip: true
-                delegate: Rectangle {
-                    id: delegateRoot
-                    color: (index % 2) == 0 ? mainWindow.palette.base : mainWindow.palette.alternateBase
-                    width: ListView.view.width + 10
-                    x: -5
-                    height: addressLabel.height + 10 + amountLabel.height + 10
-
-                    Label {
-                        text: hdIndex
-                        anchors.baseline: addressLabel.baseline
-                        anchors.right: addressLabel.left
-                        anchors.rightMargin: 10
-                        visible: root.account.isHDWallet
-                    }
-
-                    Flowee.LabelWithClipboard {
-                        id: addressLabel
-                        y: 5
-                        x: root.account.isHDWallet ? 50 : 0
-                        text: address
-                        menuText: qsTr("Copy Address")
-                    }
-
-                    Flowee.BitcoinAmountLabel {
-                        id: amountLabel
-                        value: balance
-                        anchors.right: parent.right
-                        anchors.rightMargin: 12
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 12
-                    }
-                    Label {
-                        id: coinCountLabel
-                        anchors.left: parent.left
-                        anchors.leftMargin: delegateRoot.width / 4
-                        anchors.baseline: amountLabel.baseline
-                        text: qsTr("Coins: %1 / %2").arg(numCoins).arg(historicalCoinCount)
-                    }
-                    Rectangle {
-                        visible: usedSchnorr
-                        width: schnorrIndicator.height
-                        height: width
-                        radius: width / 2
-                        anchors.left: coinCountLabel.right
-                        anchors.leftMargin: 10
-                        anchors.verticalCenter: amountLabel.verticalCenter
-                        anchors.margins: -4
-                        color: Pay.useDarkSkin ? "#838383" : "#ccc"
-                        Label {
-                            id: schnorrIndicator
-                            anchors.centerIn: parent/// .verticalCenter
-                            font.bold: true
-                            text: "S"
-                            MouseArea {
-                                id: mousy
-                                anchors.fill: parent
-                                anchors.margins: -10
-                                hoverEnabled: true
-
-                                ToolTip {
-                                    parent: schnorrIndicator
-                                    text: qsTr("Signed with Schnorr signatures in the past")
-                                    delay: 700
-                                    visible: mousy.containsMouse
-                                }
-                            }
-                        }
-                    }
-
-                    ConfigItem {
-                        id: button
-                        anchors.right: parent.right
-                        wide: true
-                        y: 5
-                        property QtObject copyAddress: Action {
-                            text: qsTr("Copy Address")
-                            onTriggered: Pay.copyToClipboard(address)
-                        }
-                        property QtObject copyPrivKey: Action {
-                            text: qsTr("Copy Private Key")
-                            onTriggered: Pay.copyToClipboard(privatekey)
-                        }
-                        /*
-                        Action {
-                            text: qsTr("Move to New Wallet")
-                            onTriggered: ;
-                        } */
-                        onAboutToOpen: {
-                            var items = [];
-                            items.push(copyAddress);
-                            if (root.account.isDecrypted)
-                                items.push(copyPrivKey);
-                            setMenuActions(items)
-                        }
-                    }
-                }
                 ScrollBar.vertical: Flowee.ScrollThumb {
                     id: thumb
                     minimumSize: 20 / activityView.height
                     visible: size < 0.9
                 }
-
+                account: root.account
             }
         }
         Flowee.GroupBox {

@@ -31,5 +31,6 @@
         <file>Flowee/BroadcastFeedback.qml</file>
         <file>Flowee/ImageButton.qml</file>
         <file>Flowee/AccountTypeLabel.qml</file>
+        <file>Flowee/WalletSecretsView.qml</file>
     </qresource>
 </RCC>

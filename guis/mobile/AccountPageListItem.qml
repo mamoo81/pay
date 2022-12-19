@@ -110,15 +110,28 @@ QQC2.Control {
                     headerText: qsTr("Backup Details")
                     ColumnLayout {
                         width: parent.width
-                        Flowee.Label { text: "xpub" }
+                        Flowee.Label { text: "xpub" + ":" }
                         Flowee.LabelWithClipboard {
                             id: xpub
                             Layout.fillWidth: true
                             text: root.account.xpub
                         }
                         VisualSeparator { }
+
                         Flowee.Label {
-                            text: qsTr("Wallet seed-phrase")
+                            Layout.fillWidth: true
+                            text: qsTr("Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case you lose your mobile.")
+                            textFormat: Text.StyledText
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        }
+                        Flowee.Label {
+                            Layout.fillWidth: true
+                            text: qsTr("<b>Important</b>: Never share your seed-phrase with others!")
+                            textFormat: Text.StyledText
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        }
+                        Flowee.Label {
+                            text: qsTr("Wallet seed-phrase") + ":"
                         }
                         // TODO allow showing the seed phrase as a QR
                         Flowee.LabelWithClipboard {
@@ -127,7 +140,7 @@ QQC2.Control {
                             wrapMode: Text.Wrap
                         }
                         VisualSeparator { }
-                        Flowee.Label { text: qsTr("Derivation Path") }
+                        Flowee.Label { text: qsTr("Derivation Path") + ":" }
                         Flowee.LabelWithClipboard { text: root.account.hdDerivationPath }
                     }
                 }
@@ -137,9 +150,29 @@ QQC2.Control {
                 id: backupDetails
                 Page {
                     headerText: qsTr("Backup Details")
-                    ColumnLayout {
+                    Flowee.CheckBox {
+                        id: usedAddresses
+                        anchors.top: parent.top
                         width: parent.width
-                        Flowee.Label { text: "TODO" }
+                        text: qsTr("Used Addresses");
+                        visible: !root.account.isSingleAddressAccount
+                        onClicked: root.account.secrets.showUsedAddresses = checked
+                        tooltipText: qsTr("Switches between unused and used Bitcoin addresses")
+                    }
+
+                    Flowee.WalletSecretsView {
+                        anchors.top: usedAddresses.visible ? usedAddresses.bottom : parent.top
+                        anchors.topMargin: 10
+                        anchors.bottom: parent.bottom
+                        width: parent.width
+                        account: root.account
+                        /*
+                        ScrollBar: {
+                            id: thumb
+                            minimumSize: 20 / activityView.height
+                            visible: size < 0.9
+                        }*/
+                        clip: true
                     }
                 }
             }
