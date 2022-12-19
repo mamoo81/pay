@@ -299,7 +299,7 @@ void FloweePay::loadingCompleted()
 
 void FloweePay::saveData()
 {
-    auto &data = Streaming::pool(m_wallets.size() * 100);
+    Streaming::BufferPool data(m_wallets.size() * 100);
     Streaming::MessageBuilder builder(data);
     for (auto &wallet : m_wallets) {
         if (wallet->encryptionSeed() != 0)
