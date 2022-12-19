@@ -119,18 +119,6 @@ QQC2.Control {
                         VisualSeparator { }
 
                         Flowee.Label {
-                            Layout.fillWidth: true
-                            text: qsTr("Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case you lose your mobile.")
-                            textFormat: Text.StyledText
-                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        }
-                        Flowee.Label {
-                            Layout.fillWidth: true
-                            text: qsTr("<b>Important</b>: Never share your seed-phrase with others!")
-                            textFormat: Text.StyledText
-                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        }
-                        Flowee.Label {
                             text: qsTr("Wallet seed-phrase") + ":"
                         }
                         // TODO allow showing the seed phrase as a QR
@@ -142,6 +130,19 @@ QQC2.Control {
                         VisualSeparator { }
                         Flowee.Label { text: qsTr("Derivation Path") + ":" }
                         Flowee.LabelWithClipboard { text: root.account.hdDerivationPath }
+                        VisualSeparator { }
+                        Flowee.Label {
+                            Layout.fillWidth: true
+                            text: qsTr("Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case you lose your mobile.")
+                            textFormat: Text.StyledText
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        }
+                        Flowee.Label {
+                            Layout.fillWidth: true
+                            text: qsTr("<b>Important</b>: Never share your seed-phrase with others!")
+                            textFormat: Text.StyledText
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        }
                     }
                 }
             }

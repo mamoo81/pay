@@ -253,7 +253,6 @@ FocusScope {
             Layout.fillWidth: true
             enabled: receiveTab.request != null && receiveTab.request.state === PaymentRequest.Unpaid
             onTextChanged: receiveTab.request.message = text
-            focus: true
         }
 
         /*
