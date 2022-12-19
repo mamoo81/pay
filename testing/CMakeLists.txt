@@ -25,7 +25,7 @@ if (${Qt6Test_FOUND})
 
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS
         test_wallet
-        test_wallet_history_model
+        test_wallethistorymodel
         test_value
         test_price_history
     )
