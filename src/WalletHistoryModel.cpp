@@ -58,6 +58,12 @@ bool WalletHistoryModel::TransactionGroup::add(int txIndex, uint32_t timestamp)
             date = date.addDays(-1 * date.day() + 1);
             const auto weekStart = today.addDays(-1 * today.dayOfWeek() + 1);
             days = weekStart.day() - 1;
+
+            const auto yesterday = today.addDays(-1);
+            if (yesterday.year() == date.year() && yesterday.month() == date.month()) {
+                // don't eat the events that happend yesterday.
+                days -= 1;
+            }
         }
         else { // any (other) month
             period = WalletEnums::Month;
