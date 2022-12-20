@@ -17,6 +17,7 @@
  */
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 import Flowee.org.pay;
 
@@ -48,39 +49,58 @@ Page {
             onIsValidChanged: if (isValid) prepare()
 
             // easier testing values (for when you don't have a camera)
-            // paymentAmount: 1000000
+            // paymentAmount: 100000000
             // targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
+            // userComment: "bla bla bla"
         }
     }
 
     // if true, the bitcoin value is provided by the user (or QR), and the fiat follows
     // if false, the user edits the fiat price and the bitcoin value is calculated.
+    // Notice that 'sendAllButton' overrules both and gets the data from the wallet-total
     property bool fiatFollowsSats: true
 
     Flowee.BitcoinValueField {
         id: priceBch
-        y: 30
-        value: payment.paymentAmount
+        y: 10
+        value: {
+            if (sendAllButton.checked) // we use 'max'
+                return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
+            return payment.paymentAmount
+        }
         focus: true
         fontPixelSize: size
-        property double size: fiatFollowsSats ? 38 : commentLabel.font.pixelSize
+        property double size: (fiatFollowsSats && !sendAllButton.checked) ? 38 : commentLabel.font.pixelSize
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = true
         Behavior on size { NumberAnimation { } }
         Flowee.ObjectShaker { id: bchShaker }
 
+        // auto-unchecks 'max'
         onValueEdited: payment.paymentAmount = value
     }
     Flowee.FiatValueField  {
         id: priceFiat
-        value: Fiat.priceFor(payment.paymentAmount, Fiat.price)
+        value: Fiat.priceFor(priceBch.value, payment.fiatPrice);
         anchors.top: priceBch.bottom
         anchors.topMargin: 18
         focus: true
         fontPixelSize: size
-        property double size: !fiatFollowsSats ? 38 : commentLabel.font.pixelSize
+        property double size: (!fiatFollowsSats && !sendAllButton.checked) ? 38 : commentLabel.font.pixelSize
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = false
         Behavior on size { NumberAnimation { } }
         Flowee.ObjectShaker { id: fiatShaker }
+        onValueEdited: payment.details[0].fiatAmount = value
+    }
+
+    Flowee.Button {
+        id: sendAllButton
+        text: qsTr("Send All")
+        checkable: true
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: priceFiat.bottom
+        anchors.topMargin: 10
+        checked: payment.details[0].maxSelected
+        onClicked: payment.details[0].maxSelected = checked
     }
 
     Flowee.Label {
@@ -88,8 +108,8 @@ Page {
         text: qsTr("Payment description" + ":")
         visible: userComment.text !== ""
 
-        anchors.top: priceFiat.bottom
-        anchors.topMargin: 30
+        anchors.top: sendAllButton.bottom
+        anchors.topMargin: 20
     }
     Flowee.Label {
         id: userComment
@@ -136,12 +156,13 @@ Page {
         anchors.bottom: slideToApprove.top
         anchors.bottomMargin: 15
         width: parent.width
+        enabled: !sendAllButton.checked
         Repeater {
             model: 12
             delegate: Item {
                 width: numericKeyboard.width / 3
                 height: textLabel.height + 20
-                Flowee.Label {
+                QQC2.Label {
                     id: textLabel
                     anchors.centerIn: parent
                     font.pixelSize: 28
@@ -154,6 +175,12 @@ Page {
                             return "0"
                         // if (index === 11)
                             return "<-" // TODO use a backspace icon instead.
+                    }
+                    // make dim when not enabled.
+                    color: {
+                        if (!enabled)
+                            return Pay.useDarkSkin ? Qt.darker(palette.buttonText, 1.8) : Qt.lighter(palette.buttonText, 2);
+                        return palette.windowText;
                     }
                 }
 
