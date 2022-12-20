@@ -18,7 +18,8 @@
 #ifndef PAYMENT_H
 #define PAYMENT_H
 
-#include "WalletCoinsModel.h"
+
+#include <QObject>
 
 #include <BroadcastTxData.h>
 #include <primitives/Tx.h>
@@ -111,7 +112,6 @@ public:
     void setPaymentAmount(double amount);
     /**
      * Returns the total amount of satoshis that are selected by outputs.
-     * Notice that if 'max' is requested that this is not counted.
      */
     double paymentAmount();
 
@@ -283,8 +283,6 @@ signals:
     void collapsableChanged();
     void collapsedChanged();
     void validChanged();
-
-    void maxAllowedChanged();
 
 private:
     const Payment::DetailType m_type;

@@ -77,6 +77,7 @@ signals:
     void fiatFollowsChanged();
     void maxSelectedChanged();
     void forceLegacyOkChanged();
+    void maxAllowedChanged();
 
 private:
     void checkValid();

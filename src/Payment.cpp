@@ -577,7 +577,7 @@ void Payment::sentToPeer()
      */
     ++m_sentPeerCount;
 
-    QTimer::singleShot(1000, [=]() {
+    QTimer::singleShot(1000, this, [=]() {
         if (m_rejectedPeerCount == 0 || m_sentPeerCount > 1) {
             // When enough peers received the transaction stop broadcasting it.
             m_infoObject.reset();

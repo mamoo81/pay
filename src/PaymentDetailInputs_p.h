@@ -19,6 +19,7 @@
 #define PAYMENT_DETAIL_INPUTS_H
 
 #include "Payment.h"
+#include "WalletCoinsModel.h"
 #include "Wallet.h"
 
 class PaymentDetailInputs : public PaymentDetail
