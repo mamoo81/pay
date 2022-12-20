@@ -99,6 +99,16 @@ private:
     /// Update m_groups to include this transaction.
     void addTxIndexToGroups(int txIndex, int blockheight);
 
+    /*
+     * Our internal data-model.
+     * This is a filter of the wallet-internal 'txIndex'. So we map index-in-vector to
+     * transaction-index as known by the wallet.
+     *
+     * The main trick we use is that the vector starts with the oldest transactions while
+     * our view starts with the newest. As such we simply invert the vector on insert/get.
+     * (notice that we don't invert the actual vector since append-new would then
+     *  become a costly insert-before).
+     */
     QVector<int> m_rowsProxy;
     Wallet *m_wallet;
     QFlags<WalletEnums::Include> m_includeFlags = WalletEnums::IncludeAll;

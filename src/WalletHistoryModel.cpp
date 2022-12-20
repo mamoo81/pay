@@ -262,7 +262,8 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     if (std::isnan(offset) || offset < 0 || offset > 1.0)
         return QString();
     const size_t row = std::round(offset * m_rowsProxy.size());
-    auto item = m_wallet->m_walletTransactions.at(m_rowsProxy.at(row));
+    auto item = m_wallet->m_walletTransactions.at(
+                m_rowsProxy.at(m_rowsProxy.size() - row - 1));
     if (item.minedBlockHeight <= 0)
         return QString();
     auto timestamp = secsSinceEpochFor(item.minedBlockHeight);
@@ -299,7 +300,7 @@ void WalletHistoryModel::appendTransactions(int firstNew, int count)
 
 void WalletHistoryModel::transactionChanged(int txIndex)
 {
-    const int row = m_rowsProxy.indexOf(txIndex);
+    const int row = m_rowsProxy.size() - m_rowsProxy.indexOf(txIndex) - 1;
     // update row, the 'minedHeight' went from unset to an actual value
     beginRemoveRows(QModelIndex(), row, row);
     endRemoveRows();
@@ -401,18 +402,20 @@ void WalletHistoryModel::resetLastSyncIndicator()
 {
     const auto old = m_lastSyncIndicator;
     m_lastSyncIndicator = m_wallet->segment()->lastBlockSynched();
-    int index = 0;
-    while (index < m_rowsProxy.size()) {
+
+    int index = m_rowsProxy.size() - 1; // newest is at the end
+    while (index >= 0) {
         const auto &tx = m_wallet->m_walletTransactions.find(m_rowsProxy.at(index));
         if (tx->second.minedBlockHeight < old)
             break;
         ++index;
     }
+    const int lastRow = m_rowsProxy.size() - index - 1;
     // refresh the rows that need the 'new' indicator removed.
-    if (index > 0) {
-        beginRemoveRows(QModelIndex(), 0, index);
+    if (lastRow > 0) {
+        beginRemoveRows(QModelIndex(), 0, lastRow);
         endRemoveRows();
-        beginInsertRows(QModelIndex(), 0, index);
+        beginInsertRows(QModelIndex(), 0, lastRow);
         endInsertRows();
     }
 }
