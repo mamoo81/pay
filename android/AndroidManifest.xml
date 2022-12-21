@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<!-- yes this one -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.floweel.pay" android:installLocation="auto" android:versionCode="3" android:versionName="2022.12.3">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.flowee.pay" android:installLocation="auto" android:versionCode="3" android:versionName="2022.12.3">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
