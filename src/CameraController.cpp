@@ -234,6 +234,11 @@ void CameraController::checkState2()
     emit cameraActiveChanged(); // this emit makes QML activate the camera
 }
 
+void CameraController::initCamera()
+{
+    d->initCamera();
+}
+
 // --------------------------------------------------------------------
 
 QRScanningThread::QRScanningThread(CameraControllerPrivate *parent)
@@ -432,7 +437,7 @@ CameraController::CameraController(QObject *parent)
     d(new CameraControllerPrivate(this))
 {
     // pre-load the camera for stability sake
-    QTimer::singleShot(3000, this, SLOT(initialize()));
+    // QTimer::singleShot(3000, this, SLOT(initialize()));
 
     // The Android permissions requesting stuff returns results in a different thread,
     // allow an easy way to move back to the main thread using a connection.
@@ -533,7 +538,7 @@ void CameraController::setCamera(QObject *object)
         return;
     d->camera = object;
     emit cameraChanged();
-    d->initCamera();
+    QTimer::singleShot(10, this, SLOT(initCamera()));
 }
 
 QObject *CameraController::camera() const
