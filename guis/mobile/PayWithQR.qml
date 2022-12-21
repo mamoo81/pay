@@ -39,6 +39,7 @@ Page {
                     payment.targetAddress = rc
                     if (payment.isValid)
                         payment.prepare();
+                    priceBch.forceActiveFocus();
                 }
             }
         }
