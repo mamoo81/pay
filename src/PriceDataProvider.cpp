@@ -51,7 +51,7 @@ PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
     }
     // drop the '.00' behind the prices as this country doesn't traditionlly do that
     m_displayCents = !(m_currency == QLatin1String("JPY")
-                   || m_currency == QLatin1String("JPY"));
+                   || m_currency == QLatin1String("NOK"));
     QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetch()));
 }
 
