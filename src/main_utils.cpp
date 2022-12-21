@@ -29,7 +29,7 @@
 
 struct CommandLineParserData
 {
-    CommandLineParserData(QGuiApplication &qapp)
+    explicit CommandLineParserData(QGuiApplication &qapp)
         : connect(QStringList() << "connect", "Connect to HOST", "HOST"),
         debug(QStringList() << "debug", "Use debug level logging"),
         verbose(QStringList() << "verbose" << "v", "Be more verbose"),
@@ -56,6 +56,8 @@ struct CommandLineParserData
         // select chain first (before we create the FloweePay singleton)
         if (parser.isSet(testnet4))
             chain = P2PNet::Testnet4Chain;
+        if (parser.isSet(offline))
+            FloweePay::instance()->setOffline(true);
     }
 
     QCommandLineParser parser;
@@ -144,10 +146,7 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *c
     engine.rootContext()->setContextProperty("net", netData);
     engine.rootContext()->setContextProperty("fiatHistory", FloweePay::instance()->priceHistory());
     engine.rootContext()->setContextProperty("portfolio", portfolio);
-    if (cld->parser.isSet(cld->offline)) {
-        FloweePay::instance()->setOffline(true);
-    }
-    else if (cld->parser.isSet(cld->connect)) {
+    if (!cld->parser.isSet(cld->offline) && cld->parser.isSet(cld->connect)) {
         app->p2pNet()->connectionManager().peerAddressDb().addOne( // add it to the DB, making sure there is at least one.
                     EndPoint(cld->parser.value(cld->connect).toStdString(), 8333));
     }
