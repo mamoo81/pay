@@ -207,7 +207,9 @@ void CameraControllerPrivate::checkState()
         if (cam->error() != QCamera::NoError)
             logFatal() << "CameraController found cam error:" << cam->errorString();
 
+#ifndef TARGET_OS_Linux
         cam->stop(); // workaround for why some phones don't scan the first time.
+#endif
         cam->setCameraFormat(preferredFormat);
         cam->setFocusMode(QCamera::FocusModeAutoNear); // macro focus mode.
         cam->setWhiteBalanceMode(QCamera::WhiteBalanceAuto); // avoid flash
