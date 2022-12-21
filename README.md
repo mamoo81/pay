@@ -100,6 +100,8 @@ options:
 
 # Links
 
+* Learn more about QML? Here is a great place to start; https://www.kdab.com/top-100-qml-resources-kdab/
+
 * Upstream: https://codeberg.org/Flowee/pay
 * Website: https://flowee.org
 * Twitter: https://twitter.com/floweethehub
