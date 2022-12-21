@@ -176,7 +176,7 @@ Page {
             headerButtonText: qsTr("Create")
             headerButtonEnabled: accountName.text.length > 2
             onHeaderButtonClicked: {
-                var options = Pay.createNewWallet(derivationPath.text, /* password */"", accountName.text);
+                var options = Pay.createNewWallet("m/44'/0'/0'", /* password */"", accountName.text);
                 var accounts = portfolio.accounts;
                 for (var i = 0; i < accounts.length; ++i) {
                     var a = accounts[i];
