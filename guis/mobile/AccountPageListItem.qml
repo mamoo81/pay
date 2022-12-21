@@ -53,13 +53,6 @@ QQC2.Control {
                 checked: root.account.isPrimaryAccount
                 onClicked: root.account.isPrimaryAccount = checked
             }
-
-            Connections {
-                target: root.account
-                function onIsPrimaryAccountChanged() {
-                    console.log("prim changed " + root.account.name + " = " + root.account.isPrimaryAccount)
-                }
-            }
         }
 
         /*
