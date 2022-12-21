@@ -406,9 +406,9 @@ void WalletHistoryModel::resetLastSyncIndicator()
     int index = m_rowsProxy.size() - 1; // newest is at the end
     while (index >= 0) {
         const auto &tx = m_wallet->m_walletTransactions.find(m_rowsProxy.at(index));
-        if (tx->second.minedBlockHeight < old)
+        if (tx->second.minedBlockHeight > 0 && tx->second.minedBlockHeight < old)
             break;
-        ++index;
+        --index;
     }
     const int lastRow = m_rowsProxy.size() - index - 1;
     // refresh the rows that need the 'new' indicator removed.
