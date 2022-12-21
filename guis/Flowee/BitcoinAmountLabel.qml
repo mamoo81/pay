@@ -34,7 +34,7 @@ QQC2.Control {
      * date and the fiat price is calculated based on the historical price
      * This is only used if you fill it with a date object.
      */
-    property var fiatTimestamp: null
+    property var fiatTimestamp: undefined
     property color color: palette.windowText
     property alias fontPixelSize: main.font.pixelSize
 
@@ -127,7 +127,7 @@ QQC2.Control {
             Layout.alignment: Qt.AlignBaseline
             text: {
                 var fiatPrice;
-                if (root.fiatTimestamp == null || fiatHistory == null)
+                if (root.fiatTimestamp == undefined || fiatHistory == null)
                     fiatPrice = Fiat.price; // todays price
                 else
                     fiatPrice = fiatHistory.historicalPrice(root.fiatTimestamp);

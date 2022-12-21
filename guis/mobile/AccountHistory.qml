@@ -246,9 +246,16 @@ ListView {
                      : (Pay.useDarkSkin ? "#1d6828" : "#97e282") // green background
             Flowee.Label {
                 id: amount
-                text: Fiat.formattedPrice(parent.amountBch, fiatHistory.historicalPrice(model.date));
+                text: {
+                    var dat = model.date;
+                    if (typeof dat === "undefined") // unconfirmed transactions have no date
+                        var fiatPrice = Fiat.price;
+                    else
+                        fiatPrice = fiatHistory.historicalPrice(dat);
+                    return Fiat.formattedPrice(price.amountBch, fiatPrice);
+                }
                 anchors.centerIn: parent
-                opacity: Math.abs(parent.amountBch) < 2000 ? 0.5 : 1
+                opacity: Math.abs(price.amountBch) < 2000 ? 0.5 : 1
             }
         }
 
