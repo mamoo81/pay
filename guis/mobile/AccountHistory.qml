@@ -273,7 +273,7 @@ ListView {
             anchors.fill: parent
             onClicked: {
                 var newItem = popupOverlay.open(selectedItem, transactionDelegate);
-                newItem.infoObject = portfolio.current.txInfo(model.walletIndex, newItem)
+                newItem.infoObject = portfolio.current.txInfo(model.walletIndex, parent);
             }
         }
         Component {
@@ -297,6 +297,14 @@ ListView {
                     }
                     clipboardText: model.height
                     menuText: qsTr("Copy block height")
+                }
+                Flowee.Label {
+                    visible: model.height > 0
+                    text: qsTr("Mined") + ":"
+                }
+                Flowee.Label {
+                    visible: model.height > 0
+                    text: model.height > 0 ? Pay.formatDateTime(model.date) : "";
                 }
                 Flowee.Label {
                     id: paymentTypeLabel
@@ -346,13 +354,6 @@ ListView {
                     fiatTimestamp: model.date
                     colorize: false
                 }
-                Flowee.Label {
-                    text: qsTr("Size") + ":"
-                }
-                Flowee.Label {
-                    text: transactionOptions.infoObject == null ? "" :
-                            qsTr("%1 bytes", "", transactionOptions.infoObject.size).arg(transactionOptions.infoObject.size)
-                }
 
                 TextButton {
                     id: txDetailsButton
@@ -363,6 +364,7 @@ ListView {
                         var newItem = thePile.push("./TransactionDetails.qml")
                         popupOverlay.close();
                         newItem.transaction = model;
+                        newItem.infoObject = transactionOptions.infoObject;
                     }
                 }
             }

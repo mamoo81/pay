@@ -24,6 +24,7 @@ import Flowee.org.pay;
 Page {
     id: root
     property QtObject transaction: null
+    property QtObject infoObject: null
     headerText: qsTr("Transaction Details")
 
     ColumnLayout {
@@ -53,6 +54,14 @@ Page {
         Flowee.Label {
             text: qsTr("CashFusion transaction")
             visible: root.transaction != null && root.transaction.isCashFusion
+        }
+        VisualSeparator {}
+        Flowee.Label {
+            text: qsTr("Size") + ":"
+        }
+        Flowee.Label {
+            text: root.infoObject == null ? "" :
+                    qsTr("%1 bytes", "", root.infoObject.size).arg(root.infoObject.size)
         }
         /*
         VisualSeparator {}
