@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,9 @@ Wallet::~Wallet()
     saveSecrets();
     saveWallet();
     // tell the payment requests that we are no more. (and avoids callbacks to a deleted object)
-    for (auto prData = m_paymentRequests.begin(); prData != m_paymentRequests.end(); ++prData) {
+    auto copy(m_paymentRequests);
+    for (auto prData = copy.begin(); prData != copy.end(); ++prData) {
+        assert(prData->pr);
         prData->pr->setWallet(nullptr);
     }
 }
