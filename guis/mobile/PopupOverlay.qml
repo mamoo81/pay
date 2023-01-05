@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,11 @@ FocusScope {
     anchors.fill: parent
     enabled: thePopup.visible
 
+    /**
+      * @param sourceComponent is a Component we set on the loader.
+      * @param target is the visual item we position next to.
+      * @returns the item instance of the sourceComponent template
+      */
     function open(sourceComponent, target) {
         thePopup.palette = mainWindow.palette
         thePopup.width = target.width
