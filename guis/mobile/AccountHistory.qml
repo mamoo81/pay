@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -224,7 +224,7 @@ ListView {
                     if (date.getDate() === day || date.getDate() === day - 1) {
                         // Then this is an item in the 'today' or the 'yesterday' group.
                         // specify more specific date/time
-                        return date.getHours() + ":" + date.getMinutes()
+                        return Qt.formatTime(date);
                     }
                 }
 
