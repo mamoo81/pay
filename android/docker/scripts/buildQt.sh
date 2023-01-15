@@ -13,9 +13,15 @@ function checkout (
     (cd /usr/local/cache
     if ! test -d $repo.git; then
         git clone --bare https://code.qt.io/qt/$repo.git
-    fi
-    cd ~builduser
-    git clone -l /usr/local/cache/$repo.git -b $TAG)
+    fi)
+    (cd ~builduser
+    if git clone -l /usr/local/cache/$repo.git -b $TAG
+    then
+        echo ".. OK"
+    else
+        echo "Calling exit"
+        exit 1
+    fi)
 )
 
 # The QtBase builds are different.
