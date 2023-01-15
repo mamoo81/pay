@@ -257,8 +257,8 @@ void FloweePay::init()
 
     if (m_wallets.isEmpty() && m_createStartWallet) {
         logInfo() << "Creating startup (initial) wallet";
-        auto config = createNewWallet(QLatin1String(DefaultDerivationPath));
-        delete config; // the config was just for QML, so avoid a dangling object.
+        // the config is just for QML, delete when we exit scope.
+        std::unique_ptr<NewWalletConfig> config(createNewWallet(QLatin1String(DefaultDerivationPath)));
         m_wallets.at(0)->setUserOwnedWallet(false);
         m_wallets.at(0)->segment()->setPriority(PrivacySegment::Last);
         m_wallets.at(0)->setName(tr("Initial Wallet"));

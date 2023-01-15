@@ -57,6 +57,7 @@ Wallet::Wallet()
     : m_walletChanged(true),
     m_walletVersion(2)
 {
+    connect (this, SIGNAL(startDelayedSave()), this, SLOT(delayedSave()), Qt::QueuedConnection); // ensure right thread calls us.
 }
 
 Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint32_t encryptionSeed)
