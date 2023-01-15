@@ -34,7 +34,7 @@ echo "using clang : arm : /opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64
     variant=release \
     link=static \
     threading=multi \
-    install
+    install > ~builduser/boost.build.log 2>&1
 
 #   toolset=clang-arm \
 #   runtime-link=shared \
