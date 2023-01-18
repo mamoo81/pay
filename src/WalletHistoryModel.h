@@ -29,6 +29,13 @@ class WalletHistoryModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(int lastSyncIndicator READ lastSyncIndicator WRITE setLastSyncIndicator RESET resetLastSyncIndicator NOTIFY lastSyncIndicatorChanged)
     Q_PROPERTY(QFlags<WalletEnums::Include> includeFlags READ includeFlags WRITE setIncludeFlags NOTIFY includeFlagsChanged)
+    /**
+     * The view sometimes wants to ensure that content in the list does not move. For instance
+     * when a popup related to one of the list-items is showing.
+     * Freezing the model will stop the model from reporting new rows and un-freezing it aferwards
+     * will cause all the new items that were found while frozen to be reported for UI update.
+     */
+    Q_PROPERTY(bool freezeModel READ isModelFrozen WRITE freezeModel NOTIFY freezeModelChanged);
 
 public:
     explicit WalletHistoryModel(Wallet *wallet, QObject *parent = nullptr);
@@ -79,9 +86,13 @@ public:
         bool add(int txIndex, uint32_t timestamp);
     };
 
+    void freezeModel(bool on);
+    bool isModelFrozen() const;
+
 signals:
     void lastSyncIndicatorChanged();
     void includeFlagsChanged();
+    void freezeModelChanged();
 
 protected:
     // virtual to allow the unit test to not use p2pNet for this
@@ -98,6 +109,8 @@ private:
     bool filterTransaction(const Wallet::WalletTransaction &wtx) const;
     /// Update m_groups to include this transaction.
     void addTxIndexToGroups(int txIndex, int blockheight);
+
+    int txIndexFromRow(int row) const;
 
     /*
      * Our internal data-model.
@@ -123,6 +136,11 @@ private:
 
     int m_lastSyncIndicator = 0;
     bool m_recreateTriggered = false;
+
+    /// when above zero, we store the numbeer of rows we still need to process updates for
+    /// while the listview has been frozen.
+    /// See the freezeModel property for more.
+    int m_rowsSilentlyInserted = -1;
 };
 
 #endif

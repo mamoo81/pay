@@ -121,7 +121,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
 
     assert(m_rowsProxy.size() > index.row());
     assert(index.row() >= 0);
-    const int txIndex = m_rowsProxy.at(m_rowsProxy.size() - index.row() - 1); // reverse index to make the VIEW have newest at the top
+    const int txIndex = txIndexFromRow(index.row());
     // logDebug() << " getting" << index.row() << "=>" << txIndex;
     auto itemIter = m_wallet->m_walletTransactions.find(txIndex);
     assert(itemIter != m_wallet->m_walletTransactions.end());
@@ -262,8 +262,7 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     if (std::isnan(offset) || offset < 0 || offset > 1.0)
         return QString();
     const size_t row = std::round(offset * m_rowsProxy.size());
-    auto item = m_wallet->m_walletTransactions.at(
-                m_rowsProxy.at(m_rowsProxy.size() - row - 1));
+    auto item = m_wallet->m_walletTransactions.at(txIndexFromRow(row));
     if (item.minedBlockHeight <= 0)
         return QString();
     auto timestamp = secsSinceEpochFor(item.minedBlockHeight);
@@ -283,7 +282,7 @@ void WalletHistoryModel::appendTransactions(int firstNew, int count)
         addTxIndexToGroups(iter->first, iter->second.minedBlockHeight);
     }
     auto insertedCount = m_rowsProxy.size() - oldCount;
-    if (insertedCount) {
+    if (m_rowsSilentlyInserted == -1 && insertedCount) {
         if (oldCount) {
             // Due to grouping being drawn in relation, we need to force
             // a change in the previously top item
@@ -296,11 +295,16 @@ void WalletHistoryModel::appendTransactions(int firstNew, int count)
         beginInsertRows(QModelIndex(), 0, insertedCount - 1);
         endInsertRows();
     }
+    else {
+        m_rowsSilentlyInserted += insertedCount;
+    }
 }
 
 void WalletHistoryModel::transactionChanged(int txIndex)
 {
-    const int row = m_rowsProxy.size() - m_rowsProxy.indexOf(txIndex) - 1;
+    int row = m_rowsProxy.size() - m_rowsProxy.indexOf(txIndex) - 1;
+    if (m_rowsSilentlyInserted > 0)
+        row -= m_rowsSilentlyInserted;
     // update row, the 'minedHeight' went from unset to an actual value
     beginRemoveRows(QModelIndex(), row, row);
     endRemoveRows();
@@ -363,6 +367,16 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
     }
 }
 
+int WalletHistoryModel::txIndexFromRow(int row) const
+{
+    int newRow = m_rowsProxy.size() - row - 1;
+    if (m_rowsSilentlyInserted > 0)
+        newRow -= m_rowsSilentlyInserted;
+    assert(newRow >= 0);
+    assert(newRow < m_rowsProxy.size());
+    return m_rowsProxy.at(newRow);
+}
+
 const QFlags<WalletEnums::Include> &WalletHistoryModel::includeFlags() const
 {
     return m_includeFlags;
@@ -379,6 +393,31 @@ void WalletHistoryModel::setIncludeFlags(const QFlags<WalletEnums::Include> &fla
         return;
     m_recreateTriggered = true;
     QTimer::singleShot(0, this, SLOT(createMap()));
+}
+
+void WalletHistoryModel::freezeModel(bool on)
+{
+    if ((on && m_rowsSilentlyInserted >= 0) || (!on && m_rowsSilentlyInserted < 0))
+        return;
+    if (on) {
+        m_rowsSilentlyInserted = 0;
+    }
+    else {
+        // process backlog before turning off
+        if (m_rowsSilentlyInserted > 0) {
+            beginRemoveRows(QModelIndex(), 0, 0);
+            endRemoveRows();
+            beginInsertRows(QModelIndex(), 0, m_rowsSilentlyInserted);
+            endInsertRows();
+        }
+        m_rowsSilentlyInserted = -1;
+    }
+    emit freezeModelChanged();
+}
+
+bool WalletHistoryModel::isModelFrozen() const
+{
+    return m_rowsSilentlyInserted >= 0;
 }
 
 uint32_t WalletHistoryModel::secsSinceEpochFor(int blockHeight) const
