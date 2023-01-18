@@ -31,7 +31,12 @@ ListView {
         width: 60
         height: 60
         anchors.right: parent.right
-        y: (root.contentY > (root.height / 4)) ? 0 : height * -1
+        y: {
+            var indexAtTopOfScreen = root.indexAt(10, root.contentY + 10);
+            if (indexAtTopOfScreen > 3)
+                return 0;
+            return height * -1; // out of screen.
+        }
         color: "#66000000"
 
         Image {
