@@ -277,8 +277,18 @@ ListView {
         MouseArea {
             anchors.fill: parent
             onClicked: {
+                root.currentIndex = index;
                 var newItem = popupOverlay.open(selectedItem, transactionDelegate);
                 newItem.infoObject = portfolio.current.txInfo(model.walletIndex, parent);
+                root.model.freezeModel = true;
+            }
+            Connections {
+                target: popupOverlay
+                // unfreeze the model on closing of the popup
+                function onIsOpenChanged() {
+                    if (!popupOverlay.isOpen)
+                        root.model.freezeModel = false;
+                }
             }
         }
         Component {

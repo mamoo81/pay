@@ -24,6 +24,8 @@ FocusScope {
     anchors.fill: parent
     enabled: thePopup.visible
 
+    property bool isOpen: false;
+
     /**
       * @param sourceComponent is a Component we set on the loader.
       * @param target is the visual item we position next to.
@@ -52,6 +54,7 @@ FocusScope {
             if (!visible) { // closing
                 loader.sourceComponent = undefined;
             }
+            root.isOpen = visible; // ensure listeners of that property get notified after we acted on visibility changes.
         }
         background: Rectangle {
             color: mainWindow.palette.base
