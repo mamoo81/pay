@@ -128,7 +128,7 @@ ListView {
         height: label.height + 15
         width: root.width
         Rectangle {
-            color: mainWindow.palette.window
+            color: root.palette.window
             anchors.fill: parent
         }
         Flowee.Label {
@@ -164,7 +164,7 @@ ListView {
             y: transactionDelegate.placementInGroup === Wallet.GroupStart ? 0 : -20;
 
             radius: 20
-            color: mainWindow.palette.base
+            color: root.palette.base
             border.width: 1
             border.color: root.palette.highlight
         }
