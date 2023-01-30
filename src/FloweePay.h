@@ -283,7 +283,7 @@ private slots:
 private:
     void init();
     void saveAll();
-    // create wallet and add to list. Please consider calling saveData after
+    // create wallet and add to list. Please consider calling walletsChanged() after
     Wallet *createWallet(const QString &name);
     uint32_t walletStartHeightHint() const;
 

@@ -539,8 +539,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     w->moveToThread(thread());
     m_wallets.append(w);
 
-    emit walletsChanged();
-    emit startSaveDate_priv(); // schedule a save of the new wallet
+    emit startSaveDate_priv(); // schedule a save of the m_wallets list
     return w;
 }
 
@@ -792,6 +791,7 @@ NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, cons
     if (startHeight <= 1)
         startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
     wallet->addPrivateKey(privateKey.trimmed().remove('\n'), startHeight);
+    emit walletsChanged();
     if (!m_offline)
         p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
@@ -843,6 +843,7 @@ NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, cons
                                   derivationPath, startHeight);
         wallet->segment()->blockSynched(startHeight);
         wallet->segment()->blockSynched(startHeight); // yes, twice
+        emit walletsChanged();
         if (!m_offline)
             p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
@@ -937,6 +938,7 @@ NewWalletConfig* FloweePay::createNewBasicWallet(const QString &walletName)
 {
     auto wallet = createWallet(walletName);
     wallet->createNewPrivateKey(walletStartHeightHint());
+    emit walletsChanged();
     if (!m_offline)
         p2pNet()->addAction<SyncSPVAction>();
     return new NewWalletConfig(wallet);
@@ -969,6 +971,7 @@ NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const
     auto mnemonic = m_hdSeedValidator.generateMnemonic(seed, "en");
     std::vector<uint32_t> dp = HDMasterKey::deriveFromString(derivationPath.toStdString());
     wallet->createHDMasterKey(mnemonic, password, dp, walletStartHeightHint());
+    emit walletsChanged();
     if (!m_offline)
         p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
 
