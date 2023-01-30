@@ -823,6 +823,18 @@ bool Wallet::isLocked(OutputRef outputRef) const
 
 int Wallet::walletCreatedHeight() const
 {
+    /*
+     * Wallets know at which heigh of the chain they were created, which is nice
+     * because they never need to look at history on their addresses before that
+     * blockheight.
+     *
+     * On Pay startup a wallet may be created before we actually saw the tip of
+     * the headers-chain, meaning that the initial height is impossible to set.
+     * In that small time-window the wallet will get its initial height set to
+     * the current (unix) time,which is corrected to an actual block-height the
+     * moment the headers are fully synched. (see headerSyncComplete())
+     * In here, we simply return -1 in that case.
+     */
     if (m_walletSecrets.empty() || m_walletSecrets.begin()->second.initialHeight >= 10000000)
         return -1;
     return m_walletSecrets.begin()->second.initialHeight;
@@ -944,7 +956,7 @@ void Wallet::rebuildBloom()
         if (secret.initialHeight >= 10000000) {
             // is a timestamp, which means that we are waiting for the
             // headerSyncComplete() to be called and this key is fresh
-            // and so searching in the history is useless.
+            // and so searching in the history is pointless.
             continue;
         }
         if (secret.reserved) {
