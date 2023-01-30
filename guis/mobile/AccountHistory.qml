@@ -66,7 +66,7 @@ ListView {
       To avoid a mess of two scroll-areas (of Flickables) we simply make the top part into a
       header of the listview.
      */
-    header: ColumnLayout {
+    header: Column {
         id: column
         width: root.width - 20
         x: 10

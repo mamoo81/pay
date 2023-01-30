@@ -22,7 +22,7 @@ import QtQuick.Shapes // for shape-path
 
 Item {
     id: root
-    height: indicator.height + 3 + (root.uptodate ? 0 : circleShape.height)
+    height: indicator.height + 3 + (uptodate ? 0 : circleShape.height)
     property QtObject account: null
     property bool uptodate: false
     property int startPos: account.initialBlockHeight
