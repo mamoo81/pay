@@ -1282,9 +1282,7 @@ void Wallet::broadcastUnconfirmed()
                 bc->moveToThread(thread());
                 logDebug() << "  broadcasting transaction" << tx.createHash() << tx.size();
                 m_broadcastingTransactions.append(bc);
-#ifndef IN_TESTS // don't call singleton in unit tests
                 FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(bc);
-#endif
             }
             else {
                 logCritical() << "Unconfirmed transaction could not be found on disk!";
