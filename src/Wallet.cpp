@@ -373,9 +373,7 @@ void Wallet::newTransaction(const Tx &tx)
 
     emit utxosChanged();
     emit appendedTransactions(firstNewTransaction, 1);
-#ifndef IN_TESTS // don't call singleton in unit tests
     FloweePay::instance()->p2pNet()->notifications().notifyNewTransaction(notification);
-#endif
     if (createdNewKeys)
         rebuildBloom();
 }
@@ -502,9 +500,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
             if (wasUnconfirmed)
                 emit transactionConfirmed(walletTransactionId);
             if (notification.blockHeight > 0) {
-#ifndef IN_TESTS // don't call singleton in unit tests
                 FloweePay::instance()->p2pNet()->notifications().notifyNewTransaction(notification);
-#endif
             }
         }
         assert(m_nextWalletTransactionId - firstNewTransaction == int(transactionsToSave.size()));
