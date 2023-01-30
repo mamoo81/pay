@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,7 +109,7 @@ QString AccountInfo::timeBehind() const
 {
     const int accountHeight = lastBlockSynched();
     if (accountHeight <= 0) // For accounts that only expect tx in the future.
-        return tr("Up to date");
+        return tr("Wallet: Up to date");
     const int chainHeight = FloweePay::instance()->chainHeight();
 
     const int diff = chainHeight - accountHeight;
@@ -117,16 +117,18 @@ QString AccountInfo::timeBehind() const
         return "--";
     auto days = diff / 144.;
     auto weeks = diff / 1008.;
-    if (days > 10)
-        return tr("%1 weeks behind", "", std::ceil(weeks)).arg(std::ceil(weeks));
+    if (days > 10) {
+        const int w = static_cast<int>(weeks);
+        return tr("Behind: %1 weeks, %2 days", "counter on weeks", w).arg(w).arg(static_cast<int>(days + 0.5) % 7);
+    }
     auto hours = diff / 6.;
     if (hours > 48)
-        return tr("%1 days behind", "", std::ceil(days)).arg(std::ceil(days));
+        return tr("Behind: %1 days", "", std::ceil(days)).arg(std::ceil(days));
     if (diff == 0)
         return tr("Up to date");
     if (diff < 3 && !isArchived())
         return tr("Updating");
-    return tr("%1 hours behind", "", std::ceil(hours)).arg(std::ceil(hours));
+    return tr("Still %1 hours behind", "", std::ceil(hours)).arg(std::ceil(hours));
 }
 
 WalletHistoryModel *AccountInfo::historyModel()
