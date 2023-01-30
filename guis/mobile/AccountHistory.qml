@@ -218,8 +218,12 @@ ListView {
             color: palette.text
             text: {
                 var minedHeight = model.height;
-                if (minedHeight === -1)
-                    return qsTr("Unconfirmed")
+                if (minedHeight === -1) { // unconfirmed.
+                    // We show a more 'in-progress' like string that indicates its not date-stamped yet.
+                    if (model.fundsIn > 0)
+                        return qsTr("Sending");
+                    return qsTr("Seen");
+                }
                 if (minedHeight === -2)
                     return qsTr("Rejected")
                 var date = model.date;
