@@ -89,7 +89,7 @@ void NetDataProvider::updatePeers()
         m_refreshTimer->stop();
 }
 
-void NetDataProvider::punishMentChanged(int peerId)
+void NetDataProvider::punishmentChanged(int peerId)
 {
     QMutexLocker l(&m_peerMutex);
     QList<NetPeer *> peers(m_peers);

@@ -25,7 +25,7 @@
 #include <QObject>
 
 #include <DownloadManager.h>
-#include <P2PNetInterface.h>
+#include <HeaderSyncInterface.h>
 #include <WorkerThreads.h>
 
 #include <Mnemonic.h>
@@ -47,7 +47,7 @@ class CameraController;
 const std::string &chainPrefix();
 QString renderAddress(const KeyId &pubkeyhash);
 
-class FloweePay : public QObject, public WorkerThreads, P2PNetInterface
+class FloweePay : public QObject, public WorkerThreads, public HeaderSyncInterface
 {
     Q_OBJECT
     Q_PROPERTY(QString unitName READ unitName NOTIFY unitChanged)
@@ -205,8 +205,9 @@ public:
      */
     int chainHeight();
 
-    // P2PNetInterface interface
-    void blockchainHeightChanged(int newHeight);
+    // HeaderSyncInterface interface
+    void setHeaderSyncHeight(int height) override;
+    void headerSyncComplete() override;
 
     /**
      *  Returns true if this is the mainchain.
@@ -302,12 +303,12 @@ private:
     int m_dspTimeout = 5000;
     int m_windowWidth = 500;
     int m_windowHeight = 500;
-    int m_initialHeaderChainHeight = 0;
     int m_fontScaling = 100;
     bool m_darkSkin = true;
     bool m_createStartWallet = false;
     bool m_hideBalance = false;
     bool m_offline = false;
+    bool m_gotHeadersSyncedOnce = false;
 };
 
 #endif

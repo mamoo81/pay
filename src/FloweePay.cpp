@@ -217,6 +217,7 @@ void FloweePay::init()
                     Wallet *w = new Wallet(m_basedir.toStdString(), parser.intData(), walletEncryptionSeed);
                     w->moveToThread(thread());
                     dl->addDataListener(w);
+                    dl->addHeaderListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
                     m_wallets.append(w);
                     logDebug() << "Found wallet" << w->name() << "with segment ID:" << w->segment()->segmentId();
@@ -535,6 +536,7 @@ Wallet *FloweePay::createWallet(const QString &name)
 
     Wallet *w = Wallet::createWallet(m_basedir.toStdString(), id, name);
     dl->addDataListener(w);
+    dl->addHeaderListener(w);
     dl->connectionManager().addPrivacySegment(w->segment());
     w->moveToThread(thread());
     m_wallets.append(w);
@@ -593,20 +595,17 @@ int FloweePay::expectedChainHeight() const
 
 int FloweePay::chainHeight()
 {
-    if (m_initialHeaderChainHeight <= 0)
-        m_initialHeaderChainHeight = headerChainHeight();
-
     const int hch = headerChainHeight();
-    if (m_initialHeaderChainHeight == headerChainHeight()) {
+    if (!m_gotHeadersSyncedOnce) {
         const int expected = expectedChainHeight();
         const int behind = expected - hch; // num blocks we are behind theoretical height
-        if (behind > 3) // don't report expected when variance could explain the diff
+        if (behind > 6) // don't report expected when variance could explain the diff
             return expected;
     }
     return headerChainHeight();
 }
 
-void FloweePay::blockchainHeightChanged(int newHeight)
+void FloweePay::setHeaderSyncHeight(int newHeight)
 {
     if (m_wallets.count() > 1) {
         for (auto *wallet : m_wallets) {
@@ -629,6 +628,12 @@ void FloweePay::blockchainHeightChanged(int newHeight)
         }
     }
 
+    emit headerChainHeightChanged();
+}
+
+void FloweePay::headerSyncComplete()
+{
+    m_gotHeadersSyncedOnce = true;
     emit headerChainHeightChanged();
 }
 
@@ -1043,7 +1048,7 @@ DownloadManager *FloweePay::p2pNet()
 {
     if (m_downloadManager == nullptr) {
         m_downloadManager.reset(new DownloadManager(ioService(), m_basedir.toStdString(), m_chain));
-        m_downloadManager->addP2PNetListener(this);
+        m_downloadManager->addHeaderListener(this);
         m_downloadManager->notifications().addListener(&m_notifications);
 
         QSettings defaultConfig(":/defaults.ini", QSettings::IniFormat);

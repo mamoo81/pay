@@ -37,7 +37,7 @@ public:
     // P2PNetInterface
     void newPeer(int peerId, const std::string &userAgent, int startHeight, PeerAddress address) override;
     void lostPeer(int peerId) override;
-    void punishMentChanged(int peerId) override;
+    void punishmentChanged(int peerId) override;
 
     QList<QObject*> peers() const;
     void startRefreshTimer();

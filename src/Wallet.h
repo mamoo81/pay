@@ -22,6 +22,7 @@
 #include <QMutex>
 
 #include <DataListenerInterface.h>
+#include <HeaderSyncInterface.h>
 #include <PrivacySegment.h>
 
 #include <HDMasterKey.h>
@@ -41,7 +42,7 @@ namespace P2PNet {
 struct Notification;
 }
 
-class Wallet : public QObject, public DataListenerInterface
+class Wallet : public QObject, public DataListenerInterface, public HeaderSyncInterface
 {
     Q_OBJECT
 public:
