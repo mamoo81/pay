@@ -177,7 +177,15 @@ FloweePay::~FloweePay()
 {
     saveData();
 
+    auto *dl = m_downloadManager.get();
+    if (dl) // p2pNet follows lazy initialization.
+        dl->removeHeaderListener(this);
     for (auto wallet : m_wallets) {
+        if (dl) {
+            dl->removeDataListener(wallet);
+            dl->removeHeaderListener(wallet);
+            dl->connectionManager().removePrivacySegment(wallet->segment());
+        }
         try {
             wallet->saveWallet();
         } catch (const std::exception &e) {
