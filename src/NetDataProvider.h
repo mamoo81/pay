@@ -31,19 +31,15 @@ class NetDataProvider : public QObject, public P2PNetInterface
 {
     Q_OBJECT
     Q_PROPERTY(QList<QObject*> peers READ peers NOTIFY peerListChanged)
-    Q_PROPERTY(int blockheight READ blockheight NOTIFY blockHeightChanged)
 public:
     explicit NetDataProvider(int initialBlockHeight, QObject *parent = nullptr);
 
     // P2PNetInterface
     void newPeer(int peerId, const std::string &userAgent, int startHeight, PeerAddress address) override;
     void lostPeer(int peerId) override;
-    void blockchainHeightChanged(int newHeight) override;
     void punishMentChanged(int peerId) override;
 
     QList<QObject*> peers() const;
-    int blockheight() const;
-
     void startRefreshTimer();
 
 signals:
@@ -58,7 +54,6 @@ private slots:
 private:
     mutable QMutex m_peerMutex;
     QList<NetPeer*> m_peers;
-    QAtomicInt m_blockHeight;
 
     QTimer *m_refreshTimer = nullptr;
 };

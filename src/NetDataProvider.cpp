@@ -25,8 +25,7 @@
 #include <QTimer>
 
 NetDataProvider::NetDataProvider(int initialBlockHeight, QObject *parent)
-    : QObject(parent),
-      m_blockHeight(initialBlockHeight)
+    : QObject(parent)
 {
     connect (this, SIGNAL(peerDeleted(int)), this, SLOT(deleteNetPeer(int)), Qt::QueuedConnection); // Make this thread-safe
 }
@@ -90,12 +89,6 @@ void NetDataProvider::updatePeers()
         m_refreshTimer->stop();
 }
 
-void NetDataProvider::blockchainHeightChanged(int newHeight)
-{
-    m_blockHeight.storeRelease(newHeight);
-    emit blockHeightChanged();
-}
-
 void NetDataProvider::punishMentChanged(int peerId)
 {
     QMutexLocker l(&m_peerMutex);
@@ -115,11 +108,6 @@ QList<QObject *> NetDataProvider::peers() const
         answer.append(p);
     }
     return answer;
-}
-
-int NetDataProvider::blockheight() const
-{
-    return m_blockHeight.loadAcquire();
 }
 
 void NetDataProvider::startRefreshTimer()
