@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,8 +113,8 @@ void TestWalletHistoryModel::basic()
     const auto now = QDateTime::currentDateTime();
     auto today = now.date();
     logFatal() << "dayOfWeek" << today.dayOfWeek();
-    if (today.dayOfWeek() > 2) {
-        // that means we should have a 'EarlierThisWeek' group.
+    if (today.dayOfWeek() > 2 && today.dayOfWeek() <= today.day()) {
+        // that means we should have an 'EarlierThisWeek' group.
 
         groupId = model->data(model->index(24 * 6 * (today.dayOfWeek() - 1), 0), WalletHistoryModel::GroupId);
         QVERIFY(groupId.isValid());
