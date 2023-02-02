@@ -338,7 +338,7 @@ void Wallet::newTransaction(const Tx &tx)
         // Remember the signature type used for specific private keys
         updateSignatureTypes(signatureTypes);
 
-        // Mark UTXOs locked that this tx spent to avoid double spending them.
+        // Mark as locked the UTXOs that this tx spent to avoid double spending them.
         for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
             m_lockedOutputs.insert(std::make_pair(i->second, m_nextWalletTransactionId));
         }
