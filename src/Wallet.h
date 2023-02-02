@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -516,6 +516,7 @@ private:
     typedef boost::unordered_map<uint256, int, HashShortener> TxIdCash;
     TxIdCash m_txidCache; // txid -> m_walletTransactions-id
 
+    boost::filesystem::path m_basedir;
     /*
      * Our little UTXO.
      * OutputRef -> value (in sat)
@@ -525,12 +526,15 @@ private:
      * Unspent outputs can be 'locked' from spending for several reasons. User decided or
      * simply because an unconfirmed tx spent it.
      * We remember those here, where the 'key-value' pair follows the same concept for the
-     * key as the m_unspentoUutputs and
+     * key as the m_unspentOutputs and
      * the 'value' is the WalletTransaction index that actually was responsible for locking it.
      * or it is 0 if the locking was user-decided.
+     *
+     * The '-1' value is used to indicate this is a dusting attack UTXO.
+     * Other negative numbers are used to indicate the UTXO is a coinbase and the value is the
+     * height at which it matures, times -1. (example: -101 for block at height 1)
      */
     std::map<uint64_t, int> m_lockedOutputs;
-    boost::filesystem::path m_basedir;
 
     qint64 m_balanceConfirmed = 0;
     qint64 m_balanceImmature = 0;

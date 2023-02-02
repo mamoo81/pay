@@ -464,15 +464,24 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                         m_lockedOutputs.insert(std::make_pair(key, -1)); // -1 is our reason
                     }
                 }
+                if (wtx.isCoinbase) {
+                    // a coinbase can not be spent until its is under a list of blocks of MATURATION_AGE
+                    // as such we need to lock the output from being used.
+                    m_lockedOutputs.insert(std::make_pair(key, (blockHeight + MATURATION_AGE) * -1));
+                }
 
-                // check the payment requests
+                // Check and update the private key data, if needed.
                 const int privKeyId = i->second.walletSecretId;
                 auto ws = m_walletSecrets.find(privKeyId);
                 if (ws != m_walletSecrets.end() && ws->second.initialHeight == 0) {
+                    // a private key has initialHeight set to zero if it comes from a HD seed,
+                    // update this to the actual initial usage as we find a transaction matching it
                     ws->second.initialHeight = blockHeight;
+                    m_secretsChanged = true;
                     needNewBloom = true; // make sure we let the remote know about our 'gap' addresses
                 }
 
+                // check the payment requests
                 for (auto prData : qAsConst(m_paymentRequests)) {
                     if (prData.pr->m_privKeyId == privKeyId) {
                         prData.pr->addPayment(key, i->second.value, blockHeight);
@@ -1238,10 +1247,24 @@ void Wallet::setLastSynchedBlockHeight(int height)
     m_lastBlockHeightSeen = height;
     emit lastBlockSynchedChanged();
 
-    // TODO the next line is very expensive and unneeded for 99.99% of the users.
-    // probably want a bool stating that this wallet has immature coinbases.
-    recalculateBalance();
-    emit utxosChanged(); // in case there was an immature coinbase, this updates the balance
+    bool oneMatured = false;
+    auto i = m_lockedOutputs.begin();
+    while (i != m_lockedOutputs.end()) {
+        if (i->second < -1) {
+            const auto matureHeight = i->second * -1;
+            if (matureHeight <= height) {
+                oneMatured = true;
+                i = m_lockedOutputs.erase(i);
+                continue;
+            }
+        }
+        ++i;
+    }
+    if (oneMatured) {
+        // when an immature coinbase became spendable, this updates the balance
+        recalculateBalance();
+        emit utxosChanged();
+    }
 
     if (height == FloweePay::instance()->headerChainHeight()) {
         // start this in my own thread and free of mutex-locks
@@ -1858,10 +1881,8 @@ void Wallet::loadWallet()
     if (highestBlockHeight > 0) {
         m_segment->blockSynched(highestBlockHeight);
         m_segment->blockSynched(highestBlockHeight); // yes, twice.
-    } else {
-        // otherwise the blockSynced() implicitly calls this.
-        recalculateBalance();
     }
+    recalculateBalance();
 
 #ifdef DEBUGUTXO
     for (auto output : m_unspentOutputs) {
@@ -1897,10 +1918,18 @@ void Wallet::loadWallet()
     for (auto &pair : m_lockedOutputs) {
         auto utxoLink = m_unspentOutputs.find(pair.first);
         assert(utxoLink != m_unspentOutputs.end());
-        assert(pair.second >= -1);
-        if (pair.second > 0) { // zero means its user-locked, -1 is spam-locked
+        // zero means its user-locked, -1 is spam-locked
+        // -101 and further is a coinbase maturation height, times -1
+        if (pair.second > 0) {
             auto w = m_walletTransactions.find(pair.second);
-            assert (w != m_walletTransactions.end());
+            assert(w != m_walletTransactions.end());
+        }
+        if (pair.second < -1) { // is coinbase lock
+            assert(pair.second < -1 * MATURATION_AGE);
+            const OutputRef ref(pair.first);
+            auto w = m_walletTransactions.find(ref.txIndex());
+            assert(w != m_walletTransactions.end());
+            assert(w->second.isCoinbase);
         }
     }
 #endif
@@ -2070,13 +2099,16 @@ void Wallet::recalculateBalance()
         if (loi != m_lockedOutputs.end()) {
             // locked utxos are the result of already sent but not yet mined transactions
             // but also when the user goes and locks one manually.
-            if (loi->second != 0) // zero means user-locked.
+            if (loi->second < -1) { // locked coinbase where value is (the negative) maturation height
+                balanceImmature += utxo.second;
                 continue;
+            }
+            else if (loi->second != 0) { // zero means user-locked.
+                continue;
+            }
         }
         if (h == WalletPriv::Unconfirmed)
             balanceUnconfirmed += utxo.second;
-        else if (wtx->second.isCoinbase && h + MATURATION_AGE > m_lastBlockHeightSeen)
-            balanceImmature += utxo.second;
         else
             balanceConfirmed += utxo.second;
     }
