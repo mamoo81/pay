@@ -42,5 +42,6 @@
         <file>mobile/VisualSeparator.qml</file>
         <file>mobile/PopupOverlay.qml</file>
         <file>mobile/TransactionDetails.qml</file>
+        <file>mobile/TxInfoSmall.qml</file>
     </qresource>
 </RCC>
