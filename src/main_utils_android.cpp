@@ -108,7 +108,6 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData*)
     portfolio->selectDefaultWallet();
 
     engine.rootContext()->setContextProperty("net", netData);
-    engine.rootContext()->setContextProperty("fiatHistory", FloweePay::instance()->priceHistory());
     engine.rootContext()->setContextProperty("portfolio", portfolio);
     app->startNet(); // lets go!
 }

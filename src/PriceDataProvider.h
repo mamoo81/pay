@@ -18,8 +18,10 @@
 #ifndef PRICEDATAPROVIDER_H
 #define PRICEDATAPROVIDER_H
 
-#include <QNetworkAccessManager>
 #include <QObject>
+
+#include "PriceHistoryDataProvider.h"
+#include <QNetworkAccessManager>
 #include <QTimer>
 
 class PriceDataProvider : public QObject
@@ -59,6 +61,11 @@ public:
      */
     Q_INVOKABLE QString formattedPrice(int cents) const;
 
+    /**
+     * Return the price at a certain time in the past.
+     */
+    Q_INVOKABLE int historicalPrice(const QDateTime &timestamp) const;
+
     /// return a string with the given price and needed decimal separator.
     /// Please note that the currency indicators are not included, unlike in formattedPrice()
     /// \see currencySymbolPrefix()
@@ -87,6 +94,8 @@ public:
      */
     QString currencySymbolPost() const;
 
+    void loadPriceHistory(const QString &basedir);
+
 signals:
     void priceChanged(int32_t price);
     void currencySymbolChanged();
@@ -109,6 +118,8 @@ private:
     bool m_displayCents = true; // if true, display 2 digits behind the unit-separator
     int m_failedCount = 0;
     QTimer m_timer;
+
+    std::unique_ptr<PriceHistoryDataProvider> m_priceHistory;
 };
 
 #endif

@@ -35,9 +35,6 @@ public:
 
     void addPrice(const QString &currency, uint32_t timestamp, int price);
 
-    Q_INVOKABLE int historicalPrice(const QDateTime &timestamp) const {
-        return historicalPrice(timestamp.toSecsSinceEpoch());
-    }
     int historicalPrice(uint32_t timestamp) const;
 
     QString currencyName() const;

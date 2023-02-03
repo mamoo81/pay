@@ -57,6 +57,8 @@ PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
 
 void PriceDataProvider::start()
 {
+    if (m_priceHistory.get())
+        m_priceHistory->initialPopulate();
     m_timer.start(ReloadTimeout);
     fetch();
 }
@@ -125,6 +127,14 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
                 % actualPrice
                 % m_currencySymbolPost;
     }
+}
+
+int PriceDataProvider::historicalPrice(const QDateTime &timestamp) const
+{
+    if (m_priceHistory.get() == nullptr)
+        return m_currentPrice.price;
+
+    return m_priceHistory->historicalPrice(timestamp.toSecsSinceEpoch());
 }
 
 QString PriceDataProvider::priceToStringSimple(int cents) const
@@ -209,6 +219,23 @@ void PriceDataProvider::finishedDownload()
 QString PriceDataProvider::currencySymbolPost() const
 {
     return m_currencySymbolPost;
+}
+
+void PriceDataProvider::loadPriceHistory(const QString &basedir)
+{
+    m_priceHistory.reset(new PriceHistoryDataProvider(basedir,
+                              QLocale::system().currencySymbol(QLocale::CurrencyIsoCode)));
+
+    // take the last known price from our historical module to have something
+    // mostly useful until we manage to fetch the data from the life feeds.
+    auto price = historicalPrice(QDateTime::currentDateTimeUtc());
+    if (price == 0)
+        price = 10000; // if we never fetched, set to 100,-
+    m_currentPrice.price = price;
+    connect (this, &PriceDataProvider::priceChanged,
+             m_priceHistory.get(), [=](int price) {
+        m_priceHistory->addPrice(currencyName(), QDateTime::currentSecsSinceEpoch(), price);
+    });
 }
 
 QString PriceDataProvider::currencySymbolPrefix() const

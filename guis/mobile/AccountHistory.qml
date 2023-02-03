@@ -260,7 +260,7 @@ ListView {
                     if (typeof dat === "undefined") // unconfirmed transactions have no date
                         var fiatPrice = Fiat.price;
                     else
-                        fiatPrice = fiatHistory.historicalPrice(dat);
+                        fiatPrice = Fiat.historicalPrice(dat);
                     return Fiat.formattedPrice(price.amountBch, fiatPrice);
                 }
                 anchors.centerIn: parent

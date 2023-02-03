@@ -90,7 +90,6 @@ public:
     DownloadManager* p2pNet();
 
     PriceDataProvider *prices() const;
-    PriceHistoryDataProvider *priceHistory() const;
 
     /// return the amount of milli-seconds we wait for a double-spent-proof
     int dspTimeout() const;
@@ -295,7 +294,6 @@ private:
     std::string m_chainPrefix;
     std::unique_ptr<DownloadManager> m_downloadManager;
     std::unique_ptr<PriceDataProvider> m_prices;
-    std::unique_ptr<PriceHistoryDataProvider> m_priceHistory;
     NotificationManager m_notifications;
     CameraController* m_cameraController;
     QList<Wallet*> m_wallets;

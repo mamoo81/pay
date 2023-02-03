@@ -145,7 +145,6 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *c
     portfolio->selectDefaultWallet();
 
     engine.rootContext()->setContextProperty("net", netData);
-    engine.rootContext()->setContextProperty("fiatHistory", FloweePay::instance()->priceHistory());
     engine.rootContext()->setContextProperty("portfolio", portfolio);
     if (!cld->parser.isSet(cld->offline) && cld->parser.isSet(cld->connect)) {
         app->p2pNet()->connectionManager().peerAddressDb().addOne( // add it to the DB, making sure there is at least one.

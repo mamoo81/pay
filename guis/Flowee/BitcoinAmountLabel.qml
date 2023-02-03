@@ -127,10 +127,10 @@ QQC2.Control {
             Layout.alignment: Qt.AlignBaseline
             text: {
                 var fiatPrice;
-                if (root.fiatTimestamp == undefined || fiatHistory == null)
+                if (root.fiatTimestamp == undefined)
                     fiatPrice = Fiat.price; // todays price
                 else
-                    fiatPrice = fiatHistory.historicalPrice(root.fiatTimestamp);
+                    fiatPrice = Fiat.historicalPrice(root.fiatTimestamp);
                 Fiat.formattedPrice(root.value, fiatPrice)
             }
         }
