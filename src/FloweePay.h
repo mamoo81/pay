@@ -41,7 +41,6 @@ class Wallet;
 class NewWalletConfig;
 class KeyId;
 class PriceDataProvider;
-class PriceHistoryDataProvider;
 class CameraController;
 
 const std::string &chainPrefix();
