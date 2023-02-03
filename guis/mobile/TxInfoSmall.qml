@@ -21,33 +21,52 @@ import QtQuick.Layouts
 import "../Flowee" as Flowee
 import Flowee.org.pay;
 
+
 GridLayout {
     id: root
     columns: 2
     rowSpacing: 10
     property QtObject infoObject: null
-    Flowee.LabelWithClipboard {
-        Layout.fillWidth: true
+
+    property int minedHeight: model.height
+
+    QQC2.Label {
         Layout.columnSpan: 2
+
+        property bool isRejected: root.minedHeight == -2; // -2 is the magic block-height indicating 'rejected'
         text: {
-            if (model.height === -2)// -2 is the magic block-height indicating 'rejected'
-                return qsTr("rejected")
-            if (typeof model.date === "undefined")
-                return qsTr("unconfirmed")
-            var confirmations = Pay.headerChainHeight - model.height + 1;
-            return qsTr("%1 confirmations (mined in block %2)", "", confirmations)
-            .arg(confirmations).arg(model.height);
+            if (isRejected)
+                return qsTr("Transaction is rejected")
+            if (typeof root.minedHeight < 1)
+                return qsTr("Processing")
+            return "";
         }
-        clipboardText: model.height
-        menuText: qsTr("Copy block height")
+        visible: text !== ""
+        color: {
+            if (isRejected) {
+                // Transaction is rejected by network
+                return Pay.useDarkSkin ? "#ec2327" : "#b41214";
+            }
+            return mainWindow.palette.windowText
+        }
     }
+
     Flowee.Label {
-        visible: model.height > 0
+        visible: root.minedHeight > 0
         text: qsTr("Mined") + ":"
     }
     Flowee.Label {
-        visible: model.height > 0
-        text: model.height > 0 ? Pay.formatDateTime(model.date) : "";
+        Layout.fillWidth: true
+        visible: root.minedHeight > 0
+        text: {
+            if (root.minedHeight <= 0)
+                return "";
+            var rc = Pay.formatDateTime(model.date);
+            var confirmations = Pay.headerChainHeight - root.minedHeight + 1;
+            if (confirmations > 0 && confirmations < 100)
+                rc += " (" + qsTr("%1 blocks ago", confirmations).arg(confirmations) + ")";
+            return rc;
+        }
     }
     Flowee.Label {
         id: paymentTypeLabel
@@ -71,31 +90,53 @@ GridLayout {
         }
     }
     Flowee.BitcoinAmountLabel {
+        Layout.fillWidth: true
         visible: paymentTypeLabel.visible
         value: model.fundsOut - model.fundsIn
         fiatTimestamp: model.date
+        showFiat: false // might not fit
+    }
+
+    // price at mining
+    // value in exchange gained
+    Flowee.Label {
+        id: priceAtMining
+        visible: {
+            if (root.minedHeight < 1)
+                return false;
+            if (model.isCashFusion)
+                return false;
+            let diff = model.fundsOut - model.fundsIn;
+            if (diff < 0 && diff > -1000) // then the diff is likely just fees.
+                return false;
+            return true;
+        }
+        text: qsTr("Value then") + ":"
     }
     Flowee.Label {
-        id: feesLabel
-        visible: root.infoObject != null && root.infoObject.createdByUs
-        text: qsTr("Fees") + ":"
+        Layout.fillWidth: true
+        id: valueThenLabel
+        visible: priceAtMining.visible
+        property int fiatPrice: visible ? Fiat.historicalPrice(model.date) : 0;
+        text: Fiat.formattedPrice(Math.abs(model.fundsOut - model.fundsIn), fiatPrice)
     }
-    Flowee.BitcoinAmountLabel {
-        visible: feesLabel.visible
-        value: {
-            if (root.infoObject == null)
-                return 0;
-            if (!root.infoObject.createdByUs)
-                return 0;
-            var amount = model.fundsIn;
-            var outputs = root.infoObject.outputs
-            for (var i in outputs) {
-                amount -= outputs[i].value
-            }
-            return amount
+    Flowee.Label {
+        visible: priceAtMining.visible
+        text: qsTr("Value now") + ":"
+    }
+    Flowee.Label {
+        Layout.fillWidth: true
+        visible: priceAtMining.visible
+        text: {
+            if (root.minedHeight <= 0)
+                return "";
+            var fiatPriceNow = Fiat.price;
+            var gained = (fiatPriceNow - valueThenLabel.fiatPrice) / valueThenLabel.fiatPrice * 100
+
+            var sats = Math.abs(model.fundsOut - model.fundsIn);
+            return Fiat.formattedPrice(sats, fiatPriceNow)
+                    + " (" + (gained >= 0 ? "↑" : "↓") + Math.abs(gained).toFixed(2) + "%)";
         }
-        fiatTimestamp: model.date
-        colorize: false
     }
 
     TextButton {
