@@ -62,21 +62,11 @@ QQC2.Control {
         height: 50
         color: Pay.useDarkSkin ? root.palette.base : mainWindow.floweeBlue
 
-        Column {
+        Flowee.HamburgerMenu {
             id: menuButton
-            spacing: 3
             anchors.verticalCenter: parent.verticalCenter
+            wide: true
             x: 8
-
-            Repeater {
-                model: 3
-                delegate: Rectangle {
-                    color: "white"
-                    width: 12
-                    height: 3
-                    radius: 2
-                }
-            }
         }
         MouseArea {
             anchors.fill: menuButton

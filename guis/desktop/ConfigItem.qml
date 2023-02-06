@@ -17,13 +17,14 @@
  */
 import QtQuick
 import QtQuick.Controls
+import "../Flowee" as Flowee
 
 Item {
     id: root
     width: wide ? 12 : 4
     height: column.height
     property color color: Pay.useDarkSkin ? "white" : "black"
-    property bool wide: false
+    property alias wide: hamburgerMenu
     default property alias actions: ourMenu.contentData
     /// emitted when the menu is about to open.
     signal aboutToOpen;
@@ -40,20 +41,8 @@ Item {
         }
     }
 
-    Column {
-        id: column
-        spacing: 3
-        y: 1 // move the column down to account for the anti-alias line of the rectangle below
-
-        Repeater {
-            model: 3
-            delegate: Rectangle {
-                color: root.color
-                width: root.wide ? 12 : 4
-                height: 3
-                radius: 2
-            }
-        }
+    Flowee.HamburgerMenu {
+        id: hamburgerMenu
     }
     MouseArea {
         anchors.fill: parent
