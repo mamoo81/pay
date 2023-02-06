@@ -85,13 +85,12 @@ QQC2.Control {
     FocusScope {
         id: focusScope
         anchors.fill: parent
-        Flickable {
+        QQC2.Control {
             id: child
             width: root.width - 20
             x: 10
             y: header.height + 10
             height: root.height - y
-            clip: true
         }
     }
     Keys.onPressed: (event)=> {
