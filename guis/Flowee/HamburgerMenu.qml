@@ -17,20 +17,23 @@
  */
 import QtQuick
 
-Column {
+Item {
     id: root
-    spacing: 3
-    y: 1 // move the column down to account for the anti-alias line of the rectangle below
-
+    implicitWidth: root.wide ? 12 : 4
+    implicitHeight: 16
     property bool wide: false
 
-    Repeater {
-        model: 3
-        delegate: Rectangle {
-            color: "white"
-            width: root.wide ? 12 : 4
-            height: 3
-            radius: 2
+    Column {
+        spacing: 3
+        y: 1 // move the column down to account for the anti-alias line of the rectangle below
+        Repeater {
+            model: 3
+            delegate: Rectangle {
+                color: "white"
+                width: root.wide ? 12 : 4
+                height: 3
+                radius: 2
+            }
         }
     }
 }
