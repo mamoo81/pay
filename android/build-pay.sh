@@ -138,7 +138,7 @@ if test -z "\$DOCKERID"; then
         --volume=`pwd`:/home/builds/build \\
         --volume=$floweePaySrcDir:/home/builds/src \\
         --volume=$_thehub_dir_:/home/builds/floweelibs \\
-        flowee/buildenv-android:v6.4.1 /bin/bash\`
+        ${_docker_name_} /bin/bash\`
     echo "\$DOCKERID" > .docker
 fi
 execInDocker="docker container exec --workdir /home/builds --user \`id -u\` \$DOCKERID"
