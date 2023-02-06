@@ -124,6 +124,8 @@ QQC2.Control {
             id: accountSelector
             width: root.width
             y: header.height
+
+            onSelectedAccountChanged: portfolio.current = selectedAccount
         }
     }
 

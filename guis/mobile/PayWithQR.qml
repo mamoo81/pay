@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,12 @@ Page {
     id: root
     headerText: qsTr("Approve Payment")
 
+
     Item { // data
         QRScanner {
             id: scanner
             scanType: QRScanner.PaymentDetails
-            autostart: true
+            // autostart: true
             onFinished: {
                 var rc = scanResult
                 if (rc === "") { // scanning failed
@@ -50,67 +51,70 @@ Page {
             onIsValidChanged: if (isValid) prepare()
 
             // easier testing values (for when you don't have a camera)
-            // paymentAmount: 100000000
-            // targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
-            // userComment: "bla bla bla"
+            paymentAmount: 100000000
+            targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
+            userComment: "bla bla bla"
+        }
+
+        AccountSelector {
+            id: accountSelector
+            width: root.width
+            x: -10 // to correct the indent added in the fullPage
+            y: (root.height - height) / 2
+            onSelectedAccountChanged: payment.account = selectedAccount
+            selectedAccount: payment.account
         }
     }
 
     // if true, the bitcoin value is provided by the user (or QR), and the fiat follows
     // if false, the user edits the fiat price and the bitcoin value is calculated.
-    // Notice that 'sendAllButton' overrules both and gets the data from the wallet-total
+    // Notice that 'send all' overrules both and gets the data from the wallet-total
     property bool fiatFollowsSats: true
 
     Flowee.BitcoinValueField {
         id: priceBch
-        y: 10
-        value: {
-            if (sendAllButton.checked) // we use 'max'
-                return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
-            return payment.paymentAmount
-        }
+        y: root.fiatFollowsSats ? 5 : 68
+        value: payment.paymentAmount
         focus: true
         fontPixelSize: size
-        property double size: (fiatFollowsSats && !sendAllButton.checked) ? 38 : commentLabel.font.pixelSize
+        property double size: fiatFollowsSats ? 38 : commentLabel.font.pixelSize* 0.8
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = true
         Behavior on size { NumberAnimation { } }
-        Flowee.ObjectShaker { id: bchShaker }
+        Behavior on y { NumberAnimation { } }
+        Flowee.ObjectShaker { id: bchShaker } // 'shake' to give feedback on mistakes
 
-        // auto-unchecks 'max'
+        // this unchecks 'max' on user editing of the value
         onValueEdited: payment.paymentAmount = value
     }
+    MouseArea {
+        /* Since the valueField is centred but only allows clicking on its active surface,
+          we provide this one to make it possible to click on the full width and activate it.
+        */
+        width: root.width
+        height: priceBch.height
+        y: priceBch.y
+        onClicked: priceBch.forceActiveFocus();
+    }
+
     Flowee.FiatValueField  {
         id: priceFiat
         value: Fiat.priceFor(priceBch.value, payment.fiatPrice);
-        anchors.top: priceBch.bottom
-        anchors.topMargin: 18
+        y: root.fiatFollowsSats ? 68 : 5
         focus: true
         fontPixelSize: size
-        property double size: (!fiatFollowsSats && !sendAllButton.checked) ? 38 : commentLabel.font.pixelSize
+        property double size: !fiatFollowsSats ? 38 : commentLabel.font.pixelSize * 0.8
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = false
         Behavior on size { NumberAnimation { } }
+        Behavior on y { NumberAnimation { } }
         Flowee.ObjectShaker { id: fiatShaker }
         onValueEdited: payment.details[0].fiatAmount = value
-    }
-
-    Flowee.Button {
-        id: sendAllButton
-        text: qsTr("Send All")
-        checkable: true
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: priceFiat.bottom
-        anchors.topMargin: 10
-        checked: payment.details[0].maxSelected
-        onClicked: payment.details[0].maxSelected = checked
     }
 
     Flowee.Label {
         id: commentLabel
         text: qsTr("Payment description" + ":")
         visible: userComment.text !== ""
-
-        anchors.top: sendAllButton.bottom
-        anchors.topMargin: 20
+        y: 100
     }
     Flowee.Label {
         id: userComment
@@ -121,21 +125,116 @@ Page {
         anchors.top: commentLabel.bottom
         anchors.topMargin: 5
     }
+
+    Rectangle {
+        id: inputChooser
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: userComment.bottom
+        border.width: 1
+        border.color: root.palette.highlight
+        color: root.palette.base
+        width: inputs.width + 20
+        height: 40
+        radius: 15
+
+        Row {
+            id: inputs
+            x: 10
+            y: 7.5
+            spacing: 16
+            Image {
+                id: logo
+                source: "qrc:/bch.svg"
+                width: 25
+                height: 25
+                smooth: true
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: priceBch.forceActiveFocus();
+                }
+            }
+
+            Flowee.Label {
+                text: Fiat.currencySymbolPost + Fiat.currencySymbolPrefix
+                width: 24
+                font.pixelSize: 32
+                horizontalAlignment: Text.horizontalCenter
+                anchors.baseline: logo.bottom
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: priceFiat.forceActiveFocus();
+                }
+            }
+
+            /* TODO
+            Flowee.HamburgerMenu {
+                wide: true
+                y: 6
+                MouseArea {
+                    anchors.fill: parent
+                    // onClicked:
+                    // TODO show small menu with last 5 chosen fiat currencies
+                    // and a 'more' item which leads to a separate page for all
+                    // possible currencies.
+                }
+            }*/
+        }
+
+        Rectangle {
+            color: root.palette.text
+            opacity: 0.3
+            radius: 6
+            width: 35
+            height: parent.height - 10
+            y: 5
+            x: root.fiatFollowsSats ? 5 : 45
+
+            Behavior on x { NumberAnimation { } }
+        }
+    }
+
+
+
     Flowee.Label {
         id: errorLabel
         text: payment.error
         visible: payment.isValid
         color: Pay.useDarkSkin ? "#cc5454" : "#6a0c0c"
-        anchors.top: userComment.bottom
+        anchors.bottom: walletNameBackground.top
         wrapMode: Text.Wrap
-        anchors.topMargin: 20
+        anchors.bottomMargin: 10
         width: parent.width
+    }
+
+    Rectangle {
+        id: walletNameBackground
+        anchors.top: currentWalletLabel.top
+        anchors.topMargin: -5
+        width: parent.width
+        anchors.bottom: currentWalletValue.bottom
+        anchors.bottomMargin: -5
+        color: root.palette.alternateBase
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: (mouse) => {
+                if (mouse.x < parent.width / 2) {
+                    accountSelector.open();
+                } else {
+                    // TODO open popup on price.
+                    // this should include a 'max-price' option like this;
+                    // payment.details[0].maxSelected = checked
+                }
+            }
+        }
     }
 
     Flowee.Label {
         id: currentWalletLabel
-        text: portfolio.current.name
-        visible: portfolio.current.isUserOwned
+        text: payment.account.name
+        visible: payment.account.isUserOwned
         anchors.baseline: parent.width > currentWalletLabel.width + currentWalletValue.width
                     ? currentWalletValue.baseline : undefined
         anchors.bottom: parent.width > currentWalletLabel.width + currentWalletValue.width
@@ -145,9 +244,9 @@ Page {
         id: currentWalletValue
         anchors.right: parent.right
         anchors.bottom: numericKeyboard.top
-        anchors.bottomMargin: 20
+        anchors.bottomMargin: 10
         value: {
-            var wallet = portfolio.current;
+            var wallet = payment.account;
             return wallet.balanceConfirmed + wallet.balanceUnconfirmed;
         }
     }
@@ -157,7 +256,7 @@ Page {
         anchors.bottom: slideToApprove.top
         anchors.bottomMargin: 15
         width: parent.width
-        enabled: !sendAllButton.checked
+        enabled: !payment.details[0].maxSelected
         Repeater {
             model: 12
             delegate: Item {

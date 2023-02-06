@@ -21,18 +21,21 @@ import QtQuick.Layouts
 import "../Flowee" as Flowee
 
 QQC2.Popup {
-    id: accountSelector
+    id: root
     closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
     height: columnLayout.height + 10
+    focus: true // to allow Escape to close it
+
+    property QtObject selectedAccount: portfolio.current
 
     Connections {
         target: menuOverlay
-        function onOpenChanged() { accountSelector.close(); }
+        function onOpenChanged() { root.close(); }
     }
 
     background: Rectangle {
-        color: mainWindow.palette.base
-        border.color: mainWindow.palette.highlight
+        color: root.palette.base
+        border.color: root.palette.highlight
         border.width: 1
         radius: 5
     }
@@ -56,7 +59,7 @@ QQC2.Popup {
                     color: root.palette.button
                     radius: 5
                     anchors.fill: parent
-                    visible: modelData === portfolio.current
+                    visible: modelData === root.selectedAccount
                 }
                 Flowee.Label {
                     id: accountName
@@ -90,8 +93,8 @@ QQC2.Popup {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        portfolio.current = modelData
-                        accountSelector.close();
+                        root.selectedAccount = modelData
+                        root.close();
                     }
                 }
             }
