@@ -39,7 +39,7 @@ QQC2.Control {
     property alias fontPixelSize: main.font.pixelSize
 
     implicitHeight: row.implicitHeight
-    implicitWidth: Math.max(row.maxWidth, row.implicitWidth)
+    implicitWidth: row.implicitWidth
 
     height: main.height
     width: implicitWidth
@@ -50,9 +50,6 @@ QQC2.Control {
     RowLayout {
         id: row
         height: parent.height
-
-        property int maxWidth: 0
-        onImplicitWidthChanged: maxWidth = Math.max(maxWidth, implicitWidth)
 
         // calculated
         property string amountString: "";
