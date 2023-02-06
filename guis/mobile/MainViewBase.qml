@@ -120,89 +120,10 @@ QQC2.Control {
             anchors.baseline: logo.baseline
         }
 
-        QQC2.Popup {
+        AccountSelector {
             id: accountSelector
-            closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
-            y: header.height
             width: root.width
-            height: columnLayout.height
-
-            Connections {
-                target: menuOverlay
-                function onOpenChanged() { accountSelector.close(); }
-            }
-
-            ColumnLayout {
-                id: columnLayout
-                width: parent.width
-
-                Flowee.Label {
-                    text: qsTr("Your Wallets")
-                    font.bold: true
-                }
-
-                Repeater { // portfolio holds all our accounts
-                    width: parent.width
-                    model: portfolio.accounts
-                    delegate: Item {
-                        width: columnLayout.width
-                        height: accountName.height + lastActive.height + 6 * 3
-                        Rectangle {
-                            color: root.palette.button
-                            radius: 5
-                            anchors.fill: parent
-                            visible: modelData === portfolio.current
-                        }
-                        Flowee.Label {
-                            id: accountName
-                            y: 6
-                            x: 6
-                            text: modelData.name
-                        }
-                        Flowee.Label {
-                            id: fiat
-                            anchors.top: accountName.top
-                            anchors.right: parent.right
-                            anchors.rightMargin: 6
-                            text: Fiat.formattedPrice(modelData.balanceConfirmed + modelData.balanceUnconfirmed, Fiat.price)
-                        }
-                        Flowee.Label {
-                            id: lastActive
-                            anchors.top: accountName.bottom
-                            anchors.left: accountName.left
-                            text: qsTr("last active") + ": " + Pay.formatDate(modelData.lastMinedTransaction)
-                            font.pixelSize: root.font.pixelSize * 0.8
-                            font.bold: false
-                        }
-                        Flowee.BitcoinAmountLabel {
-                            anchors.right: fiat.right
-                            anchors.top: lastActive.top
-                            font.pixelSize: lastActive.font.pixelSize
-                            showFiat: false
-                            value: modelData.balanceConfirmed + modelData.balanceUnconfirmed
-                            colorize: false
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                portfolio.current = modelData
-                                accountSelector.close();
-                            }
-                        }
-                    }
-                }
-                Item {
-                    // horizontal divider.
-                    width: parent.width
-                    height: 1
-                    Rectangle {
-                        height: 1
-                        width: parent.width / 10 * 7
-                        x: (parent.width - width) / 2 // center in column
-                        color: root.palette.highlight
-                    }
-                }
-            }
+            y: header.height
         }
     }
 
