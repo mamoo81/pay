@@ -29,9 +29,9 @@ class PriceDataProvider : public QObject
     Q_OBJECT
     Q_PROPERTY(int price READ price NOTIFY priceChanged)
     Q_PROPERTY(QString currencyName READ currencyName NOTIFY currencySymbolChanged)
-    Q_PROPERTY(bool displayCents READ displayCents CONSTANT)
-    Q_PROPERTY(QString currencySymbolPrefix READ currencySymbolPrefix CONSTANT)
-    Q_PROPERTY(QString currencySymbolPost READ currencySymbolPost CONSTANT)
+    Q_PROPERTY(bool displayCents READ displayCents NOTIFY currencySymbolChanged)
+    Q_PROPERTY(QString currencySymbolPrefix READ currencySymbolPrefix NOTIFY currencySymbolChanged)
+    Q_PROPERTY(QString currencySymbolPost READ currencySymbolPost NOTIFY currencySymbolChanged)
 public:
     explicit PriceDataProvider(QObject *parent = nullptr);
 
@@ -46,6 +46,8 @@ public:
     int price() const {
         return m_currentPrice.price;
     }
+    void setCurrency(const QLocale &countryLocale);
+    Q_INVOKABLE void setCurrency(const QString &countrycode);
 
     /**
      * Return a formatted string with the locale-defined price of the amount of \a sats.
@@ -119,6 +121,7 @@ private:
     int m_failedCount = 0;
     QTimer m_timer;
 
+    QString m_basedir; // where the priceHistory is stored.
     std::unique_ptr<PriceHistoryDataProvider> m_priceHistory;
 };
 

@@ -34,9 +34,31 @@ static constexpr int ReloadTimeout = 7 * 60 * 1000;
 
 PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
 {
-    QLocale here(QLocale::system());
-    m_currency = here.currencySymbol(QLocale::CurrencyIsoCode);
-    m_currencySymbolPrefix = here.currencySymbol(QLocale::CurrencySymbol);
+    setCurrency(QLocale::system());
+    QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetch()));
+}
+
+void PriceDataProvider::start()
+{
+    if (m_priceHistory.get())
+        m_priceHistory->initialPopulate();
+    m_timer.start(ReloadTimeout);
+    fetch();
+}
+
+void PriceDataProvider::mock(int price)
+{
+    m_currentPrice.price = price;
+}
+
+void PriceDataProvider::setCurrency(const QLocale &countryLocale)
+{
+    auto newCurrency = countryLocale.currencySymbol(QLocale::CurrencyIsoCode);
+    if (m_currency == newCurrency)
+        return;
+    m_currency = newCurrency;
+    m_currencySymbolPrefix = countryLocale.currencySymbol(QLocale::CurrencySymbol);
+    m_currencySymbolPost.clear();
     if (m_currency == QLatin1String("AZN")
             || m_currency == QLatin1String("ILS")
             || m_currency == QLatin1String("IRR")
@@ -52,20 +74,21 @@ PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
     // drop the '.00' behind the prices as this country doesn't traditionlly do that
     m_displayCents = !(m_currency == QLatin1String("JPY")
                    || m_currency == QLatin1String("NOK"));
-    QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetch()));
+
+    emit currencySymbolChanged();
+    if (!m_basedir.isEmpty()) {
+        assert(m_priceHistory.get());
+        // we need to replace the history of our coin to the new history of the new coin.
+        loadPriceHistory(m_basedir);
+
+        if (m_timer.isActive()) // implies we are start()-ed
+            start();
+    }
 }
 
-void PriceDataProvider::start()
+void PriceDataProvider::setCurrency(const QString &countrycode)
 {
-    if (m_priceHistory.get())
-        m_priceHistory->initialPopulate();
-    m_timer.start(ReloadTimeout);
-    fetch();
-}
-
-void PriceDataProvider::mock(int price)
-{
-    m_currentPrice.price = price;
+    setCurrency(QLocale(countrycode));
 }
 
 QString PriceDataProvider::formattedPrice(double amountSats, int price) const
@@ -223,15 +246,14 @@ QString PriceDataProvider::currencySymbolPost() const
 
 void PriceDataProvider::loadPriceHistory(const QString &basedir)
 {
-    m_priceHistory.reset(new PriceHistoryDataProvider(basedir,
-                              QLocale::system().currencySymbol(QLocale::CurrencyIsoCode)));
-
+    m_basedir = basedir;
+    m_priceHistory.reset(new PriceHistoryDataProvider(basedir, m_currency));
     // take the last known price from our historical module to have something
     // mostly useful until we manage to fetch the data from the life feeds.
-    auto price = historicalPrice(QDateTime::currentDateTimeUtc());
-    if (price == 0)
-        price = 10000; // if we never fetched, set to 100,-
-    m_currentPrice.price = price;
+    auto lastKnownPrice = historicalPrice(QDateTime::currentDateTimeUtc());
+    if (lastKnownPrice == 0)
+        lastKnownPrice = 10000; // if we never fetched, set to 100,-
+    m_currentPrice.price = lastKnownPrice;
     connect (this, &PriceDataProvider::priceChanged,
              m_priceHistory.get(), [=](int price) {
         m_priceHistory->addPrice(currencyName(), QDateTime::currentSecsSinceEpoch(), price);
