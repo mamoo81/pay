@@ -157,6 +157,12 @@ public:
     /// return a string version of the \a unit name. tBCH for instance.
     Q_INVOKABLE QString nameOfUnit(FloweePay::UnitOfBitcoin unit) const;
 
+    /**
+     * Change the currency based on the country code (nl_NL / en_US)
+     */
+    Q_INVOKABLE void setCountry(const QString &countrycode);
+    Q_INVOKABLE QStringList recentCountries() const;
+
     /// returns the unit of our prices. BCH, for instance.
     QString unitName() const;
     /**

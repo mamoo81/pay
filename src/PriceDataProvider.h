@@ -33,7 +33,7 @@ class PriceDataProvider : public QObject
     Q_PROPERTY(QString currencySymbolPrefix READ currencySymbolPrefix NOTIFY currencySymbolChanged)
     Q_PROPERTY(QString currencySymbolPost READ currencySymbolPost NOTIFY currencySymbolChanged)
 public:
-    explicit PriceDataProvider(QObject *parent = nullptr);
+    explicit PriceDataProvider(const QString &countryCode = QString(), QObject *parent = nullptr);
 
     void start();
     void mock(int price);
@@ -47,7 +47,7 @@ public:
         return m_currentPrice.price;
     }
     void setCurrency(const QLocale &countryLocale);
-    Q_INVOKABLE void setCurrency(const QString &countrycode);
+    void setCountry(const QString &countrycode);
 
     /**
      * Return a formatted string with the locale-defined price of the amount of \a sats.

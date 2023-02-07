@@ -53,6 +53,8 @@ constexpr const char *DARKSKIN = "darkSkin";
 constexpr const char *HIDEBALANCE = "hideBalance";
 constexpr const char *USERAGENT = "net/useragent";
 constexpr const char *DSPTIMEOUT = "payment/dsp-timeout";
+constexpr const char *CURRENCY_COUNTRIES = "countryCodes"; // historical
+constexpr const char *CURRENCY_COUNTRY = "countryCode"; // current
 
 constexpr const char *AppdataFilename = "/appdata";
 // used for the default wallet
@@ -69,8 +71,7 @@ static P2PNet::Chain s_chain = P2PNet::MainChain;
 
 FloweePay::FloweePay()
     : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)),
-    m_chain(s_chain),
-    m_prices(new PriceDataProvider())
+    m_chain(s_chain)
 {
     // make sure the lifetime of the lockedPoolManager exceeds mine (LIFO of globals)
     LockedPoolManager::instance();
@@ -122,6 +123,7 @@ FloweePay::FloweePay()
     m_fontScaling = appConfig.value(FONTSCALING, m_fontScaling).toInt();
     m_dspTimeout = appConfig.value(DSPTIMEOUT, m_dspTimeout).toInt();
     m_hideBalance = appConfig.value(HIDEBALANCE, false).toBool();
+    m_prices.reset(new PriceDataProvider(appConfig.value(CURRENCY_COUNTRY).toString()));
 
     // Update expected chain-height every 5 minutes
     QTimer *timer = new QTimer(this);
@@ -1007,6 +1009,32 @@ QString FloweePay::nameOfUnit(FloweePay::UnitOfBitcoin unit) const
     default:
         return QString();
     }
+}
+
+void FloweePay::setCountry(const QString &countrycode)
+{
+    m_prices->setCountry(countrycode);
+    QSettings appConfig;
+    appConfig.setValue(CURRENCY_COUNTRY, countrycode);
+    auto list = recentCountries();
+    if (!list.isEmpty() && list.first() == countrycode)
+        return;
+    list.removeAll(countrycode); // avoid duplicates
+    list.insert(0, countrycode);
+    if (list.size() > 5)
+        list.resize(5);
+    appConfig.setValue(CURRENCY_COUNTRIES, list);
+}
+
+QStringList FloweePay::recentCountries() const
+{
+    QSettings appConfig;
+    auto list = appConfig.value(CURRENCY_COUNTRIES).toStringList();
+    if (list.isEmpty()) {
+        QSettings defaultConfig(":/defaults.ini", QSettings::IniFormat);
+        list = defaultConfig.value(CURRENCY_COUNTRIES).toStringList();
+    }
+    return list;
 }
 
 int FloweePay::unitAllowedDecimals() const

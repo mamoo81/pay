@@ -32,9 +32,12 @@ static const char *CoinGeckoJSONRoot = "bitcoin-cash";
 
 static constexpr int ReloadTimeout = 7 * 60 * 1000;
 
-PriceDataProvider::PriceDataProvider(QObject *parent) : QObject(parent)
+PriceDataProvider::PriceDataProvider(const QString &countryCode, QObject *parent) : QObject(parent)
 {
-    setCurrency(QLocale::system());
+    if (countryCode.isEmpty())
+        setCurrency(QLocale::system());
+    else
+        setCountry(countryCode);
     QObject::connect(&m_timer, SIGNAL(timeout()), this, SLOT(fetch()));
 }
 
@@ -86,7 +89,7 @@ void PriceDataProvider::setCurrency(const QLocale &countryLocale)
     }
 }
 
-void PriceDataProvider::setCurrency(const QString &countrycode)
+void PriceDataProvider::setCountry(const QString &countrycode)
 {
     setCurrency(QLocale(countrycode));
 }
