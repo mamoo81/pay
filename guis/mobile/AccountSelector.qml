@@ -40,7 +40,7 @@ QQC2.Popup {
         radius: 5
     }
 
-    ColumnLayout {
+    Column {
         id: columnLayout
         width: parent.width
 
