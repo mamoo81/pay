@@ -45,5 +45,6 @@
         <file>mobile/TransactionDetails.qml</file>
         <file>mobile/TxInfoSmall.qml</file>
         <file>mobile/AccountSelector.qml</file>
+        <file>mobile/CurrencySelector.qml</file>
     </qresource>
 </RCC>

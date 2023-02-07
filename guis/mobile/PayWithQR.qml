@@ -141,7 +141,8 @@ Page {
             id: inputs
             x: 10
             y: 7.5
-            spacing: 16
+            height: parent.height
+            spacing: 4
             Image {
                 id: logo
                 source: "qrc:/bch.svg"
@@ -154,6 +155,7 @@ Page {
                     onClicked: priceBch.forceActiveFocus();
                 }
             }
+            Item { width: 10; height: 1 } // spacer
 
             Flowee.Label {
                 text: Fiat.currencySymbolPost + Fiat.currencySymbolPrefix
@@ -167,19 +169,56 @@ Page {
                     onClicked: priceFiat.forceActiveFocus();
                 }
             }
+            Rectangle {
+                width: 1
+                y: inputs.y * -1
+                height: parent.height//  -h inputs.y
+                color: root.palette.text
+            }
 
-            /* TODO
             Flowee.HamburgerMenu {
-                wide: true
                 y: 6
                 MouseArea {
                     anchors.fill: parent
-                    // onClicked:
-                    // TODO show small menu with last 5 chosen fiat currencies
-                    // and a 'more' item which leads to a separate page for all
-                    // possible currencies.
+                    anchors.margins: -12
+                    anchors.rightMargin: -25
+                    onClicked: languageMenu.open()
                 }
-            }*/
+
+                Loader {
+                    id: languageMenu
+                    function open() {
+                        sourceComponent = languageMenuComponent
+                    }
+                    onLoaded: item.open();
+
+                }
+
+                Component {
+                    id: languageMenuComponent
+
+                    QQC2.Menu {
+                        Repeater {
+                            model: Pay.recentCountries()
+                            QQC2.MenuItem {
+                                text: {
+                                    var loc = Qt.locale(modelData);
+                                    return loc.currencySymbol(Locale.CurrencySymbol) + " "
+                                            + loc.currencySymbol(Locale.CurrencyDisplayName);
+                                }
+                                onClicked: Pay.setCountry(modelData);
+                            }
+                        }
+                        QQC2.MenuItem {
+                            text: qsTr("All Languages")
+                            onClicked: thePile.push("./CurrencySelector.qml")
+                        }
+
+                        onVisibleChanged: if (!visible) languageMenu.sourceComponent = undefined; // unload us
+                    }
+                }
+            }
+            Item { width: 5; height: 1 } // spacer
         }
 
         Rectangle {
@@ -187,8 +226,8 @@ Page {
             opacity: 0.3
             radius: 6
             width: 35
-            height: parent.height - 10
-            y: 5
+            height: parent.height - 4
+            y: 2
             x: root.fiatFollowsSats ? 5 : 45
 
             Behavior on x { NumberAnimation { } }
