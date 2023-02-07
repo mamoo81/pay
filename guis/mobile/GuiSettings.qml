@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,11 +36,10 @@ Page {
             property double buttonWidth: width / 6
             Repeater {
                 model: 6
-                delegate: MouseArea {
+                delegate: Item {
                     width: fontSizing.buttonWidth
                     height: 30
                     property int target: index * 25 + 75
-                    onClicked: Pay.fontScaling = target
 
                     Rectangle {
                         width: parent.width - 5
@@ -55,10 +54,13 @@ Page {
                         anchors.bottom: parent.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.topMargin: -30
+                        onClicked: Pay.fontScaling = target
+                    }
                 }
             }
-
         }
-
     }
 }
