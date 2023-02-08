@@ -87,6 +87,7 @@ void PriceDataProvider::setCurrency(const QLocale &countryLocale)
         if (m_timer.isActive()) // implies we are start()-ed
             start();
     }
+    emit priceChanged(m_currentPrice.price);
 }
 
 void PriceDataProvider::setCountry(const QString &countrycode)
@@ -182,16 +183,20 @@ void PriceDataProvider::fetch()
 {
     QString url(CoinGeckoURL);
     QNetworkRequest req(QUrl(url.arg(m_currency.toLower())));
+    logInfo() << "fetch" << m_currency;
     m_reply = m_network.get(req);
     connect(m_reply, SIGNAL(finished()), this, SLOT(finishedDownload()));
 }
 
 void PriceDataProvider::finishedDownload()
 {
+    logInfo() << "finishDownload";
     if (m_reply == nullptr)
         return;
     const auto data = m_reply->readAll();
     const bool failed = m_reply->error() != QNetworkReply::NoError || data.isEmpty();
+    if (failed)
+        logCritical() << "   failed";
     m_reply->deleteLater();
     m_reply = nullptr;
     if (failed) {
@@ -220,12 +225,8 @@ void PriceDataProvider::finishedDownload()
         auto section = root.value(CoinGeckoJSONRoot).toObject();
         auto price = section.value(m_currency.toLower());
         if (price.isUndefined()) { // our provider does not support this coin.
-            if (m_currency != "USD") {
-                m_currency = "USD";
-                m_currencySymbolPost.clear();
-                m_currencySymbolPrefix = "$";
-                fetch();
-            }
+            logCritical() << " provider does not support this coin" << m_currency;
+            setCountry("en_US");
             return;
         }
         m_currentPrice.price = price.toDouble() * 100;
@@ -238,7 +239,7 @@ void PriceDataProvider::finishedDownload()
         m_timer.start(20 * 1000);
         return;
     }
-    logInfo() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
+    logCritical() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
     m_timer.start(ReloadTimeout);
 }
 
