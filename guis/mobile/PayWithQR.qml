@@ -109,7 +109,7 @@ Page {
 
     Flowee.FiatValueField  {
         id: priceFiat
-        value: Fiat.priceFor(priceBch.value, payment.fiatPrice);
+        value: payment.paymentAmountFiat
         y: root.fiatFollowsSats ? 68 : 5
         focus: true
         fontPixelSize: size
@@ -118,7 +118,7 @@ Page {
         Behavior on size { NumberAnimation { } }
         Behavior on y { NumberAnimation { } }
         Flowee.ObjectShaker { id: fiatShaker }
-        onValueEdited: payment.details[0].fiatAmount = value
+        onValueEdited: payment.paymentAmountFiat = value
     }
 
     Flowee.Label {
@@ -260,7 +260,7 @@ Page {
 
     Rectangle {
         id: walletNameBackground
-        anchors.top: currentWalletValue.visible ? currentWalletValue.top : currentWalletLabel.top
+        anchors.top: currentWalletLabel.visible ? currentWalletLabel.top : currentWalletValue.top
         anchors.topMargin: -5
         width: parent.width
         anchors.bottom: currentWalletValue.bottom

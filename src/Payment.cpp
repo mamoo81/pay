@@ -70,36 +70,20 @@ void Payment::setPaymentAmount(double amount)
     doAutoPrepare();
 }
 
-double Payment::paymentAmount()
+double Payment::paymentAmount() const
 {
-    int64_t sats = 0;
-    bool useMax = false;
-    int64_t inputs = 0;
-    for (auto d : m_paymentDetails) {
-        if (!useMax && d->isOutput()) {
-            auto o = d->toOutput();
-            if (o->maxAllowed() && o->maxSelected())
-                useMax = true;
-            else
-                sats += o->paymentAmount();
-        }
-        else if (d->isInputs()) {
-            auto in = d->toInputs();
-            inputs += in->selectedValue();
-        }
-    }
-    if (useMax) {
-        // we either use the full wallet amount, or we use explicitly what is provided in the inputs.
-        if (inputs == 0) {
-            assert(m_account);
-            sats = m_account->balanceConfirmed() + m_account->balanceUnconfirmed();
-        }
-        else {
-            sats = inputs;
-        }
-    }
+    return soleOut()->paymentAmount();
+}
 
-    return static_cast<double>(sats);
+void Payment::setPaymentAmountFiat(double amount)
+{
+    soleOut()->setFiatAmount(amount);
+    doAutoPrepare();
+}
+
+double Payment::paymentAmountFiat() const
+{
+    return soleOut()->fiatAmount();
 }
 
 void Payment::setTargetAddress(const QString &address_)

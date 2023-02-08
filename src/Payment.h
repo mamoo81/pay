@@ -37,6 +37,7 @@ class Payment : public QObject
     Q_OBJECT
     Q_PROPERTY(int feePerByte READ feePerByte WRITE setFeePerByte NOTIFY feePerByteChanged)
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
+    Q_PROPERTY(double paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY amountChanged)
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
@@ -114,7 +115,10 @@ public:
     /**
      * Returns the total amount of satoshis that are selected by outputs.
      */
-    double paymentAmount();
+    double paymentAmount() const;
+
+    void setPaymentAmountFiat(double amount);
+    double paymentAmountFiat() const;
 
     /**
      * Sets the address to pay to.
