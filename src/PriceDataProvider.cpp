@@ -68,11 +68,13 @@ void PriceDataProvider::setCurrency(const QLocale &countryLocale)
             || m_currency == QLatin1String("KHR")
             || m_currency == QLatin1String("KZT")
             || m_currency == QLatin1String("PLN")
+            || m_currency == QLatin1String("NOK")
             || m_currency == QLatin1String("PYG")
             || m_currency == QLatin1String("RUB")
             || m_currency == QLatin1String("VND")) {
-        // these currencies format the symbol after the numbers part.
-        std::swap(m_currencySymbolPost, m_currencySymbolPrefix);
+        // these currencies format the name after the numbers part.
+        m_currencySymbolPost = QString(" ") + m_currencySymbolPrefix;
+        m_currencySymbolPrefix.clear();
     }
     // drop the '.00' behind the prices as this country doesn't traditionlly do that
     m_displayCents = !(m_currency == QLatin1String("JPY")
@@ -137,20 +139,20 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
             buf[i + add] = actualPrice.at(i).unicode();
         }
         dummy = QString::fromLatin1(buf);
-        actualPrice = dummy.left(dummy.size());
+        actualPrice = dummy.left(dummy.size() - (m_displayCents ? 0 : 2));
     }
 
     if (m_displayCents) {
-        return (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
-                % m_currencySymbolPrefix
+        return m_currencySymbolPrefix
+                % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
                 % actualPrice
                 % QLocale::system().decimalPoint()
                 % centsPrice.right(2)
                 % m_currencySymbolPost;
     }
     else {
-        return (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
-                % m_currencySymbolPrefix
+        return  m_currencySymbolPrefix
+                % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
                 % actualPrice
                 % m_currencySymbolPost;
     }
