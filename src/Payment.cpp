@@ -47,6 +47,7 @@ void Payment::setFeePerByte(int sats)
         return;
     m_fee = sats;
     emit feePerByteChanged();
+    doAutoPrepare();
 }
 
 int Payment::feePerByte()
@@ -66,6 +67,7 @@ PaymentDetailOutput *Payment::soleOut() const
 void Payment::setPaymentAmount(double amount)
 {
     soleOut()->setPaymentAmount(amount);
+    doAutoPrepare();
 }
 
 double Payment::paymentAmount()
@@ -133,6 +135,7 @@ void Payment::setTargetAddress(const QString &address_)
 
     out->setAddress(address);
     emit targetAddressChanged();
+    doAutoPrepare();
 }
 
 QString Payment::targetAddress()
@@ -170,6 +173,7 @@ void Payment::decrypt(const QString &password)
         m_error = tr("Invalid PIN");
         emit errorChanged();
     }
+    doAutoPrepare();
 }
 
 bool Payment::validate()
@@ -426,6 +430,20 @@ void Payment::addDetail(PaymentDetail *detail)
     assert(!m_paymentDetails.isEmpty());
     emit paymentDetailsChanged();
     emit validChanged(); // pretty sure we are invalid after ;-)
+    doAutoPrepare();
+}
+
+bool Payment::autoPrepare() const
+{
+    return m_autoPrepare;
+}
+
+void Payment::setAutoPrepare(bool newAutoPrepare)
+{
+    if (m_autoPrepare == newAutoPrepare)
+        return;
+    m_autoPrepare = newAutoPrepare;
+    emit autoPrepareChanged();
 }
 
 const QString &Payment::userComment() const
@@ -464,6 +482,7 @@ void Payment::setCurrentAccount(AccountInfo *account)
     for (auto detail : m_paymentDetails) {
         detail->setWallet(account->wallet());
     }
+    doAutoPrepare();
 }
 
 int Payment::fiatPrice() const
@@ -477,12 +496,13 @@ void Payment::setFiatPrice(int pricePerCoin)
         return;
     m_fiatPrice = pricePerCoin;
     emit fiatPriceChanged();
+    doAutoPrepare();
 }
 
 QList<QObject*> Payment::paymentDetails() const
 {
     QList<QObject*> pds;
-    for (auto *detail : m_paymentDetails) {
+    for (auto *const detail : m_paymentDetails) {
         pds.append(detail);
     }
     return pds;
@@ -566,6 +586,7 @@ void Payment::remove(PaymentDetail *detail)
         }
     }
     detail->deleteLater();
+    doAutoPrepare();
 }
 
 QString Payment::txid() const
@@ -632,6 +653,15 @@ void Payment::recalcAmounts()
     emit validChanged();
 }
 
+void Payment::doAutoPrepare()
+{
+    if (!m_autoPrepare)
+        return;
+    try {
+        prepare();
+    } catch(...) {}
+}
+
 bool Payment::preferSchnorr() const
 {
     return m_preferSchnorr;
@@ -644,6 +674,7 @@ void Payment::setPreferSchnorr(bool preferSchnorr)
 
     m_preferSchnorr = preferSchnorr;
     emit preferSchnorrChanged();
+    doAutoPrepare();
 }
 
 bool Payment::txPrepared() const

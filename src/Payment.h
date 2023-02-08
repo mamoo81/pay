@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ class Payment : public QObject
     Q_PROPERTY(AccountInfo *account READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
     Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY userCommentChanged)
     Q_PROPERTY(bool walletNeedsPin READ walletNeedsPin NOTIFY walletPinChanged);
+    Q_PROPERTY(bool autoPrepare READ autoPrepare WRITE setAutoPrepare NOTIFY autoPrepareChanged)
 
     // --- Stuff that becomes available / useful after prepare has been called:
     /// Tx has been prepared
@@ -193,6 +194,9 @@ public:
     const QString &userComment() const;
     void setUserComment(const QString &comment);
 
+    bool autoPrepare() const;
+    void setAutoPrepare(bool newAutoPrepare);
+
 private slots:
     void sentToPeer();
     void txRejected(short reason, const QString &message);
@@ -213,8 +217,10 @@ signals:
     void currentAccountChanged();
     void userCommentChanged();
     void walletPinChanged();
+    void autoPrepareChanged();
 
 private:
+    void doAutoPrepare();
     friend class PaymentDetailOutput;
 
     /// Helper method to get the output, assuming that is the only detail.
@@ -226,6 +232,7 @@ private:
 
     // Payment Variable initialization in reset() please
     QList<PaymentDetail*> m_paymentDetails;
+    bool m_autoPrepare = false;
     bool m_txPrepared;
     bool m_txBroadcastStarted;
     bool m_preferSchnorr;
