@@ -134,7 +134,6 @@ Page {
         color: palette.highlight
         font.italic: true
         anchors.top: commentLabel.bottom
-        anchors.topMargin: 5
     }
 
     Rectangle {
@@ -253,7 +252,6 @@ Page {
         color: Pay.useDarkSkin ? "#cc5454" : "#6a0c0c"
         anchors.bottom: walletNameBackground.top
         wrapMode: Text.Wrap
-        anchors.bottomMargin: 10
         width: parent.width
     }
 
