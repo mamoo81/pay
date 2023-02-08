@@ -31,10 +31,26 @@ QQC2.Control {
     property alias headerButtonVisible: headerButton.visible
     property alias headerButtonText: headerButton.text
     property alias headerButtonEnabled: headerButton.enabled
+    /**
+     * A list of action objects to populate the menu with
+     * Setting this will make a hamburger button show up in the header
+     */
+    property var menuItems: [ ]
     signal headerButtonClicked
 
     function takeFocus() {
         focusScope.forceActiveFocus();
+    }
+
+    onMenuItemsChanged: {
+        // remove old ones first
+        while (headerMenu.count > 0) {
+            headerMenu.takeItem(0);
+        }
+        // set new ones
+        for (let i = 0; i < menuItems.length; ++i) {
+            headerMenu.addAction(menuItems[i]);
+        }
     }
 
     Rectangle {
@@ -73,6 +89,20 @@ QQC2.Control {
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             onClicked: root.headerButtonClicked()
+        }
+        Flowee.HamburgerMenu {
+            visible: root.menuItems.length > 0
+            anchors.right: parent.right
+            anchors.rightMargin: 15
+            anchors.verticalCenter: parent.verticalCenter
+            MouseArea {
+                anchors.fill: parent
+                anchors.margins: -15
+                onClicked: headerMenu.open();
+            }
+            QQC2.Menu {
+                id: headerMenu
+            }
         }
     }
 
