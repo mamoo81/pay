@@ -336,8 +336,7 @@ Page {
                             return Qt.locale().decimalPoint
                         if (index === 10)
                             return "0"
-                        // if (index === 11)
-                            return "<-" // TODO use a backspace icon instead.
+                        return ""; // index === 11, the backspace.
                     }
                     // make dim when not enabled.
                     color: {
@@ -345,6 +344,14 @@ Page {
                             return Pay.useDarkSkin ? Qt.darker(palette.buttonText, 1.8) : Qt.lighter(palette.buttonText, 2);
                         return palette.windowText;
                     }
+                }
+                Image {
+                    visible: index === 11
+                    anchors.centerIn: parent
+                    source: index === 11 ? ("qrc:/backspace" + (Pay.useDarkSkin ? "-light" : "") + ".svg") : ""
+                    width: 27
+                    height: 17
+                    opacity: enabled ? 1 : 0.4
                 }
 
                 MouseArea {
