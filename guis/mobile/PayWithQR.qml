@@ -25,12 +25,25 @@ Page {
     id: root
     headerText: qsTr("Approve Payment")
 
+    property QtObject sendAllAction: QQC2.Action {
+        checkable: true
+        checked: payment.details[0].maxSelected
+        text: qsTr("Send All", "all money in wallet")
+        onTriggered: {
+            payment.details[0].maxSelected = checked
+            if (payment.isValid)
+                payment.prepare(); // auto-prepare doesn't act on changes done on the details.
+        }
+    }
+    menuItems: [
+        sendAllAction
+    ]
 
     Item { // data
         QRScanner {
             id: scanner
             scanType: QRScanner.PaymentDetails
-            // autostart: true
+            autostart: true
             onFinished: {
                 var rc = scanResult
                 if (rc === "") { // scanning failed
@@ -38,8 +51,6 @@ Page {
                 }
                 else {
                     payment.targetAddress = rc
-                    if (payment.isValid)
-                        payment.prepare();
                     priceBch.forceActiveFocus();
                 }
             }
@@ -48,12 +59,12 @@ Page {
             id: payment
             account: portfolio.current
             fiatPrice: Fiat.price
-            onIsValidChanged: if (isValid) prepare()
+            autoPrepare: true
 
             // easier testing values (for when you don't have a camera)
-            paymentAmount: 100000000
-            targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
-            userComment: "bla bla bla"
+            // paymentAmount: 100000000
+            // targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
+            // userComment: "bla bla bla"
         }
 
         AccountSelector {
@@ -130,6 +141,7 @@ Page {
         id: inputChooser
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: userComment.bottom
+        anchors.topMargin: 10
         border.width: 1
         border.color: root.palette.highlight
         color: root.palette.base
@@ -155,13 +167,13 @@ Page {
                     onClicked: priceBch.forceActiveFocus();
                 }
             }
-            Item { width: 10; height: 1 } // spacer
+            Item { width: 8; height: 1 } // spacer
 
             Flowee.Label {
-                text: Fiat.currencySymbolPost + Fiat.currencySymbolPrefix
+                text: (Fiat.currencySymbolPost + Fiat.currencySymbolPrefix).trim()
                 width: 24
                 font.pixelSize: 32
-                horizontalAlignment: Text.horizontalCenter
+                horizontalAlignment: Text.AlignRight
                 anchors.baseline: logo.bottom
 
                 MouseArea {
@@ -172,7 +184,7 @@ Page {
             Rectangle {
                 width: 1
                 y: inputs.y * -1
-                height: parent.height//  -h inputs.y
+                height: parent.height
                 color: root.palette.text
             }
 
@@ -210,7 +222,7 @@ Page {
                             }
                         }
                         QQC2.MenuItem {
-                            text: qsTr("All Languages")
+                            text: qsTr("All Currencies")
                             onClicked: thePile.push("./CurrencySelector.qml")
                         }
 
@@ -234,8 +246,6 @@ Page {
         }
     }
 
-
-
     Flowee.Label {
         id: errorLabel
         text: payment.error
@@ -247,9 +257,10 @@ Page {
         width: parent.width
     }
 
+
     Rectangle {
         id: walletNameBackground
-        anchors.top: currentWalletLabel.top
+        anchors.top: currentWalletValue.visible ? currentWalletValue.top : currentWalletLabel.top
         anchors.topMargin: -5
         width: parent.width
         anchors.bottom: currentWalletValue.bottom
@@ -260,25 +271,38 @@ Page {
             anchors.fill: parent
             onClicked: (mouse) => {
                 if (mouse.x < parent.width / 2) {
-                    accountSelector.open();
+                    if (portfolio.accounts.length > 1)
+                        accountSelector.open();
                 } else {
-                    // TODO open popup on price.
-                    // this should include a 'max-price' option like this;
-                    // payment.details[0].maxSelected = checked
+                    while (priceMenu.count > 0) {
+                        priceMenu.takeItem(0);
+                    }
+                    priceMenu.addAction(sendAllAction);
+                    priceMenu.x = root.width / 2
+                    priceMenu.y = -40
+                    priceMenu.open();
                 }
             }
         }
+        QQC2.Menu {
+            id: priceMenu
+        }
+    }
+
+    Flowee.HamburgerMenu {
+        anchors.verticalCenter: currentWalletLabel.verticalCenter
+        visible: portfolio.accounts.length > 1
     }
 
     Flowee.Label {
         id: currentWalletLabel
         text: payment.account.name
         visible: payment.account.isUserOwned
-        anchors.baseline: parent.width > currentWalletLabel.width + currentWalletValue.width
-                    ? currentWalletValue.baseline : undefined
-        anchors.bottom: parent.width > currentWalletLabel.width + currentWalletValue.width
-                    ? undefined : currentWalletValue.top
+        x: 10
+        width: parent.width - 10
+        anchors.bottom: currentWalletValue.top
     }
+
     Flowee.BitcoinAmountLabel {
         id: currentWalletValue
         anchors.right: parent.right
