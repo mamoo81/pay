@@ -49,7 +49,7 @@ Page {
         }
         TextButton {
             text: qsTr("Credits")
-            subtext: qsTr("© 2020-2022 Tom Zander and contributors")
+            subtext: qsTr("© 2020-2023 Tom Zander and contributors")
             showPageIcon: true
             onClicked: thePile.push(creditsPage)
 
