@@ -74,17 +74,24 @@ Page {
 
         delegate: Rectangle {
             width: ListView.view.width
-            height: label.height + 10
+            height: label.height + 20
             color: (index % 2) == 0 ? root.palette.base : root.palette.alternateBase
 
             Flowee.Label {
+                id: iso
+                y: 10
+                text: Qt.locale(modelData).currencySymbol(Locale.XCurrencyIsoCode)
+            }
+
+            Flowee.Label {
                 id: label
-                y: 5
-                width: parent.width - 10
+                y: 10
+                anchors.left: iso.right
+                anchors.leftMargin: 10
+                anchors.right: parent.right
                 text: {
                     var loc = Qt.locale(modelData);
-                    return loc.currencySymbol(Locale.XCurrencyIsoCode) + "] "
-                            + loc.currencySymbol(Locale.CurrencySymbol) + " "
+                    return "(" + loc.currencySymbol(Locale.CurrencySymbol) + ") "
                             + loc.currencySymbol(Locale.CurrencyDisplayName);
                 }
             }
