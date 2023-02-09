@@ -46,8 +46,8 @@ Image {
         height: feedbackText.height + 20
         radius: 10
         color: Pay.useDarkSkin ? "#333" : "#ddd"
-        anchors.top: parent.bottom
-        anchors.topMargin: -13
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: -10
         anchors.horizontalCenter: parent.horizontalCenter
 
         Label {
