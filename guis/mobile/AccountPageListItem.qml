@@ -145,8 +145,17 @@ QQC2.Control {
                 Page {
                     headerText: qsTr("Backup Details")
                     Flowee.CheckBox {
-                        id: usedAddresses
+                        id: changeAddresses
+                        text: qsTr("Change Addresses")
                         anchors.top: parent.top
+                        visible: root.account.isHDWallet
+                        onClicked: root.account.secrets.showChangeChain = checked
+                        tooltipText: qsTr("Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.")
+                    }
+                    Flowee.CheckBox {
+                        id: usedAddresses
+                        anchors.top: changeAddresses.bottom
+                        anchors.topMargin: 16
                         width: parent.width
                         text: qsTr("Used Addresses");
                         visible: !root.account.isSingleAddressAccount
@@ -160,16 +169,17 @@ QQC2.Control {
                         anchors.bottom: parent.bottom
                         width: parent.width
                         account: root.account
-                        /*
-                        ScrollBar: {
-                            id: thumb
-                            minimumSize: 20 / activityView.height
-                            visible: size < 0.9
-                        }*/
                         clip: true
                     }
                 }
             }
+        }
+        TextButton {
+            text: qsTr("Addresses and Keys")
+            visible: root.account.isHDWallet
+            showPageIcon: true
+            Layout.fillWidth: true
+            onClicked: thePile.push(backupDetails);
         }
     }
 
