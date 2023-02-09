@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,16 +30,32 @@ QQC2.Control {
     ColumnLayout {
         id: column
         width: parent.width
-
         Flowee.AccountTypeLabel {
             Layout.fillWidth: true
             account: root.account
         }
+
+        Flowee.Label {
+            text: qsTr("Sync Status") + ":"
+        }
+        Flowee.Label {
+            text: {
+                var height = root.account.lastBlockSynched
+                if (height < 1)
+                    return ""
+                var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
+                if (time !== "")
+                    time = "  (" + time + ")";
+                return height + " / " + Pay.chainHeight + time;
+            }
+        }
+
         Flowee.TextField {
             text: account.name
             onTextChanged: root.account.name = text
             Layout.fillWidth: true
         }
+
         TextButton {
             visible: root.account.isUserOwned
             Layout.fillWidth: true
@@ -124,6 +140,10 @@ QQC2.Control {
                         Flowee.Label { text: qsTr("Derivation Path") + ":" }
                         Flowee.LabelWithClipboard { text: root.account.hdDerivationPath }
                         VisualSeparator { }
+                        Flowee.Label { text: qsTr("Starting Height", "height refers to block-height") + ":" }
+                        Flowee.LabelWithClipboard { text: root.account.initialBlockHeight }
+
+                        VisualSeparator { }
                         Flowee.Label {
                             Layout.fillWidth: true
                             text: qsTr("Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case you lose your mobile.")
@@ -143,7 +163,7 @@ QQC2.Control {
             Component {
                 id: backupDetails
                 Page {
-                    headerText: qsTr("Backup Details")
+                    headerText: qsTr("Wallet keys")
                     Flowee.CheckBox {
                         id: changeAddresses
                         text: qsTr("Change Addresses")
@@ -185,12 +205,6 @@ QQC2.Control {
 
 
    /*
-    Q_PROPERTY(double balanceConfirmed READ balanceConfirmed NOTIFY balanceChanged)
-    Q_PROPERTY(double balanceUnconfirmed READ balanceUnconfirmed NOTIFY balanceChanged)
-    Q_PROPERTY(double balanceImmature READ balanceImmature NOTIFY balanceChanged)
-
-    Q_PROPERTY(int unspentOutputCount READ unspentOutputCount NOTIFY utxosChanged)
-    Q_PROPERTY(int historicalOutputCount READ historicalOutputCount NOTIFY utxosChanged)
     Q_PROPERTY(int lastBlockSynched READ lastBlockSynched NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(int initialBlockHeight READ initialBlockHeight NOTIFY lastBlockSynchedChanged)
     Q_PROPERTY(QDateTime lastBlockSynchedTime READ lastBlockSynchedTime NOTIFY lastBlockSynchedChanged)
