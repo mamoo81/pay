@@ -33,5 +33,6 @@
         <file>Flowee/AccountTypeLabel.qml</file>
         <file>Flowee/WalletSecretsView.qml</file>
         <file>Flowee/HamburgerMenu.qml</file>
+        <file>Flowee/QRWidget.qml</file>
     </qresource>
 </RCC>

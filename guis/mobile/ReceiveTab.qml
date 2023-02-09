@@ -29,7 +29,6 @@ FocusScope {
 
     focus: true
     property QtObject account: portfolio.current
-    property QtObject request: null
 
     /*
        TZ: I apologize for the design, I made it when I just had learned QML / cpp mixing.
@@ -39,23 +38,23 @@ FocusScope {
      */
 
     onAccountChanged: {
-        if (request != null) {
-            if (request.state === PaymentRequest.Unpaid)
-                request.switchAccount(portfolio.current);
+        if (qr.request != null) {
+            if (qr.request.state === PaymentRequest.Unpaid)
+                qr.request.switchAccount(portfolio.current);
             else
-                request = null;
+                qr.request = null;
         }
     }
     onActiveFocusChanged: {
-        if (activeFocus && request == null)  {
-            request = account.createPaymentRequest(receiveTab)
+        if (activeFocus && qr.request == null)  {
+            qr.request = account.createPaymentRequest(receiveTab)
         }
     }
 
     function reset() {
-        if (request.saveState !== PaymentRequest.Stored)
-            request.destroy();
-        request = account.createPaymentRequest(receiveTab)
+        if (qr.request.saveState !== PaymentRequest.Stored)
+            qr.request.destroy();
+        qr.request = account.createPaymentRequest(receiveTab)
         description.text = "";
         // bitcoinValueField.reset();
     }
@@ -68,58 +67,11 @@ FocusScope {
         opacity: 0.5
     }
 
-    Image {
-        id: qrCode
-        width: height
-        height: {
-            var h = parent.height - 220;
-            return Math.min(h, 256)
-        }
-        source: receiveTab.request == null ? "" : "image://qr/" + receiveTab.request.qr
-        smooth: false
+    Flowee.QRWidget {
+        id: qr
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: instructions.bottom
         anchors.topMargin: 20
-        opacity: receiveTab.request == null || receiveTab.request.state === PaymentRequest.Unpaid ? 1: 0
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                Pay.copyToClipboard(receiveTab.request.qr)
-                clipboardFeedback.opacity = 1
-            }
-        }
-
-        Rectangle {
-            id: clipboardFeedback
-            opacity: 0
-            width: feedbackText.width + 20
-            height: feedbackText.height + 20
-            radius: 10
-            color: Pay.useDarkSkin ? "#333" : "#ddd"
-            anchors.top: parent.bottom
-            anchors.topMargin: -13
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Flowee.Label {
-                id: feedbackText
-                x: 10
-                y: 10
-                text: qsTr("Copied to clipboard")
-                wrapMode: Text.WordWrap
-            }
-
-            Behavior on opacity { OpacityAnimator {} }
-
-            /// after 10 seconds, remove feedback.
-            Timer {
-                interval: 10000
-                running: clipboardFeedback.opacity === 1
-                onTriggered: clipboardFeedback.opacity = 0
-            }
-        }
-
-        Behavior on opacity { OpacityAnimator {} }
     }
 
     // the "payment received" screen.
@@ -128,17 +80,17 @@ FocusScope {
         anchors.topMargin: 20
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: qrCode.bottom
+        anchors.bottom: qr.bottom
         radius: 10
         gradient: Gradient {
             GradientStop {
                 position: 0.6
                 color: {
-                    if (receiveTab.request == null)
+                    if (qr.request == null)
                         return "red"
-                    var state = receiveTab.request.state;
+                    var state = qr.request.state;
                     if (state === PaymentRequest.PaymentSeen || state === PaymentRequest.Unpaid)
-                        return receiveTab.palette.base
+                        return qr.palette.base
                     if (state === PaymentRequest.DoubleSpentSeen)
                         return "#640e0f" // red
                     return "#3e8b4e" // in all other cases: green
@@ -150,7 +102,7 @@ FocusScope {
                 color: receiveTab.palette.base
             }
         }
-        opacity: receiveTab.request == null ? 0 : (receiveTab.request.state === PaymentRequest.Unpaid ? 0: 1)
+        opacity: qr.request == null ? 0 : (qr.request.state === PaymentRequest.Unpaid ? 0: 1)
 
         // animating timer to indicate our checking the security of the transaction.
         // (i.e. waiting for the double spent proof)
@@ -159,11 +111,11 @@ FocusScope {
             width: 160
             height: 160
             y: (parent.height - height) / 3 * 2
-            visible: receiveTab.request == null || receiveTab.request.state !== PaymentRequest.DoubleSpentSeen
+            visible: qr.request == null || qr.request.state !== PaymentRequest.DoubleSpentSeen
             Shape {
                 id: circleShape
                 anchors.fill: parent
-                opacity: progressCircle.sweepAngle === 340 ? 0 : 1
+                opacity: progressCircle.sweepAngle <= 340 ? 0 : 1
                 x: 40
                 ShapePath {
                     strokeWidth: 20
@@ -178,7 +130,7 @@ FocusScope {
                         centerY: 80
                         radiusX: 70; radiusY: 70
                         startAngle: -80
-                        sweepAngle: receiveTab.request == null || receiveTab.request.state === PaymentRequest.Unpaid ? 0: 340
+                        sweepAngle: qr.request == null || qr.request.state === PaymentRequest.Unpaid ? 0: 340
 
                         Behavior on sweepAngle {  NumberAnimation { duration: Pay.dspTimeout } }
                     }
@@ -204,9 +156,9 @@ FocusScope {
         Flowee.Label {
             id: feedbackLabel
             text: {
-                if (receiveTab.request == null)
+                if (qr.request == null)
                     return "";
-                var s = receiveTab.request.state;
+                var s = qr.request.state;
                 if (s === PaymentRequest.DoubleSpentSeen)
                     // double-spent-proof received
                     return qsTr("Transaction high risk")
@@ -226,7 +178,7 @@ FocusScope {
             font.pointSize: 20
         }
         Flowee.Label {
-            visible: receiveTab.request == null || receiveTab.request.state === PaymentRequest.DoubleSpentSeen
+            visible: qr.request == null || qr.request.state === PaymentRequest.DoubleSpentSeen
             anchors.top: feedbackLabel.bottom
             anchors.right: parent.right
             anchors.rightMargin: 10
@@ -243,7 +195,7 @@ FocusScope {
     ColumnLayout {
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: qrCode.bottom
+        anchors.top: qr.bottom
         anchors.topMargin: 30
         Flowee.Label {
             text: qsTr("Description") + ":"
@@ -251,8 +203,8 @@ FocusScope {
         Flowee.TextField {
             id: description
             Layout.fillWidth: true
-            enabled: receiveTab.request != null && receiveTab.request.state === PaymentRequest.Unpaid
-            onTextChanged: receiveTab.request.message = text
+            enabled: qr.request != null && qr.request.state === PaymentRequest.Unpaid
+            onTextChanged: qr.request.message = text
         }
 
         /*
@@ -264,8 +216,8 @@ FocusScope {
             spacing: 10
             Flowee.BitcoinValueField {
                 id: bitcoinValueField
-                enabled: receiveTab.request != null && receiveTab.request.state === PaymentRequest.Unpaid
-                onValueChanged: receiveTab.request.amount = value
+                enabled: qr.request != null && qr.request.state === PaymentRequest.Unpaid
+                onValueChanged: qr.request.amount = value
             }
             Flowee.Label {
                 Layout.alignment: Qt.AlignBaseline
@@ -277,7 +229,7 @@ FocusScope {
 
         Flowee.Button {
             Layout.alignment: Qt.AlignRight
-            text: receiveTab.request == null || receiveTab.request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Done")
+            text: qr.request == null || qr.request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Done")
             onClicked: reset();
         }
     }

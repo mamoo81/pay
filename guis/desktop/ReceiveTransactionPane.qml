@@ -26,20 +26,19 @@ Pane {
     id: receivePane
 
     property QtObject account: portfolio.current
-    property QtObject request: null
     onAccountChanged: {
         if (account == null)
             return;
-        if (request == null)
-            request = account.createPaymentRequest(receivePane)
+        if (qr.request == null)
+            qr.request = account.createPaymentRequest(receivePane)
         else
-            request.switchAccount(portfolio.current);
+            qr.request.switchAccount(portfolio.current);
     }
 
     function reset() {
-        if (request.saveState !== PaymentRequest.Stored)
-            request.destroy();
-        request = account.createPaymentRequest(receivePane)
+        if (qr.request.saveState !== PaymentRequest.Stored)
+            qr.request.destroy();
+        qr.request = account.createPaymentRequest(receivePane)
         description.text = "";
         bitcoinValueField.reset();
     }
@@ -52,58 +51,11 @@ Pane {
         opacity: 0.5
     }
 
-    Image {
-        id: qrCode
-        width: height
-        height: {
-            var h = parent.height - 220;
-            return Math.min(h, 256)
-        }
-        source: "image://qr/" + receivePane.request.qr
-        smooth: false
+    Flowee.QRWidget {
+        id: qr
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: instructions.bottom
         anchors.topMargin: 20
-        opacity: receivePane.request.state === PaymentRequest.Unpaid ? 1: 0
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                Pay.copyToClipboard(receivePane.request.qr)
-                clipboardFeedback.opacity = 1
-            }
-        }
-
-        Rectangle {
-            id: clipboardFeedback
-            opacity: 0
-            width: feedbackText.width + 20
-            height: feedbackText.height + 20
-            radius: 10
-            color: Pay.useDarkSkin ? "#333" : "#ddd"
-            anchors.top: parent.bottom
-            anchors.topMargin: -13
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Label {
-                id: feedbackText
-                x: 10
-                y: 10
-                text: qsTr("Copied to clipboard")
-                wrapMode: Text.WordWrap
-            }
-
-            Behavior on opacity { OpacityAnimator {} }
-
-            /// after 10 seconds, remove feedback.
-            Timer {
-                interval: 10000
-                running: clipboardFeedback.opacity === 1
-                onTriggered: clipboardFeedback.opacity = 0
-            }
-        }
-
-        Behavior on opacity { OpacityAnimator {} }
     }
 
     // the "payment received" screen.
@@ -112,13 +64,13 @@ Pane {
         anchors.topMargin: 20
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: qrCode.bottom
+        anchors.bottom: qr.bottom
         radius: 10
         gradient: Gradient {
             GradientStop {
                 position: 0.6
                 color: {
-                    var state = receivePane.request.state;
+                    var state = qr.request.state;
                     if (state === PaymentRequest.PaymentSeen || state === PaymentRequest.Unpaid)
                         return receivePane.palette.base
                     if (state === PaymentRequest.DoubleSpentSeen)
@@ -132,7 +84,7 @@ Pane {
                 color: receivePane.palette.base
             }
         }
-        opacity: receivePane.request.state === PaymentRequest.Unpaid ? 0: 1
+        opacity: qr.request.state === PaymentRequest.Unpaid ? 0: 1
 
         // animating timer to indicate our checking the security of the transaction.
         // (i.e. waiting for the double spent proof)
@@ -141,7 +93,7 @@ Pane {
             width: 160
             height: 160
             y: (parent.height - height) / 3 * 2
-            visible: receivePane.request.state !== PaymentRequest.DoubleSpentSeen
+            visible: qr.request.state !== PaymentRequest.DoubleSpentSeen
             Shape {
                 id: circleShape
                 anchors.fill: parent
@@ -160,7 +112,7 @@ Pane {
                         centerY: 80
                         radiusX: 70; radiusY: 70
                         startAngle: -80
-                        sweepAngle: receivePane.request.state === PaymentRequest.Unpaid ? 0: 340
+                        sweepAngle: qr.request.state === PaymentRequest.Unpaid ? 0: 340
 
                         Behavior on sweepAngle {  NumberAnimation { duration: Pay.dspTimeout } }
                     }
@@ -186,7 +138,7 @@ Pane {
         Label {
             id: feedbackLabel
             text: {
-                var s = receivePane.request.state;
+                var s = qr.request.state;
                 if (s === PaymentRequest.DoubleSpentSeen)
                     // double-spent-proof received
                     return qsTr("Transaction high risk")
@@ -206,7 +158,7 @@ Pane {
             font.pointSize: 20
         }
         Label {
-            visible: receivePane.request.state === PaymentRequest.DoubleSpentSeen
+            visible: qr.request.state === PaymentRequest.DoubleSpentSeen
             anchors.top: feedbackLabel.bottom
             anchors.right: parent.right
             anchors.rightMargin: 10
@@ -224,7 +176,7 @@ Pane {
         id: grid
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: qrCode.bottom
+        anchors.top: qr.bottom
         anchors.topMargin: 30
         columns: 2
         Label {
@@ -233,8 +185,8 @@ Pane {
         Flowee.TextField {
             id: description
             Layout.fillWidth: true
-            enabled: receivePane.request.state === PaymentRequest.Unpaid
-            onTextChanged: receivePane.request.message = text
+            enabled: qr.request.state === PaymentRequest.Unpaid
+            onTextChanged: qr.request.message = text
             focus: true
         }
 
@@ -246,8 +198,8 @@ Pane {
             spacing: 10
             Flowee.BitcoinValueField {
                 id: bitcoinValueField
-                enabled: receivePane.request.state === PaymentRequest.Unpaid
-                onValueChanged: receivePane.request.amount = value
+                enabled: qr.request.state === PaymentRequest.Unpaid
+                onValueChanged: qr.request.amount = value
             }
             Label {
                 Layout.alignment: Qt.AlignBaseline
@@ -264,14 +216,14 @@ Pane {
             }
             Button {
                 text: qsTr("Remember", "payment request")
-                visible: receivePane.request.state === PaymentRequest.Unpaid || receivePane.request.state === PaymentRequest.DoubleSpentSeen
+                visible: qr.request.state === PaymentRequest.Unpaid || qr.request.state === PaymentRequest.DoubleSpentSeen
                 onClicked: {
-                    receivePane.request.stored = true
+                    qr.request.stored = true
                     reset();
                 }
             }
             Button {
-                text: receivePane.request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Done")
+                text: qr.request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Done")
                 onClicked: {
                     reset();
                 }
