@@ -31,7 +31,7 @@ Page {
         focus: true
         Keys.onPressed: (event)=> {
             if (event.key === Qt.Key_Escape) {
-                root.visible = false;
+                thePile.pop();
                 event.accepted = true
             }
         }
