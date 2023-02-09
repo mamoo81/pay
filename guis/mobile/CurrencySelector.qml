@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
-// import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 import Flowee.org.pay;
 
 Page {
     id: root
+    headerText: qsTr("Select Currency")
     ListView {
         anchors.fill: parent
         model: [
