@@ -22,7 +22,7 @@ import "../Flowee" as Flowee
 Item {
     id: root
     width: wide ? 12 : 4
-    height: column.height
+    height: hamburgerMenu.height
     property color color: Pay.useDarkSkin ? "white" : "black"
     property alias wide: hamburgerMenu
     default property alias actions: ourMenu.contentData
