@@ -220,6 +220,7 @@ Item {
                     visible: size < 0.9
                 }
                 account: root.account
+                implicitHeight: root.account.isSingleAddressAccount ? contentHeight : scrollablePage.height / 10 * 7
             }
         }
         Flowee.GroupBox {

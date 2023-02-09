@@ -22,7 +22,6 @@ ListView {
     id: root
     required property QtObject account;
 
-    implicitHeight: root.account.isSingleAddressAccount ? contentHeight : scrollablePage.height / 10 * 7
     clip: true
     model: root.account.secrets
     delegate: Rectangle {
