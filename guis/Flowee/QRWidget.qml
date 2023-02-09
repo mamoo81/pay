@@ -27,9 +27,9 @@ Image {
         var h = parent.height - 220;
         return Math.min(h, 256)
     }
-    source: root.request == null ? "" : "image://qr/" + qr.request.qr
+    source: root.request == null ? "" : "image://qr/" + root.request.qr
     smooth: false
-    opacity: root.request == null || qr.request.state === PaymentRequest.Unpaid ? 1: 0
+    opacity: root.request == null || root.request.state === PaymentRequest.Unpaid ? 1: 0
 
     MouseArea {
         anchors.fill: parent
