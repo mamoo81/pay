@@ -34,8 +34,11 @@ ApplicationWindow {
     onIsLoadingChanged: {
         // only load our UI when the p2p layer is loaded and all
         // variables are available.
-        if (!isLoading)
+        if (!isLoading) {
             thePile.replace("./MainView.qml");
+            if (portfolio.accounts.length === 0)
+                thePile.push("./StartupScreen.qml");
+        }
     }
     Component.onCompleted: updateFontSize();
     function updateFontSize() {
