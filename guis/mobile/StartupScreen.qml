@@ -89,7 +89,7 @@ Page {
                 }
             }
             Flowee.Label {
-                text: qsTr("Moving the world towards a Bitcoin Cash economy")
+                text: qsTr("Moving the world towards a Bitcoin\u00a0Cash economy")
                 wrapMode: Text.WordWrap
                 font.italic: true
                 horizontalAlignment: Text.AlignHCenter

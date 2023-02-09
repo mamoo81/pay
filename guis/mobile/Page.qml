@@ -23,8 +23,8 @@ import "../Flowee" as Flowee
 QQC2.Control {
     id: root
 
-    width: parent == null ? 10 : parent.width
-    height: parent == null ? 10 : parent.height
+    width: parent == null ? 10 : parent.width - 20
+    height: parent == null ? 10 : parent.height - header.height
 
     default property alias content: child.children
     property alias headerText: headerLabel.text
@@ -55,7 +55,7 @@ QQC2.Control {
 
     Rectangle {
         id: header
-        width: parent.width
+        width: parent.width + 20
         height: 50
         color: Pay.useDarkSkin ? root.palette.base : mainWindow.floweeBlue
 
@@ -117,10 +117,10 @@ QQC2.Control {
         anchors.fill: parent
         QQC2.Control {
             id: child
-            width: root.width - 20
             x: 10
             y: header.height + 10
-            height: root.height - y
+            width: parent.width
+            height: parent.height
         }
     }
     Keys.onPressed: (event)=> {
