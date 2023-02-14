@@ -40,7 +40,7 @@ Item {
 
     Rectangle {
         id: menuArea
-        color: mainWindow.palette.base
+        color: mainWindow.palette.window
         width: 300
         height: parent.height
         x: root.open ? 0 : 0 - width -3
@@ -60,7 +60,7 @@ Item {
                     h = h+ Math.max(currentAccountName.height, 12) + 10
                 return h;
             }
-            color: Qt.lighter(mainWindow.palette.base)
+            color: Qt.lighter(mainWindow.palette.window)
             property bool openAccounts: false
             clip: true
 

@@ -28,6 +28,7 @@ ListView {
     property string  title: qsTr("Home")
 
     Rectangle {
+        id: backToTopButton
         width: 60
         height: 60
         anchors.right: parent.right
@@ -66,60 +67,64 @@ ListView {
       To avoid a mess of two scroll-areas (of Flickables) we simply make the top part into a
       header of the listview.
      */
-    header: Column {
-        id: column
-        width: root.width - 20
-        x: 10
-        y: 10
-        z: 10 // make sure the wallet Selector can cover the historical items
+    header: Rectangle {
+        color: root.palette.window
+        width: root.width
+        height: column.height
+        Column {
+            id: column
+            width: root.width - 20
+            x: 10
+            y: 10
 
-        Flowee.BitcoinAmountLabel {
-            opacity: Pay.hideBalance ? 0.2 : 1
-            fontPixelSize: 34
-            value: {
-                if (Pay.hideBalance)
-                    return 88888888;
-                return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
+            Flowee.BitcoinAmountLabel {
+                opacity: Pay.hideBalance ? 0.2 : 1
+                fontPixelSize: 34
+                value: {
+                    if (Pay.hideBalance)
+                        return 88888888;
+                    return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
+                }
+                colorize: false
             }
-            colorize: false
+
+            AccountSyncState {
+                account: portfolio.current
+                width: parent.width
+            }
+
+            Row {
+                width: parent.width
+                height: 60
+                Flowee.ImageButton {
+                    source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+                    width: parent.width / 3
+                    onClicked: thePile.push("PayWithQR.qml")
+                    iconSize: 40
+                    height: dummyButton.height
+                }
+                IconButton {
+                    id: dummyButton
+                    width: parent.width / 3
+                    text: qsTr("Scheduled")
+                }
+                Flowee.ImageButton {
+                    width: parent.width / 3
+                    height: dummyButton.height
+                    iconSize: 50
+                    source: "qrc:/receive.svg"
+                    onClicked: switchToTab(2) // receive tab
+                }
+            }
+
+            /* TODO
+              "Is archive" / "Unrchive""
+
+              Is Encryopted / Decrypt
+             */
+
+            Item { width: 10; height: 15 } // spacer
         }
-
-        AccountSyncState {
-            account: portfolio.current
-            width: parent.width
-        }
-
-        Row {
-            width: parent.width
-            height: 60
-            Flowee.ImageButton {
-                source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
-                width: parent.width / 3
-                onClicked: thePile.push("PayWithQR.qml")
-                iconSize: 40
-                height: dummyButton.height
-            }
-            IconButton {
-                id: dummyButton
-                width: parent.width / 3
-                text: qsTr("Scheduled")
-            }
-            Flowee.ImageButton {
-                width: parent.width / 3
-                height: dummyButton.height
-                iconSize: 50
-                source: "qrc:/receive.svg"
-                onClicked: switchToTab(2) // receive tab
-            }
-        }
-
-        /* TODO
-          "Is archive" / "Unrchive""
-
-          Is Encryopted / Decrypt
-         */
-
-        Item { width: 10; height: 15 } // spacer
     }
 
     model: portfolio.current.transactions
@@ -169,7 +174,7 @@ ListView {
             y: transactionDelegate.placementInGroup === Wallet.GroupStart ? 0 : -20;
 
             radius: 20
-            color: root.palette.base
+            color: root.palette.light
             border.width: 1
             border.color: root.palette.highlight
         }

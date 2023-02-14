@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ import QtQuick
 import QtQuick.Controls
 import "../Flowee" as Flowee
 
-Item {
+Rectangle {
     id: txRoot
     height: {
         var rc = mainLabel.height + 10 + date.height
@@ -28,6 +28,7 @@ Item {
         return rc;
     }
     width: mainLabel.width + bitcoinAmountLabel.width + 30
+    color: (index % 2) == 0 ? mainLabel.palette.light : mainLabel.palette.alternateBase
 
     property bool isRejected: model.height === -2 // -2 is the magic block-height indicating 'rejected'
 
@@ -145,17 +146,6 @@ Item {
 
         anchors.top: mainLabel.top
         anchors.right: parent.right
-    }
-
-    // visual separator
-    Rectangle {
-        width: parent.width / 100 * 80
-        height: 1
-        color: "#99999B"
-        opacity: 0.5
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 5
     }
 
     MouseArea {

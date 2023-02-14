@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,12 @@ T.CheckBox {
         Rectangle {
             anchors.fill: parent
             radius: parent.height / 3
-            color: control.sliderOnIndicator && control.enabled && control.checked ? (Pay.useDarkSkin ? "#4f7d63" : "#9ec7af") : mainWindow.palette.window
-            border.color: control.activeFocus ? mainWindow.palette.highlight : mainWindow.palette.button
+            color: {
+                if (control.sliderOnIndicator && control.enabled && control.checked)
+                    return control.palette.midlight
+                return control.palette.window
+            }
+            border.color: control.activeFocus ? control.palette.highlight : control.palette.button
             border.width: 0.8
 
             Behavior on color { ColorAnimation {}}
@@ -55,8 +59,8 @@ T.CheckBox {
                 if (!control.enabled)
                     return "darkgray"
                 if (control.checked && Pay.useDarkSkin)
-                    return mainWindow.palette.windowText;
-                return mainWindow.palette.highlight
+                    return control.palette.windowText;
+                return control.palette.highlight
             }
             Behavior on x { NumberAnimation {}}
             Behavior on color { ColorAnimation {}}

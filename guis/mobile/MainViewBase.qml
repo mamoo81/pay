@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,10 @@ QQC2.Control {
     id: root
     width: parent.width
     height: parent.height
+
+    background: Rectangle {
+        color: root.palette.light
+    }
 
     // This trick  means any child items are actually added to the 'stack' item's children.
     default property alias content: stack.children
@@ -60,11 +64,12 @@ QQC2.Control {
         id: header
         width: parent.width
         height: 50
-        color: Pay.useDarkSkin ? root.palette.base : mainWindow.floweeBlue
+        color: Pay.useDarkSkin ? root.palette.window : mainWindow.floweeBlue
 
         Flowee.HamburgerMenu {
             id: menuButton
             anchors.verticalCenter: parent.verticalCenter
+            color: "white"
             wide: true
             x: 8
         }

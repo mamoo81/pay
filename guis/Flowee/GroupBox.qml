@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,8 +46,8 @@ QQC2.Control {
         width: parent.width
         y: titleArea.visible ? titleLabel.height / 2 : arrowPoint.height / 2
         height: root.effectiveCollapsed ? 1 : parent.height - y;
-        color: "#00000000"
-        border.color: titleLabel.palette.button
+        color: root.palette.light
+        border.color: root.palette.mid
         border.width: 1.3
         radius: 3
     }
@@ -60,14 +60,20 @@ QQC2.Control {
         cursorShape: Qt.PointingHandCursor
     }
 
-    Rectangle {
+    Item {
         id: titleArea
         visible: titleLabel.text !== ""
-        color: titleLabel.palette.window
         width: titleLabel.width + 6 + (summaryLabel.visible ? summaryLabel.width + 6 : 0)
         height: titleLabel.height
         anchors.left: arrowPoint.right
-        Text {
+        Rectangle {
+            // erase the groupbox outline behind the text
+            width: parent.width
+            color: titleLabel.palette.window
+            height: 2
+            y: parent.height / 2 - 1
+        }
+        Label {
             id: titleLabel
             x: 3
             color: root.palette.windowText
@@ -84,7 +90,7 @@ QQC2.Control {
             }
         }
 
-        Text {
+        Label {
             id: summaryLabel
             anchors.left: titleLabel.right
             anchors.leftMargin: 20

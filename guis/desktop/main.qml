@@ -182,10 +182,10 @@ ApplicationWindow {
                         Rectangle {
                             width: parent.width
                             height: warn.height + unarchiveButton.height + 26
-                            color: Pay.useDarkSkin ? "#c1ba58" : "#f6e992"
+                            color: Pay.useDarkSkin ? "#c1ba58" : "#f6e992" // yellow
                             visible: !isLoading && portfolio.current.isArchived
                             radius: 7
-                            Text {
+                            Flowee.Label {
                                 id: warn
                                 y: 6
                                 x: 6
@@ -212,7 +212,7 @@ ApplicationWindow {
                             id: needsDecryptPane
                             width: parent.width
                             height: decryptText.height + decryptPwd.height + decryptButton.height + 36
-                            color: Pay.useDarkSkin ? "#c1ba58" : "#f6e992"
+                            color: Pay.useDarkSkin ? "#c1ba58" : "#f6e992" // yellow
                             visible: !isLoading && portfolio.current.needsPinToOpen
                                         && !portfolio.current.isDecrypted
                             radius: 7
@@ -299,11 +299,11 @@ ApplicationWindow {
                                 width: label.width + 12
                                 height: label.height + 12
                                 radius: 5
-                                color: label.palette.dark
+                                color: label.palette.light
                                 Label {
                                     id: label
                                     anchors.centerIn: parent
-                                    color: palette.light
+                                    color: palette.dark
                                     text: isLoading || activityView.model === null ? "" : activityView.model.dateForItem(thumb.position);
                                 }
                             }

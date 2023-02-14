@@ -22,6 +22,7 @@ Item {
     implicitWidth: root.wide ? 12 : 4
     implicitHeight: 16
     property bool wide: false
+    property color color: mainWindow.palette.windowText
 
     Column {
         spacing: 3
@@ -29,7 +30,8 @@ Item {
         Repeater {
             model: 3
             delegate: Rectangle {
-                color: "white"
+                id: rect
+                color: root.color
                 width: root.wide ? 12 : 4
                 height: 3
                 radius: 2

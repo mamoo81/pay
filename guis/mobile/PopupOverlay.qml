@@ -57,7 +57,7 @@ FocusScope {
             root.isOpen = visible; // ensure listeners of that property get notified after we acted on visibility changes.
         }
         background: Rectangle {
-            color: mainWindow.palette.base
+            color: mainWindow.palette.light
             border.color: mainWindow.palette.highlight
             border.width: 1
             radius: 5

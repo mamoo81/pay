@@ -23,10 +23,18 @@ import "../Flowee" as Flowee
 QQC2.Control {
     id: root
 
-    width: parent == null ? 10 : parent.width - 20
-    height: parent == null ? 10 : parent.height - header.height
+    width: parent == null ? 10 : parent.width
+    height: parent == null ? 10 : parent.height
 
-    default property alias content: child.children
+    background: Rectangle {
+        color: root.palette.light
+    }
+
+    leftPadding: 10
+    rightPadding: 10
+    topPadding: header.height
+
+    default property alias content: focusScope.children
     property alias headerText: headerLabel.text
     property alias headerButtonVisible: headerButton.visible
     property alias headerButtonText: headerButton.text
@@ -55,9 +63,9 @@ QQC2.Control {
 
     Rectangle {
         id: header
-        width: parent.width + 20
+        width: parent.width //  + 20
         height: 50
-        color: Pay.useDarkSkin ? root.palette.base : mainWindow.floweeBlue
+        color: Pay.useDarkSkin ? root.palette.window : mainWindow.floweeBlue
 
         Image {
             id: backButton
@@ -106,22 +114,8 @@ QQC2.Control {
         }
     }
 
-    Rectangle {
-        width: parent.width
-        y: header.height
-        height: parent.height - y
-        color: root.palette.base
-    }
-    FocusScope {
+    contentItem: FocusScope {
         id: focusScope
-        anchors.fill: parent
-        QQC2.Control {
-            id: child
-            x: 10
-            y: header.height + 10
-            width: parent.width
-            height: parent.height
-        }
     }
     Keys.onPressed: (event)=> {
         if (event.key === Qt.Key_Back) {

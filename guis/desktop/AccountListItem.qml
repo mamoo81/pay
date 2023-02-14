@@ -35,7 +35,7 @@ Item {
         id: background
         property bool hover: false
         radius: 7
-        color: selected && !Pay.useDarkSkin ? "white" : "#00000000" // transparant
+        color: selected ? mainWindow.palette.light : mainWindow.palette.window
         border.width: 1.5
         border.color: {
             if (portfolio.current === account)
