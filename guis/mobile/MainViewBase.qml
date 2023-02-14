@@ -139,19 +139,34 @@ QQC2.Control {
         width: root.width
         anchors.top: header.bottom; anchors.bottom: tabbar.top
     }
+
+    Rectangle {
+        anchors.fill: tabbar
+        color: root.palette.window
+    }
+
     Row {
         id: tabbar
         anchors.bottom: parent.bottom
 
         Repeater {
             model: stack.children.length
-            delegate: Rectangle {
+            delegate: Item {
                 height: 55
                 width: root.width / stack.children.length;
-                color: {
-                    modelData === root.currentIndex
-                        ? root.palette.button
-                        : root.palette.base
+
+                Rectangle {
+                    x: 5
+                    height: 4
+                    width: parent.width - 10
+                    color: mainWindow.palette.highlight
+                    visible: modelData === root.currentIndex
+                }
+                Rectangle {
+                    anchors.fill: parent
+                    color: mainWindow.palette.highlight
+                    visible: modelData === root.currentIndex
+                    opacity: 0.15
                 }
                 Image {
                     source: stack.children[modelData].icon

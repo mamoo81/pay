@@ -59,13 +59,14 @@ QQC2.Popup {
                     id: selectedItemIndicator
                     visible: modelData === root.selectedAccount
                     anchors.fill: parent
-                    color: root.palette.alternateBase
-
-                    Rectangle {
-                        height: parent.height
-                        width: 3
-                        color: root.palette.highlight
-                    }
+                    color: root.palette.highlight
+                    opacity: 0.15
+                }
+                Rectangle {
+                    height: parent.height
+                    width: 3
+                    color: root.palette.highlight
+                    visible: selectedItemIndicator.visible
                 }
                 Flowee.Label {
                     id: accountName
