@@ -95,7 +95,7 @@ ListView {
 
             Row {
                 width: parent.width
-                height: 60
+                height: dummyButton.height
                 Flowee.ImageButton {
                     source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
                     width: parent.width / 3
@@ -138,7 +138,7 @@ ListView {
         height: label.height + 15
         width: root.width
         Rectangle {
-            color: root.palette.window
+            color: root.palette.light
             anchors.fill: parent
         }
         Flowee.Label {
@@ -174,7 +174,7 @@ ListView {
             y: transactionDelegate.placementInGroup === Wallet.GroupStart ? 0 : -20;
 
             radius: 20
-            color: root.palette.light
+            color: root.palette.alternateBase
             border.width: 1
             border.color: root.palette.midlight
         }

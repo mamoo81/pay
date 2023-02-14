@@ -58,7 +58,7 @@ FocusScope {
         }
         background: Rectangle {
             color: mainWindow.palette.light
-            border.color: mainWindow.palette.highlight
+            border.color: mainWindow.palette.midlight
             border.width: 1
             radius: 5
         }
