@@ -62,8 +62,8 @@ function applyLightSkin(item) {
     item.palette.dark = "#353637";
     item.palette.mid = "#bdbdbd";
     item.palette.windowText = "#26282a";
-    item.palette.text = "#353637";
-    item.palette.brightText = "#ffffff";
+    item.palette.text = "#26282a";
+    item.palette.brightText = "#555658";
     item.palette.button = "#bfbebd";
     item.palette.buttonText = "#26282a";
     item.palette.highlight = "#0066ff";
