@@ -33,8 +33,8 @@ FocusScope {
       */
     function open(sourceComponent, target) {
         thePopup.palette = mainWindow.palette
-        thePopup.width = target.width
-        thePopup.x = (width - target.width) / 2
+        thePopup.width = Math.min(root.width - 18, target.width)
+        thePopup.x = (width - thePopup.width) / 2
         thePopup.sourceRect = root.mapFromItem(target, 0, 0, target.width, target.height);
         loader.sourceComponent = sourceComponent; // last, as it starts the loading
         return loader.item;
