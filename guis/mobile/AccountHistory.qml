@@ -176,7 +176,7 @@ ListView {
             radius: 20
             color: root.palette.light
             border.width: 1
-            border.color: root.palette.highlight
+            border.color: root.palette.midlight
         }
 
         Item {
@@ -280,7 +280,7 @@ ListView {
             height: 1
             width: parent.width - 16
             x: 8
-            color: root.palette.highlight
+            color: root.palette.midlight
         }
 
         MouseArea {

@@ -34,8 +34,8 @@ QQC2.Popup {
     }
 
     background: Rectangle {
-        color: root.palette.base
-        border.color: root.palette.highlight
+        color: root.palette.light
+        border.color: root.palette.midlight
         border.width: 1
         radius: 5
     }
@@ -56,10 +56,16 @@ QQC2.Popup {
                 width: columnLayout.width
                 height: accountName.height + lastActive.height + 6 * 3
                 Rectangle {
-                    color: root.palette.button
-                    radius: 5
-                    anchors.fill: parent
+                    id: selectedItemIndicator
                     visible: modelData === root.selectedAccount
+                    anchors.fill: parent
+                    color: root.palette.alternateBase
+
+                    Rectangle {
+                        height: parent.height
+                        width: 3
+                        color: root.palette.highlight
+                    }
                 }
                 Flowee.Label {
                     id: accountName
