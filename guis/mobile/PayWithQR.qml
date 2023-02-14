@@ -142,11 +142,23 @@ Page {
         anchors.top: userComment.bottom
         anchors.topMargin: 10
         border.width: 1
-        border.color: root.palette.highlight
-        color: root.palette.base
+        border.color: root.palette.midlight
+        color: root.palette.light
         width: inputs.width + 20
         height: 40
         radius: 15
+
+        Rectangle {
+            color: root.palette.highlight
+            opacity: 0.3
+            radius: 6
+            width: 35
+            height: parent.height - 4
+            y: 2
+            x: root.fiatFollowsSats ? 5 : 45
+
+            Behavior on x { NumberAnimation { } }
+        }
 
         Row {
             id: inputs
@@ -184,7 +196,7 @@ Page {
                 width: 1
                 y: inputs.y * -1
                 height: parent.height
-                color: root.palette.text
+                color: root.palette.dark
             }
 
             Flowee.HamburgerMenu {
@@ -202,7 +214,6 @@ Page {
                         sourceComponent = languageMenuComponent
                     }
                     onLoaded: item.open();
-
                 }
 
                 Component {
@@ -231,18 +242,6 @@ Page {
             }
             Item { width: 5; height: 1 } // spacer
         }
-
-        Rectangle {
-            color: root.palette.text
-            opacity: 0.3
-            radius: 6
-            width: 35
-            height: parent.height - 4
-            y: 2
-            x: root.fiatFollowsSats ? 5 : 45
-
-            Behavior on x { NumberAnimation { } }
-        }
     }
 
     Flowee.Label {
@@ -260,7 +259,8 @@ Page {
         id: walletNameBackground
         anchors.top: currentWalletLabel.visible ? currentWalletLabel.top : currentWalletValue.top
         anchors.topMargin: -5
-        width: parent.width
+        width: parent.width + 20
+        x: -10
         anchors.bottom: currentWalletValue.bottom
         anchors.bottomMargin: -5
         color: root.palette.alternateBase
@@ -339,7 +339,7 @@ Page {
                     // make dim when not enabled.
                     color: {
                         if (!enabled)
-                            return Pay.useDarkSkin ? Qt.darker(palette.buttonText, 1.8) : Qt.lighter(palette.buttonText, 2);
+                            return Pay.useDarkSkin ? Qt.darker(palette.buttonText, 2) : Qt.lighter(palette.buttonText, 2);
                         return palette.windowText;
                     }
                 }
