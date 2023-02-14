@@ -57,7 +57,7 @@ Page {
 
             Row {
                 spacing: 20
-                x: (root.width - width) / 2
+                x: (column.width - width) / 2
 
                 Rectangle {
                     id: logo
@@ -93,8 +93,8 @@ Page {
                 wrapMode: Text.WordWrap
                 font.italic: true
                 horizontalAlignment: Text.AlignHCenter
-                width: root.width * 0.8
-                x: (root.width - width) / 2
+                width: column.width * 0.8
+                x: column.width / 10
             }
             Item { width: 1; height: 20 } // spacer
 
@@ -104,7 +104,7 @@ Page {
                 height:buttonText.height + 20
                 width: buttonText.width + 40
                 color: "#178b3a"
-                x: (root.width - width) / 2
+                x: (column.width - width) / 2
 
                 Flowee.Label {
                     id: buttonText
@@ -118,11 +118,11 @@ Page {
                 }
             }
 
-            Item { width: 1; height: 10 } // spacer
+            Item { width: 1; height: 5 } // spacer
 
             Row {
                 spacing: 15
-                x: (root.width - width) / 2
+                x: (column.width - width) / 2
                 Rectangle {
                     width: 50
                     height: 1
@@ -140,21 +140,21 @@ Page {
                 }
             }
 
-            Item { width: 1; height: 10 } // spacer
+            Item { width: 1; height: 5 } // spacer
 
             Flowee.Label {
                 id: instructions
                 text: qsTr("I want to send funds to my new wallet") + ":"
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
-                width: root.width * 0.8
-                x: (root.width - width) / 2
+                width: column.width * 0.8
+                x: column.width / 10
             }
 
             Flowee.QRWidget {
                 id: bla
                 request: portfolio.current.createPaymentRequest(root)
-                x: (root.width - width) / 2
+                x: (column.width - width) / 2
             }
 
             Item { width: 1; height: 40 } // spacer
