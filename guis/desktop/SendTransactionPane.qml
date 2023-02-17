@@ -502,7 +502,7 @@ Item {
             }
             Flowee.BitcoinAmountLabel {
                 id: neededAmountLabel
-                value: payment.paymentAmount
+                value: payment.effectiveBchAmount
                 Layout.fillWidth: true
                 colorize: false
             }

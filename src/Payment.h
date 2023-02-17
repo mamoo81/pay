@@ -36,13 +36,16 @@ class Payment : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int feePerByte READ feePerByte WRITE setFeePerByte NOTIFY feePerByteChanged)
+    /// The single-output amount of funds being sent by this Payment.
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
+    /// The single-output amount of funds being sent by this Payment.
     Q_PROPERTY(double paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY amountChanged)
+    /// The single-output address we will send to
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
     Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
-    /// Input is valid, tx can be prepared
+    /// If input is valid, tx can be prepared. \see prepare()
     Q_PROPERTY(bool isValid READ validate NOTIFY validChanged);
     Q_PROPERTY(QList<QObject*> details READ paymentDetails NOTIFY paymentDetailsChanged);
     Q_PROPERTY(BroadcastStatus broadcastStatus  READ broadcastStatus NOTIFY broadcastStatusChanged)
@@ -53,14 +56,17 @@ class Payment : public QObject
     Q_PROPERTY(bool walletNeedsPin READ walletNeedsPin NOTIFY walletPinChanged);
     Q_PROPERTY(bool autoPrepare READ autoPrepare WRITE setAutoPrepare NOTIFY autoPrepareChanged)
 
+    /// The payment-wide amount of funds being sent by this Payment.
+    Q_PROPERTY(int effectiveFiatAmount READ effectiveFiatAmount NOTIFY amountChanged)
+    /// The payment-wide amount of funds being sent by this Payment.
+    Q_PROPERTY(double effectiveBchAmount READ effectiveBchAmount NOTIFY amountChanged)
+
     // --- Stuff that becomes available / useful after prepare has been called:
     /// Tx has been prepared
     Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged);
     Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
-    Q_PROPERTY(int effectiveFiatAmount READ effectiveFiatAmount NOTIFY txCreated)
-    Q_PROPERTY(double effectiveBchAmount READ effectiveBchAmount NOTIFY txCreated)
     /// If Prepare failed, this is set.
     Q_PROPERTY(QString error READ error NOTIFY errorChanged);
 

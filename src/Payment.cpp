@@ -673,8 +673,8 @@ int Payment::effectiveFiatAmount() const
     for (auto i = m_paymentDetails.crbegin(); i != m_paymentDetails.crend(); ++i) {
         auto *detail = *i;
         if (detail->isInputs())
-            inputSelector = detail->toInputs();
-        if (!detail->isOutput())
+            inputSelector = detail->toInputs(); // find the one input selector if there is one
+        if (!detail->isOutput()) // only care about outputs from here
             continue;
         auto *out = detail->toOutput();
         if (out->maxAllowed() && out->maxSelected()) {
