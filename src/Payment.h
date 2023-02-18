@@ -249,7 +249,7 @@ private:
     Tx m_tx;
     int m_fee; // in sats per byte
     int m_assignedFee;
-    int m_fiatPrice; // price for one whole BCH
+    int m_fiatPrice = 50000; // price for one whole BCH
     std::shared_ptr<BroadcastTxData> m_infoObject;
     short m_sentPeerCount;
     short m_rejectedPeerCount;
