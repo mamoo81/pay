@@ -19,6 +19,8 @@
         <file alias="qr-code-light.svg">mobile/images/qr-code-light.svg</file>
         <file alias="backspace.svg">mobile/images/backspace.svg</file>
         <file alias="backspace-light.svg">mobile/images/backspace-light.svg</file>
+        <file alias="settingsIcon-light.svg">mobile/images/settingsIcon-light.svg</file>
+        <file alias="settingsIcon.svg">mobile/images/settingsIcon.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>

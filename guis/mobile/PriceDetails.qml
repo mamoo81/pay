@@ -17,6 +17,7 @@
  */
 import QtQuick
 import "../Flowee" as Flowee
+import Flowee.org.pay;
 
 Item {
     id: root
@@ -34,12 +35,12 @@ Item {
         return sign + Math.abs(percentage.toFixed(2))+ "%"
     }
 
-    Rectangle {
-        color: "red"
+    Image {
         anchors.right: parent.right
-        opacity: 0.3
-        width: 20
-        height: 20
+        width: 16
+        height: 16
+        smooth: true
+        source: "qrc:/settingsIcon" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
         MouseArea {
             anchors.fill: parent
             onClicked: {
