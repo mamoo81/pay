@@ -50,5 +50,6 @@
         <file>mobile/CurrencySelector.qml</file>
         <file>mobile/StartupScreen.qml</file>
         <file>mobile/ImportWalletPage.qml</file>
+        <file>mobile/PriceDetails.qml</file>
     </qresource>
 </RCC>

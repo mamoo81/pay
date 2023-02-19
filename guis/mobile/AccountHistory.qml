@@ -86,6 +86,15 @@ ListView {
                     return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
                 }
                 colorize: false
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: popupOverlay.open(priceDetails, parent)
+                }
+                Component {
+                    id: priceDetails
+                    PriceDetails { }
+                }
             }
 
             AccountSyncState {

@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,6 +164,14 @@ int PriceDataProvider::historicalPrice(const QDateTime &timestamp) const
         return m_currentPrice.price;
 
     return m_priceHistory->historicalPrice(timestamp.toSecsSinceEpoch());
+}
+
+int PriceDataProvider::historicalPrice(int days) const
+{
+    if (days < 0 || days > 3000)
+        throw std::runtime_error("Invalid number of days ago");
+    QDateTime now = QDateTime::currentDateTimeUtc();
+    return historicalPrice(now.addDays(days * -1));
 }
 
 QString PriceDataProvider::priceToStringSimple(int cents) const

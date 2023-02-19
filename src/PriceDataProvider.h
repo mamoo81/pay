@@ -68,6 +68,11 @@ public:
      */
     Q_INVOKABLE int historicalPrice(const QDateTime &timestamp) const;
 
+    /**
+     * Return the price a certain amount of days in the past
+     */
+    Q_INVOKABLE int historicalPrice(int days) const;
+
     /// return a string with the given price and needed decimal separator.
     /// Please note that the currency indicators are not included, unlike in formattedPrice()
     /// \see currencySymbolPrefix()

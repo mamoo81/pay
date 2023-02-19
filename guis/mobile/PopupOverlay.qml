@@ -28,12 +28,12 @@ FocusScope {
 
     /**
       * @param sourceComponent is a Component we set on the loader.
-      * @param target is the visual item we position next to.
+      * @param target is the visual item we position next to (vertically).
       * @returns the item instance of the sourceComponent template
       */
     function open(sourceComponent, target) {
         thePopup.palette = mainWindow.palette
-        thePopup.width = Math.min(root.width - 18, target.width)
+        thePopup.width = root.width - 18
         thePopup.x = (width - thePopup.width) / 2
         thePopup.sourceRect = root.mapFromItem(target, 0, 0, target.width, target.height);
         loader.sourceComponent = sourceComponent; // last, as it starts the loading
