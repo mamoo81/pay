@@ -133,5 +133,11 @@ Page {
                 }
             }
         }
+
+        TextButton {
+            text: qsTr("Select Currency", "the word for euro/dollar/etc")
+            showPageIcon: true
+            onClicked: thePile.push("./CurrencySelector.qml")
+        }
     }
 }
