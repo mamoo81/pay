@@ -60,6 +60,7 @@ PriceHistoryDataProvider::PriceHistoryDataProvider(const QString &basedir, const
             auto &pool = Streaming::pool(static_cast<int>(fileSize));
             input.read(pool.begin(), fileSize);
             data->valueBlob = pool.commit(fileSize);
+            data->hasBlob = true;
         }
     }
 }
@@ -147,11 +148,6 @@ QString PriceHistoryDataProvider::currencyName() const
     return m_currency;
 }
 
-void PriceHistoryDataProvider::setCurrency(const QString &newCurrency)
-{
-    m_currency = newCurrency;
-}
-
 namespace {
 struct Day {
     Day() { reset(); }
@@ -233,6 +229,7 @@ void PriceHistoryDataProvider::processLog()
     auto count = blobData.write(data->valueBlob.begin(), data->valueBlob.size());
     assert(count == data->valueBlob.size());
     data->logValues.clear();
+    data->hasBlob = true;
 
     data->log->open(QIODevice::WriteOnly | QIODevice::Truncate);
 }
@@ -270,8 +267,10 @@ bool PriceHistoryDataProvider::allowLogCompression() const
 
 void PriceHistoryDataProvider::initialPopulate()
 {
-    if (m_currencies.empty()) {
+    auto cur = currencyData(m_currency, FetchOnly);
+    if (cur && !cur->hasBlob) {
         logCritical() << "populate!";
+        cur->hasBlob = true; // avoid starting fetcher again
         InitialHistoryFetcher *f = new InitialHistoryFetcher(this);
         connect (f, &InitialHistoryFetcher::success, f, [=](const QString &currency) {
             // load this file into a currency object.
@@ -313,7 +312,9 @@ void InitialHistoryFetcher::fetch(const QString &path, const QString &currency)
     req.setRawHeader("User-Agent", useragent.toLatin1());
     auto reply = m_network.get(req);
     connect (reply, &QNetworkReply::finished, reply, [=]() {
-        if (reply->error() == QNetworkReply::NoError) {
+        // either everything went fine, or the server doesn't have our file.
+        // in both cases we will not retry and we create a file.
+        if (reply->error() == QNetworkReply::NoError || reply->error() == QNetworkReply::ContentNotFoundError ) {
             QFile out(path + '/' + currency);
             if (out.open(QIODevice::WriteOnly)) {
                 out.write(reply->readAll());

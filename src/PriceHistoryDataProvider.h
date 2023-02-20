@@ -60,6 +60,7 @@ private:
     struct Currency {
         // a single currency and historical things we know about it.
         QString id; ///< the language ID (EUR/USD etc)
+        bool hasBlob = false;
         Streaming::ConstBuffer valueBlob; // a raw list of time/value pairs.
 
         /// a append-only list of time/value pairs (as stored in the log file)
