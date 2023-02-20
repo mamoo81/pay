@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,20 @@ TransactionInfo::TransactionInfo(QObject *parent)
 int TransactionInfo::txSize() const
 {
     return m_txSize;
+}
+
+double TransactionInfo::fees() const
+{
+    qint64 fees = 0;
+    if (m_createdByUs) {
+        for (const auto i : m_inputs) {
+            fees += i->value();
+        }
+        for (const auto o : m_outputs) {
+            fees -= o->value();
+        }
+    }
+    return static_cast<double>(fees);
 }
 
 QList<QObject *> TransactionInfo::outputs() const

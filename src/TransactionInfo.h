@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,6 +84,11 @@ class TransactionInfo : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int size READ txSize CONSTANT)
+    /**
+     * Return the amount of fees paid for this transaction.
+     * This returns zero if we didn't create the transaction.
+     */
+    Q_PROPERTY(double fees READ fees CONSTANT)
     Q_PROPERTY(QList<QObject*> inputs READ inputs CONSTANT)
     Q_PROPERTY(QList<QObject*> outputs READ outputs CONSTANT)
     Q_PROPERTY(QString userComment READ userComment CONSTANT)
@@ -95,6 +100,7 @@ public:
     explicit TransactionInfo(QObject *parent = nullptr);
 
     int txSize() const;
+    double fees() const;
     QList<QObject *> outputs() const;
     QList<QObject *> inputs() const;
     const QString &userComment() const;

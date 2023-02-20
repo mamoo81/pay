@@ -64,7 +64,7 @@ GridLayout {
     }
     Flowee.BitcoinAmountLabel {
         visible: paymentTypeLabel.visible
-        value: model.fundsOut - model.fundsIn
+        value: model.fundsOut - model.fundsIn + infoObject.fees
         fiatTimestamp: root.minedDate
     }
     Label {
@@ -74,16 +74,7 @@ GridLayout {
     }
     Flowee.BitcoinAmountLabel {
         visible: feesLabel.visible
-        value: {
-            if (!infoObject.createdByUs)
-                return 0;
-            var amount = model.fundsIn;
-            var outputs = infoObject.outputs
-            for (var i in outputs) {
-                amount -= outputs[i].value
-            }
-            return amount
-        }
+        value: infoObject.fees;
         fiatTimestamp: root.minedDate
         colorize: false
     }

@@ -92,7 +92,7 @@ GridLayout {
     Flowee.BitcoinAmountLabel {
         Layout.fillWidth: true
         visible: paymentTypeLabel.visible
-        value: model.fundsOut - model.fundsIn
+        value: model.fundsOut - model.fundsIn + (infoObject == null ? 0 : infoObject.fees)
         fiatTimestamp: model.date
         showFiat: false // might not fit
     }
