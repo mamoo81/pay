@@ -54,6 +54,7 @@ Item {
 
             Flowee.Label {
                 id: buddy
+                anchors.baseline: main.baseline
                 text: title + ":"
             }
             Flowee.Label {
