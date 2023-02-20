@@ -26,6 +26,7 @@ Page {
 
     ColumnLayout {
         width: parent.width
+        spacing: 6
         Flowee.Label {
             text: qsTr("Font sizing")
         }
@@ -45,7 +46,7 @@ Page {
                         width: parent.width - 5
                         x: 2.5
                         height: 3
-                        color: Pay.fontScaling == target ? root.palette.highlight : root.palette.button
+                        color: Pay.fontScaling === target ? root.palette.highlight : root.palette.button
                     }
 
                     Flowee.Label {
@@ -59,6 +60,76 @@ Page {
                         anchors.topMargin: -30
                         onClicked: Pay.fontScaling = target
                     }
+                }
+            }
+        }
+
+        Item { width: 1; height: 10; } // spacer
+
+        Item {
+            width: parent.width
+            implicitHeight: Math.max(unitLabel.height, unitSelector.height)
+            Flowee.Label {
+                id: unitLabel
+                text: qsTr("Unit") + ":"
+                anchors.baseline: unitSelector.baseline
+            }
+            Flowee.ComboBox {
+                id: unitSelector
+                anchors.left: unitLabel.right
+                anchors.leftMargin: 6
+                width: 160
+                model: {
+                    var answer = [];
+                    for (let i = 0; i < 5; ++i) {
+                        answer[i] = Pay.nameOfUnit(i);
+                    }
+                    return answer;
+                }
+                currentIndex: Pay.unit
+                onCurrentIndexChanged: Pay.unit = currentIndex
+            }
+        }
+
+        Rectangle {
+            Layout.alignment: Qt.AlignHCenter
+            color: "#00000000"
+            radius: 6
+            border.color: root.palette.button
+            border.width: 0.8
+
+            implicitHeight: units.height + 10
+            implicitWidth: units.width + 10
+
+            GridLayout {
+                id: units
+                columns: 3
+                x: 5; y: 5
+                rowSpacing: 0
+                Flowee.Label {
+                    text: {
+                        var answer = "1";
+                        for (let i = Pay.unitAllowedDecimals; i < 8; ++i) {
+                            answer += "0";
+                        }
+                        return answer + " " + Pay.unitName;
+                    }
+                    Layout.alignment: Qt.AlignRight
+                }
+                Flowee.Label { text: "=" }
+                Flowee.Label { text: "1 Bitcoin Cash" }
+
+                Flowee.Label { text: "1 " + Pay.unitName; Layout.alignment: Qt.AlignRight; visible: Pay.isMainChain}
+                Flowee.Label { text: "="; visible: Pay.isMainChain}
+                Flowee.Label {
+                    text: {
+                        var amount = 1;
+                        for (let i = 0; i < Pay.unitAllowedDecimals; ++i) {
+                            amount = amount * 10;
+                        }
+                        return Fiat.formattedPrice(amount, Fiat.price);
+                    }
+                    visible: Pay.isMainChain
                 }
             }
         }
