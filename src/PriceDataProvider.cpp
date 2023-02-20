@@ -267,6 +267,8 @@ void PriceDataProvider::loadPriceHistory(const QString &basedir)
              m_priceHistory.get(), [=](int price) {
         m_priceHistory->addPrice(currencyName(), QDateTime::currentSecsSinceEpoch(), price);
     });
+
+    emit priceChanged(lastKnownPrice);
 }
 
 QString PriceDataProvider::currencySymbolPrefix() const
