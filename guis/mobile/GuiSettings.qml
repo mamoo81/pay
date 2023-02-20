@@ -135,7 +135,7 @@ Page {
         }
 
         TextButton {
-            text: qsTr("Select Currency", "the word for euro/dollar/etc")
+            text: qsTr("Change Currency (%1)").arg(Fiat.currencyName)
             showPageIcon: true
             onClicked: thePile.push("./CurrencySelector.qml")
         }
