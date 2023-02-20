@@ -24,16 +24,6 @@ Item {
     implicitHeight: mainPrice.height + changes.height + 10
 
     property int currentPrice: Fiat.price
-    function changeComparedTo(daysAgo) {
-        var oldPrice = Fiat.historicalPrice(daysAgo);
-        var percentage = oldPrice / root.currentPrice * 100 - 100;
-        var sign = "";
-        if (percentage < 0)
-            sign = "↓";
-        else if (percentage > 0)
-            sign = "↑";
-        return sign + Math.abs(percentage.toFixed(2))+ "%"
-    }
 
     Image {
         anchors.right: parent.right
@@ -55,32 +45,59 @@ Item {
         text: qsTr("1 BCH is: %1", "Price of a whole bitcoin cash"). arg(Fiat.formattedPrice(100000000, root.currentPrice))
     }
 
+    Component {
+        id: historyLabel
+        Item {
+            property int days: 0
+            height: buddy.height
+            width: buddy.width + 3 + main.width
+
+            Flowee.Label {
+                id: buddy
+                text: title + ":"
+            }
+            Flowee.Label {
+                id: main
+                anchors.left: buddy.right
+                anchors.leftMargin: 3
+                property double percentage:  {
+                    var oldPrice = Fiat.historicalPrice(daysAgo);
+                    return (root.currentPrice - oldPrice) / oldPrice * 100;
+                }
+                text: {
+                    var sign = "";
+                    if (percentage < 0)
+                        sign = "↓";
+                    else if (percentage > 0)
+                        sign = "↑";
+                    return sign + Math.abs(percentage.toFixed(1))+ "%"
+                }
+
+                color: {
+                    if (percentage > 0)
+                        return Pay.useDarkSkin ? mainWindow.floweeGreen : "#31993d";
+                    return Pay.useDarkSkin ? "#ff5050" : "#c33d3d";
+                }
+            }
+        }
+    }
+
     Flow {
         id: changes
         anchors.top: mainPrice.bottom
         anchors.topMargin: 10
         width: parent.width
-        spacing: 4
-        Flowee.Label {
-            text: qsTr("7d", "7 days") + ":"; // 7 days
-        }
-        Flowee.Label {
-            text: root.changeComparedTo(7);
-            color: text.substring(0, 1) === '↓' ? "red" : "green"
-        }
-        Flowee.Label {
-            text: "  " + qsTr("1m", "1 month") + ":"; // 30 days
-        }
-        Flowee.Label {
-            text: root.changeComparedTo(30);
-            color: text.substring(0, 1) === '↓' ? "red" : "green"
-        }
-        Flowee.Label {
-            text: "  " + qsTr("3m", "3 months") + ":"; // 90 days
-        }
-        Flowee.Label {
-            text: root.changeComparedTo(90);
-            color: text.substring(0, 1) === '↓' ? "red" : "green"
+        spacing: 10
+        Repeater {
+            model: ListModel {
+                ListElement { title: qsTr("7d", "7 days"); // 7 days
+                    daysAgo: 7 }
+                ListElement { title: qsTr("1m", "1 month"); // 30 days
+                    daysAgo: 30 }
+                ListElement { title: qsTr("3m", "3 months"); // 90 days
+                    daysAgo: 90 }
+            }
+            delegate: historyLabel
         }
     }
 }
