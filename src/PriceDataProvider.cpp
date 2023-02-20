@@ -49,11 +49,6 @@ void PriceDataProvider::start()
     fetch();
 }
 
-void PriceDataProvider::mock(int price)
-{
-    m_currentPrice.price = price;
-}
-
 void PriceDataProvider::setCurrency(const QLocale &countryLocale)
 {
     auto newCurrency = countryLocale.currencySymbol(QLocale::CurrencyIsoCode);
