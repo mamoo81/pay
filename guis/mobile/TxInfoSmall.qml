@@ -64,7 +64,7 @@ GridLayout {
             var rc = Pay.formatDateTime(model.date);
             var confirmations = Pay.headerChainHeight - root.minedHeight + 1;
             if (confirmations > 0 && confirmations < 100)
-                rc += " (" + qsTr("%1 blocks ago", confirmations).arg(confirmations) + ")";
+                rc += " (" + qsTr("%1 blocks ago", "Confirmations", confirmations).arg(confirmations) + ")";
             return rc;
         }
     }

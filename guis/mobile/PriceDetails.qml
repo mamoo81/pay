@@ -52,7 +52,7 @@ Item {
 
     Flowee.Label {
         id: mainPrice
-        text: qsTr("1 BCH is: %1").arg(Fiat.formattedPrice(100000000, root.currentPrice))
+        text: qsTr("1 BCH is: %1", "Price of a whole bitcoin cash"). arg(Fiat.formattedPrice(100000000, root.currentPrice))
     }
 
     Flow {
@@ -62,21 +62,21 @@ Item {
         width: parent.width
         spacing: 4
         Flowee.Label {
-            text: qsTr("7d") + ":"; // 7 days
+            text: qsTr("7d", "7 days") + ":"; // 7 days
         }
         Flowee.Label {
             text: root.changeComparedTo(7);
             color: text.substring(0, 1) === '↓' ? "red" : "green"
         }
         Flowee.Label {
-            text: "  " + qsTr("1m") + ":"; // 30 days
+            text: "  " + qsTr("1m", "1 month") + ":"; // 30 days
         }
         Flowee.Label {
             text: root.changeComparedTo(30);
             color: text.substring(0, 1) === '↓' ? "red" : "green"
         }
         Flowee.Label {
-            text: "  " + qsTr("3m") + ":"; // 90 days
+            text: "  " + qsTr("3m", "3 months") + ":"; // 90 days
         }
         Flowee.Label {
             text: root.changeComparedTo(90);
