@@ -24,6 +24,6 @@ Item {
         width: parent.width * 0.8
         height: 1.3
         anchors.centerIn: parent
-        color: mainWindow.palette.mid
+        color: palette.mid
     }
 }

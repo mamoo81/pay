@@ -75,7 +75,7 @@ Page {
         delegate: Rectangle {
             width: ListView.view.width
             height: label.height + 20
-            color: (index % 2) == 0 ? root.palette.base : root.palette.alternateBase
+            color: (index % 2) == 0 ? palette.base : palette.alternateBase
 
             Flowee.Label {
                 id: iso

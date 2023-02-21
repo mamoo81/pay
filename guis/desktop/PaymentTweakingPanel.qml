@@ -53,7 +53,7 @@ Item {
             radius: width / 2
             width: priv.collapsed ? 70 : priv.width * 2.9
             height: priv.collapsed ? 70 : priv.height * 2.9
-            color: priv.collapsed ? mainWindow.palette.windowText : mainWindow.palette.window
+            color: priv.collapsed ? palette.windowText : palette.window
 
             Behavior on color { ColorAnimation { duration: 400 } }
             Behavior on width { NumberAnimation { duration: 400 } }
@@ -88,9 +88,9 @@ Item {
                 anchors.topMargin: 10
                 x: 10
 
-                color: helpText.palette.light
+                color: palette.light
                 border.width: 2
-                border.color: helpText.palette.shadow
+                border.color: palette.shadow
 
                 Flowee.Button {
                     id: inputSelectorButton
@@ -141,7 +141,7 @@ Item {
     // the two lines that make up the "+" icon
     Rectangle {
         opacity: priv.collapsed ? 1 : 0
-        color: mainWindow.palette.window
+        color: palette.window
         width: 17
         height: 3
         x: 6
@@ -149,7 +149,7 @@ Item {
     }
     Rectangle {
         opacity: priv.collapsed ? 1 : 0
-        color: mainWindow.palette.window
+        color: palette.window
         width: 3
         height: 17
         y: 6

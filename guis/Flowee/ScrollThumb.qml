@@ -71,14 +71,14 @@ QQC2.ScrollBar {
             Repeater {
                 model: 3
                 delegate: Rectangle {
-                    color: root.palette.light
+                    color: palette.light
                     width: column.width
                     height: 2
                     radius: 1
                 }
             }
         }
-        color: thumbInput.engaged ? root.palette.highlight : root.palette.dark
+        color: thumbInput.engaged ? palette.highlight : palette.dark
 
         Timer {
             running: thumbRect.open && !thumbRect.moving

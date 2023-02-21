@@ -46,7 +46,7 @@ Page {
                         width: parent.width - 5
                         x: 2.5
                         height: 3
-                        color: Pay.fontScaling === target ? root.palette.highlight : root.palette.button
+                        color: Pay.fontScaling === target ? palette.highlight : palette.button
                     }
 
                     Flowee.Label {
@@ -95,7 +95,7 @@ Page {
             Layout.alignment: Qt.AlignHCenter
             color: "#00000000"
             radius: 6
-            border.color: root.palette.button
+            border.color: palette.button
             border.width: 0.8
 
             implicitHeight: units.height + 10

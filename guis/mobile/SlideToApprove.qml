@@ -11,20 +11,20 @@ Item {
         width: parent.height
         height: width
         radius: width / 2
-        color: root.palette.window
+        color: palette.window
     }
     Rectangle {
         x: parent.width - width - 30
         width: parent.height
         height: width
         radius: width / 2
-        color: root.palette.window
+        color: palette.window
     }
     Rectangle {
         x: 30 + parent.height / 2
         width: parent.width - 30 - 30 - parent.height
         height: parent.height
-        color: root.palette.window
+        color: palette.window
     }
     Flowee.Label {
         id: textLabel
@@ -42,7 +42,7 @@ Item {
         color: {
             if (root.enabled)
                 return Pay.useDarkSkin ? mainWindow.floweeGreen : mainWindow.floweeBlue;
-            return Qt.darker(textLabel.palette.button, 1.2);
+            return Qt.darker(palette.button, 1.2);
         }
         property bool finished: false
         onXChanged: {

@@ -56,9 +56,9 @@ QQC2.Control {
     Rectangle {
         id: feedbackPopup
         radius: 6
-        color: mainWindow.palette.window
+        color: palette.window
         border.width: 2
-        border.color: mainWindow.palette.highlight
+        border.color: palette.highlight
         visible: false
         width: comment.width + 12
         height: comment.height + 12

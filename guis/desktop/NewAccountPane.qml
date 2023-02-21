@@ -34,7 +34,7 @@ FocusScope {
         }
     }
     Rectangle {
-        color: mainWindow.palette.window
+        color: palette.window
         anchors.fill: contentArea
         anchors.margins: -10 // have an inset
         MouseArea { anchors.fill: parent }

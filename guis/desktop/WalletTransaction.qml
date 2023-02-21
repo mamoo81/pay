@@ -28,7 +28,7 @@ Rectangle {
         return rc;
     }
     width: mainLabel.width + bitcoinAmountLabel.width + 30
-    color: (index % 2) == 0 ? mainLabel.palette.light : mainLabel.palette.alternateBase
+    color: (index % 2) == 0 ? palette.light : palette.alternateBase
 
     property bool isRejected: model.height === -2 // -2 is the magic block-height indicating 'rejected'
 

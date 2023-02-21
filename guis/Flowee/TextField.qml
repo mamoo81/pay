@@ -34,12 +34,12 @@ QQC2.TextField {
         radius: 3
         color: {
             if (root.enabled)
-                return root.palette.base;
+                return palette.base;
             return "#00000000";
         }
         border.color: {
             if (root.enabled)
-                return root.activeFocus ? root.palette.highlight : root.palette.button
+                return root.activeFocus ? palette.highlight : palette.button
             return "transparant";
         }
         border.width: 0.8

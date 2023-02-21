@@ -68,7 +68,7 @@ ListView {
       header of the listview.
      */
     header: Rectangle {
-        color: root.palette.window
+        color: palette.window
         width: root.width
         height: column.height
         Column {
@@ -147,7 +147,7 @@ ListView {
         height: label.height + 15
         width: root.width
         Rectangle {
-            color: root.palette.light
+            color: palette.light
             anchors.fill: parent
         }
         Flowee.Label {
@@ -183,9 +183,9 @@ ListView {
             y: transactionDelegate.placementInGroup === Wallet.GroupStart ? 0 : -20;
 
             radius: 20
-            color: root.palette.alternateBase
+            color: palette.alternateBase
             border.width: 1
-            border.color: root.palette.midlight
+            border.color: palette.midlight
         }
 
         Item {
@@ -289,7 +289,7 @@ ListView {
             height: 1
             width: parent.width - 16
             x: 8
-            color: root.palette.midlight
+            color: palette.midlight
         }
 
         MouseArea {

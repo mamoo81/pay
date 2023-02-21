@@ -47,7 +47,7 @@ GridLayout {
                 // Transaction is rejected by network
                 return Pay.useDarkSkin ? "#ec2327" : "#b41214";
             }
-            return mainWindow.palette.windowText
+            return palette.windowText
         }
     }
 

@@ -75,9 +75,9 @@ QQC2.Control {
         width: parent.width - 10
         height: parent.height - 10
         activeFocusOnTab: true
-        color: showingPlaceholder ? Qt.darker(root.palette.text, Pay.useDarkSkin ? 1.6 : 0.65) : root.palette.text
-        selectedTextColor: root.palette.highlightedText
-        selectionColor: root.palette.highlight
+        color: showingPlaceholder ? Qt.darker(palette.text, Pay.useDarkSkin ? 1.6 : 0.65) : palette.text
+        selectedTextColor: palette.highlightedText
+        selectionColor: palette.highlight
         selectByMouse: true
         wrapMode: TextEdit.Wrap
 
@@ -111,7 +111,7 @@ QQC2.Control {
 
     background: Rectangle {
         color: "#00000000"
-        border.color: textEdit.activeFocus ? root.palette.highlight : root.palette.mid
+        border.color: textEdit.activeFocus ? palette.highlight : palette.mid
         border.width: 0.8
     }
 }

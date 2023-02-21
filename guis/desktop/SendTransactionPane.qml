@@ -34,7 +34,7 @@ Item {
     }
     Rectangle { // background
         anchors.fill: parent
-        color: mainWindow.palette.window
+        color: palette.window
     }
     Flickable {
         id: contentArea
@@ -79,8 +79,8 @@ Item {
                         width: 32
                         height: 32
                         visible: modelData.collapsable && !modelData.collapsed
-                        color: mouseArea.containsMouse ? mainWindow.palette.button : mainWindow.palette.window
-                        border.color: mainWindow.palette.button
+                        color: mouseArea.containsMouse ? palette.button : palette.window
+                        border.color: palette.button
 
                         Image {
                             source: "qrc:/edit-delete.svg"
@@ -317,7 +317,7 @@ Item {
                                 if (!activeFocus && text !== "" && !addressOk)
                                     color = Pay.useDarkSkin ? "#ff6568" : "red"
                                 else
-                                    color = mainWindow.palette.windowText
+                                    color = palette.windowText
                             }
                         }
                         Label {
@@ -412,7 +412,7 @@ Item {
                     Rectangle {
                         anchors.fill: warningColumn
                         anchors.margins: -7
-                        color: warning.palette.window
+                        color: palette.window
                         border.width: 2
                         border.color: "red"
                         radius: 10
@@ -543,7 +543,7 @@ Item {
                 delegate: Rectangle {
                     width: ListView.view.width - 5
                     height: mainText.height + ageLabel.height + 12
-                    color: index %2 == 0 ? mainText.palette.alternateBase : mainText.palette.base
+                    color: index %2 == 0 ? palette.alternateBase : palette.base
 
                     Rectangle {
                         id: lockedRect

@@ -172,7 +172,7 @@ ApplicationWindow {
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -10
-                        color: mainWindow.palette.light
+                        color: palette.light
                         radius: 10
                     }
                     Column {
@@ -299,7 +299,7 @@ ApplicationWindow {
                                 width: label.width + 12
                                 height: label.height + 12
                                 radius: 5
-                                color: label.palette.light
+                                color: palette.light
                                 Label {
                                     id: label
                                     anchors.centerIn: parent
@@ -465,7 +465,7 @@ ApplicationWindow {
                         }
                         colorize: false
                         showFiat: false
-                        color: mainWindow.palette.windowText
+                        color: palette.windowText
                         fontPixelSize: {
                             if (leftColumn.width < 240) // max width is 252
                                 return leftColumn.width / 7
@@ -526,7 +526,7 @@ ApplicationWindow {
 
                     Rectangle {
                         id: priceCover // this covers the prices while the wallet is encrypted.
-                        color: mainWindow.palette.window
+                        color: palette.window
                         opacity: 0.8
                         anchors.fill: parent
                         anchors.topMargin: 2
@@ -567,7 +567,7 @@ ApplicationWindow {
                         Timer {
                             id: animTimer
                             interval: 305
-                            onTriggered: fiatValue.color = fiatValue.palette.windowText
+                            onTriggered: fiatValue.color = palette.windowText
                         }
                     }
 
@@ -704,7 +704,7 @@ ApplicationWindow {
 
         Rectangle {
             id: splashScreen
-            color: mainWindow.palette.window
+            color: palette.window
             anchors.fill: parent
             Label {
                 text: qsTr("Preparing...")

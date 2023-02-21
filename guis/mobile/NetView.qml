@@ -39,7 +39,7 @@ Page {
         delegate: Rectangle {
             width: listView.width
             height: peerPane.height + 12
-            color: index % 2 === 0 ? secondRow.palette.button : secondRow.palette.base
+            color: index % 2 === 0 ? palette.button : palette.base
             opacity: modelData.headersReceived ? 1 : 0.5
             ColumnLayout {
                 id: peerPane

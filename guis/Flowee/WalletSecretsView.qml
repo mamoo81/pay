@@ -26,7 +26,7 @@ ListView {
     model: root.account.secrets
     delegate: Rectangle {
         id: delegateRoot
-        color: (index % 2) == 0 ? root.palette.base : root.palette.alternateBase
+        color: (index % 2) == 0 ? palette.base : palette.alternateBase
         width: ListView.view.width
         height: addressLabel.height + 6 + amountLabel.height + 6 + (lineCount === 3 ? coinCountLabel.height + 6: 0) + 12
 
@@ -73,7 +73,7 @@ ListView {
                 Repeater { // hamburger
                     model: 3
                     delegate: Rectangle {
-                        color: root.palette.windowText
+                        color: palette.windowText
                         width: 12
                         height: 3
                         radius: 2

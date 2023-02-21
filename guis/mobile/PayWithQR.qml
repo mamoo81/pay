@@ -142,14 +142,14 @@ Page {
         anchors.top: userComment.bottom
         anchors.topMargin: 10
         border.width: 1
-        border.color: root.palette.midlight
-        color: root.palette.light
+        border.color: palette.midlight
+        color: palette.light
         width: inputs.width + 20
         height: 40
         radius: 15
 
         Rectangle {
-            color: root.palette.highlight
+            color: palette.highlight
             opacity: 0.3
             radius: 6
             width: 35
@@ -196,7 +196,7 @@ Page {
                 width: 1
                 y: inputs.y * -1
                 height: parent.height
-                color: root.palette.dark
+                color: palette.dark
             }
 
             Flowee.HamburgerMenu {
@@ -263,7 +263,7 @@ Page {
         x: -10
         anchors.bottom: currentWalletValue.bottom
         anchors.bottomMargin: -5
-        color: root.palette.alternateBase
+        color: palette.alternateBase
 
         MouseArea {
             anchors.fill: parent

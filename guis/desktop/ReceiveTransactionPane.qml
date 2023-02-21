@@ -72,7 +72,7 @@ Pane {
                 color: {
                     var state = qr.request.state;
                     if (state === PaymentRequest.PaymentSeen || state === PaymentRequest.Unpaid)
-                        return receivePane.palette.base
+                        return palette.base
                     if (state === PaymentRequest.DoubleSpentSeen)
                         return "#640e0f" // red
                     return "#3e8b4e" // in all other cases: green
@@ -81,7 +81,7 @@ Pane {
             }
             GradientStop {
                 position: 0.1
-                color: receivePane.palette.base
+                color: palette.base
             }
         }
         opacity: qr.request.state === PaymentRequest.Unpaid ? 0: 1

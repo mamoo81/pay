@@ -26,7 +26,7 @@ QQC2.Control {
     height: parent.height
 
     background: Rectangle {
-        color: root.palette.light
+        color: palette.light
     }
 
     // This trick  means any child items are actually added to the 'stack' item's children.
@@ -64,7 +64,7 @@ QQC2.Control {
         id: header
         width: parent.width
         height: 50
-        color: Pay.useDarkSkin ? root.palette.window : mainWindow.floweeBlue
+        color: Pay.useDarkSkin ? palette.window : mainWindow.floweeBlue
 
         Flowee.HamburgerMenu {
             id: menuButton
@@ -142,7 +142,7 @@ QQC2.Control {
 
     Rectangle {
         anchors.fill: tabbar
-        color: root.palette.window
+        color: palette.window
     }
 
     Row {
@@ -159,12 +159,12 @@ QQC2.Control {
                     x: 5
                     height: 4
                     width: parent.width - 10
-                    color: mainWindow.palette.highlight
+                    color: palette.highlight
                     visible: modelData === root.currentIndex
                 }
                 Rectangle {
                     anchors.fill: parent
-                    color: mainWindow.palette.highlight
+                    color: palette.highlight
                     visible: modelData === root.currentIndex
                     opacity: 0.15
                 }

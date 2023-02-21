@@ -90,7 +90,7 @@ FocusScope {
                         return "red"
                     var state = qr.request.state;
                     if (state === PaymentRequest.PaymentSeen || state === PaymentRequest.Unpaid)
-                        return qr.palette.base
+                        return palette.base
                     if (state === PaymentRequest.DoubleSpentSeen)
                         return "#640e0f" // red
                     return "#3e8b4e" // in all other cases: green
@@ -99,7 +99,7 @@ FocusScope {
             }
             GradientStop {
                 position: 0.1
-                color: receiveTab.palette.base
+                color: palette.base
             }
         }
         opacity: qr.request == null ? 0 : (qr.request.state === PaymentRequest.Unpaid ? 0: 1)

@@ -29,13 +29,13 @@ Item {
 
     Rectangle {
         color: {
-            var base = name.palette.base
+            var base = palette.base
             if (Pay.useDarkSkin)
                 return parent.selected ? Qt.lighter(base, 1.4) : Qt.darker(base, 0.9)
             return parent.selected ? Qt.darker(base, 1.04) : Qt.darker(base, 1.1)
         }
         border.width: parent.selected ? 5 : 0.8
-        border.color: parent.selected ? name.palette.mid : name.palette.alternateBase
+        border.color: parent.selected ? palette.mid : palette.alternateBase
         width: parent.width
         height: parent.selected ? parent.height : parent.height - 50
         radius: 10

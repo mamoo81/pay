@@ -40,7 +40,7 @@ Item {
 
     Rectangle {
         id: menuArea
-        color: mainWindow.palette.window
+        color: palette.window
         width: 300
         height: parent.height
         x: root.open ? 0 : 0 - width -3
@@ -60,7 +60,7 @@ Item {
                     h = h+ Math.max(currentAccountName.height, 12) + 10
                 return h;
             }
-            color: Qt.lighter(mainWindow.palette.window)
+            color: Qt.lighter(palette.window)
             property bool openAccounts: false
             clip: true
 
@@ -255,7 +255,7 @@ Item {
                 width: 13
                 height: 2
                 x: 2
-                color: mainWindow.palette.mid
+                color: palette.mid
                 anchors.verticalCenter: parent.verticalCenter
             }
             Rectangle {
@@ -264,7 +264,7 @@ Item {
                 height: 13
                 anchors.horizontalCenter: horizontalBar.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                color: mainWindow.palette.mid
+                color: palette.mid
             }
             TextButton {
                 id: addWalletButton

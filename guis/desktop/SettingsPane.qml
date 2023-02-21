@@ -51,7 +51,7 @@ Pane {
         Rectangle {
             color: "#00000000"
             radius: 6
-            border.color: mainWindow.palette.button
+            border.color: palette.button
             border.width: 0.8
 
             implicitHeight: units.height + 10

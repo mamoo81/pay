@@ -126,7 +126,7 @@ Page {
                 Rectangle {
                     width: 50
                     height: 1
-                    color: root.palette.button
+                    color: palette.button
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Flowee.Label {
@@ -135,7 +135,7 @@ Page {
                 Rectangle {
                     width: 50
                     height: 1
-                    color: root.palette.button
+                    color: palette.button
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }

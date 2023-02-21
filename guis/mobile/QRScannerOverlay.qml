@@ -36,7 +36,7 @@ FocusScope {
     Rectangle {
         id: background
         anchors.fill: parent
-        color: mainWindow.palette.window
+        color: palette.window
     }
 
     // We put the 'Camera' in a loader to avoid Android permissions to be popped up until the

@@ -50,7 +50,7 @@ ApplicationWindow {
         delegate: Rectangle {
             width: listView.width
             height: peerPane.height + 12
-            color: index % 2 === 0 ? secondRow.palette.button : secondRow.palette.base
+            color: index % 2 === 0 ? palette.button : palette.base
             ColumnLayout {
                 id: peerPane
                 width: listView.width - 20

@@ -41,10 +41,10 @@ T.CheckBox {
             radius: parent.height / 3
             color: {
                 if (control.sliderOnIndicator && control.enabled && control.checked)
-                    return control.palette.midlight
-                return control.palette.window
+                    return palette.midlight
+                return palette.window
             }
-            border.color: control.activeFocus ? control.palette.highlight : control.palette.button
+            border.color: control.activeFocus ? palette.highlight : palette.button
             border.width: 0.8
 
             Behavior on color { ColorAnimation {}}
@@ -59,8 +59,8 @@ T.CheckBox {
                 if (!control.enabled)
                     return "darkgray"
                 if (control.checked && Pay.useDarkSkin)
-                    return control.palette.windowText;
-                return control.palette.highlight
+                    return palette.windowText;
+                return palette.highlight
             }
             Behavior on x { NumberAnimation {}}
             Behavior on color { ColorAnimation {}}
@@ -85,7 +85,7 @@ T.CheckBox {
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 16
         radius: width
-        color: q.palette.windowText
+        color: palette.windowText
         Label {
             id: q
             text: "?"

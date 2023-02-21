@@ -27,7 +27,7 @@ QQC2.Control {
     height: parent == null ? 10 : parent.height
 
     background: Rectangle {
-        color: root.palette.light
+        color: palette.light
     }
 
     leftPadding: 10
@@ -65,7 +65,7 @@ QQC2.Control {
         id: header
         width: parent.width //  + 20
         height: 50
-        color: Pay.useDarkSkin ? root.palette.window : mainWindow.floweeBlue
+        color: Pay.useDarkSkin ? palette.window : mainWindow.floweeBlue
 
         Image {
             id: backButton

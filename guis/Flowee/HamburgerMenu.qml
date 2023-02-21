@@ -22,7 +22,7 @@ Item {
     implicitWidth: root.wide ? 12 : 4
     implicitHeight: 16
     property bool wide: false
-    property color color: mainWindow.palette.windowText
+    property color color: palette.windowText
 
     Column {
         spacing: 3

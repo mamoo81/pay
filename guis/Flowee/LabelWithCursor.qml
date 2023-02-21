@@ -67,7 +67,7 @@ Item {
                 return cutPoint <= parent.stringLength
             return cutPoint < parent.stringLength
         }
-        color: cursorVisible ? begin.palette.windowText : "#00000000"
+        color: cursorVisible ? palette.windowText : "#00000000"
         property bool cursorVisible: true
         Timer {
             id: blinkingCursor
