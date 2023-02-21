@@ -123,7 +123,7 @@ Page {
 
     Flowee.Label {
         id: commentLabel
-        text: qsTr("Payment description" + ":")
+        text: qsTr("Payment description") + ":"
         visible: userComment.text !== ""
         y: 100
     }
