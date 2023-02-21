@@ -92,7 +92,7 @@ if(NOT ANDROID)
 
     add_custom_target(i18n
         COMMAND lupdate guis/desktop.qrc -ts ${TS_FILES_DESKTOP} translations/floweepay-desktop.ts
-        COMMAND lupdate ${PAY_SOURCES} guis/widgets.qrc
+        COMMAND lupdate src guis/widgets.qrc
                     -ts ${TS_FILES_GENERIC} translations/floweepay-common.ts
         COMMAND lupdate guis/mobile.qrc -ts ${TS_FILES_MOBILE} translations/floweepay-mobile.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
