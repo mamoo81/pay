@@ -175,7 +175,7 @@ void NotificationManager::walletUpdated()
     args << QVariant("Flowee Pay"); // app-name
     args << QVariant(m_newFundsNotificationId); // replaces-id
     args << QString(); // app_icon (not needed since we say which desktop file we are)
-    args << tr("New Transaction", "", txCount);
+    args << tr("New Transactions", "dialog-title", txCount);
 
     const auto gained = deposited - spent;
     auto pricesOracle = FloweePay::instance()->prices();
