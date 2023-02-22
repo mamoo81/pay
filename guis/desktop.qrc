@@ -19,7 +19,7 @@
         <file alias="edit-delete.svg">desktop/images/edit-delete.svg</file>
         <file alias="lock-light.svg">desktop/images/lock-light.svg</file>
         <file alias="lock-dark.svg">desktop/images/lock-dark.svg</file>
-        <file>desktop/defaults.ini</file>
+        <file alias="defaults.ini">desktop/defaults.ini</file>
         <file>desktop/ConfigItem.qml</file>
         <file>ControlColors.js</file>
         <file>desktop/main.qml</file>
