@@ -289,6 +289,10 @@ void PaymentDetailOutput::setMaxAllowed(bool max)
     m_maxAllowed = max;
     emit maxAllowedChanged();
 
-    if (max == false && m_paymentAmount == -1)
+    if (max == false && m_paymentAmount == -1) {
         setPaymentAmount(0);
+    } else {
+        emit paymentAmountChanged();
+        emit fiatAmountChanged();
+    }
 }
