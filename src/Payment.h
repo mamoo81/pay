@@ -36,10 +36,10 @@ class Payment : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int feePerByte READ feePerByte WRITE setFeePerByte NOTIFY feePerByteChanged)
-    /// The single-output amount of funds being sent by this Payment.
+    /// The payment-wide amount of funds being sent by this Payment.
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
-    /// The single-output amount of funds being sent by this Payment.
-    Q_PROPERTY(double paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY amountChanged)
+    /// The payment-wide amount of funds being sent by this Payment.
+    Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY amountChanged)
     /// The single-output address we will send to
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     // cleaned up and re-formatted
@@ -55,11 +55,6 @@ class Payment : public QObject
     Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY userCommentChanged)
     Q_PROPERTY(bool walletNeedsPin READ walletNeedsPin NOTIFY walletPinChanged);
     Q_PROPERTY(bool autoPrepare READ autoPrepare WRITE setAutoPrepare NOTIFY autoPrepareChanged)
-
-    /// The payment-wide amount of funds being sent by this Payment.
-    Q_PROPERTY(int effectiveFiatAmount READ effectiveFiatAmount NOTIFY amountChanged)
-    /// The payment-wide amount of funds being sent by this Payment.
-    Q_PROPERTY(double effectiveBchAmount READ effectiveBchAmount NOTIFY amountChanged)
 
     // --- Stuff that becomes available / useful after prepare has been called:
     /// Tx has been prepared
@@ -123,8 +118,8 @@ public:
      */
     double paymentAmount() const;
 
-    void setPaymentAmountFiat(double amount);
-    double paymentAmountFiat() const;
+    void setPaymentAmountFiat(int amount);
+    int paymentAmountFiat() const;
 
     /**
      * Sets the address to pay to.
@@ -253,7 +248,7 @@ private:
     std::shared_ptr<BroadcastTxData> m_infoObject;
     short m_sentPeerCount;
     short m_rejectedPeerCount;
-    Wallet *m_wallet;
+    Wallet *m_wallet = nullptr;
     QString m_error;
     QString m_userComment;
 };

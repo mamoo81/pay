@@ -70,20 +70,10 @@ void Payment::setPaymentAmount(double amount)
     doAutoPrepare();
 }
 
-double Payment::paymentAmount() const
-{
-    return soleOut()->paymentAmount();
-}
-
-void Payment::setPaymentAmountFiat(double amount)
+void Payment::setPaymentAmountFiat(int amount)
 {
     soleOut()->setFiatAmount(amount);
     doAutoPrepare();
-}
-
-double Payment::paymentAmountFiat() const
-{
-    return soleOut()->fiatAmount();
 }
 
 void Payment::setTargetAddress(const QString &address_)
@@ -362,6 +352,7 @@ void Payment::reset()
     m_sentPeerCount = 0;
     m_rejectedPeerCount = 0;
     m_userComment.clear();
+    m_wallet = nullptr;
 
     for (auto d : m_paymentDetails) {
         d->deleteLater();
@@ -665,7 +656,7 @@ bool Payment::txPrepared() const
     return m_txPrepared;
 }
 
-int Payment::effectiveFiatAmount() const
+int Payment::paymentAmountFiat() const
 {
     int amount = 0;
     PaymentDetailInputs *inputSelector = nullptr;
@@ -684,7 +675,10 @@ int Payment::effectiveFiatAmount() const
                 totalBch = inputSelector->selectedValue();
             } else {
                 // then the total amount is actually trivial, it is all that is available in the wallet.
-                totalBch = m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
+                auto wallet = m_wallet; // use the one we prepare()d from if available
+                if (wallet == nullptr)
+                    wallet = m_account->wallet();
+                totalBch = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
             }
 
             return (totalBch * m_fiatPrice / 10000000 + 5) / 10;
@@ -694,7 +688,7 @@ int Payment::effectiveFiatAmount() const
     return amount;
 }
 
-double Payment::effectiveBchAmount() const
+double Payment::paymentAmount() const
 {
     int64_t amount = 0;
     PaymentDetailInputs *inputSelector = nullptr;
@@ -709,7 +703,10 @@ double Payment::effectiveBchAmount() const
             if (inputSelector)
                 return inputSelector->selectedValue();
             // then the total amount is actually trivial, it is all that is available in the wallet.
-            return m_wallet->balanceConfirmed() + m_wallet->balanceUnconfirmed();
+            auto wallet = m_wallet; // use the one we prepare()d from if available
+            if (wallet == nullptr)
+                wallet = m_account->wallet();
+            return wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
         }
         amount += out->paymentAmount();
     }

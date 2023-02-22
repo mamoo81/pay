@@ -149,7 +149,7 @@ QQC2.Control {
             anchors.topMargin: 10
             color: "black"
             font.pixelSize: 38
-            text: Fiat.formattedPrice(payment.effectiveFiatAmount)
+            text: Fiat.formattedPrice(payment.paymentAmountFiat)
             visible: Fiat.price !== 0
         }
         BitcoinAmountLabel {
@@ -158,7 +158,7 @@ QQC2.Control {
             anchors.top: fiatAmount.bottom
             anchors.topMargin: 20
             fontPixelSize: 28
-            value: payment.effectiveBchAmount
+            value: payment.paymentAmount
             colorize: false
             showFiat: false
         }
