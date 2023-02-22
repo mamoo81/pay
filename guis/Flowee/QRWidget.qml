@@ -35,7 +35,8 @@ Image {
         anchors.fill: parent
         onClicked: {
             Pay.copyToClipboard(root.request.qr)
-            clipboardFeedback.opacity = 1
+            // invert the feedback so a second tap removes the feedback again.
+            clipboardFeedback.opacity = clipboardFeedback.opacity == 0 ? 1 : 0
         }
     }
 
@@ -43,11 +44,11 @@ Image {
         id: clipboardFeedback
         opacity: 0
         width: feedbackText.width + 20
-        height: feedbackText.height + 20
+        height: feedbackText.height + 14
         radius: 10
         color: Pay.useDarkSkin ? "#333" : "#ddd"
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: -10
+        anchors.bottomMargin: -8
         anchors.horizontalCenter: parent.horizontalCenter
 
         Label {
@@ -60,9 +61,9 @@ Image {
 
         Behavior on opacity { OpacityAnimator {} }
 
-        /// after 10 seconds, remove feedback.
+        /// after 8 seconds, remove feedback.
         Timer {
-            interval: 10000
+            interval: 8000
             running: clipboardFeedback.opacity >= 1
             onTriggered: clipboardFeedback.opacity = 0
         }
