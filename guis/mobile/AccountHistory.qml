@@ -103,23 +103,20 @@ ListView {
             }
 
             Row {
-                width: parent.width
-                height: dummyButton.height
+                height: startScan.height
+                x: (parent.width - width) / 2
+                spacing: 16
                 Flowee.ImageButton {
+                    id: startScan
                     source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
-                    width: parent.width / 3
+                    width: 60
                     onClicked: thePile.push("PayWithQR.qml")
                     iconSize: 40
-                    height: dummyButton.height
-                }
-                IconButton {
-                    id: dummyButton
-                    width: parent.width / 3
-                    text: qsTr("Scheduled")
+                    height: 60
                 }
                 Flowee.ImageButton {
-                    width: parent.width / 3
-                    height: dummyButton.height
+                    width: 60
+                    height: startScan.height
                     iconSize: 50
                     source: "qrc:/receive.svg"
                     onClicked: switchToTab(2) // receive tab
