@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +60,14 @@ ApplicationWindow {
         initialItem: "./Loading.qml";
         onCurrentItemChanged: if (currentItem != null) currentItem.takeFocus();
         enabled: !menuOverlay.open
+
+        Keys.onPressed: (event)=> {
+            if (event.key === Qt.Key_Back) {
+                // We eat this and have nothing happen.
+                // This is useful to avoid the app closing on pressing 'back' one time too many on Android
+                event.accepted = true;
+            }
+        }
     }
     MenuOverlay {
         id: menuOverlay
