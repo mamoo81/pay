@@ -101,7 +101,7 @@ QQC2.Control {
 
         QQC2.Label {
             id: currentWalletName
-            visible: portfolio.current.isUserOwned || portfolio.accounts.length >= 1
+            visible: portfolio.accounts.length >= 1
             text:  portfolio.current.name
             color: "#fcfcfc"
             clip: true

@@ -295,7 +295,7 @@ Page {
     Flowee.Label {
         id: currentWalletLabel
         text: payment.account.name
-        visible: payment.account.isUserOwned
+        visible: portfolio.accounts.length > 1
         x: 10
         width: parent.width - 10
         anchors.bottom: currentWalletValue.top

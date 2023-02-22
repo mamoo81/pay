@@ -36,7 +36,7 @@ ApplicationWindow {
         // variables are available.
         if (!isLoading) {
             thePile.replace("./MainView.qml");
-            if (portfolio.accounts.length === 0)
+            if (!portfolio.current.isUserOwned)
                 thePile.push("./StartupScreen.qml");
         }
     }
