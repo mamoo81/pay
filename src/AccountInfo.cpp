@@ -42,6 +42,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     }, Qt::QueuedConnection);
     connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(userOwnedChanged()), this, SIGNAL(userOwnedChanged()), Qt::QueuedConnection);
     connect(FloweePay::instance(), SIGNAL(headerChainHeightChanged()), this, SIGNAL(timeBehindChanged()));
 }
 
