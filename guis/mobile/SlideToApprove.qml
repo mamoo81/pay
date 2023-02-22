@@ -29,7 +29,13 @@ Item {
     Flowee.Label {
         id: textLabel
         text: qsTr("SLIDE TO SEND")
-        anchors.centerIn: parent
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.leftMargin: 30 + 50 // because the circle covers that.
+        anchors.right: parent.right
+        anchors.rightMargin: 80
+        fontSizeMode: Text.HorizontalFit // account for long translations
+        horizontalAlignment: Text.AlignHCenter
     }
 
     Rectangle {
@@ -39,6 +45,7 @@ Item {
         radius: width / 2
         x: 35
         y: 2.5
+        opacity: 0.7
         color: {
             if (root.enabled)
                 return Pay.useDarkSkin ? mainWindow.floweeGreen : mainWindow.floweeBlue;
