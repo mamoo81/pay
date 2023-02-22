@@ -27,11 +27,12 @@ MoneyValueField  {
     property alias color: fiat.color
     baselineOffset: fiat.baselineOffset
     implicitHeight: fiat.implicitHeight
-    implicitWidth: row.width
+    implicitWidth: Math.max(row.width, 70)
     maxFractionalDigits: Fiat.displayCents ? 2 : 0
 
     RowLayout {
         id: row
+        anchors.right: parent.right
         height: parent.height
         spacing: 0
         property string amountString: Fiat.priceToStringSimple(root.value)

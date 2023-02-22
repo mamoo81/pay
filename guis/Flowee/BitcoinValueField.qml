@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +28,11 @@ MoneyValueField  {
     baselineOffset: beginOfValue.baselineOffset
 
     implicitHeight: beginOfValue.implicitHeight
-    implicitWidth: row.width
+    implicitWidth: Math.max(row.width, 70)
 
     RowLayout {
         id: row
+        anchors.right: parent.right
         spacing: 4
         height: parent.height
         property string amountString: {
