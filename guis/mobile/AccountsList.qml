@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,18 +45,29 @@ Page {
         orientation: Qt.Horizontal
         width: parent.width
         anchors.top: parent.top
-        height: 50
+        height: portfolio.accounts.length > 1 ? 50 : 0
+        clip: true
         boundsBehavior: Flickable.StopAtBounds
         currentIndex: indexOfCurrentAccount();
 
-        delegate: Rectangle {
-            color: {
-                if (index === tabBar.currentIndex)
-                    return "#1a1a1a"
-                return "#303030"
-            }
+        delegate: Item {
             width: Math.max(tabName.width, 120)
             height: tabName.height + 20
+
+            Rectangle {
+                x: 5
+                height: 4
+                width: parent.width - 10
+                color: palette.highlight
+                visible: index === tabBar.currentIndex
+                anchors.bottom: parent.bottom
+            }
+            Rectangle {
+                anchors.fill: parent
+                color: palette.highlight
+                visible: index === tabBar.currentIndex
+                opacity: 0.15
+            }
 
             Text {
                 id: tabName
