@@ -51,6 +51,7 @@ Item {
             property int days: 0
             height: buddy.height
             width: buddy.width + 3 + main.width
+            visible: main.percentage > 0
 
             Flowee.Label {
                 id: buddy
