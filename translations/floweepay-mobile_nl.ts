@@ -727,8 +727,8 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <source>%1 blocks ago</source>
       <comment>Confirmations</comment>
       <translation>
-        <numerusform>%1 blok geleden</numerusform>
-        <numerusform>%1 blokken geleden</numerusform>
+        <numerusform>%1 blok terug</numerusform>
+        <numerusform>%1 blokken terug</numerusform>
       </translation>
     </message>
     <message>
