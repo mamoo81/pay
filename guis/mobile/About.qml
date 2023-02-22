@@ -80,9 +80,8 @@ Nederland<dl>
 </dl>
 "
                         textFormat: Text.MarkdownText
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
                         wrapMode: Text.WordWrap
+                        width: parent.width
                     }
                 }
             }
