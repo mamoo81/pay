@@ -101,7 +101,7 @@ QQC2.Control {
 
         QQC2.Label {
             id: currentWalletName
-            visible: portfolio.accounts.length >= 1
+            visible: !portfolio.singleAccountSetup
             text:  portfolio.current.name
             color: "#fcfcfc"
             clip: true

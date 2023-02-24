@@ -57,7 +57,7 @@ QQC2.Control {
         }
 
         TextButton {
-            visible: portfolio.accounts.length > 1
+            visible: !portfolio.singleAccountSetup
             Layout.fillWidth: true
             text: qsTr("Primary Wallet")
             onClicked: if (!root.account.isArchived) root.account.isPrimaryAccount = !root.account.isPrimaryAccount
