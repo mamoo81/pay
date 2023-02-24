@@ -76,7 +76,6 @@ public:
     };
 
     FloweePay();
-    ~FloweePay();
 
     /**
      * Select the chain that the FloweePay singleton will be created for.
@@ -287,6 +286,7 @@ private slots:
 
 private:
     void init();
+    void shutdown();
     void saveAll();
     // create wallet and add to list. Please consider calling walletsChanged() after
     Wallet *createWallet(const QString &name);

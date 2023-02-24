@@ -86,9 +86,6 @@ FloweePay::FloweePay()
 
     // make it move to the proper thread.
     connect(this, SIGNAL(loadComplete_priv()), this, SLOT(loadingCompleted()), Qt::QueuedConnection);
-    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, [=]() {
-        p2pNet()->shutdown();
-    });
 #ifdef TARGET_OS_Android
     // on Android, an app is either full screen (active) or inactive and not visible.
     // It is expected we save state as we move to inactive state in order to make the app
@@ -173,17 +170,25 @@ FloweePay::FloweePay()
         // the singleshot below.
         QTimer::singleShot(1000, this, SLOT(saveData()));
     }, Qt::QueuedConnection);
+
+    connect (QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, [=]() {
+        shutdown();
+    });
 }
 
-FloweePay::~FloweePay()
+// shutting down is done outside of the destructor.
+// This is so we have a predictable ordering of shutdown whereas on
+// a global destructor the ordering is not locally controlled.
+void FloweePay::shutdown()
 {
+    p2pNet()->shutdown();
     saveData();
 
     auto *dl = m_downloadManager.get();
     if (dl) // p2pNet follows lazy initialization.
         dl->removeHeaderListener(this);
     for (auto wallet : m_wallets) {
-        if (dl) {
+        if (dl) { // p2pNet follows lazy initialization.
             dl->removeDataListener(wallet);
             dl->removeHeaderListener(wallet);
             dl->connectionManager().removePrivacySegment(wallet->segment());
@@ -195,6 +200,7 @@ FloweePay::~FloweePay()
         }
     }
     qDeleteAll(m_wallets);
+    m_wallets.clear();
 }
 
 // static
