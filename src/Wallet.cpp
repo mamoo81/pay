@@ -935,11 +935,24 @@ int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
 
 void Wallet::rebuildBloom()
 {
-    auto lock = m_segment->clearFilter();
     int unusedToInclude = 20;
     int hdUnusedToInclude = 10;
     int changeUnusedToInclude = 30;
 
+    // on wallet creation we may not have yet synced the entire header chain,
+    // in that case the secrets are given a height that is in seconds, in order
+    // to find the proper blockheight matching it later.
+    // As such, the presence of such initialHeights indicates the p2p net is not
+    // yet at the tip of the headerchain, which makes sending out a bloom filter irrelevant.
+    for (const auto &i : m_walletSecrets) {
+        if (i.second.initialHeight >= 10000000) {
+            logDebug() << " not building bloom, still have date based private keys";
+            return;
+        }
+    }
+
+    auto lock = m_segment->clearFilter();
+    //    ^ notice that the 'lock' we get back will broadcast the new filter when it goes out of scope.
     std::set<int> secretsUsed;
     for (const auto &i : m_walletTransactions) {
         const auto &wtx = i.second;
@@ -962,12 +975,7 @@ void Wallet::rebuildBloom()
     logDebug() << "Rebuilding bloom filter. UTXO-size:" << secretsWithBalance.size();
     for (auto &i : m_walletSecrets) {
         const auto &secret = i.second;
-        if (secret.initialHeight >= 10000000) {
-            // is a timestamp, which means that we are waiting for the
-            // headerSyncComplete() to be called and this key is fresh
-            // and so searching in the history is pointless.
-            continue;
-        }
+        assert(secret.initialHeight < 10000000); // see similar check at start of this method
         if (secret.reserved) {
             // whitelisted this one
         }
@@ -1294,8 +1302,15 @@ void Wallet::headerSyncComplete()
             changedOne = true;
         }
     }
-    if (changedOne)
+    if (changedOne) {
+        // broadcast to peers our bloom filter, which would have skipped all
+        // time-based blocks before.
         rebuildBloom();
+
+        // make the wallet iniital sync also show something sane.
+        if (m_segment)
+            m_segment->blockSynched(FloweePay::instance()->p2pNet()->blockHeight());
+    }
 }
 
 void Wallet::broadcastUnconfirmed()
