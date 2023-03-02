@@ -85,6 +85,8 @@ if(NOT ANDROID)
         translations/floweepay-common_en.ts
         translations/floweepay-common_nl.ts
         translations/floweepay-common_pl.ts
+
+        translations/floweepay-mobile_en.ts
         translations/floweepay-mobile_nl.ts
         translations/floweepay-mobile_pl.ts
     )
