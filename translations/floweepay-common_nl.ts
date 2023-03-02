@@ -13,16 +13,16 @@
       <source>Behind: %1 weeks, %2 days</source>
       <comment>counter on weeks</comment>
       <translation>
-        <numerusform>Achter %1 week, %2 dagen</numerusform>
-        <numerusform>Achter %1 weken, %2 dagen</numerusform>
+        <numerusform>%1 week, %2 dagen te gaan</numerusform>
+        <numerusform>%1 weken, %2 dagen te gaan</numerusform>
       </translation>
     </message>
     <message numerus="yes">
       <location filename="../src/AccountInfo.cpp" line="126"/>
       <source>Behind: %1 days</source>
       <translation>
-        <numerusform>Achter %1 dag</numerusform>
-        <numerusform>Achter %1 dagen</numerusform>
+        <numerusform>%1 dag oude data</numerusform>
+        <numerusform>%1 dagen oude info</numerusform>
       </translation>
     </message>
     <message>
@@ -40,7 +40,7 @@
       <source>Still %1 hours behind</source>
       <translation>
         <numerusform>Nog één uur</numerusform>
-        <numerusform>Nog %1 uren achter</numerusform>
+        <numerusform>Nog %1 uur</numerusform>
       </translation>
     </message>
   </context>
