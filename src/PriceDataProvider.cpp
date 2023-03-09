@@ -159,7 +159,15 @@ int PriceDataProvider::historicalPrice(const QDateTime &timestamp) const
         return m_currentPrice.price;
 
     return m_priceHistory->historicalPrice(timestamp.toSecsSinceEpoch(),
-            PriceHistoryDataProvider::Nearest);
+                                           PriceHistoryDataProvider::Nearest);
+}
+
+int PriceDataProvider::historicalPriceAccurate(const QDateTime &timestamp) const
+{
+    if (m_priceHistory.get() == nullptr)
+        return 0;
+    return m_priceHistory->historicalPrice(timestamp.toSecsSinceEpoch(),
+            PriceHistoryDataProvider::Accurate);
 }
 
 int PriceDataProvider::historicalPriceAccurate(int days) const

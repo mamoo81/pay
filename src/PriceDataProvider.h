@@ -68,7 +68,12 @@ public:
     Q_INVOKABLE int historicalPrice(const QDateTime &timestamp) const;
 
     /**
-     * Return the price a certain amount of days in the past
+     * Return the price at a certain time in the past, or 0 if none are on record.
+     */
+    Q_INVOKABLE int historicalPriceAccurate(const QDateTime &timestamp) const;
+
+    /**
+     * Return the price a certain amount of days in the past, or 0 if none are on record.
      */
     Q_INVOKABLE int historicalPriceAccurate(int days) const;
 

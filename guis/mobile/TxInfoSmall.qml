@@ -109,6 +109,8 @@ GridLayout {
             let diff = model.fundsOut - model.fundsIn;
             if (diff < 0 && diff > -1000) // then the diff is likely just fees.
                 return false;
+            if (valueThenLabel.fiatPrice === 0)
+                return false;
             return true;
         }
         text: qsTr("Value then") + ":"
@@ -117,7 +119,7 @@ GridLayout {
         Layout.fillWidth: true
         id: valueThenLabel
         visible: priceAtMining.visible
-        property int fiatPrice: visible ? Fiat.historicalPrice(model.date) : 0;
+        property int fiatPrice: Fiat.historicalPriceAccurate(model.date)
         text: Fiat.formattedPrice(Math.abs(model.fundsOut - model.fundsIn), fiatPrice)
     }
     Flowee.Label {
