@@ -51,7 +51,7 @@ Item {
             property int days: 0
             height: buddy.height
             width: buddy.width + 3 + main.width
-            visible: main.percentage > 0
+            visible: main.priceThen > 0
 
             Flowee.Label {
                 id: buddy
@@ -62,10 +62,8 @@ Item {
                 id: main
                 anchors.left: buddy.right
                 anchors.leftMargin: 3
-                property double percentage:  {
-                    var oldPrice = Fiat.historicalPrice(daysAgo);
-                    return (root.currentPrice - oldPrice) / oldPrice * 100;
-                }
+                property int priceThen: Fiat.historicalPriceAccurate(daysAgo);
+                property double percentage: (root.currentPrice - priceThen) / priceThen * 100;
                 text: {
                     var sign = "";
                     if (percentage < 0)

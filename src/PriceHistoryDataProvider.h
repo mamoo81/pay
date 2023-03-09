@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 #ifndef PRICEHISTORYDATAPROVIDER_H
 #define PRICEHISTORYDATAPROVIDER_H
 
-#include <QDateTime>
-#include <QFile>
-#include <QNetworkAccessManager>
 #include <QObject>
-
 #include <streaming/ConstBuffer.h>
 
+#include <QNetworkAccessManager>
+
 #include <boost/filesystem.hpp>
+
+class QFile;
 
 class PriceHistoryDataProvider : public QObject
 {
@@ -35,7 +35,13 @@ public:
 
     void addPrice(const QString &currency, uint32_t timestamp, int price);
 
-    int historicalPrice(uint32_t timestamp) const;
+    /// Used in historicalPrice()
+    enum HistoricalPriceAccuracy {
+        Accurate, ///< Return zero if we don't have historical data of that day
+        Nearest ///< Return the nearest known price.
+    };
+
+    int historicalPrice(uint32_t timestamp, HistoricalPriceAccuracy = Nearest) const;
 
     QString currencyName() const;
     void setCurrency(const QString &newCurrency);

@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ public:
     /**
      * Return the price a certain amount of days in the past
      */
-    Q_INVOKABLE int historicalPrice(int days) const;
+    Q_INVOKABLE int historicalPriceAccurate(int days) const;
 
     /// return a string with the given price and needed decimal separator.
     /// Please note that the currency indicators are not included, unlike in formattedPrice()

@@ -1,6 +1,6 @@
 ﻿/*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ void PriceHistoryDataProvider::addPrice(const QString &currency, uint32_t timest
     }
 }
 
-int PriceHistoryDataProvider::historicalPrice(uint32_t timestamp) const
+int PriceHistoryDataProvider::historicalPrice(const uint32_t timestamp, HistoricalPriceAccuracy hpa) const
 {
     const Currency *data = currencyData(m_currency);
     int answer = 0;
@@ -96,15 +96,30 @@ int PriceHistoryDataProvider::historicalPrice(uint32_t timestamp) const
         return answer;
     uint32_t prevTimestamp = 0;
 
+    /*
+     * Historical price is downloaded from the feed and appended to the LOG file.
+     *
+     * We collect the LOG when it gets too big  and copy it into a 'blob' after some time,
+     * aiming to have one value per day instead of one value every 5 minutes.
+     *
+     * the 'log' values are always oldest to newest.
+     * the 'blob' values are always older than the log ones, and also oldest to newest.
+     */
+
     // the log is per definition about newer values than the blob.
     if (!data->logValues.empty()) {
         prevTimestamp = data->logValues.front().first;
         answer = data->logValues.front().second;
 
+        // oldest(but newer than blob) to newest value
         for (auto i = data->logValues.begin(); i != data->logValues.end(); ++i) {
             if (i->first >= timestamp) {
                 const int diff1 = timestamp - prevTimestamp;
                 const int diff2 = i->first - timestamp;
+
+                // we pick the value that is nearest the timestamp searched for.
+                // this is either the one just before, or the one directly after
+                // the log entry.
                 if (diff1 > diff2) // closest one is 'i'
                     answer = i->second;
                 break;
@@ -112,9 +127,19 @@ int PriceHistoryDataProvider::historicalPrice(uint32_t timestamp) const
             answer = i->second;
             prevTimestamp = i->first;
         }
-        if (timestamp >= prevTimestamp)
+        // special case, if the requested time is newer than
+        // all log entries.
+        if (timestamp >= prevTimestamp) {
+            // if we want accuracy, reject the request if our values are more than
+            // 12 hours old.
+            if (hpa == Accurate && timestamp - prevTimestamp > 3600 * 12)
+                return 0;
             return answer;
+        }
     }
+    // the 'answer' variable is now set to the first entry of the log (or zero if there was no log).
+
+
     // if we have a blob, check if we can improve our answer
     // with a closer timestamp
     if (!data->valueBlob.isEmpty()) {
@@ -128,6 +153,8 @@ int PriceHistoryDataProvider::historicalPrice(uint32_t timestamp) const
             if (time >= timestamp) {
                 const int diff1 = timestamp - prevTimestamp;
                 const int diff2 = time - timestamp;
+                // same logic as above with the log,
+                // use the recorded one that is closest in time.
                 if (diff1 > diff2) // closest one is 'i'
                     answer = value;
                 break;
@@ -135,10 +162,14 @@ int PriceHistoryDataProvider::historicalPrice(uint32_t timestamp) const
             answer = value;
             prevTimestamp = time;
         }
-        // if (timestamp >= prevTimestamp)
-            return answer;
+
+        // if the timestamp requested is older than any we know.
+        // And the user wants an accurate value, then we don't just return the
+        // oldest one we have but we return an empty one.
+        if (timestamp < prevTimestamp
+                && hpa == Accurate && prevTimestamp - timestamp > 3600 * 48)
+            return 0;
     }
-    // TODO maybe check if the value is between the blob and the log
 
     return answer;
 }
