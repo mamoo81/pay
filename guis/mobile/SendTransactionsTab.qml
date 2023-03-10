@@ -32,6 +32,11 @@ FocusScope {
             showPageIcon: true
             onClicked: thePile.push("PayWithQR.qml")
         }
+        TextButton {
+            text: qsTr("Build transaction")
+            showPageIcon: true
+            onClicked: thePile.push("PayToOthers.qml")
+        }
         /*
         TextButton {
             text: qsTr("My Wallets")
