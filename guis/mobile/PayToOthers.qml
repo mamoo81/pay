@@ -271,18 +271,20 @@ Page {
                         }
                     }
                 }
+                // TODO Max button.
 
-
-
-
-
-
-/* TODO
- * Amount in bch / eur
- *
- * Max button.
- */
-
+                PriceInputWidget {
+                    id: priceInput
+                    width: parent.width
+                    anchors.bottom: numericKeyboard.top
+                }
+                NumericKeyboardWidget {
+                    id: numericKeyboard
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 15
+                    width: parent.width
+                    enabled: !paymentDetail.maxSelected
+                }
             }
         }
     }
