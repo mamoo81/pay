@@ -77,55 +77,17 @@ Page {
         }
     }
 
-    // if true, the bitcoin value is provided by the user (or QR), and the fiat follows
-    // if false, the user edits the fiat price and the bitcoin value is calculated.
-    // Notice that 'send all' overrules both and gets the data from the wallet-total
-    property bool fiatFollowsSats: true
-
-    Flowee.BitcoinValueField {
-        id: priceBch
-        y: root.fiatFollowsSats ? 5 : 68
-        value: payment.paymentAmount
-        focus: true
-        fontPixelSize: size
-        property double size: fiatFollowsSats ? 38 : commentLabel.font.pixelSize* 0.8
-        onActiveFocusChanged: if (activeFocus) fiatFollowsSats = true
-        Behavior on size { NumberAnimation { } }
-        Behavior on y { NumberAnimation { } }
-        Flowee.ObjectShaker { id: bchShaker } // 'shake' to give feedback on mistakes
-
-        // this unchecks 'max' on user editing of the value
-        onValueEdited: payment.paymentAmount = value
-    }
-    MouseArea {
-        /* Since the valueField is centred but only allows clicking on its active surface,
-          we provide this one to make it possible to click on the full width and activate it.
-        */
-        width: root.width
-        height: priceBch.height
-        y: priceBch.y
-        onClicked: priceBch.forceActiveFocus();
-    }
-
-    Flowee.FiatValueField  {
-        id: priceFiat
-        value: payment.paymentAmountFiat
-        y: root.fiatFollowsSats ? 68 : 5
-        focus: true
-        fontPixelSize: size
-        property double size: !fiatFollowsSats ? 38 : commentLabel.font.pixelSize * 0.8
-        onActiveFocusChanged: if (activeFocus) fiatFollowsSats = false
-        Behavior on size { NumberAnimation { } }
-        Behavior on y { NumberAnimation { } }
-        Flowee.ObjectShaker { id: fiatShaker }
-        onValueEdited: payment.paymentAmountFiat = value
+    PriceInputWidget {
+        id: priceInput
+        width: parent.width
     }
 
     Flowee.Label {
         id: commentLabel
         text: qsTr("Payment description") + ":"
         visible: userComment.text !== ""
-        y: 100
+        anchors.top: priceInput.bottom
+        anchors.topMargin: 10
     }
     Flowee.Label {
         id: userComment
@@ -136,120 +98,13 @@ Page {
         anchors.top: commentLabel.bottom
     }
 
-    Rectangle {
-        id: inputChooser
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: userComment.bottom
-        anchors.topMargin: 10
-        border.width: 1
-        border.color: palette.midlight
-        color: palette.light
-        width: inputs.width + 20
-        height: 40
-        radius: 15
-
-        Rectangle {
-            color: palette.highlight
-            opacity: 0.3
-            radius: 6
-            width: 35
-            height: parent.height - 4
-            y: 2
-            x: root.fiatFollowsSats ? 5 : 45
-
-            Behavior on x { NumberAnimation { } }
-        }
-
-        Row {
-            id: inputs
-            x: 10
-            y: 7.5
-            height: parent.height
-            spacing: 4
-            Image {
-                id: logo
-                source: "qrc:/bch.svg"
-                width: 25
-                height: 25
-                smooth: true
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: priceBch.forceActiveFocus();
-                }
-            }
-            Item { width: 8; height: 1 } // spacer
-
-            Flowee.Label {
-                text: (Fiat.currencySymbolPost + Fiat.currencySymbolPrefix).trim()
-                width: 24
-                font.pixelSize: 32
-                horizontalAlignment: Text.AlignRight
-                anchors.baseline: logo.bottom
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: priceFiat.forceActiveFocus();
-                }
-            }
-            Rectangle {
-                width: 1
-                y: inputs.y * -1
-                height: parent.height
-                color: palette.dark
-            }
-
-            Flowee.HamburgerMenu {
-                y: 6
-                MouseArea {
-                    anchors.fill: parent
-                    anchors.margins: -12
-                    anchors.rightMargin: -25
-                    onClicked: languageMenu.open()
-                }
-
-                Loader {
-                    id: languageMenu
-                    function open() {
-                        sourceComponent = languageMenuComponent
-                    }
-                    onLoaded: item.open();
-                }
-
-                Component {
-                    id: languageMenuComponent
-
-                    QQC2.Menu {
-                        Repeater {
-                            model: Pay.recentCountries()
-                            QQC2.MenuItem {
-                                text: {
-                                    var loc = Qt.locale(modelData);
-                                    return loc.currencySymbol(Locale.CurrencySymbol) + " "
-                                            + loc.currencySymbol(Locale.CurrencyDisplayName);
-                                }
-                                onClicked: Pay.setCountry(modelData);
-                            }
-                        }
-                        QQC2.MenuItem {
-                            text: qsTr("All Currencies")
-                            onClicked: thePile.push("./CurrencySelector.qml")
-                        }
-
-                        onVisibleChanged: if (!visible) languageMenu.sourceComponent = undefined; // unload us
-                    }
-                }
-            }
-            Item { width: 5; height: 1 } // spacer
-        }
-    }
-
     Flowee.Label {
         id: errorLabel
         text: payment.error
         visible: payment.isValid
         color: Pay.useDarkSkin ? "#cc5454" : "#6a0c0c"
         anchors.bottom: walletNameBackground.top
+        anchors.bottomMargin: 6
         wrapMode: Text.Wrap
         width: parent.width
     }
@@ -312,65 +167,14 @@ Page {
         }
     }
 
-    Flow {
+    NumericKeyboardWidget {
         id: numericKeyboard
         anchors.bottom: slideToApprove.top
         anchors.bottomMargin: 15
         width: parent.width
         enabled: !payment.details[0].maxSelected
-        Repeater {
-            model: 12
-            delegate: Item {
-                width: numericKeyboard.width / 3
-                height: textLabel.height + 20
-                QQC2.Label {
-                    id: textLabel
-                    anchors.centerIn: parent
-                    font.pixelSize: 28
-                    text: {
-                        if (index < 9)
-                            return index + 1;
-                        if (index === 9)
-                            return Qt.locale().decimalPoint
-                        if (index === 10)
-                            return "0"
-                        return ""; // index === 11, the backspace.
-                    }
-                    // make dim when not enabled.
-                    color: {
-                        if (!enabled)
-                            return Pay.useDarkSkin ? Qt.darker(palette.buttonText, 2) : Qt.lighter(palette.buttonText, 2);
-                        return palette.windowText;
-                    }
-                }
-                Image {
-                    visible: index === 11
-                    anchors.centerIn: parent
-                    source: index === 11 ? ("qrc:/backspace" + (Pay.useDarkSkin ? "-light" : "") + ".svg") : ""
-                    width: 27
-                    height: 17
-                    opacity: enabled ? 1 : 0.4
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        let editor = fiatFollowsSats ? priceBch.money : priceFiat.money;
-                        if (index < 9) // these are digits
-                            var shake = !editor.insertNumber("" + (index + 1));
-                        else if (index === 9)
-                            shake = !editor.addSeparator()
-                        else if (index === 10)
-                            shake = !editor.insertNumber("0");
-                        else
-                            shake = !editor.backspacePressed();
-                        if (shake)
-                            fiatFollowsSats ? bchShaker.start() : fiatShaker.start();
-                    }
-                }
-            }
-        }
     }
+
     SlideToApprove {
         id: slideToApprove
         anchors.bottom: parent.bottom

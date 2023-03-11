@@ -54,5 +54,7 @@
         <file>mobile/StartupScreen.qml</file>
         <file>mobile/ImportWalletPage.qml</file>
         <file>mobile/PriceDetails.qml</file>
+        <file>mobile/PriceInputWidget.qml</file>
+        <file>mobile/NumericKeyboardWidget.qml</file>
     </qresource>
 </RCC>
