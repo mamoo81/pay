@@ -517,27 +517,31 @@ Payment::BroadcastStatus Payment::broadcastStatus() const
     return TxWaiting;
 }
 
-void Payment::addExtraOutput()
+PaymentDetail *Payment::addExtraOutput()
 {
     // only the last in the sequence can have 'max'
     for (auto d : m_paymentDetails) {
         if (d->isOutput())
             d->toOutput()->setMaxAllowed(false);
     }
-    addDetail(new PaymentDetailOutput(this));
+    auto detail = new PaymentDetailOutput(this);
+    addDetail(detail);
+    return detail;
 }
 
-void Payment::addInputSelector()
+PaymentDetail *Payment::addInputSelector()
 {
     // only one input selector allowed
     for (auto d : m_paymentDetails) {
         if (d->isInputs()) {
             // un-collapse, but not add
             d->setCollapsed(false);
-            return;
+            return nullptr;
         }
     }
-    addDetail(new PaymentDetailInputs(this));
+    auto detail = new PaymentDetailInputs(this);
+    addDetail(detail);
+    return detail;
 }
 
 void Payment::remove(PaymentDetail *detail)

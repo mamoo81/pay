@@ -153,8 +153,8 @@ public:
     Q_INVOKABLE void prepare();
     Q_INVOKABLE void broadcast();
     Q_INVOKABLE void reset();
-    Q_INVOKABLE void addExtraOutput();
-    Q_INVOKABLE void addInputSelector();
+    Q_INVOKABLE PaymentDetail* addExtraOutput();
+    Q_INVOKABLE PaymentDetail* addInputSelector();
     Q_INVOKABLE void remove(PaymentDetail *detail);
     Q_INVOKABLE void decrypt(const QString &password);
 

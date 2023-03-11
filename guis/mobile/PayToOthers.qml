@@ -21,6 +21,27 @@ import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 import Flowee.org.pay;
 
+
+/*
+ * Components embedded in this file:
+    Editors:
+        destinationEditPage
+
+      editors have the property 'paymentDetail'
+         property QtObject paymentDetail: null
+
+    ListItems:
+        destinationFields
+
+      list items have the property 'edit' to link to Editors
+         property Component edit: [something]
+      list items have the property 'paymentDetail'
+         property QtObject paymentDetail: null
+
+    Other:
+        paymentDetailSelector
+ */
+
 Page {
     id: root
     headerText: qsTr("Create Payment")
@@ -69,9 +90,10 @@ Page {
                         TextButton {
                             text: "Add Destination"
                             onClicked: {
-                                payment.addExtraOutput();
+                                var detail = payment.addExtraOutput();
                                 thePile.pop();
                                 thePile.push(destinationEditPage);
+                                thePile.currentItem.paymentDetail = detail;
                             }
                         }
                     }
@@ -112,8 +134,154 @@ Page {
         Component {
             id: destinationEditPage
             Page {
-                headerText: qsTr("Edit Destination")
+                property QtObject paymentDetail: null
 
+                headerText: qsTr("Edit Destination")
+                Flowee.Label {
+                    id: destinationLabel
+                    text: qsTr("Bitcoin Cash Address") + ":"
+                }
+
+                Flowee.MultilineTextField {
+                    id: destination
+                    anchors.top: destinationLabel.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    focus: true
+                    property bool addressOk: (addressType === Wallet.CashPKH
+                            || addressType === Wallet.CashSH)
+                        || (paymentDetail.forceLegacyOk
+                            && (addressType === Wallet.LegacySH
+                                || addressType === Wallet.LegacyPKH));
+                    property var addressType: Pay.identifyString(text);
+                    onActiveFocusChanged: updateColor();
+                    onAddressOkChanged: {
+                        updateColor();
+                        addressInfo.createInfo();
+                    }
+                    text: paymentDetail.address
+                    onTextChanged: {
+                        paymentDetail.address = text
+                        updateColor();
+                        addressInfo.createInfo();
+                    }
+
+                    function updateColor() {
+                        if (!activeFocus && text !== "" && !addressOk)
+                            color = Pay.useDarkSkin ? "#ff6568" : "red"
+                        else
+                            color = palette.windowText
+                    }
+                }
+                Flowee.LabelWithClipboard {
+                    id: nativeLabel
+                    width: parent.width
+                    anchors.top: destination.bottom
+                    anchors.topMargin: 10
+
+                    visible: text !== ""
+                    text: {
+                        let string = paymentDetail.formattedTarget
+                        let index = string.indexOf(":");
+                        if (index >= 0) {
+                            string = string.substr(index + 1); // cut off the prefix
+                        }
+                        return string;
+                    }
+                    clipboardText: paymentDetail.formattedTarget // the one WITH bitcoincash:
+                    font.italic: true
+                    menuText: qsTr("Copy Address")
+                }
+                Item {
+                    id: addressInfo
+                    property QtObject info: null
+                    visible: info != null
+                    anchors.top: nativeLabel.bottom
+                    width: parent.width
+                    height: infoLabel.height
+
+                    function createInfo() {
+                        if (destination.addressOk) {
+                            var address = paymentDetail.formattedTarget
+                            if (address === "") // it didn't need reformatting
+                                address = paymentDetail.address
+                            info = Pay.researchAddress(address, addressInfo)
+                        }
+                        else {
+                            delete info;
+                            info = null;
+                        }
+                    }
+
+                    Flowee.Label {
+                        id: infoLabel
+                        anchors.right: parent.right
+                        font.italic: true
+                        text: {
+                            var info = addressInfo.info
+                            if (info == null)
+                                return "";
+                            if (portfolio.current.id === info.accountId)
+                                return qsTr("self", "payment to self")
+                            return info.accountName
+                        }
+                    }
+                }
+
+                Rectangle {
+                    color: "red"
+                    radius: 15
+                    width: parent.width
+                    height: warningColumn.height + 20
+                    anchors.top: nativeLabel.bottom
+                    // BTC address entered warning.
+                    visible: (destination.addressType === Wallet.LegacySH
+                                || destination.addressType === Wallet.LegacyPKH)
+                            && paymentDetail.forceLegacyOk === false;
+
+                    Column {
+                        id: warningColumn
+                        x: 10
+                        y: 10
+                        width: parent.width - 20
+                        spacing: 10
+                        Flowee.Label {
+                            font.bold: true
+                            font.pixelSize: warning.font.pixelSize * 1.2
+                            text: qsTr("Warning")
+                            color: "white"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                        Flowee.Label {
+                            id: warning
+                            width: parent.width
+                            color: "white"
+                            text: qsTr("This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?")
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        }
+                        Item {
+                            width: parent.width
+                            height: okButton.height
+                            QQC2.Button {
+                                id: okButton
+                                anchors.right: parent.right
+                                text: qsTr("I am certain")
+                                onClicked: paymentDetail.forceLegacyOk = true
+                            }
+                        }
+                    }
+                }
+
+
+
+
+
+
+/* TODO
+ * Amount in bch / eur
+ *
+ * Max button.
+ */
 
             }
         }
@@ -170,6 +338,7 @@ Page {
                                 if (!editStarted && x < -100) {
                                     editStarted = true;
                                     thePile.push(loader.item.edit)
+                                    thePile.currentItem.paymentDetail = modelData;
                                 }
                             }
                             else {
@@ -271,8 +440,9 @@ Page {
                 text: qsTr("Add Destination")
                 showPageIcon: true
                 onClicked: {
-                    payment.addExtraOutput();
+                    var detail = payment.addExtraOutput();
                     thePile.push(destinationEditPage);
+                    thePile.currentItem.paymentDetail = detail;
                 }
             }
             TextButton {
