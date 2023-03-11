@@ -71,6 +71,7 @@ Page {
                             onClicked: {
                                 payment.addExtraOutput();
                                 thePile.pop();
+                                thePile.push(destinationEditPage);
                             }
                         }
                     }
@@ -112,6 +113,8 @@ Page {
             id: destinationEditPage
             Page {
                 headerText: qsTr("Edit Destination")
+
+
             }
         }
     }
@@ -148,15 +151,78 @@ Page {
                         onLoaded: item.paymentDetail = modelData
                     }
 
+                    Item {
+                        // an invisible item that is used to handle the drag events.
+                        id: dragItem
+                        width: parent.width
+                        height: parent.height
+
+                        property bool editStarted: false
+                        onXChanged: {
+                            /* When we move, we move the icons etc with us.
+                             */
+                            if (x < 0) {
+                                leftArea.x = leftArea.width * -1 // out of screen
+                                // moving left, opening the edit option
+                                loader.x = x;
+                                let a = x * -1;
+                                editIcon.x = width - a + Math.max(0, a - editIcon.width);
+                                if (!editStarted && x < -100) {
+                                    editStarted = true;
+                                    thePile.push(loader.item.edit)
+                                }
+                            }
+                            else {
+                                editIcon.x = width;
+                                // moving right, opening the trashcan option
+                                let a = x;
+                                let base = Math.min(40, a);
+                                let rest = a - base;
+                                deleteTimer.running = rest > 90;
+                                if (rest < 90)
+                                    deleteTimer.deleteTriggered = false
+                                leftBackground.opacity = Math.max(rest - 40) / 100;
+                                rest = Math.min(60, rest) / 4; // slower
+                                leftArea.x = leftArea.width * -1 + base + rest;
+                                loader.x = base + rest;
+                            }
+                        }
+
+                        DragHandler {
+                            id: dragHandler
+                            // property bool editStarted: false;
+                            yAxis.enabled: false
+                            xAxis.enabled: true
+                            xAxis.maximum: 200 // swipe left
+                            xAxis.minimum: -140 // swipe right
+                            onActiveChanged: {
+                                if (active) {
+                                    parent.editStarted = false;
+                                    return;
+                                }
+                                // take action on user releasing the drag.
+                                if (deleteTimer.deleteTriggered) {
+                                    deleteTimer.deleteTriggered = false;
+                                    payment.remove(modelData);
+                                }
+                                parent.x = 0;
+                            }
+                        }
+                    }
+
                     // delete-detail interface
-                    Rectangle {
-                        id: leftBackground
-                        property bool aboutToDelete: parent.x > 90
-                        anchors.right: loader.left
-                        color: aboutToDelete ? "red" : "#00000000" // TODO make change happen earlier.
+                    Item {
+                        id: leftArea
                         width: 300
                         height: parent.height
-                        Behavior on color { ColorAnimation { duration: 200 } }
+                        x: -width;
+                        Rectangle {
+                            id: leftBackground
+                            opacity: 0
+                            anchors.fill: parent
+                            color: "red"
+                        }
+
                         Rectangle {
                             id: trashcan
                             color: "orange" // TODO replace this with an icon
@@ -165,9 +231,23 @@ Page {
                             y: 10
                             x: {
                                 let newX = parent.width - width;
-                                let additional = Math.max(0, Math.min(listItem.x - width, 16))
+                                let moved = parent.x + parent.width;
+                                let additional = Math.max(0, Math.min(moved - width, 8));
                                 return newX - additional;
                             }
+                        }
+
+                        Timer {
+                            /*
+                              The intention of this timer is that the user can't just swipe hard
+                              and suddenly lose their data.
+                              We need to have the user actually see the red for half a second
+                              before we delete.
+                             */
+                            id: deleteTimer
+                            interval: 400
+                            property bool deleteTriggered: false
+                            onTriggered: deleteTriggered = true
                         }
                     }
 
@@ -183,42 +263,18 @@ Page {
                         }
                     }
 
-                    onXChanged: {
-                        if (x < -75 && dragHandler.editStarted === false) {
-                            dragHandler.editStarted = true;
-                            dragHandler.enabled = false; // stop dragging
-                            thePile.push(loader.item.edit)
-                        }
-                    }
-
-                    DragHandler {
-                        id: dragHandler
-                        property bool editStarted: false;
-                        yAxis.enabled: false
-                        xAxis.enabled: true
-                        xAxis.minimum: -140 // swipe right
-                        xAxis.maximum: 200 // swipe left
-                        onActiveChanged: {
-                            if (active) {
-                                editStarted = false;
-                                return;
-                            }
-                            if (editStarted) {
-                                enabled = true;
-                                parent.x= 0;
-                                return;
-                            }
-                            // take action on user releasing the drag.
-                            if (leftBackground.aboutToDelete)
-                                payment.remove(modelData);
-                            else // reset pos
-                                parent.x = 0
-                        }
-                    }
                     Behavior on x { NumberAnimation { duration: 100 } }
                 }
             }
 
+            TextButton {
+                text: qsTr("Add Destination")
+                showPageIcon: true
+                onClicked: {
+                    payment.addExtraOutput();
+                    thePile.push(destinationEditPage);
+                }
+            }
             TextButton {
                 text: qsTr("Add Detail...")
                 showPageIcon: true
