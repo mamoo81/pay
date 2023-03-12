@@ -20,7 +20,7 @@ import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 
 
-QQC2.Control {
+FocusScope {
     id: root
     // if true, the bitcoin value is provided by the user (or QR), and the fiat follows
     // if false, the user edits the fiat price and the bitcoin value is calculated.
@@ -47,7 +47,7 @@ QQC2.Control {
         value: paymentBackend.paymentAmount
         focus: true
         fontPixelSize: size
-        property double size: fiatFollowsSats ? 38 : root.font.pixelSize* 0.8
+        property double size: fiatFollowsSats ? 38 : mainWindow.font.pixelSize* 0.8
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = true
         Behavior on size { NumberAnimation { } }
         Behavior on y { NumberAnimation { } }
@@ -72,7 +72,7 @@ QQC2.Control {
         y: root.fiatFollowsSats ? 68 : 5
         focus: true
         fontPixelSize: size
-        property double size: !fiatFollowsSats ? 38 : root.font.pixelSize * 0.8
+        property double size: !fiatFollowsSats ? 38 : mainWindow.font.pixelSize * 0.8
         onActiveFocusChanged: if (activeFocus) fiatFollowsSats = false
         Behavior on size { NumberAnimation { } }
         Behavior on y { NumberAnimation { } }

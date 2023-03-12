@@ -22,52 +22,29 @@ import "../Flowee" as Flowee
 import Flowee.org.pay;
 
 
-/*
- * Components embedded in this file:
-    Editors:
-        destinationEditPage
-
-      editors have the property 'paymentDetail'
-         property QtObject paymentDetail: null
-
-    ListItems:
-        destinationFields
-
-      list items have the property 'edit' to link to Editors
-         property Component edit: [something]
-      list items have the property 'paymentDetail'
-         property QtObject paymentDetail: null
-
-    Other:
-        paymentDetailSelector
- */
-
 Page {
     id: root
-    headerText: qsTr("Create Payment")
 
-    function pushToThePile(componentId, detail) {
-        thePile.push(loaderForPayments,
-            {"paymentDetail": detail,
-             "sourceComponent": componentId }
-        );
-    }
+    Item { // data and non-visible stuff for this page
+        /*
+         * Components embedded in this file:
+         *  Editors:
+                destinationEditPage
 
-    Item { // data
-        QRScanner {
-            id: scanner
-            scanType: QRScanner.PaymentDetails
-            /*onFinished: {
-                var rc = scanResult
-                if (rc === "") { // scanning failed
-                    thePile.pop();
-                }
-                else {
-                    payment.targetAddress = rc
-                    priceBch.forceActiveFocus();
-                }
-            } */
-        }
+              editors can use the property 'paymentDetail'
+
+         *  ListItems:
+                destinationFields
+
+              list items have the property 'edit' to link to Editors
+                 property Component edit: [something]
+              list items can use the property 'paymentDetail'
+
+         *  Other:
+                paymentDetailSelector
+
+         *  To open editors or list items, we use the pushToThePile() function.
+         */
         Payment {
             id: payment
             account: portfolio.current
@@ -95,7 +72,8 @@ Page {
                         id: col
                         width: parent.width
                         TextButton {
-                            text: "Add Destination"
+                            text: qsTr("Add Destination")
+                            subtext: qsTr("an address to send money to")
                             onClicked: {
                                 var detail = payment.addExtraOutput();
                                 thePile.pop();
@@ -120,12 +98,31 @@ Page {
                  * on its own page.
                  */
                 Flowee.Label {
-                    text: qsTr("Addressee") + ":"
+                    text: qsTr("Destination") + ":"
                 }
                 Flowee.LabelWithClipboard {
                     width: parent.width
-                    text: paymentDetail.address
+                    font.italic: paymentDetail.address === ""
+                    text: {
+                        var s = paymentDetail.address
+                        if (s === "")
+                            return qsTr("unset", "indication of empty");
+                        if (addressInfo.addressOk) {
+                            let index = s.indexOf(":");
+                            if (index >= 0)
+                                s = s.substr(index + 1); // cut off the prefix
+                        }
+                        return s;
+                    }
+                    color: addressInfo.addressOk || paymentDetail.address === ""
+                            ? palette.windowText : mainWindow.errorRed
                     menuText: qsTr("Copy Address")
+                    clipboardText: paymentDetail.formattedTarget // the one WITH bitcoincash:
+                }
+                Flowee.AddressInfoWidget {
+                    id: addressInfo
+                    width: parent.width
+                    addressType: Pay.identifyString(paymentDetail.address);
                 }
                 Flowee.Label {
                     text: qsTr("Amount")+ ":"
@@ -160,7 +157,6 @@ Page {
                     // this is also present in 'page', and called from thePile
                     forceActiveFocus();
                 }
-                // anchors.fill: parent
                 Loader {
                     property QtObject paymentDetail: null
                     id: loader2
@@ -192,29 +188,17 @@ Page {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     focus: true
-                    property bool addressOk: (addressType === Wallet.CashPKH
-                            || addressType === Wallet.CashSH)
-                        || (paymentDetail.forceLegacyOk
-                            && (addressType === Wallet.LegacySH
-                                || addressType === Wallet.LegacyPKH));
                     property var addressType: Pay.identifyString(text);
-                    onActiveFocusChanged: updateColor();
-                    onAddressOkChanged: {
-                        updateColor();
-                        addressInfo.createInfo();
-                    }
                     text: paymentDetail.address
+                    nextFocusTarget: priceInput
                     onTextChanged: {
                         paymentDetail.address = text
-                        updateColor();
                         addressInfo.createInfo();
                     }
-
-                    function updateColor() {
-                        if (!activeFocus && text !== "" && !addressOk)
-                            color = Pay.useDarkSkin ? "#ff6568" : "red"
-                        else
-                            color = palette.windowText
+                    color: {
+                        if (!activeFocus && text !== "" && !addressInfo.addressOk)
+                            return mainWindow.errorRed
+                        return palette.windowText
                     }
                 }
                 Flowee.LabelWithClipboard {
@@ -236,44 +220,15 @@ Page {
                     font.italic: true
                     menuText: qsTr("Copy Address")
                 }
-                Item {
+                Flowee.AddressInfoWidget {
                     id: addressInfo
-                    property QtObject info: null
-                    visible: info != null
                     anchors.top: nativeLabel.bottom
                     width: parent.width
-                    height: infoLabel.height
-
-                    function createInfo() {
-                        if (destination.addressOk) {
-                            var address = paymentDetail.formattedTarget
-                            if (address === "") // it didn't need reformatting
-                                address = paymentDetail.address
-                            info = Pay.researchAddress(address, addressInfo)
-                        }
-                        else {
-                            delete info;
-                            info = null;
-                        }
-                    }
-
-                    Flowee.Label {
-                        id: infoLabel
-                        anchors.right: parent.right
-                        font.italic: true
-                        text: {
-                            var info = addressInfo.info
-                            if (info == null)
-                                return "";
-                            if (portfolio.current.id === info.accountId)
-                                return qsTr("self", "payment to self")
-                            return info.accountName
-                        }
-                    }
+                    addressType: destination.addressType
                 }
 
                 Rectangle {
-                    color: "red"
+                    color: mainWindow.errorRed
                     radius: 15
                     width: parent.width
                     height: warningColumn.height + 20
@@ -335,6 +290,14 @@ Page {
             }
         }
     }
+    // check the comment at loaderForPayments to understand this one
+    function pushToThePile(componentId, detail) {
+        thePile.push(loaderForPayments,
+            {"paymentDetail": detail,
+             "sourceComponent": componentId }
+        );
+    }
+
 
     Flickable {
         id: contentArea
@@ -345,14 +308,18 @@ Page {
         Column {
             id: mainColumn
             width: parent.width
-            spacing: 10
+
+            Flowee.Label {
+                text: qsTr("Create Payment")
+            }
+            Item { width: 1; height: 12 } // spacer
 
             Repeater {
                 model: payment.details
                 delegate: Item {
                     id: listItem
                     width: mainColumn.width
-                    height: loader.height + 6
+                    height: loader.height + 20 + (index <= 1 ? (dragInstructions.height + 20) : 0)
 
                     Loader {
                         id: loader
@@ -410,7 +377,7 @@ Page {
                             // property bool editStarted: false;
                             yAxis.enabled: false
                             xAxis.enabled: true
-                            xAxis.maximum: 200 // swipe left
+                            xAxis.maximum: index > 0 ? 200 : 0 // swipe left
                             xAxis.minimum: -140 // swipe right
                             onActiveChanged: {
                                 if (active) {
@@ -431,13 +398,13 @@ Page {
                     Item {
                         id: leftArea
                         width: 300
-                        height: parent.height
+                        height: loader.height
                         x: -width;
                         Rectangle {
                             id: leftBackground
                             opacity: 0
                             anchors.fill: parent
-                            color: "red"
+                            color: mainWindow.errorRed
                         }
 
                         Rectangle {
@@ -480,6 +447,39 @@ Page {
                         }
                     }
 
+                    // UX help
+                    Row {
+                        id: row
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 26
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 6
+                        visible: index <= 1
+                        property bool dragToEdit: index === 0
+                        Repeater {
+                            model: 4
+                            delegate: Flowee.ArrowPoint { y: 3; color: palette.highlight
+                                rotation: row.dragToEdit ? 180 : 0;
+                            }
+                        }
+                        Flowee.Label {
+                            id: dragInstructions
+                            text: index === 0 ? qsTr("Drag to Edit") : qsTr("Drag to Delete");
+                            font.italic: true
+                            color: palette.highlight
+                        }
+                        Repeater {
+                            model: 4
+                            delegate: Flowee.ArrowPoint { y: 3; color: palette.highlight
+                                rotation: row.dragToEdit ? 180 : 0;
+                            }
+                        }
+                    }
+
+                    VisualSeparator {
+                        anchors.bottom: parent.bottom
+                    }
+
                     Behavior on x { NumberAnimation { duration: 100 } }
                 }
             }
@@ -489,15 +489,16 @@ Page {
                 showPageIcon: true
                 onClicked: pushToThePile(destinationEditPage, payment.addExtraOutput());
             }
+/*
             TextButton {
                 text: qsTr("Add Detail...")
                 showPageIcon: true
                 onClicked: thePile.push(paymentDetailSelector);
             }
+*/
 
         }
 
-        // Add 'Next' button in header
         // Add "Next" button here.
         // on 'next' prepare and go to 'swipe to send' screen.
         //    we likely want to have transaction details shown on that screen.
