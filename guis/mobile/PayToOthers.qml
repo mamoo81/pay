@@ -302,15 +302,18 @@ Page {
     Flickable {
         id: contentArea
         anchors.fill: parent
-        contentHeight: mainColumn.height
+        contentHeight: mainColumn.height + 10
         contentWidth: width
         clip: true
         Column {
             id: mainColumn
+            y: 10
             width: parent.width
 
             Flowee.Label {
                 text: qsTr("Create Payment")
+                width: parent.width
+                horizontalAlignment: Qt.AlignHCenter
             }
             Item { width: 1; height: 12 } // spacer
 
