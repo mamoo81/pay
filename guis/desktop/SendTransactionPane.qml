@@ -295,29 +295,19 @@ Item {
                         Flowee.TextField {
                             id: destination
                             focus: true
-                            property bool addressOk: (addressType === Wallet.CashPKH || addressType === Wallet.CashSH)
-                                                     || (paymentDetail.forceLegacyOk && (addressType === Wallet.LegacySH || addressType === Wallet.LegacyPKH))
                             property var addressType: Pay.identifyString(text);
                             Layout.fillWidth: true
                             Layout.columnSpan: 3
-                            onActiveFocusChanged: updateColor();
-                            onAddressOkChanged: {
-                                updateColor();
-                                addressInfo.createInfo();
-                            }
                             placeholderText: qsTr("Enter Bitcoin Cash Address")
                             text: destinationPane.paymentDetail.address
                             onTextChanged: {
                                 destinationPane.paymentDetail.address = text
-                                updateColor();
                                 addressInfo.createInfo();
                             }
-
-                            function updateColor() {
-                                if (!activeFocus && text !== "" && !addressOk)
-                                    color = Pay.useDarkSkin ? "#ff6568" : "red"
-                                else
-                                    color = palette.windowText
+                            color: {
+                                if (!activeFocus && text !== "" && !addressInfo.addressOk)
+                                    return mainWindow.errorRed
+                                return palette.windowText
                             }
                         }
                         Label {
@@ -334,37 +324,10 @@ Item {
                         font.italic: true
                         menuText: qsTr("Copy Address")
                     }
-                    Item {
+                    Flowee.AddressInfoWidget {
                         id: addressInfo
                         width: parent.width
-                        property QtObject info: null
-                        visible: info != null
-
-                        function createInfo() {
-                            if (destination.addressOk) {
-                                var address = paymentDetail.formattedTarget
-                                if (address === "") // it didn't need reformatting
-                                    address = paymentDetail.address
-                                info = Pay.researchAddress(address, addressInfo)
-                            }
-                            else {
-                                delete info;
-                                info = null;
-                            }
-                        }
-
-                        Label {
-                            anchors.right: parent.right
-                            font.italic: true
-                            text: {
-                                var info = addressInfo.info
-                                if (info == null)
-                                    return "";
-                                if (portfolio.current.id === info.accountId)
-                                    return qsTr("self", "payment to self")
-                                return info.accountName
-                            }
-                        }
+                        addressType: destination.addressType
                     }
 
                     Label {

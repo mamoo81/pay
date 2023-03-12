@@ -57,6 +57,7 @@ ApplicationWindow {
     property color floweeSalmon: "#ff9d94"
     property color floweeBlue: "#0b1088"
     property color floweeGreen: "#90e4b5"
+    property color errorRed: Pay.useDarkSkin ? "#ff6568" : "red"
 
     Item {
         id: mainScreen
