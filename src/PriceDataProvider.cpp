@@ -118,7 +118,6 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
 
     QString actualPrice = centsPrice.mid(offset, length);
 
-    QString dummy; // used when we inserted thousand separators. QStringRef needs the thing it refers to to outlive it.
     // group size is 3
     if (length > 3 && length <= 15) {
         // lets insert some thousands separators.
@@ -133,8 +132,7 @@ QString PriceDataProvider::formattedPrice(int fiatValue) const
             assert(actualPrice.at(i).unicode() < 127); // only digits
             buf[i + add] = actualPrice.at(i).unicode();
         }
-        dummy = QString::fromLatin1(buf);
-        actualPrice = dummy.left(dummy.size() - (m_displayCents ? 0 : 2));
+        actualPrice = QString::fromLatin1(buf);
     }
 
     if (m_displayCents) {
@@ -188,13 +186,12 @@ QString PriceDataProvider::priceToStringSimple(int cents) const
     if (m_displayCents) {
         const QChar comma = QLocale::system().decimalPoint().at(0);
         if (cents < 10)
-            value = "0" + value;
+            return "0" % comma % "0" % value;
         if (cents < 100)
-            value = "0" % comma % value;
-        else
-            value = value.left(value.size() - 2) % comma % value.right(2);
+            return"0" % comma % value;
+        return value.left(value.size() - 2) % comma % value.right(2);
     }
-    return value;
+    return value.left(value.size() - 2);
 }
 
 void PriceDataProvider::fetch()
