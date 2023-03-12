@@ -72,7 +72,7 @@ void Payment::setPaymentAmount(double amount)
 
 void Payment::setPaymentAmountFiat(int amount)
 {
-    soleOut()->setFiatAmount(amount);
+    soleOut()->setPaymentAmountFiat(amount);
     doAutoPrepare();
 }
 
@@ -394,13 +394,10 @@ void Payment::addDetail(PaymentDetail *detail)
         m_paymentDetails.append(detail);
     }
     connect (detail, SIGNAL(validChanged()), this, SIGNAL(validChanged()));
-    if (detail->isOutput()) {
+    if (detail->isOutput())
         connect (detail, SIGNAL(paymentAmountChanged()), this, SLOT(recalcAmounts()));
-        connect (detail, SIGNAL(fiatAmountChanged()), this, SLOT(recalcAmounts()));
-    }
-    if (detail->isInputs()) {
+    if (detail->isInputs())
         connect (detail, SIGNAL(selectedValueChanged()), this, SLOT(recalcAmounts()));
-    }
     assert(!m_paymentDetails.isEmpty());
     emit paymentDetailsChanged();
     emit validChanged(); // pretty sure we are invalid after ;-)
@@ -683,7 +680,7 @@ int Payment::paymentAmountFiat() const
 
             return (totalBch * m_fiatPrice / 10000000 + 5) / 10;
         }
-        amount += out->fiatAmount();
+        amount += out->paymentAmountFiat();
     }
     return amount;
 }

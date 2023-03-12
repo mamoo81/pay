@@ -25,7 +25,7 @@ class PaymentDetailOutput : public PaymentDetail
     Q_OBJECT
     Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY paymentAmountChanged)
-    Q_PROPERTY(int fiatAmount READ fiatAmount WRITE setFiatAmount NOTIFY fiatAmountChanged)
+    Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY paymentAmountChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY addressChanged)
     Q_PROPERTY(bool maxAllowed READ maxAllowed WRITE setMaxAllowed NOTIFY maxAllowedChanged)
@@ -52,8 +52,8 @@ public:
     bool maxAllowed() const;
     void setMaxAllowed(bool on);
 
-    int fiatAmount() const;
-    void setFiatAmount(int amount);
+    int paymentAmountFiat() const;
+    void setPaymentAmountFiat(int amount);
 
     bool fiatFollows() const;
     void setFiatFollows(bool on);
@@ -72,7 +72,6 @@ public:
 signals:
     void paymentAmountChanged();
     void addressChanged();
-    void fiatAmountChanged();
     void fiatIsMainChanged();
     void fiatFollowsChanged();
     void maxSelectedChanged();
