@@ -26,8 +26,10 @@ QQC2.Control {
     // if false, the user edits the fiat price and the bitcoin value is calculated.
     // Notice that 'send all' overrules both and gets the data from the wallet-total
     property bool fiatFollowsSats: true
-
+    // made available for the NumericKeyboardWidget
     property var editor: fiatFollowsSats ? priceBch.money : priceFiat.money;
+    // Payment object or the PaymentDetailOutput object.
+    required property QtObject paymentBackend;
 
     function shake() {
         if (fiatFollowsSats)
@@ -42,7 +44,7 @@ QQC2.Control {
     Flowee.BitcoinValueField {
         id: priceBch
         y: root.fiatFollowsSats ? 5 : 68
-        value: payment.paymentAmount
+        value: paymentBackend.paymentAmount
         focus: true
         fontPixelSize: size
         property double size: fiatFollowsSats ? 38 : root.font.pixelSize* 0.8
@@ -52,7 +54,7 @@ QQC2.Control {
         Flowee.ObjectShaker { id: bchShaker } // 'shake' to give feedback on mistakes
 
         // this unchecks 'max' on user editing of the value
-        onValueEdited: payment.paymentAmount = value
+        onValueEdited: paymentBackend.paymentAmount = value
     }
     MouseArea {
         /* Since the valueField is centred but only allows clicking on its active surface,
@@ -66,7 +68,7 @@ QQC2.Control {
 
     Flowee.FiatValueField  {
         id: priceFiat
-        value: payment.paymentAmountFiat
+        value: paymentBackend.paymentAmountFiat
         y: root.fiatFollowsSats ? 68 : 5
         focus: true
         fontPixelSize: size
@@ -75,7 +77,7 @@ QQC2.Control {
         Behavior on size { NumberAnimation { } }
         Behavior on y { NumberAnimation { } }
         Flowee.ObjectShaker { id: fiatShaker }
-        onValueEdited: payment.paymentAmountFiat = value
+        onValueEdited: paymentBackend.paymentAmountFiat = value
     }
 
     Rectangle {

@@ -79,6 +79,7 @@ Page {
 
     PriceInputWidget {
         id: priceInput
+        paymentBackend: payment
         width: parent.width
     }
 

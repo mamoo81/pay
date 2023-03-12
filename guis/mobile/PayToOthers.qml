@@ -46,6 +46,13 @@ Page {
     id: root
     headerText: qsTr("Create Payment")
 
+    function pushToThePile(componentId, detail) {
+        thePile.push(loaderForPayments,
+            {"paymentDetail": detail,
+             "sourceComponent": componentId }
+        );
+    }
+
     Item { // data
         QRScanner {
             id: scanner
@@ -92,8 +99,8 @@ Page {
                             onClicked: {
                                 var detail = payment.addExtraOutput();
                                 thePile.pop();
-                                thePile.push(destinationEditPage);
-                                thePile.currentItem.paymentDetail = detail;
+                                pushToThePile(destinationEditPage,
+                                    detail);
                             }
                         }
                     }
@@ -105,7 +112,6 @@ Page {
         Component {
             id: destinationFields
             Column {
-                property QtObject paymentDetail: parent.paymentDetail
                 property Component edit: destinationEditPage
                 width: parent.width
                 spacing: 6
@@ -131,11 +137,49 @@ Page {
             }
         }
 
+        /*
+         * The different payment things work with a 'paymentDetail'
+         * and since we push those into the global stack, they get
+         * loaded and initialized first, only secondly we set the
+         * property paymentDetail on them.
+         *
+         * This means we either get a load of errors dereferencing a null
+         * object, or we need to alter a lot of code to account for that.
+         *
+         * This is the alternative solution: we add a layer of indirection
+         * and set the property on the loader and the item in the loader
+         * will simply find the paymentDetail present in the context in
+         * which it has been loaded.
+         */
+        Component {
+            id: loaderForPayments
+            FocusScope {
+                property alias paymentDetail: loader2.paymentDetail
+                property Component sourceComponent: undefined
+                function takeFocus() {
+                    // this is also present in 'page', and called from thePile
+                    forceActiveFocus();
+                }
+                // anchors.fill: parent
+                Loader {
+                    property QtObject paymentDetail: null
+                    id: loader2
+                    anchors.fill: parent
+                    onLoaded: item.takeFocus();
+                }
+                function load() {
+                    if (paymentDetail != null && typeof sourceComponent != "undefined") {
+                        loader2.sourceComponent = sourceComponent
+                    }
+                }
+                onPaymentDetailChanged: load();
+                onSourceComponentChanged: load();
+            }
+        }
+
         Component {
             id: destinationEditPage
             Page {
-                property QtObject paymentDetail: null
-
                 headerText: qsTr("Edit Destination")
                 Flowee.Label {
                     id: destinationLabel
@@ -277,6 +321,9 @@ Page {
                     id: priceInput
                     width: parent.width
                     anchors.bottom: numericKeyboard.top
+                    paymentBackend: paymentDetail
+                    fiatFollowsSats: paymentDetail.fiatFollows
+                    onFiatFollowsSatsChanged: paymentDetail.fiatFollows = fiatFollowsSats
                 }
                 NumericKeyboardWidget {
                     id: numericKeyboard
@@ -311,6 +358,7 @@ Page {
                         id: loader
                         width: parent.width
                         height: status === Loader.Ready ? item.implicitHeight : 0
+                        property QtObject paymentDetail: modelData
                         sourceComponent: {
                             if (modelData.type === Payment.PayToAddress)
                                 return destinationFields
@@ -318,7 +366,6 @@ Page {
                                 return inputFields
                             return null; // should never happen
                         }
-                        onLoaded: item.paymentDetail = modelData
                     }
 
                     Item {
@@ -339,8 +386,7 @@ Page {
                                 editIcon.x = width - a + Math.max(0, a - editIcon.width);
                                 if (!editStarted && x < -100) {
                                     editStarted = true;
-                                    thePile.push(loader.item.edit)
-                                    thePile.currentItem.paymentDetail = modelData;
+                                    pushToThePile(loader.item.edit, modelData);
                                 }
                             }
                             else {
@@ -441,11 +487,7 @@ Page {
             TextButton {
                 text: qsTr("Add Destination")
                 showPageIcon: true
-                onClicked: {
-                    var detail = payment.addExtraOutput();
-                    thePile.push(destinationEditPage);
-                    thePile.currentItem.paymentDetail = detail;
-                }
+                onClicked: pushToThePile(destinationEditPage, payment.addExtraOutput());
             }
             TextButton {
                 text: qsTr("Add Detail...")
