@@ -162,14 +162,14 @@ int PriceHistoryDataProvider::historicalPrice(const uint32_t timestamp, Historic
             answer = value;
             prevTimestamp = time;
         }
-
-        // if the timestamp requested is older than any we know.
-        // And the user wants an accurate value, then we don't just return the
-        // oldest one we have but we return an empty one.
-        if (timestamp < prevTimestamp
-                && hpa == Accurate && prevTimestamp - timestamp > 3600 * 48)
-            return 0;
     }
+
+    // if the timestamp requested is older than any we know.
+    // And the user wants an accurate value, then we don't just return the
+    // oldest one we have but we return an empty one.
+    if (timestamp < prevTimestamp
+            && hpa == Accurate && prevTimestamp - timestamp > 3600 * 48)
+        return 0;
 
     return answer;
 }

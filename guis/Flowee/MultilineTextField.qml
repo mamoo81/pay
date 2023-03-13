@@ -33,6 +33,7 @@ QQC2.Control {
     property string text: ""
     property string placeholderText: ""
     property var nextFocusTarget: null
+    property color color: palette.text
     signal editingFinished;
     property alias readOnly: textEdit.readOnly
 
@@ -75,7 +76,7 @@ QQC2.Control {
         width: parent.width - 10
         height: parent.height - 10
         activeFocusOnTab: true
-        color: showingPlaceholder ? Qt.darker(palette.text, Pay.useDarkSkin ? 1.6 : 0.65) : palette.text
+        color: showingPlaceholder ? Qt.darker(palette.text, Pay.useDarkSkin ? 1.6 : 0.65) : root.color
         selectedTextColor: palette.highlightedText
         selectionColor: palette.highlight
         selectByMouse: true

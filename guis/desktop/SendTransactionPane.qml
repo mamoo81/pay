@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -277,7 +277,7 @@ Item {
                                 + " " + Pay.unitName;
                 }
                 else {
-                    amount = Fiat.formattedPrice(paymentDetail.fiatAmount)
+                    amount = Fiat.formattedPrice(paymentDetail.paymentAmountFiat)
                 }
 
                 return qsTr("%1 to %2", "summary text to pay X-euro to address M")
@@ -338,8 +338,8 @@ Item {
                         Flowee.FiatValueField {
                             id: fiatValueField
                             visible: Fiat.price > 0
-                            onValueEdited: destinationPane.paymentDetail.fiatAmount = value
-                            value: destinationPane.paymentDetail.fiatAmount
+                            onValueEdited: destinationPane.paymentDetail.paymentAmountFiat = value
+                            value: destinationPane.paymentDetail.paymentAmountFiat
                         }
                         Flowee.CheckBox {
                             id: amountSelector
