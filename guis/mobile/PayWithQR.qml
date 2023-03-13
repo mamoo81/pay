@@ -51,7 +51,8 @@ Page {
                 }
                 else {
                     payment.targetAddress = rc
-                    priceBch.forceActiveFocus();
+                    priceInput.forceActiveFocus();
+                    priceInput.fiatFollowsSats = false
                 }
             }
         }
@@ -136,6 +137,10 @@ Page {
                 root.headerText = status;
         }
 
-        onCloseButtonPressed: thePile.pop();
+        onCloseButtonPressed: {
+            var mainView = thePile.get(0);
+            mainView.currentIndex = 0; // go to the 'main' tab.
+            thePile.pop();
+        }
     }
 }

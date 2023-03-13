@@ -164,6 +164,8 @@ Page {
                             root.headerText = status;
                     }
                     onCloseButtonPressed: {
+                        var mainView = thePile.get(0);
+                        mainView.currentIndex = 0; // go to the 'main' tab.
                         thePile.pop(); // this screen
                         thePile.pop(); // parent screen
                     }
@@ -545,7 +547,9 @@ Page {
                         property bool dragToEdit: index === 0
                         Repeater {
                             model: 4
-                            delegate: Flowee.ArrowPoint { y: 3; color: palette.highlight
+                            delegate: Flowee.ArrowPoint {
+                                color: palette.highlight
+                                anchors.verticalCenter: dragInstructions.verticalCenter
                                 rotation: row.dragToEdit ? 180 : 0;
                             }
                         }
@@ -557,7 +561,9 @@ Page {
                         }
                         Repeater {
                             model: 4
-                            delegate: Flowee.ArrowPoint { y: 3; color: palette.highlight
+                            delegate: Flowee.ArrowPoint {
+                                color: palette.highlight
+                                anchors.verticalCenter: dragInstructions.verticalCenter
                                 rotation: row.dragToEdit ? 180 : 0;
                             }
                         }

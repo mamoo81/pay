@@ -31,6 +31,15 @@ FocusScope {
     // Payment object or the PaymentDetailOutput object.
     required property QtObject paymentBackend;
 
+    onFiatFollowsSatsChanged: {
+        if (!activeFocus)
+            return;
+        if (fiatFollowsSats)
+            priceBch.forceActiveFocus();
+        else
+            priceFiat.forceActiveFocus();
+    }
+
     function shake() {
         if (fiatFollowsSats)
             bchShaker.start();
