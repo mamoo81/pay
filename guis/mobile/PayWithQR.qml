@@ -106,6 +106,8 @@ Page {
         id: walletNameBackground
         anchors.bottom: numericKeyboard.top
         anchors.bottomMargin: 10
+
+        balanceActions: [ sendAllAction ]
     }
 
     NumericKeyboardWidget {

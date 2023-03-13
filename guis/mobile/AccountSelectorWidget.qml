@@ -23,6 +23,10 @@ Rectangle {
     id: root
     x: -10
     width: parent.width + 20
+
+    // list of actions to put in a menu when clicking on the 'balance' side.
+    property var balanceActions: [ ]
+
     height: {
         if (portfolio.singleAccountSetup)
             return currentWalletValue.height + 10
@@ -59,19 +63,21 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         onClicked: (mouse) => {
-                       if (mouse.x < parent.width / 2) {
-                           if (portfolio.accounts.length > 1)
-                           accountSelector.open();
-                       } else {
-                           while (priceMenu.count > 0) {
-                               priceMenu.takeItem(0);
-                           }
-                           priceMenu.addAction(sendAllAction);
-                           priceMenu.x = root.width / 2
-                           priceMenu.y = -40
-                           priceMenu.open();
-                       }
-                   }
+            if (mouse.x < parent.width / 2) {
+                if (portfolio.accounts.length > 1)
+                accountSelector.open();
+            } else if (balanceActions.length > 0) {
+                while (priceMenu.count > 0) {
+                    priceMenu.takeItem(0);
+                }
+                for (let i = 0; i < balanceActions.length; ++i) {
+                    priceMenu.addAction(balanceActions[i]);
+                }
+                priceMenu.x = root.width / 2
+                priceMenu.y = -40
+                priceMenu.open();
+            }
+        }
     }
     QQC2.Menu {
         id: priceMenu
