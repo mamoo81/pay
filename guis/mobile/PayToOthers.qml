@@ -43,6 +43,7 @@ Page {
 
          *  Other:
                 paymentDetailSelector
+                paymentInfoPage
 
          *  To open editors or list items, we use the pushToThePile() function.
          */
@@ -73,6 +74,92 @@ Page {
                                     detail);
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        // show info about payment and allow broadcast
+        Component {
+            id: paymentInfoPage
+            Page {
+                id: root
+                headerText: qsTr("Confirm Sending", "confirm we want to send the transaction")
+
+                Flickable {
+                    anchors.top: parent.top
+                    anchors.bottom: slideToApprove.top
+                    width: parent.width
+                    contentHeight: col.implicitHeight
+                    clip: true
+
+                    Column {
+                        id: col
+                        width: parent.width
+                        spacing: 10
+
+                        // the below is all very technical stuff that most people don't care about.
+                        // it was easy, but its not useful.
+                        // So, TODO insert here actually useful to end users details like amount sent,
+                        // change address used. Etc.
+
+                        Flowee.Label {
+                            text: qsTr("TXID") + ":"
+                        }
+                        Flowee.LabelWithClipboard {
+                            id: txid
+                            text: payment.txid
+                            font.pixelSize: root.font.pixelSize * 0.8
+                            width: parent.width
+                            // Change the color when the portfolio changed since 'prepare' was clicked.
+                            menuText: qsTr("Copy transaction-ID")
+                        }
+                        Flowee.Label {
+                            text: qsTr("Fee") + ":"
+                        }
+                        Flowee.BitcoinAmountLabel {
+                            value: payment.assignedFee
+                            colorize: false
+                        }
+                        Flowee.Label {
+                            text: qsTr("Transaction size") + ":"
+                        }
+                        Flowee.Label {
+                            text: qsTr("%1 bytes").arg(payment.txSize)
+                        }
+                        Flowee.Label {
+                            text: qsTr("Fee per byte") + ":"
+                        }
+                        Flowee.Label {
+                            text: {
+                                var rc = payment.assignedFee / payment.txSize;
+                                var fee = rc.toFixed(3); // no more than 3 numbers behind the separator
+                                fee = (fee * 1.0).toString(); // remove trailing zero's (1.000 => 1)
+                                return qsTr("%1 sat/byte", "fee").arg(fee);
+                            }
+                        }
+                    }
+                }
+
+                SlideToApprove {
+                    id: slideToApprove
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 10
+                    width: parent.width
+                    onActivated: payment.broadcast()
+                }
+
+                Flowee.BroadcastFeedback {
+                    id: broadcastPage
+                    anchors.leftMargin: -10 // go against the margins Page gave us to show more fullscreen.
+                    anchors.rightMargin: -10
+                    onStatusChanged: {
+                        if (status !== "")
+                            root.headerText = status;
+                    }
+                    onCloseButtonPressed: {
+                        thePile.pop(); // this screen
+                        thePile.pop(); // parent screen
                     }
                 }
             }
@@ -489,12 +576,27 @@ Page {
                 onClicked: thePile.push(paymentDetailSelector);
             }
 */
+            Flowee.Button {
+                text: qsTr("Prepare Payment...")
+                enabled: payment.isValid
+                anchors.right: parent.right
+                onClicked: {
+                    payment.prepare();
+                    if (payment.error !== "") {
+                        console.log("error " + payment.error)
+                        errorDialog.show();
+                    }
+                    else {
+                        thePile.push(paymentInfoPage);
+                    }
+                }
 
+                Flowee.Dialog {
+                    id: errorDialog
+                    title: qsTr("Building Error", "error during build")
+                    text: qsTr("Please check the details for errors, during build we detected this issue: %1").arg(payment.error)
+                }
+            }
         }
-
-        // Add "Next" button here.
-        // on 'next' prepare and go to 'swipe to send' screen.
-        //    we likely want to have transaction details shown on that screen.
     }
-
 }
