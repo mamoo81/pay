@@ -521,9 +521,8 @@ Page {
                         }
                     }
 
-                    Rectangle {
+                    Image {
                         id: editIcon
-                        color: "blue"
                         width: 40
                         height: 40
                         y: 10
@@ -531,6 +530,8 @@ Page {
                             let additional = Math.max(0, Math.min(listItem.x * -1 - width, 16))
                             return parent.width + additional;
                         }
+                        source: "qrc:/edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
+                        smooth: true
                     }
 
                     // UX help
