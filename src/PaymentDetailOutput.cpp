@@ -97,14 +97,41 @@ const QString &PaymentDetailOutput::address() const
 
 void PaymentDetailOutput::setAddress(const QString &address_)
 {
-    const QString address = address_.trimmed();
-    if (m_address == address)
+    const QString addressOrURL = address_.trimmed();
+    if (m_address == addressOrURL)
         return;
-    m_address = address;
+    m_address = addressOrURL;
     const std::string &chainPrefixCopy = chainPrefix();
-    std::string encodedAddress;
 
-    switch (FloweePay::instance()->identifyString(address)) {
+    /*
+     * Users may paste an address that is really a payment url.
+     * This basically means we may have a price added after a questionmark.
+     * bitcoincash:qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45?amount=2.1
+     */
+    int urlStart = addressOrURL.indexOf('?');
+    if (urlStart > 0) {
+        QUrl url(addressOrURL);
+        auto query = QUrlQuery(url.query(QUrl::FullyDecoded));
+        for (const auto &item : query.queryItems()) {
+            if (item.first == "amount") {
+                bool ok;
+                auto amount = item.second.toDouble(&ok);
+                if (ok)
+                    setPaymentAmount(amount * 1E8);
+            }
+            else if (item.first == "label" || item.first == "message") {
+                // message goes on the main payment..
+                Payment *p = qobject_cast<Payment*>(parent());
+                assert(p);
+                p->setUserComment(item.second);
+            }
+        }
+
+        m_address = addressOrURL.left(urlStart);
+    }
+
+    std::string encodedAddress;
+    switch (FloweePay::instance()->identifyString(m_address)) {
     case WalletEnums::LegacyPKH: {
         CBase58Data legacy;
         auto ok = legacy.SetString(m_address.toStdString());
@@ -150,7 +177,7 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         // lets see if the encoded address is substantially different from the user-given address
         auto full = QString::fromStdString(encodedAddress);
         auto formattedTarget = full.mid(size + 1);
-        if (full != address && formattedTarget != address)
+        if (full != m_address && formattedTarget != m_address)
             m_formattedTarget = full;
     }
 

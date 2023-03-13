@@ -76,38 +76,9 @@ void Payment::setPaymentAmountFiat(int amount)
     doAutoPrepare();
 }
 
-void Payment::setTargetAddress(const QString &address_)
+void Payment::setTargetAddress(const QString &address)
 {
-    QString address = address_.trimmed();
-
-    auto out = soleOut();
-    /*
-     * Users may paste an address that is really a payment url.
-     * This basically means we may have a price added after a questionmark.
-     * bitcoincash:qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45?amount=2.1
-     */
-    int urlStart = address.indexOf('?');
-    if (urlStart > 0) {
-        QUrl url(address);
-        auto query = QUrlQuery(url.query(QUrl::FullyDecoded));
-        for (const auto &item : query.queryItems()) {
-            if (item.first == "amount") {
-                bool ok;
-                auto amount = item.second.toDouble(&ok);
-                if (ok) {
-                    out->setPaymentAmount(amount * 1E8);
-                    emit amountChanged();
-                }
-            }
-            else if (item.first == "label" || item.first == "message") {
-                setUserComment(item.second);
-            }
-        }
-
-        address = address.left(urlStart);
-    }
-
-    out->setAddress(address);
+    soleOut()->setAddress(address);
     emit targetAddressChanged();
     doAutoPrepare();
 }
