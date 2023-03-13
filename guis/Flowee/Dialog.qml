@@ -44,8 +44,8 @@ QQC2.Popup {
     onAboutToShow: reposition()
     onHeightChanged: reposition()
     function reposition() {
-        // 'mainScreen' is defined in main.qml
-        var window = mainScreen;
+        // 'mainWindow' is defined in main.qml
+        var window = mainWindow.contentItem;
         var globalX = (window.width - root.width) / 2;
         var globalY = window.height / 3 - root.height;
         var local = mapFromItem(window, globalX, globalY);
@@ -55,8 +55,8 @@ QQC2.Popup {
 
     Column {
         width: {
-            // 'mainScreen' is defined in main.qml
-            var window = mainScreen;
+            // 'mainWindow' is defined in main.qml
+            var window = mainWindow.contentItem;
 
             let wanted = Math.max(mainTextLabel.contentWidth, titleLabel.implicitWidth)
             if (content.item)
