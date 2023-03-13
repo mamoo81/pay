@@ -52,6 +52,12 @@ Page {
             account: portfolio.current
             fiatPrice: Fiat.price
         }
+        Flowee.Dialog {
+            id: errorDialog
+            standardButtons: QQC2.DialogButtonBox.Close
+            title: qsTr("Building Error", "error during build")
+            text: payment.error
+        }
 
         // Extra page to create new details.
         Component {
@@ -583,19 +589,13 @@ Page {
                 onClicked: {
                     payment.prepare();
                     if (payment.error !== "") {
-                        console.log("error " + payment.error)
-                        errorDialog.show();
+                        errorDialog.visible = true;
                     }
                     else {
                         thePile.push(paymentInfoPage);
                     }
                 }
 
-                Flowee.Dialog {
-                    id: errorDialog
-                    title: qsTr("Building Error", "error during build")
-                    text: qsTr("Please check the details for errors, during build we detected this issue: %1").arg(payment.error)
-                }
             }
         }
     }

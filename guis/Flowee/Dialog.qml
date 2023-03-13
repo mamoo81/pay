@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ QQC2.Popup {
     property alias title: titleLabel.text
     property alias text: mainTextLabel.text
     property alias contentComponent: content.sourceComponent
+    property alias  standardButtons:  buttons.standardButtons
 
     function accept() {
         accepted();
@@ -44,11 +45,13 @@ QQC2.Popup {
     onAboutToShow: reposition()
     onHeightChanged: reposition()
     function reposition() {
+        if (parent == null)
+            return;
         // 'mainWindow' is defined in main.qml
         var window = mainWindow.contentItem;
         var globalX = (window.width - root.width) / 2;
         var globalY = window.height / 3 - root.height;
-        var local = mapFromItem(window, globalX, globalY);
+        var local = parent.mapFromItem(null, globalX, globalY);
         x = local.x;
         y = local.y;
     }
@@ -62,13 +65,17 @@ QQC2.Popup {
             if (content.item)
                 wanted = Math.max(wanted, content.item.implicitWidth)
             let max = window.width
-            let min = buttons.implicitWidth
+            let min = Math.max(buttons.implicitWidth + 20, 300)
             let ideal = Math.max(min, max / 3)
+            if (max <= 360) // mobile width
+                max = max * 0.9;
+            else
+                max = max * 2 / 3;
             if (wanted < ideal)
                 return ideal
-            if (wanted < max / 2 * 3)
+            if (wanted < max)
                 return wanted
-            return max / 2 * 3;
+            return max;
         }
         spacing: 10
         Label {
