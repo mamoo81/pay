@@ -35,9 +35,13 @@ Page {
                 payment.prepare(); // auto-prepare doesn't act on changes done on the details.
         }
     }
-    menuItems: [
-        sendAllAction
-    ]
+    menuItems: {
+        // only have menu items as long as we are effectively
+        // showing this page and not some overlay.
+        if (payment.broadcastStatus === Payment.NotStarted && !scanner.isScanning)
+            return [ sendAllAction ];
+        return [];
+    }
 
     Item { // data
         QRScanner {

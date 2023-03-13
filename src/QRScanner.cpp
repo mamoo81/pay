@@ -40,12 +40,14 @@ void QRScanner::start()
     resetScanResult();
     if (m_scanType == static_cast<ScanType>(100))
         throw std::runtime_error("Required property scanType not set");
+    setIsScanning(true);
     FloweePay::instance()->cameraController()->startRequest(this);
 }
 
 void QRScanner::abort()
 {
     FloweePay::instance()->cameraController()->abortRequest(this);
+    setIsScanning(false);
 }
 
 QRScanner::ScanType QRScanner::scanType() const
@@ -65,6 +67,7 @@ void QRScanner::finishedScan(const QString &resultString)
 {
     setScanResult(resultString);
     emit finished();
+    setIsScanning(false);
 }
 
 QString QRScanner::scanResult() const
@@ -78,6 +81,7 @@ void QRScanner::setScanResult(const QString &newScanResult)
         return;
     m_scanResult = newScanResult;
     emit scanResultChanged();
+    setIsScanning(false);
 }
 
 void QRScanner::resetScanResult()
@@ -96,6 +100,19 @@ void QRScanner::setAutostart(bool newAutostart)
         return;
     m_autostart = newAutostart;
     emit autostartChanged();
+}
+
+bool QRScanner::isScanning() const
+{
+    return m_isScanning;
+}
+
+void QRScanner::setIsScanning(bool now)
+{
+    if (m_isScanning == now)
+        return;
+    m_isScanning = now;
+    emit isScanningChanged();
 }
 
 void QRScanner::completed()
