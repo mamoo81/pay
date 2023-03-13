@@ -111,61 +111,10 @@ Page {
     }
 
 
-    Rectangle {
+    AccountSelectorWidget {
         id: walletNameBackground
-        anchors.top: currentWalletLabel.visible ? currentWalletLabel.top : currentWalletValue.top
-        anchors.topMargin: -5
-        width: parent.width + 20
-        x: -10
-        anchors.bottom: currentWalletValue.bottom
-        anchors.bottomMargin: -5
-        color: palette.alternateBase
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: (mouse) => {
-                if (mouse.x < parent.width / 2) {
-                    if (portfolio.accounts.length > 1)
-                        accountSelector.open();
-                } else {
-                    while (priceMenu.count > 0) {
-                        priceMenu.takeItem(0);
-                    }
-                    priceMenu.addAction(sendAllAction);
-                    priceMenu.x = root.width / 2
-                    priceMenu.y = -40
-                    priceMenu.open();
-                }
-            }
-        }
-        QQC2.Menu {
-            id: priceMenu
-        }
-    }
-
-    Flowee.HamburgerMenu {
-        anchors.verticalCenter: currentWalletLabel.verticalCenter
-        visible: portfolio.accounts.length > 1
-    }
-
-    Flowee.Label {
-        id: currentWalletLabel
-        text: payment.account.name
-        visible: !portfolio.singleAccountSetup
-        x: 10
-        width: parent.width - 10
-        anchors.bottom: currentWalletValue.top
-    }
-
-    Flowee.BitcoinAmountLabel {
-        id: currentWalletValue
-        anchors.right: parent.right
         anchors.bottom: numericKeyboard.top
         anchors.bottomMargin: 10
-        value: {
-            var wallet = payment.account;
-            return wallet.balanceConfirmed + wallet.balanceUnconfirmed;
-        }
     }
 
     NumericKeyboardWidget {

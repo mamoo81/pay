@@ -56,5 +56,6 @@
         <file>mobile/PriceDetails.qml</file>
         <file>mobile/PriceInputWidget.qml</file>
         <file>mobile/NumericKeyboardWidget.qml</file>
+        <file>mobile/AccountSelectorWidget.qml</file>
     </qresource>
 </RCC>
