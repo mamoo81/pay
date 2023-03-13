@@ -24,6 +24,7 @@ import Flowee.org.pay;
 
 Page {
     id: root
+    headerText: qsTr("Build Transaction")
 
     Item { // data and non-visible stuff for this page
         /*
@@ -300,13 +301,11 @@ Page {
             id: mainColumn
             y: 10
             width: parent.width
+            spacing: 6
 
-            Flowee.Label {
-                text: qsTr("Create Payment")
-                width: parent.width
-                horizontalAlignment: Qt.AlignHCenter
-            }
-            Item { width: 1; height: 12 } // spacer
+            AccountSelectorWidget { }
+
+            VisualSeparator { }
 
             Repeater {
                 model: payment.details
