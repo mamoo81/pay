@@ -51,15 +51,6 @@ Page {
             fiatPrice: Fiat.price
         }
 
-        AccountSelector {
-            id: accountSelector
-            width: root.width
-            x: -10 // to correct the indent added in the fullPage
-            y: (root.height - height) / 2
-            onSelectedAccountChanged: payment.account = selectedAccount
-            selectedAccount: payment.account
-        }
-
         // Extra page to create new details.
         Component {
             id: paymentDetailSelector

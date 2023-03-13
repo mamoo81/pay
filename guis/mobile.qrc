@@ -49,7 +49,7 @@
         <file>mobile/PopupOverlay.qml</file>
         <file>mobile/TransactionDetails.qml</file>
         <file>mobile/TxInfoSmall.qml</file>
-        <file>mobile/AccountSelector.qml</file>
+        <file>mobile/AccountSelectorPopup.qml</file>
         <file>mobile/CurrencySelector.qml</file>
         <file>mobile/StartupScreen.qml</file>
         <file>mobile/ImportWalletPage.qml</file>

@@ -66,15 +66,6 @@ Page {
             // targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
             // userComment: "bla bla bla"
         }
-
-        AccountSelector {
-            id: accountSelector
-            width: root.width
-            x: -10 // to correct the indent added in the fullPage
-            y: (root.height - height) / 2
-            onSelectedAccountChanged: payment.account = selectedAccount
-            selectedAccount: payment.account
-        }
     }
 
     PriceInputWidget {

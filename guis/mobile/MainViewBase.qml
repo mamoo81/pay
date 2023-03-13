@@ -125,7 +125,7 @@ QQC2.Control {
             anchors.baseline: logo.baseline
         }
 
-        AccountSelector {
+        AccountSelectorPopup {
             id: accountSelector
             width: root.width
             y: header.height

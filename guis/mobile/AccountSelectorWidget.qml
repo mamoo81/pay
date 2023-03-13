@@ -20,7 +20,7 @@ import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 
 Rectangle {
-    id: walletNameBackground
+    id: root
     x: -10
     width: parent.width + 20
     height: {
@@ -75,5 +75,13 @@ Rectangle {
     }
     QQC2.Menu {
         id: priceMenu
+    }
+
+    AccountSelectorPopup {
+        id: accountSelector
+        width: root.width
+        y: -10
+        onSelectedAccountChanged: payment.account = selectedAccount
+        selectedAccount: payment.account
     }
 }
