@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,20 @@ ListView {
     clip: true
     model: root.account.secrets
     property bool showHdIndex: true
+
+    header: Column {
+        width: root.width
+        Label {
+            width: parent.width
+            font.italic: true
+            text: qsTr("Explanation:");
+        }
+        Label {
+            width: parent.width
+            font.italic: true
+            text: qsTr("Coins a / b\n a) active coin-count.\n b) historical coin-count.");
+        }
+    }
 
     delegate: Rectangle {
         id: delegateRoot
