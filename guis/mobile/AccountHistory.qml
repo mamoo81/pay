@@ -167,17 +167,23 @@ ListView {
         Rectangle {
             width: parent.width - 16
             x: 8
-            visible: transactionDelegate.placementInGroup !== Wallet.Ungrouped;
             // we always have the rounded circles, but if we should not see them, we move them out of the clipped area.
             height: {
                 var h = 80
-                if (transactionDelegate.placementInGroup !== Wallet.GroupStart)
+                var placement = transactionDelegate.placementInGroup;
+
+                if (placement !== Wallet.GroupStart && placement !== Wallet.Ungrouped)
                     h += 20;
-                if (transactionDelegate.placementInGroup !== Wallet.GroupEnd)
+                if (placement !== Wallet.GroupEnd && placement !== Wallet.Ungrouped)
                     h += 20;
                 return h;
             }
-            y: transactionDelegate.placementInGroup === Wallet.GroupStart ? 0 : -20;
+            y: {
+                var placement = transactionDelegate.placementInGroup;
+                if (placement === Wallet.GroupStart || placement === Wallet.Ungrouped)
+                    return 0;
+                return -20;
+            }
 
             radius: 20
             color: palette.alternateBase
