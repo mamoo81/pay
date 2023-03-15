@@ -141,21 +141,12 @@ ListView {
                 font.bold: true
                 text: "S"
                 MouseArea {
-                    id: mousy
                     anchors.fill: parent
                     anchors.margins: -10
                     hoverEnabled: true
-
-                    QQC2.ToolTip {
-                        parent: schnorrIndicator
-                        text: qsTr("Signed with Schnorr signatures in the past")
-                        delay: 700
-                        visible: mousy.containsMouse
-                    }
+                    onClicked: QQC2.ToolTip.show(qsTr("Signed with Schnorr signatures in the past"), 7500);
                 }
             }
         }
-
-
     }
 }
