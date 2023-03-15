@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file alias="FloweePay-light.svg">images/FloweePay-light.svg</file>
         <file alias="FloweePay.svg">images/FloweePay.svg</file>
+        <file alias="cashfusion.svg">images/cashfusion.svg</file>
         <file alias="bch.svg">images/bch.svg</file>
         <file alias="back-arrow.svg">mobile/images/back-arrow.svg</file>
         <file alias="maslenica.svg">mobile/images/maslenica.svg</file>
@@ -23,6 +24,14 @@
         <file alias="settingsIcon.svg">mobile/images/settingsIcon.svg</file>
         <file alias="edit.svg">mobile/images/edit.svg</file>
         <file alias="edit-light.svg">mobile/images/edit-light.svg</file>
+        <file alias="tx-receiving.svg">mobile/images/tx-receiving.svg</file>
+        <file alias="tx-receiving-light.svg">mobile/images/tx-receiving-light.svg</file>
+        <file alias="tx-send.svg">mobile/images/tx-send.svg</file>
+        <file alias="tx-send-light.svg">mobile/images/tx-send-light.svg</file>
+        <file alias="tx-coinbase.svg">mobile/images/tx-coinbase.svg</file>
+        <file alias="tx-coinbase-light.svg">mobile/images/tx-coinbase-light.svg</file>
+        <file alias="tx-move.svg">mobile/images/tx-move.svg</file>
+        <file alias="tx-move-light.svg">mobile/images/tx-move-light.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>

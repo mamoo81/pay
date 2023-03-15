@@ -206,11 +206,23 @@ ListView {
             height: 6
             anchors.verticalCenter: parent.verticalCenter
         }
-        Rectangle {
+        // icon
+        Image {
+            source: {
+                if (model.isCashFusion)
+                    return "qrc:/cashfusion.svg";
+                if (model.fundsIn === 0)
+                    var base = "receiving";
+                else if (isMoved)
+                    base = "move";
+                else
+                    base = "send";
+                return "qrc:/tx-"+ base + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+            }
             width: 45
             height: 45
-            radius: 22.5
             x: 20
+            smooth: true
             anchors.verticalCenter: ruler.verticalCenter
         }
 
@@ -237,7 +249,7 @@ ListView {
                 return qsTr("Sent");
             }
         }
-        QQC2.Label {
+        Flowee.Label {
             id: dateLine
             anchors.top: ruler.bottom
             anchors.left: commentLabel.left
