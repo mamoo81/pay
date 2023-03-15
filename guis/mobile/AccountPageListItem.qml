@@ -164,6 +164,20 @@ QQC2.Control {
                 id: backupDetails
                 Page {
                     headerText: qsTr("Wallet keys")
+
+                    property QtObject showIndexAction: QQC2.Action {
+                        text: qsTr("Show Index", "toggle to show numbers")
+                        checkable: true
+                        checked: listView.showHdIndex
+                        onTriggered: listView.showHdIndex = checked
+                    }
+
+                    menuItems: {
+                        if (root.account.isHDWallet)
+                            return [showIndexAction];
+                        return [];
+                    }
+
                     Flowee.CheckBox {
                         id: changeAddresses
                         text: qsTr("Change Addresses")
@@ -184,12 +198,14 @@ QQC2.Control {
                     }
 
                     Flowee.WalletSecretsView {
+                        id: listView
                         anchors.top: usedAddresses.visible ? usedAddresses.bottom : parent.top
                         anchors.topMargin: 10
                         anchors.bottom: parent.bottom
                         width: parent.width
                         account: root.account
                         clip: true
+                        showHdIndex: false
                     }
                 }
             }

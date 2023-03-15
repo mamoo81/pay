@@ -24,6 +24,8 @@ ListView {
 
     clip: true
     model: root.account.secrets
+    property bool showHdIndex: true
+
     delegate: Rectangle {
         id: delegateRoot
         color: (index % 2) == 0 ? palette.base : palette.alternateBase
@@ -44,7 +46,7 @@ ListView {
             anchors.baseline: addressLabel.baseline
             anchors.right: addressLabel.left
             anchors.rightMargin: 10
-            visible: root.account.isHDWallet
+            visible: root.showHdIndex && root.account.isHDWallet
         }
 
         LabelWithClipboard {
@@ -54,6 +56,7 @@ ListView {
             anchors.bottomMargin: 6
             text: address
             anchors.left: parent.left
+            anchors.leftMargin: root.showHdIndex ? 40 : 0
             anchors.right: hamburgerMenu.left
             anchors.rightMargin: 6
             menuText: qsTr("Copy Address")
@@ -64,7 +67,7 @@ ListView {
             width: 12
             height: column.height
             anchors.right: parent.right
-            anchors.bottom: addressLabel.bottom
+            anchors.verticalCenter: addressLabel.verticalCenter
             Column {
                 id: column
                 spacing: 3
