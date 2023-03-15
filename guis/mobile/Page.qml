@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,14 @@ QQC2.Control {
             id: headerLabel
             color: "white"
             anchors.left: backButton.right
-            anchors.right: headerButton.visible ? headerButton.left : parent.right
+            anchors.right: {
+                // we assume at most one of these two is in use.
+                if (headerButton.visible)
+                    return headerButton.left;
+                if (hamburgerMenu.visible)
+                    return hamburgerMenu.left;
+                return parent.right;
+            }
             horizontalAlignment: Text.AlignHCenter
             anchors.verticalCenter: parent.verticalCenter
         }
@@ -99,6 +106,7 @@ QQC2.Control {
             onClicked: root.headerButtonClicked()
         }
         Flowee.HamburgerMenu {
+            id: hamburgerMenu
             visible: root.menuItems.length > 0
             anchors.right: parent.right
             anchors.rightMargin: 15
