@@ -75,7 +75,8 @@ QQC2.Control {
         }
         MouseArea {
             anchors.fill: menuButton
-            anchors.margins: -20
+            // make the touch area a lot bigger, its safe as its limited to the 'header' area anyway.
+            anchors.margins: -60
             cursorShape: Qt.PointingHandCursor
             onClicked: menuOverlay.open = true;
         }
