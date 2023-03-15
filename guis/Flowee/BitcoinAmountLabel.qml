@@ -129,7 +129,7 @@ QQC2.Control {
                     fiatPrice = Fiat.price; // todays price
                 else
                     fiatPrice = Fiat.historicalPrice(root.fiatTimestamp);
-                Fiat.formattedPrice(root.value, fiatPrice)
+                return Fiat.formattedPrice(root.value, fiatPrice)
             }
         }
     }
