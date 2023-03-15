@@ -93,7 +93,7 @@ QQC2.Control {
                 var pos = s.length - 5
                 return s.substring(pos, pos + 3);
             }
-            font.pointSize: satsLabel.font.pointSize
+            font.pixelSize: satsLabel.font.pixelSize
             color: main.color
             opacity: (satsLabel.opacity !== 1 && text === "000") ? 0.3 : 1
             Layout.alignment: Qt.AlignBaseline
@@ -105,7 +105,7 @@ QQC2.Control {
                 var s = row.amountString
                 return s.substring(s.length - 2);
             }
-            font.pointSize: main.font.pointSize / 10 * 8
+            font.pixelSize: main.font.pixelSize * 0.8
             color: main.color
             opacity: text === "00" ? 0.3 : 1
             Layout.alignment: Qt.AlignBaseline
@@ -114,6 +114,7 @@ QQC2.Control {
 
         Label {
             text: Pay.unitName
+            font.pixelSize: main.font.pixelSize
             color: main.color
             visible: root.includeUnit
             Layout.alignment: Qt.AlignBaseline
