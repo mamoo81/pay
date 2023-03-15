@@ -102,7 +102,7 @@ QString PriceDataProvider::formattedPrice(double amountSats, int price) const
 int PriceDataProvider::priceFor(double amountSats, int price) const
 {
     qint64 fiatValue = amountSats * price;
-    fiatValue = (fiatValue + 50000000) / qint64(100000000);
+    fiatValue = (fiatValue + (amountSats > 0 ? 50000000: -50000000)) / qint64(100000000);
     assert(fiatValue < INT_MAX);
     return static_cast<int>(fiatValue);
 }
