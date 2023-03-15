@@ -180,7 +180,7 @@ QQC2.Control {
                         text: qsTr("Used Addresses");
                         visible: !root.account.isSingleAddressAccount
                         onClicked: root.account.secrets.showUsedAddresses = checked
-                        tooltipText: qsTr("Switches between unused and used Bitcoin addresses")
+                        tooltipText: qsTr("Switches between still in use addresses and formerly used, nmw empty, addresses")
                     }
 
                     Flowee.WalletSecretsView {
