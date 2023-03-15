@@ -21,14 +21,20 @@ import QtQuick.Layouts
 import "../Flowee" as Flowee
 import Flowee.org.pay;
 
+/*
+ * This is a simple widget that is used in the AccountHistory page.
+ * Notice that to work it expects in the parent context to be available several things,
+ * among others the isMoved and amountBch values for the transaction it is displaying
+ */
 
 GridLayout {
     id: root
     columns: 2
     rowSpacing: 10
+    // set by the parent page
     property QtObject infoObject: null
 
-    property int minedHeight: model.height
+    property int minedHeight: model.height // local cache
 
     QQC2.Label {
         Layout.columnSpan: 2
@@ -70,12 +76,6 @@ GridLayout {
     }
     Flowee.Label {
         id: paymentTypeLabel
-        visible: {
-            let diff = model.fundsOut - model.fundsIn;
-            if (diff < 0 && diff > -1000) // this is our heuristic to mark it as 'moved'
-                return false;
-            return true;
-        }
         text: {
             if (model.isCoinbase)
                 return qsTr("Miner Reward") + ":";
@@ -83,8 +83,7 @@ GridLayout {
                 return qsTr("Cash Fusion") + ":";
             if (model.fundsIn === 0)
                 return qsTr("Received") + ":";
-            let diff = model.fundsOut - model.fundsIn;
-            if (diff < 0 && diff > -1000) // then the diff is likely just fees.
+            if (isMoved) // inherited from AccountHistory.qml
                 return qsTr("Moved") + ":";
             return qsTr("Sent") + ":";
         }
@@ -106,8 +105,7 @@ GridLayout {
                 return false;
             if (model.isCashFusion)
                 return false;
-            let diff = model.fundsOut - model.fundsIn;
-            if (diff < 0 && diff > -1000) // then the diff is likely just fees.
+            if (isMoved)
                 return false;
             if (valueThenLabel.fiatPrice === 0)
                 return false;
@@ -119,8 +117,9 @@ GridLayout {
         Layout.fillWidth: true
         id: valueThenLabel
         visible: priceAtMining.visible
+        // when the backend does NOT get an 'accurate' (timewise) value, it returns zero. Which makes us set visibility to false
         property int fiatPrice: Fiat.historicalPriceAccurate(model.date)
-        text: Fiat.formattedPrice(Math.abs(model.fundsOut - model.fundsIn), fiatPrice)
+        text: Fiat.formattedPrice(Math.abs(amountBch), fiatPrice)
     }
     Flowee.Label {
         visible: priceAtMining.visible
@@ -134,9 +133,7 @@ GridLayout {
                 return "";
             var fiatPriceNow = Fiat.price;
             var gained = (fiatPriceNow - valueThenLabel.fiatPrice) / valueThenLabel.fiatPrice * 100
-
-            var sats = Math.abs(model.fundsOut - model.fundsIn);
-            return Fiat.formattedPrice(sats, fiatPriceNow)
+            return Fiat.formattedPrice(amountBch, fiatPriceNow)
                     + " (" + (gained >= 0 ? "↑" : "↓") + Math.abs(gained).toFixed(2) + "%)";
         }
     }

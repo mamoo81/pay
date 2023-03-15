@@ -160,6 +160,15 @@ ListView {
         id: transactionDelegate
         property var placementInGroup: model.placementInGroup
 
+        property double amountBch: model.fundsOut - model.fundsIn
+        // Is this transaction a 'move between addresses' tx.
+        // This is a heuristic and not available in the model, which is why its in the view.
+        property bool isMoved: {
+            if (model.isCoinbase || model.isCashFusion || model.fundsIn === 0)
+                return false;
+            return amountBch > 0 && amountBch < -2500 // then the diff is likely just fees.
+        }
+
         width: root.width
         height: 80
         clip: true
@@ -208,10 +217,10 @@ ListView {
         Flowee.Label {
             id: commentLabel
             anchors.bottom: ruler.top
-            anchors.right: price.left
+            anchors.right: price.visible ? price.left : price.right
             anchors.left: parent.left
             anchors.leftMargin: 80
-            clip: true // TODO wordwrap?
+            clip: true // future, maybe wordwrap?
             text: {
                 var comment = model.comment
                 if (comment !== "")
@@ -223,13 +232,13 @@ ListView {
                     return qsTr("Cash Fusion");
                 if (model.fundsIn === 0)
                     return qsTr("Received");
-                let diff = model.fundsOut - model.fundsIn;
-                if (diff < 0 && diff > -1000) // then the diff is likely just fees.
+                if (isMoved)
                     return qsTr("Moved");
                 return qsTr("Sent");
             }
         }
         QQC2.Label {
+            id: dateLine
             anchors.top: ruler.bottom
             anchors.left: commentLabel.left
             color: palette.text
@@ -258,16 +267,19 @@ ListView {
             }
         }
 
+        // price in a green rectangle
         Rectangle {
             id: price
             width: amount.width + 10
-            height: amount.height + 10
+            height: amount.height + 8
             anchors.right: parent.right
+            anchors.bottom: ruler.top
+            anchors.bottomMargin: -4
             anchors.rightMargin: 20
-            anchors.verticalCenter: ruler.verticalCenter
             radius: 6
+            baselineOffset: amount.baselineOffset + 4 // 4 is half the spacing added at height:
+            visible: !model.isCashFusion
 
-            property int amountBch: model.fundsOut - model.fundsIn
             color: amountBch < 0 ? "#00000000"
                      : (Pay.useDarkSkin ? "#1d6828" : "#97e282") // green background
             Flowee.Label {
@@ -278,13 +290,30 @@ ListView {
                         var fiatPrice = Fiat.price;
                     else
                         fiatPrice = Fiat.historicalPrice(dat);
-                    return Fiat.formattedPrice(price.amountBch, fiatPrice);
+                    return Fiat.formattedPrice(Math.abs(amountBch), fiatPrice);
                 }
                 anchors.centerIn: parent
-                opacity: Math.abs(price.amountBch) < 2000 ? 0.5 : 1
+                opacity: Math.abs(amountBch) < 2000 ? 0.5 : 1
             }
         }
+        Flowee.Label { // plus or minus in front of the price
+            visible: price.visible
+            text: amountBch >= 0 ? "+" : "-"
+            anchors.baseline: price.baseline
+            anchors.right: price.left
+            opacity: price.opacity
+        }
+        Flowee.BitcoinAmountLabel {
+            visible: price.visible
+            anchors.right: parent.right
+            anchors.rightMargin: 25
+            anchors.baseline: dateLine.baseline
+            value: amountBch
+            showFiat: false
+            fontPixelSize: amount.font.pixelSize * 0.9
+        }
 
+        // horizontal separator
         Rectangle {
             visible: transactionDelegate.placementInGroup !== Wallet.GroupEnd
                          && transactionDelegate.placementInGroup !== Wallet.Ungrouped;
