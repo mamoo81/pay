@@ -166,7 +166,7 @@ ListView {
         property bool isMoved: {
             if (model.isCoinbase || model.isCashFusion || model.fundsIn === 0)
                 return false;
-            return amountBch > 0 && amountBch < -2500 // then the diff is likely just fees.
+            return amountBch < 0 && amountBch > -2500 // then the diff is likely just fees.
         }
 
         width: root.width
