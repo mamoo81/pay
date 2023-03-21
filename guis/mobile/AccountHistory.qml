@@ -64,7 +64,7 @@ ListView {
     /*
       The structure here is a bit funny.
       But we want to have the entire page scroll in order to show all the transactions we can.
-      To avoid a mess of two scroll-areas (of Flickables) we simply make the top part into a
+      To avoid a mess of two scroll-areas (or Flickables) we simply make the top part into a
       header of the listview.
      */
     header: Rectangle {
@@ -79,14 +79,15 @@ ListView {
 
             Flowee.BitcoinAmountLabel {
                 opacity: Pay.hideBalance ? 0.2 : 1
-                fontPixelSize: 34
+                fontPixelSize: 30
+                anchors.horizontalCenter: parent.horizontalCenter
                 value: {
                     if (Pay.hideBalance)
                         return 88888888;
                     return portfolio.current.balanceConfirmed + portfolio.current.balanceUnconfirmed
                 }
                 colorize: false
-
+                showFiat: false
                 MouseArea {
                     anchors.fill: parent
                     onClicked: popupOverlay.open(priceDetails, parent)
@@ -94,6 +95,16 @@ ListView {
                 Component {
                     id: priceDetails
                     PriceDetails { }
+                }
+            }
+            Flowee.Label { // fiat price
+                opacity: Pay.hideBalance ? 0.2 : 1
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: {
+                    if (Pay.hideBalance)
+                        return Fiat.currencySymbolPrefix + "——" + Fiat.currencySymbolPost
+                    Fiat.formattedPrice(portfolio.current.balanceConfirmed
+                          + portfolio.current.balanceUnconfirmed, Fiat.price)
                 }
             }
 
