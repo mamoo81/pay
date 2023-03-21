@@ -48,7 +48,7 @@ if test "$_ok" -eq 0; then
 fi
 
 if test -z "$_docker_name_"; then
-    _docker_name_="flowee/buildenv-android:v6.4.1"
+    _docker_name_="flowee/buildenv-android:v6.4.3"
 fi
 
 if ! test -f "$_pay_native_name_/blockheaders-meta-extractor"; then
