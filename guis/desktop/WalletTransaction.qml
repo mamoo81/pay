@@ -133,6 +133,7 @@ Rectangle {
 
     Flowee.BitcoinAmountLabel {
         id: bitcoinAmountLabel
+        visible: Pay.activityShowsBch
         value: {
             let inputs = model.fundsIn
             let outputs = model.fundsOut
@@ -142,10 +143,30 @@ Rectangle {
                 return inputs;
             return diff;
         }
-        fiatTimestamp: model.date;
-
         anchors.top: mainLabel.top
         anchors.right: parent.right
+    }
+    Flowee.Label {
+        anchors.top: mainLabel.top
+        anchors.right: parent.right
+        visible: !Pay.activityShowsBch
+        text: {
+            var timestamp = model.date;
+            if (timestamp === undefined)
+                var fiatPrice = Fiat.price; // todays price
+            else
+                fiatPrice = Fiat.historicalPrice(timestamp);
+            return Fiat.formattedPrice(bitcoinAmountLabel.value, fiatPrice)
+        }
+        color: {
+            var num = bitcoinAmountLabel.value
+            if (num > 0) // positive value
+                return Pay.useDarkSkin ? "#86ffa8" : "green";
+            else if (num < 0) // negative
+                return Pay.useDarkSkin ? "#ffdede" : "#444446";
+            // zero is shown without normally
+            return palette.windowText
+        }
     }
 
     MouseArea {

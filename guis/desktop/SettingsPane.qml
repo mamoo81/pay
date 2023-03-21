@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ Pane {
 
     GridLayout {
         columns: 3
+        rowSpacing: 10
+        columnSpacing: 6
 
         Label {
             text: qsTr("Unit") + ":"
@@ -88,6 +90,18 @@ Pane {
                     visible: Pay.isMainChain
                 }
             }
+        }
+
+        Flowee.CheckBox {
+            id: showBchOnActivity
+            Layout.alignment: Qt.AlignRight
+            checked: Pay.activityShowsBch
+            onCheckedChanged: Pay.activityShowsBch = checked
+        }
+        Flowee.CheckBoxLabel {
+            Layout.columnSpan: 2
+            buddy: showBchOnActivity
+            text: qsTr("Show Bitcoin Cash value on Activity page")
         }
 
         Flowee.CheckBox {

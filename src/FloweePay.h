@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,6 +61,7 @@ class FloweePay : public QObject, public WorkerThreads, public HeaderSyncInterfa
     Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
     Q_PROPERTY(bool hideBalance READ hideBalance WRITE setHideBalance NOTIFY hideBalanceChanged)
+    Q_PROPERTY(bool activityShowsBch READ activityShowsBch WRITE setActivityShowsBch NOTIFY activityShowsBchChanged)
     Q_PROPERTY(int fontScaling READ fontScaling WRITE setFontScaling NOTIFY fontScalingChanged)
     Q_PROPERTY(int dspTimeout READ dspTimeout WRITE setDspTimeout NOTIFY dspTimeoutChanged)
     // User setting based on which unit (milli/sats/etc) the user choose
@@ -265,6 +266,9 @@ public:
     int fontScaling() const;
     void setFontScaling(int newFontScaling);
 
+    bool activityShowsBch() const;
+    void setActivityShowsBch(bool newActivityShowsBch);
+
 signals:
     void loadComplete();
     /// \internal
@@ -282,6 +286,7 @@ signals:
     void hideBalanceChanged();
     void newBlockMutedChanged();
     void fontScalingChanged();
+    void activityShowsBchChanged();
 
 private slots:
     void loadingCompleted();
@@ -313,6 +318,8 @@ private:
     bool m_darkSkin = true;
     bool m_createStartWallet = false;
     bool m_hideBalance = false;
+    /// Show the BCH amount involved in a transaction on the activity screen.
+    bool m_activityShowsBch = false;
     bool m_offline = false;
     bool m_gotHeadersSyncedOnce = false;
 };

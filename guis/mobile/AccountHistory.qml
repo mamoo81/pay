@@ -296,7 +296,8 @@ ListView {
             width: amount.width + 10
             height: amount.height + 8
             anchors.right: parent.right
-            anchors.bottom: ruler.top
+            anchors.bottom: Pay.activityShowsBch ? ruler.top : undefined
+            anchors.verticalCenter: Pay.activityShowsBch ? undefined : ruler.verticalCenter
             anchors.bottomMargin: -4
             anchors.rightMargin: 20
             radius: 6
@@ -327,7 +328,7 @@ ListView {
             opacity: price.opacity
         }
         Flowee.BitcoinAmountLabel {
-            visible: price.visible
+            visible: price.visible && Pay.activityShowsBch
             anchors.right: parent.right
             anchors.rightMargin: 25
             anchors.baseline: dateLine.baseline

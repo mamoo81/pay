@@ -139,5 +139,20 @@ Page {
             showPageIcon: true
             onClicked: thePile.push("./CurrencySelector.qml")
         }
+
+        Flowee.Label {
+            text: qsTr("Main View")
+            font.bold: true
+        }
+        Item {
+            width: 10
+            height: 10
+        }
+
+        Flowee.CheckBox {
+            text: qsTr("Show Bitcoin Cash value")
+            checked: Pay.activityShowsBch
+            onCheckedChanged: Pay.activityShowsBch = checked
+        }
     }
 }

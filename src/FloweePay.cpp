@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,8 @@ constexpr const char *WINDOW_WIDTH = "window/width";
 constexpr const char *WINDOW_HEIGHT = "window/height";
 constexpr const char *FONTSCALING = "window/font-scaling";
 constexpr const char *DARKSKIN = "darkSkin";
-constexpr const char *HIDEBALANCE = "hideBalance";
+constexpr const char *ACTIVITYSHOWBCH = "activity-show-bch";
+constexpr const char *HIDEBALANCE = "hide-balance";
 constexpr const char *USERAGENT = "net/useragent";
 constexpr const char *DSPTIMEOUT = "payment/dsp-timeout";
 constexpr const char *CURRENCY_COUNTRIES = "countryCodes"; // historical
@@ -108,6 +109,7 @@ FloweePay::FloweePay()
     m_windowHeight = defaultConfig.value(WINDOW_HEIGHT, -1).toInt();
     m_windowWidth = defaultConfig.value(WINDOW_WIDTH, -1).toInt();
     m_darkSkin = defaultConfig.value(DARKSKIN, true).toBool();
+    m_activityShowsBch = defaultConfig.value(ACTIVITYSHOWBCH, false).toBool();
     m_dspTimeout = defaultConfig.value(DSPTIMEOUT, 3000).toInt();
     m_fontScaling = defaultConfig.value(FONTSCALING, 100).toInt();
     m_createStartWallet = defaultConfig.value(CREATE_START_WALLET, false).toBool();
@@ -117,6 +119,7 @@ FloweePay::FloweePay()
     m_windowHeight = appConfig.value(WINDOW_HEIGHT, m_windowHeight).toInt();
     m_windowWidth = appConfig.value(WINDOW_WIDTH, m_windowWidth).toInt();
     m_darkSkin = appConfig.value(DARKSKIN, m_darkSkin).toBool();
+    m_activityShowsBch = appConfig.value(ACTIVITYSHOWBCH, m_activityShowsBch).toBool();
     m_fontScaling = appConfig.value(FONTSCALING, m_fontScaling).toInt();
     m_dspTimeout = appConfig.value(DSPTIMEOUT, m_dspTimeout).toInt();
     m_hideBalance = appConfig.value(HIDEBALANCE, false).toBool();
@@ -692,6 +695,21 @@ uint32_t FloweePay::walletStartHeightHint() const
     // interpret as seconds and match it to the block time to resolve a
     // hight when the headers are synched.
     return time(nullptr);
+}
+
+bool FloweePay::activityShowsBch() const
+{
+    return m_activityShowsBch;
+}
+
+void FloweePay::setActivityShowsBch(bool newActivityShowsBch)
+{
+    if (m_activityShowsBch == newActivityShowsBch)
+        return;
+    m_activityShowsBch = newActivityShowsBch;
+    emit activityShowsBchChanged();
+    QSettings appConfig;
+    appConfig.setValue(ACTIVITYSHOWBCH, m_activityShowsBch);
 }
 
 int FloweePay::fontScaling() const
