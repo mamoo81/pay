@@ -450,6 +450,7 @@ ApplicationWindow {
                     id: balanceDetailsPane
                     property bool showDetails: false
                     width: parent.width
+                    clip: true // avoid the balance overlapping the tabbar.
                     height: balance.height + (showDetails ? extraBalances.height + 10 : 0)
                     Flowee.BitcoinAmountLabel {
                         id: balance
@@ -469,8 +470,8 @@ ApplicationWindow {
                         color: palette.windowText
                         fontPixelSize: {
                             if (leftColumn.width < 240) // max width is 252
-                                return leftColumn.width / 7
-                            return 36;
+                                return leftColumn.width / 9
+                            return 27;
                         }
                     }
 
