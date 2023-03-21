@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,6 +75,23 @@ void PaymentRequest::setPaymentState(PaymentState newState)
     m_paymentState = newState;
     m_dirty = true;
     emit paymentStateChanged();
+}
+
+QString PaymentRequest::address() const
+{
+    if (m_address.IsNull())
+        return QString();
+    if (m_useLegacyAddressFormat) {
+        CBase58Data legacy;
+        legacy.setData(m_address, CBase58Data::PubkeyType,
+                       FloweePay::instance()->chain() == P2PNet::MainChain
+                       ? CBase58Data::Mainnet : CBase58Data::Testnet);
+        return QString::fromStdString(legacy.ToString());
+    }
+    CashAddress::Content c;
+    c.hash = std::vector<uint8_t>(m_address.begin(), m_address.end());
+    c.type = CashAddress::PUBKEY_TYPE;
+    return QString::fromStdString(CashAddress::encodeCashAddr(FloweePay::instance()->chainPrefix(), c));
 }
 
 void PaymentRequest::setWallet(Wallet *wallet)
@@ -264,24 +281,9 @@ qint64 PaymentRequest::amount() const
 
 QString PaymentRequest::qrCodeString() const
 {
-    QString rc;
     if (m_address.IsNull())
-        return rc;
-    // add address
-    if (m_useLegacyAddressFormat) {
-        CBase58Data legacy;
-        legacy.setData(m_address, CBase58Data::PubkeyType,
-                       FloweePay::instance()->chain() == P2PNet::MainChain
-                       ? CBase58Data::Mainnet : CBase58Data::Testnet);
-        rc += QString::fromStdString(legacy.ToString());
-    }
-    else {
-        CashAddress::Content c;
-        c.hash = std::vector<uint8_t>(m_address.begin(), m_address.end());
-        c.type = CashAddress::PUBKEY_TYPE;
-        rc += QString::fromStdString(CashAddress::encodeCashAddr(FloweePay::instance()->chainPrefix(), c));
-    }
-
+        return QString();
+    QString rc = address();
     bool separatorInserted = false; // the questionmark.
     if (m_amountRequested > 0) {
         // Amount is in whole BCHs

@@ -72,6 +72,7 @@ FocusScope {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: instructions.bottom
         anchors.topMargin: 20
+        width: parent.width
     }
 
     // the "payment received" screen.

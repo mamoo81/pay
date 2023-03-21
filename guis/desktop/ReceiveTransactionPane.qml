@@ -53,8 +53,9 @@ Pane {
 
     Flowee.QRWidget {
         id: qr
-        anchors.horizontalCenter: parent.horizontalCenter
+        width: Math.min(parent.width, 360)
         anchors.top: instructions.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 20
     }
 

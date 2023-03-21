@@ -152,9 +152,8 @@ Page {
             }
 
             Flowee.QRWidget {
-                id: bla
                 request: portfolio.current.createPaymentRequest(root)
-                x: (column.width - width) / 2
+                width: parent.width
             }
 
             Item { width: 1; height: 40 } // spacer

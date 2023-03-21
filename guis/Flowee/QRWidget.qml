@@ -18,54 +18,87 @@
 import QtQuick
 import Flowee.org.pay
 
-Image {
+Item {
     id: root
     property QtObject request: null
-
-    width: height
-    height: {
-        var h = parent.height - 220;
-        return Math.min(h, 256)
-    }
-    source: root.request == null ? "" : "image://qr/" + root.request.qr
-    smooth: false
+    property alias qrSize: qrImage.width
+    implicitWidth: qrImage.width
+    implicitHeight: qrImage.width + addressLine.height
     opacity: root.request == null || root.request.state === PaymentRequest.Unpaid ? 1: 0
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            Pay.copyToClipboard(root.request.qr)
-            // invert the feedback so a second tap removes the feedback again.
-            clipboardFeedback.opacity = clipboardFeedback.opacity == 0 ? 1 : 0
-        }
-    }
-
-    Rectangle {
-        id: clipboardFeedback
-        opacity: 0
-        width: feedbackText.width + 20
-        height: feedbackText.height + 14
-        radius: 10
-        color: Pay.useDarkSkin ? "#333" : "#ddd"
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: -8
+    Image {
+        id: qrImage
+        source: root.request == null ? "" : "image://qr/" + root.request.qr
+        smooth: false
+        width: 256 // exported at root level
+        height: width
         anchors.horizontalCenter: parent.horizontalCenter
 
-        Label {
-            id: feedbackText
-            x: 10
-            y: 10
-            text: qsTr("Copied to clipboard")
-            wrapMode: Text.WordWrap
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                Pay.copyToClipboard(root.request.qr)
+                // invert the feedback so a second tap removes the feedback again.
+                clipboardFeedback.opacity = clipboardFeedback.opacity == 0 ? 1 : 0
+            }
         }
 
-        Behavior on opacity { OpacityAnimator {} }
+        Rectangle {
+            id: clipboardFeedback
+            opacity: 0
+            width: feedbackText.width + 20
+            height: feedbackText.height + 14
+            radius: 10
+            color: Pay.useDarkSkin ? "#333" : "#ddd"
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: -8
+            anchors.horizontalCenter: parent.horizontalCenter
 
-        /// after 8 seconds, remove feedback.
-        Timer {
-            interval: 8000
-            running: clipboardFeedback.opacity >= 1
-            onTriggered: clipboardFeedback.opacity = 0
+            Label {
+                id: feedbackText
+                x: 10
+                y: 10
+                text: qsTr("Copied to clipboard")
+                wrapMode: Text.WordWrap
+            }
+
+            Behavior on opacity { OpacityAnimator {} }
+
+            /// after 8 seconds, remove feedback.
+            Timer {
+                interval: 8000
+                running: clipboardFeedback.opacity >= 1
+                onTriggered: clipboardFeedback.opacity = 0
+            }
+        }
+    }
+    Rectangle {
+        id: addressLine
+        width: parent.width
+        height: addressLabel.height + 10
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        radius: 6
+        color: palette.base
+        Label {
+            id: addressLabel
+            anchors.centerIn: parent
+            width: parent.width
+            text: {
+                if (root.request == null)
+                    return "";
+                var address = root.request.address
+                let index = address.indexOf(":");
+                if (index >= 0)
+                    address = address.substr(index + 1); // cut off the prefix
+                return address;
+            }
+            horizontalAlignment: Text.AlignHCenter
+
+            // font:
+            minimumPixelSize: 2 // min
+            font.pixelSize: 20 // max
+            fontSizeMode: Text.HorizontalFit // fit in width
         }
     }
 

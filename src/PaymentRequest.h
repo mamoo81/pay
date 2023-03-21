@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ class AccountInfo;
 class PaymentRequest : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString address READ address NOTIFY addressChanged)
     Q_PROPERTY(QString message READ message WRITE setMessage NOTIFY messageChanged)
     Q_PROPERTY(QString qr READ qrCodeString NOTIFY qrCodeStringChanged)
     Q_PROPERTY(double amount READ amountFP WRITE setAmountFP NOTIFY amountChanged)
@@ -111,6 +112,9 @@ public:
 
     void setWallet(Wallet *wallet);
 
+    QString address() const;
+    void setAddress(const QString &newAddress);
+
 signals:
     void messageChanged();
     void qrCodeStringChanged();
@@ -122,6 +126,8 @@ signals:
     void walletChanged();
     void storedChanged();
 
+    void addressChanged();
+
 private slots:
     void walletEncryptionChanged();
 
@@ -131,7 +137,6 @@ protected:
 
 private:
     void setPaymentState(PaymentState newState);
-
 
     Wallet *m_wallet;
     QString m_message;
