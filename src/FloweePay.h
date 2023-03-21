@@ -19,7 +19,6 @@
 #define FLOWEEPAY_H
 
 #include "NotificationManager.h"
-#include "PriceHistoryDataProvider.h"
 #include "WalletEnums.h"
 
 #include <QObject>
