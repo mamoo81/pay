@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick 2.11
-import QtQuick.Controls 2.11 as QQC2
-import "." as Flowee;
+import QtQuick
+import QtQuick.Controls as QQC2
 
 /*
  * This is a buttonbox that swaps button order based on platform defaults.
@@ -48,13 +47,12 @@ QQC2.DialogButtonBox {
     }
 
     alignment: Qt.AlignRight
-    delegate: Flowee.Button {
-            // Round because fractional width values are possible.
-            width: Math.round(Math.min(
+    delegate: Button {
+            width: Math.min(
                 implicitWidth,
                 // Divide availableWidth (width - leftPadding - rightPadding) by the number of buttons,
                 // then subtract the spacing between each button.
-                (root.availableWidth / root.count) - (root.spacing * (root.count-1))
+                (root.availableWidth / root.count) - (root.spacing * (root.count-1)
             ))
         }
 

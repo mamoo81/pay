@@ -18,7 +18,6 @@
 import QtQuick 2.11
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
-import "." as Flowee;
 
 QQC2.Popup {
     id: root
@@ -28,7 +27,7 @@ QQC2.Popup {
     property alias title: titleLabel.text
     property alias text: mainTextLabel.text
     property alias contentComponent: content.sourceComponent
-    property alias  standardButtons:  buttons.standardButtons
+    property alias standardButtons:  buttons.standardButtons
 
     function accept() {
         accepted();
@@ -54,6 +53,13 @@ QQC2.Popup {
         var local = parent.mapFromItem(null, globalX, globalY);
         x = local.x;
         y = local.y;
+    }
+
+    background: Rectangle {
+        color: palette.light
+        border.color: palette.midlight
+        border.width: 1
+        radius: 5
     }
 
     Column {
@@ -85,7 +91,6 @@ QQC2.Popup {
         }
         Label {
             id: mainTextLabel
-            // this next line will always create a binding loop. But its harmless, so ignore that comment.
             width: parent.width
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         }
@@ -93,7 +98,7 @@ QQC2.Popup {
             id: content
             width: parent.width
         }
-        Flowee.DialogButtonBox {
+        DialogButtonBox {
             id: buttons
             standardButtons: DialogButtonBox.Ok | DialogButtonBox.Cancel
             anchors.right: parent.right
