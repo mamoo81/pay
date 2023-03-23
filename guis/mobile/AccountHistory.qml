@@ -296,9 +296,11 @@ ListView {
             width: amount.width + 10
             height: amount.height + 8
             anchors.right: parent.right
-            anchors.bottom: Pay.activityShowsBch ? ruler.top : undefined
-            anchors.verticalCenter: Pay.activityShowsBch ? undefined : ruler.verticalCenter
-            anchors.bottomMargin: -4
+            y: {
+                if (Pay.activityShowsBch) // my bottom at parent verticalCenter
+                    return parent.height / 2 - height
+                return parent.height / 2 - height / 2 // i.e my verticalCenter = parent.verticalCenter
+            }
             anchors.rightMargin: 20
             radius: 6
             baselineOffset: amount.baselineOffset + 4 // 4 is half the spacing added at height:
