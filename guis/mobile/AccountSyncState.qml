@@ -16,13 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
-import "../Flowee" as Flowee
 import Flowee.org.pay;
-import QtQuick.Shapes // for shape-path
+import "../Flowee" as Flowee
 
 Item {
     id: root
-    height: indicator.height + 3 + (uptodate ? 0 : circleShape.height)
+    height: indicator.height + 3 + (uptodate ? 0 : progressbar.height + 10)
     property QtObject account: null
     property bool uptodate: false
     property int startPos: account.initialBlockHeight
@@ -46,51 +45,106 @@ Item {
         function onLastBlockSynchedChanged() { checkIfDone(); }
     }
 
-    // The 'progress' circle.
-    Shape {
-        id: circleShape
-
-        property int goalHeight: Pay.expectedChainHeight
+    // The progressbar
+    Rectangle {
+        id: progressbar
+        y: 10 // top spacing of widget, only when doing progress report
+        x: 10
+        width: parent.width - 20
+        height: 40 // percentLabel.height + 10
+        color: "#00000000"
+        border.width: 2
+        border.color: palette.midlight
+        radius: 10
         visible: !root.uptodate
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: 200
-        height: 100
-        antialiasing: true
-        smooth: true
-        ShapePath {
-            strokeColor: mainWindow.floweeBlue
-            strokeWidth: 3
-            fillColor: mainWindow.floweeGreen
-            startX: 0; startY: 100
 
-            PathAngleArc {
-                id: progressCircle
-                centerX: 100
-                centerY: 100
-                radiusX: 100; radiusY: 100
-                startAngle: -180
-                sweepAngle: {
-                    let end = circleShape.goalHeight;
-                    let startPos = root.startPos;
-                    if (startPos == 0)
-                        return 0;
-                    let currentPos = root.account.lastBlockSynched;
-                    let totalDistance = end - startPos;
-                    if (totalDistance <= 6)
-                        return 180; // uptodate
-                    let ourProgress = currentPos - startPos;
-                    return 180 * (ourProgress / totalDistance);
-                }
-                Behavior on sweepAngle {  NumberAnimation { duration: 50 } }
+        property double progress: {
+            let startPos = root.startPos;
+            let end = Pay.expectedChainHeight
+            if (startPos == 0)
+                return 0;
+            let currentPos = root.account.lastBlockSynched;
+            let totalDistance = end - startPos;
+            if (totalDistance <= 6)
+                return 100; // uptodate
+            let ourProgress = currentPos - startPos;
+            return ourProgress / totalDistance;
+        }
+
+        Rectangle {
+            width: Math.min(10, parent.width * parent.progress)
+            y: 2
+            height: parent.height - 4
+            color: palette.highlight
+            radius: 10
+        }
+
+        Rectangle {
+            id: bar
+            x: 5
+            y: 2
+            width: {
+                var full = progressbar.width;
+                var w = full * progressbar.progress
+                w = Math.min(w, full - 5) // the right max
+                w -= 5; // our X offset
+                Math.max(0, w);
             }
-            PathLine { x: 100; y: 100 }
-            PathLine { x: 0; y: 100 }
+            height: parent.height - 4
+            color: palette.highlight
+            clip: true
+            Flowee.Label {
+                id: percentLabel
+                text: (100 * progressbar.progress).toFixed(0) + "%"
+                y: 5
+                x: progressbar.width / 2 - 10 - width / 2
+                color: palette.highlightedText
+            }
+        }
+        Rectangle {
+            width: {
+                // just the last 10 pixels.
+                var full = progressbar.width;
+                return Math.max(0, full * progressbar.progress - (full - 10));
+            }
+            x: progressbar.width - 10
+            y: 2
+            height: parent.height - 4
+            color: palette.highlight
+            radius: 10
+        }
+        Rectangle {
+            id: groove
+            y: 2
+            height: parent.height - 4
+            color: palette.light
+            clip: true
+            x: {
+                var full = progressbar.width;
+                var distance = progressbar.progress * full;
+                distance = Math.min(distance, full - 5); // and right
+                distance = Math.max(5, distance); // avoid the left rounding area 
+                return distance;
+            }
+            width: {
+                var full = progressbar.width;
+                var w = full - progressbar.progress * full;
+                w -= 5;
+                w = Math.min(w, full - 10); // the rounded corners
+                return w;
+            }
+            Flowee.Label {
+                text: percentLabel.text
+                y: 5
+                x: progressbar.width / 2 - 5 - width / 2 - parent.x
+                // color: palette.highlightedText
+            }
         }
     }
     Flowee.Label {
         id: indicator
         width: parent.width
-        y: root.uptodate ? 0 : circleShape.height + 3
+        y: root.uptodate ? 0 : progressbar.height + 13
         wrapMode: Text.Wrap
         text: {
             if (isLoading)
