@@ -554,7 +554,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
         setUserOwnedWallet(true);
         emit utxosChanged();
         emit appendedTransactions(firstNewTransaction, transactionsToSave.size());
-        for (auto &tx : transactionsToSave) { // save the Tx to disk.
+        for (const auto &tx : transactionsToSave) { // save the Tx to disk.
             saveTransaction(tx);
         }
         emit startDelayedSave();
@@ -1370,9 +1370,10 @@ void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
     m_secretsChanged = true;
     saveSecrets();
 
-    if (currentBlockheight < 10000000)
-        // if its out of this range, likely its a timestamp (headers are not yet synched)
+    if (currentBlockheight < 10000000) {
+        // if that is false, its a timestamp: headers are not yet synched)
         rebuildBloom();
+    }
 }
 
 bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
@@ -1395,8 +1396,10 @@ bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
         m_secretsChanged = true;
         saveSecrets();
 
-        if (startBlockHeight < 10000000)
+        if (startBlockHeight < 10000000) {
+            // if that is false, its a timestamp: headers are not yet synched)
            rebuildBloom();
+        }
         return true;
     }
     logFatal() << "ERROR. Wallet: added string is not a private key";
