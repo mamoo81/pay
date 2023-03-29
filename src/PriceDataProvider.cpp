@@ -254,7 +254,7 @@ void PriceDataProvider::finishedDownload()
         m_timer.start(20 * 1000);
         return;
     }
-    logCritical() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
+    logCritical().nospace() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
     m_timer.start(ReloadTimeout);
 }
 
