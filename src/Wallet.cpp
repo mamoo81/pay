@@ -237,6 +237,7 @@ bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx, bool &upda
 
     if (needChangeAddresses + needMainAddresses > 0) {
         deriveHDKeys(needMainAddresses, needChangeAddresses);
+        updateBloom = false; // the deriveHDKeys just called rebuildBloom
         return true;
     }
     return false;
@@ -421,7 +422,6 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 // so we make sure we matched all we can
                 auto newWtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
                 wtx.outputs = newWtx.outputs;
-                needNewBloom = true;
             }
             wtx.minedBlock = header.createHash();
             wtx.minedBlockHeight = blockHeight;
