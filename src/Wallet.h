@@ -105,6 +105,9 @@ public:
     void newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions) override;
     // notify about unconfirmed Tx.
     void newTransaction(const Tx &tx) override;
+    void rebuildFilter() override {
+        rebuildBloom();
+    }
     /// Let the wallet know that it is up-to-date to \a height
     void setLastSynchedBlockHeight(int height) override;
     void headerSyncComplete() override;
