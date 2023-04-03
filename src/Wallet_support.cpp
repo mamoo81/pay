@@ -104,7 +104,7 @@ Wallet::OutputRef::OutputRef(uint64_t encoded)
     encoded >>= 16;
     assert(encoded < 0xFFFFFFFF);
     m_txid = encoded & 0x7FFFFFFF;
-    assert(m_txid >= 0);
+    assert(static_cast<int64_t>(m_txid) >= 0);
 }
 
 Wallet::OutputRef::OutputRef(int txIndex, int outputIndex)
