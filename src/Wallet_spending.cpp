@@ -78,7 +78,7 @@ int Wallet::scoreForSolution(const OutputSet &set, int64_t change, size_t unspen
                 ++foundFusionOutputs;
         }
         if (foundFusionOutputs)
-            logUtxo() << foundFusionOutputs << "fusion, out of" << set.outputs.size() << "outputs";
+            logUtxo(10002) << foundFusionOutputs << "fusion, out of" << set.outputs.size() << "outputs";
         if (foundFusionOutputs == 1 && set.outputs.size() == 1)
             score = 1001; // perfection
 
@@ -191,7 +191,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
 
     int scoreAdjust = scoreForSolution(bestSet, bestSet.totalSats - bestSet.fee - output,
                                   unspentOutputs.size());
-    logUtxo() << "Initial set, size:" << bestSet.outputs.size() << "paying" << bestSet.totalSats << "+"
+    logUtxo(10002) << "Initial set, size:" << bestSet.outputs.size() << "paying" << bestSet.totalSats << "+"
               << bestSet.fee << "fee, gives change of:" << bestSet.totalSats - bestSet.fee - output
               << "got score" << bestScore << "+" << scoreAdjust;
     bestScore += scoreAdjust;
@@ -214,17 +214,17 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
     if (current.totalSats - current.fee >= output) {
         scoreAdjust = scoreForSolution(current, current.totalSats - current.fee - output,
                                   unspentOutputs.size());
-        logUtxo() << "Size-based set, size:" << current.outputs.size() << "paying" << current.totalSats << "+"
+        logUtxo(10002) << "Size-based set, size:" << current.outputs.size() << "paying" << current.totalSats << "+"
                   << current.fee << "fee, gives change of:" << current.totalSats - current.fee - output
                   << "got score" << score << "+" << scoreAdjust;
         score += scoreAdjust;
 
         if (current.outputs.size() > MAX_INPUTS) {
-            logUtxo() << "  + Skipping due to too-many-inputs";
+            logUtxo(10002) << "  + Skipping due to too-many-inputs";
         }
         // compare with the cost of oldest to newest.
         else if (score > bestScore) {
-            logUtxo() << "  + New BEST";
+            logUtxo(10002) << "  + New BEST";
             bestScore = score;
             bestSet = current;
         }
@@ -251,18 +251,18 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
 
         scoreAdjust = scoreForSolution(current,
                                   (current.totalSats - current.fee) - output, unspentOutputs.size());
-        logUtxo() << "Random set, size:" << current.outputs.size() << "paying" << current.totalSats << "+"
+        logUtxo(10002) << "Random set, size:" << current.outputs.size() << "paying" << current.totalSats << "+"
                   << current.fee << "fee, gives change of:" << current.totalSats - current.fee - output
                   << "got score" << score << "+" << scoreAdjust;
         score += scoreAdjust;
         Q_ASSERT(current.totalSats - current.fee >= output);
         if (current.outputs.size() > MAX_INPUTS) {
-            logUtxo() << "  + Skipping due to too-many-inputs";
+            logUtxo(10002) << "  + Skipping due to too-many-inputs";
         }
         else if (score > bestScore
                  // or if the score is the same, prefer a smaller change
                  || (score == bestScore && current.totalSats < bestSet.totalSats)) {
-            logUtxo() << "  + New BEST";
+            logUtxo(10002) << "  + New BEST";
             bestScore = score;
             bestSet = current;
         }

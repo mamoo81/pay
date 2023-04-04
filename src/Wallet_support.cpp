@@ -139,7 +139,7 @@ WalletInfoObject::WalletInfoObject(Wallet *wallet, int txIndex, const Tx &tx)
 void WalletInfoObject::txRejected(RejectReason reason, const std::string &message)
 {
     // reason is hinted using BroadcastTxData::RejectReason
-    logCritical() << "Transaction rejected" << reason << message;
+    logCritical(LOG_WALLET) << "Transaction rejected" << reason << message;
     ++m_rejectedPeerCount;
 }
 
@@ -308,17 +308,17 @@ void Wallet::populateSigType()
 {
     const auto &txs = m_walletTransactions; // short alias for readability
 
-    logCritical().nospace() << "Upgrading wallet '" << m_name << "', Finding signature types from seen transactions";
+    logCritical(LOG_WALLET).nospace() << "Upgrading wallet '" << m_name << "', Finding signature types from seen transactions";
     // iterate though each private key
     for (auto s = m_walletSecrets.begin(); s != m_walletSecrets.end(); ++s) {
         auto &secret = s->second;
-        // logDebug() << "Secret" << s->first << "Hd:" << secret.fromHdWallet << secret.fromChangeChain << "index:" << secret.hdDerivationIndex;
+        // logDebug(LOG_WALLET) << "Secret" << s->first << "Hd:" << secret.fromHdWallet << secret.fromChangeChain << "index:" << secret.hdDerivationIndex;
         // iterate through transactions and outputs to find one that deposited funds there.
         for (auto t1 = txs.cbegin(); secret.signatureType == NotUsedYet && t1 != txs.cend(); ++t1) {
             const auto &tx1 = t1->second;
             for (auto o = tx1.outputs.cbegin(); secret.signatureType == NotUsedYet && o != tx1.outputs.cend(); ++o) {
                 if (o->second.walletSecretId == s->first) {
-                    // logDebug() << " Found an out for secret" << t1->first << o->first;
+                    // logDebug(LOG_WALLET) << " Found an out for secret" << t1->first << o->first;
                     const auto ref = OutputRef(t1->first, o->first).encoded();
                     // check UTXO, if still there, then its unspent.
                     // Unspent means no signature, so find another output to check.
@@ -331,12 +331,12 @@ void Wallet::populateSigType()
                         for (auto i = tx2.inputToWTX.cbegin(); i != tx2.inputToWTX.cend(); ++i) {
                             if (i->second == ref) {
                                 // found one, now fetch the input script and check the type.
-                                // logDebug() << "Found tx2 which spends output. Tx2:" << t2->first << i->first;
+                                // logDebug(LOG_WALLET) << "Found tx2 which spends output. Tx2:" << t2->first << i->first;
                                 Tx tx = loadTransaction(tx2.txid, Streaming::pool(0));
                                 Tx::Iterator txIter(tx);
                                 for (int x = i->first; x >= 0; --x) {
                                     if (txIter.next(Tx::TxInScript) != Tx::TxInScript) {
-                                        logCritical() << "Internal error; tx has too little inputs" << tx2.txid << i->first;
+                                        logCritical(LOG_WALLET) << "Internal error; tx has too little inputs" << tx2.txid << i->first;
                                         return;
                                     }
                                 }
@@ -346,7 +346,7 @@ void Wallet::populateSigType()
                                 opcodetype type;
                                 script.GetOp(scriptIter, type);
                                 secret.signatureType = type == 65 ? SignedAsSchnorr : SignedAsEcdsa;
-                                logInfo() << "Secret key" << s->first << "detected signature type from tx-out:"
+                                logInfo(LOG_WALLET) << "Secret key" << s->first << "detected signature type from tx-out:"
                                            << tx1.txid << o->first
                                            << "signed by tx-input:" << tx2.txid << i->first
                                            << "SigType:" << (type == 65 ? "SignedAsSchnorr" : "SignedAsEcdsa");
@@ -359,7 +359,7 @@ void Wallet::populateSigType()
             }
         }
     }
-    logCritical() << "Wallet upgrade finished";
+    logCritical(LOG_WALLET) << "Wallet upgrade finished";
 }
 
 

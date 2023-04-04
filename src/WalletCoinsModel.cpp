@@ -65,7 +65,7 @@ QVariant WalletCoinsModel::data(const QModelIndex &index, int role) const
 
     auto iter = m_rowsToOutputRefs.find(index.row());
     if (iter == m_rowsToOutputRefs.end()) {
-        logDebug() << "This looks wrong";
+        logDebug(LOG_WALLET) << "This looks wrong";
         return QVariant();
     }
     Wallet::OutputRef outRef(iter->second);

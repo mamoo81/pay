@@ -64,7 +64,7 @@ bool Wallet::parsePassword(const QString &password)
             Streaming::BufferPool pool(data.size());
             int newSize = crypto.decrypt(data.begin(), data.size(), pool.data());
             if (newSize == 0) {
-                logCritical() << "Reading (encrypted) secrets file failed";
+                logCritical(LOG_WALLET) << "Reading (encrypted) secrets file failed";
                 return false;
             }
             data = pool.commit(newSize);
@@ -109,7 +109,7 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
             throw std::runtime_error("Upgrading encryption requires you to decrypt first");
     }
     else if (!parsePassword(password)) {
-        logCritical() << "Decrypt failed, bad password";
+        logCritical(LOG_WALLET) << "Decrypt failed, bad password";
         return;
     }
     assert(m_haveEncryptionKey);
@@ -133,7 +133,7 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
             QFile reader(base + path);
             reader.open(QIODevice::ReadOnly);
             if (!reader.isOpen()) {
-                logDebug() << "Missing transaction file";
+                logDebug(LOG_WALLET) << "Missing transaction file";
                 continue;
             }
             auto &pool = Streaming::pool(reader.size());
@@ -161,7 +161,7 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
             QFile writer(newPath);
             writer.open(QIODevice::WriteOnly);
             if (!writer.isOpen()) {
-                logCritical() << "Could not write to" << newPath;
+                logCritical(LOG_WALLET) << "Could not write to" << newPath;
                 continue;
             }
             writer.write(newFile.begin(), newFile.size());
@@ -226,7 +226,7 @@ bool Wallet::decrypt(const QString &password)
 
     // set, and check password correctness
     if (!parsePassword(password)) {
-        logCritical() << "Decrypt() failed, bad password";
+        logCritical(LOG_WALLET) << "Decrypt() failed, bad password";
         return false;
     }
     assert(m_haveEncryptionKey);

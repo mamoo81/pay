@@ -76,7 +76,7 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint3
             in.close();
         }
     } catch (const std::exception &e) {
-        logInfo() << "Failed to read a wallet-name file" << e;
+        logInfo(LOG_WALLET) << "Failed to read a wallet-name file" << e;
     }
 
     loadSecrets();
@@ -114,7 +114,7 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
     int inputIndex = -1;
     int outputIndex = -1;
     Output output;
-    logDebug() << "new tx." << wtx.txid;
+    logDebug(LOG_WALLET) << "new tx." << wtx.txid;
     Tx::Iterator iter(tx);
     while (iter.next() != Tx::End) {
         if (iter.tag() == Tx::PrevTxHash) {
@@ -125,7 +125,7 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                 auto i = m_txidCache.find(prevTxhash);
                 prevTx.setTxIndex((i != m_txidCache.end()) ? i->second : 0);
                 if (i != m_txidCache.end())
-                    logDebug() << "  Input:" << inputIndex << "prevTx:" << prevTxhash
+                    logDebug(LOG_WALLET) << "  Input:" << inputIndex << "prevTx:" << prevTxhash
                                << Log::Hex << i->second << prevTx.encoded();
             }
         } else  if (iter.tag() == Tx::PrevTxIndex) {
@@ -135,7 +135,7 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                 auto utxo = m_unspentOutputs.find(prevTx.encoded());
                 if (utxo != m_unspentOutputs.end()) {
                     // input is spending one of our UTXOs
-                    logDebug() << "   -> spent UTXO";
+                    logDebug(LOG_WALLET) << "   -> spent UTXO";
                     wtx.inputToWTX.insert(std::make_pair(inputIndex, prevTx.encoded()));
                     if (notifier)
                         notifier->spent += utxo->second;
@@ -170,7 +170,7 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
         else if (iter.tag() == Tx::OutputScript) {
             output.walletSecretId = findSecretFor(iter.byteData());
             if (output.walletSecretId > 0) {
-                logDebug() << "   output"<< outputIndex << "pays to wallet id" << output.walletSecretId;
+                logDebug(LOG_WALLET) << "   output"<< outputIndex << "pays to wallet id" << output.walletSecretId;
                 wtx.outputs.insert(std::make_pair(outputIndex, output));
                 if (notifier)
                     notifier->deposited += output.value;
@@ -185,7 +185,7 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
                         && bytes[3] == 0x55  // 'U'
                         && bytes[4] == 0x5a  // 'Z'
                         && bytes[5] == 0) {
-                    logDebug() << "Transaction" << txid << "is a Cash_Fusion transaction.";
+                    logDebug(LOG_WALLET) << "Transaction" << txid << "is a Cash_Fusion transaction.";
                     wtx.isCashFusionTx = true;
                 }
             }
@@ -256,13 +256,13 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
             --mainChain;
             secret.hdDerivationIndex = ++m_hdData->lastMainKey;
             m_hdData->derivationPath[count - 2] = 0;
-            logDebug() << "Creating new private key. Derivation: 0," << secret.hdDerivationIndex;
+            logDebug(LOG_WALLET) << "Creating new private key. Derivation: 0," << secret.hdDerivationIndex;
         } else {
             assert(changeChain > 0);
             --changeChain;
             secret.fromChangeChain = true;
             secret.hdDerivationIndex = ++m_hdData->lastChangeKey;
-            logDebug() << "Creating new private key for change chain:" << secret.hdDerivationIndex;
+            logDebug(LOG_WALLET) << "Creating new private key for change chain:" << secret.hdDerivationIndex;
             m_hdData->derivationPath[count - 2] = 1;
         }
         m_hdData->derivationPath[count - 1] = secret.hdDerivationIndex;
@@ -349,7 +349,7 @@ void Wallet::newTransaction(const Tx &tx)
             uint64_t key = m_nextWalletTransactionId;
             key <<= 16;
             key += i->first;
-            logDebug() << "   inserting output"<< i->first << Log::Hex << "TxIndex:" << i->second.walletSecretId << "outRef:" << key;
+            logDebug(LOG_WALLET) << "   inserting output"<< i->first << Log::Hex << "TxIndex:" << i->second.walletSecretId << "outRef:" << key;
             m_unspentOutputs.insert(std::make_pair(key, i->second.value));
 
             const int privKeyId = i->second.walletSecretId;
@@ -366,7 +366,7 @@ void Wallet::newTransaction(const Tx &tx)
         m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
         m_walletChanged = true;
 
-        logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "[unconfirmed]";
+        logCritical(LOG_WALLET) << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "[unconfirmed]";
     } // mutex scope
     saveTransaction(tx);
     recalculateBalance();
@@ -461,7 +461,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
             for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
                 auto key = OutputRef(m_nextWalletTransactionId, i->first).encoded();
                 if (!wasUnconfirmed) { // unconfirmed transactions already had their outputs added
-                    logDebug() << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
+                    logDebug(LOG_WALLET) << "   inserting output"<< i->first << Log::Hex << i->second.walletSecretId << key;
                     m_unspentOutputs.insert(std::make_pair(key, i->second.value));
                     if (!m_singleAddressWallet && i->second.value == 547) {
                         // special case so-called 'spam' outputs and instantly lock it for privacy reasons
@@ -512,7 +512,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
             }
             m_walletChanged = true;
 
-            logCritical() << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "@" << blockHeight;
+            logCritical(LOG_WALLET) << "Wallet" << m_segment->segmentId() << "claims" << tx.createHash() << "@" << blockHeight;
             if (wasUnconfirmed)
                 emit transactionConfirmed(walletTransactionId);
             if (notification.blockHeight > 0) {
@@ -528,7 +528,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
         for (auto ejectedTx : ejectedTransactions) {
             auto tx = m_walletTransactions.find(ejectedTx);
             Q_ASSERT(tx != m_walletTransactions.end());
-            logDebug() << "Confirmed transaction(s) in block" << blockHeight <<
+            logDebug(LOG_WALLET) << "Confirmed transaction(s) in block" << blockHeight <<
                           "made invalid transaction:" << ejectedTx << tx->second.txid;
             auto &wtx = tx->second;
             wtx.minedBlockHeight = WalletPriv::Rejected;
@@ -601,7 +601,7 @@ void Wallet::saveTransaction(const Tx &tx)
         txSaver.open((localdir + filename).toStdString());
         txSaver.write(data.begin(), data.size());
     } catch (const std::exception &e) {
-        logFatal() << "Could not store transaction" << e.what();
+        logFatal(LOG_WALLET) << "Could not store transaction" << e.what();
         throw;
     }
 }
@@ -672,7 +672,7 @@ void Wallet::setTransactionComment(const Tx &transaction, const QString &comment
         }
     }
     else {
-        logCritical() << "Comment added to not known transaction";
+        logCritical(LOG_WALLET) << "Comment added to not known transaction";
     }
 }
 
@@ -762,7 +762,7 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
 {
     assert(m_hdData.get() == nullptr);
     if (m_hdData.get()) {
-        logFatal() << "Refusing to replace HDMasterkey with new one";
+        logFatal(LOG_WALLET) << "Refusing to replace HDMasterkey with new one";
         return;
     }
     // we only convert here in order to be 100% certain that the input from the user is
@@ -953,7 +953,7 @@ void Wallet::rebuildBloom()
     // yet at the tip of the headerchain, which makes sending out a bloom filter irrelevant.
     for (const auto &i : m_walletSecrets) {
         if (i.second.initialHeight >= 10000000) {
-            logDebug() << " not building bloom, still have date based private keys";
+            logDebug(LOG_WALLET) << " not building bloom, still have date based private keys";
             return;
         }
     }
@@ -979,7 +979,7 @@ void Wallet::rebuildBloom()
             }
         }
     }
-    logDebug() << "Rebuilding bloom filter. UTXO-size:" << secretsWithBalance.size();
+    logDebug(LOG_WALLET) << "Rebuilding bloom filter. UTXO-size:" << secretsWithBalance.size();
     for (auto &i : m_walletSecrets) {
         const auto &secret = i.second;
         assert(secret.initialHeight < 10000000); // see similar check at start of this method
@@ -1051,7 +1051,7 @@ void Wallet::broadcastTxFinished(int txIndex, bool success)
             if (!success) {
                 auto wtx = m_walletTransactions.find(txIndex);
                 if (wtx != m_walletTransactions.end()) {
-                    logCritical() << "Marking transaction invalid";
+                    logCritical(LOG_WALLET) << "Marking transaction invalid";
                     auto &tx = wtx->second;
                     if (tx.minedBlockHeight == WalletPriv::Unconfirmed) {
                         // a transaction that has been added before, but now marked
@@ -1077,7 +1077,7 @@ void Wallet::broadcastTxFinished(int txIndex, bool success)
                     }
                     else {
                         assert(false); // Can't imagine the usecase, so if this hits in a debug build lets fail-fast
-                        logWarning() << "Transaction marked rejected that had blockHeight:" << tx.minedBlockHeight;
+                        logWarning(LOG_WALLET) << "Transaction marked rejected that had blockHeight:" << tx.minedBlockHeight;
                     }
                     tx.minedBlockHeight = WalletPriv::Rejected;
                 }
@@ -1337,12 +1337,12 @@ void Wallet::broadcastUnconfirmed()
             if (tx.data().size() > 64) {
                 auto bc = std::make_shared<WalletInfoObject>(this, iter->first, tx);
                 bc->moveToThread(thread());
-                logDebug() << "  broadcasting transaction" << tx.createHash() << tx.size();
+                logDebug(LOG_WALLET) << "  broadcasting transaction" << tx.createHash() << tx.size();
                 m_broadcastingTransactions.append(bc);
                 FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(bc);
             }
             else {
-                logCritical() << "Unconfirmed transaction could not be found on disk!";
+                logCritical(LOG_WALLET) << "Unconfirmed transaction could not be found on disk!";
             }
         }
     }
@@ -1409,7 +1409,7 @@ bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
         }
         return true;
     }
-    logFatal() << "ERROR. Wallet: added string is not a private key";
+    logFatal(LOG_WALLET) << "ERROR. Wallet: added string is not a private key";
     return false;
 }
 
@@ -1451,7 +1451,7 @@ void Wallet::loadSecrets()
             Streaming::BufferPool pool(fileData.size());
             int newSize = crypto.decrypt(fileData.begin(), fileData.size(), pool.data());
             if (newSize == 0) {
-                logCritical() << "Reading (encrypted) secrets file failed";
+                logCritical(LOG_WALLET) << "Reading (encrypted) secrets file failed";
                 return;
             }
             fileData = pool.commit(newSize);
@@ -1477,7 +1477,7 @@ void Wallet::loadSecrets()
                 memcpy(c.hash.data(), secret.address.begin(), 20);
                 c.type = CashAddress::PUBKEY_TYPE;
                 auto ad = CashAddress::encodeCashAddr("bitcoincash", c);
-                logCritical() << "Loaded" << index << ad;
+                logCritical(LOG_WALLET) << "Loaded" << index << ad;
 #endif
             }
             secret = WalletSecret();
@@ -1558,7 +1558,7 @@ void Wallet::loadSecrets()
 
     assert(m_hdData.get() == nullptr);
     if ((xpub.empty() && mnemonic.isEmpty()) != derivationPath.empty())
-        logFatal() << "Found incomplete data for HD wallet";
+        logFatal(LOG_WALLET) << "Found incomplete data for HD wallet";
     else if (!mnemonic.isEmpty())
         m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, derivationPath, mnemonicPwd));
     else if (!xpub.empty())
@@ -1663,7 +1663,7 @@ void Wallet::saveSecrets()
         outFile.close();
         boost::filesystem::rename(m_basedir / "secrets.dat~", m_basedir / "secrets.dat");
     } catch (const std::exception &e) {
-        logFatal() << "Failed to save the database. Reason:" << e.what();
+        logFatal(LOG_WALLET) << "Failed to save the database. Reason:" << e.what();
     }
     m_secretsChanged = false;
 }
@@ -1697,7 +1697,7 @@ void Wallet::loadWallet()
         pool.reserve(dataSize);
         dataSize = crypto.decrypt(data.begin(), data.size(), pool.data());
         if (dataSize == 0) {
-            logCritical() << "Reading (encrypted) wallet.dat file failed";
+            logCritical(LOG_WALLET) << "Reading (encrypted) wallet.dat file failed";
             return;
         }
     }
@@ -1727,16 +1727,16 @@ void Wallet::loadWallet()
             newTx.insert(index);
 
 #ifdef DEBUGUTXO
-            logFatal() << "Wallet has tx: " << wtx.txid << "@" << wtx.minedBlockHeight;
+            logFatal(LOG_WALLET) << "Wallet has tx: " << wtx.txid << "@" << wtx.minedBlockHeight;
             for (auto pair : wtx.outputs) {
-                logFatal() << "  ++ " << pair.first << pair.second.value << "sat";
+                logFatal(LOG_WALLET) << "  ++ " << pair.first << pair.second.value << "sat";
             }
             for (auto pair : wtx.inputToWTX) {
                 OutputRef ref(pair.second);
-                logFatal() << "  -- " << pair.first << ref.txIndex() << ref.outputIndex();
+                logFatal(LOG_WALLET) << "  -- " << pair.first << ref.txIndex() << ref.outputIndex();
                 auto w = m_walletTransactions.find(ref.txIndex());
                 if (w != m_walletTransactions.end())
-                    logFatal() << "     " << w->second.txid;
+                    logFatal(LOG_WALLET) << "     " << w->second.txid;
             }
 #endif
 
@@ -1853,7 +1853,7 @@ void Wallet::loadWallet()
             if (i != m_walletSecrets.end()) {
                 i->second.reserved = true;
             } else {
-                logFatal() << "PaymentRequest refers to non-existing wallet-secret!";
+                logFatal(LOG_WALLET) << "PaymentRequest refers to non-existing wallet-secret!";
             }
         }
         else if (parser.tag() == WalletPriv::PaymentRequestMessage) {
@@ -1917,11 +1917,11 @@ void Wallet::loadWallet()
         auto out = utxo->second.outputs.find(ref.outputIndex());
         assert(out != utxo->second.outputs.end());
         assert(out->second.value == output.second);
-        logFatal() << "Unspent: " << utxo->second.txid << ref.outputIndex() << "\t->" << out->second.value << "sats";
+        logFatal(LOG_WALLET) << "Unspent: " << utxo->second.txid << ref.outputIndex() << "\t->" << out->second.value << "sats";
 
         auto locked = m_lockedOutputs.find(ref.encoded());
         if (locked != m_lockedOutputs.end()) {
-            logFatal() << "      \\=  Locked UTXO" << locked->second;
+            logFatal(LOG_WALLET) << "      \\=  Locked UTXO" << locked->second;
         }
     }
 #endif
@@ -1963,7 +1963,7 @@ void Wallet::loadWallet()
     for (auto i = m_lockedOutputs.begin(); i != m_lockedOutputs.end();) {
         auto utxoIter = m_unspentOutputs.find(i->first);
         if (utxoIter == m_unspentOutputs.end()) {
-            logCritical() << "Found faulty 'locked' output-ref, dropping";
+            logCritical(LOG_WALLET) << "Found faulty 'locked' output-ref, dropping";
             i = m_lockedOutputs.erase(i); // this should never happen, cleanup
             m_walletChanged = true;
         } else {
@@ -1992,7 +1992,7 @@ void Wallet::saveWallet()
             boost::filesystem::rename(m_basedir / "name~", m_basedir / "name");
             m_walletNameChanged = false;
         } catch (const std::exception &e) {
-            logFatal() << "Failed to save the wallet-name. Reason:" << e;
+            logFatal(LOG_WALLET) << "Failed to save the wallet-name. Reason:" << e;
         }
     }
     if (!m_walletChanged) {
@@ -2005,7 +2005,7 @@ void Wallet::saveWallet()
     }
 
     if (m_encryptionLevel == FullyEncrypted && !m_haveEncryptionKey) {
-        logFatal() << "Wallet" << m_name << (m_walletChanged ? "was changed" : "has changed payment requests")
+        logFatal(LOG_WALLET) << "Wallet" << m_name << (m_walletChanged ? "was changed" : "has changed payment requests")
                    << "We can't save it since its fully encrypted and not open right now";
         throw std::runtime_error("Can not save a pin to open wallet that is closed.");
     }
@@ -2096,14 +2096,14 @@ void Wallet::saveWallet()
             int size = crypto.encrypt(data.begin(), data.size(), pool.data());
             data = pool.commit(size);
         }
-        
+
         std::ofstream outFile((m_basedir / "wallet.dat~").string());
         outFile.write(data.begin(), data.size());
         outFile.flush();
         outFile.close();
         boost::filesystem::rename(m_basedir / "wallet.dat~", m_basedir / "wallet.dat");
     } catch (const std::exception &e) {
-        logFatal() << "Failed to save the wallet.dat. Reason:" << e;
+        logFatal(LOG_WALLET) << "Failed to save the wallet.dat. Reason:" << e;
     }
     m_walletChanged = false;
 }
