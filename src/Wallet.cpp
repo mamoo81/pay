@@ -333,6 +333,7 @@ void Wallet::newTransaction(const Tx &tx)
             // so we make sure we matched all we can
             auto newWtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
             wtx.outputs = newWtx.outputs;
+            wtx.userComment = newWtx.userComment;
             createdNewKeys = true;
         }
 
@@ -429,6 +430,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
                 // so we make sure we matched all we can
                 auto newWtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
                 wtx.outputs = newWtx.outputs;
+                wtx.userComment = newWtx.userComment;
             }
             wtx.minedBlock = blockId;
             wtx.minedBlockHeight = blockHeight;
