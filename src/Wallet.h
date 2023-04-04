@@ -37,6 +37,7 @@
 class WalletInfoObject;
 class TransactionInfo;
 class PaymentRequest;
+struct WalletInsertBeforeData; // private wallet data struct.
 
 namespace P2PNet {
 struct Notification;
@@ -102,7 +103,7 @@ public:
      * @param blockHeight the blockheight we know the header under.
      * @param blockTransactions The actual transactions.
      */
-    void newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions) override;
+    void newTransactions(const uint256 &blockId, int blockHeight, const std::deque<Tx> &blockTransactions) override;
     // notify about unconfirmed Tx.
     void newTransaction(const Tx &tx) override;
     void rebuildFilter() override {
@@ -501,6 +502,23 @@ private:
      * pool.reserve() is called by this method with the actual tx size.
      */
     Tx loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) const;
+
+    struct InsertBeforeData
+    {
+        InsertBeforeData(Wallet *wallet);
+        // on destructor we re-insert the transactions.
+        ~InsertBeforeData();
+        std::vector<WalletTransaction> transactions;
+        Wallet *parent;
+    };
+    bool m_inInsertBeforeCallback = false;
+
+    /*
+     * Our UTXO based system requires interpretation of state based on explicit ordering.
+     * So if we get something inserted out-of-order we're going to rollback the ones we already
+     * have AFTER the header and re-apply them in the destructor of the InsertBeforeData struct.
+     */
+    InsertBeforeData removeTransactionsAfter(int blockHeight);
 
     /// helper method to upgrade older wallets and find the sigType from transactions to populate the field in walletSecrets.
     /// Returns true if any changes were made.

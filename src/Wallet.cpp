@@ -379,15 +379,22 @@ void Wallet::newTransaction(const Tx &tx)
         rebuildBloom();
 }
 
-void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const std::deque<Tx> &blockTransactions)
+void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std::deque<Tx> &blockTransactions)
 {
     auto transactions = WalletPriv::sortTransactions(blockTransactions);
     std::deque<Tx> transactionsToSave;
-    std::set<int> ejectedTransactions;
     int firstNewTransaction;
     bool needNewBloom = false;
     {
         QMutexLocker locker(&m_lock);
+        std::set<int> ejectedTransactions;
+        /*
+         * Our UTXO based system requires interpretation of state based on explicit ordering.
+         * So if we get something inserted out-of-order we're going to rollback the ones we already
+         * have AFTER this and re-apply them later.
+         */
+        const auto insertBeforeData = removeTransactionsAfter(blockHeight - 1); // remove them for this block too!
+
         firstNewTransaction = m_nextWalletTransactionId;
         for (auto &tx: transactions) {
             const uint256 txid = tx.createHash();
@@ -423,7 +430,7 @@ void Wallet::newTransactions(const BlockHeader &header, int blockHeight, const s
                 auto newWtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
                 wtx.outputs = newWtx.outputs;
             }
-            wtx.minedBlock = header.createHash();
+            wtx.minedBlock = blockId;
             wtx.minedBlockHeight = blockHeight;
 
             // Remember the signature type used for specific private keys

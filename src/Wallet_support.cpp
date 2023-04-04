@@ -361,3 +361,107 @@ void Wallet::populateSigType()
     }
     logCritical() << "Wallet upgrade finished";
 }
+
+
+// //////////////////////////////////////////////////
+
+Wallet::InsertBeforeData::InsertBeforeData(Wallet *wallet)
+    : parent(wallet)
+{
+}
+
+Wallet::InsertBeforeData::~InsertBeforeData()
+{
+    if (transactions.empty())
+        return;
+
+    // we proceed to call 'addTransactions' for each block
+    parent->m_inInsertBeforeCallback = true;
+    int blockHeight = 0;
+    uint256 blockId;
+    std::deque<Tx> list;
+    for (auto wtx = transactions.rbegin(); wtx != transactions.rend(); ++wtx) {
+        if (wtx->minedBlockHeight != blockHeight) {
+            if (!list.empty())
+                parent->newTransactions(blockId, blockHeight, list);
+            blockId = wtx->minedBlock;
+            blockHeight = wtx->minedBlockHeight;
+            list = std::deque<Tx>();
+        }
+
+        // we need to re-load the tx from disk
+        auto tx = parent->loadTransaction(wtx->txid, Streaming::pool(0));
+        assert(tx.isValid());
+        list.push_back(tx);
+    }
+    if (!list.empty())
+        parent->newTransactions(blockId, blockHeight, list);
+    parent->m_inInsertBeforeCallback = true;
+}
+
+Wallet::InsertBeforeData Wallet::removeTransactionsAfter(int blockHeight)
+{
+    InsertBeforeData ibd(this);
+    if (m_inInsertBeforeCallback)
+        return ibd;
+
+    int lastToRemove = m_nextWalletTransactionId;
+    int txIndex = -1;
+    assert(m_walletTransactions.find(lastToRemove) == m_walletTransactions.end());
+    for (auto i = m_walletTransactions.rbegin(); i != m_walletTransactions.rend(); ++i) { // backwards iterator
+        if (i->second.minedBlockHeight <= blockHeight) {
+            // avoid walking the entire chain, since they are in-order we can just abort here.
+            break;
+        }
+        lastToRemove = i->first;
+        if (txIndex == -1) // remember first to remove.
+            txIndex = i->first;
+    }
+    assert (lastToRemove <= m_nextWalletTransactionId);
+
+    // we do this in two loops because a map reverse iterator doesn't have a matching 'erase'
+    // method.
+    // Using the 'key' in the next loop instead.
+
+    while (txIndex >= lastToRemove) {
+        auto i = m_walletTransactions.find(txIndex--);
+        assert (i != m_walletTransactions.end());
+        // this transaction was appended to the UTXO and now something has
+        // to be inserted before, which may alter the UTXO to such an extend that THIS
+        // transaction may be found to spend more outputs.
+        //
+        // first, re-add the utxo's that were removed in initial add.
+        const auto &wtx = i->second;
+        for (auto input : wtx.inputToWTX) {
+            OutputRef ref(input.second);
+            // the unspent outputs struct holds the value, which means we need to look that up again.
+            auto prev = m_walletTransactions.find(ref.txIndex());
+            assert(prev != m_walletTransactions.end());
+            const auto &outputs = prev->second.outputs;
+            auto prevOut = outputs.find(ref.outputIndex());
+            assert(prevOut != outputs.end());
+            m_unspentOutputs.insert(std::make_pair(input.second, prevOut->second.value));
+        }
+
+        // second, remove the UTXOs this transaction added.
+        for (auto o = wtx.outputs.begin(); o != wtx.outputs.end(); ++o) {
+            const auto key = OutputRef(i->first, o->first).encoded();
+            auto utxo = m_unspentOutputs.find(key);
+            assert(utxo != m_unspentOutputs.end());
+            m_unspentOutputs.erase(utxo);
+
+            // things like coinbases may get a lock record, lets remove one if it exists.
+            auto lock = m_lockedOutputs.find(key);
+            if (lock != m_lockedOutputs.end()) {
+                m_lockedOutputs.erase(lock);
+            }
+        }
+
+        ibd.transactions.push_back(i->second);
+        m_walletTransactions.erase(i);
+        auto txidIter = m_txidCache.find(wtx.txid);
+        assert(txidIter != m_txidCache.end());
+        m_txidCache.erase(txidIter);
+    }
+    return ibd;
+}

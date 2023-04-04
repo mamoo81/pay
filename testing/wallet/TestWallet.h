@@ -29,21 +29,20 @@ struct ECC_State {
     ~ECC_State() { ECC_Stop(); }
 };
 
-struct MockBlockHeader : public BlockHeader
-{
-    MockBlockHeader();
-};
-
 class MockWallet;
 
 class TestWallet : public QObject
 {
     Q_OBJECT
+public:
+    TestWallet();
+
 private slots:
     void cleanup(); // called after each testcase.
     void testRef();
     void transactionOrdering();
     void addingTransactions();
+    void addingTransactions2();
     void lockingOutputs();
     void testSpam();
     void saveTransaction();
@@ -62,6 +61,7 @@ private:
     std::unique_ptr<MockWallet> openWallet(uint32_t encryptionSeed = 0);
     QString m_dir;
     const ECC_State m_state;
+    const uint256 dummyBlockId;
 };
 
 #endif
