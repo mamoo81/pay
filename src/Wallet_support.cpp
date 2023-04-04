@@ -382,8 +382,10 @@ Wallet::InsertBeforeData::~InsertBeforeData()
     std::deque<Tx> list;
     for (auto wtx = transactions.rbegin(); wtx != transactions.rend(); ++wtx) {
         if (wtx->minedBlockHeight != blockHeight) {
-            if (!list.empty())
+            if (!list.empty()) {
+                logDebug(LOG_WALLET) << "   +- combining" << list.size() << "tx. Height:" << blockHeight << "blockId:" << blockId;
                 parent->newTransactions(blockId, blockHeight, list);
+            }
             blockId = wtx->minedBlock;
             blockHeight = wtx->minedBlockHeight;
             list = std::deque<Tx>();
@@ -393,9 +395,12 @@ Wallet::InsertBeforeData::~InsertBeforeData()
         auto tx = parent->loadTransaction(wtx->txid, Streaming::pool(0));
         assert(tx.isValid());
         list.push_back(tx);
+        logDebug(LOG_WALLET) << "Re-applying tx:" << wtx->txid;
     }
-    if (!list.empty())
+    if (!list.empty()) {
+        logDebug(LOG_WALLET) << "   +- combining" << list.size() << "tx. Height:" << blockHeight << "blockId:" << blockId;
         parent->newTransactions(blockId, blockHeight, list);
+    }
     parent->m_inInsertBeforeCallback = true;
 }
 
@@ -462,6 +467,7 @@ Wallet::InsertBeforeData Wallet::removeTransactionsAfter(int blockHeight)
         auto txidIter = m_txidCache.find(wtx.txid);
         assert(txidIter != m_txidCache.end());
         m_txidCache.erase(txidIter);
+        logDebug(LOG_WALLET) << "Rolling back tx:" << wtx.txid << wtx.minedBlockHeight;
     }
     return ibd;
 }
