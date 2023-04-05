@@ -101,6 +101,7 @@ protected:
 
 protected slots:
     void appendTransactions(int firstNew, int count);
+    void removeTransaction(int txIndex);
     void transactionChanged(int txIndex);
     void createMap();
 

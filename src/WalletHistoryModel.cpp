@@ -102,6 +102,7 @@ WalletHistoryModel::WalletHistoryModel(Wallet *wallet, QObject *parent)
     connect(wallet, SIGNAL(appendedTransactions(int,int)), SLOT(appendTransactions(int,int)), Qt::QueuedConnection);
     connect(wallet, SIGNAL(transactionConfirmed(int)), SLOT(transactionChanged(int)), Qt::QueuedConnection);
     connect(wallet, SIGNAL(transactionChanged(int)), SLOT(transactionChanged(int)), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(transactionRemoved(int)), SLOT(removeTransaction(int)), Qt::QueuedConnection);
 }
 
 int WalletHistoryModel::rowCount(const QModelIndex &parent) const
@@ -124,8 +125,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
     const int txIndex = txIndexFromRow(index.row());
     // logDebug() << " getting" << index.row() << "=>" << txIndex;
     auto itemIter = m_wallet->m_walletTransactions.find(txIndex);
-    assert(itemIter != m_wallet->m_walletTransactions.end());
-    if (itemIter == m_wallet->m_walletTransactions.end())
+    if (itemIter == m_wallet->m_walletTransactions.end()) // the wallet changed, we're probably waiting for a queued connection
         return QVariant();
     const auto &item = itemIter->second;
     switch (role) {
@@ -298,6 +298,17 @@ void WalletHistoryModel::appendTransactions(int firstNew, int count)
     else {
         m_rowsSilentlyInserted += insertedCount;
     }
+}
+
+void WalletHistoryModel::removeTransaction(int txIndex)
+{
+    const int index = m_rowsProxy.indexOf(txIndex);
+    int row = m_rowsProxy.size() - index - 1;
+    m_rowsProxy.removeAt(index);
+    if (m_rowsSilentlyInserted > 0)
+        row -= m_rowsSilentlyInserted;
+    beginRemoveRows(QModelIndex(), row, row);
+    endRemoveRows();
 }
 
 void WalletHistoryModel::transactionChanged(int txIndex)

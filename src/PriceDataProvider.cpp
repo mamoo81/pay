@@ -24,6 +24,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStringBuilder>
+#include <cmath>
 
 // CoinGecko
 static const char *CoinGeckoURL = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=%1";
@@ -101,6 +102,8 @@ QString PriceDataProvider::formattedPrice(double amountSats, int price) const
 
 int PriceDataProvider::priceFor(double amountSats, int price) const
 {
+    if (std::isnan(amountSats))
+        return 0;
     qint64 fiatValue = amountSats * price;
     fiatValue = (fiatValue + (amountSats > 0 ? 50000000: -50000000)) / qint64(100000000);
     assert(fiatValue < INT_MAX);

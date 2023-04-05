@@ -462,6 +462,7 @@ Wallet::InsertBeforeData Wallet::removeTransactionsAfter(int blockHeight)
             }
         }
 
+        ibd.oldTransactionIds.insert(i->first);
         ibd.transactions.push_back(i->second);
         m_walletTransactions.erase(i);
         auto txidIter = m_txidCache.find(wtx.txid);

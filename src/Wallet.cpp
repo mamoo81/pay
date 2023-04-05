@@ -402,6 +402,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
     auto transactions = WalletPriv::sortTransactions(blockTransactions);
     std::deque<Tx> transactionsToSave;
     int firstNewTransaction;
+    std::set<int> removedTransactionIds;
     bool needNewBloom = false;
     {
         QMutexLocker locker(&m_lock);
@@ -412,6 +413,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
          * have AFTER this and re-apply them later.
          */
         const auto insertBeforeData = removeTransactionsAfter(blockHeight - 1); // remove them for this block too!
+        removedTransactionIds = insertBeforeData.oldTransactionIds;
 
         firstNewTransaction = m_nextWalletTransactionId;
         for (auto &tx: transactions) {
@@ -576,6 +578,12 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
             }
         }
     } // mutex scope
+
+    // the 'insert before' concept simply deletes and re-inserts, let
+    // users know old transaction IDs no longer exist.
+    for (auto id : removedTransactionIds) {
+        emit transactionRemoved(id);
+    }
 
     if (!transactionsToSave.empty()) {
         setUserOwnedWallet(true);
@@ -916,7 +924,7 @@ void Wallet::addPaymentRequest(PaymentRequest *pr)
 void Wallet::removePaymentRequest(PaymentRequest *pr)
 {
     QMutexLocker locker(&m_lock);
-    for (auto prData = m_paymentRequests.begin(); prData != m_paymentRequests.end(); ++prData) {
+    for (auto prData = m_paymentRequests.cbegin(); prData != m_paymentRequests.cend(); ++prData) {
         if (prData->pr == pr) {
             if (prData->saved)
                 m_walletChanged = true;

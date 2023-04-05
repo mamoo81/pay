@@ -380,6 +380,7 @@ signals:
     void userOwnedChanged();
     void transactionChanged(int txIndex);
     void transactionConfirmed(int txIndex);
+    void transactionRemoved(int txIndex);
     void encryptionChanged();
 
     // \internal
@@ -509,6 +510,7 @@ private:
         // on destructor we re-insert the transactions.
         ~InsertBeforeData();
         std::vector<WalletTransaction> transactions;
+        std::set<int> oldTransactionIds;
         Wallet *parent;
     };
     bool m_inInsertBeforeCallback = false;
