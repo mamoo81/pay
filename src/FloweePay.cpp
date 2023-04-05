@@ -860,8 +860,6 @@ NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, cons
             startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
         wallet->createHDMasterKey(mnemonic.trimmed().remove('\n'), password.trimmed().remove('\n'),
                                   derivationPath, startHeight);
-        wallet->segment()->blockSynched(startHeight);
-        wallet->segment()->blockSynched(startHeight); // yes, twice
         emit walletsChanged();
         if (!m_offline)
             p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.

@@ -53,6 +53,13 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
     return wallet;
 }
 
+// the 'gap' used in bloom filters of net yet used addresses to send.
+// this is a bit larger than others may use because we use a filter for a series
+// of blocks that can hold a large number of our transactions.
+constexpr int filter_unusedToInclude = 40;
+constexpr int filter_hdUnusedToInclude = 30;
+constexpr int filter_changeUnusedToInclude = 50;
+
 Wallet::Wallet()
     : m_walletChanged(true),
     m_walletVersion(2)
@@ -212,9 +219,12 @@ bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx, bool &upda
     if (m_hdData.get() == nullptr)
         return false;
 
-    static constexpr int ExtraAddresses = 50;
+    static constexpr int ExtraAddresses = 100;
     int needChangeAddresses = 0;
     int needMainAddresses = 0;
+
+
+    const int changeGap = filter_changeUnusedToInclude + (m_walletStoresCashFusions ? 50 : 0);
 
     for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
         auto privKey = m_walletSecrets.find(i->second.walletSecretId);
@@ -223,14 +233,20 @@ bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx, bool &upda
         if (ws.fromHdWallet) {
             if (ws.fromChangeChain) {
                 assert(m_hdData->lastChangeKey >= ws.hdDerivationIndex);
-                if (m_hdData->lastChangeKey - ws.hdDerivationIndex < 15)
-                    needChangeAddresses = ExtraAddresses;
-                updateBloom |= m_hdData->lastIncludedChangeKey - ws.hdDerivationIndex < 10;
+                if (m_hdData->lastChangeKey - ws.hdDerivationIndex < changeGap) {
+                    needChangeAddresses = ExtraAddresses
+                            + (m_walletStoresCashFusions ? 75 : 0);
+                }
+                // notice that here we trigger on there only being 15 addresses between what we used and
+                // what was sent, while what we sent is (as set in filter_changeUnusedToInclude) much
+                // heigher. This is intentional so we update the filter only when we used a larger list
+                // of addresses instead of refreshing the filter after every single new key being used.
+                updateBloom |= m_hdData->lastIncludedChangeKey - ws.hdDerivationIndex < 15; // the gap
             } else {
                 assert(m_hdData->lastMainKey >= ws.hdDerivationIndex);
-                if (m_hdData->lastMainKey - ws.hdDerivationIndex < 15)
+                if (m_hdData->lastMainKey - ws.hdDerivationIndex < filter_hdUnusedToInclude + 10)
                     needMainAddresses = ExtraAddresses;
-                updateBloom |= m_hdData->lastIncludedMainKey - ws.hdDerivationIndex < 5;
+                updateBloom |= m_hdData->lastIncludedMainKey - ws.hdDerivationIndex < 15; // the gap
             }
         }
     }
@@ -246,6 +262,7 @@ bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx, bool &upda
 void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
 {
     // mutex already locked
+    assert(mainChain + changeChain > 0);
     while (changeChain + mainChain > 0) {
         WalletSecret secret;
         secret.initialHeight = startHeight;
@@ -282,7 +299,7 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
     }
 
     rebuildBloom();
-    saveSecrets(); // no-op if secrets are unchanged
+    saveSecrets();
 }
 
 void Wallet::updateSignatureTypes(const std::map<uint64_t, SignatureType> &txData)
@@ -415,6 +432,8 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
                         needNewBloom = true;
                     continue;
                 }
+                if (wtx.isCashFusionTx) // improve behavior of bloom filters
+                    m_walletStoresCashFusions = true;
             }
             else {
                 // we already seen it before.
@@ -487,7 +506,6 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
                     // update this to the actual initial usage as we find a transaction matching it
                     ws->second.initialHeight = blockHeight;
                     m_secretsChanged = true;
-                    needNewBloom = true; // make sure we let the remote know about our 'gap' addresses
                 }
 
                 // check the payment requests
@@ -790,9 +808,10 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     // So to reuse the derivationPath we store the last-used-index elsewhere.
     m_hdData->lastMainKey = -1;
     m_hdData->lastChangeKey = -1;
+    m_segment->blockSynched(startHeight);
+    m_segment->blockSynched(startHeight); // yes, twice
     QMutexLocker locker(&m_lock);
-    deriveHDKeys(50, 50, startHeight);
-    saveSecrets();
+    deriveHDKeys(200, 200, startHeight);
 }
 
 int Wallet::lastTransactionTimestamp() const
@@ -944,9 +963,14 @@ int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
 
 void Wallet::rebuildBloom()
 {
-    int unusedToInclude = 20;
-    int hdUnusedToInclude = 10;
-    int changeUnusedToInclude = 30;
+    int unusedToInclude = filter_unusedToInclude;
+    int hdUnusedToInclude = filter_hdUnusedToInclude;
+    int changeUnusedToInclude = filter_changeUnusedToInclude;
+    if (m_walletStoresCashFusions) {
+        // a wallet that uses fusions eats through change addresses like
+        // cheap candy, lets avoid the need to upload it too often
+        changeUnusedToInclude += 50;
+    }
 
     // on wallet creation we may not have yet synced the entire header chain,
     // in that case the secrets are given a height that is in seconds, in order
@@ -1218,7 +1242,7 @@ int Wallet::reserveUnusedAddress(KeyId &keyId, PrivKeyType pkt)
 
     // no unused addresses, lets make some.
     if (m_hdData.get()) {
-        deriveHDKeys(50, 0);
+        deriveHDKeys(100, 0);
         return reserveUnusedAddress(keyId);
     }
 
@@ -1228,7 +1252,7 @@ int Wallet::reserveUnusedAddress(KeyId &keyId, PrivKeyType pkt)
         return 0;
 
     int answer = m_nextWalletSecretId;
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < 100; ++i) {
         WalletSecret secret;
         secret.privKey.makeNewKey();
         const PublicKey pubkey = secret.privKey.getPubKey();
@@ -1766,6 +1790,8 @@ void Wallet::loadWallet()
         }
         else if (parser.tag() == WalletPriv::TxIsCashFusion) {
             wtx.isCashFusionTx = parser.boolData();
+            if (wtx.isCashFusionTx)
+                m_walletStoresCashFusions = true;
         }
         else if (parser.tag() == WalletPriv::InputIndex) {
             inputIndex = parser.intData();

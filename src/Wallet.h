@@ -565,6 +565,8 @@ private:
     friend class WalletSecretsModel;
     friend class WalletCoinsModel;
 
+    // auto-detected, causes us to send bigger gaps for bloom filters.
+    bool m_walletStoresCashFusions = false;
     // user settings
     bool m_singleAddressWallet = false;
     bool m_userOwnedWallet = true;
