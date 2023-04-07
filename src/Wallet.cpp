@@ -402,7 +402,6 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
     auto transactions = WalletPriv::sortTransactions(blockTransactions);
     std::deque<Tx> transactionsToSave;
     int firstNewTransaction;
-    std::set<int> removedTransactionIds;
     bool needNewBloom = false;
     {
         QMutexLocker locker(&m_lock);
@@ -413,7 +412,6 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
          * have AFTER this and re-apply them later.
          */
         const auto insertBeforeData = removeTransactionsAfter(blockHeight - 1); // remove them for this block too!
-        removedTransactionIds = insertBeforeData.oldTransactionIds;
 
         firstNewTransaction = m_nextWalletTransactionId;
         for (auto &tx: transactions) {
@@ -577,18 +575,22 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
                 }
             }
         }
+
+        // the 'insert before' concept simply deletes and re-inserts, let
+        // users know old transaction IDs no longer exist.
+        for (auto id : insertBeforeData.oldTransactionIds) {
+            emit transactionRemoved(id);
+        }
+        if (!transactionsToSave.empty()) {
+            emit utxosChanged();
+            emit appendedTransactions(firstNewTransaction, transactionsToSave.size());
+        }
+
     } // mutex scope
 
-    // the 'insert before' concept simply deletes and re-inserts, let
-    // users know old transaction IDs no longer exist.
-    for (auto id : removedTransactionIds) {
-        emit transactionRemoved(id);
-    }
-
+    // outside the mutex do the file-IO heavy things like saving our newly found transactions.
     if (!transactionsToSave.empty()) {
         setUserOwnedWallet(true);
-        emit utxosChanged();
-        emit appendedTransactions(firstNewTransaction, transactionsToSave.size());
         for (const auto &tx : transactionsToSave) { // save the Tx to disk.
             saveTransaction(tx);
         }
