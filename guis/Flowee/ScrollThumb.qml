@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ QQC2.ScrollBar {
 
         Timer {
             running: thumbRect.open && !thumbRect.moving
-            interval: 500
+            interval: 1200
             onTriggered: thumbRect.open = false;
         }
 
@@ -98,7 +98,7 @@ QQC2.ScrollBar {
         id: thumbInput
         // make it easier to grab by having a bigger mouse area than the visial thumb
         width: thumbRect.width + 20 + root.width
-        height: thumbRect.height + 20
+        height: thumbRect.height + 50
         anchors.right: parent.right
         enabled: thumbRect.moving || thumbRect.open
         y: {
