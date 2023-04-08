@@ -61,6 +61,26 @@ ListView {
         }
     }
 
+    QQC2.ScrollBar.vertical: Flowee.ScrollThumb {
+        id: thumb
+        minimumSize: 0.05
+        visible: size < 0.9
+        preview: Rectangle {
+            width: label.width + 20
+            height: label.height + 20
+            radius: 5
+            color: palette.light
+            border.width: 1
+            border.color: palette.highlight
+            Flowee.Label {
+                id: label
+                anchors.centerIn: parent
+                color: palette.dark
+                text: root.model.dateForItem(thumb.position);
+            }
+        }
+    }
+
     /*
       The structure here is a bit funny.
       But we want to have the entire page scroll in order to show all the transactions we can.
