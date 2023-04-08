@@ -76,6 +76,7 @@ GridLayout {
     }
     Flowee.Label {
         id: paymentTypeLabel
+        Layout.columnSpan: isMoved ? 2 : 1
         text: {
             if (model.isCoinbase)
                 return qsTr("Miner Reward") + ":";
@@ -83,14 +84,14 @@ GridLayout {
                 return qsTr("Cash Fusion") + ":";
             if (model.fundsIn === 0)
                 return qsTr("Received") + ":";
-            if (isMoved) // inherited from AccountHistory.qml
-                return qsTr("Moved") + ":";
+            if (isMoved)
+                return qsTr("Payment to self");
             return qsTr("Sent") + ":";
         }
     }
     Flowee.BitcoinAmountLabel {
+        visible: isMoved === false
         Layout.fillWidth: true
-        visible: paymentTypeLabel.visible
         value: model.fundsOut - model.fundsIn + (infoObject == null ? 0 : infoObject.fees)
         fiatTimestamp: model.date
         showFiat: false // might not fit

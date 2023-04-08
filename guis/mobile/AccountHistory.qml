@@ -191,13 +191,15 @@ ListView {
         id: transactionDelegate
         property var placementInGroup: model.placementInGroup
 
-        property double amountBch: model.fundsOut - model.fundsIn
+        property double amountBch: isMoved ? model.fundsIn
+                                           : (model.fundsOut - model.fundsIn)
         // Is this transaction a 'move between addresses' tx.
         // This is a heuristic and not available in the model, which is why its in the view.
         property bool isMoved: {
             if (model.isCoinbase || model.isCashFusion || model.fundsIn === 0)
                 return false;
-            return amountBch < 0 && amountBch > -2500 // then the diff is likely just fees.
+            var amount = model.fundsOut - model.fundsIn
+            return amount < 0 && amount > -2500 // then the diff is likely just fees.
         }
 
         width: root.width
@@ -326,7 +328,7 @@ ListView {
             baselineOffset: amount.baselineOffset + 4 // 4 is half the spacing added at height:
             visible: !model.isCashFusion
 
-            color: amountBch < 0 ? "#00000000"
+            color: (isMoved || amountBch < 0) ? "#00000000"
                      : (Pay.useDarkSkin ? "#1d6828" : "#97e282") // green background
             Flowee.Label {
                 id: amount
@@ -343,7 +345,7 @@ ListView {
             }
         }
         Flowee.Label { // plus or minus in front of the price
-            visible: price.visible
+            visible: price.visible && !isMoved
             text: amountBch >= 0 ? "+" : "-"
             anchors.baseline: price.baseline
             anchors.right: price.left
@@ -357,6 +359,7 @@ ListView {
             value: amountBch
             showFiat: false
             fontPixelSize: amount.font.pixelSize * 0.9
+            colorize: isMoved === false
         }
 
         // horizontal separator
