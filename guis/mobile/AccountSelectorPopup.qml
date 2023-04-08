@@ -47,6 +47,7 @@ QQC2.Popup {
         Flowee.Label {
             text: qsTr("Your Wallets")
             font.bold: true
+            visible: portfolio.accounts.length > 1
         }
 
         Repeater { // portfolio holds all our accounts
