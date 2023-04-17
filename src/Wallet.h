@@ -572,6 +572,7 @@ private:
 
     // auto-detected, causes us to send bigger gaps for bloom filters.
     bool m_walletStoresCashFusions = false;
+    bool m_walletIsImporting = false; // only true for the initial wallet import.
     // user settings
     bool m_singleAddressWallet = false;
     bool m_userOwnedWallet = true;

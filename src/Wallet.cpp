@@ -823,10 +823,11 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     // So to reuse the derivationPath we store the last-used-index elsewhere.
     m_hdData->lastMainKey = -1;
     m_hdData->lastChangeKey = -1;
+    QMutexLocker locker(&m_lock);
     m_segment->blockSynched(startHeight);
     m_segment->blockSynched(startHeight); // yes, twice
-    QMutexLocker locker(&m_lock);
     deriveHDKeys(200, 200, startHeight);
+    m_walletIsImporting = true;
 }
 
 int Wallet::lastTransactionTimestamp() const
@@ -1044,7 +1045,16 @@ void Wallet::rebuildBloom()
                  * and have no current balance on them (utxo does not refer to them)
                  */
                 else if (secretsWithBalance.find(i.first) == secretsWithBalance.end()) {
-                    continue;
+                    /*
+                     * Ok, the above is true and is good for privacy. We want to avoid uploading stuff
+                     * we don't ever expect money on.
+                     * BUT, some pretty big wallet out there are not so nice and are known to reuse
+                     * a change suddenly.
+                     * Sooooo! We still actually include those 'old' keys during an import and
+                     * convince owners of such wallets to switch to our wallet by being great!
+                     */
+                    if (m_walletIsImporting == false)
+                        continue;
                 }
                 m_hdData->lastIncludedChangeKey = std::max(m_hdData->lastIncludedChangeKey, secret.hdDerivationIndex);
             }
@@ -1335,6 +1345,7 @@ void Wallet::setLastSynchedBlockHeight(int height)
     }
 
     if (height == FloweePay::instance()->headerChainHeight()) {
+        m_walletIsImporting = false;
         // start this in my own thread and free of mutex-locks
         QTimer::singleShot(0, this, SLOT(broadcastUnconfirmed()));
     }
@@ -1458,7 +1469,8 @@ bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
 
         if (startBlockHeight < 10000000) {
             // if that is false, its a timestamp: headers are not yet synched)
-           rebuildBloom();
+            rebuildBloom();
+            m_walletIsImporting = true;
         }
         return true;
     }
@@ -1734,8 +1746,10 @@ void Wallet::delayedSave()
 void Wallet::loadWallet()
 {
     std::ifstream in((m_basedir / "wallet.dat").string());
-    if (!in.is_open())
+    if (!in.is_open()) {
+        m_walletIsImporting = true; // If we have no history, we need to rebuild it
         return;
+    }
     QMutexLocker locker(&m_lock);
     auto dataSize = boost::filesystem::file_size(m_basedir / "wallet.dat");
     Streaming::BufferPool pool(dataSize);
@@ -1890,6 +1904,9 @@ void Wallet::loadWallet()
         }
         else if (parser.tag() == WalletPriv::LastSynchedBlock) {
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
+        }
+        else if (parser.tag() == WalletPriv::WalletIsImporting) {
+             m_walletIsImporting = parser.boolData();
         }
         else if (parser.tag() == WalletPriv::PaymentRequestType) {
             pr.pr = new PaymentRequest(this, parser.intData());
@@ -2113,6 +2130,8 @@ void Wallet::saveWallet()
         builder.add(WalletPriv::Separator, true);
     }
     builder.add(WalletPriv::LastSynchedBlock, m_segment->lastBlockSynched());
+    if (m_walletIsImporting)
+        builder.add(WalletPriv::WalletIsImporting, true);
 
     for (auto prData = m_paymentRequests.begin(); prData != m_paymentRequests.end(); ++prData) {
         if (!prData->pr->stored()) {

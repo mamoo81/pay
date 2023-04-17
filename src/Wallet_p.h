@@ -85,6 +85,7 @@ enum PrivateSaveTags {
 enum WalletDataSaveTags {
     LastSynchedBlock = 2,
     WalletName, // deprecated. We no longer save the name in the wallet.dat (since that one can get encrypted)
+    WalletIsImporting,
 
     // per tx-data
     TxId = 10,
