@@ -250,7 +250,6 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
     answer[Comment] = "comment";
     answer[PlacementInGroup] = "placementInGroup";
     answer[GroupId] = "grouping";
-    // answer[SavedFiatRate] = "savedFiatRate";
 
     return answer;
 }
@@ -273,9 +272,12 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
 
 void WalletHistoryModel::appendTransactions(int firstNew, int count)
 {
+    QMutexLocker locker(&m_wallet->m_lock);
     const auto oldCount = m_rowsProxy.size();
     for (auto i = firstNew; i < firstNew + count; ++i) {
         auto iter = m_wallet->m_walletTransactions.find(i);
+        if (iter == m_wallet->m_walletTransactions.end())
+            continue; // already removed by wallet again.
         if (!filterTransaction(iter->second))
             continue;
         m_rowsProxy.push_back(i);
@@ -303,6 +305,8 @@ void WalletHistoryModel::appendTransactions(int firstNew, int count)
 void WalletHistoryModel::removeTransaction(int txIndex)
 {
     const int index = m_rowsProxy.indexOf(txIndex);
+    if (index == -1) // probably never got inserted
+        return;
     int row = m_rowsProxy.size() - index - 1;
     m_rowsProxy.removeAt(index);
     if (m_rowsSilentlyInserted > 0)
@@ -313,7 +317,10 @@ void WalletHistoryModel::removeTransaction(int txIndex)
 
 void WalletHistoryModel::transactionChanged(int txIndex)
 {
-    int row = m_rowsProxy.size() - m_rowsProxy.indexOf(txIndex) - 1;
+    const int index = m_rowsProxy.indexOf(txIndex);
+    if (index == -1) // probably never got inserted
+        return;
+    int row = m_rowsProxy.size() - index - 1;
     if (m_rowsSilentlyInserted > 0)
         row -= m_rowsSilentlyInserted;
     // update row, the 'minedHeight' went from unset to an actual value
@@ -333,6 +340,7 @@ void WalletHistoryModel::createMap()
     // we insert the key used in the m_wallet->m_walletTransaction map
     // in the order of how our rows work here.
     // This is oldest to newest, which is how our model is also structured.
+    QMutexLocker locker(&m_wallet->m_lock);
     for (const auto &iter : m_wallet->m_walletTransactions) {
         if (!filterTransaction(iter.second))
             continue;
