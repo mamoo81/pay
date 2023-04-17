@@ -413,7 +413,7 @@ Wallet::InsertBeforeData::~InsertBeforeData()
         logDebug(LOG_WALLET) << "   +- combining" << list.size() << "tx. Height:" << blockHeight << "blockId:" << blockId;
         parent->newTransactions(blockId, blockHeight, list);
     }
-    parent->m_inInsertBeforeCallback = true;
+    parent->m_inInsertBeforeCallback = false;
 }
 
 Wallet::InsertBeforeData Wallet::removeTransactionsAfter(int blockHeight)
