@@ -135,17 +135,6 @@ GridLayout {
             Layout.columnSpan: 2
         }
         Label {
-            text: qsTr("Alternate phrase") + ":"
-            visible: !importAccount.isPrivateKey
-        }
-        Flowee.TextField {
-            // according to the BIP39 spec this is the 'password', but from a UX
-            // perspective that is confusing and no actual wallet uses it
-            id: passwordField
-            visible: !importAccount.isPrivateKey
-            Layout.fillWidth: true
-        }
-        Label {
             text: qsTr("Start Height") + ":"
         }
         Flowee.TextField {
@@ -161,6 +150,17 @@ GridLayout {
             text: "m/44'/0'/0'" // What most BCH wallets are created with
             visible: !importAccount.isPrivateKey
             color: Pay.checkDerivation(text) ? palette.text : "red"
+        }
+        Label {
+            text: qsTr("Alternate phrase") + ":"
+            visible: !importAccount.isPrivateKey
+        }
+        Flowee.TextField {
+            // according to the BIP39 spec this is the 'password', but from a UX
+            // perspective that is confusing and no actual wallet uses it
+            id: passwordField
+            visible: !importAccount.isPrivateKey
+            Layout.fillWidth: true
         }
     }
 }
