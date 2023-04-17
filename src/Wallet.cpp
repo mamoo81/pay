@@ -401,7 +401,6 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
 {
     auto transactions = WalletPriv::sortTransactions(blockTransactions);
     std::deque<Tx> transactionsToSave;
-    int firstNewTransaction;
     bool needNewBloom = false;
     {
         QMutexLocker locker(&m_lock);
@@ -413,7 +412,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
          */
         const auto insertBeforeData = removeTransactionsAfter(blockHeight - 1); // remove them for this block too!
 
-        firstNewTransaction = m_nextWalletTransactionId;
+        int firstNewTransaction = m_nextWalletTransactionId;
         for (auto &tx: transactions) {
             const uint256 txid = tx.createHash();
             WalletTransaction wtx;
