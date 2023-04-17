@@ -410,6 +410,9 @@ private:
     /// Fill the bloom filter with all the unspent transactions and addresses we handle.
     void rebuildBloom();
 
+    // returns true if any of the transactions are unknown to the wallet
+    bool anythingNew(const std::deque<Tx> &transactions) const;
+
     // helper method called from both newTransaction and newTransactions
     void updateSignatureTypes(const std::map<uint64_t, SignatureType> &txData);
 
