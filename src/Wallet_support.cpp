@@ -436,9 +436,9 @@ Wallet::InsertBeforeData Wallet::removeTransactionsAfter(int blockHeight)
     }
     assert (lastToRemove <= m_nextWalletTransactionId);
 
-    // we do this in two loops because a map reverse iterator doesn't have a matching 'erase'
-    // method.
-    // Using the 'key' in the next loop instead.
+    // we remove mathcing ones them from most recent to least recent below.
+    // Notice that we don't do it in the above loop because a map reverse iterator doesn't
+    // have a matching 'erase' method.
 
     while (txIndex >= lastToRemove) {
         auto i = m_walletTransactions.find(txIndex--);
