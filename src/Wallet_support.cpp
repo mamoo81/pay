@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -279,6 +279,18 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
         }
         info->m_inputs[pair.first] = in;
     }
+#ifndef NDEBUG
+    // we created inputs that should ALL be there.
+    // if they are not, we have an internal data inconsistency.
+    if (info->m_createdByUs) {
+        for (int i = 0; i < info->m_inputs.length(); ++i) {
+            if (info->m_inputs.at(i) == nullptr) {
+                logFatal() << "Transaction" << iter->second.txid << "is created by the user, but no input data found for:" << i;
+            }
+        }
+    }
+#endif
+
     // same for outputs
     for (auto o : wtx.outputs) {
         auto secretIter = m_walletSecrets.find(o.second.walletSecretId);
