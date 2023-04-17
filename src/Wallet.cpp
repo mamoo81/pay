@@ -983,7 +983,7 @@ void Wallet::rebuildBloom()
     int changeUnusedToInclude = filter_changeUnusedToInclude;
     if (m_walletStoresCashFusions) {
         // a wallet that uses fusions eats through change addresses like
-        // cheap candy, lets avoid the need to upload it too often
+        // cheap candy, let's avoid the need to upload it too often
         changeUnusedToInclude += 50;
     }
 
@@ -1965,13 +1965,13 @@ void Wallet::loadWallet()
     recalculateBalance();
 
 #ifdef DEBUGUTXO
-    for (auto output : m_unspentOutputs) {
-        OutputRef ref(output.first);
+    for (auto outputIter : m_unspentOutputs) {
+        OutputRef ref(outputIter.first);
         auto utxo = m_walletTransactions.find(ref.txIndex());
         assert(utxo != m_walletTransactions.end());
         auto out = utxo->second.outputs.find(ref.outputIndex());
         assert(out != utxo->second.outputs.end());
-        assert(out->second.value == output.second);
+        assert(out->second.value == outputIter.second);
         logFatal(LOG_WALLET) << "Unspent: " << utxo->second.txid << ref.outputIndex() << "\t->" << out->second.value << "sats";
 
         auto locked = m_lockedOutputs.find(ref.encoded());
@@ -1983,14 +1983,14 @@ void Wallet::loadWallet()
 
 #ifndef NDEBUG
     // sanity check: the inputs should resolve to transactions in our list.
-    for (auto &tx : m_walletTransactions) {
-        for (auto in : tx.second.inputToWTX) {
-            auto key = in.second;
-            int outputIndex = key & 0xFFFF;
+    for (const auto &tx : m_walletTransactions) {
+        for (auto input : tx.second.inputToWTX) {
+            auto key = input.second;
+            const int outIndex = key & 0xFFFF;
             key >>= 16;
             assert(m_walletTransactions.find(key) != m_walletTransactions.end());
             auto spendingTx = m_walletTransactions.at(key);
-            assert(spendingTx.outputs.find(outputIndex) != spendingTx.outputs.end());
+            assert(spendingTx.outputs.find(outIndex) != spendingTx.outputs.end());
         }
     }
 
