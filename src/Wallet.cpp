@@ -408,7 +408,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
          * There may be nothing new. though. Most likely even. The next method just checks
          * the transaction IDs and if we already know all of them, we simply return.
          */
-        if (anythingNew(blockTransactions) == false)
+        if (anythingNew(blockHeight, blockTransactions) == false)
             return;
         std::set<int> ejectedTransactions;
         /*
@@ -1079,14 +1079,16 @@ void Wallet::rebuildBloom()
     m_bloomScore = 0;
 }
 
-bool Wallet::anythingNew(const std::deque<Tx> &transactions) const
+bool Wallet::anythingNew(int blockHeight, const std::deque<Tx> &transactions) const
 {
     for (const auto &tx : transactions) {
         auto id = tx.createHash();
         auto iter = m_txidCache.find(id);
-        if (iter == m_txidCache.end()) {
+        if (iter == m_txidCache.end())
             return true;
-        }
+        auto txData = m_walletTransactions.find(iter->second);
+        if (txData->second.minedBlockHeight != blockHeight)
+            return true;
     }
     return false;
 }
