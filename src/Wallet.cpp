@@ -328,6 +328,15 @@ void Wallet::newTransaction(const Tx &tx)
     bool createdNewKeys = false;
     {
         QMutexLocker locker(&m_lock);
+        if (m_walletIsImporting) {
+            /* While importing the peers have our bloom filter and as such we could get notifications of
+             * transactions entering the mempool. Which would be messy as they really should be added
+             * after all the imported ones.
+             * So we simply reject them for now. The peers will get a 'mempool' call at the end of the import
+             * to fetch any such transactions (again).
+             */
+            return;
+        }
         firstNewTransaction = m_nextWalletTransactionId;
         const uint256 txid = tx.createHash();
         if (m_txidCache.find(txid) != m_txidCache.end()) // already known
