@@ -24,12 +24,14 @@ Rectangle {
     x: -10
     width: parent.width + 20
 
+    // if set to true, tapping on the account has no effect.
+    property bool stickyAccount: false
     // list of actions to put in a menu when clicking on the 'balance' side.
     property var balanceActions: [ ]
 
     height: {
         if (portfolio.singleAccountSetup)
-            return currentWalletValue.height + 10
+            return currentWalletValue.height + 20
         return currentWalletValue.height + currentWalletLabel.height + 25
     }
     color: palette.alternateBase
@@ -37,13 +39,13 @@ Rectangle {
     Flowee.HamburgerMenu {
         x: 10
         anchors.verticalCenter: currentWalletLabel.verticalCenter
-        visible: portfolio.accounts.length > 1
+        visible: root.stickyAccount === false && portfolio.accounts.length > 1
     }
 
     Flowee.Label {
         id: currentWalletLabel
         y: 10
-        x: 20
+        x: root.stickyAccount ? 10 : 20
         width: parent.width - 30
         text: payment.account.name
         visible: !portfolio.singleAccountSetup
@@ -64,8 +66,8 @@ Rectangle {
         anchors.fill: parent
         onClicked: (mouse) => {
             if (mouse.x < parent.width / 2) {
-                if (portfolio.accounts.length > 1)
-                accountSelector.open();
+                if (root.stickyAccount === false && portfolio.accounts.length > 1)
+                    accountSelector.open();
             } else if (balanceActions.length > 0) {
                 while (priceMenu.count > 0) {
                     priceMenu.takeItem(0);

@@ -264,6 +264,14 @@ Page {
             id: destinationEditPage
             Page {
                 headerText: qsTr("Edit Destination")
+
+                property QtObject sendAllAction: QQC2.Action {
+                    checkable: true
+                    checked: paymentDetail.maxSelected
+                    text: qsTr("Send All", "all money in wallet")
+                    onTriggered: paymentDetail.maxSelected = checked
+                }
+
                 Flowee.Label {
                     id: destinationLabel
                     text: qsTr("Bitcoin Cash Address") + ":"
@@ -272,8 +280,10 @@ Page {
                 Flowee.MultilineTextField {
                     id: destination
                     anchors.top: destinationLabel.bottom
+                    anchors.topMargin: 10
                     anchors.left: parent.left
                     anchors.right: parent.right
+                    height: Math.max(destinationLabel.height * 3, implicitHeight)
                     focus: true
                     property var addressType: Pay.identifyString(text);
                     text: paymentDetail.address
@@ -313,9 +323,35 @@ Page {
                     width: parent.width
                     addressType: destination.addressType
                 }
+                PriceInputWidget {
+                    id: priceInput
+                    width: parent.width
+                    anchors.top: addressInfo.bottom
+                    anchors.topMargin: 10
+                    paymentBackend: paymentDetail
+                    fiatFollowsSats: paymentDetail.fiatFollows
+                    onFiatFollowsSatsChanged: paymentDetail.fiatFollows = fiatFollowsSats
+                }
+
+                AccountSelectorWidget {
+                    id: walletNameBackground
+                    anchors.bottom: numericKeyboard.top
+                    anchors.bottomMargin: 10
+                    stickyAccount: true
+
+                    balanceActions: [ sendAllAction ]
+                }
+
+                NumericKeyboardWidget {
+                    id: numericKeyboard
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 15
+                    width: parent.width
+                    enabled: !paymentDetail.maxSelected
+                }
 
                 Rectangle {
-                    color: mainWindow.errorRed
+                    color: mainWindow.errorRedBg
                     radius: 15
                     width: parent.width
                     height: warningColumn.height + 20
@@ -356,23 +392,6 @@ Page {
                             }
                         }
                     }
-                }
-                // TODO Max button.
-
-                PriceInputWidget {
-                    id: priceInput
-                    width: parent.width
-                    anchors.bottom: numericKeyboard.top
-                    paymentBackend: paymentDetail
-                    fiatFollowsSats: paymentDetail.fiatFollows
-                    onFiatFollowsSatsChanged: paymentDetail.fiatFollows = fiatFollowsSats
-                }
-                NumericKeyboardWidget {
-                    id: numericKeyboard
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 15
-                    width: parent.width
-                    enabled: !paymentDetail.maxSelected
                 }
             }
         }
@@ -492,7 +511,7 @@ Page {
                             id: leftBackground
                             opacity: 0
                             anchors.fill: parent
-                            color: mainWindow.errorRed
+                            color: mainWindow.errorRedBg
                         }
 
                         Rectangle {
