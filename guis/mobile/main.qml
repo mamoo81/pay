@@ -53,7 +53,8 @@ ApplicationWindow {
     property color floweeSalmon: "#ff9d94"
     property color floweeBlue: "#0b1088"
     property color floweeGreen: "#90e4b5"
-    property color errorRed: Pay.useDarkSkin ? "#ff6568" : "red"
+    property color errorRed: Pay.useDarkSkin ? "#ff6568" : "#940000"
+    property color errorRedBg: Pay.useDarkSkin ? "#671314" : "#9f1d1f"
 
     StackView {
         id: thePile

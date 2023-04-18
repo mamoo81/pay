@@ -377,7 +377,7 @@ Item {
                         anchors.margins: -7
                         color: palette.window
                         border.width: 2
-                        border.color: "red"
+                        border.color: mainWindow.errorRed
                         radius: 10
                     }
                     Flowee.ArrowPoint {
@@ -385,7 +385,7 @@ Item {
                         anchors.bottom: warningColumn.top
                         anchors.bottomMargin: 4
                         rotation: -90
-                        color: "red"
+                        color: mainWindow.errorRed
                     }
 
                     Column {
