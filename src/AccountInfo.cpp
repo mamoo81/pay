@@ -120,7 +120,7 @@ QString AccountInfo::timeBehind() const
     auto weeks = diff / 1008.;
     if (days > 10) {
         const int w = static_cast<int>(weeks);
-        return tr("Behind: %1 weeks, %2 days", "counter on weeks", w).arg(w).arg(static_cast<int>(days + 0.5) % 7);
+        return tr("Behind: %1 weeks, %2 days", "counter on weeks", w).arg(w).arg(static_cast<int>(days) % 7);
     }
     auto hours = diff / 6.;
     if (hours > 48)
