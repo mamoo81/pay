@@ -66,14 +66,14 @@ ListView {
         minimumSize: 0.05
         visible: size < 0.9
         preview: Rectangle {
-            width: label.width + 20
-            height: label.height + 20
+            width: dateLabel.width + 20
+            height: dateLabel.height + 20
             radius: 5
             color: palette.light
             border.width: 1
             border.color: palette.highlight
             Flowee.Label {
-                id: label
+                id: dateLabel
                 anchors.centerIn: parent
                 color: palette.dark
                 text: root.model.dateForItem(thumb.position);
@@ -171,6 +171,7 @@ ListView {
     focus: true
     reuseItems: true
     section.property: "grouping"
+    section.labelPositioning: ViewSection.InlineLabels + ViewSection.CurrentLabelAtStart
     section.delegate: Item {
         height: label.height + 15
         width: root.width
