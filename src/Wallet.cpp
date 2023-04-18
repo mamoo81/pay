@@ -27,7 +27,6 @@
 #include <streaming/MessageBuilder.h>
 #include <streaming/MessageParser.h>
 #include <base58.h>
-#include <random.h>
 #include <crypto/aes.h>
 
 #include <QFile>

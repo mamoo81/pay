@@ -532,7 +532,7 @@ Wallet *FloweePay::createWallet(const QString &name)
 
     quint16 id;
     while (true) {
-        id = rand();
+        id = GetRandInt(0xFFFF);
         QString dir = QString("/wallet-%1").arg(id);
         if (!QFileInfo::exists(m_basedir + dir))
             break;

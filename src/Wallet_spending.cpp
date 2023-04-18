@@ -19,6 +19,8 @@
 #include "Wallet_p.h"
 #include "FloweePay.h"
 
+#include <random.h>
+
 // #define DEBUG_UTXO_SELECTION
 #ifdef DEBUG_UTXO_SELECTION
 # define logUtxo logCritical
@@ -238,7 +240,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         auto outputs = unspentOutputs;
         do {
             Q_ASSERT(!outputs.empty());
-            const int index = static_cast<int>(rand() % outputs.size());
+            const int index = GetRandInt(outputs.size());
             Q_ASSERT(outputs.size() > index);
             const auto &out = outputs[index];
             current.outputs.push_back(out.outputRef);
