@@ -816,7 +816,7 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     const auto mnemonicBytes = mnemonic.toUtf8();
     const auto pwdBytes = pwd.toUtf8();
     // convert to constBuf containers.
-    Streaming::BufferPool pool(mnemonicBytes.size() + pwdBytes.size());
+    auto &pool = Streaming::pool(mnemonicBytes.size() + pwdBytes.size());
     pool.write(mnemonicBytes.constData(), mnemonicBytes.size());
     auto mnemonicBuf = pool.commit();
     pool.write(pwdBytes.constData(), pwdBytes.size());
@@ -833,8 +833,10 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     m_hdData->lastMainKey = -1;
     m_hdData->lastChangeKey = -1;
     QMutexLocker locker(&m_lock);
-    m_segment->blockSynched(startHeight);
-    m_segment->blockSynched(startHeight); // yes, twice
+    if (startHeight < 1000000) { // when its a blockheight and not a timestamp.
+        m_segment->blockSynched(startHeight);
+        m_segment->blockSynched(startHeight); // yes, twice
+    }
     deriveHDKeys(200, 200, startHeight);
     m_walletIsImporting = true;
 }
@@ -1388,11 +1390,10 @@ void Wallet::headerSyncComplete()
         // broadcast to peers our bloom filter, which would have skipped all
         // time-based blocks before.
         rebuildBloom();
-
-        // make the wallet iniital sync also show something sane.
-        if (m_segment)
-            m_segment->blockSynched(FloweePay::instance()->p2pNet()->blockHeight());
     }
+    // make the wallet iniital sync also show something sane.
+    if (m_segment)
+        m_segment->blockSynched(FloweePay::instance()->p2pNet()->blockHeight());
 }
 
 void Wallet::broadcastUnconfirmed()
