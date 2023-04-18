@@ -36,7 +36,8 @@ PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
         for (auto &w : wallets) {
             addWalletAccount(w);
         }
-        emit accountsChanged(); // not strictly needed, but safe to have.
+        selectDefaultWallet();
+        emit accountsChanged();
     });
 }
 

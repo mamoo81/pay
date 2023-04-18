@@ -332,6 +332,5 @@ void PaymentRequest::setUseLegacyAddress(bool on)
 
 void PaymentRequest::switchAccount(AccountInfo *ai)
 {
-    assert(ai);
-    setWallet(ai->wallet());
+    if (ai) setWallet(ai->wallet());
 }
