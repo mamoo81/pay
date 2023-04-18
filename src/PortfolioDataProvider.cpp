@@ -58,7 +58,7 @@ QList<QObject *> PortfolioDataProvider::accounts() const
     }
     // if the only wallet(s) are not user owned, share those with the GUI.
     if (answer.isEmpty() && !m_accountInfos.isEmpty()) {
-        for (auto *account : m_accountInfos) {
+        for (auto * const account : m_accountInfos) {
             if (account->isArchived())
                 answer.append(account);
         }
