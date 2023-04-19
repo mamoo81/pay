@@ -134,7 +134,7 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *c
 {
     FloweePay *app = FloweePay::instance();
 
-    NetDataProvider *netData = new NetDataProvider(app->p2pNet()->blockHeight(), &engine);
+    NetDataProvider *netData = new NetDataProvider(&engine);
     app->p2pNet()->addP2PNetListener(netData);
     netData->startRefreshTimer();
 

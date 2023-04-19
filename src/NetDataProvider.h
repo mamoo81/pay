@@ -32,7 +32,7 @@ class NetDataProvider : public QObject, public P2PNetInterface
     Q_OBJECT
     Q_PROPERTY(QList<QObject*> peers READ peers NOTIFY peerListChanged)
 public:
-    explicit NetDataProvider(int initialBlockHeight, QObject *parent = nullptr);
+    explicit NetDataProvider(QObject *parent = nullptr);
 
     // P2PNetInterface
     void newPeer(int peerId, const std::string &userAgent, int startHeight, PeerAddress address) override;

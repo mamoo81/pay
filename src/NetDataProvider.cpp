@@ -24,7 +24,7 @@
 #include <QThread>
 #include <QTimer>
 
-NetDataProvider::NetDataProvider(int initialBlockHeight, QObject *parent)
+NetDataProvider::NetDataProvider(QObject *parent)
     : QObject(parent)
 {
     connect (this, SIGNAL(peerDeleted(int)), this, SLOT(deleteNetPeer(int)), Qt::QueuedConnection); // Make this thread-safe
