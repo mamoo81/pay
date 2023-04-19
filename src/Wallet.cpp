@@ -1363,6 +1363,7 @@ void Wallet::setLastSynchedBlockHeight(int height)
     }
 }
 
+// called every app-start we reach the tip
 void Wallet::headerSyncComplete()
 {
     /*
@@ -1389,10 +1390,10 @@ void Wallet::headerSyncComplete()
         // broadcast to peers our bloom filter, which would have skipped all
         // time-based blocks before.
         rebuildBloom();
+        // make the wallet initial sync also show something sane.
+        if (m_segment)
+            m_segment->blockSynched(FloweePay::instance()->p2pNet()->blockHeight());
     }
-    // make the wallet iniital sync also show something sane.
-    if (m_segment)
-        m_segment->blockSynched(FloweePay::instance()->p2pNet()->blockHeight());
 }
 
 void Wallet::broadcastUnconfirmed()
