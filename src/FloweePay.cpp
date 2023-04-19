@@ -95,11 +95,26 @@ FloweePay::FloweePay()
     auto guiApp = qobject_cast<QGuiApplication*>(QCoreApplication::instance());
     assert(guiApp);
     connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
-        if (state == Qt::ApplicationInactive) {
-            logInfo() << "App went Inactive. Start saving data";
+        if (state == Qt::ApplicationInactive || state == Qt::ApplicationSuspended) {
+            logInfo() << "App no longer active. Start saving data";
             saveAll();
             p2pNet()->saveData();
             saveData();
+        }
+        else if (state == Qt::ApplicationActive) {
+            /*
+            * We are brought back to the foreground.
+            *
+             * On different iterations of Android the behavior can differ quite substantially
+             * when it comes to being allowed to continue using resources while not being active.
+             * As such there is no real way to know what being inactive has done to our network
+             * connections. They may have been kept alive for whatever time we were
+             * not active, they may all have been removed or timed out already.
+             *
+             * What we'll do is to start the actions again which will check up on our connections
+             * and create new ones or download blocks if we need to.
+             */
+            p2pNet()->start();
         }
     });
 #endif
