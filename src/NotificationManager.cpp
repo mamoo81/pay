@@ -155,8 +155,8 @@ void NotificationManager::walletUpdated()
 
     if (m_openingNewFundsNotification) {
         // we are currently (async) opening a notification, wait until its actually open.
-       QTimer::singleShot(50, this, SLOT(walletUpdated()));
-       return;
+        QTimer::singleShot(50, this, SLOT(walletUpdated()));
+        return;
     }
 
     int64_t deposited = 0;
