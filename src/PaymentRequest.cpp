@@ -183,6 +183,7 @@ void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
     if (m_paymentState == Unpaid && m_amountSeen >= m_amountRequested) {
         if (blockHeight == -1)  {
             setPaymentState(PaymentSeen);
+            // TODO, the usage of this timer won't work due to Qt threading issues
             QTimer::singleShot(FloweePay::instance()->dspTimeout(), this, [=]() {
                 if (m_paymentState == PaymentSeen)
                     setPaymentState(PaymentSeenOk);
