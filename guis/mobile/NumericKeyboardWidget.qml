@@ -60,7 +60,7 @@ Flow {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: {
+                function doSomething() {
                     let editor = priceInput.editor;
                     if (index < 9) // these are digits
                         var shake = !editor.insertNumber("" + (index + 1));
@@ -73,6 +73,8 @@ Flow {
                     if (shake)
                         priceInput.shake();
                 }
+                onClicked: doSomething();
+                onDoubleClicked: doSomething();
             }
         }
     }
