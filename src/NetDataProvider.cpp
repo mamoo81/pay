@@ -104,7 +104,7 @@ void NetDataProvider::punishmentChanged(int peerId)
 QList<QObject *> NetDataProvider::peers() const
 {
     QList<QObject *> answer;
-    for (auto *p : m_peers) {
+    for (auto * const p : m_peers) {
         answer.append(p);
     }
     return answer;
