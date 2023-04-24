@@ -315,6 +315,7 @@ private:
     int m_windowWidth = 500;
     int m_windowHeight = 500;
     int m_fontScaling = 100;
+    bool m_loadingCompleted = false; // 'init()' completed
     bool m_darkSkin = true;
     bool m_createStartWallet = false;
     bool m_hideBalance = false;
