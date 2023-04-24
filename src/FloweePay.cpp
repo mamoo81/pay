@@ -114,7 +114,8 @@ FloweePay::FloweePay()
              * What we'll do is to start the actions again which will check up on our connections
              * and create new ones or download blocks if we need to.
              */
-            p2pNet()->start();
+            if (!m_offline)
+                p2pNet()->start();
         }
     });
 #endif
