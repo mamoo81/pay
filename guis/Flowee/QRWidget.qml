@@ -26,6 +26,12 @@ Item {
     implicitHeight: qrImage.width + addressLine.height
     opacity: root.request == null || root.request.state === PaymentRequest.Unpaid ? 1: 0
 
+    function handleOnClicked() {
+        Pay.copyToClipboard(root.request.qr)
+        // invert the feedback so a second tap removes the feedback again.
+        clipboardFeedback.opacity = clipboardFeedback.opacity == 0 ? 1 : 0
+    }
+
     Image {
         id: qrImage
         source: root.request == null ? "" : "image://qr/" + root.request.qr
@@ -36,40 +42,7 @@ Item {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: {
-                Pay.copyToClipboard(root.request.qr)
-                // invert the feedback so a second tap removes the feedback again.
-                clipboardFeedback.opacity = clipboardFeedback.opacity == 0 ? 1 : 0
-            }
-        }
-
-        Rectangle {
-            id: clipboardFeedback
-            opacity: 0
-            width: feedbackText.width + 20
-            height: feedbackText.height + 14
-            radius: 10
-            color: Pay.useDarkSkin ? "#333" : "#ddd"
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: -8
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Label {
-                id: feedbackText
-                x: 10
-                y: 10
-                text: qsTr("Copied to clipboard")
-                wrapMode: Text.WordWrap
-            }
-
-            Behavior on opacity { OpacityAnimator {} }
-
-            /// after 8 seconds, remove feedback.
-            Timer {
-                interval: 8000
-                running: clipboardFeedback.opacity >= 1
-                onTriggered: clipboardFeedback.opacity = 0
-            }
+            onClicked: root.handleOnClicked()
         }
     }
     Rectangle {
@@ -99,6 +72,40 @@ Item {
             minimumPixelSize: 2 // min
             font.pixelSize: 20 // max
             fontSizeMode: Text.HorizontalFit // fit in width
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: root.handleOnClicked()
+        }
+    }
+
+    Rectangle {
+        id: clipboardFeedback
+        opacity: 0
+        width: feedbackText.width + 20
+        height: feedbackText.height + 14
+        radius: 10
+        color: Pay.useDarkSkin ? "#333" : "#ddd"
+        anchors.bottom: qrImage.bottom
+        anchors.bottomMargin: -8
+        anchors.horizontalCenter: qrImage.horizontalCenter
+
+        Label {
+            id: feedbackText
+            x: 10
+            y: 7
+            text: qsTr("Copied to clipboard")
+            wrapMode: Text.WordWrap
+        }
+
+        Behavior on opacity { OpacityAnimator {} }
+
+        /// after 8 seconds, remove feedback.
+        Timer {
+            interval: 8000
+            running: clipboardFeedback.opacity >= 1
+            onTriggered: clipboardFeedback.opacity = 0
         }
     }
 
