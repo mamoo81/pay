@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "PaymentRequest.h"
 #include "Wallet.h"
 #include "Wallet_p.h"
 
@@ -298,7 +297,6 @@ bool Wallet::decrypt(const QString &password)
     recalculateBalance();
     emit encryptionChanged();
     emit balanceChanged();
-    emit paymentRequestsChanged();
     saveSecrets(); // no-op if secrets are unchanged
     return true;
 }
@@ -339,14 +337,6 @@ void Wallet::forgetEncryptedSecrets()
         m_hdData.reset();
         m_txidCache.clear();
         m_nextWalletTransactionId = 1;
-        for (const auto &prData : m_paymentRequests) {
-            // delete all the items we own, but not the unstored one
-            // the UI is showing as that one handles us getting encrypted on its own.
-            if (prData.pr->stored())
-                delete prData.pr;
-        }
-        m_paymentRequests.clear();
-
         m_unspentOutputs.clear();
         m_lockedOutputs.clear();
         m_txidCache.clear();
@@ -354,7 +344,6 @@ void Wallet::forgetEncryptedSecrets()
         m_balanceImmature = 0;
         m_balanceUnconfirmed = 0;
         emit balanceChanged();
-        emit paymentRequestsChanged();
     }
     emit encryptionChanged();
 }

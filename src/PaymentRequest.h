@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,12 +36,9 @@ class PaymentRequest : public QObject
     Q_PROPERTY(QString address READ address NOTIFY addressChanged)
     Q_PROPERTY(QString message READ message WRITE setMessage NOTIFY messageChanged)
     Q_PROPERTY(QString qr READ qrCodeString NOTIFY qrCodeStringChanged)
-    Q_PROPERTY(double amount READ amountFP WRITE setAmountFP NOTIFY amountChanged)
-    Q_PROPERTY(double amountSeen READ amountSeenFP NOTIFY amountSeenChanged)
-    Q_PROPERTY(bool legacy READ useLegacyAddress WRITE setUseLegacyAddress NOTIFY legacyChanged)
-    Q_PROPERTY(SaveState saveState READ saveState WRITE setSaveState NOTIFY saveStateChanged)
+    Q_PROPERTY(double amount READ amount WRITE setAmount NOTIFY amountChanged)
+    Q_PROPERTY(double amountSeen READ amountSeen NOTIFY amountSeenChanged)
     Q_PROPERTY(PaymentState state READ paymentState NOTIFY paymentStateChanged)
-    Q_PROPERTY(bool stored READ stored WRITE setStored NOTIFY storedChanged)
 public:
     /// The state of this payment
     enum PaymentState {
@@ -51,38 +48,21 @@ public:
         PaymentSeenOk,  //< A payment has been seen, we waited and no DSP came.
         Confirmed       //< We got paid.
     };
-    enum SaveState {
-        Temporary,
-        Stored
-    };
-    Q_ENUM(SaveState PaymentState)
+    Q_ENUM(PaymentState)
 
-    /// Dummy constructor.
     PaymentRequest(QObject *parent = nullptr);
-    explicit PaymentRequest(Wallet *wallet, QObject *parent = nullptr);
-    ~PaymentRequest();
 
     QString message() const;
     void setMessage(const QString &message);
 
     /// Set the amount requested (as floating point) in sats.
-    void setAmountFP(double amount);
+    void setAmount(double amount);
     /// return the amount requested (in sats)
-    double amountFP() const;
+    double amount() const;
     /// return the amount received (in sats)
-    double amountSeenFP() const;
-    /// return the amount requested (in sats)
-    qint64 amount() const;
-    /// return the amount received (in sats)
-    qint64 amountSeen() const;
+    double amountSeen() const;
 
     QString qrCodeString() const;
-
-    bool useLegacyAddress();
-    void setUseLegacyAddress(bool on);
-
-    SaveState saveState() const;
-    void setSaveState(PaymentRequest::SaveState saveState);
 
     PaymentState paymentState() const;
 
@@ -100,15 +80,7 @@ public:
      */
     void paymentRejected(uint64_t ref, int64_t value);
 
-    bool stored() const;
-    /// if /a on, mark payment request as one to store and keep around until fulfilled or deleted
-    void setStored(bool on);
-
-    /**
-     * This ties the request to a different wallet.
-     * \sa setWallet()
-     */
-    Q_INVOKABLE void switchAccount(AccountInfo *ai);
+    Q_INVOKABLE void clear();
 
     void setWallet(Wallet *wallet);
 
@@ -120,20 +92,12 @@ signals:
     void qrCodeStringChanged();
     void amountChanged();
     void amountSeenChanged();
-    void legacyChanged();
-    void saveStateChanged();
     void paymentStateChanged();
     void walletChanged();
-    void storedChanged();
-
     void addressChanged();
 
 private slots:
     void walletEncryptionChanged();
-
-protected:
-    friend class Wallet;
-    explicit PaymentRequest(Wallet *wallet, int paymentType);
 
 private:
     void setPaymentState(PaymentState newState);
@@ -142,12 +106,8 @@ private:
     QString m_message;
     KeyId m_address;
     int m_privKeyId = -1; // refers to the Wallets list of private keys
-    bool m_unusedRequest = true; ///< true as long as the user did not decide to save the request
-    bool m_useLegacyAddressFormat = false;
-    bool m_dirty = true; // true is state changed and we need saving.
     qint64 m_amountRequested = 0;
     qint64 m_amountSeen = 0;
-    SaveState m_saveState = Temporary;
     PaymentState m_paymentState = Unpaid;
 
     QList<uint64_t> m_incomingOutputRefs; // see Wallet::OutputRef

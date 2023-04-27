@@ -57,7 +57,6 @@ class AccountInfo : public QObject
     Q_PROPERTY(bool isSingleAddressAccount READ isSingleAddressAccount NOTIFY encryptionChanged)
     Q_PROPERTY(bool isHDWallet READ isHDWallet NOTIFY encryptionChanged)
     Q_PROPERTY(bool isArchived READ isArchived WRITE setIsArchived NOTIFY isArchivedChanged)
-    Q_PROPERTY(QList<QObject*> paymentRequests READ paymentRequests NOTIFY paymentRequestsChanged)
     Q_PROPERTY(QString mnemonic READ hdWalletMnemonic NOTIFY encryptionChanged)
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath NOTIFY encryptionChanged)
     Q_PROPERTY(QString xpub READ xpub NOTIFY encryptionChanged)
@@ -106,18 +105,7 @@ public:
     // maps to Wallet::userOwnedWallet
     bool userOwnedWallet();
 
-    /**
-     * All payment requests that are created for this account.
-     */
-    QList<QObject*> paymentRequests() const;
-
     Q_INVOKABLE TransactionInfo* txInfo(int walletIndex, QObject *parent);
-    /**
-     * Start a new payment-request
-     * QML callers should pass a panel as parent, preferably one that is loaded.
-     */
-    Q_INVOKABLE QObject* createPaymentRequest(QObject *parent);
-
     Q_INVOKABLE void encryptPinToPay(const QString &password);
     Q_INVOKABLE void encryptPinToOpen(const QString &password);
     Q_INVOKABLE bool decrypt(const QString &password);
@@ -164,7 +152,6 @@ signals:
     void lastBlockSynchedChanged();
     void timeBehindChanged();
     void isPrimaryAccountChanged();
-    void paymentRequestsChanged();
     void userOwnedChanged();
     void isArchivedChanged();
     void hasFreshTransactionsChanged();

@@ -29,14 +29,6 @@ PaymentRequest::PaymentRequest(QObject *parent)
     : QObject(parent),
     m_wallet(nullptr)
 {
-}
-
-PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
-  : QObject(parent),
-  m_wallet(nullptr)
-{
-    assert(wallet);
-    setWallet(wallet);
 #if 0
     // by enabling this you can simulate the payment request being fulfilled
     QTimer::singleShot(5000, [=]() {
@@ -47,25 +39,19 @@ PaymentRequest::PaymentRequest(Wallet *wallet, QObject *parent)
         });
     });
 #endif
-}
 
-// constructor used to 'load' a request, already owned by the wallet.
-PaymentRequest::PaymentRequest(Wallet *wallet, int /* type */)
-    : QObject(wallet),
-      m_wallet(wallet),
-    m_saveState(Stored)
-{
-    // TODO remember type when we start to support more than just BIP21
-    m_unusedRequest = false;
+    connect (this, &PaymentRequest::paymentStateChanged, this, [=]() {
+        if (m_paymentState == PaymentSeen) {
+            // unconfirmed fully paid, but lets see in a couple of seconds...
+            QTimer::singleShot(FloweePay::instance()->dspTimeout(), this, [=]() {
+                // A DSP can change the status, if its still unchanged then we
+                // can safely move to the 'Ok' state.
+                if (m_paymentState == PaymentSeen)
+                    setPaymentState(PaymentSeenOk);
+            });
+        }
+    }, Qt::QueuedConnection);
 }
-
-PaymentRequest::~PaymentRequest()
-{
-    // free address again, if the ownership hasn't moved to be the wallet itself.
-    if (m_unusedRequest)
-        setWallet(nullptr);
-}
-
 
 void PaymentRequest::setPaymentState(PaymentState newState)
 {
@@ -73,7 +59,6 @@ void PaymentRequest::setPaymentState(PaymentState newState)
         return;
 
     m_paymentState = newState;
-    m_dirty = true;
     emit paymentStateChanged();
 }
 
@@ -81,13 +66,6 @@ QString PaymentRequest::address() const
 {
     if (m_address.IsNull())
         return QString();
-    if (m_useLegacyAddressFormat) {
-        CBase58Data legacy;
-        legacy.setData(m_address, CBase58Data::PubkeyType,
-                       FloweePay::instance()->chain() == P2PNet::MainChain
-                       ? CBase58Data::Mainnet : CBase58Data::Testnet);
-        return QString::fromStdString(legacy.ToString());
-    }
     CashAddress::Content c;
     c.hash = std::vector<uint8_t>(m_address.begin(), m_address.end());
     c.type = CashAddress::PUBKEY_TYPE;
@@ -98,34 +76,23 @@ void PaymentRequest::setWallet(Wallet *wallet)
 {
     if (m_wallet == wallet)
         return;
-    if (!m_unusedRequest && wallet != nullptr) {
-        logFatal() << "Can't change a wallet on an already saved payment request";
-        assert(m_unusedRequest);
-        return;
-    }
+
+    if (!m_incomingOutputRefs.isEmpty())
+        throw std::runtime_error("Not allowed to change wallet on partially fulfilled request");
+
+    const bool closedWAllet = wallet->encryption() == Wallet::FullyEncrypted && !wallet->isDecrypted();
+    if (closedWAllet)
+        throw std::runtime_error("Payment Request can't use an encrypted wallet");
 
     if (m_wallet) {
         disconnect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
-        auto w = m_wallet;
-        m_wallet = nullptr; // avoid recursion in the next line.
-        w->removePaymentRequest(this);
         if (m_paymentState == Unpaid)
-            w->unreserveAddress(m_privKeyId);
+            m_wallet->unreserveAddress(m_privKeyId);
     }
 
-    // if the wallet is encrypted we don't use it.
     m_wallet = wallet;
     if (m_wallet) {
-        const bool closedWAllet = m_wallet->encryption() == Wallet::FullyEncrypted && !m_wallet->isDecrypted();
-        if (closedWAllet) {
-            // a closed wallet is barely a husk of a data-structure. So a payment request makes no sense for it.
-            // but we can listen to the signal and after that initialize our request.
-            m_address = KeyId();
-        }
-        else {
-            m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
-            m_wallet->addPaymentRequest(this);
-        }
+        m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
         connect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
     }
     emit walletChanged();
@@ -136,19 +103,9 @@ void PaymentRequest::walletEncryptionChanged()
 {
     assert (m_wallet);
     const bool closedWAllet = m_wallet->encryption() == Wallet::FullyEncrypted && !m_wallet->isDecrypted();
-    if (closedWAllet) {
-        m_address = KeyId();
-    }
-    else {
-        m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
-        m_wallet->addPaymentRequest(this);
-    }
+    if (closedWAllet)
+        setWallet(nullptr);
     emit qrCodeStringChanged();
-}
-
-qint64 PaymentRequest::amountSeen() const
-{
-    return m_amountSeen;
 }
 
 PaymentRequest::PaymentState PaymentRequest::paymentState() const
@@ -159,9 +116,7 @@ PaymentRequest::PaymentState PaymentRequest::paymentState() const
 void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
 {
     assert(value > 0);
-    if (m_wallet->isSingleAddressWallet()
-            && m_unusedRequest && m_message.isEmpty()
-            && m_amountRequested == 0) {
+    if (m_wallet->isSingleAddressWallet()) {
         // This is a completely empty payment-request and since we are
         // connected to a single-address wallet it is common for transactions
         // to arrive that match our 'reserved' address.
@@ -178,16 +133,10 @@ void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
     }
     m_incomingOutputRefs.append(ref);
     m_amountSeen += value;
-    m_dirty = true;
 
     if (m_paymentState == Unpaid && m_amountSeen >= m_amountRequested) {
         if (blockHeight == -1)  {
             setPaymentState(PaymentSeen);
-            // TODO, the usage of this timer won't work due to Qt threading issues
-            QTimer::singleShot(FloweePay::instance()->dspTimeout(), this, [=]() {
-                if (m_paymentState == PaymentSeen)
-                    setPaymentState(PaymentSeenOk);
-            });
         } else {
             setPaymentState(Confirmed);
         }
@@ -200,44 +149,9 @@ void PaymentRequest::paymentRejected(uint64_t ref, int64_t value)
     if (!m_incomingOutputRefs.contains(ref))
         return;
     m_amountSeen -= value;
-    m_dirty = true;
     if (m_paymentState >= PaymentSeen && m_amountSeen < m_amountRequested)
         setPaymentState(Unpaid);
     emit amountSeenChanged();
-}
-
-bool PaymentRequest::stored() const
-{
-    return !m_unusedRequest;
-}
-
-void PaymentRequest::setStored(bool on)
-{
-    if (on != m_unusedRequest)
-        return;
-    m_unusedRequest = !on;
-    setParent(m_wallet);
-    setSaveState(on ? Stored : Temporary);
-    if (!on) {
-        m_wallet->removePaymentRequest(this);
-        // deleteLater(); // possible memory leak, but better than crashes
-    }
-
-    emit storedChanged();
-}
-
-PaymentRequest::SaveState PaymentRequest::saveState() const
-{
-    return m_saveState;
-}
-
-void PaymentRequest::setSaveState(SaveState saveState)
-{
-    if (m_saveState == saveState)
-        return;
-    m_saveState = saveState;
-    m_dirty = true;
-    emit saveStateChanged();
 }
 
 QString PaymentRequest::message() const
@@ -250,12 +164,11 @@ void PaymentRequest::setMessage(const QString &message)
     if (m_message == message)
         return;
     m_message = message;
-    m_dirty = true;
     emit messageChanged();
     emit qrCodeStringChanged();
 }
 
-void PaymentRequest::setAmountFP(double amount)
+void PaymentRequest::setAmount(double amount)
 {
     qint64 newAmount = amount;
     if (newAmount == m_amountRequested)
@@ -265,19 +178,14 @@ void PaymentRequest::setAmountFP(double amount)
     emit qrCodeStringChanged();
 }
 
-double PaymentRequest::amountFP() const
+double PaymentRequest::amount() const
 {
     return m_amountRequested;
 }
 
-double PaymentRequest::amountSeenFP() const
+double PaymentRequest::amountSeen() const
 {
     return m_amountSeen;
-}
-
-qint64 PaymentRequest::amount() const
-{
-    return m_amountRequested;
 }
 
 QString PaymentRequest::qrCodeString() const
@@ -317,21 +225,14 @@ QString PaymentRequest::qrCodeString() const
     return rc;
 }
 
-bool PaymentRequest::useLegacyAddress()
+void PaymentRequest::clear()
 {
-    return m_useLegacyAddressFormat;
-}
-
-void PaymentRequest::setUseLegacyAddress(bool on)
-{
-    if (on == m_useLegacyAddressFormat)
-        return;
-    m_useLegacyAddressFormat = on;
-    emit legacyChanged();
-    emit qrCodeStringChanged();
-}
-
-void PaymentRequest::switchAccount(AccountInfo *ai)
-{
-    if (ai) setWallet(ai->wallet());
+    m_wallet = nullptr;
+    m_message.clear();
+    m_address = KeyId();
+    m_privKeyId = -1;
+    m_amountRequested = 0;
+    m_amountSeen = 0;
+    m_paymentState = Unpaid;
+    m_incomingOutputRefs.clear();
 }

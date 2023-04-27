@@ -36,7 +36,6 @@
 
 class WalletInfoObject;
 class TransactionInfo;
-class PaymentRequest;
 struct WalletInsertBeforeData; // private wallet data struct.
 
 namespace P2PNet {
@@ -209,11 +208,6 @@ public:
     // Fill the transactionInfo object from walletTransaction \a txIndex
     void fetchTransactionInfo(TransactionInfo *info, int txIndex);
 
-    void addPaymentRequest(PaymentRequest *pr);
-    void removePaymentRequest(PaymentRequest *pr);
-
-    QList<PaymentRequest *> paymentRequests() const;
-
     /**
      * Returns a 'seed' to add to the user password on a (partially) encrypted
      * wallet.
@@ -376,7 +370,6 @@ signals:
     void utxosChanged();
     void appendedTransactions(int firstNew, int count);
     void lastBlockSynchedChanged();
-    void paymentRequestsChanged();
     void userOwnedChanged();
     void transactionChanged(int txIndex);
     void transactionConfirmed(int txIndex);
@@ -591,12 +584,6 @@ private:
     std::vector<char, secure_allocator<char>> m_encryptionIR;
 
     QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
-
-    struct PRData {
-        PaymentRequest *pr = nullptr;
-        bool saved = false; // true if this PR has been persisted to disk
-    };
-    QList<PRData> m_paymentRequests;
 };
 
 #endif

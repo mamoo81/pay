@@ -40,7 +40,6 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
         emit lastBlockSynchedChanged();
         emit timeBehindChanged();
     }, Qt::QueuedConnection);
-    connect(wallet, SIGNAL(paymentRequestsChanged()), this, SIGNAL(paymentRequestsChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(userOwnedChanged()), this, SIGNAL(userOwnedChanged()), Qt::QueuedConnection);
     connect(FloweePay::instance(), SIGNAL(headerChainHeightChanged()), this, SIGNAL(timeBehindChanged()));
@@ -285,26 +284,12 @@ bool AccountInfo::userOwnedWallet()
     return m_wallet->userOwnedWallet();
 }
 
-QList<QObject *> AccountInfo::paymentRequests() const
-{
-    QList<QObject*> answer;
-    for (auto *pr : m_wallet->paymentRequests()) {
-        answer.append(pr);
-    }
-    return answer;
-}
-
 TransactionInfo* AccountInfo::txInfo(int walletIndex, QObject *parent)
 {
     Q_ASSERT(parent);
     auto info = new TransactionInfo(parent);
     m_wallet->fetchTransactionInfo(info, walletIndex);
     return info;
-}
-
-QObject *AccountInfo::createPaymentRequest(QObject *parent)
-{
-    return new PaymentRequest(m_wallet, parent);
 }
 
 void AccountInfo::encryptPinToPay(const QString &password)

@@ -108,18 +108,6 @@ enum WalletDataSaveTags {
     OutputFromCoinbase,     // bool
     KeyStoreIndex,          // int that refers to the index of the privkey for the current tx-output.
     TxIsCashFusion,         // bool
-
-    // PaymentRequests
-    PaymentRequestType = 40,   // int, BIP21 or other
-    PaymentRequestAddress,     // int, the ID of the private-key
-    PaymentRequestMessage,     // string
-    PaymentRequestAmount,      // long, num satoshis
-    PaymentRequestOldAddress,  // bool (default false)
-
-    PaymentRequestPaid,        // long, num satoshis received
-    PaymentRequestTxIndex,     // int, index in m_walletTransactions
-    PaymentRequestOutputIndex, // int. Together with prev makes an OutputRef
-
 };
 
 enum OutputLockStateEnum {
