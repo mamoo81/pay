@@ -34,5 +34,82 @@ FocusScope {
         id: request
     }
 
+    onAccountChanged: {
+        if (request.state !== PaymentRequest.Unpaid) {
+            console.log(" show dialog to request change of account");
+        }
+        else {
+            request.account = account;
+        }
+    }
+    onActiveFocusChanged: {
+        if (activeFocus) {
+            console.log("  startign");
+            request.start();
+        }
+    }
+
+    Flowee.Label {
+        id: instructions
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: 20
+        text: qsTr("Share this QR to receive")
+        opacity: 0.5
+    }
+
+    Flowee.QRWidget {
+        id: qr
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: instructions.bottom
+        anchors.topMargin: 20
+        width: parent.width
+        qrText: request.qr
+    }
+
+    // entry-fields
+    ColumnLayout {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: qr.bottom
+        anchors.topMargin: 30
+        Flowee.Label {
+            text: qsTr("Description") + ":"
+        }
+        Flowee.TextField {
+            id: description
+            Layout.fillWidth: true
+            enabled: request.state === PaymentRequest.Unpaid
+            onTextChanged: request.message = text
+        }
+
+        Flowee.Label {
+            id: payAmount
+            text: qsTr("Amount") + ":"
+        }
+        RowLayout {
+            spacing: 10
+            Flowee.BitcoinValueField {
+                id: bitcoinValueField
+                enabled: request.state === PaymentRequest.Unpaid
+                onValueChanged: request.amount = value
+            }
+            Flowee.Label {
+                Layout.alignment: Qt.AlignBaseline
+                anchors.baselineOffset: bitcoinValueField.baselineOffset
+                text: Fiat.formattedPrice(bitcoinValueField.value, Fiat.price)
+            }
+        }
+        Flowee.Button {
+            Layout.alignment: Qt.AlignRight
+            text: qsTr("Clear")
+            onClicked: {
+                request.clear();
+                request.account = portfolio.current;
+                description.text = "";
+                bitcoinValueField.value = 0;
+                request.start();
+            }
+        }
+    }
 
 }

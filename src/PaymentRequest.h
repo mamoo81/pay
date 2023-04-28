@@ -19,10 +19,8 @@
 #define PAYMENTREQUEST_H
 
 #include <QObject>
-
 #include <primitives/pubkey.h>
 
-class Wallet;
 class AccountInfo;
 
 /**
@@ -39,6 +37,9 @@ class PaymentRequest : public QObject
     Q_PROPERTY(double amount READ amount WRITE setAmount NOTIFY amountChanged)
     Q_PROPERTY(double amountSeen READ amountSeen NOTIFY amountSeenChanged)
     Q_PROPERTY(PaymentState state READ paymentState NOTIFY paymentStateChanged)
+    Q_PROPERTY(FailReason failReason READ failReason NOTIFY failReasonChanged)
+    Q_PROPERTY(QObject* account READ account WRITE setAccount NOTIFY accountChanged)
+
 public:
     /// The state of this payment
     enum PaymentState {
@@ -49,6 +50,14 @@ public:
         Confirmed       //< We got paid.
     };
     Q_ENUM(PaymentState)
+
+    enum FailReason {
+        NoFailure,
+        NoAccountSet,
+        AccountEncrypted,
+        AccountSynchronizing
+    };
+    Q_ENUM(FailReason)
 
     PaymentRequest(QObject *parent = nullptr);
 
@@ -80,12 +89,23 @@ public:
      */
     void paymentRejected(uint64_t ref, int64_t value);
 
+    /**
+     * For this request and the set properties, reserve an address and show a QR
+     */
+    Q_INVOKABLE void start();
+    /**
+     * Forget all details, the account and become clean.
+     */
     Q_INVOKABLE void clear();
 
-    void setWallet(Wallet *wallet);
+    QObject *account() const;
+    void setAccount(QObject *account);
 
     QString address() const;
     void setAddress(const QString &newAddress);
+
+    PaymentRequest::FailReason failReason() const;
+    void setFailReason(FailReason reason);
 
 signals:
     void messageChanged();
@@ -93,22 +113,22 @@ signals:
     void amountChanged();
     void amountSeenChanged();
     void paymentStateChanged();
-    void walletChanged();
+    void accountChanged();
     void addressChanged();
-
-private slots:
-    void walletEncryptionChanged();
+    void failReasonChanged();
 
 private:
     void setPaymentState(PaymentState newState);
+    void updateFailReason();
 
-    Wallet *m_wallet;
+    AccountInfo *m_account = nullptr;
     QString m_message;
     KeyId m_address;
     int m_privKeyId = -1; // refers to the Wallets list of private keys
     qint64 m_amountRequested = 0;
     qint64 m_amountSeen = 0;
     PaymentState m_paymentState = Unpaid;
+    FailReason m_failReason = NoAccountSet;
 
     QList<uint64_t> m_incomingOutputRefs; // see Wallet::OutputRef
 };

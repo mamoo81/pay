@@ -294,6 +294,11 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
     saveSecrets();
 }
 
+bool Wallet::walletIsImporting() const
+{
+    return m_walletIsImporting;
+}
+
 void Wallet::updateSignatureTypes(const std::map<uint64_t, SignatureType> &txData)
 {
     // this basically processes the output argument received from createWalletTransactionFromTx

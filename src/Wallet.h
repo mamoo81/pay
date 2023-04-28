@@ -355,6 +355,8 @@ public:
     /// Check the loaded wallet version Id and make internal changes to upgrade it to current.
     void performUpgrades();
 
+    bool walletIsImporting() const;
+
 public slots:
     void delayedSave();
 

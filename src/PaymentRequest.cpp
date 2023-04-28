@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "PaymentRequest.h"
+#include "AccountInfo.h"
 #include "FloweePay.h"
 #include "Wallet.h"
-#include "AccountInfo.h"
 
 #include <QTimer>
 #include <QUrl>
@@ -26,8 +26,7 @@
 #include <cashaddr.h>
 
 PaymentRequest::PaymentRequest(QObject *parent)
-    : QObject(parent),
-    m_wallet(nullptr)
+    : QObject(parent)
 {
 #if 0
     // by enabling this you can simulate the payment request being fulfilled
@@ -62,6 +61,36 @@ void PaymentRequest::setPaymentState(PaymentState newState)
     emit paymentStateChanged();
 }
 
+void PaymentRequest::updateFailReason()
+{
+    if (m_account == nullptr) {
+        setFailReason(NoAccountSet);
+    }
+    else if (m_account->wallet()->encryption() == Wallet::FullyEncrypted
+            && !m_account->wallet()->isDecrypted()) {
+        setFailReason(AccountEncrypted);
+    }
+    else if (m_account->wallet()->walletIsImporting()) {
+        setFailReason(AccountSynchronizing);
+    } else {
+        setFailReason(NoFailure);
+    }
+}
+
+PaymentRequest::FailReason PaymentRequest::failReason() const
+{
+    return m_failReason;
+}
+
+void PaymentRequest::setFailReason(FailReason reason)
+{
+    if (m_failReason == reason)
+        return;
+    m_failReason = reason;
+    emit failReasonChanged();
+    emit qrCodeStringChanged();
+}
+
 QString PaymentRequest::address() const
 {
     if (m_address.IsNull())
@@ -72,40 +101,36 @@ QString PaymentRequest::address() const
     return QString::fromStdString(CashAddress::encodeCashAddr(FloweePay::instance()->chainPrefix(), c));
 }
 
-void PaymentRequest::setWallet(Wallet *wallet)
+QObject *PaymentRequest::account() const
 {
-    if (m_wallet == wallet)
+    return m_account;
+}
+
+void PaymentRequest::setAccount(QObject *account)
+{
+    if (account == m_account)
         return;
 
     if (!m_incomingOutputRefs.isEmpty())
         throw std::runtime_error("Not allowed to change wallet on partially fulfilled request");
 
-    const bool closedWAllet = wallet->encryption() == Wallet::FullyEncrypted && !wallet->isDecrypted();
-    if (closedWAllet)
-        throw std::runtime_error("Payment Request can't use an encrypted wallet");
+    if (m_account && m_paymentState == Unpaid)
+        m_account->wallet()->unreserveAddress(m_privKeyId);
 
-    if (m_wallet) {
-        disconnect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
-        if (m_paymentState == Unpaid)
-            m_wallet->unreserveAddress(m_privKeyId);
+    m_account = qobject_cast<AccountInfo*>(account);
+    m_privKeyId = -1;
+    m_address = KeyId();
+    m_amountSeen = 0;
+    updateFailReason();
+    if (m_account) {
+        connect (m_account->wallet(), &Wallet::encryptionChanged, this, [=]() {
+            updateFailReason();
+        });
     }
-
-    m_wallet = wallet;
-    if (m_wallet) {
-        m_privKeyId = m_wallet->reserveUnusedAddress(m_address);
-        connect (m_wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()));
-    }
-    emit walletChanged();
+    emit accountChanged();
     emit qrCodeStringChanged();
-}
-
-void PaymentRequest::walletEncryptionChanged()
-{
-    assert (m_wallet);
-    const bool closedWAllet = m_wallet->encryption() == Wallet::FullyEncrypted && !m_wallet->isDecrypted();
-    if (closedWAllet)
-        setWallet(nullptr);
-    emit qrCodeStringChanged();
+    emit amountSeenChanged();
+    emit addressChanged();
 }
 
 PaymentRequest::PaymentState PaymentRequest::paymentState() const
@@ -116,16 +141,6 @@ PaymentRequest::PaymentState PaymentRequest::paymentState() const
 void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
 {
     assert(value > 0);
-    if (m_wallet->isSingleAddressWallet()) {
-        // This is a completely empty payment-request and since we are
-        // connected to a single-address wallet it is common for transactions
-        // to arrive that match our 'reserved' address.
-        // This means that we have zero indication that incoming transactions
-        // are in response to this request.
-
-        // Just return and keep us showing a QR of our only address.
-        return;
-    }
     if (m_incomingOutputRefs.contains(ref)) {
         if (m_paymentState >= PaymentSeen && blockHeight != -1)
             setPaymentState(Confirmed);
@@ -152,6 +167,14 @@ void PaymentRequest::paymentRejected(uint64_t ref, int64_t value)
     if (m_paymentState >= PaymentSeen && m_amountSeen < m_amountRequested)
         setPaymentState(Unpaid);
     emit amountSeenChanged();
+}
+
+void PaymentRequest::start()
+{
+    if (m_failReason == NoFailure && m_privKeyId == -1) {
+        m_privKeyId = m_account->wallet()->reserveUnusedAddress(m_address, Wallet::ReceivePath);
+        emit qrCodeStringChanged();
+    }
 }
 
 QString PaymentRequest::message() const
@@ -190,8 +213,9 @@ double PaymentRequest::amountSeen() const
 
 QString PaymentRequest::qrCodeString() const
 {
-    if (m_address.IsNull())
+    if (m_failReason != NoFailure || m_address.IsNull()) {
         return QString();
+    }
     QString rc = address();
     bool separatorInserted = false; // the questionmark.
     if (m_amountRequested > 0) {
@@ -227,12 +251,11 @@ QString PaymentRequest::qrCodeString() const
 
 void PaymentRequest::clear()
 {
-    m_wallet = nullptr;
     m_message.clear();
     m_address = KeyId();
     m_privKeyId = -1;
     m_amountRequested = 0;
-    m_amountSeen = 0;
-    m_paymentState = Unpaid;
+    setPaymentState(Unpaid);
     m_incomingOutputRefs.clear();
+    setAccount(nullptr);
 }

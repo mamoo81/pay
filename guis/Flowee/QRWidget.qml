@@ -20,21 +20,25 @@ import Flowee.org.pay
 
 Item {
     id: root
-    property QtObject request: null
     property alias qrSize: qrImage.width
     implicitWidth: qrImage.width
     implicitHeight: qrImage.width + addressLine.height
-    opacity: root.request == null || root.request.state === PaymentRequest.Unpaid ? 1: 0
+    property string qrText: ""
 
     function handleOnClicked() {
-        Pay.copyToClipboard(root.request.qr)
+        Pay.copyToClipboard(qrText);
         // invert the feedback so a second tap removes the feedback again.
         clipboardFeedback.opacity = clipboardFeedback.opacity == 0 ? 1 : 0
     }
 
     Image {
         id: qrImage
-        source: root.request == null ? "" : "image://qr/" + root.request.qr
+        source: {
+            var text = root.qrText;
+            if (text === "")
+                return "";
+            return "image://qr/" + text;
+        }
         smooth: false
         width: 256 // exported at root level
         height: width
@@ -58,12 +62,13 @@ Item {
             anchors.centerIn: parent
             width: parent.width
             text: {
-                if (root.request == null)
-                    return "";
-                var address = root.request.address
+                var address = root.qrText
                 let index = address.indexOf(":");
                 if (index >= 0)
                     address = address.substr(index + 1); // cut off the prefix
+                index = address.indexOf("?")
+                if (index >= 0)
+                    address = address.substr(0, index - 1); // cut off the tailing parts
                 return address;
             }
             horizontalAlignment: Text.AlignHCenter

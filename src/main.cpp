@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<BitcoinValue>("Flowee.org.pay", 1, 0, "BitcoinValue");
     qmlRegisterType<NewWalletConfig>("Flowee.org.pay", 1, 0, "NewWalletConfig");
     qmlRegisterType<Payment>("Flowee.org.pay", 1, 0, "Payment");
+    qmlRegisterType<PaymentRequest>("Flowee.org.pay", 1, 0, "PaymentRequest");
 
     auto cld = createCLD(qapp);
     auto *logger = Log::Manager::instance();
