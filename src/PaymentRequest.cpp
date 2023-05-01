@@ -30,17 +30,6 @@
 PaymentRequest::PaymentRequest(QObject *parent)
     : QObject(parent)
 {
-#if 0
-    // by enabling this you can simulate the payment request being fulfilled
-    QTimer::singleShot(5000, [=]() {
-        setPaymentState(PaymentSeen);
-        QTimer::singleShot(3000, [=]() {
-            // setPaymentState(PaymentSeenOk);
-            setPaymentState(DoubleSpentSeen);
-        });
-    });
-#endif
-
     connect (this, &PaymentRequest::paymentStateChanged, this, [=]() {
         if (m_paymentState == PaymentSeen) {
             // unconfirmed fully paid, but lets see in a couple of seconds...
@@ -176,6 +165,17 @@ void PaymentRequest::start()
         assert(m_view);
         m_view->setPrivKeyIndex(m_privKeyId);
         emit qrCodeStringChanged();
+
+#if 0
+        // by enabling this you can simulate the payment request being fulfilled
+        QTimer::singleShot(5000, [=]() {
+            setPaymentState(PaymentSeen);
+            QTimer::singleShot(3000, [=]() {
+                setPaymentState(PaymentSeenOk);
+                // setPaymentState(DoubleSpentSeen);
+            });
+        });
+#endif
     }
 }
 
@@ -259,6 +259,8 @@ void PaymentRequest::clear()
     m_amountRequested = 0;
     m_amountSeen = 0;
     setPaymentState(Unpaid);
+    delete m_view;
+    m_view = nullptr;
     setAccount(nullptr);
-    assert(m_view == nullptr); // ensure that setAccount() did that
+    assert(m_view == nullptr); // ensure we didn't get a new one
 }

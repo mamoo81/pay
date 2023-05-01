@@ -35,22 +35,12 @@ FocusScope {
     }
 
     onAccountChanged: {
-        if (request.state !== PaymentRequest.Unpaid
-                && request.state !== PaymentRequest.Unpaid
-                && request.state !== PaymentRequest.Unpaid) {
-            changeAccountDialog.show();
-        }
-        else {
+        var state = request.state;
+        if (request.state === PaymentRequest.Unpaid) {
+            // I can only change the wallet without cost
+            // if no payment has been seen.
             request.account = account;
         }
-    }
-
-    Flowee.Dialog {
-        id: changeAccountDialog
-        title: qsTr("Clear Request?")
-        text: qsTr("The payment request is pending, are you sure you want to clear it before completion?")
-
-        // TODO
     }
 
     onActiveFocusChanged: {
@@ -121,4 +111,163 @@ FocusScope {
         }
     }
 
+    // the "payment received" screen.
+    Rectangle {
+        anchors.fill: parent
+        anchors.leftMargin: -10 // be actually edge to edge
+        anchors.rightMargin: -10
+        radius: 10
+        gradient: Gradient {
+            GradientStop {
+                position: 0.6
+                color: {
+                    var state = request.state;
+                    if (state === PaymentRequest.PaymentSeen || state === PaymentRequest.Unpaid)
+                        return palette.base
+                    if (state === PaymentRequest.DoubleSpentSeen)
+                        return mainWindow.errorRedBg
+                    return "#3e8b4e" // in all other cases: green
+                }
+                Behavior on color { ColorAnimation {} }
+            }
+            GradientStop {
+                position: 0.1
+                color: palette.base
+            }
+        }
+        opacity: request.state === PaymentRequest.Unpaid ? 0: 1
+
+        // animating timer to indicate our checking the security of the transaction.
+        // (i.e. waiting for the double spent proof)
+        Item {
+            id: feedback
+            width: 160
+            height: 160
+
+            y: 60
+            x: 30
+            visible: request.state !== PaymentRequest.DoubleSpentSeen
+            Shape {
+                id: circleShape
+                anchors.fill: parent
+                opacity: request.state === PaymentRequest.Unpaid ? 0: 1
+                x: 40
+                ShapePath {
+                    strokeWidth: 20
+                    strokeColor: request.state === PaymentRequest.PaymentSeenOk
+                        ? "green" : "#9ea0b0"
+                    fillColor: "transparent"
+                    capStyle: ShapePath.RoundCap
+                    startX: 100; startY: 10
+
+                    PathAngleArc {
+                        id: progressCircle
+                        centerX: 80
+                        centerY: 80
+                        radiusX: 70; radiusY: 70
+                        startAngle: -20
+                        sweepAngle: request.state === PaymentRequest.Unpaid ? 0: 340
+
+                        Behavior on sweepAngle {  NumberAnimation { duration: Pay.dspTimeout } }
+                    }
+                }
+
+                Behavior on opacity { OpacityAnimator {} }
+            }
+            Flowee.Label {
+                color: "green"
+                text: "✔"
+                opacity: {
+                    if (request.state === PaymentRequest.PaymentSeenOk
+                            || request.state === PaymentRequest.Confirmed)
+                        return 1;
+                    return 0;
+                }
+                font.pixelSize: 130
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right
+            }
+        }
+        // textual feedback
+        Item {
+            clip: true
+            anchors.top: feedback.top
+            anchors.left: feedback.right
+            anchors.right: parent.right
+            height: 160
+            opacity: {
+                var s = request.state
+                if (s == PaymentRequest.PartiallyPaid
+                        || s === PaymentRequest.PaymentSeen)
+                    return 1;
+                return 0;
+            }
+            Flowee.Label {
+                id: label1
+                text: qsTr("Payment Seen")
+                x: request.state === PaymentRequest.Unpaid ? (0 - width - 10) : 0
+                y: 30
+                Behavior on x { NumberAnimation { } }
+            }
+            Flowee.Label {
+                id: label2
+                text: qsTr("Checking...") // checking security
+                x: (label1.x > (0 - label1.width) + 20) ? 0 : 0 - width - 10
+                y: label1.height + 8 + 30
+                Behavior on x { NumberAnimation { } }
+            }
+            Behavior on opacity { OpacityAnimator { duration: 1000 } }
+        }
+
+
+        Flowee.Label {
+            id: feedbackLabel
+            text: {
+                var s = request.state;
+                if (s === PaymentRequest.DoubleSpentSeen) {
+                    // double-spent-proof received
+                    return qsTr("Transaction high risk");
+                }
+                if (s === PaymentRequest.PartiallyPaid)
+                    return qsTr("Partially Paid");
+                if (s === PaymentRequest.PaymentSeen)
+                    return qsTr("Payment Seen");
+                if (s === PaymentRequest.PaymentSeenOk)
+                    return qsTr("Payment Accepted");
+                if (s === PaymentRequest.Confirmed)
+                    return qsTr("Payment Settled");
+                return "INTERNAL ERROR";
+            }
+            width: parent.width - 40
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: feedback.bottom
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            font.pointSize: 20
+        }
+        Flowee.Label {
+            visible: request.state === PaymentRequest.DoubleSpentSeen
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: feedbackLabel.bottom
+            anchors.topMargin: 20
+            width: parent.width - 40
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            text: qsTr("Instant payment failed. Wait for confirmation. (double spent proof received)")
+        }
+
+        Behavior on opacity { OpacityAnimator {} }
+
+        Flowee.Button {
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            y: 400
+            text: qsTr("Continue")
+            onClicked: {
+                request.clear();
+                description.text = "";
+                bitcoinValueField.value = 0;
+                request.account = portfolio.current;
+                request.start();
+            }
+        }
+    }
 }
