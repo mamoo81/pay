@@ -261,6 +261,8 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     if (std::isnan(offset) || offset < 0 || offset > 1.0)
         return QString();
     const size_t row = std::round(offset * m_rowsProxy.size());
+    if (row >= m_rowsProxy.size())
+        return QString();
     auto item = m_wallet->m_walletTransactions.at(txIndexFromRow(row));
     if (item.minedBlockHeight <= 0)
         return QString();
