@@ -36,7 +36,7 @@
 
 class WalletInfoObject;
 class TransactionInfo;
-struct WalletInsertBeforeData; // private wallet data struct.
+class WalletKeyView;
 
 namespace P2PNet {
 struct Notification;
@@ -564,6 +564,7 @@ private:
     friend class WalletHistoryModel;
     friend class WalletSecretsModel;
     friend class WalletCoinsModel;
+    friend class WalletKeyView;;
 
     // auto-detected, causes us to send bigger gaps for bloom filters.
     bool m_walletStoresCashFusions = false;

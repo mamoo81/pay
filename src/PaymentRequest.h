@@ -22,6 +22,7 @@
 #include <primitives/pubkey.h>
 
 class AccountInfo;
+class WalletKeyView;
 
 /**
  * This is a user-created request for payment to a specific wallet/address.
@@ -44,6 +45,7 @@ public:
     /// The state of this payment
     enum PaymentState {
         Unpaid,         //< we have not seen any payment yet.
+        PartiallyPaid,  //< we have seen some payments, not full amount
         DoubleSpentSeen,//< We have seen a double-spend-proof (DSP). This is bad.
         PaymentSeen,    //< A payment has been seen, there is still risk.
         PaymentSeenOk,  //< A payment has been seen, we waited and no DSP came.
@@ -74,20 +76,6 @@ public:
     QString qrCodeString() const;
 
     PaymentState paymentState() const;
-
-    /**
-     * Add a payment made towards fulfilling the request.
-     * @param ref the Wallet reference to the payment.
-     * @param value the amount paid, in satoshis.
-     * @param blockHeight or -1 when not mined yet
-     */
-    void addPayment(uint64_t ref, int64_t value, int blockHeight = -1);
-    /**
-     * Mark a payment as rejected (typically double-spent).
-     * @param ref the Wallet reference to the payment.
-     * @param value the amount paid, in satoshis.
-     */
-    void paymentRejected(uint64_t ref, int64_t value);
 
     /**
      * For this request and the set properties, reserve an address and show a QR
@@ -121,6 +109,7 @@ private:
     void setPaymentState(PaymentState newState);
     void updateFailReason();
 
+    WalletKeyView *m_view = nullptr;
     AccountInfo *m_account = nullptr;
     QString m_message;
     KeyId m_address;
@@ -129,8 +118,6 @@ private:
     qint64 m_amountSeen = 0;
     PaymentState m_paymentState = Unpaid;
     FailReason m_failReason = NoAccountSet;
-
-    QList<uint64_t> m_incomingOutputRefs; // see Wallet::OutputRef
 };
 
 #endif

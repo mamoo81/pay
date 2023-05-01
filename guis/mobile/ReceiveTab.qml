@@ -35,18 +35,27 @@ FocusScope {
     }
 
     onAccountChanged: {
-        if (request.state !== PaymentRequest.Unpaid) {
-            console.log(" show dialog to request change of account");
+        if (request.state !== PaymentRequest.Unpaid
+                && request.state !== PaymentRequest.Unpaid
+                && request.state !== PaymentRequest.Unpaid) {
+            changeAccountDialog.show();
         }
         else {
             request.account = account;
         }
     }
+
+    Flowee.Dialog {
+        id: changeAccountDialog
+        title: qsTr("Clear Request?")
+        text: qsTr("The payment request is pending, are you sure you want to clear it before completion?")
+
+        // TODO
+    }
+
     onActiveFocusChanged: {
-        if (activeFocus) {
-            console.log("  startign");
+        if (activeFocus)
             request.start();
-        }
     }
 
     Flowee.Label {

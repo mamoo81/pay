@@ -19,8 +19,10 @@
 #include "AccountInfo.h"
 #include "FloweePay.h"
 #include "Wallet.h"
+#include "WalletKeyView.h"
 
 #include <QTimer>
+#include <QThread>
 #include <QUrl>
 #include <base58.h>
 #include <cashaddr.h>
@@ -110,23 +112,52 @@ void PaymentRequest::setAccount(QObject *account)
 {
     if (account == m_account)
         return;
-
-    if (!m_incomingOutputRefs.isEmpty())
+    if (m_view && !m_view->transactions().isEmpty())
         throw std::runtime_error("Not allowed to change wallet on partially fulfilled request");
 
-    if (m_account && m_paymentState == Unpaid)
+    if (m_account && m_privKeyId != -1 && m_paymentState == Unpaid)
         m_account->wallet()->unreserveAddress(m_privKeyId);
 
+    delete m_view;
+    m_view = nullptr;
     m_account = qobject_cast<AccountInfo*>(account);
     m_privKeyId = -1;
     m_address = KeyId();
     m_amountSeen = 0;
-    updateFailReason();
     if (m_account) {
-        connect (m_account->wallet(), &Wallet::encryptionChanged, this, [=]() {
+        assert(QThread::currentThread() == thread());
+        m_view = new WalletKeyView(m_account->wallet(), this);
+        connect (m_view, &WalletKeyView::walletEncrypted, this, [=]() {
             updateFailReason();
         });
+        connect (m_view, &WalletKeyView::importFinished, this, [=]() {
+            start();
+            updateFailReason();
+        });
+        connect (m_view, &WalletKeyView::transactionMatch, this, [=]() {
+            uint64_t seen = 0;
+            for (const auto &tx : m_view->transactions()) {
+                if (tx.state != WalletKeyView::UTXORejected) {
+                    seen += tx.amount;
+                }
+            }
+
+            if (seen != m_amountSeen) {
+                m_amountSeen = seen;
+                if (m_amountSeen >= m_amountRequested) {
+                    if (m_paymentState <= PartiallyPaid)
+                        setPaymentState(PaymentSeen);
+                }
+                else if (m_amountSeen >= 0) {
+                    if (m_paymentState == Unpaid)
+                        setPaymentState(PartiallyPaid);
+                }
+
+                emit amountSeenChanged();
+            }
+        });
     }
+    updateFailReason();
     emit accountChanged();
     emit qrCodeStringChanged();
     emit amountSeenChanged();
@@ -138,41 +169,12 @@ PaymentRequest::PaymentState PaymentRequest::paymentState() const
     return m_paymentState;
 }
 
-void PaymentRequest::addPayment(uint64_t ref, int64_t value, int blockHeight)
-{
-    assert(value > 0);
-    if (m_incomingOutputRefs.contains(ref)) {
-        if (m_paymentState >= PaymentSeen && blockHeight != -1)
-            setPaymentState(Confirmed);
-        return;
-    }
-    m_incomingOutputRefs.append(ref);
-    m_amountSeen += value;
-
-    if (m_paymentState == Unpaid && m_amountSeen >= m_amountRequested) {
-        if (blockHeight == -1)  {
-            setPaymentState(PaymentSeen);
-        } else {
-            setPaymentState(Confirmed);
-        }
-    }
-    emit amountSeenChanged();
-}
-
-void PaymentRequest::paymentRejected(uint64_t ref, int64_t value)
-{
-    if (!m_incomingOutputRefs.contains(ref))
-        return;
-    m_amountSeen -= value;
-    if (m_paymentState >= PaymentSeen && m_amountSeen < m_amountRequested)
-        setPaymentState(Unpaid);
-    emit amountSeenChanged();
-}
-
 void PaymentRequest::start()
 {
     if (m_failReason == NoFailure && m_privKeyId == -1) {
         m_privKeyId = m_account->wallet()->reserveUnusedAddress(m_address, Wallet::ReceivePath);
+        assert(m_view);
+        m_view->setPrivKeyIndex(m_privKeyId);
         emit qrCodeStringChanged();
     }
 }
@@ -255,7 +257,8 @@ void PaymentRequest::clear()
     m_address = KeyId();
     m_privKeyId = -1;
     m_amountRequested = 0;
+    m_amountSeen = 0;
     setPaymentState(Unpaid);
-    m_incomingOutputRefs.clear();
     setAccount(nullptr);
+    assert(m_view == nullptr); // ensure that setAccount() did that
 }
