@@ -17,7 +17,6 @@
 project(flowee_lib)
 
 option(local_qml "Allow local QML loading" OFF)
-option(networkLog "Include network-logging client" OFF)
 option(NetworkLogClient "Include the network based logging in the executables" OFF)
 
 add_definitions(-DLOG_DEFAULT_SECTION=10000)
