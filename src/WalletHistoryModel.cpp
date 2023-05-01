@@ -377,6 +377,10 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
         timestamp = secsSinceEpochFor(blockheight);
     }
     assert(timestamp > 0);
+    if (timestamp == 0) {
+        // some inconsistency between wallet and libp2p.
+        return;
+    }
 
     if (!m_groups.back().add(txIndex, timestamp)) {
         // didn't fit, make a new group and add it there.
