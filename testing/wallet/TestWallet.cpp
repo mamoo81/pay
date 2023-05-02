@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -365,6 +365,13 @@ void TestWallet::lockingOutputs()
         QVERIFY(unlockSuccess);
 
         walletSet = wallet->findInputsFor(1801000, 1, 1, change);
+        if (walletSet.outputs.size() == 0) {
+            // findInputsFor is probabilistic, and about 1 in 10 runs it selects
+            // for the above B1/T1 the bigger 400000 sats output instead of the
+            // smaller 100000 output, which is thus now locked.
+            // In case that happens, just request less.
+            walletSet = wallet->findInputsFor(1501000, 1, 1, change);
+        }
         QCOMPARE(walletSet.outputs.size(), 4L); // should be all outputs, including the unconfirmed one.
         TransactionBuilder b1;
         for (auto ref : walletSet.outputs) {
