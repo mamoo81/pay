@@ -133,7 +133,7 @@ Rectangle {
 
     Flowee.BitcoinAmountLabel {
         id: bitcoinAmountLabel
-        visible: Pay.activityShowsBch
+        visible: Pay.activityShowsBch || !Pay.isMainChain
         value: {
             let inputs = model.fundsIn
             let outputs = model.fundsOut
@@ -149,7 +149,7 @@ Rectangle {
     Flowee.Label {
         anchors.top: mainLabel.top
         anchors.right: parent.right
-        visible: !Pay.activityShowsBch
+        visible: bitcoinAmountLabel.visible === false
         text: {
             var timestamp = model.date;
             if (timestamp === undefined)

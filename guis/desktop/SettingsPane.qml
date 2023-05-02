@@ -97,11 +97,13 @@ Pane {
             Layout.alignment: Qt.AlignRight
             checked: Pay.activityShowsBch
             onCheckedChanged: Pay.activityShowsBch = checked
+            visible: Pay.isMainChain
         }
         Flowee.CheckBoxLabel {
             Layout.columnSpan: 2
             buddy: showBchOnActivity
             text: qsTr("Show Bitcoin Cash value on Activity page")
+            visible: Pay.isMainChain
         }
 
         Flowee.CheckBox {

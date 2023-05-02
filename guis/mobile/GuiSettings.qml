@@ -143,6 +143,7 @@ Page {
         Flowee.Label {
             text: qsTr("Main View")
             font.bold: true
+            visible: Pay.isMainChain // because we only have one option right now
         }
         Item {
             width: 10
@@ -153,6 +154,7 @@ Page {
             text: qsTr("Show Bitcoin Cash value")
             checked: Pay.activityShowsBch
             onCheckedChanged: Pay.activityShowsBch = checked
+            visible: Pay.isMainChain // only mainchain has fiat value
         }
     }
 }

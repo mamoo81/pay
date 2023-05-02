@@ -320,7 +320,7 @@ ListView {
             height: amount.height + 8
             anchors.right: parent.right
             y: {
-                if (Pay.activityShowsBch) // my bottom at parent verticalCenter
+                if (Pay.activityShowsBch || !Pay.isMainChain) // my bottom at parent verticalCenter
                     return parent.height / 2 - height
                 return parent.height / 2 - height / 2 // i.e my verticalCenter = parent.verticalCenter
             }
@@ -353,7 +353,7 @@ ListView {
             opacity: price.opacity
         }
         Flowee.BitcoinAmountLabel {
-            visible: price.visible && Pay.activityShowsBch
+            visible: price.visible && (Pay.activityShowsBch || !Pay.isMainChain)
             anchors.right: parent.right
             anchors.rightMargin: 25
             anchors.baseline: dateLine.baseline
