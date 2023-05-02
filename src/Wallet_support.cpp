@@ -476,11 +476,11 @@ Wallet::InsertBeforeData Wallet::removeTransactionsAfter(int blockHeight)
 
         ibd.oldTransactionIds.insert(i->first);
         ibd.transactions.push_back(i->second);
-        m_walletTransactions.erase(i);
         auto txidIter = m_txidCache.find(wtx.txid);
         assert(txidIter != m_txidCache.end());
         m_txidCache.erase(txidIter);
         logDebug(LOG_WALLET) << "Rolling back tx:" << wtx.txid << wtx.minedBlockHeight;
+        m_walletTransactions.erase(i); // last command, it invalidates wtx
     }
     return ibd;
 }
