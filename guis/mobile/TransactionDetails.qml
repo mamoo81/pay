@@ -61,7 +61,7 @@ Page {
         }
         Flowee.Label {
             text: root.infoObject == null ? "" :
-                    qsTr("%1 bytes", "", root.infoObject.size).arg(root.infoObject.size)
+                    qsTr("%1 bytes").arg(root.infoObject.size)
         }
         /*
         VisualSeparator {}

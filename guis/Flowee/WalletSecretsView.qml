@@ -31,7 +31,7 @@ ListView {
         Label {
             width: parent.width
             font.italic: true
-            text: qsTr("Explanation:");
+            text: qsTr("Explanation") + ":";
         }
         Label {
             width: parent.width
