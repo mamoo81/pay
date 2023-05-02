@@ -63,6 +63,15 @@
     </message>
   </context>
   <context>
+    <name>AddressInfoWidget</name>
+    <message>
+      <location filename="../guis/Flowee/AddressInfoWidget.qml" line="60"/>
+      <source>self</source>
+      <comment>payment to self</comment>
+      <translation>zelf</translation>
+    </message>
+  </context>
+  <context>
     <name>BroadcastFeedback</name>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="60"/>
@@ -111,30 +120,30 @@
   <context>
     <name>FloweePay</name>
     <message>
-      <location filename="../src/FloweePay.cpp" line="275"/>
+      <location filename="../src/FloweePay.cpp" line="300"/>
       <source>Initial Wallet</source>
       <translation>Eerste portemonnee</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="453"/>
-      <location filename="../src/FloweePay.cpp" line="511"/>
+      <location filename="../src/FloweePay.cpp" line="479"/>
+      <location filename="../src/FloweePay.cpp" line="537"/>
       <source>Today</source>
       <translation>Vandaag</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="455"/>
-      <location filename="../src/FloweePay.cpp" line="513"/>
+      <location filename="../src/FloweePay.cpp" line="481"/>
+      <location filename="../src/FloweePay.cpp" line="539"/>
       <source>Yesterday</source>
       <translation>Gisteren</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="500"/>
+      <location filename="../src/FloweePay.cpp" line="526"/>
       <source>Now</source>
       <comment>timestamp</comment>
       <translation>Nu</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="501"/>
+      <location filename="../src/FloweePay.cpp" line="527"/>
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
       <translation>
@@ -143,13 +152,13 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="505"/>
+      <location filename="../src/FloweePay.cpp" line="531"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
       <translation>Half uur geleden</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="507"/>
+      <location filename="../src/FloweePay.cpp" line="533"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
       <translation>
@@ -237,22 +246,22 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="157"/>
+      <location filename="../src/Payment.cpp" line="118"/>
       <source>Invalid PIN</source>
       <translation>Ongeldige PIN</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="242"/>
+      <location filename="../src/Payment.cpp" line="203"/>
       <source>Not enough funds selected for fees</source>
       <translation>Onvoldoende saldo voor transactiekosten</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="252"/>
+      <location filename="../src/Payment.cpp" line="213"/>
       <source>Not enough funds in wallet to make payment!</source>
       <translation>Niet genoeg saldo in portemonnee om te betalen!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="317"/>
+      <location filename="../src/Payment.cpp" line="278"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Transactie te groot. Geselecteerd bedrag vereist te veel munten.</translation>
     </message>
@@ -260,7 +269,7 @@
   <context>
     <name>QRWidget</name>
     <message>
-      <location filename="../guis/Flowee/QRWidget.qml" line="57"/>
+      <location filename="../guis/Flowee/QRWidget.qml" line="103"/>
       <source>Copied to clipboard</source>
       <translation>Naar klembord gekopieerd</translation>
     </message>
@@ -269,7 +278,7 @@
     <name>Wallet</name>
     <message>
       <location filename="../src/Wallet_support.cpp" line="278"/>
-      <location filename="../src/Wallet_support.cpp" line="300"/>
+      <location filename="../src/Wallet_support.cpp" line="312"/>
       <source>Change #%1</source>
       <translation>Wisselmunt #%1</translation>
     </message>
@@ -354,23 +363,37 @@
   <context>
     <name>WalletSecretsView</name>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="59"/>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="92"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="34"/>
+      <source>Explanation</source>
+      <translation>Uitleg</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="39"/>
+      <source>Coins a / b
+ a) active coin-count.
+ b) historical coin-count.</source>
+      <translation>Munten a / b
+ a) actieve munten aantal.
+ b) historische munten.</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="76"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="109"/>
       <source>Copy Address</source>
       <translation>Kopieer adres</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="96"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="113"/>
       <source>Copy Private Key</source>
       <translation>Kopieer privésleutel</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="122"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="139"/>
       <source>Coins: %1 / %2</source>
       <translation>Munten: %1 / %2</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="148"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="161"/>
       <source>Signed with Schnorr signatures in the past</source>
       <translation>In het verleden ondertekend met Schnorr</translation>
     </message>
