@@ -815,9 +815,9 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     if (startHeight < 1000000) { // when its a blockheight and not a timestamp.
         m_segment->blockSynched(startHeight);
         m_segment->blockSynched(startHeight); // yes, twice
+        m_walletIsImporting = true;
     }
     deriveHDKeys(200, 200, startHeight);
-    m_walletIsImporting = true;
 }
 
 int Wallet::lastTransactionTimestamp() const
