@@ -63,6 +63,24 @@ FocusScope {
         anchors.topMargin: 20
         width: parent.width
         qrText: request.qr
+
+        Flowee.Label {
+            visible: request.failReason !== PaymentRequest.NoFailure
+            text: {
+                var f = request.failReason;
+                if (f === PaymentRequest.AccountEncrypted)
+                    return qsTr("Encrypted Wallet");
+                if (f === PaymentRequest.AccountImporting)
+                    return qsTr("Import Running...");
+                if (f === PaymentRequest.NoAccountSet)
+                    return "No Account Set"; // not translated b/c cause is bug in QML
+                return "";
+            }
+            anchors.centerIn: parent
+            width: parent.width - 40
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            font.pointSize: 18
+        }
     }
 
     // entry-fields

@@ -62,7 +62,7 @@ void PaymentRequest::updateFailReason()
         setFailReason(AccountEncrypted);
     }
     else if (m_account->wallet()->walletIsImporting()) {
-        setFailReason(AccountSynchronizing);
+        setFailReason(AccountImporting);
     } else {
         setFailReason(NoFailure);
     }
@@ -255,7 +255,6 @@ void PaymentRequest::clear()
 {
     m_message.clear();
     m_address = KeyId();
-    m_privKeyId = -1;
     m_amountRequested = 0;
     m_amountSeen = 0;
     setPaymentState(Unpaid);
@@ -263,4 +262,5 @@ void PaymentRequest::clear()
     m_view = nullptr;
     setAccount(nullptr);
     assert(m_view == nullptr); // ensure we didn't get a new one
+    m_privKeyId = -1;
 }

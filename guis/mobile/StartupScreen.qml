@@ -18,6 +18,7 @@
 import QtQuick
 import QtQuick.Layouts
 import "../Flowee" as Flowee
+import Flowee.org.pay
 
 Page {
     id: root
@@ -26,6 +27,7 @@ Page {
     headerButtonText: qsTr("Continue")
     onHeaderButtonClicked: {
         if (!portfolio.current.isUserOwned) {
+            request.clear(); // to make the QR here the same as there
             var mainView = thePile.get(0);
             mainView.currentIndex = 2 // go to the receive-tab
         }
@@ -43,7 +45,12 @@ Page {
                 thePile.pop();
             }
         }
+        PaymentRequest {
+            id: request
+            account: portfolio.current
+        }
     }
+    onActiveFocusChanged: request.start();
 
     Flickable {
         anchors.fill: parent
@@ -150,10 +157,9 @@ Page {
                 width: column.width * 0.8
                 x: column.width / 10
             }
-
             Flowee.QRWidget {
-                request: portfolio.current.createPaymentRequest(root)
                 width: parent.width
+                qrText: request.qr
             }
 
             Item { width: 1; height: 40 } // spacer

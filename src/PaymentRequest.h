@@ -57,7 +57,7 @@ public:
         NoFailure,
         NoAccountSet,
         AccountEncrypted,
-        AccountSynchronizing
+        AccountImporting
     };
     Q_ENUM(FailReason)
 

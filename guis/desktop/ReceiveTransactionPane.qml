@@ -26,21 +26,22 @@ Pane {
     id: receivePane
 
     property QtObject account: portfolio.current
-    onAccountChanged: {
-        if (account == null)
-            return;
-        if (qr.request == null)
-            qr.request = account.createPaymentRequest(receivePane)
-        else
-            qr.request.switchAccount(portfolio.current);
+
+    PaymentRequest {
+        id: request
     }
 
-    function reset() {
-        if (qr.request.saveState !== PaymentRequest.Stored)
-            qr.request.destroy();
-        qr.request = account.createPaymentRequest(receivePane)
-        description.text = "";
-        bitcoinValueField.reset();
+    onAccountChanged: {
+        var state = request.state;
+        if (request.state === PaymentRequest.Unpaid) {
+            // I can only change the wallet without cost
+            // if no payment has been seen.
+            request.account = account;
+        }
+    }
+    onActiveFocusChanged: {
+        if (activeFocus)
+            request.start();
     }
 
     Label {
@@ -57,6 +58,25 @@ Pane {
         anchors.top: instructions.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 20
+        qrText: request.qr
+
+        Flowee.Label {
+            visible: request.failReason !== PaymentRequest.NoFailure
+            text: {
+                var f = request.failReason;
+                if (f === PaymentRequest.AccountEncrypted)
+                    return qsTr("Encrypted Wallet");
+                if (f === PaymentRequest.AccountImporting)
+                    return qsTr("Import Running...");
+                if (f === PaymentRequest.NoAccountSet)
+                    return "No Account Set"; // not translated b/c cause is bug in QML
+                return "";
+            }
+            anchors.centerIn: parent
+            width: parent.width - 40
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            font.pointSize: 18
+        }
     }
 
     // the "payment received" screen.
@@ -71,7 +91,7 @@ Pane {
             GradientStop {
                 position: 0.6
                 color: {
-                    var state = qr.request.state;
+                    var state = request.state;
                     if (state === PaymentRequest.PaymentSeen || state === PaymentRequest.Unpaid)
                         return palette.base
                     if (state === PaymentRequest.DoubleSpentSeen)
@@ -85,7 +105,7 @@ Pane {
                 color: palette.base
             }
         }
-        opacity: qr.request.state === PaymentRequest.Unpaid ? 0: 1
+        opacity: request.state === PaymentRequest.Unpaid ? 0: 1
 
         // animating timer to indicate our checking the security of the transaction.
         // (i.e. waiting for the double spent proof)
@@ -94,7 +114,7 @@ Pane {
             width: 160
             height: 160
             y: (parent.height - height) / 3 * 2
-            visible: qr.request.state !== PaymentRequest.DoubleSpentSeen
+            visible: request.state !== PaymentRequest.DoubleSpentSeen
             Shape {
                 id: circleShape
                 anchors.fill: parent
@@ -113,7 +133,7 @@ Pane {
                         centerY: 80
                         radiusX: 70; radiusY: 70
                         startAngle: -80
-                        sweepAngle: qr.request.state === PaymentRequest.Unpaid ? 0: 340
+                        sweepAngle: request.state === PaymentRequest.Unpaid ? 0: 340
 
                         Behavior on sweepAngle {  NumberAnimation { duration: Pay.dspTimeout } }
                     }
@@ -139,7 +159,7 @@ Pane {
         Label {
             id: feedbackLabel
             text: {
-                var s = qr.request.state;
+                var s = request.state;
                 if (s === PaymentRequest.DoubleSpentSeen)
                     // double-spent-proof received
                     return qsTr("Transaction high risk")
@@ -159,7 +179,7 @@ Pane {
             font.pointSize: 20
         }
         Label {
-            visible: qr.request.state === PaymentRequest.DoubleSpentSeen
+            visible: request.state === PaymentRequest.DoubleSpentSeen
             anchors.top: feedbackLabel.bottom
             anchors.right: parent.right
             anchors.rightMargin: 10
@@ -186,8 +206,8 @@ Pane {
         Flowee.TextField {
             id: description
             Layout.fillWidth: true
-            enabled: qr.request.state === PaymentRequest.Unpaid
-            onTextChanged: qr.request.message = text
+            enabled: request.state === PaymentRequest.Unpaid
+            onTextChanged: request.message = text
             focus: true
         }
 
@@ -199,8 +219,8 @@ Pane {
             spacing: 10
             Flowee.BitcoinValueField {
                 id: bitcoinValueField
-                enabled: qr.request.state === PaymentRequest.Unpaid
-                onValueChanged: qr.request.amount = value
+                enabled: request.state === PaymentRequest.Unpaid
+                onValueChanged: request.amount = value
             }
             Label {
                 Layout.alignment: Qt.AlignBaseline
@@ -216,65 +236,13 @@ Pane {
                 Layout.fillWidth: true
             }
             Button {
-                text: qsTr("Remember", "payment request")
-                visible: qr.request.state === PaymentRequest.Unpaid || qr.request.state === PaymentRequest.DoubleSpentSeen
+                text: request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Done")
                 onClicked: {
-                    qr.request.stored = true
-                    reset();
-                }
-            }
-            Button {
-                text: qr.request.state === PaymentRequest.Unpaid ? qsTr("Clear") : qsTr("Done")
-                onClicked: {
-                    reset();
-                }
-            }
-        }
-    }
-
-    Flow {
-        width: parent.width
-        anchors.bottom: parent.bottom
-        spacing: 10
-        Repeater {
-            model: portfolio.current.paymentRequests
-            delegate: Rectangle {
-                width: 70
-                height: width
-                radius: 25
-                clip: true
-                border.width: 6
-                border.color: {
-                    var state = modelData.state;
-                    if (state === PaymentRequest.Unpaid)
-                        return "#888888"
-                    if (state === PaymentRequest.PaymentSeen)
-                        return "yellow"
-                    if (state === PaymentRequest.DoubleSpentSeen)
-                        return "red"
-                    // in all other cases:
-                    return "green"
-                }
-
-                // don't show the one we are editing
-                visible: modelData.saveState === PaymentRequest.Stored
-
-                Text {
-                    anchors.centerIn: parent
-                    text: modelData.message
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton | Qt.LeftButton
-                    onClicked: paymentContextMenu.popup()
-                    Menu {
-                        id: paymentContextMenu
-                        MenuItem {
-                            text: qsTr("Delete")
-                            onTriggered: modelData.stored = false;
-                        }
-                    }
+                    request.clear();
+                    request.account = portfolio.current;
+                    description.text = "";
+                    bitcoinValueField.value = 0;
+                    request.start();
                 }
             }
         }

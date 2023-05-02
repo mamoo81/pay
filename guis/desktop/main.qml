@@ -40,17 +40,17 @@ ApplicationWindow {
 
     onIsLoadingChanged: {
         if (!isLoading) {
+            // delay loading to avoid errors due to not having a portfolio
+            // portfolio is only initialized after a second or so.
+            receivePane.source = "./ReceiveTransactionPane.qml"
+            sendTransactionPane.source = "./SendTransactionPane.qml"
+
             if (!portfolio.current.isUserOwned) { // Open on receive tab if the wallet is effectively empty
                 tabbar.currentIndex = 2;
             }
             else {
                 tabbar.currentIndex = 0;
             }
-
-            // delay loading to avoid errors due to not having a portfolio
-            // portfolio is only initialized after a second or so.
-            receivePane.source = "./ReceiveTransactionPane.qml"
-            sendTransactionPane.source = "./SendTransactionPane.qml"
         }
     }
 
