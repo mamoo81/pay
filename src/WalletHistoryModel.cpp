@@ -261,6 +261,8 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     if (std::isnan(offset) || offset < 0 || offset > 1.0)
         return QString();
     const size_t row = std::round(offset * m_rowsProxy.size());
+    if (row >= m_rowsProxy.size())
+        return QString();
     auto item = m_wallet->m_walletTransactions.at(txIndexFromRow(row));
     if (item.minedBlockHeight <= 0)
         return QString();
@@ -375,6 +377,10 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
         timestamp = secsSinceEpochFor(blockheight);
     }
     assert(timestamp > 0);
+    if (timestamp == 0) {
+        // some inconsistency between wallet and libp2p.
+        return;
+    }
 
     if (!m_groups.back().add(txIndex, timestamp)) {
         // didn't fit, make a new group and add it there.
