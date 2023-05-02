@@ -120,8 +120,8 @@ void PaymentRequest::setAccount(QObject *account)
             updateFailReason();
         });
         connect (m_view, &WalletKeyView::importFinished, this, [=]() {
-            start();
             updateFailReason();
+            start();
         });
         connect (m_view, &WalletKeyView::transactionMatch, this, [=]() {
             uint64_t seen = 0;
