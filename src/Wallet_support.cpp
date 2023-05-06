@@ -211,20 +211,6 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
     Tx tx = loadTransaction(wtx.txid, Streaming::pool(0));
     info->m_txSize = tx.size();
 
-    /*
-     * The QML to show these lists of inputs and outputs depends on
-     * the quality of the column layout component. It turns out that
-     * in an older version of Qt this simple didn't work and all items
-     * are shown on top of each other.
-     * This "fixes" that problem by simply not generating the data
-     * to show in the UI.
-     * Known problem was in Ubuntu 20.04 (LTS) with Qt 5.12.8
-     */
-    const auto qtVersion = QString(qVersion()).split('.');
-    assert(qtVersion.size() == 3);
-    if (qtVersion.at(0).toInt() <= 5 && qtVersion.at(1).toInt() < 15)
-        return;
-
     // find out how many inputs and how many outputs there are.
     Tx::Iterator txIter(tx);
     // If we created this transaction (we have inputs in it anyway) then
