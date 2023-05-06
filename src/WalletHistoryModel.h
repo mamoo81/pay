@@ -42,7 +42,7 @@ public:
 
     enum {
         TxId = Qt::UserRole,
-        NewTransaction, ///< bool, if this transaction is newer than lastSyncIndicator
+        NewTransaction, ///< Deprecated
         MinedHeight,  ///< int, height of block this tx was mined at.
         MinedDate,    ///< A date-time object when the item was mined
         FundsIn,      ///< value (in sats) of the funds we own being spent

@@ -238,7 +238,7 @@ QString WalletHistoryModel::groupingPeriod(int groupId) const
 QHash<int, QByteArray> WalletHistoryModel::roleNames() const
 {
     QHash<int, QByteArray> answer;
-    answer[NewTransaction] = "isNew";
+    answer[NewTransaction] = "isNew"; // Deprecated
     answer[TxId] = "txid";
     answer[MinedHeight] = "height";
     answer[MinedDate] = "date";
