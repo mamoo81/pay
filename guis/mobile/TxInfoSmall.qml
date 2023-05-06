@@ -27,18 +27,15 @@ import Flowee.org.pay;
  * among others the isMoved and amountBch values for the transaction it is displaying
  */
 
-GridLayout {
+ColumnLayout {
     id: root
-    columns: 2
-    rowSpacing: 10
     // set by the parent page
     property QtObject infoObject: null
-
     property int minedHeight: model.height // local cache
 
-    QQC2.Label {
-        Layout.columnSpan: 2
+    spacing: 10
 
+    QQC2.Label {
         property bool isRejected: root.minedHeight == -2; // -2 is the magic block-height indicating 'rejected'
         text: {
             if (isRejected)
@@ -57,91 +54,113 @@ GridLayout {
         }
     }
 
-    Flowee.Label {
-        visible: root.minedHeight > 0
-        text: qsTr("Mined") + ":"
-    }
-    Flowee.Label {
-        Layout.fillWidth: true
-        visible: root.minedHeight > 0
-        text: {
-            if (root.minedHeight <= 0)
-                return "";
-            var rc = Pay.formatDateTime(model.date);
-            var confirmations = Pay.headerChainHeight - root.minedHeight + 1;
-            if (confirmations > 0 && confirmations < 100)
-                rc += " (" + qsTr("%1 blocks ago", "Confirmations", confirmations).arg(confirmations) + ")";
-            return rc;
+    GridLayout {
+        columns: 2
+        rowSpacing: 10
+        width: parent.width
+
+        Flowee.Label {
+            visible: root.minedHeight > 0
+            text: qsTr("Mined") + ":"
         }
-    }
-    Flowee.Label {
-        id: paymentTypeLabel
-        Layout.columnSpan: isMoved ? 2 : 1
-        text: {
-            if (model.isCoinbase)
-                return qsTr("Miner Reward") + ":";
-            if (model.isCashFusion)
-                return qsTr("Cash Fusion") + ":";
-            if (model.fundsIn === 0)
-                return qsTr("Received") + ":";
-            if (isMoved)
-                return qsTr("Payment to self");
-            return qsTr("Sent") + ":";
+        Flowee.Label {
+            Layout.fillWidth: true
+            visible: root.minedHeight > 0
+            text: {
+                if (root.minedHeight <= 0)
+                    return "";
+                var rc = Pay.formatDateTime(model.date);
+                var confirmations = Pay.headerChainHeight - root.minedHeight + 1;
+                if (confirmations > 0 && confirmations < 100)
+                    rc += " (" + qsTr("%1 blocks ago", "Confirmations", confirmations).arg(confirmations) + ")";
+                return rc;
+            }
         }
-    }
-    Flowee.BitcoinAmountLabel {
-        visible: isMoved === false
-        Layout.fillWidth: true
-        value: model.fundsOut - model.fundsIn + (infoObject == null ? 0 : infoObject.fees)
-        fiatTimestamp: model.date
-        showFiat: false // might not fit
+        Flowee.Label {
+            id: paymentTypeLabel
+            Layout.columnSpan: isMoved ? 2 : 1
+            text: {
+                if (model.isCoinbase)
+                    return qsTr("Miner Reward") + ":";
+                if (model.isCashFusion)
+                    return qsTr("Cash Fusion") + ":";
+                if (model.fundsIn === 0)
+                    return qsTr("Received") + ":";
+                if (isMoved)
+                    return qsTr("Payment to self");
+                return qsTr("Sent") + ":";
+            }
+        }
+        Flowee.BitcoinAmountLabel {
+            visible: isMoved === false
+            Layout.fillWidth: true
+            value: model.fundsOut - model.fundsIn + (infoObject == null ? 0 : infoObject.fees)
+            fiatTimestamp: model.date
+            showFiat: false // might not fit
+        }
     }
 
-    // price at mining
-    // value in exchange gained
     Flowee.Label {
-        id: priceAtMining
-        visible: {
-            if (root.minedHeight < 1)
-                return false;
-            if (model.isCashFusion)
-                return false;
-            if (isMoved)
-                return false;
-            if (valueThenLabel.fiatPrice === 0)
-                return false;
-            return true;
+        text: qsTr("Sent to") + ":"
+        visible: receiverName.text !== ""
+    }
+    Flowee.LabelWithClipboard {
+        id: receiverName
+        Layout.fillWidth: true
+        visible: text !== ""
+        text: infoObject == null ? "" : infoObject.receiver
+        font.pixelSize: paymentTypeLabel.font.pixelSize * 0.8
+    }
+    GridLayout {
+        columns: 2
+        rowSpacing: 10
+        width: parent.width
+
+        Flowee.Label {
+            visible: priceAtMining.visible
+            text: qsTr("Value now") + ":"
         }
-        text: qsTr("Value then") + ":"
-    }
-    Flowee.Label {
-        Layout.fillWidth: true
-        id: valueThenLabel
-        visible: priceAtMining.visible
-        // when the backend does NOT get an 'accurate' (timewise) value, it returns zero. Which makes us set visibility to false
-        property int fiatPrice: Fiat.historicalPriceAccurate(model.date)
-        text: Fiat.formattedPrice(Math.abs(amountBch), fiatPrice)
-    }
-    Flowee.Label {
-        visible: priceAtMining.visible
-        text: qsTr("Value now") + ":"
-    }
-    Flowee.Label {
-        Layout.fillWidth: true
-        visible: priceAtMining.visible
-        text: {
-            if (root.minedHeight <= 0)
-                return "";
-            var fiatPriceNow = Fiat.price;
-            var gained = (fiatPriceNow - valueThenLabel.fiatPrice) / valueThenLabel.fiatPrice * 100
-            return Fiat.formattedPrice(Math.abs(amountBch), fiatPriceNow)
-                    + " (" + (gained >= 0 ? "↑" : "↓") + Math.abs(gained).toFixed(2) + "%)";
+        Flowee.Label {
+            visible: priceAtMining.visible
+            text: {
+                if (root.minedHeight <= 0)
+                    return "";
+                var fiatPriceNow = Fiat.price;
+                var gained = (fiatPriceNow - valueThenLabel.fiatPrice) / valueThenLabel.fiatPrice * 100
+                return Fiat.formattedPrice(Math.abs(amountBch), fiatPriceNow)
+                        + " (" + (gained >= 0 ? "↑" : "↓") + Math.abs(gained).toFixed(2) + "%)";
+            }
+        }
+
+        // price at mining
+        // value in exchange gained
+        Flowee.Label {
+            id: priceAtMining
+            visible: {
+                if (root.minedHeight < 1)
+                    return false;
+                if (model.isCashFusion)
+                    return false;
+                if (isMoved)
+                    return false;
+                if (valueThenLabel.fiatPrice === 0)
+                    return false;
+                return true;
+            }
+            text: qsTr("Value then") + ":"
+        }
+        Flowee.Label {
+            Layout.fillWidth: true
+            id: valueThenLabel
+            visible: priceAtMining.visible
+            // when the backend does NOT get an 'accurate' (timewise) value, it returns zero. Which makes us set visibility to false
+            property int fiatPrice: Fiat.historicalPriceAccurate(model.date)
+            text: Fiat.formattedPrice(Math.abs(amountBch), fiatPrice)
         }
     }
 
     TextButton {
         id: txDetailsButton
-        Layout.columnSpan: 2
         text: qsTr("Transaction Details")
         showPageIcon: true
         onClicked: {

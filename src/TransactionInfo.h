@@ -94,6 +94,10 @@ class TransactionInfo : public QObject
     Q_PROPERTY(QList<QObject*> inputs READ inputs CONSTANT)
     Q_PROPERTY(QList<QObject*> outputs READ outputs CONSTANT)
     Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY commentChanged)
+    /**
+     * The recipient of the transaction. Typically just an address.
+     */
+    Q_PROPERTY(QString receiver READ receiver CONSTANT)
     Q_PROPERTY(bool isCoinbase READ isCoinbase CONSTANT)
     Q_PROPERTY(bool isCashFusion READ isCashFusion CONSTANT)
     Q_PROPERTY(bool createdByUs READ createdByUs CONSTANT)
@@ -111,6 +115,8 @@ public:
     bool isCoinbase() const;
     bool isCashFusion() const;
     bool createdByUs() const;
+
+    QString receiver() const;
 
     /**
      * The API allows the user to set a 'user comment'. Which needs

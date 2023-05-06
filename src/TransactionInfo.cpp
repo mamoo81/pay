@@ -90,6 +90,27 @@ bool TransactionInfo::createdByUs() const
     return m_createdByUs;
 }
 
+QString TransactionInfo::receiver() const
+{
+    if (!m_createdByUs) // the receiver, is us!
+        return QString();
+    /*
+     * We iterate over the outputs and reject all outputs that we own.
+     * If exactly one is left we have a 'receiver'.
+     */
+    QString answer;
+    for (auto out : m_outputs) {
+        if (!out->forMe()) {
+            if (answer.isEmpty())
+                answer = out->address();
+            else
+                return QString(); // more than one address
+        }
+
+    }
+    return answer;
+}
+
 void TransactionInfo::setWalletDetails(Wallet *wallet, int walletIndex)
 {
     m_wallet = wallet;
