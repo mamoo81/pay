@@ -134,7 +134,7 @@ GridLayout {
                 return "";
             var fiatPriceNow = Fiat.price;
             var gained = (fiatPriceNow - valueThenLabel.fiatPrice) / valueThenLabel.fiatPrice * 100
-            return Fiat.formattedPrice(amountBch, fiatPriceNow)
+            return Fiat.formattedPrice(Math.abs(amountBch), fiatPriceNow)
                     + " (" + (gained >= 0 ? "↑" : "↓") + Math.abs(gained).toFixed(2) + "%)";
         }
     }
