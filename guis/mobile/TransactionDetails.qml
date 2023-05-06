@@ -47,11 +47,12 @@ Page {
                     anchors.rightMargin: 10
                     wrapMode: Text.WrapAnywhere
                 }
-                Rectangle {
+                Image {
                     id: copyIcon
                     anchors.right: parent.right
-                    width: 10
-                    height: 10
+                    width: 20
+                    height: 20
+                    source: "qrc:/edit-copy" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
                     MouseArea {
                         anchors.fill: parent
                         anchors.margins: -15
@@ -109,11 +110,13 @@ Page {
                     anchors.baseline: commentEdit.baseline
                     visible: !commentEdit.visible
                 }
-                Rectangle {
+                Image {
                     id: editIcon
                     anchors.right: parent.right
-                    width: 10
-                    height: 10
+                    width: 20
+                    height: 20
+                    smooth: true
+                    source: "qrc:/edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
                     // Editing is a risky business until QTBUG-109306 has been deployed
                     // visible: root.infoObject != null && root.infoObject.commentEditable
                     visible: false
