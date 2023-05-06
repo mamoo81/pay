@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,11 +29,31 @@ Page {
 
     ColumnLayout {
         width: parent.width
-        Flowee.LabelWithClipboard {
-            id: txidLabel
-            text: root.transaction == null ? "" : root.transaction.txid
-            font.pixelSize: root.font.pixelSize * 0.8
+        Flowee.Label {
+            text: qsTr("Transaction Hash") + ":"
+        }
+        Item {
+            implicitHeight: txidLabel.implicitHeight
             Layout.fillWidth: true
+            Flowee.Label {
+                id: txidLabel
+                text: root.transaction == null ? "" : root.transaction.txid
+                anchors.left: parent.left
+                anchors.right: copyIcon.left
+                anchors.rightMargin: 10
+                wrapMode: Text.WrapAnywhere
+            }
+            Rectangle {
+                id: copyIcon
+                anchors.right: parent.right
+                width: 10
+                height: 10
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.margins: -15
+                    onClicked: Pay.copyToClipboard(txidLabel.text)
+                }
+            }
         }
         Flowee.Label {
             text: {
@@ -44,9 +64,83 @@ Page {
                     return qsTr("Rejected")
                 if (h === -1)
                     return qsTr("Unconfirmed")
-                return qsTr("Mined") + ": " + Pay.formatDateTime(root.transaction.date)
+                return qsTr("Mined") + ": "
             }
         }
+        Flowee.Label {
+            visible: text !== ""
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            Layout.fillWidth: true
+            text: {
+                var tx = root.transaction;
+                if (tx == null)
+                    return "";
+                if (root.transaction.height < 1)
+                    return "";
+
+                var answer = Pay.formatDateTime(tx.date)
+                answer += "\n";
+                let txHeight = tx.height;
+                let blockAge = Pay.chainHeight - txHeight;
+                answer += qsTr("%1 blocks ago", "", blockAge).arg(blockAge);
+
+                answer += "\n" + txHeight;
+                return answer;
+            }
+        }
+        Flowee.Label {
+            text: qsTr("Transaction comment") + ":"
+        }
+        Item {
+            Layout.fillWidth: true
+            implicitHeight: commentEdit.implicitHeight
+
+            Flowee.Label {
+                id: commentLabel
+                text: root.transaction == null ? "" : root.transaction.comment
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                anchors.left: parent.left
+                anchors.right: editIcon.left
+                anchors.rightMargin: 10
+                anchors.baseline: commentEdit.baseline
+                visible: !commentEdit.visible
+            }
+            Rectangle {
+                id: editIcon
+                anchors.right: parent.right
+                width: 10
+                height: 10
+                // Editing is a risky business until QTBUG-109306 has been deployed
+                // visible: root.infoObject != null && root.infoObject.commentEditable
+                visible: false
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.margins: -15
+                    onClicked: {
+                        commentEdit.visible = true
+                        commentEdit.focus = true
+                        commentEdit.forceActiveFocus();
+                    }
+                }
+            }
+            Flowee.TextField {
+                id: commentEdit
+                anchors.left: parent.left
+                anchors.right: editIcon.left
+                anchors.rightMargin: 10
+                visible: false
+                text:  root.transaction == null ? "" : root.transaction.comment
+                onTextChanged: if (root.infoObject != null) root.infoObject.userComment = text
+            }
+        }
+        Flowee.Label {
+            text: qsTr("Size") + ":"
+        }
+        Flowee.Label {
+            text: root.infoObject == null ? "" :
+                    qsTr("%1 bytes").arg(root.infoObject.size)
+        }
+
         Flowee.Label {
             text: qsTr("Coinbase")
             visible: root.transaction != null && root.transaction.isCoinbase
@@ -55,23 +149,22 @@ Page {
             text: qsTr("CashFusion transaction")
             visible: root.transaction != null && root.transaction.isCashFusion
         }
-        VisualSeparator {}
+
+        // We can't calculate the fees of just any transaction, only for the ones
+        // this account created.
         Flowee.Label {
-            text: qsTr("Size") + ":"
+            id: feesPaidLabel
+            visible: root.infoObject != null && root.infoObject.createdByUs
+            text: qsTr("Fees paid") + ":"
         }
         Flowee.Label {
-            text: root.infoObject == null ? "" :
-                    qsTr("%1 bytes").arg(root.infoObject.size)
+            visible: feesPaidLabel.visible
+            text: root.infoObject == null ? "" : qsTr("%1 Satoshi / 1000 bytes")
+                    .arg((root.infoObject.fees * 1000 / root.infoObject.size).toFixed(0))
         }
-        /*
-        VisualSeparator {}
-        Flowee.Label {
-            text: qsTr("Transaction comment") + ":"
+        Flowee.BitcoinAmountLabel {
+            visible: feesPaidLabel.visible
+            value: root.infoObject == null ? 0 : root.infoObject.fees
         }
-        QQC2.TextField {
-            text: root.transaction == null ? "" : root.transaction.comment
-            Layout.fillWidth: true
-            onEditingFinished: root.transaction.comment = text
-        } */
     }
 }

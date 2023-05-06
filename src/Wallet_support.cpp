@@ -197,7 +197,8 @@ bool Wallet::WalletTransaction::isRejected() const
 
 void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
 {
-    Q_ASSERT(info);
+    assert(info);
+    info->setWalletDetails(this, txIndex);
     QMutexLocker locker(&m_lock);
     auto iter = m_walletTransactions.find(txIndex);
     if (m_walletTransactions.end() == iter)

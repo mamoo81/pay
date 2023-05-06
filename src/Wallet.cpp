@@ -683,19 +683,26 @@ void Wallet::setTransactionComment(const Tx &transaction, const QString &comment
     QMutexLocker locker(&m_lock);
     auto i = m_txidCache.find(transaction.createHash());
     if (i != m_txidCache.end()) {
-        auto wtxIter = m_walletTransactions.find(i->second);
-        assert(wtxIter != m_walletTransactions.end());
-        auto &wtx = wtxIter->second;
-        if (wtx.userComment != comment) {
-            wtx.userComment = comment;
-            m_walletChanged = true;
-
-            emit transactionChanged(wtxIter->first);
-            emit startDelayedSave();
-        }
+        setTransactionComment(i->second, comment);
     }
     else {
         logCritical(LOG_WALLET) << "Comment added to not known transaction";
+    }
+}
+
+void Wallet::setTransactionComment(int txIndex, const QString &comment)
+{
+    auto wtxIter = m_walletTransactions.find(txIndex);
+    assert(wtxIter != m_walletTransactions.end());
+    if (wtxIter == m_walletTransactions.end())
+        return;
+    auto &wtx = wtxIter->second;
+    if (wtx.userComment != comment) {
+        wtx.userComment = comment;
+        m_walletChanged = true;
+
+        emit transactionChanged(wtxIter->first);
+        emit startDelayedSave();
     }
 }
 

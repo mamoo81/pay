@@ -22,6 +22,8 @@
 #include <QString>
 #include <QList>
 
+class Wallet;
+
 class TransactionInputInfo : public QObject
 {
     Q_OBJECT
@@ -91,10 +93,11 @@ class TransactionInfo : public QObject
     Q_PROPERTY(double fees READ fees CONSTANT)
     Q_PROPERTY(QList<QObject*> inputs READ inputs CONSTANT)
     Q_PROPERTY(QList<QObject*> outputs READ outputs CONSTANT)
-    Q_PROPERTY(QString userComment READ userComment CONSTANT)
+    Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY commentChanged)
     Q_PROPERTY(bool isCoinbase READ isCoinbase CONSTANT)
     Q_PROPERTY(bool isCashFusion READ isCashFusion CONSTANT)
     Q_PROPERTY(bool createdByUs READ createdByUs CONSTANT)
+    Q_PROPERTY(bool commentEditable READ commentEditable CONSTANT)
 
 public:
     explicit TransactionInfo(QObject *parent = nullptr);
@@ -104,9 +107,19 @@ public:
     QList<QObject *> outputs() const;
     QList<QObject *> inputs() const;
     const QString &userComment() const;
+    void setUserComment(const QString &comment);
     bool isCoinbase() const;
     bool isCashFusion() const;
     bool createdByUs() const;
+
+    /**
+     * The API allows the user to set a 'user comment'. Which needs
+     * to be forwarded to the wallet to make that persistent.
+     * Call this method with the appropriate details to make enable
+     * editing of the user comment.
+     */
+    void setWalletDetails(Wallet *wallet, int walletIndex);
+    bool commentEditable() const;
 
     int m_txSize = 0;
     QList<TransactionOutputInfo *> m_outputs;
@@ -115,6 +128,13 @@ public:
     bool m_isCoinbase = false;
     bool m_isCashFusion = false;
     bool m_createdByUs = false;
+
+signals:
+    void commentChanged();
+
+private:
+    Wallet *m_wallet = nullptr;
+    int m_walletIndex = -1;
 };
 
 #endif

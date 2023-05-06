@@ -284,6 +284,10 @@ public:
      * Set comment field on this transaction, assuming it has been accepted by this wallet.
      */
     void setTransactionComment(const Tx &transaction, const QString &comment);
+    /**
+     * Set comment field on this transaction, assuming it has been accepted by this wallet.
+     */
+    void setTransactionComment(int txIndex, const QString &comment);
 
     struct WalletSecret {
         PrivateKey privKey;

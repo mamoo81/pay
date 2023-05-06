@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "TransactionInfo.h"
+#include "Wallet.h"
 
 TransactionInfo::TransactionInfo(QObject *parent)
     : QObject(parent)
@@ -64,6 +65,16 @@ const QString &TransactionInfo::userComment() const
     return m_userComment;
 }
 
+void TransactionInfo::setUserComment(const QString &comment)
+{
+    if (comment == m_userComment)
+        return;
+    if (m_wallet)
+        m_wallet->setTransactionComment(m_walletIndex, comment);
+    m_userComment = comment;
+    emit commentChanged();
+}
+
 bool TransactionInfo::isCashFusion() const
 {
     return m_isCashFusion;
@@ -77,6 +88,17 @@ bool TransactionInfo::isCoinbase() const
 bool TransactionInfo::createdByUs() const
 {
     return m_createdByUs;
+}
+
+void TransactionInfo::setWalletDetails(Wallet *wallet, int walletIndex)
+{
+    m_wallet = wallet;
+    m_walletIndex = walletIndex;
+}
+
+bool TransactionInfo::commentEditable() const
+{
+    return m_wallet;
 }
 
 
