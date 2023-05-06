@@ -276,10 +276,10 @@ void PriceDataProvider::loadPriceHistory(const QString &basedir)
     if (lastKnownPrice == 0)
         lastKnownPrice = 10000; // if we never fetched, set to 100,-
     m_currentPrice.price = lastKnownPrice;
-    emit priceChanged(lastKnownPrice);
     connect (this, &PriceDataProvider::priceChanged,
              m_priceHistory.get(), [=](int price) {
-        m_priceHistory->addPrice(currencyName(), QDateTime::currentSecsSinceEpoch(), price);
+        if (price != 10000) // ignore the magic starting price
+            m_priceHistory->addPrice(currencyName(), QDateTime::currentSecsSinceEpoch(), price);
     });
 }
 

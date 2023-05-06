@@ -298,8 +298,9 @@ bool PriceHistoryDataProvider::allowLogCompression() const
 
 void PriceHistoryDataProvider::initialPopulate()
 {
-    auto cur = currencyData(m_currency, FetchOnly);
-    if (cur && !cur->hasBlob) {
+    auto cur = currencyData(m_currency, FetchOrCreate);
+    assert(cur);
+    if (!cur->hasBlob) {
         logCritical() << "populate!";
         cur->hasBlob = true; // avoid starting fetcher again
         InitialHistoryFetcher *f = new InitialHistoryFetcher(this);
@@ -348,7 +349,9 @@ void InitialHistoryFetcher::fetch(const QString &path, const QString &currency)
         if (reply->error() == QNetworkReply::NoError || reply->error() == QNetworkReply::ContentNotFoundError ) {
             QFile out(path + '/' + currency);
             if (out.open(QIODevice::WriteOnly)) {
-                out.write(reply->readAll());
+                // but only write when we have no error.
+                if (reply->error() == QNetworkReply::NoError)
+                    out.write(reply->readAll());
             }
             else {
                 logWarning() << "Failed to write to fiat file";
