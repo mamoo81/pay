@@ -44,7 +44,6 @@ public:
     int historicalPrice(uint32_t timestamp, HistoricalPriceAccuracy = Nearest) const;
 
     QString currencyName() const;
-    void setCurrency(const QString &newCurrency);
 
     /**
      * Adding values may trigger the 'processLog' method
