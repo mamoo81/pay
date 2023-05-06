@@ -38,6 +38,8 @@ PriceHistoryDataProvider::PriceHistoryDataProvider(const QString &basedir, const
         const bool isLog = currency.endsWith(".LOG");
         if (isLog) // cut off the extension
             currency = currency.left(currency.size() - 4);
+        if (m_currency != currency)
+            continue;
         const qint64 fileSize = iter.fileInfo().size();
         if (!isLog && fileSize > 50000) {
             logInfo() << "Big file in fiat dir, skipping:" << iter.fileName();
