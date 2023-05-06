@@ -118,7 +118,7 @@ Page {
                     smooth: true
                     source: "qrc:/edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
                     // Editing is a risky business until QTBUG-109306 has been deployed
-                    // visible: root.infoObject != null && root.infoObject.commentEditable
+                    // visible: root.infoObject != null && infoObject.commentEditable
                     visible: false
                     MouseArea {
                         anchors.fill: parent
@@ -137,7 +137,7 @@ Page {
                     anchors.rightMargin: 10
                     visible: false
                     text:  root.transaction == null ? "" : root.transaction.comment
-                    onTextChanged: if (root.infoObject != null) root.infoObject.userComment = text
+                    onTextChanged: if (root.infoObject != null) infoObject.userComment = text
                 }
             }
             Flowee.Label {
@@ -145,7 +145,7 @@ Page {
             }
             Flowee.Label {
                 text: root.infoObject == null ? "" :
-                        qsTr("%1 bytes").arg(root.infoObject.size)
+                        qsTr("%1 bytes").arg(infoObject.size)
             }
 
             Flowee.Label {
@@ -161,105 +161,148 @@ Page {
             // this account created.
             Flowee.Label {
                 id: feesPaidLabel
-                visible: root.infoObject != null && root.infoObject.createdByUs
+                visible: root.infoObject != null && infoObject.createdByUs
                 text: qsTr("Fees paid") + ":"
             }
             Flowee.Label {
                 visible: feesPaidLabel.visible
                 text: root.infoObject == null ? "" : qsTr("%1 Satoshi / 1000 bytes")
-                        .arg((root.infoObject.fees * 1000 / root.infoObject.size).toFixed(0))
+                        .arg((infoObject.fees * 1000 / infoObject.size).toFixed(0))
             }
             Flowee.BitcoinAmountLabel {
                 visible: feesPaidLabel.visible
-                value: root.infoObject == null ? 0 : root.infoObject.fees
+                value: root.infoObject == null ? 0 : infoObject.fees
             }
 
-            Flowee.Label { text: qsTr("Senders") + ":" }
-            Repeater {
-                model: root.infoObject == null ? 0 : root.infoObject.inputs
-                delegate: Item {
-                    Layout.alignment: Qt.AlignRight
-                    width: content.width - 10
-                    height: modelData === null ? 6 : (5 + inAddress.height + amount.height)
-                    Rectangle {
-                        color: Pay.useDarkSkin ? "#4fb2e7" : "yellow"
-                        visible: inAddress.visible
-                        x: inAddress.x - 3
-                        y: inAddress.y -3
-                        height: inAddress.height + 6
-                        width: Math.min(inAddress.width, inAddress.contentWidth) + 6
-                        radius: height / 3
-                        opacity: 0.2
-                    }
-                    Flowee.LabelWithClipboard {
-                        id: inAddress
-                        menuText: qsTr("Copy Address")
-                        text: {
+            Flowee.Label {
+                id: sendersLabel
+                text: qsTr("Senders") + ":"
+                visible: root.infoObject != null && (infoObject.createdByUs || infoObject.isCashFusion)
+            }
+            Column {
+                // we nest a column in a column to be able to skip all the rows that are not ours.
+                // only really relevant with loads of inputs and outputs.
+                width: content.width
+                Repeater {
+                    /*
+                     * We only have the one transaction, which means we only have the previous txid and we have
+                     * no details about which address or anything else these funds come from if we didn't
+                     * create the Tx. So just don't show anything.
+                     */
+                    model: sendersLabel.visible ? infoObject.inputs : 0
+                    delegate: Item {
+                        Layout.alignment: Qt.AlignRight
+                        width: content.width
+                        height: {
                             if (modelData === null)
-                                return "";
-                            var cloaked = modelData.cloakedAddress
-                            if (cloaked !== "")
-                                return cloaked;
-                            return modelData.address;
+                                return 0;
+                            if (inAddress.implicitWidth + 10 + amount.implicitWidth < content.width)
+                                return inAddress.height + 10;
+                            return inAddress.height + amount.height + 16;
                         }
-                        width: parent.width
-                        clipboardText: modelData === null ? "" : modelData.address
-                        visible: modelData !== null
-                        font.pixelSize: root.font.pixelSize * 0.8
-                    }
-                    Flowee.BitcoinAmountLabel {
-                        id: amount
-                        visible: modelData !== null
-                        value: modelData === null ? 0 : (-1 * modelData.value)
-                        fiatTimestamp: root.transaction.date
-                        anchors.right: parent.right
-                        anchors.top: inAddress.bottom
+                        Rectangle {
+                            color: Pay.useDarkSkin ? "#4fb2e7" : "yellow"
+                            visible: inAddress.visible
+                            x: inAddress.x - 3
+                            y: inAddress.y -3
+                            height: inAddress.height + 6
+                            width: Math.min(inAddress.width, inAddress.contentWidth) + 6
+                            radius: height / 3
+                            opacity: 0.2
+                        }
+                        Flowee.LabelWithClipboard {
+                            id: inAddress
+                            menuText: qsTr("Copy Address")
+                            text: {
+                                if (modelData === null)
+                                    return "";
+                                var cloaked = modelData.cloakedAddress
+                                if (cloaked !== "")
+                                    return cloaked;
+                                return modelData.address;
+                            }
+                            x: 10
+                            width: parent.width
+                            clipboardText: modelData === null ? "" : modelData.address
+                            visible: modelData !== null
+                            font.pixelSize: root.font.pixelSize * 0.8
+                        }
+                        Flowee.BitcoinAmountLabel {
+                            id: amount
+                            visible: modelData !== null
+                            value: modelData === null ? 0 : (-1 * modelData.value)
+                            fiatTimestamp: root.transaction.date
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 10
+                        }
                     }
                 }
             }
 
-            Flowee.Label { text: qsTr("Receivers") + ":" }
-            Repeater {
-                model: root.infoObject == null ? 0 : root.infoObject.outputs
-                delegate: Item {
-                    Layout.alignment: Qt.AlignRight
-                    width: content.width - 10
-                    height: modelData === null ? 6 : (5 + outAddress.height + outAmount.height)
-                    Rectangle {
-                        color: Pay.useDarkSkin ? "#4fb2e7" : "yellow"
-                        visible: modelData !== null && modelData.forMe
-                        x: outAddress.x - 3
-                        y: outAddress.y -3
-                        height: outAddress.height + 6
-                        width: Math.min(outAddress.width, outAddress.contentWidth) + 6
-                        radius: height / 3
-                        opacity: 0.2
-                    }
-                    Flowee.LabelWithClipboard {
-                        id: outAddress
-                        visible: modelData !== null
-                        elide: Text.ElideMiddle
-                        menuText: qsTr("Copy Address")
-                        text: {
+            Flowee.Label {
+                text: {
+                    if (root.infoObject == null)
+                        return "";
+                    if (infoObject.createdByUs)
+                        return qsTr("Deposit Address") + ":"
+                    return qsTr("Receivers") + ":"
+                }
+            }
+            Column {
+                // we nest a column in a column to be able to skip all the rows that are not ours.
+                // only really relevant with loads of inputs and outputs.
+                width: content.width
+                Repeater {
+                    model: root.infoObject == null ? 0 : infoObject.outputs
+                    delegate: Item {
+                        Layout.alignment: Qt.AlignRight
+                        width: content.width
+                        height: {
                             if (modelData === null)
-                                return "";
-                            var cloaked = modelData.cloakedAddress
-                            if (cloaked !== "")
-                                return cloaked;
-                            return modelData.address;
+                                return 0;
+                            if (outAddress.implicitWidth + 10 + outAmount.implicitWidth < width)
+                                return outAmount.height + 10;
+                            return outAddress.height + outAmount.height + 16;
                         }
-                        clipboardText: modelData === null ? "" : modelData.address
-                        width: parent.width
-                        font.pixelSize: root.font.pixelSize * 0.8
-                    }
-                    Flowee.BitcoinAmountLabel {
-                        id: outAmount
-                        visible: modelData !== null
-                        value: modelData === null ? 0 : modelData.value
-                        fiatTimestamp: root.transaction.date
-                        colorize: modelData !== null && modelData.forMe
-                        anchors.right: parent.right
-                        anchors.top: outAddress.bottom
+                        Rectangle {
+                            color: Pay.useDarkSkin ? "#4fb2e7" : "yellow"
+                            visible: modelData !== null && modelData.forMe
+                            x: outAddress.x - 3
+                            y: outAddress.y -3
+                            height: outAddress.height + 6
+                            width: Math.min(outAddress.width, outAddress.contentWidth) + 6
+                            radius: height / 3
+                            opacity: 0.2
+                        }
+                        Flowee.LabelWithClipboard {
+                            id: outAddress
+                            x: 10
+                            visible: modelData !== null
+                            elide: Text.ElideMiddle
+                            menuText: qsTr("Copy Address")
+                            text: {
+                                if (modelData === null)
+                                    return "";
+                                var cloaked = modelData.cloakedAddress
+                                if (cloaked !== "")
+                                    return cloaked;
+                                return modelData.address;
+                            }
+                            clipboardText: modelData === null ? "" : modelData.address
+                            width: parent.width
+                            font.pixelSize: root.font.pixelSize * 0.8
+                        }
+                        Flowee.BitcoinAmountLabel {
+                            id: outAmount
+                            visible: modelData !== null
+                            value: modelData === null ? 0 : modelData.value
+                            fiatTimestamp: root.transaction.date
+                            colorize: modelData !== null && modelData.forMe
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 10
+                        }
                     }
                 }
             }
