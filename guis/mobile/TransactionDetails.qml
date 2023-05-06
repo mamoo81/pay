@@ -69,7 +69,7 @@ Page {
                         return qsTr("Rejected")
                     if (h === -1)
                         return qsTr("Unconfirmed")
-                    return qsTr("Mined") + ": "
+                    return qsTr("Mined at") + ": "
                 }
             }
             Flowee.Label {
@@ -83,13 +83,11 @@ Page {
                     if (root.transaction.height < 1)
                         return "";
 
-                    var answer = Pay.formatDateTime(tx.date)
-                    answer += "\n";
                     let txHeight = tx.height;
+                    var answer = txHeight + "\n" + Pay.formatDateTime(tx.date)
                     let blockAge = Pay.chainHeight - txHeight;
+                    answer += "\n";
                     answer += qsTr("%1 blocks ago", "", blockAge).arg(blockAge);
-
-                    answer += "\n" + txHeight;
                     return answer;
                 }
             }
@@ -153,7 +151,7 @@ Page {
                 visible: root.transaction != null && root.transaction.isCoinbase
             }
             Flowee.Label {
-                text: qsTr("CashFusion transaction")
+                text: qsTr("Is a CashFusion transaction.")
                 visible: root.transaction != null && root.transaction.isCashFusion
             }
 
@@ -172,12 +170,23 @@ Page {
             Flowee.BitcoinAmountLabel {
                 visible: feesPaidLabel.visible
                 value: root.infoObject == null ? 0 : infoObject.fees
+                colorize: false
             }
 
             Flowee.Label {
                 id: sendersLabel
-                text: qsTr("Senders") + ":"
-                visible: root.infoObject != null && (infoObject.createdByUs || infoObject.isCashFusion)
+                text: {
+                    if (root.infoObject == null)
+                        return "";
+                    if (infoObject.isCashFusion)
+                        return qsTr("Fused from my addresses") + ":"
+                    if (infoObject.createdByUs)
+                        return qsTr("Sent from my addresses") + ":";
+                    if (infoObject.isCashFusion)
+                        return qsTr("Sent from addresses") + ":";
+                    return "";
+                }
+                visible: text !== ""
             }
             Column {
                 // we nest a column in a column to be able to skip all the rows that are not ours.
@@ -244,9 +253,11 @@ Page {
                 text: {
                     if (root.infoObject == null)
                         return "";
+                    if (infoObject.isCashFusion)
+                        return qsTr("Fused into my addresses") + ":"
                     if (infoObject.createdByUs)
-                        return qsTr("Deposit Address") + ":"
-                    return qsTr("Receivers") + ":"
+                        return qsTr("Received at addresses") + ":"
+                    return qsTr("Received at my addresses") + ":"
                 }
             }
             Column {

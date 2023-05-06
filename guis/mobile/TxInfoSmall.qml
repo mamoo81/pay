@@ -94,7 +94,8 @@ ColumnLayout {
         Flowee.BitcoinAmountLabel {
             visible: isMoved === false
             Layout.fillWidth: true
-            value: model.fundsOut - model.fundsIn + (infoObject == null ? 0 : infoObject.fees)
+            colorizeValue: model.fundsOut - model.fundsIn + (infoObject == null ? 0 : infoObject.fees)
+            value: Math.abs(colorizeValue)
             fiatTimestamp: model.date
             showFiat: false // might not fit
         }
@@ -106,7 +107,7 @@ ColumnLayout {
     }
     Flowee.LabelWithClipboard {
         id: receiverName
-        Layout.fillWidth: true
+        Layout.alignment: Qt.AlignRight
         visible: text !== ""
         text: infoObject == null ? "" : infoObject.receiver
         font.pixelSize: paymentTypeLabel.font.pixelSize * 0.8

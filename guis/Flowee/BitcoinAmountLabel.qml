@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,12 @@ import QtQuick.Layouts 1.11
  */
 QQC2.Control {
     id: root
-    property double value: 5E8
+    property double value: 0
+    /// When colorize is true can turn the label
+    /// green or red based on the value. Making this property
+    /// hold a different number than 'value' will allow things like
+    /// a red colored label without a minus.
+    property double colorizeValue: value
     property bool colorize: true
     property bool includeUnit: true
     property bool showFiat: true
@@ -74,13 +79,13 @@ QQC2.Control {
             }
             color: {
                 if (root.colorize) {
-                    var num = root.value
+                    let num = root.colorizeValue
                     if (num > 0)
                         // positive value
                         return Pay.useDarkSkin ? "#86ffa8" : "green";
                     else if (num < 0) // negative
-                        return Pay.useDarkSkin ? "#ffdede" : "#444446";
-                    // zero is shown without color, like below.
+                        return Pay.useDarkSkin ? "#ffc0c0" : "#5f1717";
+                    // zero is shown in normal color
                 }
                 return root.color
             }
