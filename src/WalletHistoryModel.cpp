@@ -50,7 +50,7 @@ bool WalletHistoryModel::TransactionGroup::add(int txIndex, uint32_t timestamp)
             period = WalletEnums::EarlierThisWeek;
             date = date.addDays(-1 * date.dayOfWeek());
             const auto yesterday = today.addDays(-1);
-            days = yesterday.day() - date.day();
+            days = date.daysTo(yesterday);
         }
         else if (date >= today.addDays(-1 * today.day() + 1)) {
             // this month
