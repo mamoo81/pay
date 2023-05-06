@@ -313,7 +313,7 @@ Item {
                         Label {
                             color: "green"
                             font.pixelSize: 24
-                            text: destination.addressOk ? "✔" : " "
+                            text: addressInfo.addressOk ? "✔" : " "
                         }
                     }
                     Flowee.LabelWithClipboard {
