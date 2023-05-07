@@ -700,16 +700,8 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>Onbevestigd</translation>
     </message>
     <message>
-      <source>Mined</source>
-      <translation>Gedolven</translation>
-    </message>
-    <message>
       <source>Coinbase</source>
       <translation>Coinbase</translation>
-    </message>
-    <message>
-      <source>CashFusion transaction</source>
-      <translation>CashFusion transactie</translation>
     </message>
     <message>
       <source>Size</source>
@@ -718,6 +710,65 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
     <message>
       <source>%1 bytes</source>
       <translation type="unfinished">%1 bytes</translation>
+    </message>
+    <message>
+      <source>Transaction Hash</source>
+      <translation>Transactie hash</translation>
+    </message>
+    <message>
+      <source>Mined at</source>
+      <translation>Gedolven in</translation>
+    </message>
+    <message numerus="yes">
+      <source>%1 blocks ago</source>
+      <translation>
+        <numerusform>Meest recente blok</numerusform>
+        <numerusform>%1 blokken terug</numerusform>
+      </translation>
+    </message>
+    <message>
+      <source>Transaction comment</source>
+      <translation>Transactie omschrijving</translation>
+    </message>
+    <message>
+      <source>Is a CashFusion transaction.</source>
+      <translation>CashFusion transactie.</translation>
+    </message>
+    <message>
+      <source>Fees paid</source>
+      <translation>Betaalde kosten</translation>
+    </message>
+    <message>
+      <source>%1 Satoshi / 1000 bytes</source>
+      <translation>%1 Satoshi / 1000 bytes</translation>
+    </message>
+    <message>
+      <source>Fused from my addresses</source>
+      <translation>Mijn gefuseerde adressen</translation>
+    </message>
+    <message>
+      <source>Sent from my addresses</source>
+      <translation>Verzonden vanaf mijn adressen</translation>
+    </message>
+    <message>
+      <source>Sent from addresses</source>
+      <translation>Verzonden vanaf adressen</translation>
+    </message>
+    <message>
+      <source>Copy Address</source>
+      <translation>Kopieer adres</translation>
+    </message>
+    <message>
+      <source>Fused into my addresses</source>
+      <translation>Gefuseerd naar mijn adressen</translation>
+    </message>
+    <message>
+      <source>Received at addresses</source>
+      <translation>Ontvangen op adressen</translation>
+    </message>
+    <message>
+      <source>Received at my addresses</source>
+      <translation>Ontvangen op mijn adressen</translation>
     </message>
   </context>
   <context>
@@ -773,6 +824,10 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
     <message>
       <source>Transaction Details</source>
       <translation>Transactiedetails</translation>
+    </message>
+    <message>
+      <source>Sent to</source>
+      <translation>Verstuurd naar</translation>
     </message>
   </context>
 </TS>
