@@ -70,6 +70,51 @@ enum FileTags {
 
 static P2PNet::Chain s_chain = P2PNet::MainChain;
 
+namespace {
+QList<QStringView> splitString(const QString &input)
+{
+    QList<QStringView> words;
+    const QStringView stringView(input);
+    int wordStart = -1;
+    for (int i = 0; i < input.length(); ++i) {
+        if (input.at(i).isSpace()) {
+            if (wordStart != -1) {
+                words.append(stringView.sliced(wordStart, i - wordStart));
+                wordStart = -1;
+            }
+        }
+        else if (wordStart == -1) {
+            wordStart = i;
+        }
+    }
+    if (wordStart != -1)
+        words.append(stringView.sliced(wordStart, stringView.length() - wordStart));
+
+    return words;
+}
+
+QString joinWords(const QList<QStringView> &words, bool lowercaseFirstWord)
+{
+    QString string;
+    for (const auto word : words) {
+        if (string.isEmpty()) {
+            if (lowercaseFirstWord) {
+                string = word.toString().toLower();
+                continue;
+            }
+        }
+        else {
+            string += QLatin1Char(' ');
+        }
+        string += word.toString();
+    }
+
+    return string;
+}
+
+
+}
+
 FloweePay::FloweePay()
     : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)),
     m_chain(s_chain)
@@ -822,11 +867,14 @@ NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, cons
 
 NewWalletConfig* FloweePay::createImportedWallet(const QString &privateKey, const QString &walletName, int startHeight)
 {
+    auto words = splitString(privateKey); // this is great to remove any type of whitespace
+    if (words.size() != 1)
+        throw std::runtime_error("Not valid private key");
     auto wallet = createWallet(walletName);
     wallet->setSingleAddressWallet(true);
     if (startHeight <= 1)
         startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
-    wallet->addPrivateKey(privateKey.trimmed().remove('\n'), startHeight);
+    wallet->addPrivateKey(words.first().toString(), startHeight);
     emit walletsChanged();
     if (!m_offline)
         p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
@@ -875,7 +923,8 @@ NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, cons
         std::vector<uint32_t> derivationPath = HDMasterKey::deriveFromString(derivationPathStr.toStdString());
         if (startHeight <= 1)
             startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
-        wallet->createHDMasterKey(mnemonic.trimmed().remove('\n'), password.trimmed().remove('\n'),
+        auto seedWords = splitString(mnemonic); // this is great to remove any type of whitespace
+        wallet->createHDMasterKey(joinWords(seedWords, true), password.trimmed().remove('\n'),
                                   derivationPath, startHeight);
         emit walletsChanged();
         if (!m_offline)
@@ -900,13 +949,57 @@ bool FloweePay::checkDerivation(const QString &path) const
 
 WalletEnums::StringType FloweePay::identifyString(const QString &string) const
 {
-    const QString string_ = string.trimmed().remove('\n');
-    const std::string s = string_.toStdString();
-    if (string_.isEmpty()) {
+    auto words = splitString(string);
+    if (words.isEmpty()) {
         m_hdSeedValidator.clearSelectedLanguage();
         return WalletEnums::Unknown;
     }
 
+    try {
+        int firstWord = -2;
+        // split into words.
+        for (const auto word : words) {
+            int index = m_hdSeedValidator.findWord(word.toString());
+            if (firstWord == -2) {
+                bool lowerCased = false;
+                if (index == -1) {
+                    // the first word, especially on Mobile, tends to start
+                    // with an uppercase, expect that.
+                    auto wordLc = word.toString().toLower();
+                    if (wordLc != word) {
+                        index = m_hdSeedValidator.findWord(wordLc);
+                        lowerCased = true;
+                    }
+                }
+                firstWord = index;
+                if (index != -1) {
+                    QString mnemonic = joinWords(words, lowerCased);
+                    auto validity = m_hdSeedValidator.validateMnemonic(mnemonic, index);
+                    if (validity == Mnemonic::Valid)
+                        return WalletEnums::CorrectMnemonic;
+                }
+                else { // not a recognized word
+                    break;
+                }
+            }
+            else if (index == -1) { // a not-first-word failed the lookup.
+                if (word != words.last()) // this is the last word, don't highlight while writing.
+                    return WalletEnums::PartialMnemonicWithTypo;
+                break;
+            }
+            // if we get to this point in the loop then we have a real word that we found in the dictionary.
+            // Lets continue checking words and check if the rest of the words are part of the lexicon too.
+        }
+        if (firstWord >= 0)
+            return WalletEnums::PartialMnemonic;
+    } catch (const std::exception &e) {
+        // probably deployment issues (faulty word list)
+        logFatal() << e;
+        return WalletEnums::MissingLexicon;
+    }
+
+    const QString string_ = joinWords(words, false);
+    const std::string s = string_.toStdString();
     CBase58Data legacy;
     if (legacy.SetString(s)) {
         if ((m_chain == P2PNet::MainChain && legacy.isMainnetPkh())
@@ -928,43 +1021,6 @@ WalletEnums::StringType FloweePay::identifyString(const QString &string) const
             return WalletEnums::CashSH;
     }
 
-    try {
-        int firstWord = -2;
-        int space = -1;
-        do {
-            ++space;
-            int space2 = string.indexOf(' ', space);
-            auto word = string.mid(space, space2 - space);
-            if (!word.isEmpty()) {
-                int index = m_hdSeedValidator.findWord(word);
-                if (firstWord == -2) {
-                    firstWord = index;
-                    if (index != -1) {
-                        auto validity = m_hdSeedValidator.validateMnemonic(string_, index);
-                        if (validity == Mnemonic::Valid)
-                            return WalletEnums::CorrectMnemonic;
-                    }
-                    else { // not a recognized word
-                        break;
-                    }
-                }
-                else if (index == -1) { // a not-first-word failed the lookup.
-                    if (space2 != -1) // this is the last word, don't highlight while writing.
-                        return WalletEnums::PartialMnemonicWithTypo;
-                    break;
-                }
-                // if we get to this point in the loop then we have a real word that we found in the dictionary.
-                // Lets continue checking words and check if the rest of the words are part of the lexicon too.
-            }
-            space = space2;
-        } while (space != -1);
-        if (firstWord >= 0)
-            return WalletEnums::PartialMnemonic;
-    } catch (const std::exception &e) {
-        // probably deployment issues (faulty word list)
-        logFatal() << e;
-        return WalletEnums::MissingLexicon;
-    }
     return WalletEnums::Unknown;
 }
 
