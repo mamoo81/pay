@@ -84,7 +84,7 @@ Page {
 
         Flowee.Label {
             id: detectedType
-            color: typedData === Wallet.PartialMnemonicWithTypo ? "red" : feedback.color
+            color: typedData === Wallet.PartialMnemonicWithTypo ? mainWindow.errorRed : feedback.color
             text: {
                 var typedData = importAccount.typedData
                 if (typedData === Wallet.PrivateKey)
@@ -116,19 +116,6 @@ Page {
             tooltipText: qsTr("When enabled, no extra addresses will be auto-generated in this wallet.\nChange will come back to the imported key.")
             checked: true
             visible: importAccount.isPrivateKey
-            Layout.columnSpan: 2
-        }
-        Flowee.Label {
-            text: qsTr("Alternate phrase") + ":"
-            Layout.columnSpan: 2
-            visible: !importAccount.isPrivateKey
-        }
-        Flowee.TextField {
-            // according to the BIP39 spec this is the 'password', but from a UX
-            // perspective that is confusing and no actual wallet uses it
-            id: passwordField
-            visible: !importAccount.isPrivateKey
-            Layout.fillWidth: true
             Layout.columnSpan: 2
         }
         Flowee.Label {
@@ -173,6 +160,19 @@ Page {
             text: "m/44'/0'/0'" // What most BCH wallets are created with
             visible: !importAccount.isPrivateKey
             color: Pay.checkDerivation(text) ? palette.text : "red"
+        }
+        Flowee.Label {
+            text: qsTr("Alternate phrase") + ":"
+            Layout.columnSpan: 2
+            visible: !importAccount.isPrivateKey
+        }
+        Flowee.TextField {
+            // according to the BIP39 spec this is the 'password', but from a UX
+            // perspective that is confusing and no actual wallet uses it
+            id: passwordField
+            visible: !importAccount.isPrivateKey
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
         }
     }
 }
