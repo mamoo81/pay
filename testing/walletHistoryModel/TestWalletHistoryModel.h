@@ -30,6 +30,7 @@ public:
 private slots:
     void cleanup(); // called after each testcase.
     void basic();
+    void basic_data();
 
 private:
     template<class T>

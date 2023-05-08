@@ -19,6 +19,7 @@
 #define WALLETHSTORYMODEL_H
 
 #include <QAbstractListModel>
+#include <QDate>
 #include "Wallet.h"
 #include "WalletEnums.h"
 
@@ -83,7 +84,7 @@ public:
         uint32_t endTime = 0;
 
         /// returns true if added, false if the tx-index is not for this group
-        bool add(int txIndex, uint32_t timestamp);
+        bool add(int txIndex, uint32_t timestamp, const QDate &today);
     };
 
     void freezeModel(bool on);
@@ -98,6 +99,9 @@ protected:
     // virtual to allow the unit test to not use p2pNet for this
     /// return the timestamp of a block (aka nTime) as defined by the block-header
     virtual uint32_t secsSinceEpochFor(int blockHeight) const;
+
+    // only reimplemented in the unit test.
+    virtual QDate today() const;
 
 protected slots:
     void appendTransactions(int firstNew, int count);
@@ -126,6 +130,11 @@ private:
     QVector<int> m_rowsProxy;
     Wallet *m_wallet;
     QFlags<WalletEnums::Include> m_includeFlags = WalletEnums::IncludeAll;
+    /*
+     * To avoid weirdness in the assiging of transactions to groups based on the current date,
+     * we keep the 'today' variable the same for the duration.
+     */
+    QDate m_today;
 
     std::vector<TransactionGroup> m_groups;
     struct GroupCache {

@@ -28,7 +28,7 @@
  * Attempt to add a transaction to this group.
  * Retuns false if the txIndex is not meant for this group
  */
-bool WalletHistoryModel::TransactionGroup::add(int txIndex, uint32_t timestamp)
+bool WalletHistoryModel::TransactionGroup::add(int txIndex, uint32_t timestamp, const QDate &today)
 {
     if (startTxIndex == -1) {
         startTxIndex = txIndex;
@@ -36,7 +36,6 @@ bool WalletHistoryModel::TransactionGroup::add(int txIndex, uint32_t timestamp)
         // first one in this group. Now we need to decide which period we area actually looking at.
         QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
         int days = 0;
-        QDate today = QDate::currentDate();
         if (date == today) {
             period = WalletEnums::Today;
             days = 1;
@@ -52,28 +51,24 @@ bool WalletHistoryModel::TransactionGroup::add(int txIndex, uint32_t timestamp)
             const auto yesterday = today.addDays(-1);
             days = date.daysTo(yesterday);
         }
-        else if (date >= today.addDays(-1 * today.day() + 1)) {
-            // this month
-            period = WalletEnums::EarlierThisMonth;
-            date = date.addDays(-1 * date.day() + 1);
-            const auto weekStart = today.addDays(-1 * today.dayOfWeek() + 1);
-            days = weekStart.day() - 1;
-
-            const auto yesterday = today.addDays(-1);
-            if (yesterday.year() == date.year() && yesterday.month() == date.month()) {
-                // don't eat the events that happend yesterday.
-                days -= 1;
-            }
-        }
-        else { // any (other) month
+        else { // a whole month.
             period = WalletEnums::Month;
-            date = date.addDays(-1 * date.day() + 1);
-            days = date.daysInMonth();
+            if (date >= today.addDays(-1 * today.day() + 1)) // special case THIS month
+                period = WalletEnums::EarlierThisMonth;
 
-            const auto yesterday = today.addDays(-1);
-            if (yesterday.year() == date.year() && yesterday.month() == date.month()) {
-                // don't eat the events that happend yesterday.
-                days -= 1;
+            days = date.daysInMonth();
+            date = date.addDays(-1 * date.day() + 1);
+            const auto endOfMonth = date.addDays(days);
+            // make it smaller if needed.
+            const auto startThisWeek = today.addDays(-1 * today.dayOfWeek() + 1);
+            if (startThisWeek < endOfMonth) {
+                days = startThisWeek.day() - 1;
+            }
+            else {
+                // date = date.addDays(-1 * date.day() + 1);
+                const auto yesterday = today.addDays(-1);
+                if (yesterday < endOfMonth)  // don't eat the events that happend yesterday.
+                    days -= 1;
             }
         }
         const QDateTime dt(date, QTime());
@@ -228,7 +223,7 @@ QString WalletHistoryModel::groupingPeriod(int groupId) const
     default: {
         uint32_t timestamp = m_groups.at(groupId).endTime;
         QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
-        if (date.year() == QDate::currentDate().year())
+        if (date.year() == m_today.year())
             return date.toString("MMMM");
         return date.toString("MMMM yyyy");
     }
@@ -338,6 +333,7 @@ void WalletHistoryModel::createMap()
     m_rowsProxy.clear();
     m_rowsProxy.reserve(m_wallet->m_walletTransactions.size());
     m_groups.clear();
+    m_today = today();
 
     // we insert the key used in the m_wallet->m_walletTransaction map
     // in the order of how our rows work here.
@@ -382,11 +378,11 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
         return;
     }
 
-    if (!m_groups.back().add(txIndex, timestamp)) {
+    if (!m_groups.back().add(txIndex, timestamp, m_today)) {
         // didn't fit, make a new group and add it there.
         TransactionGroup newGroup;
         newGroup.period = m_groups.back().period;
-        bool ok = newGroup.add(txIndex, timestamp);
+        bool ok = newGroup.add(txIndex, timestamp, m_today);
         assert (ok);
         m_groups.push_back(newGroup);
     }
@@ -448,6 +444,11 @@ bool WalletHistoryModel::isModelFrozen() const
 uint32_t WalletHistoryModel::secsSinceEpochFor(int blockHeight) const
 {
     return FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
+}
+
+QDate WalletHistoryModel::today() const
+{
+    return QDate::currentDate();
 }
 
 int WalletHistoryModel::lastSyncIndicator() const
