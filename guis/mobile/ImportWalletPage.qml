@@ -27,7 +27,7 @@ Page {
 
     headerButtonVisible: true
     headerButtonText: qsTr("Create")
-    headerButtonEnabled: accountName.text.length > 2 && finished
+    headerButtonEnabled: finished
     property var typedData: Pay.identifyString(secrets.text)
     property bool finished: typedData === Wallet.PrivateKey || typedData === Wallet.CorrectMnemonic;
     property bool isMnemonic: typedData === Wallet.CorrectMnemonic || typedData === Wallet.PartialMnemonic || typedData === Wallet.PartialMnemonicWithTypo;
@@ -123,6 +123,8 @@ Page {
             text: qsTr("Oldest Transaction") + ":"
         }
         Flow {
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
             spacing: 10
             QQC2.ComboBox {
                 id: month
