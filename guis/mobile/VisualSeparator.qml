@@ -20,6 +20,7 @@ import QtQuick
 Item {
     height: 21
     width: parent.width
+    implicitWidth: parent.width // for when we are used in a layout
     Rectangle {
         width: parent.width * 0.8
         height: 1.3
