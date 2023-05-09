@@ -30,44 +30,47 @@ QQC2.Control {
     ColumnLayout {
         id: column
         width: parent.width
+        spacing: 10
         Flowee.AccountTypeLabel {
             Layout.fillWidth: true
             account: root.account
         }
 
-        Flowee.Label {
-            text: qsTr("Sync Status") + ":"
-        }
-        Flowee.Label {
-            text: {
-                var height = root.account.lastBlockSynched
-                if (height < 1)
-                    return ""
-                var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
-                if (time !== "")
-                    time = "  (" + time + ")";
-                return height + " / " + Pay.chainHeight + time;
+        PageTitledBox {
+            title: qsTr("Sync Status")
+
+            Flowee.Label {
+                text: {
+                    var height = root.account.lastBlockSynched
+                    if (height < 1)
+                        return ""
+                    var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
+                    if (time !== "")
+                        time = "  (" + time + ")";
+                    return height + " / " + Pay.chainHeight + time;
+                }
             }
         }
 
-        Flowee.TextField {
-            text: account.name
-            onTextChanged: root.account.name = text
-            Layout.fillWidth: true
+        PageTitledBox {
+            title: qsTr("Wallet Name")
+
+            Flowee.TextField {
+                text: account.name
+                onTextChanged: root.account.name = text
+                width: parent.width
+            }
         }
 
-        TextButton {
-            visible: !portfolio.singleAccountSetup
-            Layout.fillWidth: true
-            text: qsTr("Primary Wallet")
-            onClicked: if (!root.account.isArchived) root.account.isPrimaryAccount = !root.account.isPrimaryAccount
+        PageTitledBox {
+            title: qsTr("Options")
 
             Flowee.CheckBox {
+                visible: !portfolio.singleAccountSetup
                 enabled: !root.account.isArchived
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
                 checked: root.account.isPrimaryAccount
                 onClicked: root.account.isPrimaryAccount = checked
+                text: qsTr("Primary Wallet")
             }
         }
 
@@ -99,14 +102,6 @@ QQC2.Control {
           TODO archived wallets functionality
          */
 
-        /* // TODO
-        TextButton {
-            text: qsTr("Wallet Settings")
-            showPageIcon: true
-            Layout.fillWidth: true
-            onClicked: {}
-        }*/
-
         TextButton {
             text: qsTr("Backup information")
             showPageIcon: true
@@ -116,43 +111,100 @@ QQC2.Control {
             Component {
                 id: hdBackupDetails
                 Page {
+                    id: detailsPage
                     headerText: qsTr("Backup Details")
+
+                    Item {
+                        // non-layoutable items.
+
+                        QQC2.Popup {
+                            id: seedPopup
+                            width: 260
+                            height: 260
+                            x: 55
+                            y: 100
+                            modal: true
+                            closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
+                            background: Rectangle {
+                                color: palette.light
+                                border.color: palette.midlight
+                                border.width: 1
+                                radius: 5
+                            }
+                            Flowee.QRWidget {
+                                id: seedQr
+                                qrSize: 250
+                                textVisible: false
+                            }
+                        }
+                    }
+
                     ColumnLayout {
                         width: parent.width
-                        Flowee.Label { text: "xpub" + ":" }
-                        Flowee.LabelWithClipboard {
-                            id: xpub
-                            Layout.fillWidth: true
-                            text: root.account.xpub
-                        }
-                        VisualSeparator { }
+                        spacing: 10
 
-                        Flowee.Label {
-                            text: qsTr("Wallet seed-phrase") + ":"
-                        }
-                        // TODO allow showing the seed phrase as a QR
-                        Flowee.LabelWithClipboard {
-                            Layout.fillWidth: true
-                            text: root.account.mnemonic
-                            wrapMode: Text.Wrap
-                        }
-                        VisualSeparator { }
-                        Flowee.Label { text: qsTr("Derivation Path") + ":" }
-                        Flowee.LabelWithClipboard { text: root.account.hdDerivationPath }
-                        VisualSeparator { }
-                        Flowee.Label { text: qsTr("Starting Height", "height refers to block-height") + ":" }
-                        Flowee.LabelWithClipboard { text: root.account.initialBlockHeight }
+                        PageTitledBox {
+                            title: qsTr("Wallet seed-phrase")
 
-                        VisualSeparator { }
+                            Item {
+                                implicitHeight: mnemonicLabel.implicitHeight
+                                width: parent.width
+                                Flowee.LabelWithClipboard {
+                                    id: mnemonicLabel
+                                    text: root.account.mnemonic
+                                    width: parent.width - 36
+                                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                                    font.wordSpacing: 1
+                                }
+                                Image {
+                                    width: 20
+                                    height: 20
+                                    anchors.right: parent.right
+                                    source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: {
+                                            seedQr.qrText = root.account.mnemonic
+                                            seedPopup.open();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        PageTitledBox {
+                            title: qsTr("Starting Height", "height refers to block-height")
+                            Flowee.LabelWithClipboard { text: root.account.initialBlockHeight }
+                        }
+
+                        PageTitledBox {
+                            title: qsTr("Derivation Path")
+                            Flowee.LabelWithClipboard {
+                                text: root.account.hdDerivationPath
+                            }
+                        }
+
+                        PageTitledBox {
+                            title: qsTr("xpub")
+
+                            Flowee.LabelWithClipboard {
+                                text: root.account.xpub
+                                width: parent.width
+                                wrapMode: Text.WrapAnywhere
+                            }
+                        }
+
                         Flowee.Label {
                             Layout.fillWidth: true
                             text: qsTr("Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case you lose your mobile.")
                             textFormat: Text.StyledText
+                            font.italic: true
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         }
                         Flowee.Label {
                             Layout.fillWidth: true
                             text: qsTr("<b>Important</b>: Never share your seed-phrase with others!")
+                            font.italic: true
                             textFormat: Text.StyledText
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         }
@@ -178,34 +230,51 @@ QQC2.Control {
                         return [];
                     }
 
-                    Flowee.CheckBox {
-                        id: changeAddresses
-                        text: qsTr("Change Addresses")
-                        anchors.top: parent.top
-                        visible: root.account.isHDWallet
-                        onClicked: root.account.secrets.showChangeChain = checked
-                        tooltipText: qsTr("Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.")
-                    }
-                    Flowee.CheckBox {
-                        id: usedAddresses
-                        anchors.top: changeAddresses.bottom
-                        anchors.topMargin: 16
-                        width: parent.width
-                        text: qsTr("Used Addresses");
-                        visible: !root.account.isSingleAddressAccount
-                        onClicked: root.account.secrets.showUsedAddresses = checked
-                        tooltipText: qsTr("Switches between still in use addresses and formerly used, new empty, addresses")
+                    PageTitledBox {
+                        id: optionsBox
+                        Flowee.CheckBox {
+                            text: qsTr("Change Addresses")
+                            visible: root.account.isHDWallet
+                            onClicked: root.account.secrets.showChangeChain = checked
+                            tooltipText: qsTr("Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.")
+                        }
+                        Flowee.CheckBox {
+                            text: qsTr("Used Addresses");
+                            visible: !root.account.isSingleAddressAccount
+                            onClicked: root.account.secrets.showUsedAddresses = checked
+                            tooltipText: qsTr("Switches between still in use addresses and formerly used, new empty, addresses")
+                        }
                     }
 
-                    Flowee.WalletSecretsView {
-                        id: listView
-                        anchors.top: usedAddresses.visible ? usedAddresses.bottom : parent.top
-                        anchors.topMargin: 10
-                        anchors.bottom: parent.bottom
-                        width: parent.width
-                        account: root.account
+                    Item {
+                        // this is a horrible hack...
+                        // First, ListViews almost always require clipping on,
+                        // otherwise list-items can overlap the rest of your view.
+                        // But if I enable clipping I no longer get the nice
+                        // width-filling backgrounds...
+                        // Sooo. I need a clipping item that is full width (negative
+                        // left and right margin)
+                        id: clipItem
+                        anchors {
+                            top: optionsBox.bottom
+                            topMargin: 10
+                            bottom: parent.bottom
+                            left: parent.left
+                            right: parent.right
+                            leftMargin: -10
+                            rightMargin: -10
+                        }
                         clip: true
-                        showHdIndex: false
+                        Flowee.WalletSecretsView {
+                            id: listView
+                            anchors {
+                                fill: parent
+                                leftMargin: 10
+                                rightMargin: 10
+                            }
+                            account: root.account
+                            showHdIndex: false
+                        }
                     }
                 }
             }

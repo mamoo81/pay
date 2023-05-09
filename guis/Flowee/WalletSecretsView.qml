@@ -22,27 +22,43 @@ ListView {
     id: root
     required property QtObject account;
 
-    clip: true
     model: root.account.secrets
     property bool showHdIndex: true
 
-    header: Column {
+    header: Item {
         width: root.width
-        Label {
-            width: parent.width
-            font.italic: true
-            text: qsTr("Explanation") + ":";
+        implicitHeight: contentColumn.implicitHeight + 16
+        Rectangle {
+            color: palette.alternateBase
+            anchors {
+                fill: parent
+                leftMargin: -10
+                rightMargin: -10
+            }
         }
-        Label {
-            width: parent.width
-            font.italic: true
-            text: qsTr("Coins a / b\n a) active coin-count.\n b) historical coin-count.");
+
+        Column {
+            id: contentColumn
+            width: root.width
+            y: 4
+            spacing: 6
+            Label {
+                width: parent.width
+                font.italic: true
+                text: qsTr("Explanation")
+                font.weight: 600
+            }
+            Label {
+                width: parent.width
+                font.italic: true
+                text: qsTr("Coins a / b\n a) active coin-count.\n b) historical coin-count.");
+            }
         }
     }
 
-    delegate: Rectangle {
+    delegate: Item {
+
         id: delegateRoot
-        color: (index % 2) == 0 ? palette.base : palette.alternateBase
         width: ListView.view.width
         height: addressLabel.height + 6 + amountLabel.height + 6 + (lineCount === 3 ? coinCountLabel.height + 6: 0) + 12
 
@@ -55,6 +71,14 @@ ListView {
             return 2;
         }
 
+        Rectangle {
+            color: (index % 2) == 0 ? palette.base : palette.alternateBase
+            anchors {
+                fill: parent
+                leftMargin: -10
+                rightMargin: -10
+            }
+        }
         Label {
             text: hdIndex
             anchors.baseline: addressLabel.baseline

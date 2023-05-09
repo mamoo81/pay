@@ -21,9 +21,11 @@ import Flowee.org.pay
 Item {
     id: root
     property alias qrSize: qrImage.width
-    implicitWidth: qrImage.width
-    implicitHeight: qrImage.width + addressLine.height
+    property alias textVisible: addressLine.visible
     property string qrText: ""
+
+    implicitWidth: qrImage.width
+    implicitHeight: qrImage.width + addressLine.visible ? addressLine.height : 0
 
     function handleOnClicked() {
         Pay.copyToClipboard(qrText);

@@ -25,9 +25,18 @@ Item {
     property alias title: boxTitle.text
     default property alias content: contentColumn.children
 
-    implicitHeight: (boxTitle.text === "" ? 0 : boxTitle.height + 6) + 4 + contentColumn.implicitHeight + 6
+    implicitHeight: {
+        var h = 6;
+        if (boxTitle.text !== "")
+            h += 4 + boxTitle.height; // 4 is the spacing above title
+        let contentHeight = contentColumn.implicitHeight;
+        if (contentHeight > 0)
+            h += contentHeight + 6;
+        return h;
+    }
     Layout.fillWidth: true
     height: implicitHeight
+    visible: implicitHeight > 0
 
     Rectangle {
         anchors.fill: parent

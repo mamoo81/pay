@@ -118,6 +118,7 @@ Page {
             AccountPageListItem {
                 width: accountPageListView.width
                 account: modelData
+                clip: true
             }
         }
     }

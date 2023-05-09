@@ -26,59 +26,49 @@ Page {
 
     ColumnLayout {
         width: parent.width
-        spacing: 6
-        Flowee.Label {
-            text: qsTr("Font sizing")
-        }
+        spacing: 10
 
-        Row {
-            width: parent.width
-            id: fontSizing
-            property double buttonWidth: width / 6
-            Repeater {
-                model: 6
-                delegate: Item {
-                    width: fontSizing.buttonWidth
-                    height: 30
-                    property int target: index * 25 + 75
+        PageTitledBox {
+            title: qsTr("Font sizing")
+            Row {
+                width: parent.width
+                id: fontSizing
+                property double buttonWidth: width / 6
+                Repeater {
+                    model: 6
+                    delegate: Item {
+                        width: fontSizing.buttonWidth
+                        height: 30
+                        property int target: index * 25 + 75
 
-                    Rectangle {
-                        width: parent.width - 5
-                        x: 2.5
-                        height: 3
-                        color: Pay.fontScaling === target ? palette.highlight : palette.button
-                    }
+                        Rectangle {
+                            width: parent.width - 5
+                            x: 2.5
+                            height: 3
+                            color: Pay.fontScaling === target ? palette.highlight : palette.button
+                        }
 
-                    Flowee.Label {
-                        font.pixelSize: 15
-                        text: "" + target
-                        anchors.bottom: parent.bottom
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        anchors.topMargin: -30
-                        onClicked: Pay.fontScaling = target
+                        Flowee.Label {
+                            font.pixelSize: 15
+                            text: "" + target
+                            anchors.bottom: parent.bottom
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            anchors.topMargin: -30
+                            onClicked: Pay.fontScaling = target
+                        }
                     }
                 }
             }
         }
 
-        Item { width: 1; height: 10; } // spacer
+        PageTitledBox {
+            title: qsTr("Unit")
 
-        Item {
-            width: parent.width
-            implicitHeight: Math.max(unitLabel.height, unitSelector.height)
-            Flowee.Label {
-                id: unitLabel
-                text: qsTr("Unit") + ":"
-                anchors.baseline: unitSelector.baseline
-            }
             Flowee.ComboBox {
                 id: unitSelector
-                anchors.left: unitLabel.right
-                anchors.leftMargin: 6
-                width: 160
                 model: {
                     var answer = [];
                     for (let i = 0; i < 5; ++i) {
@@ -89,47 +79,47 @@ Page {
                 currentIndex: Pay.unit
                 onCurrentIndexChanged: Pay.unit = currentIndex
             }
-        }
 
-        Rectangle {
-            Layout.alignment: Qt.AlignHCenter
-            color: "#00000000"
-            radius: 6
-            border.color: palette.button
-            border.width: 0.8
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: "#00000000"
+                radius: 6
+                border.color: palette.button
+                border.width: 0.8
 
-            implicitHeight: units.height + 10
-            implicitWidth: units.width + 10
+                implicitHeight: units.height + 10
+                implicitWidth: units.width + 10
 
-            GridLayout {
-                id: units
-                columns: 3
-                x: 5; y: 5
-                rowSpacing: 0
-                Flowee.Label {
-                    text: {
-                        var answer = "1";
-                        for (let i = Pay.unitAllowedDecimals; i < 8; ++i) {
-                            answer += "0";
+                GridLayout {
+                    id: units
+                    columns: 3
+                    x: 5; y: 5
+                    rowSpacing: 0
+                    Flowee.Label {
+                        text: {
+                            var answer = "1";
+                            for (let i = Pay.unitAllowedDecimals; i < 8; ++i) {
+                                answer += "0";
+                            }
+                            return answer + " " + Pay.unitName;
                         }
-                        return answer + " " + Pay.unitName;
+                        Layout.alignment: Qt.AlignRight
                     }
-                    Layout.alignment: Qt.AlignRight
-                }
-                Flowee.Label { text: "=" }
-                Flowee.Label { text: "1 Bitcoin Cash" }
+                    Flowee.Label { text: "=" }
+                    Flowee.Label { text: "1 Bitcoin Cash" }
 
-                Flowee.Label { text: "1 " + Pay.unitName; Layout.alignment: Qt.AlignRight; visible: Pay.isMainChain}
-                Flowee.Label { text: "="; visible: Pay.isMainChain}
-                Flowee.Label {
-                    text: {
-                        var amount = 1;
-                        for (let i = 0; i < Pay.unitAllowedDecimals; ++i) {
-                            amount = amount * 10;
+                    Flowee.Label { text: "1 " + Pay.unitName; Layout.alignment: Qt.AlignRight; visible: Pay.isMainChain}
+                    Flowee.Label { text: "="; visible: Pay.isMainChain}
+                    Flowee.Label {
+                        text: {
+                            var amount = 1;
+                            for (let i = 0; i < Pay.unitAllowedDecimals; ++i) {
+                                amount = amount * 10;
+                            }
+                            return Fiat.formattedPrice(amount, Fiat.price);
                         }
-                        return Fiat.formattedPrice(amount, Fiat.price);
+                        visible: Pay.isMainChain
                     }
-                    visible: Pay.isMainChain
                 }
             }
         }
@@ -140,21 +130,16 @@ Page {
             onClicked: thePile.push("./CurrencySelector.qml")
         }
 
-        Flowee.Label {
-            text: qsTr("Main View")
-            font.bold: true
+        PageTitledBox {
+            title: qsTr("Main View")
             visible: Pay.isMainChain // because we only have one option right now
-        }
-        Item {
-            width: 10
-            height: 10
-        }
 
-        Flowee.CheckBox {
-            text: qsTr("Show Bitcoin Cash value")
-            checked: Pay.activityShowsBch
-            onCheckedChanged: Pay.activityShowsBch = checked
-            visible: Pay.isMainChain // only mainchain has fiat value
+            Flowee.CheckBox {
+                text: qsTr("Show Bitcoin Cash value")
+                checked: Pay.activityShowsBch
+                onCheckedChanged: Pay.activityShowsBch = checked
+                visible: Pay.isMainChain // only mainchain has fiat value
+            }
         }
     }
 }
