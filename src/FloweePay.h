@@ -299,6 +299,7 @@ private:
     // create wallet and add to list. Please consider calling walletsChanged() after
     Wallet *createWallet(const QString &name);
     uint32_t walletStartHeightHint() const;
+    void connectToWallet(Wallet *wallet);
 
     mutable Mnemonic m_hdSeedValidator;
 

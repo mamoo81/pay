@@ -300,12 +300,8 @@ void FloweePay::init()
                     dl->addHeaderListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
                     m_wallets.append(w);
+                    connectToWallet(w);
                     logDebug() << "Found wallet" << w->name() << "with segment ID:" << w->segment()->segmentId();
-                    connect (w, &Wallet::encryptionChanged, w, [=]() {
-                         // make sure that we get peers for the wallet directly after it gets decrypted
-                        if (!m_offline && w->isDecrypted())
-                            FloweePay::p2pNet()->addAction<SyncSPVAction>();
-                    });
                     lastOpened = w;
                 } catch (const std::runtime_error &e) {
                     logWarning() << "Wallet load failed:" << e;
@@ -606,6 +602,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     dl->connectionManager().addPrivacySegment(w->segment());
     w->moveToThread(thread());
     m_wallets.append(w);
+    connectToWallet(w);
 
     emit startSaveDate_priv(); // schedule a save of the m_wallets list
     return w;
@@ -757,6 +754,20 @@ uint32_t FloweePay::walletStartHeightHint() const
     // interpret as seconds and match it to the block time to resolve a
     // hight when the headers are synched.
     return time(nullptr);
+}
+
+void FloweePay::connectToWallet(Wallet *wallet)
+{
+    connect (wallet, &Wallet::encryptionChanged, wallet, [=]() {
+         // make sure that we get peers for the wallet directly after it gets decrypted
+        if (!m_offline && wallet->isDecrypted())
+            FloweePay::p2pNet()->addAction<SyncSPVAction>();
+    });
+    connect (wallet, &Wallet::encryptionSeedChanged, wallet, [=]() {
+        // the encryption seed is saved in the wallet-list.
+        // Save as soon as the data changed.
+        saveData();
+    }, Qt::QueuedConnection);
 }
 
 bool FloweePay::activityShowsBch() const
@@ -1050,6 +1061,7 @@ NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const
             emit walletsChanged();
             m_wallets.append(wallet);
             emit walletsChanged();
+            connectToWallet(wallet);
             return new NewWalletConfig(wallet);
         }
     }

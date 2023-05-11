@@ -381,6 +381,7 @@ signals:
     void transactionConfirmed(int txIndex);
     void transactionRemoved(int txIndex);
     void encryptionChanged();
+    void encryptionSeedChanged();
 
     // \internal
     void startDelayedSave();

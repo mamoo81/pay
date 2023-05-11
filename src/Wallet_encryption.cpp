@@ -34,7 +34,10 @@ uint32_t Wallet::encryptionSeed() const
 void Wallet::setEncryptionSeed(uint32_t seed)
 {
     assert(!m_haveEncryptionKey); // Wrong order of calls.
+    if (m_encryptionSeed == seed)
+        return;
     m_encryptionSeed = seed;
+    emit encryptionSeedChanged();
 }
 
 bool Wallet::parsePassword(const QString &password)
@@ -77,7 +80,7 @@ bool Wallet::parsePassword(const QString &password)
             return false; // bad password
     }
     // password is correct, lets update internal wallet state
-    m_encryptionSeed = encryptionSeed;
+    setEncryptionSeed(encryptionSeed);
     m_encryptionChecksum = *crc;
     m_encryptionKey.resize(AES256_KEYSIZE);
     m_encryptionIR.resize(AES_BLOCKSIZE);
