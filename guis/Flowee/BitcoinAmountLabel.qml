@@ -25,7 +25,9 @@ import QtQuick.Layouts 1.11
  */
 QQC2.Control {
     id: root
-    property double value: 0
+    // Notice that the default is not a valid value so we can be certain that
+    // we get the onValueChanged() callback.
+    property double value: 0.123
     /// When colorize is true can turn the label
     /// green or red based on the value. Making this property
     /// hold a different number than 'value' will allow things like
