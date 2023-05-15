@@ -359,6 +359,13 @@ public:
     /// Check the loaded wallet version Id and make internal changes to upgrade it to current.
     void performUpgrades();
 
+    /**
+     * Return the importing state.
+     * A wallet that starts far behind the chain-tip is seen as importing until
+     * it has received all block data until the tip.
+     * This boolean is true at most once in the lifetime of a wallet.
+     * This boolean is persisted to disk.
+     */
     bool walletIsImporting() const;
 
 public slots:
@@ -569,13 +576,14 @@ private:
     friend class WalletHistoryModel;
     friend class WalletSecretsModel;
     friend class WalletCoinsModel;
-    friend class WalletKeyView;;
+    friend class WalletKeyView;
 
     // auto-detected, causes us to send bigger gaps for bloom filters.
     bool m_walletStoresCashFusions = false;
     bool m_walletIsImporting = false; // only true for the initial wallet import.
-    // user settings
+    // Makes sure that we use only 1 address if true.
     bool m_singleAddressWallet = false;
+    // All wallets created by the usre are user-owned.
     bool m_userOwnedWallet = true;
 
     // operational
