@@ -33,9 +33,6 @@
 #include <QDateTime>
 
 
-namespace Streaming {
-    class BufferPool;
-}
 class Wallet;
 class NewWalletConfig;
 class KeyId;
