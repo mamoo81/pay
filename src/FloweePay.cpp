@@ -618,10 +618,10 @@ void FloweePay::copyToClipboard(const QString &text)
     QGuiApplication::clipboard()->setText(text);
 }
 
-void FloweePay::openInExplorer(const QString &text)
+void FloweePay::openInExplorer(const QString &txid)
 {
-    if (text.size() == 64) { // assume this is a txid
-        QDesktopServices::openUrl(QUrl("https://blockchair.com/bitcoin-cash/transaction/" + text));
+    if (txid.size() == 64) { // assume this is a txid
+        QDesktopServices::openUrl(QUrl("https://blockchair.com/bitcoin-cash/transaction/" + txid));
         return;
     }
     // Add maybe other types?

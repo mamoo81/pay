@@ -90,8 +90,17 @@ public:
 
     QList<Wallet *> wallets() const;
 
+    /**
+     * Return the p2pNet owned by this application.
+     * Notice that we lazy-initialize this at first call, which is quite expensive.
+     * The startP2PInit() method should be called once, to ensure the p2pNet initializes
+     * in a worker-thread.
+     */
     DownloadManager* p2pNet();
 
+    /**
+     * Return the fiat-prices data provider owned by this application.
+     */
     PriceDataProvider *prices() const;
 
     /// return the amount of milli-seconds we wait for a double-spent-proof
@@ -104,7 +113,12 @@ public:
     /// returns platform name, Linux / Android / etc
     QString platform() const;
 
-    /// Load p2p layer.
+    /**
+     * Load p2p layer in a worker-thread.
+     * The signal loadComplete() will be triggered when that is done, after which it is safe to call
+     * the p2pNet() method.
+     * \sa loadComplete();
+     */
     void startP2PInit();
 
     /// for a price, in satoshis, return a formatted string in unitName().
@@ -240,7 +254,7 @@ public:
     void setHideBalance(bool hideBalance);
 
     Q_INVOKABLE void copyToClipboard(const QString &text);
-    Q_INVOKABLE void openInExplorer(const QString &text);
+    Q_INVOKABLE void openInExplorer(const QString &txid);
 
     QString version() const;
     QString libsVersion() const;
@@ -250,7 +264,12 @@ public:
     /// register the user preference for being offline.
     void setOffline(bool offline);
 
-    /// start the p2p networking, unless isOffline()
+    /**
+     * run the p2p networking agents, unless isOffline() is true.
+     * After the startP2PInit has successfully completed, call this
+     * to start the actions running on the network layer which will
+     * sync the databases from the p2p net.
+     */
     void startNet();
 
     /// If true, no notifications about new blocks will be shown
