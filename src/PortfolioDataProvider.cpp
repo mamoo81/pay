@@ -19,6 +19,7 @@
 #include "AccountInfo.h"
 #include "FloweePay.h"
 #include "Wallet.h"
+#include "WalletConfig.h"
 
 #include <QSettings>
 
@@ -39,6 +40,8 @@ PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
         selectDefaultWallet();
         emit accountsChanged();
     });
+
+    connect (FloweePay::instance(), SIGNAL(totalBalanceConfigChanged()), this, SIGNAL(totalBalanceChanged()));
 }
 
 QList<QObject *> PortfolioDataProvider::accounts() const
@@ -136,6 +139,11 @@ double PortfolioDataProvider::totalBalance() const
         // skip archived wallet balances.
         if (!wallet->segment() || wallet->segment()->priority() == PrivacySegment::OnlyManual)
             continue;
+        WalletConfig config(wallet->segment()->segmentId());
+        assert(config.isValid());
+        if (!config.countBalance())
+            continue;
+
         rc += wallet->balanceConfirmed();
         rc += wallet->balanceImmature();
         rc += wallet->balanceUnconfirmed();

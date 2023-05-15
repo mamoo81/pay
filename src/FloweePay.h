@@ -303,12 +303,18 @@ signals:
     void newBlockMutedChanged();
     void fontScalingChanged();
     void activityShowsBchChanged();
+    void totalBalanceConfigChanged();
 
 private slots:
     void loadingCompleted();
     void saveData();
 
 private:
+    struct WalletConfigData {
+        bool countBalance = true;
+        int maxFiatInstaPay = 0;  // in cents
+    };
+
     void init();
     void shutdown();
     void saveAll();
@@ -328,6 +334,7 @@ private:
     NotificationManager m_notifications;
     CameraController* m_cameraController;
     QList<Wallet*> m_wallets;
+    QHash<uint16_t, WalletConfigData> m_walletConfigs; // key is wallet-segment-id
     int m_dspTimeout = 5000;
     int m_windowWidth = 500;
     int m_windowHeight = 500;
@@ -340,6 +347,8 @@ private:
     bool m_activityShowsBch = false;
     bool m_offline = false;
     bool m_gotHeadersSyncedOnce = false;
+
+    friend class WalletConfig;
 };
 
 #endif

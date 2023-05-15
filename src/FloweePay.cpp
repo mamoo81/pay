@@ -20,6 +20,7 @@
 #include "NewWalletConfig.h"
 #include "AddressInfo.h"
 #include "PriceDataProvider.h"
+#include "WalletConfig.h"
 
 #include <base58.h>
 #include <ripemd160.h>
@@ -65,7 +66,9 @@ enum FileTags {
     WalletId,
     WalletPriority,   // int, maps to PrivacySegment::Priority
     WalletName,       // string. Duplicate of the wallet name
-    WalletEncryptionSeed // uint32 (see wallet.h)
+    WalletEncryptionSeed, // uint32 (see wallet.h)
+    WalletSetting_CountBalance, // bool, if we count balance in app-total
+    WalletSetting_FiatInstaPayLimit, // int, cents
 };
 
 static P2PNet::Chain s_chain = P2PNet::MainChain;
@@ -300,6 +303,7 @@ void FloweePay::init()
                     dl->addHeaderListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
                     m_wallets.append(w);
+                    m_walletConfigs.insert(w->segment()->segmentId(), {});
                     connectToWallet(w);
                     logDebug() << "Found wallet" << w->name() << "with segment ID:" << w->segment()->segmentId();
                     lastOpened = w;
@@ -328,6 +332,19 @@ void FloweePay::init()
             }
             else if (parser.tag() == WalletEncryptionSeed) {
                 walletEncryptionSeed = static_cast<uint32_t>(parser.longData());
+            }
+            else if (parser.tag() == WalletSetting_CountBalance) {
+                if (lastOpened)
+                    m_walletConfigs[lastOpened->segment()->segmentId()].countBalance = parser.boolData();
+                else
+                    logWarning() << "Setting seen before walletId";
+            }
+            else if (parser.tag() == WalletSetting_FiatInstaPayLimit) {
+                if (lastOpened)
+                    m_walletConfigs[lastOpened->segment()->segmentId()].maxFiatInstaPay
+                        = parser.intData();
+                else
+                    logWarning() << "Setting seen before walletId";
             }
         }
     }
@@ -372,6 +389,11 @@ void FloweePay::saveData()
             auto nameData = wallet->name().toUtf8();
             builder.addByteArray(WalletName, nameData.constData(), nameData.size());
         }
+
+        WalletConfig conf(wallet->segment()->segmentId());
+        assert(conf.isValid());
+        builder.add(WalletSetting_CountBalance, conf.countBalance());
+        builder.add(WalletSetting_FiatInstaPayLimit, conf.maxFiatInstaPay());
     }
 
     auto buf = builder.buffer();
@@ -602,6 +624,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     dl->connectionManager().addPrivacySegment(w->segment());
     w->moveToThread(thread());
     m_wallets.append(w);
+    m_walletConfigs.insert(id, {});
     connectToWallet(w);
 
     emit startSaveDate_priv(); // schedule a save of the m_wallets list
@@ -1056,6 +1079,7 @@ NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const
             wallet->setUserOwnedWallet(true);
             if (!walletName.isEmpty())
                 wallet->setName(walletName);
+            assert(m_walletConfigs.contains(wallet->segment()->segmentId()));
             // little hacky to make listeners realize we really changed the wallet.
             m_wallets.clear();
             emit walletsChanged();
