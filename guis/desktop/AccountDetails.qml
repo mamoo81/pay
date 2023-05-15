@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,6 +185,17 @@ Item {
                         }
                     }
                 }
+            }
+
+            Flowee.CheckBox {
+                id: balanceSetting
+                checked: root.account.countBalance
+                onCheckedChanged: root.account.countBalance = checked
+            }
+            Flowee.CheckBoxLabel {
+                Layout.fillWidth: true
+                buddy: balanceSetting
+                text: qsTr("Include balance in total")
             }
         }
 

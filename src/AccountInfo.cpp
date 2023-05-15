@@ -18,7 +18,7 @@
 #include "AccountInfo.h"
 #include "WalletHistoryModel.h"
 #include "FloweePay.h"
-#include "PaymentRequest.h"
+#include "WalletConfig.h"
 
 #include <p2p/PrivacySegment.h>
 #include <utils/base58.h>
@@ -213,6 +213,34 @@ void AccountInfo::walletEncryptionChanged()
     emit modelsChanged();
     emit encryptionChanged();
     emit nameChanged();
+}
+
+int AccountInfo::maxFiatInstaPay() const
+{
+    WalletConfig config(m_wallet->segment()->segmentId());
+    assert(config.isValid());
+    return config.maxFiatInstaPay();
+}
+
+void AccountInfo::setMaxFiatInstaPay(int cents)
+{
+    WalletConfig config(m_wallet->segment()->segmentId());
+    assert(config.isValid());
+    config.setMaxFiatInstaPay(cents);
+}
+
+bool AccountInfo::countBalance() const
+{
+    WalletConfig config(m_wallet->segment()->segmentId());
+    assert(config.isValid());
+    return config.countBalance();
+}
+
+void AccountInfo::setCountBalance(bool newCountBalance)
+{
+    WalletConfig config(m_wallet->segment()->segmentId());
+    assert(config.isValid());
+    config.setCountBalance(newCountBalance);
 }
 
 int AccountInfo::initialBlockHeight() const

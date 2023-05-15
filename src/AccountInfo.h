@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,6 +65,14 @@ class AccountInfo : public QObject
     Q_PROPERTY(bool needsPinToPay READ needsPinToPay NOTIFY encryptionChanged)
     Q_PROPERTY(bool needsPinToOpen READ needsPinToOpen NOTIFY encryptionChanged)
     Q_PROPERTY(bool isDecrypted READ isDecrypted NOTIFY encryptionChanged)
+    /**
+     * If true, please count the balance(s) of this wallet in the app-wide balance
+     */
+    Q_PROPERTY(bool countBalance READ countBalance WRITE setCountBalance NOTIFY neverEmitted)
+    /**
+     * Config the 'insta-pay' feature, set in cents the limit to enable. Zero disables.
+     */
+    Q_PROPERTY(int maxFiatInstaPay READ maxFiatInstaPay WRITE setMaxFiatInstaPay NOTIFY neverEmitted)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -145,6 +153,12 @@ public:
 
     int initialBlockHeight() const;
 
+    bool countBalance() const;
+    void setCountBalance(bool newCountBalance);
+
+    int maxFiatInstaPay() const;
+    void setMaxFiatInstaPay(int cents);
+
 signals:
     void balanceChanged();
     void utxosChanged();
@@ -157,6 +171,7 @@ signals:
     void hasFreshTransactionsChanged();
     void encryptionChanged();
     void modelsChanged();
+    void neverEmitted(); // to silence the lambs^Warnings
 
 private slots:
     // callback from wallet
