@@ -65,6 +65,7 @@ Page {
             account: portfolio.current
             fiatPrice: Fiat.price
             autoPrepare: true
+            instaPay: true
 
             // easier testing values (for when you don't have a camera)
             // paymentAmount: 100000000

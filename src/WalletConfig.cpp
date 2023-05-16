@@ -18,6 +18,7 @@
 
 #include "WalletConfig.h"
 #include "FloweePay.h"
+#include "Wallet.h"
 
 WalletConfig::WalletConfig(const WalletConfig &other)
     : m_walletId(other.m_walletId)
@@ -26,6 +27,11 @@ WalletConfig::WalletConfig(const WalletConfig &other)
 
 WalletConfig::WalletConfig(uint16_t walletId)
     : m_walletId(walletId)
+{
+}
+
+WalletConfig::WalletConfig(Wallet *wallet)
+    : WalletConfig(wallet->segment()->segmentId())
 {
 }
 
@@ -69,24 +75,52 @@ void WalletConfig::setCountBalance(bool newCountBalance)
     emit fp->totalBalanceConfigChanged();
 }
 
-int WalletConfig::maxFiatInstaPay() const
+bool WalletConfig::allowInstaPay() const
 {
     auto configs = FloweePay::instance()->m_walletConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
-    return i->maxFiatInstaPay;
+    return i->allowInstaPay;
 }
 
-void WalletConfig::setMaxFiatInstaPay(int newMaxFiatInstaPay)
+void WalletConfig::setAllowInstaPay(bool on)
 {
     auto *fp = FloweePay::instance();
     auto configs = fp->m_walletConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
-    if (i->maxFiatInstaPay == newMaxFiatInstaPay)
+    if (i->allowInstaPay == on)
         return;
-    i->maxFiatInstaPay = newMaxFiatInstaPay;
+    i->allowInstaPay = on;
     fp->m_walletConfigs = configs;
     fp->startSaveDate_priv();
-    emit fp->totalBalanceConfigChanged();
+}
+
+const QMap<QString, int> &WalletConfig::fiatInstaPayLimits() const
+{
+    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto i = configs.find(m_walletId);
+    assert(i != configs.end());
+    return i->fiatInstaPayLimits;
+}
+
+int WalletConfig::fiatInstaPayLimit(const QString &currencyCode) const
+{
+    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto i = configs.find(m_walletId);
+    assert(i != configs.end());
+    return i->fiatInstaPayLimits.value(currencyCode);
+}
+
+void WalletConfig::setFiatInstaPayLimit(const QString &currencyCode, int limitInCent)
+{
+    auto *fp = FloweePay::instance();
+    auto configs = fp->m_walletConfigs;
+    auto i = configs.find(m_walletId);
+    assert(i != configs.end());
+    if (i->fiatInstaPayLimits.value(currencyCode) == limitInCent)
+        return;
+    i->fiatInstaPayLimits[currencyCode] = limitInCent;
+    fp->m_walletConfigs = configs;
+    fp->startSaveDate_priv();
 }

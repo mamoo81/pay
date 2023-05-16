@@ -68,7 +68,9 @@ enum FileTags {
     WalletName,       // string. Duplicate of the wallet name
     WalletEncryptionSeed, // uint32 (see wallet.h)
     WalletSetting_CountBalance, // bool, if we count balance in app-total
-    WalletSetting_FiatInstaPayLimit, // int, cents
+    WalletSetting_FiatInstaPayEnabled, // bool
+    WalletSetting_FiatInstaPayLimitCurrency, // string, ISO-currency-code
+    WalletSetting_FiatInstaPayLimit, // int, cents. Has to be directly behind the currency.
 };
 
 static P2PNet::Chain s_chain = P2PNet::MainChain;
@@ -288,6 +290,7 @@ void FloweePay::init()
 
     QFile in(m_basedir + AppdataFilename);
     Wallet *lastOpened = nullptr;
+    QString currencyCode; // for wallet config
     if (in.open(QIODevice::ReadOnly)) {
         const auto dataSize = in.size();
         Streaming::BufferPool pool(dataSize);
@@ -312,6 +315,7 @@ void FloweePay::init()
                     lastOpened = nullptr;
                 }
                 walletEncryptionSeed = 0;
+                currencyCode.clear();
             }
             else if (parser.tag() == WalletPriority) {
                 if (lastOpened) {
@@ -339,12 +343,24 @@ void FloweePay::init()
                 else
                     logWarning() << "Setting seen before walletId";
             }
-            else if (parser.tag() == WalletSetting_FiatInstaPayLimit) {
+            else if (parser.tag() == WalletSetting_FiatInstaPayLimitCurrency) {
                 if (lastOpened)
-                    m_walletConfigs[lastOpened->segment()->segmentId()].maxFiatInstaPay
-                        = parser.intData();
+                    currencyCode = QString::fromUtf8(parser.stringData());
                 else
                     logWarning() << "Setting seen before walletId";
+            }
+            else if (parser.tag() == WalletSetting_FiatInstaPayEnabled) {
+                if (lastOpened)
+                    m_walletConfigs[lastOpened->segment()->segmentId()].allowInstaPay = parser.boolData();
+                else
+                    logWarning() << "Setting seen before walletId";
+            }
+            else if (parser.tag() == WalletSetting_FiatInstaPayLimit) {
+                if (lastOpened && !currencyCode.isEmpty())
+                    m_walletConfigs[lastOpened->segment()->segmentId()].fiatInstaPayLimits[currencyCode]
+                        = parser.intData();
+                else
+                    logWarning() << "Setting seen before walletId or currencyCode";
             }
         }
     }
@@ -390,12 +406,18 @@ void FloweePay::saveData()
             builder.addByteArray(WalletName, nameData.constData(), nameData.size());
         }
 
-        WalletConfig conf(wallet->segment()->segmentId());
-        assert(conf.isValid());
-        builder.add(WalletSetting_CountBalance, conf.countBalance());
-        builder.add(WalletSetting_FiatInstaPayLimit, conf.maxFiatInstaPay());
+        // each wallet should have a config file, lets save the content
+        auto conf = m_walletConfigs.find(wallet->segment()->segmentId());
+        assert(conf != m_walletConfigs.end());
+        builder.add(WalletSetting_CountBalance, conf->countBalance);
+        builder.add(WalletSetting_FiatInstaPayEnabled, conf->allowInstaPay);
+        QMapIterator<QString,int> iter(conf->fiatInstaPayLimits);
+        while (iter.hasNext()) {
+            iter.next();
+            builder.add(WalletSetting_FiatInstaPayLimitCurrency, iter.key().toStdString());
+            builder.add(WalletSetting_FiatInstaPayLimit, iter.value());
+        }
     }
-
     auto buf = builder.buffer();
 
     // hash the new file and check if its different lest we can skip saving

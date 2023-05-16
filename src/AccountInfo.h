@@ -69,10 +69,7 @@ class AccountInfo : public QObject
      * If true, please count the balance(s) of this wallet in the app-wide balance
      */
     Q_PROPERTY(bool countBalance READ countBalance WRITE setCountBalance NOTIFY neverEmitted)
-    /**
-     * Config the 'insta-pay' feature, set in cents the limit to enable. Zero disables.
-     */
-    Q_PROPERTY(int maxFiatInstaPay READ maxFiatInstaPay WRITE setMaxFiatInstaPay NOTIFY neverEmitted)
+    Q_PROPERTY(bool allowInstaPay READ allowInstaPay WRITE setAllowInstaPay NOTIFY neverEmitted)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -156,8 +153,12 @@ public:
     bool countBalance() const;
     void setCountBalance(bool newCountBalance);
 
-    int maxFiatInstaPay() const;
-    void setMaxFiatInstaPay(int cents);
+    Q_INVOKABLE QStringList instaPayLimitCurrencies() const;
+    Q_INVOKABLE int fiatInstaPayLimit(const QString &currencyCode) const;
+    Q_INVOKABLE void setFiatInstaPayLimit(const QString &currencyCode, int cents);
+
+    bool allowInstaPay() const;
+    void setAllowInstaPay(bool newAllowInstaPay);
 
 signals:
     void balanceChanged();

@@ -18,7 +18,11 @@
 #ifndef FLOWEE_WALLET_CONFIG_H
 #define FLOWEE_WALLET_CONFIG_H
 
+#include <QMap>
+#include <QString>
 #include <cstdint>
+
+class Wallet;
 
 /**
  * A set of user-level config fields for a wallet.
@@ -30,6 +34,7 @@ public:
     /// creates an invalid wallet config
     WalletConfig() = default;
     explicit WalletConfig(uint16_t walletId);
+    explicit WalletConfig(Wallet *wallet);
     WalletConfig(const WalletConfig &other);
 
     WalletConfig &operator=(const WalletConfig &other);
@@ -40,8 +45,12 @@ public:
     bool countBalance() const;
     void setCountBalance(bool newCountBalance);
 
-    int maxFiatInstaPay() const;
-    void setMaxFiatInstaPay(int newMaxFiatInstaPay);
+    bool allowInstaPay() const;
+    void setAllowInstaPay(bool on);
+
+    const QMap<QString, int>& fiatInstaPayLimits() const;
+    int fiatInstaPayLimit(const QString &currencyCode) const;
+    void setFiatInstaPayLimit(const QString &currencyCode, int limitInCent);
 
 private:
     int m_walletId = -1;

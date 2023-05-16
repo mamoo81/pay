@@ -55,6 +55,7 @@ class Payment : public QObject
     Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY userCommentChanged)
     Q_PROPERTY(bool walletNeedsPin READ walletNeedsPin NOTIFY walletPinChanged);
     Q_PROPERTY(bool autoPrepare READ autoPrepare WRITE setAutoPrepare NOTIFY autoPrepareChanged)
+    Q_PROPERTY(bool instaPay READ allowInstaPay WRITE setAllowInstaPay NOTIFY allowInstaPayChanged)
 
     // --- Stuff that becomes available / useful after prepare has been called:
     /// Tx has been prepared
@@ -202,6 +203,9 @@ public:
     bool autoPrepare() const;
     void setAutoPrepare(bool newAutoPrepare);
 
+    bool allowInstaPay() const;
+    void setAllowInstaPay(bool newAllowInstaPay);
+
 private slots:
     void sentToPeer();
     void txRejected(short reason, const QString &message);
@@ -223,6 +227,7 @@ signals:
     void userCommentChanged();
     void walletPinChanged();
     void autoPrepareChanged();
+    void allowInstaPayChanged();
 
 private:
     void doAutoPrepare();
@@ -241,6 +246,7 @@ private:
     bool m_txPrepared;
     bool m_txBroadcastStarted;
     bool m_preferSchnorr;
+    bool m_allowInstaPay = false;
     Tx m_tx;
     int m_fee; // in sats per byte
     int m_assignedFee;

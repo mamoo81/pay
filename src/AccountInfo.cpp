@@ -215,32 +215,53 @@ void AccountInfo::walletEncryptionChanged()
     emit nameChanged();
 }
 
-int AccountInfo::maxFiatInstaPay() const
+bool AccountInfo::allowInstaPay() const
 {
-    WalletConfig config(m_wallet->segment()->segmentId());
+    WalletConfig config(m_wallet);
     assert(config.isValid());
-    return config.maxFiatInstaPay();
+    return config.allowInstaPay();
 }
 
-void AccountInfo::setMaxFiatInstaPay(int cents)
+void AccountInfo::setAllowInstaPay(bool newAllowInstaPay)
 {
-    WalletConfig config(m_wallet->segment()->segmentId());
+    WalletConfig config(m_wallet);
     assert(config.isValid());
-    config.setMaxFiatInstaPay(cents);
+    config.setAllowInstaPay(newAllowInstaPay);
+}
+
+int AccountInfo::fiatInstaPayLimit(const QString &currencyCode) const
+{
+    WalletConfig config(m_wallet);
+    assert(config.isValid());
+    return config.fiatInstaPayLimit(currencyCode);
+}
+
+void AccountInfo::setFiatInstaPayLimit(const QString &currencyCode, int cents)
+{
+    WalletConfig config(m_wallet);
+    assert(config.isValid());
+    config.setFiatInstaPayLimit(currencyCode, cents);
 }
 
 bool AccountInfo::countBalance() const
 {
-    WalletConfig config(m_wallet->segment()->segmentId());
+    WalletConfig config(m_wallet);
     assert(config.isValid());
     return config.countBalance();
 }
 
 void AccountInfo::setCountBalance(bool newCountBalance)
 {
-    WalletConfig config(m_wallet->segment()->segmentId());
+    WalletConfig config(m_wallet);
     assert(config.isValid());
     config.setCountBalance(newCountBalance);
+}
+
+QStringList AccountInfo::instaPayLimitCurrencies() const
+{
+    WalletConfig config(m_wallet);
+    assert(config.isValid());
+    return config.fiatInstaPayLimits().keys();
 }
 
 int AccountInfo::initialBlockHeight() const

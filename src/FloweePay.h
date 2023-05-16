@@ -311,8 +311,11 @@ private slots:
 
 private:
     struct WalletConfigData {
+        // a per-wallet bool indicating its balance should be counted in the whole
         bool countBalance = true;
-        int maxFiatInstaPay = 0;  // in cents
+        bool allowInstaPay = false;
+        // per currency-code upper limit where payments are auto-approved.
+        QMap<QString, int> fiatInstaPayLimits;
     };
 
     void init();

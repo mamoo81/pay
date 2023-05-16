@@ -22,6 +22,8 @@
 #include "PaymentDetailOutput_p.h"
 #include "FloweePay.h"
 #include "AccountInfo.h"
+#include "PriceDataProvider.h"
+#include "WalletConfig.h"
 
 #include <cashaddr.h>
 #include <TransactionBuilder.h>
@@ -292,11 +294,44 @@ void Payment::prepare()
         logCritical() << "Wrote tx to" << out.fileName();
     }
 #endif
+
+    if (m_allowInstaPay) {
+        PaymentDetailOutput *out = nullptr;
+        if (m_paymentDetails.length() == 1) {
+            // insta-pay is used to fund a single output, anything more complex than that
+            // should be presented to the user for approval, no exceptions.
+            out = m_paymentDetails.first()->toOutput();
+        }
+        if (!out)
+            return;
+        if (out->maxSelected())
+            return;
+
+        auto *fp = FloweePay::instance();
+        auto *prices = fp->prices();
+        assert(prices);
+        auto currency = prices->currencyName();
+        assert(!currency.isEmpty());
+        WalletConfig conf(m_wallet);
+        if (!conf.allowInstaPay()) {
+            logInfo() << "Payment-prepare. Insta-pay for wallet is turned off:" << m_wallet->name();
+            return;
+        }
+        auto limit = conf.fiatInstaPayLimit(currency);
+        logInfo() << "Payment-prepare. Insta-pay for" << currency << "set to" << limit << "payment is" << out->paymentAmountFiat();
+        if (out->paymentAmountFiat() > limit)
+            return;
+
+        // schedule broadcast in a different event in order to
+        // allow multiple changes and prepare()s to happen and
+        // only send the best version to the network.
+        QTimer::singleShot(50, this, SLOT(broadcast()));
+    }
 }
 
 void Payment::broadcast()
 {
-    if (!m_txPrepared)
+    if (!m_txPrepared || m_txBroadcastStarted)
         return;
 
     // call to wallet to mark outputs locked and save tx.
@@ -373,6 +408,19 @@ void Payment::addDetail(PaymentDetail *detail)
     emit paymentDetailsChanged();
     emit validChanged(); // pretty sure we are invalid after ;-)
     doAutoPrepare();
+}
+
+bool Payment::allowInstaPay() const
+{
+    return m_allowInstaPay;
+}
+
+void Payment::setAllowInstaPay(bool newAllowInstaPay)
+{
+    if (m_allowInstaPay == newAllowInstaPay)
+        return;
+    m_allowInstaPay = newAllowInstaPay;
+    emit allowInstaPayChanged();
 }
 
 bool Payment::autoPrepare() const
