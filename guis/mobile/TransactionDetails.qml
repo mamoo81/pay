@@ -99,50 +99,12 @@ Page {
             PageTitledBox {
                 title: qsTr("Transaction comment")
 
-                Item {
+                EditableLabel {
+                    id: editableLabel
                     width: parent.width
-                    implicitHeight: commentEdit.implicitHeight
-                    height: commentEdit.height
-
-                    Flowee.Label {
-                        id: commentLabel
-                        text: root.transaction == null ? "" : root.transaction.comment
-                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        anchors.left: parent.left
-                        anchors.right: editIcon.left
-                        anchors.rightMargin: 10
-                        anchors.baseline: commentEdit.baseline
-                        visible: !commentEdit.visible
-                    }
-                    Image {
-                        id: editIcon
-                        anchors.right: parent.right
-                        width: 20
-                        height: 20
-                        smooth: true
-                        source: "qrc:/edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
-                        // Editing is a risky business until QTBUG-109306 has been deployed
-                        // visible: root.infoObject != null && infoObject.commentEditable
-                        visible: false
-                        MouseArea {
-                            anchors.fill: parent
-                            anchors.margins: -15
-                            onClicked: {
-                                commentEdit.visible = true
-                                commentEdit.focus = true
-                                commentEdit.forceActiveFocus();
-                            }
-                        }
-                    }
-                    Flowee.TextField {
-                        id: commentEdit
-                        anchors.left: parent.left
-                        anchors.right: editIcon.left
-                        anchors.rightMargin: 10
-                        visible: false
-                        text:  root.transaction == null ? "" : root.transaction.comment
-                        onTextChanged: if (root.infoObject != null) infoObject.userComment = text
-                    }
+                    text: root.transaction == null ? "" : root.transaction.comment
+                    editable: root.infoObject != null && infoObject.commentEditable
+                    onEdited: if (root.infoObject != null) infoObject.userComment = text
                 }
             }
 

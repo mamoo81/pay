@@ -69,5 +69,6 @@
         <file>mobile/NumericKeyboardWidget.qml</file>
         <file>mobile/AccountSelectorWidget.qml</file>
         <file>mobile/PageTitledBox.qml</file>
+        <file>mobile/EditableLabel.qml</file>
     </qresource>
 </RCC>
