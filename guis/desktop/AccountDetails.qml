@@ -101,15 +101,31 @@ Item {
             columns: 2
 
             Label {
+                id: syncLabel
                 Layout.columnSpan: 2
+                property string time: ""
                 text: {
                     var height = root.account.lastBlockSynched
                     if (height < 1)
                         return ""
-                    var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
-                    if (time !== "")
-                        time = "  (" + time + ")";
+                    var time = "";
+                    if (syncLabel.time !== "")
+                        time = "  (" + syncLabel.time + ")";
                     return qsTr("Sync Status") + ": " + height + " / " + Pay.chainHeight + time;
+                }
+                Timer {
+                    // the lastBlockSynchedTime does not change,
+                    // but since we render it as '12 minutes ago'
+                    // we need to actually re-interpret that
+                    // ever so often to keep the relative time.
+                    running: !root.account.isArchived
+                    interval: 30000 // 30 sec
+                    repeat: true
+                    triggeredOnStart: true
+                    onTriggered: {
+                        syncLabel.time = Pay.formatDateTime(
+                                    root.account.lastBlockSynchedTime);
+                    }
                 }
             }
             Flowee.AccountTypeLabel {

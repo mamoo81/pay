@@ -43,7 +43,8 @@ Item {
         height: 20
         smooth: true
         source: "qrc:/edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
-        visible: root.editable
+        opacity: root.editable ? 1 : 0
+        visible: opacity > 0
         MouseArea {
             anchors.fill: parent
             anchors.margins: -15
@@ -55,6 +56,7 @@ Item {
                 }
             }
         }
+        Behavior on opacity { NumberAnimation { } }
     }
     Flowee.TextField {
         id: editWidget

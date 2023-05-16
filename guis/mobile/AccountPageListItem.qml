@@ -43,14 +43,9 @@ QQC2.Control {
                 text: account.name
                 onEdited: root.account.name = text
                 width: parent.width
+                // this hides the edit icon for a smoother swipe
+                editable: index == accountPageListView.currentIndex
             }
-        }
-
-        Flowee.CheckBox {
-            visible: !portfolio.singleAccountSetup && !root.account.isArchived
-            checked: root.account.isPrivate
-            text: qsTr("Hide in private mode")
-            onClicked: root.account.isPrivate = checked
         }
 
         TextButton {
@@ -275,6 +270,7 @@ QQC2.Control {
             height: decryptButtonText.height +20
             width: decryptButtonText.width + 30
             visible: !root.account.isDecrypted
+            radius: 5
             color: Pay.useDarkSkin ? "#c2cacc" : "#bcc3c5"
             Text {
                 id: decryptButtonText
@@ -300,20 +296,48 @@ QQC2.Control {
         }
         PageTitledBox {
             title: qsTr("Sync Status")
-            visible: !root.account.isArchived
 
             Flowee.Label {
+                id: syncLabel
+                width: parent.width
+                property string time: ""
                 text: {
+                    if (root.account.isArchived)
+                        return qsTr("Archived wallets do not check for activities. Balance may be out of date");
+
                     var height = root.account.lastBlockSynched
                     if (height < 1)
                         return ""
-                    var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
-                    if (time !== "")
-                        time = "  (" + time + ")";
+                    var time = "";
+                    if (syncLabel.time !== "")
+                        time = "  (" + syncLabel.time + ")";
                     return height + " / " + Pay.chainHeight + time;
+                }
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+
+                Timer {
+                    // the lastBlockSynchedTime does not change,
+                    // but since we render it as '12 minutes ago'
+                    // we need to actually re-interpret that
+                    // ever so often to keep the relative time.
+                    running: !root.account.isArchived
+                    interval: 30000 // 30 sec
+                    repeat: true
+                    triggeredOnStart: true
+                    onTriggered: {
+                        syncLabel.time = Pay.formatDateTime(
+                                    root.account.lastBlockSynchedTime);
+                    }
                 }
             }
         }
+        Flowee.CheckBox {
+            visible: !portfolio.singleAccountSetup && !root.account.isArchived
+            checked: root.account.isPrivate
+            text: qsTr("Hide in private mode")
+            onClicked: root.account.isPrivate = checked
+        }
+
         /*
         Rectangle {
             id: archiveButton

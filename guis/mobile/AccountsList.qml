@@ -48,12 +48,6 @@ Page {
         visible: !portfolio.singleAccountSetup
         height: visible ? implicitHeight: 0
 
-        Flowee.CheckBox {
-            text: qsTr("Private Mode")
-            toolTipText: qsTr("You can hide private wallets when you hand over your phone")
-            checked: Pay.privateMode
-            onClicked: Pay.privateMode = checked
-        }
         TextButton {
             showPageIcon: true
             text: qsTr("Default Wallet")
@@ -67,7 +61,16 @@ Page {
 
                 qsTr("%1 is used on startup").arg(defaultAccount);
             }
-            onClicked: ; // TODO
+            onClicked: thePile.push("./SelectDefaulAccountPage.qml");
+        }
+        TextButton {
+            text: Pay.privateMode ? qsTr("Exit Private Mode") : qsTr("Enter Private Mode")
+            subtext: Pay.privateMode ? qsTr("Reveals wallets marked private")
+                                     : qsTr("Hides wallets marked private")
+            onClicked: {
+                Pay.privateMode = !Pay.privateMode
+                thePile.pop();
+            }
         }
     }
 
@@ -144,13 +147,7 @@ Page {
         cacheBuffer: 2
         currentIndex: indexOfCurrentAccount();
         onCurrentIndexChanged: tabBar.currentIndex = currentIndex
-        onContentXChanged: {
-            var pos = contentX;
-            let index = pos / width;
-            if (index !== Math.floor(index)) // its moving, ignore
-                return;
-            currentIndex = index;
-        }
+        onContentXChanged: currentIndex = Math.round(contentX / width);
 
         delegate: Flickable {
             flickableDirection: Flickable.VerticalFlick
