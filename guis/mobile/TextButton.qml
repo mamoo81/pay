@@ -38,6 +38,7 @@ Item {
         y: 10
         width: parent.width
         wrapMode: Text.WordWrap
+        color: enabled ? palette.windowText : palette.brightText
     }
     Flowee.Label {
         id: smallLabel

@@ -43,16 +43,16 @@ Item {
         height: 20
         smooth: true
         source: "qrc:/edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
-        // Editing is a risky business until QTBUG-109306 has been deployed
-        // visible: root.editable
-        visible: false
+        visible: root.editable
         MouseArea {
             anchors.fill: parent
             anchors.margins: -15
             onClicked: {
-                editWidget.visible = true
-                editWidget.focus = true
-                editWidget.forceActiveFocus();
+                editWidget.visible = !editWidget.visible;
+                if (editWidget.visible) {
+                    editWidget.focus = true
+                    editWidget.forceActiveFocus();
+                }
             }
         }
     }
@@ -67,5 +67,6 @@ Item {
             ourLabel.text = text;
             root.edited();
         }
+        onEditingFinished: visible = false
     }
 }

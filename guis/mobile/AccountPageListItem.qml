@@ -34,78 +34,46 @@ QQC2.Control {
         Flowee.AccountTypeLabel {
             Layout.fillWidth: true
             account: root.account
+            font.pixelSize: root.font.pixelSize * 0.8
+            color: palette.brightText
         }
-
         PageTitledBox {
-            title: qsTr("Sync Status")
-
-            Flowee.Label {
-                text: {
-                    var height = root.account.lastBlockSynched
-                    if (height < 1)
-                        return ""
-                    var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
-                    if (time !== "")
-                        time = "  (" + time + ")";
-                    return height + " / " + Pay.chainHeight + time;
-                }
-            }
-        }
-
-        PageTitledBox {
-            title: qsTr("Wallet Name")
-
-            Flowee.TextField {
+            title: portfolio.singleAccountSetup ? qsTr("Name") : ""
+            EditableLabel {
                 text: account.name
-                onTextChanged: root.account.name = text
+                onEdited: root.account.name = text
                 width: parent.width
             }
         }
 
-        PageTitledBox {
-            title: qsTr("Options")
-
-            Flowee.CheckBox {
-                visible: !portfolio.singleAccountSetup
-                enabled: !root.account.isArchived
-                checked: root.account.isPrimaryAccount
-                onClicked: root.account.isPrimaryAccount = checked
-                text: qsTr("Primary Wallet")
-            }
+        Flowee.CheckBox {
+            visible: !portfolio.singleAccountSetup && !root.account.isArchived
+            text: qsTr("Hide in private mode")
         }
 
-        /*
         TextButton {
-            Layout.fillWidth: true
-            visible: !root.account.needsPinToOpen
-            showPageIcon: true
-            text: {
-                if (!root.account.needsPinToPay)
-                    return qsTr("Enable Pin to Pay")
-                if (!root.account.needsPinToOpen)
-                    return qsTr("Enable Pin to Open")
-                return ""; // already fully encrypted
-            }
+            id: instaPayButton
+            visible: !root.account.isArchived
+            text: root.account.allowsInstaPay ? qsTr("Enable InstaPay") : qsTr("Configure InstaPay")
             subtext: {
-                if (root.account.needsPinToPay)
-                    return qsTr("Pin to Pay is enabled");
+                if (!root.account.allowsInstaPay)
+                    return qsTr("Fast payments for low amounts")
+
+                var currencies = root.account.instaPayLimitCurrencies()
+                if (currencies.length === 1) {
+                    return ": => " + root.account.fiatInstaPayLimit(currencies[0]);
+                }
                 return "";
             }
 
-            onClicked: {} // TODO
-        } */
-        /*
-          TODO Give opportunity to decrypt here.
-         */
-
-        /*
-          TODO archived wallets functionality
-         */
+            showPageIcon: true
+        }
 
         TextButton {
             text: qsTr("Backup information")
             showPageIcon: true
             Layout.fillWidth: true
+            enabled: root.account.isDecrypted
             onClicked: thePile.push(root.account.isHDWallet ? hdBackupDetails : backupDetails);
 
             Component {
@@ -279,26 +247,91 @@ QQC2.Control {
                 }
             }
         }
+
+        /*
         TextButton {
-            text: qsTr("Addresses and Keys")
+            visible: !root.account.needsPinToOpen
+            showPageIcon: true
+            text: {
+                if (!root.account.needsPinToPay)
+                    return qsTr("Enable Pin to Pay")
+                if (!root.account.needsPinToOpen)
+                    return qsTr("Convert to Pin to Open")
+                return ""; // already fully encrypted
+            }
+            subtext: {
+                if (root.account.needsPinToPay)
+                    return qsTr("Pin to Pay is enabled");
+                return "Wallet is not protected";
+            }
+
+            onClicked: {} // TODO
+        }
+
+        Rectangle {
+            id: decryptButton
+            height: decryptButtonText.height +20
+            width: decryptButtonText.width + 30
+            visible: !root.account.isDecrypted
+            color: Pay.useDarkSkin ? "#c2cacc" : "#bcc3c5"
+            Text {
+                id: decryptButtonText
+                text: qsTr("Open Wallet")
+                anchors.centerIn: parent
+                color: "black"
+            }
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.ArrowCursor
+                // TODO Give opportunity to decrypt here.
+            }
+        }
+        */
+
+        TextButton {
+            text: qsTr("Addresses and keys")
             visible: root.account.isHDWallet
+            enabled: !root.account.needsPinToOpen || root.account.isDecrypted
             showPageIcon: true
             Layout.fillWidth: true
             onClicked: thePile.push(backupDetails);
         }
+        PageTitledBox {
+            title: qsTr("Sync Status")
+            visible: !root.account.isArchived
+
+            Flowee.Label {
+                text: {
+                    var height = root.account.lastBlockSynched
+                    if (height < 1)
+                        return ""
+                    var time = Pay.formatDateTime(root.account.lastBlockSynchedTime);
+                    if (time !== "")
+                        time = "  (" + time + ")";
+                    return height + " / " + Pay.chainHeight + time;
+                }
+            }
+        }
+        /*
+        Rectangle {
+            id: archiveButton
+            height: archiveButtonText.height + 20
+            color: Pay.useDarkSkin ? "#b39554" : "#e5be6b"
+            width: archiveButtonText.width + 30
+            visible: !portfolio.singleAccountSetup
+
+            Text {
+                id: archiveButtonText
+                text: root.account.isArchived ? qsTr("Unarchive Wallet") : qsTr("Archive Wallet")
+                anchors.centerIn: parent
+                color: "black"
+            }
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.ArrowCursor
+                // TODO archived wallets functionality
+            }
+        }
+        */
     }
-
-
-   /*
-    Q_PROPERTY(int lastBlockSynched READ lastBlockSynched NOTIFY lastBlockSynchedChanged)
-    Q_PROPERTY(int initialBlockHeight READ initialBlockHeight NOTIFY lastBlockSynchedChanged)
-    Q_PROPERTY(QDateTime lastBlockSynchedTime READ lastBlockSynchedTime NOTIFY lastBlockSynchedChanged)
-    Q_PROPERTY(QString timeBehind READ timeBehind NOTIFY lastBlockSynchedChanged)
-    Q_PROPERTY(WalletSecretsModel* secrets READ secretsModel NOTIFY modelsChanged)
-    Q_PROPERTY(bool isArchived READ isArchived WRITE setIsArchived NOTIFY isArchivedChanged)
-    Q_PROPERTY(QDateTime lastMinedTransaction READ lastMinedTransaction NOTIFY balanceChanged)
-    Q_PROPERTY(bool isDecrypted READ isDecrypted NOTIFY encryptionChanged)
-    */
-
-
 }

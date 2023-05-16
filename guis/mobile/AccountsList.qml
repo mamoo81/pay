@@ -16,10 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls as QQC2
+import "../Flowee" as Flowee
 
 Page {
     id: root
-    headerText: qsTr("Wallet Information")
+    headerText: portfolio.singleAccountSetup ? qsTr("Wallet") : qsTr("Wallets")
+
+    property QtObject newAccountAction: QQC2.Action {
+        text: qsTr("Add Wallet")
+        onTriggered: thePile.push("./NewAccount.qml")
+    }
+    menuItems: [ newAccountAction ]
 
     function indexOfCurrentAccount() {
         var list = tabBar.model;
@@ -28,6 +37,37 @@ Page {
             if (list[i] === cur) return i;
         }
         return 0;
+    }
+
+    Column {
+        id: topGrid
+        anchors.top: parent.top
+        anchors.topMargin: 10
+        anchors.left: parent.left
+        anchors.right: parent.right
+        visible: !portfolio.singleAccountSetup
+        height: visible ? implicitHeight: 0
+
+        Flowee.CheckBox {
+            text: qsTr("Private Mode")
+            toolTipText: qsTr("You can hide private wallets when you hand over your phone")
+            // TODO
+        }
+        TextButton {
+            showPageIcon: true
+            text: qsTr("Default Wallet")
+            subtext: {
+                for (let a of portfolio.accounts) {
+                    if (a.isPrimaryAccount) {
+                        var defaultAccount = a.name;
+                        break;
+                    }
+                }
+
+                qsTr("%1 is used on startup").arg(defaultAccount);
+            }
+            onClicked: ; // TODO
+        }
     }
 
     ListView {
@@ -44,7 +84,8 @@ Page {
 
         orientation: Qt.Horizontal
         width: parent.width
-        anchors.top: parent.top
+        anchors.top: topGrid.bottom
+        anchors.topMargin: 10
         height: portfolio.accounts.length > 1 ? 50 : 0
         clip: true
         boundsBehavior: Flickable.StopAtBounds
@@ -71,7 +112,7 @@ Page {
 
             Text {
                 id: tabName
-                color: index === tabBar.currentIndex ? "white" : "#c2c2c2"
+                color: index === tabBar.currentIndex ? palette.windowText : palette.brightText;
                 text: modelData.name
                 anchors.centerIn: parent
             }
@@ -115,7 +156,9 @@ Page {
             boundsBehavior: Flickable.DragOverBounds
             width: accountPageListView.width
             height: accountPageListView.height
+            contentHeight: item.height
             AccountPageListItem {
+                id: item
                 width: accountPageListView.width
                 account: modelData
                 clip: true
