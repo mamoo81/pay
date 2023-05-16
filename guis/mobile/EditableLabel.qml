@@ -39,10 +39,11 @@ Item {
     Image {
         id: editIcon
         anchors.right: parent.right
-        width: 20
-        height: 20
+        anchors.bottom: ourLabel.bottom
+        width: 16
+        height: 16
         smooth: true
-        source: "qrc:/edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
+        source: "qrc:/edit-pen" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
         opacity: root.editable ? 1 : 0
         visible: opacity > 0
         MouseArea {
