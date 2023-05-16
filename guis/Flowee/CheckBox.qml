@@ -23,9 +23,9 @@ T.CheckBox {
     id: control
 
     property bool sliderOnIndicator: true
-    property string tooltipText: ""
+    property string toolTipText: ""
 
-    implicitWidth: slider.width + 6 + title.width + (tooltipText === "" ? 0 : (questionMarkIcon.width + 16))
+    implicitWidth: slider.width + 6 + title.width + (toolTipText === "" ? 0 : (questionMarkIcon.width + 16))
     implicitHeight: Math.max(slider.implicitHeight, title.implicitHeight)
     clip: true
 
@@ -78,7 +78,7 @@ T.CheckBox {
 
     Rectangle {
         id: questionMarkIcon
-        visible: control.tooltipText !== "" && control.enabled
+        visible: control.toolTipText !== "" && control.enabled
         width: q.width + 14
         height: width
         anchors.left: title.right
@@ -96,7 +96,7 @@ T.CheckBox {
                 anchors.margins: -7
                 cursorShape: Qt.PointingHandCursor
                 id: clicky
-                onClicked: QQC2.ToolTip.show(control.tooltipText, 15000);
+                onClicked: QQC2.ToolTip.show(control.toolTipText, 15000);
             }
         }
     }

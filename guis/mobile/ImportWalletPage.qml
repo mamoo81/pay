@@ -113,7 +113,7 @@ Page {
         Flowee.CheckBox {
             id: singleAddress
             text: qsTr("Force Single Address");
-            tooltipText: qsTr("When enabled, no extra addresses will be auto-generated in this wallet.\nChange will come back to the imported key.")
+            toolTipText: qsTr("When enabled, no extra addresses will be auto-generated in this wallet.\nChange will come back to the imported key.")
             checked: true
             visible: importAccount.isPrivateKey
             Layout.columnSpan: 2

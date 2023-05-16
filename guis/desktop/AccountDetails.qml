@@ -213,14 +213,14 @@ Item {
                 text: qsTr("Change Addresses")
                 visible: root.account.isHDWallet
                 onClicked: root.account.secrets.showChangeChain = checked
-                tooltipText: qsTr("Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.")
+                toolTipText: qsTr("Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.")
             }
             Flowee.CheckBox {
                 id: usedAddresses
                 text: qsTr("Used Addresses");
                 visible: !root.account.isSingleAddressAccount
                 onClicked: root.account.secrets.showUsedAddresses = checked
-                tooltipText: qsTr("Switches between unused and used Bitcoin addresses")
+                toolTipText: qsTr("Switches between unused and used Bitcoin addresses")
             }
             Flowee.WalletSecretsView {
                 id: historyView

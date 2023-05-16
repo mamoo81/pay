@@ -153,7 +153,7 @@ Page {
                 Flowee.CheckBox {
                     id: singleAddress
                     text: qsTr("Force Single Address");
-                    tooltipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
+                    toolTipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
                 }
                 Flowee.Label {
                     text: qsTr("Derivation") + ":"

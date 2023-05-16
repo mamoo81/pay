@@ -71,7 +71,7 @@ ColumnLayout {
         Flowee.CheckBox {
             id: schnorr
             text: qsTr("Default to signing using ECDSA");
-            tooltipText: qsTr("When enabled, newer style Schnorr signatures are not set as default for this wallet.")
+            toolTipText: qsTr("When enabled, newer style Schnorr signatures are not set as default for this wallet.")
             Layout.columnSpan: 2
         } */
         Label {
