@@ -197,6 +197,16 @@ Item {
                 buddy: balanceSetting
                 text: qsTr("Include balance in total")
             }
+            Flowee.CheckBox {
+                id: privateCB
+                checked: root.account.isPrivate
+                onClicked: root.account.isPrivate = checked
+            }
+            Flowee.CheckBoxLabel {
+                Layout.fillWidth: true
+                buddy: privateCB
+                text: qsTr("Hide in private mode")
+            }
         }
 
         Flowee.GroupBox {

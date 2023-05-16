@@ -132,6 +132,18 @@ Pane {
             buddy: darkSkinChooser
             text: qsTr("Night Mode")
         }
+        Flowee.CheckBox {
+            id: privateModeCB
+            Layout.alignment: Qt.AlignRight
+            checked: Pay.privateMode
+            onCheckedChanged: Pay.privateMode = checked
+        }
+        Flowee.CheckBoxLabel {
+            Layout.columnSpan: 2
+            buddy: privateModeCB
+            text: qsTr("Private Mode")
+            toolTipText: qsTr("Hides private wallets while enabled")
+        }
 
         Label {
             text: qsTr("Version") + ":"

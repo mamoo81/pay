@@ -139,11 +139,6 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *c
     netData->startRefreshTimer();
 
     PortfolioDataProvider *portfolio = new PortfolioDataProvider(&engine);
-    for (auto &wallet : app->wallets()) {
-        portfolio->addWalletAccount(wallet);
-    }
-    portfolio->selectDefaultWallet();
-
     engine.rootContext()->setContextProperty("net", netData);
     engine.rootContext()->setContextProperty("portfolio", portfolio);
     if (!cld->parser.isSet(cld->offline) && cld->parser.isSet(cld->connect)) {

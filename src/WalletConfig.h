@@ -41,7 +41,6 @@ public:
 
     bool isValid() const;
 
-
     bool countBalance() const;
     void setCountBalance(bool newCountBalance);
 
@@ -51,6 +50,9 @@ public:
     const QMap<QString, int>& fiatInstaPayLimits() const;
     int fiatInstaPayLimit(const QString &currencyCode) const;
     void setFiatInstaPayLimit(const QString &currencyCode, int limitInCent);
+
+    bool isPrivate() const;
+    void setIsPrivate(bool newIsPrivate);
 
 private:
     int m_walletId = -1;

@@ -57,6 +57,7 @@ constexpr const char *USERAGENT = "net/useragent";
 constexpr const char *DSPTIMEOUT = "payment/dsp-timeout";
 constexpr const char *CURRENCY_COUNTRIES = "countryCodes"; // historical
 constexpr const char *CURRENCY_COUNTRY = "countryCode"; // current
+constexpr const char *PRIVATE_MODE = "private-mode";
 
 constexpr const char *AppdataFilename = "/appdata";
 // used for the default wallet
@@ -68,6 +69,7 @@ enum FileTags {
     WalletName,       // string. Duplicate of the wallet name
     WalletEncryptionSeed, // uint32 (see wallet.h)
     WalletSetting_CountBalance, // bool, if we count balance in app-total
+    WalletSetting_IsPrivate, // bool, will be hidden in priate mode
     WalletSetting_FiatInstaPayEnabled, // bool
     WalletSetting_FiatInstaPayLimitCurrency, // string, ISO-currency-code
     WalletSetting_FiatInstaPayLimit, // int, cents. Has to be directly behind the currency.
@@ -189,6 +191,7 @@ FloweePay::FloweePay()
     m_fontScaling = appConfig.value(FONTSCALING, m_fontScaling).toInt();
     m_dspTimeout = appConfig.value(DSPTIMEOUT, m_dspTimeout).toInt();
     m_hideBalance = appConfig.value(HIDEBALANCE, false).toBool();
+    m_privateMode = appConfig.value(PRIVATE_MODE, false).toBool();
     m_prices.reset(new PriceDataProvider(appConfig.value(CURRENCY_COUNTRY).toString()));
 
     // Update expected chain-height every 5 minutes
@@ -233,7 +236,7 @@ FloweePay::FloweePay()
 
     // forward signal
     connect (&m_notifications, SIGNAL(newBlockMutedChanged()), this, SIGNAL(newBlockMutedChanged()));
-    connect (this, &FloweePay::startSaveDate_priv, this, [=]() {
+    connect (this, &FloweePay::startSaveData_priv, this, [=]() {
         // As Qt does not allow starting a timer from any thread, we first use a signal
         // to move the request to save to the main thread, after which we schedule it with
         // the singleshot below.
@@ -343,6 +346,12 @@ void FloweePay::init()
                 else
                     logWarning() << "Setting seen before walletId";
             }
+            else if (parser.tag() == WalletSetting_IsPrivate) {
+                if (lastOpened)
+                    m_walletConfigs[lastOpened->segment()->segmentId()].privateWallet = parser.boolData();
+                else
+                    logWarning() << "Setting seen before walletId";
+            }
             else if (parser.tag() == WalletSetting_FiatInstaPayLimitCurrency) {
                 if (lastOpened)
                     currencyCode = QString::fromUtf8(parser.stringData());
@@ -410,6 +419,7 @@ void FloweePay::saveData()
         auto conf = m_walletConfigs.find(wallet->segment()->segmentId());
         assert(conf != m_walletConfigs.end());
         builder.add(WalletSetting_CountBalance, conf->countBalance);
+        builder.add(WalletSetting_IsPrivate, conf->privateWallet);
         builder.add(WalletSetting_FiatInstaPayEnabled, conf->allowInstaPay);
         QMapIterator<QString,int> iter(conf->fiatInstaPayLimits);
         while (iter.hasNext()) {
@@ -649,7 +659,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     m_walletConfigs.insert(id, {});
     connectToWallet(w);
 
-    emit startSaveDate_priv(); // schedule a save of the m_wallets list
+    emit startSaveData_priv(); // schedule a save of the m_wallets list
     return w;
 }
 
@@ -812,7 +822,22 @@ void FloweePay::connectToWallet(Wallet *wallet)
         // the encryption seed is saved in the wallet-list.
         // Save as soon as the data changed.
         saveData();
-    }, Qt::QueuedConnection);
+        }, Qt::QueuedConnection);
+}
+
+bool FloweePay::privateMode() const
+{
+    return m_privateMode;
+}
+
+void FloweePay::setPrivateMode(bool newPrivateMode)
+{
+    if (m_privateMode == newPrivateMode)
+        return;
+    m_privateMode = newPrivateMode;
+    emit privateModeChanged();
+    QSettings appConfig;
+    appConfig.setValue(PRIVATE_MODE, m_privateMode);
 }
 
 bool FloweePay::activityShowsBch() const

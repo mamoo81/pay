@@ -17,8 +17,8 @@
  */
 #include "AccountInfo.h"
 #include "WalletHistoryModel.h"
+#include "TransactionInfo.h"
 #include "FloweePay.h"
-#include "WalletConfig.h"
 
 #include <p2p/PrivacySegment.h>
 #include <utils/base58.h>
@@ -26,10 +26,13 @@
 #include <utils/cashaddr.h>
 #include <SyncSPVAction.h>
 
+#include <QTimer>
+
 
 AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     : QObject(parent),
       m_wallet(wallet),
+      m_config(m_wallet),
       m_initialBlockHeight(wallet->segment()->lastBlockSynched())
 {
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
@@ -215,53 +218,58 @@ void AccountInfo::walletEncryptionChanged()
     emit nameChanged();
 }
 
+bool AccountInfo::isPrivate() const
+{
+    assert(m_config.isValid());
+    return m_config.isPrivate();
+}
+
+void AccountInfo::setIsPrivate(bool newIsPrivate)
+{
+    assert(m_config.isValid());
+    m_config.setIsPrivate(newIsPrivate);
+}
+
 bool AccountInfo::allowInstaPay() const
 {
-    WalletConfig config(m_wallet);
-    assert(config.isValid());
-    return config.allowInstaPay();
+    assert(m_config.isValid());
+    return m_config.allowInstaPay();
 }
 
 void AccountInfo::setAllowInstaPay(bool newAllowInstaPay)
 {
-    WalletConfig config(m_wallet);
-    assert(config.isValid());
-    config.setAllowInstaPay(newAllowInstaPay);
+    assert(m_config.isValid());
+    m_config.setAllowInstaPay(newAllowInstaPay);
 }
 
 int AccountInfo::fiatInstaPayLimit(const QString &currencyCode) const
 {
-    WalletConfig config(m_wallet);
-    assert(config.isValid());
-    return config.fiatInstaPayLimit(currencyCode);
+    assert(m_config.isValid());
+    return m_config.fiatInstaPayLimit(currencyCode);
 }
 
 void AccountInfo::setFiatInstaPayLimit(const QString &currencyCode, int cents)
 {
-    WalletConfig config(m_wallet);
-    assert(config.isValid());
-    config.setFiatInstaPayLimit(currencyCode, cents);
+    assert(m_config.isValid());
+    m_config.setFiatInstaPayLimit(currencyCode, cents);
 }
 
 bool AccountInfo::countBalance() const
 {
-    WalletConfig config(m_wallet);
-    assert(config.isValid());
-    return config.countBalance();
+    assert(m_config.isValid());
+    return m_config.countBalance();
 }
 
 void AccountInfo::setCountBalance(bool newCountBalance)
 {
-    WalletConfig config(m_wallet);
-    assert(config.isValid());
-    config.setCountBalance(newCountBalance);
+    assert(m_config.isValid());
+    m_config.setCountBalance(newCountBalance);
 }
 
 QStringList AccountInfo::instaPayLimitCurrencies() const
 {
-    WalletConfig config(m_wallet);
-    assert(config.isValid());
-    return config.fiatInstaPayLimits().keys();
+    assert(m_config.isValid());
+    return m_config.fiatInstaPayLimits().keys();
 }
 
 int AccountInfo::initialBlockHeight() const

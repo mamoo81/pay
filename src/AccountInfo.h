@@ -19,16 +19,12 @@
 #define ACCOUNTINFO_H
 
 #include <QObject>
-#include "TransactionInfo.h"
-#include "Wallet.h"
+#include "WalletConfig.h"
 #include "WalletHistoryModel.h"
 #include "WalletSecretsModel.h"
-#include "qtimer.h"
-
-#include <QDateTime>
-#include <memory>
 
 class TransactionInfo;
+class QTimer;
 
 class AccountInfo : public QObject
 {
@@ -70,6 +66,7 @@ class AccountInfo : public QObject
      */
     Q_PROPERTY(bool countBalance READ countBalance WRITE setCountBalance NOTIFY neverEmitted)
     Q_PROPERTY(bool allowInstaPay READ allowInstaPay WRITE setAllowInstaPay NOTIFY neverEmitted)
+    Q_PROPERTY(bool isPrivate READ isPrivate WRITE setIsPrivate NOTIFY neverEmitted)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
 
@@ -160,6 +157,9 @@ public:
     bool allowInstaPay() const;
     void setAllowInstaPay(bool newAllowInstaPay);
 
+    bool isPrivate() const;
+    void setIsPrivate(bool newIsPrivate);
+
 signals:
     void balanceChanged();
     void utxosChanged();
@@ -175,12 +175,13 @@ signals:
     void neverEmitted(); // to silence the lambs^Warnings
 
 private slots:
-    // callback from wallet
+    // callbacks from wallet
     void balanceHasChanged();
     void walletEncryptionChanged();
 
 private:
     Wallet * const m_wallet;
+    WalletConfig m_config;
     QTimer *m_closeWalletTimer = nullptr;
     std::unique_ptr<WalletHistoryModel> m_model;
     std::unique_ptr<WalletSecretsModel> m_secretsModel;

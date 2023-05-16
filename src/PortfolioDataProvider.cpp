@@ -25,7 +25,13 @@
 
 PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
 {
-    connect (FloweePay::instance(), &FloweePay::walletsChanged, this, [=]() {
+    auto app = FloweePay::instance();
+    for (auto &wallet : app->wallets()) {
+        addWalletAccount(wallet);
+    }
+    selectDefaultWallet();
+
+    connect (app, &FloweePay::walletsChanged, this, [=]() {
         const auto &wallets = FloweePay::instance()->wallets();
         if (wallets.isEmpty()) {
             m_accounts.clear();
@@ -40,8 +46,11 @@ PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
         selectDefaultWallet();
         emit accountsChanged();
     });
-
-    connect (FloweePay::instance(), SIGNAL(totalBalanceConfigChanged()), this, SIGNAL(totalBalanceChanged()));
+    connect (app, SIGNAL(totalBalanceConfigChanged()), this, SIGNAL(totalBalanceChanged()));
+    connect (app, &FloweePay::privateModeChanged, this, [=]() {
+        selectDefaultWallet();
+        emit accountsChanged();
+    });
 }
 
 QList<QObject *> PortfolioDataProvider::accounts() const
@@ -55,7 +64,13 @@ QList<QObject *> PortfolioDataProvider::accounts() const
     // we filter out the wallets that are NOT user-owned. Which is essentially the main initial
     // wallet created to allow people to deposit instantly.
     // Such a wallet is migrated to user-owned the moment a deposit is detected.
+    const bool privateModeOn = FloweePay::instance()->privateMode();
     for (auto *account : m_accountInfos) {
+        if (privateModeOn) { // skip wallets that are 'private' while in private mode.
+            WalletConfig config(account->id());
+            if (config.isPrivate())
+                continue;
+        }
         if (account->userOwnedWallet() && !account->isArchived())
             answer.append(account);
     }
@@ -110,6 +125,7 @@ void PortfolioDataProvider::selectDefaultWallet()
 {
     int fallback = -1;
     int current = -1;
+    const bool privateModeOn = FloweePay::instance()->privateMode();
     PrivacySegment::Priority selectedPriority = PrivacySegment::OnlyManual;
     for (int i = 0; i < m_accounts.size(); ++i) {
         auto wallet = m_accounts.at(i);
@@ -117,6 +133,15 @@ void PortfolioDataProvider::selectDefaultWallet()
         if (!wallet->userOwnedWallet()) {
             fallback = i;
         } else if (prio < selectedPriority) {
+            if (privateModeOn) {
+                // downgrade wallets that are 'private' while in private mode.
+                WalletConfig config(wallet);
+                if (config.isPrivate()) {
+                    if (fallback == -1)
+                        fallback = i;
+                    continue;
+                }
+            }
             current = i;
             selectedPriority = prio;
         }
@@ -134,14 +159,15 @@ void PortfolioDataProvider::selectDefaultWallet()
 double PortfolioDataProvider::totalBalance() const
 {
     double rc = 0;
+    const bool privateModeOn = FloweePay::instance()->privateMode();
     for (int i = 0; i < m_accounts.size(); ++i) {
         auto wallet = m_accounts.at(i);
         // skip archived wallet balances.
         if (!wallet->segment() || wallet->segment()->priority() == PrivacySegment::OnlyManual)
             continue;
-        WalletConfig config(wallet->segment()->segmentId());
+        WalletConfig config(wallet);
         assert(config.isValid());
-        if (!config.countBalance())
+        if (!config.countBalance() || (privateModeOn && config.isPrivate()))
             continue;
 
         rc += wallet->balanceConfirmed();

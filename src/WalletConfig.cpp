@@ -71,7 +71,7 @@ void WalletConfig::setCountBalance(bool newCountBalance)
         return;
     i->countBalance = newCountBalance;
     fp->m_walletConfigs = configs;
-    fp->startSaveDate_priv();
+    fp->startSaveData_priv();
     emit fp->totalBalanceConfigChanged();
 }
 
@@ -93,7 +93,7 @@ void WalletConfig::setAllowInstaPay(bool on)
         return;
     i->allowInstaPay = on;
     fp->m_walletConfigs = configs;
-    fp->startSaveDate_priv();
+    fp->startSaveData_priv();
 }
 
 const QMap<QString, int> &WalletConfig::fiatInstaPayLimits() const
@@ -122,5 +122,26 @@ void WalletConfig::setFiatInstaPayLimit(const QString &currencyCode, int limitIn
         return;
     i->fiatInstaPayLimits[currencyCode] = limitInCent;
     fp->m_walletConfigs = configs;
-    fp->startSaveDate_priv();
+    fp->startSaveData_priv();
+}
+
+bool WalletConfig::isPrivate() const
+{
+    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto i = configs.find(m_walletId);
+    assert(i != configs.end());
+    return i->privateWallet;
+}
+
+void WalletConfig::setIsPrivate(bool newIsPrivate)
+{
+    auto *fp = FloweePay::instance();
+    auto configs = fp->m_walletConfigs;
+    auto i = configs.find(m_walletId);
+    assert(i != configs.end());
+    if (i->privateWallet == newIsPrivate)
+        return;
+    i->privateWallet = newIsPrivate;
+    fp->m_walletConfigs = configs;
+    fp->startSaveData_priv();
 }

@@ -51,7 +51,8 @@ Page {
         Flowee.CheckBox {
             text: qsTr("Private Mode")
             toolTipText: qsTr("You can hide private wallets when you hand over your phone")
-            // TODO
+            checked: Pay.privateMode
+            onClicked: Pay.privateMode = checked
         }
         TextButton {
             showPageIcon: true

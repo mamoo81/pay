@@ -48,7 +48,9 @@ QQC2.Control {
 
         Flowee.CheckBox {
             visible: !portfolio.singleAccountSetup && !root.account.isArchived
+            checked: root.account.isPrivate
             text: qsTr("Hide in private mode")
+            onClicked: root.account.isPrivate = checked
         }
 
         TextButton {

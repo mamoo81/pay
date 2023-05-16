@@ -66,7 +66,8 @@ class FloweePay : public QObject, public WorkerThreads, public HeaderSyncInterfa
     Q_PROPERTY(UnitOfBitcoin unit READ unit WRITE setUnit NOTIFY unitChanged)
     Q_PROPERTY(QString unitName READ unitName NOTIFY unitChanged)
     // notifications
-    Q_PROPERTY(bool newBlockMuted READ newBlockMuted WRITE setNewBlockMuted NOTIFY newBlockMutedChanged);
+    Q_PROPERTY(bool newBlockMuted READ newBlockMuted WRITE setNewBlockMuted NOTIFY newBlockMutedChanged)
+    Q_PROPERTY(bool privateMode READ privateMode WRITE setPrivateMode NOTIFY privateModeChanged)
 public:
     enum UnitOfBitcoin {
         BCH,
@@ -285,12 +286,15 @@ public:
     bool activityShowsBch() const;
     void setActivityShowsBch(bool newActivityShowsBch);
 
+    bool privateMode() const;
+    void setPrivateMode(bool newPrivateMode);
+
 signals:
     void loadComplete();
     /// \internal
     void loadComplete_priv();
     /// \internal
-    void startSaveDate_priv();
+    void startSaveData_priv();
     void unitChanged();
     void walletsChanged();
     void darkSkinChanged();
@@ -304,6 +308,7 @@ signals:
     void fontScalingChanged();
     void activityShowsBchChanged();
     void totalBalanceConfigChanged();
+    void privateModeChanged();
 
 private slots:
     void loadingCompleted();
@@ -313,6 +318,7 @@ private:
     struct WalletConfigData {
         // a per-wallet bool indicating its balance should be counted in the whole
         bool countBalance = true;
+        bool privateWallet = false; // is hidden in private mode
         bool allowInstaPay = false;
         // per currency-code upper limit where payments are auto-approved.
         QMap<QString, int> fiatInstaPayLimits;
@@ -350,6 +356,7 @@ private:
     bool m_activityShowsBch = false;
     bool m_offline = false;
     bool m_gotHeadersSyncedOnce = false;
+    bool m_privateMode = false; // wallets marked private are hidden when true
 
     friend class WalletConfig;
 };
