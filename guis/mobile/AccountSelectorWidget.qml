@@ -30,13 +30,19 @@ Rectangle {
     property var balanceActions: [ ]
 
     height: {
-        if (portfolio.singleAccountSetup)
-            return currentWalletValue.height + 20
+        var w = 20 + currentWalletValue.implicitWidth;
+        if (currentWalletLabel.visible)
+            w += currentWalletLabel.implicitWidth + 10; // right spacing.
+        if (hamburgerMenu.visible)
+            w += 10;
+        if (width > w && root.stickyAccount)
+            return currentWalletValue.height + 20; // all on one line
         return currentWalletValue.height + currentWalletLabel.height + 25
     }
     color: palette.alternateBase
 
     Flowee.HamburgerMenu {
+        id: hamburgerMenu
         x: 10
         anchors.verticalCenter: currentWalletLabel.verticalCenter
         visible: root.stickyAccount === false && portfolio.accounts.length > 1
@@ -49,6 +55,7 @@ Rectangle {
         width: parent.width - 30
         text: payment.account.name
         visible: !portfolio.singleAccountSetup
+        color: root.stickyAccount ? palette.brightText : palette.windowText
     }
 
     Flowee.BitcoinAmountLabel {
