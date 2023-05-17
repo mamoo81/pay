@@ -20,10 +20,6 @@ import QtQuick.Controls as QQC2
 
 Flow {
     id: root
-    anchors.bottom: slideToApprove.top
-    anchors.bottomMargin: 15
-    width: parent.width
-    enabled: !payment.details[0].maxSelected
     Repeater {
         model: 12
         delegate: Item {
