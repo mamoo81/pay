@@ -1117,6 +1117,16 @@ NewWalletConfig* FloweePay::createNewBasicWallet(const QString &walletName)
 
 NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const QString &password, const QString &walletName)
 {
+    // start by validating user input
+    std::vector<uint32_t> dp;
+    try {
+        // this throws should the path not validate.
+        dp = HDMasterKey::deriveFromString(derivationPath.toStdString());
+    } catch (const std::exception &e) {
+        logFatal() << "Failed to parse user provided data due to:" << e;
+        return nullptr;
+    }
+
     // special case the first user-created wallet.
     // If the user creates a new wallet that is identical to the one we auto-created, reuse that one.
     const bool haveOneHiddenWallet = m_wallets.size() == 1 && !m_wallets.first()->userOwnedWallet();
@@ -1142,7 +1152,6 @@ NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const
     RandAddSeedPerfmon();
     GetRandBytes(seed.data(), seed.size());
     auto mnemonic = m_hdSeedValidator.generateMnemonic(seed, "en");
-    std::vector<uint32_t> dp = HDMasterKey::deriveFromString(derivationPath.toStdString());
     wallet->createHDMasterKey(mnemonic, password, dp, walletStartHeightHint());
     emit walletsChanged();
     if (!m_offline)
