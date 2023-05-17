@@ -146,8 +146,32 @@ Page {
         clip: true
         cacheBuffer: 2
         currentIndex: indexOfCurrentAccount();
-        onCurrentIndexChanged: tabBar.currentIndex = currentIndex
+        onModelChanged: {
+            /*
+             * When an account is archived, or unarchived, it changed the model
+             * as the account moves location in the list.
+             * The result is that the model moves back to index zero, which is a
+             * bit jarring.
+             * This code tries to move back to the one we were on before.
+             */
+            for (var index = 0; index < model.length; ++index) {
+                if (model[index] === currentAccount) {
+                    contentX = index * width;
+                    currentIndex = index;
+                    tabBar.currentIndex = index;
+                    break;
+                }
+            }
+        }
+        onCurrentIndexChanged: {
+            var curIndex = currentIndex;
+            tabBar.currentIndex = curIndex;
+            if (curIndex > 0)
+                currentAccount = model[curIndex]; // remember
+        }
         onContentXChanged: currentIndex = Math.round(contentX / width);
+
+        property QtObject currentAccount: null
 
         delegate: Flickable {
             flickableDirection: Flickable.VerticalFlick

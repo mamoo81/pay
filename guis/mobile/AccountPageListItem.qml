@@ -47,6 +47,25 @@ QQC2.Control {
                 editable: index == accountPageListView.currentIndex
             }
         }
+        Rectangle {
+            Layout.fillWidth: true
+            color: "#00000000"
+            border.width: 3
+            border.color: Pay.useDarkSkin ? "#b39554" : "#e5be6b"
+            visible: root.account.isArchived
+            radius: 10
+            implicitHeight: archivedWarningLabel.implicitHeight + 20
+
+            Flowee.Label {
+                id: archivedWarningLabel
+                y: 10
+                width: parent.width
+                horizontalAlignment: Qt.AlignHCenter
+                text: qsTr("Archived wallets do not check for activities. Balance may be out of date");
+                font.bold: true
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            }
+        }
 
         TextButton {
             id: instaPayButton
@@ -303,7 +322,7 @@ QQC2.Control {
                 property string time: ""
                 text: {
                     if (root.account.isArchived)
-                        return qsTr("Archived wallets do not check for activities. Balance may be out of date");
+                        return root.account.timeBehind;
 
                     var height = root.account.lastBlockSynched
                     if (height < 1)
@@ -338,7 +357,6 @@ QQC2.Control {
             onClicked: root.account.isPrivate = checked
         }
 
-        /*
         Rectangle {
             id: archiveButton
             height: archiveButtonText.height + 20
@@ -355,9 +373,8 @@ QQC2.Control {
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.ArrowCursor
-                // TODO archived wallets functionality
+                onClicked: root.account.isArchived = !root.account.isArchived
             }
         }
-        */
     }
 }
