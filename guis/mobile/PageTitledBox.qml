@@ -20,8 +20,6 @@ import QtQuick.Layouts
 import "../Flowee" as Flowee
 
 Item {
-    id: pageTitledBox
-
     property alias title: boxTitle.text
     default property alias content: contentColumn.children
 
