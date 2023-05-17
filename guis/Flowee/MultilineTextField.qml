@@ -111,7 +111,7 @@ QQC2.Control {
     }
 
     background: Rectangle {
-        color: "#00000000"
+        color: palette.base
         border.color: textEdit.activeFocus ? palette.highlight : palette.mid
         border.width: 0.8
     }
