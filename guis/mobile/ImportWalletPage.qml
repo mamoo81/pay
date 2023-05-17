@@ -25,61 +25,42 @@ Page {
     id: importAccount
     headerText: qsTr("Import Wallet")
 
-    headerButtonVisible: true
-    headerButtonText: qsTr("Create")
-    headerButtonEnabled: finished
     property var typedData: Pay.identifyString(secrets.text)
-    property bool finished: typedData === Wallet.PrivateKey || typedData === Wallet.CorrectMnemonic;
+    property bool finished: typedData === Wallet.PrivateKey || (typedData === Wallet.CorrectMnemonic && derivationPath.derivationOk);
     property bool isMnemonic: typedData === Wallet.CorrectMnemonic || typedData === Wallet.PartialMnemonic || typedData === Wallet.PartialMnemonicWithTypo;
     property bool isPrivateKey: typedData === Wallet.PrivateKey
 
-    onHeaderButtonClicked: {
-        var sh = new Date(year.currentIndex + 2010, month.currentIndex, 1);
-        if (importAccount.isMnemonic)
-            var options = Pay.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh);
-        else
-            options = Pay.createImportedWallet(secrets.text, accountName.text, sh)
-
-        options.forceSingleAddress = singleAddress.checked;
-
-        var accounts = portfolio.accounts;
-        for (var i = 0; i < accounts.length; ++i) {
-            var a = accounts[i];
-            if (a.name === options.name) {
-                portfolio.current = a;
-                break;
-            }
-        }
-        thePile.pop();
-        thePile.pop();
-    }
-
-    GridLayout {
+    ColumnLayout {
         width: parent.width
-        columns: 2
+        spacing: 10
+        y: 10
         Flowee.Label {
             text: qsTr("Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.")
             Layout.fillWidth: true
-            Layout.columnSpan: 2
             wrapMode: Text.Wrap
         }
-        Flowee.Label {
-            text: qsTr("Secret", "The seed-phrase or private key") + ":"
-            Layout.columnSpan: 2
-        }
-        Flowee.MultilineTextField {
-            id: secrets
-            Layout.fillWidth: true
-            focus: true
-            nextFocusTarget: accountName
-            clip: true
-        }
-        Flowee.Label {
-            id: feedback
-            text: importAccount.finished ? "✔" : "  "
-            color: Pay.useDarkSkin ? "#37be2d" : "green"
-            font.pixelSize: 24
-            Layout.alignment: Qt.AlignTop
+
+        PageTitledBox {
+            title: qsTr("Secret", "The seed-phrase or private key")
+            Item {
+                width: parent.width
+                height: secrets.height + 10
+                Flowee.MultilineTextField {
+                    id: secrets
+                    focus: true
+                    nextFocusTarget: accountName
+                    clip: true
+                    anchors.left: parent.left
+                    anchors.right: feedback.left
+                }
+                Flowee.Label {
+                    id: feedback
+                    text: importAccount.finished ? "✔" : "  "
+                    color: Pay.useDarkSkin ? "#37be2d" : "green"
+                    font.pixelSize: 24
+                    anchors.right: parent.right
+                }
+            }
         }
 
         Flowee.Label {
@@ -97,17 +78,14 @@ Page {
                     return "Installation error; no lexicon found"; // intentionally not translated, end-users should not see this
                 return ""
             }
-            Layout.columnSpan: 2
         }
 
-        Flowee.Label {
-            text: qsTr("Name") + ":"
-            Layout.columnSpan: 2
-        }
-        Flowee.TextField {
-            id: accountName
-            Layout.columnSpan: 2
-            Layout.fillWidth: true
+        PageTitledBox {
+            title: qsTr("Name")
+            Flowee.TextField {
+                id: accountName
+                width: parent.width
+            }
         }
 
         Flowee.CheckBox {
@@ -116,65 +94,90 @@ Page {
             toolTipText: qsTr("When enabled, no extra addresses will be auto-generated in this wallet.\nChange will come back to the imported key.")
             checked: true
             visible: importAccount.isPrivateKey
-            Layout.columnSpan: 2
         }
-        Flowee.Label {
-            Layout.columnSpan: 2
-            text: qsTr("Oldest Transaction") + ":"
-        }
-        Flow {
-            Layout.fillWidth: true
-            Layout.columnSpan: 2
-            spacing: 10
-            QQC2.ComboBox {
-                id: month
-                model: {
-                    let locale = Qt.locale();
-                    var list = [];
-                    for (let i = QQC2.Calendar.January; i <= QQC2.Calendar.December; ++i) {
-                        list.push(locale.monthName(i));
+        PageTitledBox {
+            title: qsTr("Oldest Transaction")
+            Flow {
+                width: parent.width
+                spacing: 10
+                QQC2.ComboBox {
+                    id: month
+                    model: {
+                        let locale = Qt.locale();
+                        var list = [];
+                        for (let i = QQC2.Calendar.January; i <= QQC2.Calendar.December; ++i) {
+                            list.push(locale.monthName(i));
+                        }
+                        return list;
                     }
-                    return list;
+                }
+                QQC2.ComboBox {
+                    id: year
+                    model: {
+                        var list = [];
+                        let last = new Date().getFullYear();
+                        for (let i = 2010; i <= last; ++i) {
+                            list.push(i);
+                        }
+                        return list;
+                    }
+                    currentIndex: 9;
                 }
             }
-            QQC2.ComboBox {
-                id: year
-                model: {
-                    var list = [];
-                    let last = new Date().getFullYear();
-                    for (let i = 2010; i <= last; ++i) {
-                        list.push(i);
-                    }
-                    return list;
-                }
-                currentIndex: 9;
+        }
+
+        PageTitledBox {
+            title: qsTr("Derivation")
+            visible: !importAccount.isPrivateKey
+            Flowee.TextField {
+                id: derivationPath
+                property bool derivationOk: Pay.checkDerivation(text);
+                width: parent.width
+                text: "m/44'/0'/0'" // What most BCH wallets are created with
+                color: derivationOk ? palette.text : "red"
             }
         }
-        Flowee.Label {
-            text: qsTr("Derivation") + ":"
-            Layout.columnSpan: 2
+        PageTitledBox {
+            title: qsTr("Alternate phrase")
             visible: !importAccount.isPrivateKey
+            Flowee.TextField {
+                // according to the BIP39 spec this is the 'password', but from a UX
+                // perspective that is confusing and no actual wallet uses it
+                id: passwordField
+                width: parent.width
+            }
         }
-        Flowee.TextField {
-            id: derivationPath
-            Layout.columnSpan: 2
-            Layout.fillWidth: true
-            text: "m/44'/0'/0'" // What most BCH wallets are created with
-            visible: !importAccount.isPrivateKey
-            color: Pay.checkDerivation(text) ? palette.text : "red"
-        }
-        Flowee.Label {
-            text: qsTr("Alternate phrase") + ":"
-            Layout.columnSpan: 2
-            visible: !importAccount.isPrivateKey
-        }
-        Flowee.TextField {
-            // according to the BIP39 spec this is the 'password', but from a UX
-            // perspective that is confusing and no actual wallet uses it
-            id: passwordField
-            visible: !importAccount.isPrivateKey
-            Layout.fillWidth: true
-            Layout.columnSpan: 2
+
+
+        Item {
+            width: parent.width
+            height: createButton.implicitHeight
+            Flowee.Button {
+                id: createButton
+                enabled: finished
+                anchors.right: parent.right
+                text: qsTr("Create")
+                onClicked: {
+                    var sh = new Date(year.currentIndex + 2010, month.currentIndex, 1);
+                    if (importAccount.isMnemonic)
+                        var options = Pay.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh);
+                    else
+                        options = Pay.createImportedWallet(secrets.text, accountName.text, sh)
+
+                    options.forceSingleAddress = singleAddress.checked;
+
+                    var accounts = portfolio.accounts;
+                    for (var i = 0; i < accounts.length; ++i) {
+                        var a = accounts[i];
+                        if (a.name === options.name) {
+                            portfolio.current = a;
+                            break;
+                        }
+                    }
+                    thePile.pop();
+                    thePile.pop();
+                }
+            }
         }
     }
 }

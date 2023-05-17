@@ -55,12 +55,13 @@ Page {
     Flickable {
         anchors.fill: parent
         contentWidth: parent.width
-        contentHeight: column.height
+        contentHeight: column.height + 20
         clip: true
         Column {
             id: column
             width: parent.width
             spacing: 10
+            y: 10
 
             Row {
                 spacing: 20
@@ -105,25 +106,36 @@ Page {
             }
             Item { width: 1; height: 20 } // spacer
 
-            Rectangle {
-                id: startImportButton
-                radius: 20
-                height:buttonText.height + 20
-                width: buttonText.width + 40
-                color: "#178b3a"
-                x: (column.width - width) / 2
-
-                Flowee.Label {
-                    id: buttonText
-                    color: "white"
-                    text: qsTr("I already have a wallet")
-                    anchors.centerIn: parent
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: thePile.push("./ImportWalletPage.qml");
-                }
+            Flowee.Label {
+                id: instructions
+                text: qsTr("Scan me to send funds to your HD wallet") + ":"
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                width: column.width * 0.8
+                x: column.width / 10
             }
+            Flowee.QRWidget {
+                width: parent.width
+                qrText: request.qr
+            }
+
+            /*
+            Row {
+                spacing: 20
+                height: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+                Rectangle {
+                    // copy to clipboard icon
+                    width: 25
+                    height: 25
+                }
+                Rectangle {
+                    // 'share' icon
+                    width: 25
+                    height: 25
+                }
+            } */
+
 
             Item { width: 1; height: 5 } // spacer
 
@@ -149,17 +161,23 @@ Page {
 
             Item { width: 1; height: 5 } // spacer
 
-            Flowee.Label {
-                id: instructions
-                text: qsTr("I want to send funds to my new wallet") + ":"
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignHCenter
-                width: column.width * 0.8
-                x: column.width / 10
-            }
-            Flowee.QRWidget {
-                width: parent.width
-                qrText: request.qr
+            Rectangle {
+                radius: 20
+                height:buttonText.height + 20
+                width: buttonText.width + 40
+                color: "#178b3a"
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Flowee.Label {
+                    id: buttonText
+                    color: "white"
+                    text: qsTr("Add a different wallet")
+                    anchors.centerIn: parent
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: thePile.replace("./NewAccount.qml");
+                }
             }
 
             Item { width: 1; height: 40 } // spacer

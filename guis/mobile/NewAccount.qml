@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,82 +25,100 @@ Page {
     id: root
 
     headerText: qsTr("New Bitcoin Cash Wallet")
-    headerButtonVisible: true
-    headerButtonText: qsTr("Next")
-
-    onHeaderButtonClicked: {
-        if (selectedKey === 0)
-            var page = newBaseWalletScreen;
-        if (selectedKey === 1)
-            page = newHDWalletScreen;
-        if (selectedKey === 2)
-            page = "./ImportWalletPage.qml";
-        thePile.push(page);
-    }
-
-    property int selectedKey: 1
-
-
-    ColumnLayout {
+    Flickable {
         anchors.fill: parent
+        contentHeight: column.height + 20
+        contentWidth: width
 
-        Flowee.Label {
-            text: qsTr("Create a New Wallet") + ":"
-        }
-        Flow {
+        Column {
+            id: column
             width: parent.width
-            property int selectorWidth: (width - spacing * 2) / 2;
-            property alias selectedKey: root.selectedKey
+            y: 10
+            spacing: 20
 
-            Flowee.CardTypeSelector {
-                id: accountTypeBasic
-                key: 0
-                title: qsTr("Basic")
-                width: parent.selectorWidth
-                onClicked: root.selectedKey = key
+            PageTitledBox {
+                title: qsTr("Create a New Wallet")
+                width: parent.width
 
-                features: [
-                    qsTr("Private keys based", "Property of a wallet"),
-                    qsTr("Difficult to backup", "Context: wallet type"),
-                    qsTr("Great for brief usage", "Context: wallet type")
-                ]
+                Flowee.CardTypeSelector {
+                    title: qsTr("HD wallet")
+                    onClicked: root.selectedKey = key
+                    width: parent.width * 0.75
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    selected: true
+
+                    features: [
+                        qsTr("Seed-phrase based", "Context: wallet type"),
+                        qsTr("Easy to backup", "Context: wallet type"),
+                        qsTr("Most compatible", "The most compatible wallet type")
+                    ]
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: thePile.push(newHDWalletScreen);
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "#00000000"
+                        radius: 10
+                        border.width: 5
+                        border.color: mainWindow.floweeGreen
+                    }
+                }
+
+                Flowee.CardTypeSelector {
+                    title: qsTr("Basic")
+                    width: parent.width * 0.75
+                    onClicked: root.selectedKey = key
+                    selected: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    features: [
+                        qsTr("Private keys based", "Property of a wallet"),
+                        qsTr("Difficult to backup", "Context: wallet type"),
+                        qsTr("Great for brief usage", "Context: wallet type")
+                    ]
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: thePile.push(newBaseWalletScreen);
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "#00000000"
+                        radius: 10
+                        border.width: 5
+                        border.color: palette.mid
+                    }
+                }
             }
-            Flowee.CardTypeSelector {
-                id: accountTypePreferred
-                key: 1
-                title: qsTr("HD wallet")
-                width: parent.selectorWidth
-                onClicked: root.selectedKey = key
 
-                features: [
-                    qsTr("Seed-phrase based", "Context: wallet type"),
-                    qsTr("Easy to backup", "Context: wallet type"),
-                    qsTr("Most compatible", "The most compatible wallet type")
-                ]
-            }
-        }
+            PageTitledBox {
+                title: qsTr("Import Existing Wallet")
+                width: parent.width
+                Flowee.CardTypeSelector {
+                    title: qsTr("Import")
+                    width: parent.width * 0.75
+                    onClicked: root.selectedKey = key
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    selected: true
 
-        Item { width: 10; height: 15 }
-
-        Flowee.Label {
-            text: qsTr("Import Existing Wallet") + ":"
-        }
-        Item {
-            width: parent.width
-            height: accountTypeImport.height
-            property alias selectedKey: root.selectedKey
-            Flowee.CardTypeSelector {
-                id: accountTypeImport
-                key: 2
-                title: qsTr("Import")
-                width: Math.min(parent.width / 3 * 2, 250)
-                onClicked: root.selectedKey = key
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                features: [
-                    qsTr("Imports seed-phrase"),
-                    qsTr("Imports private key")
-                ]
+                    features: [
+                        qsTr("Imports seed-phrase"),
+                        qsTr("Imports private key")
+                    ]
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: thePile.push("./ImportWalletPage.qml");
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "#00000000"
+                        radius: 10
+                        border.width: 5
+                        border.color: palette.mid
+                    }
+                }
             }
         }
     }
@@ -114,26 +132,10 @@ Page {
         Page {
             id: newWalletPage
             headerText: qsTr("New Wallet")
-            headerButtonVisible: true
-            headerButtonText: qsTr("Create")
-            headerButtonEnabled: accountName.text.length > 2
-            onHeaderButtonClicked: {
-                var options = Pay.createNewBasicWallet(accountName.text);
-                options.forceSingleAddress = singleAddress.checked;
-                var accounts = portfolio.accounts;
-                for (var i = 0; i < accounts.length; ++i) {
-                    var a = accounts[i];
-                    if (a.name === options.name) {
-                        portfolio.current = a;
-                        break;
-                    }
-                }
-                thePile.pop();
-                thePile.pop();
-            }
 
             ColumnLayout {
                 width: parent.width
+                spacing: 10
 
                 Flowee.Label {
                     id: title
@@ -141,28 +143,36 @@ Page {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                 }
-                Flowee.Label {
-                    text: qsTr("Name") + ":";
+
+                PageTitledBox {
+                    title: qsTr("Name")
+                    Flowee.TextField {
+                        id: accountName
+                        focus: true
+                        width: parent.width
+                    }
                 }
-                Flowee.TextField {
-                    id: accountName
-                    focus: true
-                    Layout.fillWidth: true
-                }
-                Item { width: 10; height: 10 }
                 Flowee.CheckBox {
                     id: singleAddress
                     text: qsTr("Force Single Address");
                     toolTipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
                 }
-                Flowee.Label {
-                    text: qsTr("Derivation") + ":"
-                }
-                Flowee.TextField {
-                    id: derivationPath
-                    Layout.fillWidth: true
-                    text: "m/44'/0'/0'" // What most wallets use to import by default
-                    color: Pay.checkDerivation(text) ? palette.text : "red"
+                Item {
+                    width: parent.width
+                    height: createButton.implicitHeight
+                    QQC2.Button {
+                        id: createButton
+                        anchors.right: parent.right
+                        text: qsTr("Create")
+                        onClicked: {
+                            var options = Pay.createNewBasicWallet(accountName.text);
+                            options.forceSingleAddress = singleAddress.checked;
+                            var accounts = portfolio.accounts;
+                            portfolio.current = accounts[accounts.length - 1]
+                            thePile.pop();
+                            thePile.pop();
+                        }
+                    }
                 }
             }
         }
@@ -172,38 +182,51 @@ Page {
 
         Page {
             headerText: qsTr("New HD-Wallet")
-            headerButtonVisible: true
-            headerButtonText: qsTr("Create")
-            headerButtonEnabled: accountName.text.length > 2
-            onHeaderButtonClicked: {
-                var options = Pay.createNewWallet("m/44'/0'/0'", /* password */"", accountName.text);
-                var accounts = portfolio.accounts;
-                for (var i = 0; i < accounts.length; ++i) {
-                    var a = accounts[i];
-                    if (a.name === options.name) {
-                        portfolio.current = a;
-                        break;
-                    }
-                }
-                thePile.pop();
-                thePile.pop();
-            }
 
             ColumnLayout {
                 width: parent.width
+                spacing: 10
                 Flowee.Label {
                     id: title
                     Layout.fillWidth: true
-                    text: qsTr("This creates a new empty wallet with smart creation of addresses from a single seed-phrase")
+                    text: qsTr("This creates a new wallet that can be backed up with a seed-phrase")
                     wrapMode: Text.WordWrap
                 }
-                Flowee.Label {
-                    text: qsTr("Name") + ":";
+                PageTitledBox {
+                    title: qsTr("Name")
+                    Flowee.TextField {
+                        id: accountName
+                        width: parent.width
+                        focus: true
+                    }
                 }
-                Flowee.TextField {
-                    id: accountName
-                    Layout.fillWidth: true
-                    focus: true
+                PageTitledBox {
+                    title: qsTr("Derivation")
+                    Flowee.TextField {
+                        property bool derivationOk: Pay.checkDerivation(text);
+                        id: derivationPath
+                        width: parent.width
+                        text: "m/44'/0'/0'" // What most BCH wallets are created with
+                        color: derivationOk ? palette.text : "red"
+                    }
+                }
+
+                Item {
+                    width: parent.width
+                    height: createButton.implicitHeight
+                    QQC2.Button {
+                        id: createButton
+                        enabled: derivationPath.derivationOk
+                        anchors.right: parent.right
+                        text: qsTr("Create")
+                        onClicked: {
+                            var options = Pay.createNewWallet(derivationPath.text, /* password */"", accountName.text);
+                            var accounts = portfolio.accounts;
+                            portfolio.current = accounts[accounts.length - 1]
+                            thePile.pop();
+                            thePile.pop();
+                        }
+                    }
                 }
             }
         }

@@ -27,7 +27,7 @@ GridLayout {
     rowSpacing: 10
 
     property var typedData: Pay.identifyString(secrets.text)
-    property bool finished: typedData === Wallet.PrivateKey || typedData === Wallet.CorrectMnemonic;
+    property bool finished: typedData === Wallet.PrivateKey || (typedData === Wallet.CorrectMnemonic && derivationPath.derivationOk);
     property bool isMnemonic: typedData === Wallet.CorrectMnemonic || typedData === Wallet.PartialMnemonic || typedData === Wallet.PartialMnemonicWithTypo;
     property bool isPrivateKey: typedData === Wallet.PrivateKey
 
@@ -147,9 +147,10 @@ GridLayout {
         }
         Flowee.TextField {
             id: derivationPath
+            property bool derivationOk: Pay.checkDerivation(text);
             text: "m/44'/0'/0'" // What most BCH wallets are created with
             visible: !importAccount.isPrivateKey
-            color: Pay.checkDerivation(text) ? palette.text : "red"
+            color: derivationOk ? palette.text : "red"
         }
         Label {
             text: qsTr("Alternate phrase") + ":"
