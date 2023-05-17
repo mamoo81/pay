@@ -27,6 +27,8 @@ ApplicationWindow {
     title: "Flowee Pay"
     width: 360
     height: 720
+    minimumWidth: 300
+    minimumHeight: 400
     visible: true
     onVisibleChanged: if (visible) ControlColors.applySkin(mainWindow)
 
