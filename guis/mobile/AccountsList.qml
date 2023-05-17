@@ -61,7 +61,7 @@ Page {
 
                 qsTr("%1 is used on startup").arg(defaultAccount);
             }
-            onClicked: thePile.push("./SelectDefaulAccountPage.qml");
+            onClicked: thePile.push("./SelectDefaultAccountPage.qml");
         }
         TextButton {
             text: Pay.privateMode ? qsTr("Exit Private Mode") : qsTr("Enter Private Mode")

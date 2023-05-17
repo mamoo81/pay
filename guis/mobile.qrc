@@ -72,5 +72,6 @@
         <file>mobile/AccountSelectorWidget.qml</file>
         <file>mobile/PageTitledBox.qml</file>
         <file>mobile/EditableLabel.qml</file>
+        <file>mobile/SelectDefaultAccountPage.qml</file>
     </qresource>
 </RCC>

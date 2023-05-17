@@ -204,10 +204,7 @@ void PortfolioDataProvider::walletChangedPriority()
         // as this just changed, through the UI, we have to mark any other
         // account that was the primary wallet as no longer being one.
         for (auto iter = m_accountInfos.begin(); iter != m_accountInfos.end(); ++iter) {
-        // for (auto &info : m_accountInfos) {
-            logFatal() << (*iter)->name();
             if (*iter != wallet && (*iter)->isPrimaryAccount()) {
-                logFatal() << "   setting to false";
                 (*iter)->setPrimaryAccount(false);
             }
         }
