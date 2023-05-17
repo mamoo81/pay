@@ -45,7 +45,7 @@ Page {
         anchors.topMargin: 10
         anchors.left: parent.left
         anchors.right: parent.right
-        visible: !portfolio.singleAccountSetup
+        visible: portfolio.accounts.length > 1
         height: visible ? implicitHeight: 0
 
         TextButton {

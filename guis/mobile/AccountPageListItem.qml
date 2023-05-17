@@ -44,7 +44,7 @@ QQC2.Control {
                 onEdited: root.account.name = text
                 width: parent.width
                 // this hides the edit icon for a smoother swipe
-                editable: index == accountPageListView.currentIndex
+                editable: index === accountPageListView.currentIndex
             }
         }
         Rectangle {
@@ -351,7 +351,7 @@ QQC2.Control {
             }
         }
         Flowee.CheckBox {
-            visible: !portfolio.singleAccountSetup && !root.account.isArchived
+            visible: portfolio.accounts.length > 1 && !root.account.isArchived
             checked: root.account.isPrivate
             text: qsTr("Hide in private mode")
             onClicked: root.account.isPrivate = checked
@@ -362,7 +362,7 @@ QQC2.Control {
             height: archiveButtonText.height + 20
             color: Pay.useDarkSkin ? "#b39554" : "#e5be6b"
             width: archiveButtonText.width + 30
-            visible: !portfolio.singleAccountSetup
+            visible: portfolio.accounts.length > 1
 
             Text {
                 id: archiveButtonText
