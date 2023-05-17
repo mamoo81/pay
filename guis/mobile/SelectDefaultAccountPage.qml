@@ -56,6 +56,7 @@ Page {
                 x: 10
                 width: parent.width - 20
                 Flowee.Label {
+                    id: mainText
                     text: modelData.name
                     font.bold: true
                 }
@@ -63,13 +64,15 @@ Page {
                     text: {
                         if (modelData.allowInstaPay) {
                             var cur = Fiat.currencyName;
-                            var limit = modeldata.fiatInstaPayLimit(cur);
+                            var limit = modelData.fiatInstaPayLimit(cur);
                             if (limit === 0)
                                 return qsTr("No InstaPay limit set");
                             return qsTr("InstaPay till %1").arg(Fiat.formattedPrice(limit));
                         }
                         return qsTr("InstaPay is turned off");
                     }
+                    font.pixelSize: mainText.pixelSize * 0.8
+                    color: palette.brightText
                 }
             }
 

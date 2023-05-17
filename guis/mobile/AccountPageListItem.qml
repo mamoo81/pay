@@ -68,9 +68,8 @@ QQC2.Control {
         }
 
         TextButton {
-            id: instaPayButton
             visible: !root.account.isArchived
-            text: root.account.allowsInstaPay ? qsTr("Enable InstaPay") : qsTr("Configure InstaPay")
+            text: root.account.allowsInstaPay ? qsTr("Enable Instant Pay") : qsTr("Configure Instant Pay")
             subtext: {
                 if (!root.account.allowsInstaPay)
                     return qsTr("Fast payments for low amounts")
@@ -83,6 +82,10 @@ QQC2.Control {
             }
 
             showPageIcon: true
+            onClicked: {
+                var newPage = thePile.push("./InstaPayConfigPage.qml")
+                newPage.account = root.account;
+            }
         }
 
         TextButton {

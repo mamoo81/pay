@@ -73,5 +73,6 @@
         <file>mobile/PageTitledBox.qml</file>
         <file>mobile/EditableLabel.qml</file>
         <file>mobile/SelectDefaultAccountPage.qml</file>
+        <file>mobile/InstaPayConfigPage.qml</file>
     </qresource>
 </RCC>
