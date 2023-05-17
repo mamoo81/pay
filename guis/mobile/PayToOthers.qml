@@ -283,7 +283,7 @@ Page {
                     anchors.topMargin: 10
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    height: Math.max(destinationLabel.height * 3, implicitHeight)
+                    height: Math.max(destinationLabel.height * 2.3, implicitHeight)
                     focus: true
                     property var addressType: Pay.identifyString(text);
                     text: paymentDetail.address
@@ -319,7 +319,7 @@ Page {
                 }
                 Flowee.AddressInfoWidget {
                     id: addressInfo
-                    anchors.top: nativeLabel.bottom
+                    anchors.top: nativeLabel.visible ? nativeLabel.bottom : destination.bottom
                     width: parent.width
                     addressType: destination.addressType
                 }
@@ -327,7 +327,6 @@ Page {
                     id: priceInput
                     width: parent.width
                     anchors.top: addressInfo.bottom
-                    anchors.topMargin: 10
                     paymentBackend: paymentDetail
                     fiatFollowsSats: paymentDetail.fiatFollows
                     onFiatFollowsSatsChanged: paymentDetail.fiatFollows = fiatFollowsSats

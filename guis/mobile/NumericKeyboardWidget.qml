@@ -24,7 +24,7 @@ Flow {
         model: 12
         delegate: Item {
             width: root.width / 3
-            height: textLabel.height + 20
+            height: 70
             QQC2.Label {
                 id: textLabel
                 anchors.centerIn: parent

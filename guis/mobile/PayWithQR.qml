@@ -96,15 +96,24 @@ Page {
         anchors.top: commentLabel.bottom
     }
 
-    Flowee.Label {
-        id: errorLabel
-        text: payment.error
-        visible: payment.isValid
-        color: Pay.useDarkSkin ? "#cc5454" : "#6a0c0c"
+    Rectangle {
+        visible: errorLabel.text !== ""
+        color: mainWindow.errorRedBg
+        radius: 10
+        width: parent.width
         anchors.bottom: walletNameBackground.top
         anchors.bottomMargin: 6
-        wrapMode: Text.Wrap
-        width: parent.width
+        height: errorLabel.height + 20
+
+        Flowee.Label {
+            id: errorLabel
+            text: payment.error
+            wrapMode: Text.Wrap
+            x: 10
+            y: 10
+            width: parent.width - 20
+            horizontalAlignment: Qt.AlignHCenter
+        }
     }
 
 
