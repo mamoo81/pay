@@ -421,6 +421,17 @@ void Payment::setAllowInstaPay(bool newAllowInstaPay)
         return;
     m_allowInstaPay = newAllowInstaPay;
     emit allowInstaPayChanged();
+
+    /*
+     * InstaPay is typically enabled together with auto-prepare and that gives
+     * great UX for, well, instantly paying.
+     * BUT, if the prepare() failed, we should stop trying to do the 'instaPay'.
+     * It failed, now let the user decide when to send.
+     */
+    QTimer::singleShot(10, this, [=]() {
+        if (!m_error.isEmpty())
+            m_allowInstaPay = false;
+    });
 }
 
 bool Payment::autoPrepare() const

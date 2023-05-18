@@ -113,7 +113,12 @@ QQC2.Control {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: accountSelector.open();
+                onClicked: {
+                    if (accountSelector.visible)
+                        accountSelector.close();
+                    else
+                        accountSelector.open();
+                }
             }
         }
 

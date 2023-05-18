@@ -44,27 +44,27 @@ class Payment : public QObject
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
-    Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged);
+    Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged)
     /// If input is valid, tx can be prepared. \see prepare()
-    Q_PROPERTY(bool isValid READ validate NOTIFY validChanged);
-    Q_PROPERTY(QList<QObject*> details READ paymentDetails NOTIFY paymentDetailsChanged);
+    Q_PROPERTY(bool isValid READ validate NOTIFY validChanged)
+    Q_PROPERTY(QList<QObject*> details READ paymentDetails NOTIFY paymentDetailsChanged)
     Q_PROPERTY(BroadcastStatus broadcastStatus  READ broadcastStatus NOTIFY broadcastStatusChanged)
     /// The price of on BCH
     Q_PROPERTY(int fiatPrice READ fiatPrice WRITE setFiatPrice NOTIFY fiatPriceChanged)
     Q_PROPERTY(AccountInfo *account READ currentAccount WRITE setCurrentAccount NOTIFY currentAccountChanged)
     Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY userCommentChanged)
-    Q_PROPERTY(bool walletNeedsPin READ walletNeedsPin NOTIFY walletPinChanged);
+    Q_PROPERTY(bool walletNeedsPin READ walletNeedsPin NOTIFY walletPinChanged)
     Q_PROPERTY(bool autoPrepare READ autoPrepare WRITE setAutoPrepare NOTIFY autoPrepareChanged)
     Q_PROPERTY(bool instaPay READ allowInstaPay WRITE setAllowInstaPay NOTIFY allowInstaPayChanged)
 
     // --- Stuff that becomes available / useful after prepare has been called:
     /// Tx has been prepared
-    Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged);
+    Q_PROPERTY(bool txPrepared READ txPrepared NOTIFY txPreparedChanged)
     Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
     /// If Prepare failed, this is set.
-    Q_PROPERTY(QString error READ error NOTIFY errorChanged);
+    Q_PROPERTY(QString error READ error NOTIFY errorChanged)
 
     Q_ENUMS(DetailType BroadcastStatus)
 public:

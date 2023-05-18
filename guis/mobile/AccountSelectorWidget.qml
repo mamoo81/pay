@@ -35,7 +35,7 @@ Rectangle {
             w += currentWalletLabel.implicitWidth + 10; // right spacing.
         if (hamburgerMenu.visible)
             w += 10;
-        if (width > w && root.stickyAccount)
+        if (width > w && (root.stickyAccount || portfolio.singleAccountSetup))
             return currentWalletValue.height + 20; // all on one line
         return currentWalletValue.height + currentWalletLabel.height + 25
     }
@@ -45,7 +45,7 @@ Rectangle {
         id: hamburgerMenu
         x: 10
         anchors.verticalCenter: currentWalletLabel.verticalCenter
-        visible: root.stickyAccount === false && portfolio.accounts.length > 1
+        visible: root.stickyAccount === false && !portfolio.singleAccountSetup
     }
 
     Flowee.Label {
@@ -73,7 +73,7 @@ Rectangle {
         anchors.fill: parent
         onClicked: (mouse) => {
             if (mouse.x < parent.width / 2) {
-                if (root.stickyAccount === false && portfolio.accounts.length > 1)
+                if (root.stickyAccount === false && !portfolio.singleAccountSetup)
                     accountSelector.open();
             } else if (balanceActions.length > 0) {
                 while (priceMenu.count > 0) {

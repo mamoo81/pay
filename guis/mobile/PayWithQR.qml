@@ -114,6 +114,11 @@ Page {
             width: parent.width - 20
             horizontalAlignment: Qt.AlignHCenter
         }
+
+        MouseArea {
+            anchors.fill: parent
+            // just here to catch mouse clicks.
+        }
     }
 
 

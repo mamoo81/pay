@@ -416,9 +416,13 @@ Page {
             width: parent.width
             spacing: 6
 
-            AccountSelectorWidget { }
+            AccountSelectorWidget {
+                visible: !portfolio.singleAccountSetup
+            }
 
-            VisualSeparator { }
+            VisualSeparator {
+                visible: !portfolio.singleAccountSetup
+            }
 
             Repeater {
                 model: payment.details
