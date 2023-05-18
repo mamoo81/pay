@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,36 +51,33 @@ PortfolioDataProvider::PortfolioDataProvider(QObject *parent) : QObject(parent)
         selectDefaultWallet();
         emit accountsChanged();
     });
+    connect (this, &PortfolioDataProvider::accountsChanged, [=]() {
+        m_isSingleAccount = accounts().length() <= 1;
+        emit singleAccountChanged();
+    });
+    m_isSingleAccount = accounts().length() <= 1;
 }
 
 QList<QObject *> PortfolioDataProvider::accounts() const
 {
     QList<QObject *> answer;
-    if (m_accountInfos.size() == 1) {
-        // We have a 'mode' where having exactly one wallet will
-        // hide the wallets-list to avoid confusing the user with multi wallets.
-        return answer;
-    }
-    // we filter out the wallets that are NOT user-owned. Which is essentially the main initial
-    // wallet created to allow people to deposit instantly.
-    // Such a wallet is migrated to user-owned the moment a deposit is detected.
     const bool privateModeOn = FloweePay::instance()->privateMode();
     for (auto *account : m_accountInfos) {
-        if (privateModeOn) { // skip wallets that are 'private' while in private mode.
-            WalletConfig config(account->id());
-            if (config.isPrivate())
-                continue;
-        }
-        if (account->userOwnedWallet() && !account->isArchived())
-            answer.append(account);
+        if (account->isArchived())
+            continue;
+        if (!account->userOwnedWallet())
+            continue;
+        if (privateModeOn && WalletConfig(account->id()).isPrivate())
+            continue;
+        answer.append(account);
     }
-    // if the only wallet(s) are not user owned, share those with the GUI.
-    if (answer.isEmpty() && !m_accountInfos.isEmpty()) {
-        for (auto * const account : m_accountInfos) {
-            if (account->isArchived())
-                answer.append(account);
-        }
+    if (answer.length() == 1) {
+        // We have a 'mode' where having exactly one wallet will
+        // hide the wallets-list to avoid confusing the user with multi
+        // wallet features.
+        answer.clear();
     }
+
     return answer;
 }
 
@@ -188,7 +185,7 @@ double PortfolioDataProvider::totalBalance() const
 
 bool PortfolioDataProvider::isSingleAccount() const
 {
-    return m_accounts.size() == 1;
+    return m_isSingleAccount;
 }
 
 void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
@@ -218,6 +215,10 @@ void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
     connect (info, SIGNAL(isPrimaryAccountChanged()), this, SLOT(walletChangedPriority()));
     connect (info, SIGNAL(isArchivedChanged()), this, SLOT(walletChangedPriority()));
     connect (info, SIGNAL(balanceChanged()), this, SIGNAL(totalBalanceChanged()));
+    connect (info, &AccountInfo::isPrivateChanged, this, [=]() {
+        if (FloweePay::instance()->privateMode())
+            emit accountsChanged();
+    });
     emit accountsChanged();
 }
 

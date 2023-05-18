@@ -174,6 +174,9 @@ signals:
     void modelsChanged();
     void neverEmitted(); // to silence the lambs^Warnings
 
+    // for the benefit of the portfolio data provider
+    void isPrivateChanged();
+
 private slots:
     // callbacks from wallet
     void balanceHasChanged();

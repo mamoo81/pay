@@ -228,6 +228,7 @@ void AccountInfo::setIsPrivate(bool newIsPrivate)
 {
     assert(m_config.isValid());
     m_config.setIsPrivate(newIsPrivate);
+    emit isPrivateChanged();
 }
 
 bool AccountInfo::allowInstaPay() const

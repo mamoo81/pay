@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class PortfolioDataProvider : public QObject
     Q_PROPERTY(QList<QObject*> rawAccounts READ rawAccounts NOTIFY accountsChanged)
     Q_PROPERTY(AccountInfo* current READ current WRITE setCurrent NOTIFY currentChanged)
     Q_PROPERTY(double totalBalance READ totalBalance NOTIFY totalBalanceChanged)
-    Q_PROPERTY(bool singleAccountSetup READ isSingleAccount NOTIFY accountsChanged)
+    Q_PROPERTY(bool singleAccountSetup READ isSingleAccount NOTIFY singleAccountChanged)
 public:
     explicit PortfolioDataProvider(QObject *parent = nullptr);
 
@@ -67,6 +67,7 @@ signals:
     void accountsChanged();
     void currentChanged();
     void totalBalanceChanged();
+    void singleAccountChanged();
 
 private slots:
     void walletChangedPriority();
@@ -78,6 +79,7 @@ private:
     QList<AccountInfo*> m_accountInfos;
 
     int m_currentAccount = -1;
+    bool m_isSingleAccount = true;
 };
 
 #endif
