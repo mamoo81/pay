@@ -22,7 +22,7 @@ import "../Flowee" as Flowee
 
 Page {
     id: root
-    headerText: portfolio.singleAccountSetup ? qsTr("Wallet") : qsTr("Wallets")
+    headerText: singleAccountSetup ? qsTr("Wallet") : qsTr("Wallets")
 
     property QtObject newAccountAction: QQC2.Action {
         text: qsTr("Add Wallet")
@@ -39,20 +39,26 @@ Page {
         return 0;
     }
 
+
+    // this is a special interpretation of the property-name in the context
+    // of these pages where (unlike in the rest of the app) we take archived
+    // and private wallets into account.
+    property bool singleAccountSetup: portfolio.rawAccounts.length === 1
+
     Column {
         id: topGrid
         anchors.top: parent.top
         anchors.topMargin: 10
         anchors.left: parent.left
         anchors.right: parent.right
-        visible: portfolio.accounts.length > 1
+        visible: !singleAccountSetup
         height: visible ? implicitHeight: 0
 
         TextButton {
             showPageIcon: true
             text: qsTr("Default Wallet")
             subtext: {
-                for (let a of portfolio.accounts) {
+                for (let a of portfolio.rawAccounts) {
                     if (a.isPrimaryAccount) {
                         var defaultAccount = a.name;
                         break;
@@ -76,21 +82,12 @@ Page {
 
     ListView {
         id: tabBar
-        model: {
-            var accounts = portfolio.accounts;
-            for (let a of portfolio.archivedAccounts) {
-                accounts.push(a);
-            }
-            if (accounts.length === 0)
-                accounts.push(portfolio.current)
-            return accounts;
-        }
-
+        model: portfolio.rawAccounts
         orientation: Qt.Horizontal
         width: parent.width
         anchors.top: topGrid.bottom
         anchors.topMargin: 10
-        height: portfolio.accounts.length > 1 ? 50 : 0
+        height: singleAccountSetup ? 0 : 50
         clip: true
         boundsBehavior: Flickable.StopAtBounds
         currentIndex: indexOfCurrentAccount();
@@ -146,32 +143,11 @@ Page {
         clip: true
         cacheBuffer: 2
         currentIndex: indexOfCurrentAccount();
-        onModelChanged: {
-            /*
-             * When an account is archived, or unarchived, it changed the model
-             * as the account moves location in the list.
-             * The result is that the model moves back to index zero, which is a
-             * bit jarring.
-             * This code tries to move back to the one we were on before.
-             */
-            for (var index = 0; index < model.length; ++index) {
-                if (model[index] === currentAccount) {
-                    contentX = index * width;
-                    currentIndex = index;
-                    tabBar.currentIndex = index;
-                    break;
-                }
-            }
-        }
         onCurrentIndexChanged: {
             var curIndex = currentIndex;
             tabBar.currentIndex = curIndex;
-            if (curIndex > 0)
-                currentAccount = model[curIndex]; // remember
         }
         onContentXChanged: currentIndex = Math.round(contentX / width);
-
-        property QtObject currentAccount: null
 
         delegate: Flickable {
             flickableDirection: Flickable.VerticalFlick

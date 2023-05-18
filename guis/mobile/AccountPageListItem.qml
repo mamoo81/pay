@@ -38,7 +38,7 @@ QQC2.Control {
             color: palette.brightText
         }
         PageTitledBox {
-            title: portfolio.singleAccountSetup ? qsTr("Name") : ""
+            title: singleAccountSetup ? qsTr("Name") : ""
             EditableLabel {
                 text: account.name
                 onEdited: root.account.name = text
@@ -354,7 +354,7 @@ QQC2.Control {
             }
         }
         Flowee.CheckBox {
-            visible: portfolio.accounts.length > 1 && !root.account.isArchived
+            visible: !singleAccountSetup && !root.account.isArchived
             checked: root.account.isPrivate
             text: qsTr("Hide in private mode")
             onClicked: root.account.isPrivate = checked
@@ -365,7 +365,7 @@ QQC2.Control {
             height: archiveButtonText.height + 20
             color: Pay.useDarkSkin ? "#b39554" : "#e5be6b"
             width: archiveButtonText.width + 30
-            visible: portfolio.accounts.length > 1
+            visible: !singleAccountSetup
 
             Text {
                 id: archiveButtonText

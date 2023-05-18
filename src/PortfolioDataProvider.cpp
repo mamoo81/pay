@@ -84,6 +84,15 @@ QList<QObject *> PortfolioDataProvider::accounts() const
     return answer;
 }
 
+QList<QObject *> PortfolioDataProvider::rawAccounts() const
+{
+    QList<QObject *> answer;
+    for (auto *account : m_accountInfos) {
+        answer.append(account);
+    }
+    return answer;
+}
+
 QList<QObject *> PortfolioDataProvider::archivedAccounts() const
 {
     QList<QObject *> answer;
@@ -184,11 +193,28 @@ bool PortfolioDataProvider::isSingleAccount() const
 
 void PortfolioDataProvider::addWalletAccount(Wallet *wallet)
 {
+    assert(wallet);
     if (m_accounts.contains(wallet))
         return;
-    m_accounts.append(wallet);
     auto info = new AccountInfo(wallet, this);
-    m_accountInfos.append(info);
+    assert(m_accounts.length() == m_accountInfos.length());
+
+    // we store the wallets semi-sorted. Basically just doing an insert-in-place
+    // that makes the archived wallets all be at the end and the non-archived ones
+    // at the start of the list.
+    // Please do note that we don't re-sort later, so this is not a required internal
+    // state.
+    int index = m_accounts.size();
+    if (!info->isArchived()) {
+        for (auto i = m_accountInfos.rbegin(); i != m_accountInfos.rend(); ++i) {
+            if ((*i)->isArchived())
+                --index;
+            else
+                break;
+        }
+    }
+    m_accounts.insert(index, wallet);
+    m_accountInfos.insert(index, info);
     connect (info, SIGNAL(isPrimaryAccountChanged()), this, SLOT(walletChangedPriority()));
     connect (info, SIGNAL(isArchivedChanged()), this, SLOT(walletChangedPriority()));
     connect (info, SIGNAL(balanceChanged()), this, SIGNAL(totalBalanceChanged()));

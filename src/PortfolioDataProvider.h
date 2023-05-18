@@ -28,8 +28,18 @@ class Payment;
 class PortfolioDataProvider : public QObject
 {
     Q_OBJECT
+    /**
+     * List all active and visible accounts.
+     */
     Q_PROPERTY(QList<QObject*> accounts READ accounts NOTIFY accountsChanged)
+    /**
+     * List only archived accounts.
+     */
     Q_PROPERTY(QList<QObject*> archivedAccounts READ archivedAccounts NOTIFY accountsChanged)
+    /**
+     * List all accounts, active, inactive (aka private) and archived.
+     */
+    Q_PROPERTY(QList<QObject*> rawAccounts READ rawAccounts NOTIFY accountsChanged)
     Q_PROPERTY(AccountInfo* current READ current WRITE setCurrent NOTIFY currentChanged)
     Q_PROPERTY(double totalBalance READ totalBalance NOTIFY totalBalanceChanged)
     Q_PROPERTY(bool singleAccountSetup READ isSingleAccount NOTIFY accountsChanged)
@@ -37,6 +47,7 @@ public:
     explicit PortfolioDataProvider(QObject *parent = nullptr);
 
     QList<QObject*> accounts() const;
+    QList<QObject*> rawAccounts() const;
     QList<QObject*> archivedAccounts() const;
 
     AccountInfo *current() const;
