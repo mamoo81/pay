@@ -67,25 +67,9 @@ QQC2.Control {
             }
         }
 
-        TextButton {
+        InstaPayConfigButton {
             visible: !root.account.isArchived
-            text: root.account.allowsInstaPay ? qsTr("Enable Instant Pay") : qsTr("Configure Instant Pay")
-            subtext: {
-                if (!root.account.allowsInstaPay)
-                    return qsTr("Fast payments for low amounts")
-
-                var currencies = root.account.instaPayLimitCurrencies()
-                if (currencies.length === 1) {
-                    return ": => " + root.account.fiatInstaPayLimit(currencies[0]);
-                }
-                return "";
-            }
-
-            showPageIcon: true
-            onClicked: {
-                var newPage = thePile.push("./InstaPayConfigPage.qml")
-                newPage.account = root.account;
-            }
+            account: root.account
         }
 
         TextButton {

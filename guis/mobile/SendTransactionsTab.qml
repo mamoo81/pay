@@ -27,6 +27,9 @@ FocusScope {
         width: parent.width - 20
         x: 10
 
+        InstaPayConfigButton {
+        }
+
         TextButton {
             text: qsTr("Scan a QR code")
             showPageIcon: true
