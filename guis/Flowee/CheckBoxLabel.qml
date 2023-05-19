@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,11 +38,8 @@ Label {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        onClicked: {
-            if (root.buddy != null) {
-                root.buddy.checked = !root.buddy.checked;
-            }
-        }
+        anchors.margins: -5
+        onClicked: if (root.buddy != null) root.buddy.toggle();
         hoverEnabled: root.toolTipText !== ""
         cursorShape: Qt.PointingHandCursor
     }

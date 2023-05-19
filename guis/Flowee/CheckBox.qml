@@ -67,6 +67,13 @@ T.CheckBox {
         }
     }
 
+    MouseArea {
+        anchors.fill: parent
+        anchors.margins: -5 // make it more finger friendly and assume a 10 pixel gap between elements.
+        onClicked: control.toggle()
+        cursorShape: Qt.PointingHandCursor
+    }
+
     Label {
         id: title
         text: control.text
