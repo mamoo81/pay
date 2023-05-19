@@ -3,6 +3,7 @@
         <file alias="edit-copy.svg">images/edit-copy.svg</file>
         <file alias="edit-copy-light.svg">images/edit-copy-light.svg</file>
         <file alias="internet.svg">images/internet.svg</file>
+        <file alias="Flowee-Symbols.otf">images/Flowee-Symbols.otf</file>
         <file>Flowee/ArrowPoint.qml</file>
         <file>Flowee/BitcoinAmountLabel.qml</file>
         <file>Flowee/Button.qml</file>

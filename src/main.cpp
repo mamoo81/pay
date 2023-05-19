@@ -35,6 +35,7 @@
 #include <primitives/key.h> // for ECC_Start()
 
 #include <QGuiApplication>
+#include <QFontDatabase>
 #include <QIcon>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -162,6 +163,13 @@ int main(int argc, char *argv[])
         loadCompleteHandler(engine, cld);
     });
     FloweePay::instance()->startP2PInit();
+
+    // We ship our own font to not have to depend on the host system's installed fonts
+    // for 'special' characters like arrows and stars.
+    int fontId = QFontDatabase::addApplicationFont(":/Flowee-Symbols.otf");
+    if (fontId == -1) {
+        logCritical() << "Loading of our symbol font failed!";
+    }
 
     // Clean shutdown on SIGTERM
     struct sigaction sa;
