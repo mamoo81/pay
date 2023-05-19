@@ -360,6 +360,8 @@ QQC2.Control {
             onClicked: root.account.isPrivate = checked
         }
 
+        Item { width: 1; height: 10 } // spacer. Make the button not to close to the clickable checkbox for fatfingered people.
+
         Rectangle {
             id: archiveButton
             height: archiveButtonText.height + 20

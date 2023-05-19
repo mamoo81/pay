@@ -57,6 +57,7 @@ Page {
         TextButton {
             showPageIcon: true
             text: qsTr("Default Wallet")
+            visible: !portfolio.singleAccountSetup
             subtext: {
                 for (let a of portfolio.rawAccounts) {
                     if (a.isPrimaryAccount) {
