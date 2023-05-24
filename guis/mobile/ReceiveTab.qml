@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 import QtQuick
 import QtQuick.Shapes
 import QtQuick.Layouts
-import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 import Flowee.org.pay
 
@@ -29,9 +28,12 @@ FocusScope {
 
     focus: true
     property QtObject account: portfolio.current
+    property bool qrViewActive: true;
+    property bool editViewActive: false
 
     PaymentRequest {
         id: request
+        amount: priceInput.paymentBackend.paymentAmount
     }
 
     onAccountChanged: {
@@ -44,24 +46,79 @@ FocusScope {
     }
 
     onActiveFocusChanged: {
+        // starting reserves an adderess, don't do that until
+        // this tab is actually viewed.
         if (activeFocus)
             request.start();
     }
 
+    Column {
+        id: verticalTabs
+        y: 50
+        x: -10
+        Repeater {
+            model: ["qr-code", "edit-pen"]
+
+            delegate: MouseArea {
+                property bool active: index === 0
+                onActiveChanged: {
+                    let a = active;
+                    if (a) // disable the other one
+                        verticalTabs.children[(index + 1) % 2].active = false
+                    // update page-scope state variables
+                    if (index == 1)
+                        a = !a;
+                    qrViewActive = a;
+                    editViewActive = !a;
+                }
+                width: 50
+                height: 50
+                onClicked: active = true;
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: palette.window
+                }
+                Rectangle {
+                    x: 46
+                    y: 5
+                    width: 4
+                    height: 40
+                    color: palette.highlight
+                    visible: active
+                }
+                Rectangle {
+                    anchors.fill: parent
+                    color: palette.highlight
+                    visible: active
+                    opacity: 0.15
+                }
+                Image {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    source: "qrc:/" + modelData + (Pay.useDarkSkin ? "-light" : "") + ".svg"
+                    smooth: true
+                }
+            }
+        }
+    }
+
     Flowee.Label {
         id: instructions
+        y: 35 - height
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: 20
         text: qsTr("Share this QR to receive")
-        opacity: 0.5
+        opacity: editViewActive ? 0 : 0.5
+        Behavior on opacity { OpacityAnimator { } }
     }
 
     Flowee.QRWidget {
         id: qr
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: instructions.bottom
-        anchors.topMargin: 20
         width: parent.width
+        y: qrViewActive ? 40 : editBox.height
+        x: priceInput.activeFocus ? 0 - width : 0
+        qrSize: qrViewActive ? 256 : 160
+        textVisible: false
         qrText: request.qr
 
         Flowee.Label {
@@ -81,52 +138,107 @@ FocusScope {
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             font.pointSize: 18
         }
+        Behavior on y { NumberAnimation { } }
+        Behavior on x { NumberAnimation { } }
     }
 
-    // entry-fields
-    ColumnLayout {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: qr.bottom
-        anchors.topMargin: 30
-        Flowee.Label {
-            text: qsTr("Description") + ":"
-        }
-        Flowee.TextField {
-            id: description
-            Layout.fillWidth: true
-            enabled: request.state === PaymentRequest.Unpaid
-            onTextChanged: request.message = text
-        }
+    // feedback-fields
+    Column {
+        width: parent.width
+        spacing: 10
+        opacity: qrViewActive ? 1 : 0
+        y: instructions.height + qr.height + 30
 
-        Flowee.Label {
-            id: payAmount
-            text: qsTr("Amount") + ":"
-        }
-        RowLayout {
-            spacing: 10
-            Flowee.BitcoinValueField {
-                id: bitcoinValueField
-                enabled: request.state === PaymentRequest.Unpaid
-                onValueChanged: request.amount = value
-            }
+        PageTitledBox {
+            width: parent.width
+            visible: request.message !== ""
+            title: qsTr("Description")
             Flowee.Label {
-                Layout.alignment: Qt.AlignBaseline
-                anchors.baselineOffset: bitcoinValueField.baselineOffset
-                text: Fiat.formattedPrice(bitcoinValueField.value, Fiat.price)
+                text: request.message
+            }
+        }
+        PageTitledBox {
+            width: parent.width
+            visible: request.amount > 0
+            title: qsTr("Amount", "requested amount of coin")
+            Flowee.BitcoinAmountLabel {
+                colorize: false
+                value: request.amount
+            }
+        }
+        PageTitledBox {
+            width: parent.width
+            title: qsTr("Address", "Bitcoin Cash address")
+            Flowee.LabelWithClipboard {
+                width: parent.width
+                text: request.addressShort
+                font.pixelSize: instructions.font.pixelSize * 0.9
             }
         }
         Flowee.Button {
-            Layout.alignment: Qt.AlignRight
+            anchors.right: parent.right
             text: qsTr("Clear")
             onClicked: {
                 request.clear();
                 request.account = portfolio.current;
                 description.text = "";
-                bitcoinValueField.value = 0;
+                priceInput.paymentBackend.paymentAmount = 0;
                 request.start();
             }
         }
+        Behavior on opacity { OpacityAnimator { } }
+    }
+
+    // edit fields
+    PageTitledBox {
+        id: editBox
+        width: parent.width - 50
+        x: 50
+        title: qsTr("Description")
+        opacity: editViewActive ? 1 : 0
+        enabled: editViewActive
+
+        // little state-machine to switch between the two
+        // input options
+        property bool editingTextField: true
+
+        onEnabledChanged: {
+            // due to lack of a good statemachine, a bit hackish to
+            // switch states properly.
+            if (enabled) {
+                if (editingTextField)
+                    description.forceActiveFocus()
+                else
+                    priceInput.forceActiveFocus()
+            }
+            else {
+                priceInput.focus = false;
+                description.focus = false;
+            }
+        }
+
+        Flowee.TextField {
+            id: description
+            width: parent.width
+            onTextChanged: if (!inputMethodComposing) request.message = text
+            onActiveFocusOnPressChanged: editBox.editingTextField = true
+        }
+        Behavior on opacity { OpacityAnimator { } }
+
+        PriceInputWidget {
+            id: priceInput
+            fiatFollowsSats: false
+            width: parent.width
+            onActiveFocusChanged: if (activeFocus) editBox.editingTextField = false
+        }
+    }
+
+    NumericKeyboardWidget {
+        id: numericKeyboard
+        width: parent.width
+        x: priceInput.activeFocus ? 0 : width + 10
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 15
     }
 
     // the "payment received" screen.
@@ -282,7 +394,7 @@ FocusScope {
             onClicked: {
                 request.clear();
                 description.text = "";
-                bitcoinValueField.value = 0;
+                priceInput.paymentBackend.paymentAmount = 0;
                 request.account = portfolio.current;
                 request.start();
             }

@@ -25,7 +25,7 @@ Item {
     property string qrText: ""
 
     implicitWidth: qrImage.width
-    implicitHeight: qrImage.width + (addressLine.visible ? addressLine.height : 0)
+    implicitHeight: qrImage.height + (addressLine.visible ? addressLine.height : 0)
 
     function handleOnClicked() {
         Pay.copyToClipboard(qrText);
@@ -50,6 +50,7 @@ Item {
             anchors.fill: parent
             onClicked: root.handleOnClicked()
         }
+        Behavior on width { NumberAnimation { } }
     }
     Rectangle {
         id: addressLine

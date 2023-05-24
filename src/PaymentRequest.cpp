@@ -264,6 +264,7 @@ QString PaymentRequest::qrCodeString() const
 void PaymentRequest::clear()
 {
     m_message.clear();
+    emit messageChanged();
     m_address = KeyId();
     m_amountRequested = 0;
     m_amountSeen = 0;
