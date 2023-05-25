@@ -22,6 +22,7 @@
 #include "Payment.h"
 #include "TransactionInfo.h"
 #include "PaymentRequest.h"
+#include "PaymentBackend.h"
 #include "QRCreator.h"
 #include "MenuModel.h"
 #ifdef NETWORK_LOGGER
@@ -95,6 +96,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<NewWalletConfig>("Flowee.org.pay", 1, 0, "NewWalletConfig");
     qmlRegisterType<Payment>("Flowee.org.pay", 1, 0, "Payment");
     qmlRegisterType<PaymentRequest>("Flowee.org.pay", 1, 0, "PaymentRequest");
+    qmlRegisterType<PaymentBackend>("Flowee.org.pay", 1, 0, "PaymentBackend");
 
     auto cld = createCLD(qapp);
     auto *logger = Log::Manager::instance();

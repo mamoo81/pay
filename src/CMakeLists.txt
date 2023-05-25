@@ -33,6 +33,7 @@ set (PAY_SOURCES
     NewWalletConfig.cpp
     NotificationManager.cpp
     Payment.cpp
+    PaymentBackend.cpp
     PaymentRequest.cpp
     PaymentDetailOutput.cpp
     PaymentDetailInputs.cpp

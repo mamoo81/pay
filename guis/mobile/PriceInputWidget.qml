@@ -18,7 +18,7 @@
 import QtQuick
 import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
-
+import Flowee.org.pay
 
 FocusScope {
     id: root
@@ -28,8 +28,12 @@ FocusScope {
     property bool fiatFollowsSats: true
     // made available for the NumericKeyboardWidget
     property var editor: fiatFollowsSats ? priceBch.money : priceFiat.money;
-    // Payment object or the PaymentDetailOutput object.
-    required property QtObject paymentBackend;
+    /**
+     * Payment Backend processes the fiat and satoshi based pair of payments.
+     * The default is a simple backend, notice that the Payment QML type
+     * actually provides its own backend(s), as each output is one.
+     */
+    property QtObject paymentBackend : PaymentBackend {}
 
     onFiatFollowsSatsChanged: {
         if (!activeFocus)
