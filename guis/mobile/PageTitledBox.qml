@@ -34,6 +34,7 @@ Item {
     }
     Layout.fillWidth: true
     height: implicitHeight
+    implicitWidth: 50 // have SOME non-zero default.
     visible: implicitHeight > 0
 
     Rectangle {
