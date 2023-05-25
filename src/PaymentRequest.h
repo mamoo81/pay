@@ -33,6 +33,7 @@ class PaymentRequest : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString address READ address NOTIFY addressChanged)
+    Q_PROPERTY(QString addressShort READ addressShort NOTIFY addressChanged)
     Q_PROPERTY(QString message READ message WRITE setMessage NOTIFY messageChanged)
     Q_PROPERTY(QString qr READ qrCodeString NOTIFY qrCodeStringChanged)
     Q_PROPERTY(double amount READ amount WRITE setAmount NOTIFY amountChanged)
@@ -90,6 +91,7 @@ public:
     void setAccount(QObject *account);
 
     QString address() const;
+    QString addressShort() const;
     void setAddress(const QString &newAddress);
 
     PaymentRequest::FailReason failReason() const;

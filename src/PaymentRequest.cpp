@@ -92,6 +92,15 @@ QString PaymentRequest::address() const
     return QString::fromStdString(CashAddress::encodeCashAddr(FloweePay::instance()->chainPrefix(), c));
 }
 
+QString PaymentRequest::addressShort() const
+{
+    auto a = address();
+    auto i = a.indexOf(':');
+    if (i > 0)
+        return a.mid(i + 1);
+    return a;
+}
+
 QObject *PaymentRequest::account() const
 {
     return m_account;
@@ -165,6 +174,7 @@ void PaymentRequest::start()
         assert(m_view);
         m_view->setPrivKeyIndex(m_privKeyId);
         emit qrCodeStringChanged();
+        emit addressChanged();
 
 #if 0
         // by enabling this you can simulate the payment request being fulfilled
