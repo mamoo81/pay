@@ -267,6 +267,7 @@ void PaymentRequest::clear()
     emit messageChanged();
     m_address = KeyId();
     m_amountRequested = 0;
+    emit amountChanged();
     m_amountSeen = 0;
     setPaymentState(Unpaid);
     delete m_view;
