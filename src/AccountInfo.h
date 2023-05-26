@@ -65,7 +65,7 @@ class AccountInfo : public QObject
      * If true, please count the balance(s) of this wallet in the app-wide balance
      */
     Q_PROPERTY(bool countBalance READ countBalance WRITE setCountBalance NOTIFY neverEmitted)
-    Q_PROPERTY(bool allowInstaPay READ allowInstaPay WRITE setAllowInstaPay NOTIFY neverEmitted)
+    Q_PROPERTY(bool allowInstaPay READ allowInstaPay WRITE setAllowInstaPay NOTIFY instaPayAllowedChanged)
     Q_PROPERTY(bool isPrivate READ isPrivate WRITE setIsPrivate NOTIFY neverEmitted)
 public:
     AccountInfo(Wallet *wallet, QObject *parent = nullptr);
@@ -172,6 +172,7 @@ signals:
     void hasFreshTransactionsChanged();
     void encryptionChanged();
     void modelsChanged();
+    void instaPayAllowedChanged();
     void neverEmitted(); // to silence the lambs^Warnings
 
     // for the benefit of the portfolio data provider

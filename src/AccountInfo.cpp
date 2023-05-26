@@ -241,6 +241,7 @@ void AccountInfo::setAllowInstaPay(bool newAllowInstaPay)
 {
     assert(m_config.isValid());
     m_config.setAllowInstaPay(newAllowInstaPay);
+    emit instaPayAllowedChanged();
 }
 
 int AccountInfo::fiatInstaPayLimit(const QString &currencyCode) const
