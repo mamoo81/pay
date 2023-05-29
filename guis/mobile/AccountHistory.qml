@@ -98,6 +98,7 @@ ListView {
             y: 10
 
             Flowee.BitcoinAmountLabel {
+                id: bchPriceWidget
                 opacity: Pay.hideBalance ? 0.2 : 1
                 fontPixelSize: 30
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -108,23 +109,28 @@ ListView {
                 }
                 colorize: false
                 showFiat: false
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: popupOverlay.open(priceDetails, parent)
-                }
-                Component {
-                    id: priceDetails
-                    PriceDetails { }
-                }
             }
             Flowee.Label { // fiat price
                 opacity: Pay.hideBalance ? 0.2 : 1
-                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
                 text: {
                     if (Pay.hideBalance)
                         return Fiat.currencySymbolPrefix + "——" + Fiat.currencySymbolPost
                     Fiat.formattedPrice(portfolio.current.balanceConfirmed
                           + portfolio.current.balanceUnconfirmed, Fiat.price)
+                }
+                MouseArea {
+                    // make the click area nice and large
+                    width: parent.width
+                    height: parent.height + bchPriceWidget.height + 10
+                    y: 0 - 5- bchPriceWidget.height
+                    onClicked: popupOverlay.open(priceDetails, parent)
+                    cursorShape: Qt.PointingHandCursor
+                }
+                Component {
+                    id: priceDetails
+                    PriceDetails { }
                 }
             }
 
