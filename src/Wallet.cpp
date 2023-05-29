@@ -55,7 +55,7 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
 // this is a bit larger than others may use because we use a filter for a series
 // of blocks that can hold a large number of our transactions.
 constexpr int filter_unusedToInclude = 40;
-constexpr int filter_hdUnusedToInclude = 30;
+constexpr int filter_hdUnusedToInclude = 150;
 constexpr int filter_changeUnusedToInclude = 50;
 
 Wallet::Wallet()
@@ -215,14 +215,24 @@ bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx, bool &upda
     int needChangeAddresses = 0;
     int needMainAddresses = 0;
 
-
     const int changeGap = filter_changeUnusedToInclude + (m_walletStoresCashFusions ? 50 : 0);
 
     for (auto i = wtx.outputs.begin(); i != wtx.outputs.end(); ++i) {
         auto privKey = m_walletSecrets.find(i->second.walletSecretId);
         assert(privKey != m_walletSecrets.end()); // invalid wtx
         const WalletSecret &ws = privKey->second;
+
         if (ws.fromHdWallet) {
+            /*
+             * We previously sent a list of addresses to the peers in the bloom filter,
+             * we do this sequentually by HD-derivation index. We try to be conservative
+             * in what we share, which means that as those addresses are used we may need
+             * to send more addresses by rebuilding the bloom filter.
+             *
+             * This code looks at the 'gap', the amount of addresses between what is used
+             * and what we previously send in our bloom filter. If the gap is getting too small,
+             * we need to create a new filter in order to avoid missing transactions.
+             */
             if (ws.fromChangeChain) {
                 assert(m_hdData->lastChangeKey >= ws.hdDerivationIndex);
                 if (m_hdData->lastChangeKey - ws.hdDerivationIndex < changeGap) {
@@ -236,9 +246,22 @@ bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx, bool &upda
                 updateBloom |= m_hdData->lastIncludedChangeKey - ws.hdDerivationIndex < 15; // the gap
             } else {
                 assert(m_hdData->lastMainKey >= ws.hdDerivationIndex);
+                /*
+                 * 'main' addresses are the ones the user explicitly requests and we give as a QR
+                 * in order to give to people. This has the effect that we can never stop asking
+                 * servers if any new deposits are made. People may use this address for yearly
+                 * contributions, for instance. So all main addresses always have to be included
+                 * in the bloom filter.
+                 *
+                 * This is additionally not a privacy matter as unused addresses are not possible
+                 * to get out of a bloom filter. Its a MATCHING-filter, afterall.
+                 * So our gap here is much much larger than for change addresses: safe and secure.
+                 * hdUnusedToInclude is set to something like 150
+                 */
+                updateBloom |= m_hdData->lastIncludedMainKey - ws.hdDerivationIndex < filter_hdUnusedToInclude; // the gap
+                // additionally, we may need to actually generate more addresses
                 if (m_hdData->lastMainKey - ws.hdDerivationIndex < filter_hdUnusedToInclude + 10)
                     needMainAddresses = ExtraAddresses;
-                updateBloom |= m_hdData->lastIncludedMainKey - ws.hdDerivationIndex < 15; // the gap
             }
         }
     }
