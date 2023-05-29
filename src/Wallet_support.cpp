@@ -264,6 +264,9 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
             assert(secret.fromHdWallet);
             in->setCloakedAddress(tr("Change #%1").arg(secret.hdDerivationIndex));
         }
+        else if (secret.fromHdWallet) {
+            in->setCloakedAddress(tr("Main #%1").arg(secret.hdDerivationIndex));
+        }
         info->m_inputs[pair.first] = in;
     }
 #ifndef NDEBUG
@@ -297,6 +300,9 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
         if (secret.fromChangeChain) {
             assert(secret.fromHdWallet);
             out->setCloakedAddress(tr("Change #%1").arg(secret.hdDerivationIndex));
+        }
+        else if (secret.fromHdWallet) {
+            out->setCloakedAddress(tr("Main #%1").arg(secret.hdDerivationIndex));
         }
         info->m_outputs[o.first] = out;
     }
