@@ -207,7 +207,7 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
 // used private keys close to the index we have created and keep track off.
 bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx, bool &updateBloom)
 {
-    QMutexLocker locker(&m_lock);
+    // mutex locked by caller
     if (m_hdData.get() == nullptr)
         return false;
 
