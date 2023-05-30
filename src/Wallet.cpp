@@ -413,7 +413,7 @@ void Wallet::newTransaction(const Tx &tx)
 
     emit utxosChanged();
     emit appendedTransactions(firstNewTransaction, 1);
-    FloweePay::instance()->p2pNet()->notifications().notifyNewTransaction(notification);
+    FloweePay::instance()->sendTransactionNotification(notification);
     if (createdNewKeys)
         rebuildBloom();
 }
@@ -556,7 +556,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
             if (wasUnconfirmed)
                 emit transactionConfirmed(walletTransactionId);
             if (notification.blockHeight > 0) {
-                FloweePay::instance()->p2pNet()->notifications().notifyNewTransaction(notification);
+                FloweePay::instance()->sendTransactionNotification(notification);
             }
         }
         assert(m_nextWalletTransactionId - firstNewTransaction == int(transactionsToSave.size()));

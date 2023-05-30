@@ -85,6 +85,7 @@ public:
      */
     static void selectChain(P2PNet::Chain chain);
     static FloweePay *instance();
+    static void sendTransactionNotification(const P2PNet::Notification &notification);
 
     QList<Wallet *> wallets() const;
 

@@ -287,6 +287,18 @@ FloweePay *FloweePay::instance()
     return &s_app;
 }
 
+void FloweePay::sendTransactionNotification(const P2PNet::Notification &notification)
+{
+    auto *me = FloweePay::instance();
+    auto configs = me->m_walletConfigs;
+    auto i = configs.find(notification.privacySegment);
+    // don't broadcast notifications of private wallets when private mode is enabled
+    if (me->privateMode() && (i == configs.end() || i->privateWallet))
+        return;
+
+    me->p2pNet()->notifications().notifyNewTransaction(notification);
+}
+
 void FloweePay::init()
 {
     auto dl = p2pNet(); // this wil load the p2p layer.
