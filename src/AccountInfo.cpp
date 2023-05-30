@@ -111,8 +111,13 @@ QDateTime AccountInfo::lastBlockSynchedTime() const
 QString AccountInfo::timeBehind() const
 {
     const int accountHeight = lastBlockSynched();
-    if (accountHeight <= 0) // For accounts that only expect tx in the future.
+    if (accountHeight <= 0) { // Special case.
+        // May be accounts that only expect tx in the future.
+        // may be wallets that are fully encrypted.
+        if (m_wallet->encryption() == Wallet::FullyEncrypted && !m_wallet->isDecrypted())
+            return tr("Offline");
         return tr("Wallet: Up to date");
+    }
     const int chainHeight = FloweePay::instance()->chainHeight();
 
     const int diff = chainHeight - accountHeight;
