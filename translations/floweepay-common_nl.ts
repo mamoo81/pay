@@ -4,12 +4,12 @@
   <context>
     <name>AccountInfo</name>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="112"/>
+      <location filename="../src/AccountInfo.cpp" line="115"/>
       <source>Wallet: Up to date</source>
       <translation>Portemonnee: gesynchroniseerd</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="122"/>
+      <location filename="../src/AccountInfo.cpp" line="125"/>
       <source>Behind: %1 weeks, %2 days</source>
       <comment>counter on weeks</comment>
       <translation>
@@ -18,7 +18,7 @@
       </translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="126"/>
+      <location filename="../src/AccountInfo.cpp" line="129"/>
       <source>Behind: %1 days</source>
       <translation>
         <numerusform>%1 dag oude data</numerusform>
@@ -26,17 +26,17 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="128"/>
+      <location filename="../src/AccountInfo.cpp" line="131"/>
       <source>Up to date</source>
       <translation>Is volledig bijgewerkt</translation>
     </message>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="130"/>
+      <location filename="../src/AccountInfo.cpp" line="133"/>
       <source>Updating</source>
       <translation>Aan het bijwerken</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="131"/>
+      <location filename="../src/AccountInfo.cpp" line="134"/>
       <source>Still %1 hours behind</source>
       <translation>
         <numerusform>Nog één uur</numerusform>
@@ -120,30 +120,30 @@
   <context>
     <name>FloweePay</name>
     <message>
-      <location filename="../src/FloweePay.cpp" line="300"/>
+      <location filename="../src/FloweePay.cpp" line="395"/>
       <source>Initial Wallet</source>
       <translation>Eerste portemonnee</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="479"/>
-      <location filename="../src/FloweePay.cpp" line="537"/>
+      <location filename="../src/FloweePay.cpp" line="586"/>
+      <location filename="../src/FloweePay.cpp" line="644"/>
       <source>Today</source>
       <translation>Vandaag</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="481"/>
-      <location filename="../src/FloweePay.cpp" line="539"/>
+      <location filename="../src/FloweePay.cpp" line="588"/>
+      <location filename="../src/FloweePay.cpp" line="646"/>
       <source>Yesterday</source>
       <translation>Gisteren</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="526"/>
+      <location filename="../src/FloweePay.cpp" line="633"/>
       <source>Now</source>
       <comment>timestamp</comment>
       <translation>Nu</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="527"/>
+      <location filename="../src/FloweePay.cpp" line="634"/>
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
       <translation>
@@ -152,13 +152,13 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="531"/>
+      <location filename="../src/FloweePay.cpp" line="638"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
       <translation>Half uur geleden</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="533"/>
+      <location filename="../src/FloweePay.cpp" line="640"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
       <translation>
@@ -184,18 +184,18 @@
     </message>
     <message>
       <location filename="../src/MenuModel.cpp" line="25"/>
-      <source>Wallet Information</source>
-      <translation>Portemonnee Informatie</translation>
-    </message>
-    <message>
-      <location filename="../src/MenuModel.cpp" line="26"/>
       <source>Network Details</source>
       <translation>Netwerk Details</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="27"/>
+      <location filename="../src/MenuModel.cpp" line="26"/>
       <source>About</source>
       <translation>Over Ons</translation>
+    </message>
+    <message>
+      <location filename="../src/MenuModel.cpp" line="27"/>
+      <source>Wallets</source>
+      <translation>Portemonnees</translation>
     </message>
   </context>
   <context>
@@ -246,22 +246,22 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="118"/>
+      <location filename="../src/Payment.cpp" line="120"/>
       <source>Invalid PIN</source>
       <translation>Ongeldige PIN</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="203"/>
+      <location filename="../src/Payment.cpp" line="205"/>
       <source>Not enough funds selected for fees</source>
       <translation>Onvoldoende saldo voor transactiekosten</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="213"/>
+      <location filename="../src/Payment.cpp" line="215"/>
       <source>Not enough funds in wallet to make payment!</source>
       <translation>Niet genoeg saldo in portemonnee om te betalen!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="278"/>
+      <location filename="../src/Payment.cpp" line="280"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Transactie te groot. Geselecteerd bedrag vereist te veel munten.</translation>
     </message>
@@ -269,7 +269,7 @@
   <context>
     <name>QRWidget</name>
     <message>
-      <location filename="../guis/Flowee/QRWidget.qml" line="103"/>
+      <location filename="../guis/Flowee/QRWidget.qml" line="106"/>
       <source>Copied to clipboard</source>
       <translation>Naar klembord gekopieerd</translation>
     </message>
@@ -277,10 +277,16 @@
   <context>
     <name>Wallet</name>
     <message>
-      <location filename="../src/Wallet_support.cpp" line="278"/>
-      <location filename="../src/Wallet_support.cpp" line="312"/>
+      <location filename="../src/Wallet_support.cpp" line="265"/>
+      <location filename="../src/Wallet_support.cpp" line="302"/>
       <source>Change #%1</source>
       <translation>Wisselmunt #%1</translation>
+    </message>
+    <message>
+      <location filename="../src/Wallet_support.cpp" line="268"/>
+      <location filename="../src/Wallet_support.cpp" line="305"/>
+      <source>Main #%1</source>
+      <translation>Standaard#%1</translation>
     </message>
   </context>
   <context>
@@ -335,27 +341,27 @@
   <context>
     <name>WalletHistoryModel</name>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="218"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="213"/>
       <source>Today</source>
       <translation>Vandaag</translation>
     </message>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="220"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="215"/>
       <source>Yesterday</source>
       <translation>Gisteren</translation>
     </message>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="222"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="217"/>
       <source>Earlier this week</source>
       <translation>Eerder deze week</translation>
     </message>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="224"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="219"/>
       <source>This week</source>
       <translation>Deze week</translation>
     </message>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="226"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="221"/>
       <source>Earlier this month</source>
       <translation>Eerder deze maand</translation>
     </message>
@@ -363,12 +369,12 @@
   <context>
     <name>WalletSecretsView</name>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="34"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="48"/>
       <source>Explanation</source>
       <translation>Uitleg</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="39"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="54"/>
       <source>Coins a / b
  a) active coin-count.
  b) historical coin-count.</source>
@@ -377,23 +383,23 @@
  b) historische munten.</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="76"/>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="109"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="100"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="133"/>
       <source>Copy Address</source>
       <translation>Kopieer adres</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="113"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="137"/>
       <source>Copy Private Key</source>
       <translation>Kopieer privésleutel</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="139"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="163"/>
       <source>Coins: %1 / %2</source>
       <translation>Munten: %1 / %2</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="161"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="185"/>
       <source>Signed with Schnorr signatures in the past</source>
       <translation>In het verleden ondertekend met Schnorr</translation>
     </message>

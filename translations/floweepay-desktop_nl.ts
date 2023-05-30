@@ -59,82 +59,92 @@
       <translation>Naam</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="112"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="114"/>
       <source>Sync Status</source>
       <translation>Synchronisatie status</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="133"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="149"/>
       <source>Encryption</source>
       <translation>Encryptie</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="144"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="160"/>
       <source>Password</source>
       <translation>Wachtwoord</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="173"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="189"/>
       <source>Open</source>
       <translation>Open</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="183"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="199"/>
       <source>Invalid PIN</source>
       <translation>Ongeldige PIN</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="196"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="214"/>
+      <source>Include balance in total</source>
+      <translation>Saldo opnemen in totaal</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/AccountDetails.qml" line="224"/>
+      <source>Hide in private mode</source>
+      <translation>Verbergen in privémodus</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/AccountDetails.qml" line="233"/>
       <source>Address List</source>
       <translation>Adreslijst</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="202"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="239"/>
       <source>Change Addresses</source>
       <translation>Wisselgeldadres</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="205"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="242"/>
       <source>Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</source>
       <translation>Schakelt tussen adressen waar anderen je op kunnen betalen, en adressen welke de portemonnee voor wisselgeld gebruikt.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="209"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="246"/>
       <source>Used Addresses</source>
       <translation>Gebruikte adressen</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="212"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="249"/>
       <source>Switches between unused and used Bitcoin addresses</source>
       <translation>Schakelt tussen ongebruikt en gebruikte Bitcoin adressen</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="231"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="269"/>
       <source>Backup details</source>
       <translation>Back-up details</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="248"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="286"/>
       <source>Seed-phrase</source>
       <translation>Herstelzin</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="260"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="298"/>
       <source>Derivation</source>
       <translation>Derivatie</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="272"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="310"/>
       <source>Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case of computer failure.</source>
       <translation>Schrijf de herstelzin op papier, in de juiste volgorde, samen met het derivatie pad. Deze herstelzin stelt u in staat om uw portemonnee te herstellen in geval van een computerfout.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="282"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="320"/>
       <source>&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</source>
       <translation>&lt;b&gt;Belangrijk&lt;/b&gt;: Deel nooit uw herstelzin met anderen!</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="290"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="328"/>
       <source>This wallet is protected by password (pin-to-pay). To see the backup details you need to provide the password.</source>
       <translation>Deze portemonnee is beveiligd met een wachtwoord (pin-to-pay). Om de back-upgegevens te zien moet u het wachtwoord invullen.</translation>
     </message>
@@ -342,7 +352,7 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <translation>Derivatie</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="155"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="156"/>
       <source>Alternate phrase</source>
       <translation>Alternatieve zin</translation>
     </message>
@@ -746,22 +756,32 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
       <translation>Nachtmodus</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SettingsPane.qml" line="137"/>
+      <location filename="../guis/desktop/SettingsPane.qml" line="144"/>
+      <source>Private Mode</source>
+      <translation>Privé modus</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/SettingsPane.qml" line="145"/>
+      <source>Hides private wallets while enabled</source>
+      <translation>Verbergt privé portemonnees</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/SettingsPane.qml" line="149"/>
       <source>Version</source>
       <translation>Versie</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SettingsPane.qml" line="145"/>
+      <location filename="../guis/desktop/SettingsPane.qml" line="157"/>
       <source>Library Version</source>
       <translation>Bibliotheek versie</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SettingsPane.qml" line="153"/>
+      <location filename="../guis/desktop/SettingsPane.qml" line="165"/>
       <source>Synchronization</source>
       <translation>Synchronisatie</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SettingsPane.qml" line="158"/>
+      <location filename="../guis/desktop/SettingsPane.qml" line="170"/>
       <source>Network Status</source>
       <translation>Netwerk Status</translation>
     </message>

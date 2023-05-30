@@ -82,10 +82,6 @@
       <translation>Synchronisatie status</translation>
     </message>
     <message>
-      <source>Primary Wallet</source>
-      <translation>Primaire portemonnee</translation>
-    </message>
-    <message>
       <source>Backup information</source>
       <translation>Back-up Informatie</translation>
     </message>
@@ -136,12 +132,36 @@
       <translation>Gebruikte adressen</translation>
     </message>
     <message>
-      <source>Addresses and Keys</source>
+      <source>Switches between still in use addresses and formerly used, new empty, addresses</source>
+      <translation>Schakelt tussen nog steeds gebruikte adressen en eerder gebruikte, nieuw/lege adressen</translation>
+    </message>
+    <message>
+      <source>Name</source>
+      <translation>Naam</translation>
+    </message>
+    <message>
+      <source>Archived wallets do not check for activities. Balance may be out of date</source>
+      <translation>Gearchiveerde portemonnees controleren niet op activiteiten. Saldo is mogelijk verouderd</translation>
+    </message>
+    <message>
+      <source>xpub</source>
+      <translation>xpub</translation>
+    </message>
+    <message>
+      <source>Addresses and keys</source>
       <translation>Adressen en sleutels</translation>
     </message>
     <message>
-      <source>Switches between still in use addresses and formerly used, new empty, addresses</source>
-      <translation>Schakelt tussen nog steeds gebruikte adressen en eerder gebruikte, nieuw/lege adressen</translation>
+      <source>Hide in private mode</source>
+      <translation>Verbergen in privémodus</translation>
+    </message>
+    <message>
+      <source>Unarchive Wallet</source>
+      <translation>Portemonnee De-archiveren</translation>
+    </message>
+    <message>
+      <source>Archive Wallet</source>
+      <translation>Portemonnee Archiveren</translation>
     </message>
   </context>
   <context>
@@ -152,7 +172,7 @@
     </message>
     <message>
       <source>last active</source>
-      <translation>meest recent actief</translation>
+      <translation>Laatst actief</translation>
     </message>
   </context>
   <context>
@@ -165,8 +185,40 @@
   <context>
     <name>AccountsList</name>
     <message>
-      <source>Wallet Information</source>
-      <translation>Portemonnee Informatie</translation>
+      <source>Wallet</source>
+      <translation>Portemonnee</translation>
+    </message>
+    <message>
+      <source>Wallets</source>
+      <translation>Portemonnees</translation>
+    </message>
+    <message>
+      <source>Add Wallet</source>
+      <translation>Portemonnee toevoegen</translation>
+    </message>
+    <message>
+      <source>Default Wallet</source>
+      <translation>Standaard portemonnee</translation>
+    </message>
+    <message>
+      <source>%1 is used on startup</source>
+      <translation>%1 wordt gebruikt bij start</translation>
+    </message>
+    <message>
+      <source>Exit Private Mode</source>
+      <translation>Verlaat privémodus</translation>
+    </message>
+    <message>
+      <source>Enter Private Mode</source>
+      <translation>Start privémodus</translation>
+    </message>
+    <message>
+      <source>Reveals wallets marked private</source>
+      <translation>Onthult portefeuilles gemarkeerd als privé</translation>
+    </message>
+    <message>
+      <source>Hides wallets marked private</source>
+      <translation>Verbergt portemonnees gemarkeerd als privé</translation>
     </message>
   </context>
   <context>
@@ -265,6 +317,52 @@ Wisselgeld gaat weer naar de geïmporteerde sleutel.</translation>
     </message>
   </context>
   <context>
+    <name>InstaPayConfigButton</name>
+    <message>
+      <source>Enable Instant Pay</source>
+      <translation>Direct Betalen inschakelen</translation>
+    </message>
+    <message>
+      <source>Configure Instant Pay</source>
+      <translation>Configureer Direct Betalen</translation>
+    </message>
+    <message>
+      <source>Fast payments for low amounts</source>
+      <translation>Direct betalen bij lage bedragen</translation>
+    </message>
+    <message>
+      <source>Not configured</source>
+      <translation>Niet geconfigureerd</translation>
+    </message>
+    <message>
+      <source>Limit set to: %1</source>
+      <translation>Limiet ingesteld op: %1</translation>
+    </message>
+  </context>
+  <context>
+    <name>InstaPayConfigPage</name>
+    <message>
+      <source>Instant Pay</source>
+      <translation>Direct Betalen</translation>
+    </message>
+    <message>
+      <source>Requests for payment can be approved automatically using Instant Pay.</source>
+      <translation>Betalingsverzoeken worden automatisch goedgekeurd met behulp van Direct Betalen.</translation>
+    </message>
+    <message>
+      <source>Protected wallets can not be used for InstaPay because they require a PIN before usage</source>
+      <translation>Beveiligde portemonnees kunnen niet worden gebruikt voor Direct Betalen ze een PIN vereisen voor gebruik</translation>
+    </message>
+    <message>
+      <source>Enable Instant Pay for this wallet</source>
+      <translation>Actief maken voor portemonnee</translation>
+    </message>
+    <message>
+      <source>Maximum Amount</source>
+      <translation>Maximum Bedrag</translation>
+    </message>
+  </context>
+  <context>
     <name>MenuOverlay</name>
     <message>
       <source>Add Wallet</source>
@@ -312,10 +410,6 @@ Wisselgeld gaat weer naar de geïmporteerde sleutel.</translation>
     <message>
       <source>New Bitcoin Cash Wallet</source>
       <translation>Nieuwe Bitcoin Cash Portemonnee</translation>
-    </message>
-    <message>
-      <source>Next</source>
-      <translation>Volgende</translation>
     </message>
     <message>
       <source>Create a New Wallet</source>
@@ -410,8 +504,8 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>Nieuwe Portemonnee</translation>
     </message>
     <message>
-      <source>This creates a new empty wallet with smart creation of addresses from a single seed-phrase</source>
-      <translation>Dit maakt een nieuwe lege portemonnee die slim adressen maakt van één enkele herstelzin</translation>
+      <source>This creates a new wallet that can be backed up with a seed-phrase</source>
+      <translation>Dit start een nieuwe portemonnee die gebackupt kan worden met een herstelzin</translation>
     </message>
   </context>
   <context>
@@ -596,10 +690,6 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>Omschrijving</translation>
     </message>
     <message>
-      <source>Amount</source>
-      <translation>Bedrag</translation>
-    </message>
-    <message>
       <source>Clear</source>
       <translation>Wissen</translation>
     </message>
@@ -634,6 +724,39 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
     <message>
       <source>Continue</source>
       <translation>Doorgaan</translation>
+    </message>
+    <message>
+      <source>Amount</source>
+      <comment>requested amount of coin</comment>
+      <translation>Bedrag</translation>
+    </message>
+    <message>
+      <source>Address</source>
+      <comment>Bitcoin Cash address</comment>
+      <translation>Adres</translation>
+    </message>
+  </context>
+  <context>
+    <name>SelectDefaultAccountPage</name>
+    <message>
+      <source>Select Wallet</source>
+      <translation>Selecteer portemonnee</translation>
+    </message>
+    <message>
+      <source>Pick which wallet will be selected on starting Flowee Pay</source>
+      <translation>Kies welke portefeuille zal worden geselecteerd bij het starten van Flowee Pay</translation>
+    </message>
+    <message>
+      <source>No InstaPay limit set</source>
+      <translation>Geen Direct betalen limiet ingesteld</translation>
+    </message>
+    <message>
+      <source>InstaPay till %1</source>
+      <translation>Direct Betalen tot %1</translation>
+    </message>
+    <message>
+      <source>InstaPay is turned off</source>
+      <translation>Direct Betalen staat uit</translation>
     </message>
   </context>
   <context>
@@ -673,16 +796,16 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>We lopen het pad naar een Bitcoin&#xa0;Cash economie</translation>
     </message>
     <message>
-      <source>I already have a wallet</source>
-      <translation>Ik heb al een portemonnee</translation>
-    </message>
-    <message>
       <source>OR</source>
       <translation>OF</translation>
     </message>
     <message>
-      <source>I want to send funds to my new wallet</source>
-      <translation>Ik wil geld naar mijn nieuwe portemonnee sturen</translation>
+      <source>Scan me to send funds to your HD wallet</source>
+      <translation>Scan mij om geld naar uw HD-portemonnee te sturen</translation>
+    </message>
+    <message>
+      <source>Add a different wallet</source>
+      <translation>Een andere portemonnee toevoegen</translation>
     </message>
   </context>
   <context>
@@ -702,14 +825,6 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
     <message>
       <source>Coinbase</source>
       <translation>Coinbase</translation>
-    </message>
-    <message>
-      <source>Size</source>
-      <translation>Grootte</translation>
-    </message>
-    <message>
-      <source>%1 bytes</source>
-      <translation type="unfinished">%1 bytes</translation>
     </message>
     <message>
       <source>Transaction Hash</source>
@@ -769,6 +884,10 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
     <message>
       <source>Received at my addresses</source>
       <translation>Ontvangen op mijn adressen</translation>
+    </message>
+    <message>
+      <source>Size: %1 bytes</source>
+      <translation>Grootte: %1 bytes</translation>
     </message>
   </context>
   <context>
