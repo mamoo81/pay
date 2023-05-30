@@ -55,8 +55,19 @@ Wallet *Wallet::createWallet(const boost::filesystem::path &basedir, uint16_t se
 // this is a bit larger than others may use because we use a filter for a series
 // of blocks that can hold a large number of our transactions.
 constexpr int filter_unusedToInclude = 40;
-constexpr int filter_hdUnusedToInclude = 150;
-constexpr int filter_changeUnusedToInclude = 50;
+/*
+ * 'main' addresses are the ones the user explicitly requests and we give as a QR
+ * in order to give to people. This has the effect that we can never stop asking
+ * servers if any new deposits are made. People may use this address for yearly
+ * contributions, for instance. So all main addresses always have to be included
+ * in the bloom filter.
+ *
+ * This is additionally not a privacy matter as unused addresses are not possible
+ * to get out of a bloom filter. Its a MATCHING-filter, afterall.
+ * So our gap here is much much larger than for change addresses: safe and secure.
+ */
+constexpr int filter_hdUnusedToInclude = 200;
+constexpr int filter_changeUnusedToInclude = 80;
 
 Wallet::Wallet()
     : m_walletChanged(true),
@@ -239,28 +250,16 @@ bool Wallet::updateHDSignatures(const Wallet::WalletTransaction &wtx, bool &upda
                     needChangeAddresses = ExtraAddresses
                             + (m_walletStoresCashFusions ? 75 : 0);
                 }
-                // notice that here we trigger on there only being 15 addresses between what we used and
+                // notice that here we trigger on there only being 30 addresses between what we used and
                 // what was sent, while what we sent is (as set in filter_changeUnusedToInclude) much
                 // heigher. This is intentional so we update the filter only when we used a larger list
                 // of addresses instead of refreshing the filter after every single new key being used.
-                updateBloom |= m_hdData->lastIncludedChangeKey - ws.hdDerivationIndex < 15; // the gap
+                updateBloom |= m_hdData->lastIncludedChangeKey - ws.hdDerivationIndex < 30; // the gap
             } else {
                 assert(m_hdData->lastMainKey >= ws.hdDerivationIndex);
-                /*
-                 * 'main' addresses are the ones the user explicitly requests and we give as a QR
-                 * in order to give to people. This has the effect that we can never stop asking
-                 * servers if any new deposits are made. People may use this address for yearly
-                 * contributions, for instance. So all main addresses always have to be included
-                 * in the bloom filter.
-                 *
-                 * This is additionally not a privacy matter as unused addresses are not possible
-                 * to get out of a bloom filter. Its a MATCHING-filter, afterall.
-                 * So our gap here is much much larger than for change addresses: safe and secure.
-                 * hdUnusedToInclude is set to something like 150
-                 */
-                updateBloom |= m_hdData->lastIncludedMainKey - ws.hdDerivationIndex < filter_hdUnusedToInclude; // the gap
+                updateBloom |= m_hdData->lastIncludedMainKey - ws.hdDerivationIndex < 50; // the gap
                 // additionally, we may need to actually generate more addresses
-                if (m_hdData->lastMainKey - ws.hdDerivationIndex < filter_hdUnusedToInclude + 10)
+                if (m_hdData->lastMainKey - ws.hdDerivationIndex < filter_hdUnusedToInclude + 50)
                     needMainAddresses = ExtraAddresses;
             }
         }
@@ -962,12 +961,13 @@ void Wallet::rebuildBloom()
 {
     int unusedToInclude = filter_unusedToInclude;
     int hdUnusedToInclude = filter_hdUnusedToInclude;
-    int changeUnusedToInclude = filter_changeUnusedToInclude;
+    int changeUnusedToIncludeBase = filter_changeUnusedToInclude;
     if (m_walletStoresCashFusions) {
         // a wallet that uses fusions eats through change addresses like
         // cheap candy, let's avoid the need to upload it too often
-        changeUnusedToInclude += 50;
+        changeUnusedToIncludeBase += 50;
     }
+    int changeUnusedToInclude = changeUnusedToIncludeBase;
 
     // on wallet creation we may not have yet synced the entire header chain,
     // in that case the secrets are given a height that is in seconds, in order
@@ -1027,6 +1027,15 @@ void Wallet::rebuildBloom()
                  */
                 else if (secretsWithBalance.find(i.first) == secretsWithBalance.end()) {
                     /*
+                     * The amount of unused change addresses we include is meant to be a
+                     * 'gap'. Which means, after the last used addresss we should add that
+                     * amount of addresses.
+                     * This restoring of count is needed for some wallets that repeatedly have
+                     * gaps between change addresses.
+                     */
+                    changeUnusedToInclude = changeUnusedToIncludeBase;
+
+                    /*
                      * Ok, the above is true and is good for privacy. We want to avoid uploading stuff
                      * we don't ever expect money on.
                      * BUT, some pretty big wallet out there are not so nice and are known to reuse
@@ -1041,8 +1050,14 @@ void Wallet::rebuildBloom()
             }
             // HD from main chain. If we never saw this, include a limited set.
             else {
-                if (secretsUsed.find(i.first) == secretsUsed.end() && --hdUnusedToInclude < 0)
-                    continue;
+                if (secretsUsed.find(i.first) == secretsUsed.end()) {
+                    if (--hdUnusedToInclude < 0)
+                        continue;
+                }
+                else {
+                    // Didn't reach the gap yet.
+                    hdUnusedToInclude = filter_hdUnusedToInclude;
+                }
                 m_hdData->lastIncludedMainKey = std::max(m_hdData->lastIncludedMainKey, secret.hdDerivationIndex);
             }
         }
