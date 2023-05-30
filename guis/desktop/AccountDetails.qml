@@ -251,6 +251,7 @@ Item {
             Flowee.WalletSecretsView {
                 id: historyView
                 Layout.fillWidth: true
+                clip: true
                 ScrollBar.vertical: Flowee.ScrollThumb {
                     id: thumb
                     minimumSize: 20 / activityView.height
