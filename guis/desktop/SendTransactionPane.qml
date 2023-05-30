@@ -351,7 +351,7 @@ Item {
                         Flowee.BitcoinValueField {
                             id: bitcoinValueField
                             value: destinationPane.paymentDetail.paymentAmount
-                            onValueChanged: destinationPane.paymentDetail.paymentAmount = value
+                            onValueEdited: destinationPane.paymentDetail.paymentAmount = value
                         }
                         Flowee.Button {
                             id: sendAll
