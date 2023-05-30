@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -221,11 +221,12 @@ QString WalletHistoryModel::groupingPeriod(int groupId) const
         return tr("Earlier this month");
     case WalletEnums::Month:
     default: {
-        uint32_t timestamp = m_groups.at(groupId).endTime;
-        QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
-        if (date.year() == m_today.year())
-            return date.toString("MMMM");
-        return date.toString("MMMM yyyy");
+        static const QString wide("MMMM yyyy");
+        static const QString lean("MMMM");
+        const uint32_t timestamp = m_groups.at(groupId).endTime;
+        const QDate date = QDateTime::fromSecsSinceEpoch(timestamp).date();
+        return QLocale::system().toString(date,
+                                          date.year() == m_today.year() ? lean : wide);
     }
     }
 }
@@ -255,7 +256,7 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
         return QString();
     if (std::isnan(offset) || offset < 0 || offset > 1.0)
         return QString();
-    const size_t row = std::round(offset * m_rowsProxy.size());
+    const int row = std::round(offset * m_rowsProxy.size());
     if (row >= m_rowsProxy.size())
         return QString();
     auto item = m_wallet->m_walletTransactions.at(txIndexFromRow(row));
@@ -264,7 +265,9 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     auto timestamp = secsSinceEpochFor(item.minedBlockHeight);
     if (timestamp == 0)
         return QString();
-    return QDateTime::fromSecsSinceEpoch(timestamp).toString("MMMM yyyy");
+    auto dt = QDateTime::fromSecsSinceEpoch(timestamp);
+    static const QString format("MMMM yyyy");
+    return QLocale::system().toString(dt, format);
 }
 
 void WalletHistoryModel::appendTransactions(int firstNew, int count)
