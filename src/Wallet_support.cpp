@@ -429,7 +429,7 @@ Wallet::InsertBeforeData Wallet::removeTransactionsAfter(int blockHeight)
     }
     assert (lastToRemove <= m_nextWalletTransactionId);
 
-    // we remove mathcing ones them from most recent to least recent below.
+    // we remove matching ones them from most recent to least recent below.
     // Notice that we don't do it in the above loop because a map reverse iterator doesn't
     // have a matching 'erase' method.
 

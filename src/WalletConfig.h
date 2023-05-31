@@ -41,6 +41,10 @@ public:
 
     bool isValid() const;
 
+    /**
+     * Returns true if the account balance should be counted in the portfolio total balance.
+     * Notice that an archived wallet will never be counted in the total portfolio balance.
+     */
     bool countBalance() const;
     void setCountBalance(bool newCountBalance);
 
