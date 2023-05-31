@@ -35,13 +35,34 @@ Page {
                 payment.prepare(); // auto-prepare doesn't act on changes done on the details.
         }
     }
+    property QtObject showTargetAddress: QQC2.Action {
+        checkable: true
+        text: qsTr("Show Address", "to show a bitcoincash address")
+    }
+    property QtObject editPrice: QQC2.Action {
+        text: qsTr("Edit Amount", "Edit amount of money to send")
+        onTriggered: {
+            root.closeHeaderMenu();
+            // this action can only ever be used to start editing.
+            root.allowEditAmount = true;
+            priceInput.forceActiveFocus();
+            priceInput.fiatFollowsSats = false
+        }
+    }
     menuItems: {
         // only have menu items as long as we are effectively
         // showing this page and not some overlay.
-        if (payment.broadcastStatus === Payment.NotStarted && !scanner.isScanning)
-            return [ sendAllAction ];
+        if (payment.broadcastStatus === Payment.NotStarted && !scanner.isScanning) {
+            // a QR _with_ a bch-amount will turn off editing of amount-to-send
+            if (allowEditAmount)
+                return [ sendAllAction ];
+            else
+                return [ showTargetAddress, editPrice ];
+        }
         return [];
     }
+    // if true, show widgets to edit the amount-to-send
+    property bool allowEditAmount: true
 
     Item { // data
         QRScanner {
@@ -55,8 +76,8 @@ Page {
                 }
                 else {
                     payment.targetAddress = rc
-                    priceInput.forceActiveFocus();
-                    priceInput.fiatFollowsSats = false
+                    // should the price be included in the QR code, don't show editing widgets.
+                    root.allowEditAmount = payment.paymentAmount <= 0;
                 }
             }
         }
@@ -75,9 +96,40 @@ Page {
     }
 
     PriceInputWidget {
-        id: priceInput
+        id: priceInput // when the price / amount is editable
         paymentBackend: payment
         width: parent.width
+        x: allowEditAmount ? 0 : 0 - width
+
+        Behavior on x { NumberAnimation { } }
+    }
+    Item {
+        id: priceFeedback // when the price / amount is given by the scanned QR
+        width: parent.width
+        x: allowEditAmount ?  0 - width : 0
+        y: 10
+        height: col.height
+
+        Column {
+            id: col
+            width: parent.width
+            Flowee.Label {
+                id: fiatPrice
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: Fiat.formattedPrice(payment.paymentAmountFiat)
+                font.pixelSize: 38
+            }
+
+            Flowee.BitcoinAmountLabel {
+                value: payment.paymentAmount
+                colorize: false
+                showFiat: false
+                font.pixelSize: mainWindow.font.pixelSize * 0.8
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+        }
+
+        Behavior on x { NumberAnimation { } }
     }
 
     Flowee.Label {
@@ -121,7 +173,6 @@ Page {
         }
     }
 
-
     AccountSelectorWidget {
         id: walletNameBackground
         anchors.bottom: numericKeyboard.top
@@ -136,6 +187,21 @@ Page {
         anchors.bottomMargin: 15
         width: parent.width
         enabled: !payment.details[0].maxSelected
+        x: allowEditAmount ? 0 : 0 - width
+
+        Behavior on x { NumberAnimation { } }
+    }
+
+    PageTitledBox {
+        anchors.top: numericKeyboard.top
+        width: parent.width
+        visible: !allowEditAmount && showTargetAddress.checked
+        title: qsTr("Destination Address")
+        Flowee.LabelWithClipboard {
+            text: payment.niceAddress
+            width: parent.width
+            font.pixelSize: mainWindow.font.pixelSize * 0.9
+        }
     }
 
     SlideToApprove {

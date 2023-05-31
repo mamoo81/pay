@@ -49,6 +49,9 @@ QQC2.Control {
     function takeFocus() {
         focusScope.forceActiveFocus();
     }
+    function closeHeaderMenu() {
+        headerMenu.close();
+    }
 
     onMenuItemsChanged: {
         // remove old ones first

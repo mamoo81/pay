@@ -44,6 +44,8 @@ class Payment : public QObject
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTargetAddress READ formattedTargetAddress NOTIFY targetAddressChanged)
+    // cleaned but short.
+    Q_PROPERTY(QString niceAddress READ niceAddress NOTIFY targetAddressChanged)
     Q_PROPERTY(bool preferSchnorr READ preferSchnorr WRITE setPreferSchnorr NOTIFY preferSchnorrChanged)
     /// If input is valid, tx can be prepared. \see prepare()
     Q_PROPERTY(bool isValid READ validate NOTIFY validChanged)
@@ -142,7 +144,13 @@ public:
      * This method can no longer be used after addExtraOutput has been called.
      * This method assumes a single output, which is the default for this class.
      */
-    QString formattedTargetAddress();
+    QString formattedTargetAddress() const;
+    /**
+     * The nicest to display address version.
+     * This will always return (if available) the BCH style (cash-address) address, without
+     * the bitcoincash: prefix.
+     */
+    QString niceAddress() const;
 
     bool walletNeedsPin() const;
 

@@ -103,9 +103,20 @@ QString Payment::targetAddress()
     return soleOut()->address();
 }
 
-QString Payment::formattedTargetAddress()
+QString Payment::formattedTargetAddress() const
 {
     return soleOut()->formattedTarget();
+}
+
+QString Payment::niceAddress() const
+{
+    auto a = soleOut()->formattedTarget();
+    if (a.isEmpty())
+        a = soleOut()->address();
+    int index = a.indexOf(':');
+    if (index > 0)
+        return a.mid(index+1);
+    return a;
 }
 
 bool Payment::walletNeedsPin() const
