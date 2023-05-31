@@ -173,6 +173,7 @@ signals:
     void encryptionChanged();
     void modelsChanged();
     void instaPayAllowedChanged();
+    void instaPayLimitChanged(const QString &currencyCode);
     void neverEmitted(); // to silence the lambs^Warnings
 
     // for the benefit of the portfolio data provider

@@ -259,6 +259,7 @@ void AccountInfo::setFiatInstaPayLimit(const QString &currencyCode, int cents)
 {
     assert(m_config.isValid());
     m_config.setFiatInstaPayLimit(currencyCode, cents);
+    emit instaPayLimitChanged(currencyCode);
 }
 
 bool AccountInfo::countBalance() const

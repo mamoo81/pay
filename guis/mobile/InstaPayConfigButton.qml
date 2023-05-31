@@ -22,11 +22,22 @@ TextButton {
     property QtObject account: portfolio.current
 
     text: root.account.allowsInstaPay ? qsTr("Enable Instant Pay") : qsTr("Configure Instant Pay")
+    property int limit: 0
+
+    function updateLimit() {
+        limit = root.account.fiatInstaPayLimit(Fiat.currencyName);
+    }
+    Component.onCompleted: updateLimit();
+    Connections {
+        target: root.account
+        function onInstaPayLimitChanged() {
+            updateLimit();
+        }
+    }
+
     subtext: {
         if (!root.account.allowInstaPay)
             return qsTr("Fast payments for low amounts")
-
-        let limit = root.account.fiatInstaPayLimit(Fiat.currencyName);
         if (limit === 0)
             return qsTr("Not configured");
         return qsTr("Limit set to: %1").arg(Fiat.formattedPrice(limit));
