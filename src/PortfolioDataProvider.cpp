@@ -19,7 +19,7 @@
 #include "AccountInfo.h"
 #include "FloweePay.h"
 #include "Wallet.h"
-#include "WalletConfig.h"
+#include "AccountConfig.h"
 
 #include <QSettings>
 
@@ -67,7 +67,7 @@ QList<QObject *> PortfolioDataProvider::accounts() const
             continue;
         if (!account->userOwnedWallet())
             continue;
-        if (privateModeOn && WalletConfig(account->id()).isPrivate())
+        if (privateModeOn && AccountConfig(account->id()).isPrivate())
             continue;
         answer.append(account);
     }
@@ -141,7 +141,7 @@ void PortfolioDataProvider::selectDefaultWallet()
         } else if (prio < selectedPriority) {
             if (privateModeOn) {
                 // downgrade wallets that are 'private' while in private mode.
-                WalletConfig config(wallet);
+                AccountConfig config(wallet);
                 if (config.isPrivate()) {
                     if (fallback == -1)
                         fallback = i;
@@ -171,7 +171,7 @@ double PortfolioDataProvider::totalBalance() const
         // skip archived wallet balances.
         if (!wallet->segment() || wallet->segment()->priority() == PrivacySegment::OnlyManual)
             continue;
-        WalletConfig config(wallet);
+        AccountConfig config(wallet);
         assert(config.isValid());
         if (!config.countBalance() || (privateModeOn && config.isPrivate()))
             continue;

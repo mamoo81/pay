@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef FLOWEE_WALLET_CONFIG_H
-#define FLOWEE_WALLET_CONFIG_H
+#ifndef FLOWEE_ACCOUNT_CONFIG_H
+#define FLOWEE_ACCOUNT_CONFIG_H
 
 #include <QMap>
 #include <QString>
@@ -28,16 +28,16 @@ class Wallet;
  * A set of user-level config fields for a wallet.
  * This is owned by the FloweePay application singleton.
  */
-class WalletConfig
+class AccountConfig
 {
 public:
     /// creates an invalid wallet config
-    WalletConfig() = default;
-    explicit WalletConfig(uint16_t walletId);
-    explicit WalletConfig(Wallet *wallet);
-    WalletConfig(const WalletConfig &other);
+    AccountConfig() = default;
+    explicit AccountConfig(uint16_t walletId);
+    explicit AccountConfig(Wallet *wallet);
+    AccountConfig(const AccountConfig &other);
 
-    WalletConfig &operator=(const WalletConfig &other);
+    AccountConfig &operator=(const AccountConfig &other);
 
     bool isValid() const;
 

@@ -316,7 +316,7 @@ private slots:
     void saveData();
 
 private:
-    struct WalletConfigData {
+    struct AccountConfigData {
         // a per-wallet bool indicating its balance should be counted in the whole
         bool countBalance = true;
         bool privateWallet = false; // is hidden in private mode
@@ -344,7 +344,7 @@ private:
     NotificationManager m_notifications;
     CameraController* m_cameraController;
     QList<Wallet*> m_wallets;
-    QHash<uint16_t, WalletConfigData> m_walletConfigs; // key is wallet-segment-id
+    QHash<uint16_t, AccountConfigData> m_accountConfigs; // key is wallet-segment-id
     int m_dspTimeout = 5000;
     int m_windowWidth = 500;
     int m_windowHeight = 500;
@@ -359,7 +359,7 @@ private:
     bool m_gotHeadersSyncedOnce = false;
     bool m_privateMode = false; // wallets marked private are hidden when true
 
-    friend class WalletConfig;
+    friend class AccountConfig;
 };
 
 #endif

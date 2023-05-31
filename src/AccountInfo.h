@@ -19,7 +19,7 @@
 #define ACCOUNTINFO_H
 
 #include <QObject>
-#include "WalletConfig.h"
+#include "AccountConfig.h"
 #include "WalletHistoryModel.h"
 #include "WalletSecretsModel.h"
 
@@ -186,7 +186,7 @@ private slots:
 
 private:
     Wallet * const m_wallet;
-    WalletConfig m_config;
+    AccountConfig m_config;
     QTimer *m_closeWalletTimer = nullptr;
     std::unique_ptr<WalletHistoryModel> m_model;
     std::unique_ptr<WalletSecretsModel> m_secretsModel;

@@ -23,7 +23,7 @@
 #include "FloweePay.h"
 #include "AccountInfo.h"
 #include "PriceDataProvider.h"
-#include "WalletConfig.h"
+#include "AccountConfig.h"
 
 #include <cashaddr.h>
 #include <TransactionBuilder.h>
@@ -312,7 +312,7 @@ void Payment::prepare()
         assert(prices);
         auto currency = prices->currencyName();
         assert(!currency.isEmpty());
-        WalletConfig conf(m_wallet);
+        AccountConfig conf(m_wallet);
         if (!conf.allowInstaPay()) {
             logInfo() << "Payment-prepare. Insta-pay for wallet is turned off:" << m_wallet->name();
             return;

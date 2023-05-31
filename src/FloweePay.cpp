@@ -20,7 +20,7 @@
 #include "NewWalletConfig.h"
 #include "AddressInfo.h"
 #include "PriceDataProvider.h"
-#include "WalletConfig.h"
+#include "AccountConfig.h"
 
 #include <base58.h>
 #include <ripemd160.h>
@@ -290,7 +290,7 @@ FloweePay *FloweePay::instance()
 void FloweePay::sendTransactionNotification(const P2PNet::Notification &notification)
 {
     auto *me = FloweePay::instance();
-    auto configs = me->m_walletConfigs;
+    auto configs = me->m_accountConfigs;
     auto i = configs.find(notification.privacySegment);
     // don't broadcast notifications of private wallets when private mode is enabled
     if (me->privateMode() && (i == configs.end() || i->privateWallet))
@@ -321,7 +321,7 @@ void FloweePay::init()
                     dl->addHeaderListener(w);
                     dl->connectionManager().addPrivacySegment(w->segment());
                     m_wallets.append(w);
-                    m_walletConfigs.insert(w->segment()->segmentId(), {});
+                    m_accountConfigs.insert(w->segment()->segmentId(), {});
                     connectToWallet(w);
                     logDebug() << "Found wallet" << w->name() << "with segment ID:" << w->segment()->segmentId();
                     lastOpened = w;
@@ -354,13 +354,13 @@ void FloweePay::init()
             }
             else if (parser.tag() == WalletSetting_CountBalance) {
                 if (lastOpened)
-                    m_walletConfigs[lastOpened->segment()->segmentId()].countBalance = parser.boolData();
+                    m_accountConfigs[lastOpened->segment()->segmentId()].countBalance = parser.boolData();
                 else
                     logWarning() << "Setting seen before walletId";
             }
             else if (parser.tag() == WalletSetting_IsPrivate) {
                 if (lastOpened)
-                    m_walletConfigs[lastOpened->segment()->segmentId()].privateWallet = parser.boolData();
+                    m_accountConfigs[lastOpened->segment()->segmentId()].privateWallet = parser.boolData();
                 else
                     logWarning() << "Setting seen before walletId";
             }
@@ -372,13 +372,13 @@ void FloweePay::init()
             }
             else if (parser.tag() == WalletSetting_FiatInstaPayEnabled) {
                 if (lastOpened)
-                    m_walletConfigs[lastOpened->segment()->segmentId()].allowInstaPay = parser.boolData();
+                    m_accountConfigs[lastOpened->segment()->segmentId()].allowInstaPay = parser.boolData();
                 else
                     logWarning() << "Setting seen before walletId";
             }
             else if (parser.tag() == WalletSetting_FiatInstaPayLimit) {
                 if (lastOpened && !currencyCode.isEmpty())
-                    m_walletConfigs[lastOpened->segment()->segmentId()].fiatInstaPayLimits[currencyCode]
+                    m_accountConfigs[lastOpened->segment()->segmentId()].fiatInstaPayLimits[currencyCode]
                         = parser.intData();
                 else
                     logWarning() << "Setting seen before walletId or currencyCode";
@@ -428,8 +428,8 @@ void FloweePay::saveData()
         }
 
         // each wallet should have a config file, lets save the content
-        auto conf = m_walletConfigs.find(wallet->segment()->segmentId());
-        assert(conf != m_walletConfigs.end());
+        auto conf = m_accountConfigs.find(wallet->segment()->segmentId());
+        assert(conf != m_accountConfigs.end());
         builder.add(WalletSetting_CountBalance, conf->countBalance);
         builder.add(WalletSetting_IsPrivate, conf->privateWallet);
         builder.add(WalletSetting_FiatInstaPayEnabled, conf->allowInstaPay);
@@ -668,7 +668,7 @@ Wallet *FloweePay::createWallet(const QString &name)
     dl->connectionManager().addPrivacySegment(w->segment());
     w->moveToThread(thread());
     m_wallets.append(w);
-    m_walletConfigs.insert(id, {});
+    m_accountConfigs.insert(id, {});
     connectToWallet(w);
 
     emit startSaveData_priv(); // schedule a save of the m_wallets list
@@ -1148,7 +1148,7 @@ NewWalletConfig* FloweePay::createNewWallet(const QString &derivationPath, const
             wallet->setUserOwnedWallet(true);
             if (!walletName.isEmpty())
                 wallet->setName(walletName);
-            assert(m_walletConfigs.contains(wallet->segment()->segmentId()));
+            assert(m_accountConfigs.contains(wallet->segment()->segmentId()));
             // little hacky to make listeners realize we really changed the wallet.
             m_wallets.clear();
             emit walletsChanged();

@@ -16,132 +16,132 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WalletConfig.h"
+#include "AccountConfig.h"
 #include "FloweePay.h"
 #include "Wallet.h"
 
-WalletConfig::WalletConfig(const WalletConfig &other)
+AccountConfig::AccountConfig(const AccountConfig &other)
     : m_walletId(other.m_walletId)
 {
 }
 
-WalletConfig::WalletConfig(uint16_t walletId)
+AccountConfig::AccountConfig(uint16_t walletId)
     : m_walletId(walletId)
 {
 }
 
-WalletConfig::WalletConfig(Wallet *wallet)
-    : WalletConfig(wallet->segment()->segmentId())
+AccountConfig::AccountConfig(Wallet *wallet)
+    : AccountConfig(wallet->segment()->segmentId())
 {
 }
 
-WalletConfig &WalletConfig::operator=(const WalletConfig &other)
+AccountConfig &AccountConfig::operator=(const AccountConfig &other)
 {
     m_walletId = other.m_walletId;
     return *this;
 }
 
-bool WalletConfig::isValid() const
+bool AccountConfig::isValid() const
 {
     if (m_walletId == -1)
         return false;
 
-    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto configs = FloweePay::instance()->m_accountConfigs;
     auto i = configs.find(m_walletId);
     if (i == configs.end())
         return false;
     return true;
 }
 
-bool WalletConfig::countBalance() const
+bool AccountConfig::countBalance() const
 {
-    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto configs = FloweePay::instance()->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     return i->countBalance;
 }
 
-void WalletConfig::setCountBalance(bool newCountBalance)
+void AccountConfig::setCountBalance(bool newCountBalance)
 {
     auto *fp = FloweePay::instance();
-    auto configs = fp->m_walletConfigs;
+    auto configs = fp->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     if (i->countBalance == newCountBalance)
         return;
     i->countBalance = newCountBalance;
-    fp->m_walletConfigs = configs;
+    fp->m_accountConfigs = configs;
     fp->startSaveData_priv();
     emit fp->totalBalanceConfigChanged();
 }
 
-bool WalletConfig::allowInstaPay() const
+bool AccountConfig::allowInstaPay() const
 {
-    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto configs = FloweePay::instance()->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     return i->allowInstaPay;
 }
 
-void WalletConfig::setAllowInstaPay(bool on)
+void AccountConfig::setAllowInstaPay(bool on)
 {
     auto *fp = FloweePay::instance();
-    auto configs = fp->m_walletConfigs;
+    auto configs = fp->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     if (i->allowInstaPay == on)
         return;
     i->allowInstaPay = on;
-    fp->m_walletConfigs = configs;
+    fp->m_accountConfigs = configs;
     fp->startSaveData_priv();
 }
 
-const QMap<QString, int> &WalletConfig::fiatInstaPayLimits() const
+const QMap<QString, int> &AccountConfig::fiatInstaPayLimits() const
 {
-    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto configs = FloweePay::instance()->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     return i->fiatInstaPayLimits;
 }
 
-int WalletConfig::fiatInstaPayLimit(const QString &currencyCode) const
+int AccountConfig::fiatInstaPayLimit(const QString &currencyCode) const
 {
-    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto configs = FloweePay::instance()->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     return i->fiatInstaPayLimits.value(currencyCode);
 }
 
-void WalletConfig::setFiatInstaPayLimit(const QString &currencyCode, int limitInCent)
+void AccountConfig::setFiatInstaPayLimit(const QString &currencyCode, int limitInCent)
 {
     auto *fp = FloweePay::instance();
-    auto configs = fp->m_walletConfigs;
+    auto configs = fp->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     if (i->fiatInstaPayLimits.value(currencyCode) == limitInCent)
         return;
     i->fiatInstaPayLimits[currencyCode] = limitInCent;
-    fp->m_walletConfigs = configs;
+    fp->m_accountConfigs = configs;
     fp->startSaveData_priv();
 }
 
-bool WalletConfig::isPrivate() const
+bool AccountConfig::isPrivate() const
 {
-    auto configs = FloweePay::instance()->m_walletConfigs;
+    auto configs = FloweePay::instance()->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     return i->privateWallet;
 }
 
-void WalletConfig::setIsPrivate(bool newIsPrivate)
+void AccountConfig::setIsPrivate(bool newIsPrivate)
 {
     auto *fp = FloweePay::instance();
-    auto configs = fp->m_walletConfigs;
+    auto configs = fp->m_accountConfigs;
     auto i = configs.find(m_walletId);
     assert(i != configs.end());
     if (i->privateWallet == newIsPrivate)
         return;
     i->privateWallet = newIsPrivate;
-    fp->m_walletConfigs = configs;
+    fp->m_accountConfigs = configs;
     fp->startSaveData_priv();
 }

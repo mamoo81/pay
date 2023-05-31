@@ -44,7 +44,7 @@ set (PAY_SOURCES
     TransactionInfo.cpp
     Wallet.cpp
     WalletCoinsModel.cpp
-    WalletConfig.cpp
+    AccountConfig.cpp
     WalletHistoryModel.cpp
     WalletKeyView.cpp
     WalletSecretsModel.cpp
