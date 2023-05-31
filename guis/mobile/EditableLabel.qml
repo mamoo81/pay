@@ -51,10 +51,8 @@ Item {
             anchors.margins: -15
             onClicked: {
                 editWidget.visible = !editWidget.visible;
-                if (editWidget.visible) {
-                    editWidget.focus = true
+                if (editWidget.focus)
                     editWidget.forceActiveFocus();
-                }
             }
         }
         Behavior on opacity { NumberAnimation { } }
@@ -65,6 +63,7 @@ Item {
         anchors.right: editIcon.left
         anchors.rightMargin: 10
         visible: false
+        focus: visible
         text: ourLabel.text
         onTextChanged: {
             ourLabel.text = text;
