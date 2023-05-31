@@ -979,7 +979,7 @@ QObject *FloweePay::researchAddress(const QString &address, QObject *parent)
 {
     CashAddress::Content c = CashAddress::decodeCashAddrContent(address.toStdString(), m_chainPrefix);
     if (c.hash.empty() || c.type != CashAddress::PUBKEY_TYPE) {
-        logWarning() << "researchAddress() only works with a propertly formatted cash-address!";
+        logWarning() << "researchAddress() only works with a properly formatted cash-address!";
         return nullptr;
     }
     const KeyId key(reinterpret_cast<char *>(c.hash.data()));
