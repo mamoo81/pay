@@ -194,7 +194,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
     set_target_properties(pay_mobile PROPERTIES
        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
-   )
+    )
     qt6_android_generate_deployment_settings(pay_mobile)
     qt6_android_add_apk_target(pay_mobile)
 endif ()
