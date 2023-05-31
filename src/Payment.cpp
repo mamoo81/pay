@@ -110,13 +110,7 @@ QString Payment::formattedTargetAddress() const
 
 QString Payment::niceAddress() const
 {
-    auto a = soleOut()->formattedTarget();
-    if (a.isEmpty())
-        a = soleOut()->address();
-    int index = a.indexOf(':');
-    if (index > 0)
-        return a.mid(index+1);
-    return a;
+    return soleOut()->niceAddress();
 }
 
 bool Payment::walletNeedsPin() const

@@ -317,7 +317,7 @@ Item {
                         }
                     }
                     Flowee.LabelWithClipboard {
-                        visible: text !== ""
+                        visible: paymentDetail.address !== text
                         Layout.fillWidth: true
                         text: paymentDetail.formattedTarget
                         horizontalAlignment: Qt.AlignRight

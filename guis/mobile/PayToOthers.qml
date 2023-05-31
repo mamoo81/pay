@@ -184,39 +184,35 @@ Page {
                 /* This page just shows the results, editing is done
                  * on its own page.
                  */
-                Flowee.Label {
-                    text: qsTr("Destination") + ":"
-                }
-                Flowee.LabelWithClipboard {
+                PageTitledBox {
                     width: parent.width
-                    font.italic: paymentDetail.address === ""
-                    text: {
-                        var s = paymentDetail.address
-                        if (s === "")
-                            return qsTr("unset", "indication of empty");
-                        if (addressInfo.addressOk) {
-                            let index = s.indexOf(":");
-                            if (index >= 0)
-                                s = s.substr(index + 1); // cut off the prefix
+                    title: qsTr("Destination")
+
+                    Flowee.LabelWithClipboard {
+                        width: parent.width
+                        font.italic: paymentDetail.address === ""
+                        text: {
+                            var s = paymentDetail.niceAddress
+                            if (s === "")
+                                return qsTr("unset", "indication of empty");
+                            return s;
                         }
-                        return s;
+                        color: addressInfo.addressOk || paymentDetail.address === ""
+                                ? palette.windowText : mainWindow.errorRed
+                        font.pixelSize: mainWindow.font.pixelSize * 0.9
+                        menuText: qsTr("Copy Address")
+                        clipboardText: paymentDetail.formattedTarget // the one WITH bitcoincash:
                     }
-                    color: addressInfo.addressOk || paymentDetail.address === ""
-                            ? palette.windowText : mainWindow.errorRed
-                    menuText: qsTr("Copy Address")
-                    clipboardText: paymentDetail.formattedTarget // the one WITH bitcoincash:
-                }
-                Flowee.AddressInfoWidget {
-                    id: addressInfo
-                    width: parent.width
-                    addressType: Pay.identifyString(paymentDetail.address);
-                }
-                Flowee.Label {
-                    text: qsTr("Amount")+ ":"
-                }
-                Flowee.BitcoinAmountLabel {
-                    value: paymentDetail.paymentAmount
-                    colorize: false
+
+                    Flowee.AddressInfoWidget {
+                        id: addressInfo
+                        width: parent.width
+                        addressType: Pay.identifyString(paymentDetail.address);
+                    }
+                    Flowee.BitcoinAmountLabel {
+                        value: paymentDetail.paymentAmount
+                        colorize: false
+                    }
                 }
             }
         }
@@ -304,15 +300,9 @@ Page {
                     anchors.top: destination.bottom
                     anchors.topMargin: 10
 
-                    visible: text !== ""
-                    text: {
-                        let string = paymentDetail.formattedTarget
-                        let index = string.indexOf(":");
-                        if (index >= 0) {
-                            string = string.substr(index + 1); // cut off the prefix
-                        }
-                        return string;
-                    }
+                    // only show if its substantially different
+                    visible: text!== "" && text !== destination.text && destination.text !== paymentDetail.formattedTarget
+                    text: paymentDetail.niceAddress
                     clipboardText: paymentDetail.formattedTarget // the one WITH bitcoincash:
                     font.italic: true
                     menuText: qsTr("Copy Address")

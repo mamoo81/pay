@@ -172,15 +172,8 @@ void PaymentDetailOutput::setAddress(const QString &address_)
 
     m_formattedTarget.clear();
     m_addressOk = !encodedAddress.empty();
-    if (m_addressOk) {
-        const auto size = chainPrefixCopy.size();
-        // lets see if the encoded address is substantially different from the user-given address
-        auto full = QString::fromStdString(encodedAddress);
-        auto formattedTarget = full.mid(size + 1);
-        if (full != m_address && formattedTarget != m_address)
-            m_formattedTarget = full;
-    }
-
+    if (m_addressOk)
+        m_formattedTarget = QString::fromStdString(encodedAddress);
     emit addressChanged();
     checkValid();
 }
@@ -297,6 +290,15 @@ void PaymentDetailOutput::setPaymentAmountFiat(int amount)
 const QString &PaymentDetailOutput::formattedTarget() const
 {
     return m_formattedTarget;
+}
+
+QString PaymentDetailOutput::niceAddress() const
+{
+    auto a(m_formattedTarget);
+    int index = a.indexOf(':');
+    if (index > 0)
+        return a.mid(index+1);
+    return a;
 }
 
 bool PaymentDetailOutput::maxAllowed() const

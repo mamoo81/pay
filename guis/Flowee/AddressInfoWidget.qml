@@ -36,10 +36,7 @@ Item {
 
     function createInfo() {
         if (addressOk) {
-            var address = paymentDetail.formattedTarget
-            if (address === "") // it didn't need reformatting
-                address = paymentDetail.address
-            info = Pay.researchAddress(address, addressInfo)
+            info = Pay.researchAddress(paymentDetail.formattedTarget, addressInfo)
         }
         else {
             delete info;

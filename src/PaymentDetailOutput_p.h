@@ -28,6 +28,7 @@ class PaymentDetailOutput : public PaymentDetail
     Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY paymentAmountChanged)
     // cleaned up and re-formatted
     Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY addressChanged)
+    Q_PROPERTY(QString niceAddress READ niceAddress NOTIFY addressChanged)
     Q_PROPERTY(bool maxAllowed READ maxAllowed WRITE setMaxAllowed NOTIFY maxAllowedChanged)
     Q_PROPERTY(bool fiatFollows READ fiatFollows WRITE setFiatFollows NOTIFY fiatFollowsChanged)
     Q_PROPERTY(bool maxSelected READ maxSelected WRITE setMaxSelected NOTIFY maxSelectedChanged)
@@ -44,6 +45,12 @@ public:
     void setAddress(const QString &newAddress);
     /// is non-empty if the address() is proper.
     const QString &formattedTarget() const;
+    /**
+     * The nicest to display address version.
+     * This will always return (if available) the BCH style (cash-address) address, without
+     * the bitcoincash: prefix.
+     */
+    QString niceAddress() const;
 
     /**
      * The mayment amount can be set to 'max' which means the wallet-total-value.
