@@ -63,7 +63,7 @@ class Payment : public QObject
     Q_PROPERTY(QString txid READ txid NOTIFY txCreated)
     Q_PROPERTY(int assignedFee READ assignedFee NOTIFY txCreated)
     Q_PROPERTY(int txSize READ txSize NOTIFY txCreated)
-    /// If Prepare failed, this is set.
+    /// If prepare() failed, this is set.
     Q_PROPERTY(QString error READ error NOTIFY errorChanged)
 
     Q_ENUMS(DetailType BroadcastStatus)
@@ -204,7 +204,7 @@ public:
     void setAutoPrepare(bool newAutoPrepare);
 
     bool allowInstaPay() const;
-    void setAllowInstaPay(bool newAllowInstaPay);
+    void setAllowInstaPay(bool allowIt);
 
 private slots:
     void sentToPeer();

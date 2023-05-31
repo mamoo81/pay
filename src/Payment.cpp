@@ -82,7 +82,20 @@ void Payment::setTargetAddress(const QString &address)
 {
     soleOut()->setAddress(address);
     emit targetAddressChanged();
-    doAutoPrepare();
+    if (m_autoPrepare) {
+        try { prepare(); } catch (...) {}
+         /*
+         * InstaPay is typically enabled together with auto-prepare and that gives
+         * great UX for, well, instantly paying.
+         *
+         * The above will have created AND send the transaction.
+         * BUT, if the prepare() failed, we should stop trying to do the 'instaPay'.
+         * It failed, now let the user decide when to send.
+         *
+         * Either way, we can set it to false now.
+         */
+        m_allowInstaPay = false;
+    }
 }
 
 QString Payment::targetAddress()
@@ -415,23 +428,12 @@ bool Payment::allowInstaPay() const
     return m_allowInstaPay;
 }
 
-void Payment::setAllowInstaPay(bool newAllowInstaPay)
+void Payment::setAllowInstaPay(bool allowIt)
 {
-    if (m_allowInstaPay == newAllowInstaPay)
+    if (m_allowInstaPay == allowIt)
         return;
-    m_allowInstaPay = newAllowInstaPay;
+    m_allowInstaPay = allowIt;
     emit allowInstaPayChanged();
-
-    /*
-     * InstaPay is typically enabled together with auto-prepare and that gives
-     * great UX for, well, instantly paying.
-     * BUT, if the prepare() failed, we should stop trying to do the 'instaPay'.
-     * It failed, now let the user decide when to send.
-     */
-    QTimer::singleShot(10, this, [=]() {
-        if (!m_error.isEmpty())
-            m_allowInstaPay = false;
-    });
 }
 
 bool Payment::autoPrepare() const
