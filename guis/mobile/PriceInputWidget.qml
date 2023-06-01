@@ -22,10 +22,10 @@ import Flowee.org.pay
 
 FocusScope {
     id: root
-    // if true, the bitcoin value is provided by the user (or QR), and the fiat follows
+    // if true, the bitcoin value is provided by the user (or QR), and the fiat follows.
     // if false, the user edits the fiat price and the bitcoin value is calculated.
     // Notice that 'send all' overrules both and gets the data from the wallet-total
-    property bool fiatFollowsSats: true
+    property bool fiatFollowsSats: false
     // made available for the NumericKeyboardWidget
     property var editor: fiatFollowsSats ? priceBch.money : priceFiat.money;
     /**
