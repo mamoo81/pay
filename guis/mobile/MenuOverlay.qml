@@ -55,8 +55,8 @@ Item {
                 if (openAccounts)
                     h = h + extraOptions.height + 10
                 // but we just don't show the accounts at all if
-                // this is the initial empty wallet.
-                if (!isLoading && portfolio.current.isUserOwned)
+                // this is the initial (empty) wallet.
+                if (!isLoading && portfolio.accounts.length > 1)
                     h = h+ Math.max(currentAccountName.height, 12) + 10
                 return h;
             }
@@ -125,7 +125,6 @@ Item {
                 anchors.bottomMargin: 8
                 width: 20
                 height: 7
-
             }
             MouseArea {
                 anchors.top: currentAccountName.top
@@ -155,7 +154,7 @@ Item {
                 }
                 Loader {
                     width: parent.width
-                    active: !isLoading && portfolio.current.isUserOwned
+                    active: !isLoading && portfolio.accounts.length > 1
                     sourceComponent: addWalletRow
                 }
             }
@@ -191,7 +190,7 @@ Item {
                 }
                 Loader {
                     width: parent.width
-                    active: isLoading || !portfolio.current.isUserOwned
+                    active: isLoading || portfolio.accounts.length <= 1
                     sourceComponent: addWalletRow
                 }
             }
