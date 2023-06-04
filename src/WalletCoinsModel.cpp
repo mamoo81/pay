@@ -243,6 +243,18 @@ void WalletCoinsModel::createMap()
             if (lockIter->second > 0)
                 continue;
         }
+
+        Wallet::OutputRef ref(i->first);
+        auto wtxIter = m_wallet->m_walletTransactions.find(ref.txIndex());
+        assert(wtxIter != m_wallet->m_walletTransactions.end());
+        const auto &wtx = wtxIter->second;
+        const auto outputIter = wtx.outputs.find(ref.outputIndex());
+        assert(outputIter != wtx.outputs.end());
+        if (outputIter->second.holdsCashToken) {
+            // CashToken holding UTXOs are hidden until we figure out how they can be handled in a future release.
+            continue;
+        }
+
         m_rowsToOutputRefs.insert(std::make_pair(index++, i->first));
     }
 }

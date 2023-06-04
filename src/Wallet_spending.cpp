@@ -141,7 +141,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         out.value = iter->second;
         out.outputRef = OutputRef(iter->first);
         auto wtxIter = m_walletTransactions.find(out.outputRef.txIndex());
-        Q_ASSERT(wtxIter != m_walletTransactions.end());
+        assert(wtxIter != m_walletTransactions.end());
 
         const auto &wtx = wtxIter->second;
         int h = wtx.minedBlockHeight;
@@ -163,11 +163,15 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
         utxosBySize.insert(std::make_pair(iter->second, unspentOutputs.size()));
         if (wtx.isCashFusionTx)
             out.score += 50;
-        if (!m_singleAddressWallet) {
-            const auto outputIter = wtx.outputs.find(out.outputRef.outputIndex());
-            assert(outputIter != wtx.outputs.end());
-            out.walletSecretId = outputIter->second.walletSecretId; // TODO use
+
+        const auto outputIter = wtx.outputs.find(out.outputRef.outputIndex());
+        assert(outputIter != wtx.outputs.end());
+        if (outputIter->second.holdsCashToken) {
+            // CashToken holding UTXOs can not be spent in normal payments
+            continue;
         }
+        if (!m_singleAddressWallet)
+            out.walletSecretId = outputIter->second.walletSecretId;
         unspentOutputs.push_back(out);
     }
 
