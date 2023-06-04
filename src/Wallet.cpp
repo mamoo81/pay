@@ -1885,6 +1885,9 @@ void Wallet::loadWallet()
         else if (parser.tag() == WalletPriv::OutputValue) {
             output.value = parser.longData();
         }
+        else if (parser.tag() == WalletPriv::OutputHoldsToken) {
+            output.holdsCashToken = parser.boolData();
+        }
 
         // an ouput can get locked, stopping the user from spending it.
         else if (parser.tag() == WalletPriv::OutputLockState) {
@@ -2085,6 +2088,8 @@ void Wallet::saveWallet()
         for (auto i = item.second.outputs.begin(); i != item.second.outputs.end(); ++i) {
             builder.add(WalletPriv::OutputIndex, i->first);
             builder.add(WalletPriv::OutputValue, i->second.value);
+            if (i->second.holdsCashToken)
+                builder.add(WalletPriv::OutputHoldsToken, true);
             builder.add(WalletPriv::KeyStoreIndex, i->second.walletSecretId);
 
             // outputs that have been locked for some reason.

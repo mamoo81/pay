@@ -108,6 +108,7 @@ enum WalletDataSaveTags {
     OutputFromCoinbase,     // bool
     KeyStoreIndex,          // int that refers to the index of the privkey for the current tx-output.
     TxIsCashFusion,         // bool
+    OutputHoldsToken,       // bool
 };
 
 enum OutputLockStateEnum {
