@@ -56,6 +56,7 @@ class TransactionOutputInfo : public QObject
     Q_PROPERTY(qint64 value READ value CONSTANT)
     Q_PROPERTY(bool spent READ spent CONSTANT)
     Q_PROPERTY(bool forMe READ forMe CONSTANT)
+    Q_PROPERTY(bool hasCashToken READ hasCashToken CONSTANT)
 public:
     TransactionOutputInfo(QObject *parent) : QObject(parent) {}
     QString address() const;
@@ -74,12 +75,16 @@ public:
     const QString &cloakedAddress() const;
     void setCloakedAddress(const QString &ad);
 
+    bool hasCashToken() const;
+    void setHasCashToken(bool ct);
+
 private:
     QString m_address;
     QString m_cloakedAddress;
     qint64 m_value;
     bool m_spent = false;
     bool m_forMe = true;
+    bool m_hasCashToken = false;
 };
 
 class TransactionInfo : public QObject

@@ -212,3 +212,13 @@ void TransactionOutputInfo::setCloakedAddress(const QString &ad)
 {
     m_cloakedAddress = ad;
 }
+
+bool TransactionOutputInfo::hasCashToken() const
+{
+    return m_hasCashToken;
+}
+
+void TransactionOutputInfo::setHasCashToken(bool ct)
+{
+    m_hasCashToken = ct;
+}

@@ -297,6 +297,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
             out->setAddress(renderAddress(secret.address));
         }
         out->setSpent(m_unspentOutputs.find(OutputRef(txIndex, o.first).encoded()) == m_unspentOutputs.end());
+        out->setHasCashToken(o.second.holdsCashToken);
         if (secret.fromChangeChain) {
             assert(secret.fromHdWallet);
             out->setCloakedAddress(tr("Change #%1").arg(secret.hdDerivationIndex));

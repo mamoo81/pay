@@ -172,7 +172,29 @@ GridLayout {
             delegate:
                 Item {
                     width: rightColumn.width
-                    height: modelData === null ? 6 : (5 + outAddress.height)
+                    height: {
+                        if (modelData === null)
+                            return 6;
+
+                        var h = 5 + outAddress.height;
+                        if (modelData.hasCashToken)
+                            h += 25;
+                        return h;
+                    }
+
+                    Image {
+                        width: 20
+                        height: 20
+                        smooth: true
+                        visible: modelData !== null && modelData.hasCashToken
+                        source: visible ? "qrc:/CashTokens.svg" : ""
+                        Label {
+                            x: 30
+                            text: "A CashToken!"
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+
                     Rectangle {
                         id: outArrowLine
                         /*
