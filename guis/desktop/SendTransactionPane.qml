@@ -419,10 +419,7 @@ Item {
                             }
                             Button {
                                 text: qsTr("Cancel")
-                                onClicked: {
-                                    destination.text = ""
-                                    destination.updateColor()
-                                }
+                                onClicked: destination.text = ""
                             }
                         }
                     }
