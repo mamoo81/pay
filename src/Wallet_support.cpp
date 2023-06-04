@@ -435,7 +435,11 @@ Wallet::InsertBeforeData Wallet::removeTransactionsAfter(int blockHeight)
 
     while (txIndex >= lastToRemove) {
         auto i = m_walletTransactions.find(txIndex--);
-        assert (i != m_walletTransactions.end());
+        if (i == m_walletTransactions.end()) {
+            // don't assume we didn't replay any transactions before, there may be
+            // gaps when addressing the transactions by index.
+            continue;
+        }
         // this transaction was appended to the UTXO and now something has
         // to be inserted before, which may alter the UTXO to such an extend that THIS
         // transaction may be found to spend more outputs.
