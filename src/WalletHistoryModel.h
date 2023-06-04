@@ -36,7 +36,7 @@ class WalletHistoryModel : public QAbstractListModel
      * Freezing the model will stop the model from reporting new rows and un-freezing it aferwards
      * will cause all the new items that were found while frozen to be reported for UI update.
      */
-    Q_PROPERTY(bool freezeModel READ isModelFrozen WRITE freezeModel NOTIFY freezeModelChanged);
+    Q_PROPERTY(bool freezeModel READ isModelFrozen WRITE freezeModel NOTIFY freezeModelChanged)
 
 public:
     explicit WalletHistoryModel(Wallet *wallet, QObject *parent = nullptr);
