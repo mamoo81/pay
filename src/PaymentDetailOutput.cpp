@@ -101,8 +101,6 @@ void PaymentDetailOutput::setAddress(const QString &address_)
     if (m_address == addressOrURL)
         return;
     m_address = addressOrURL;
-    const std::string &chainPrefixCopy = chainPrefix();
-
     /*
      * Users may paste an address that is really a payment url.
      * This basically means we may have a price added after a questionmark.
@@ -130,17 +128,27 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         m_address = addressOrURL.left(urlStart);
     }
 
+    createFormattedAddress();
+    emit addressChanged(); // always emit at least once.
+}
+
+void PaymentDetailOutput::createFormattedAddress()
+{
+    const std::string &chainPrefixCopy = chainPrefix();
+
     std::string encodedAddress;
     switch (FloweePay::instance()->identifyString(m_address)) {
     case WalletEnums::LegacyPKH: {
-        CBase58Data legacy;
-        auto ok = legacy.SetString(m_address.toStdString());
-        assert(ok);
-        assert(legacy.isMainnetPkh() || legacy.isTestnetPkh());
-        CashAddress::Content c;
-        c.hash = legacy.data();
-        c.type = CashAddress::PUBKEY_TYPE;
-        encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
+        if (m_forceLegacyOk) {
+            CBase58Data legacy;
+            auto ok = legacy.SetString(m_address.toStdString());
+            assert(ok);
+            assert(legacy.isMainnetPkh() || legacy.isTestnetPkh());
+            CashAddress::Content c;
+            c.hash = legacy.data();
+            c.type = CashAddress::PUBKEY_TYPE;
+            encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
+        }
         break;
     }
     case WalletEnums::CashPKH: {
@@ -150,14 +158,16 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         break;
     }
     case WalletEnums::LegacySH: {
-        CBase58Data legacy;
-        auto ok = legacy.SetString(m_address.toStdString());
-        assert(ok);
-        assert(legacy.isMainnetSh() || legacy.isTestnetSh());
-        CashAddress::Content c;
-        c.hash = legacy.data();
-        c.type = CashAddress::SCRIPT_TYPE;
-        encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
+        if (m_forceLegacyOk) {
+            CBase58Data legacy;
+            auto ok = legacy.SetString(m_address.toStdString());
+            assert(ok);
+            assert(legacy.isMainnetSh() || legacy.isTestnetSh());
+            CashAddress::Content c;
+            c.hash = legacy.data();
+            c.type = CashAddress::SCRIPT_TYPE;
+            encodedAddress = CashAddress::encodeCashAddr(chainPrefixCopy, c);
+        }
         break;
     }
     case WalletEnums::CashSH: {
@@ -170,12 +180,16 @@ void PaymentDetailOutput::setAddress(const QString &address_)
         break;
     }
 
-    m_formattedTarget.clear();
-    m_addressOk = !encodedAddress.empty();
-    if (m_addressOk)
-        m_formattedTarget = QString::fromStdString(encodedAddress);
-    emit addressChanged();
-    checkValid();
+    bool addressOk = !encodedAddress.empty();
+    if (addressOk != m_addressOk) {
+        m_addressOk = addressOk;
+        if (m_addressOk)
+            m_formattedTarget = QString::fromStdString(encodedAddress);
+        else
+            m_formattedTarget.clear();
+        checkValid();
+        emit correctAddressChanged(); // the formatted target is tied to this signal
+    }
 }
 
 void PaymentDetailOutput::checkValid()
@@ -193,11 +207,12 @@ bool PaymentDetailOutput::forceLegacyOk() const
     return m_forceLegacyOk;
 }
 
-void PaymentDetailOutput::setForceLegacyOk(bool newForceLegacyOk)
+void PaymentDetailOutput::setForceLegacyOk(bool force)
 {
-    if (m_forceLegacyOk == newForceLegacyOk)
+    if (m_forceLegacyOk == force)
         return;
-    m_forceLegacyOk = newForceLegacyOk;
+    m_forceLegacyOk = force;
+    createFormattedAddress();
     emit forceLegacyOkChanged();
 }
 

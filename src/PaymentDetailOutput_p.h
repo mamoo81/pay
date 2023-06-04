@@ -23,12 +23,18 @@
 class PaymentDetailOutput : public PaymentDetail
 {
     Q_OBJECT
+    /*
+     * The user set string which is the address.
+     * We verify this string and fill \a formattedTarget only when this is a correct address.
+     * Notice that a legacy address will only be seen as correct when the forceLegacyOk is true.
+     */
     Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY paymentAmountChanged)
     Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY paymentAmountChanged)
-    // cleaned up and re-formatted
-    Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY addressChanged)
-    Q_PROPERTY(QString niceAddress READ niceAddress NOTIFY addressChanged)
+    // cleaned up and re-formatted, empty if invalid.
+    Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY correctAddressChanged)
+    // same as formatted, but without prefix.
+    Q_PROPERTY(QString niceAddress READ niceAddress NOTIFY correctAddressChanged)
     Q_PROPERTY(bool maxAllowed READ maxAllowed WRITE setMaxAllowed NOTIFY maxAllowedChanged)
     Q_PROPERTY(bool fiatFollows READ fiatFollows WRITE setFiatFollows NOTIFY fiatFollowsChanged)
     Q_PROPERTY(bool maxSelected READ maxSelected WRITE setMaxSelected NOTIFY maxSelectedChanged)
@@ -79,6 +85,7 @@ public:
 signals:
     void paymentAmountChanged();
     void addressChanged();
+    void correctAddressChanged();
     void fiatIsMainChanged();
     void fiatFollowsChanged();
     void maxSelectedChanged();
@@ -87,6 +94,7 @@ signals:
 
 private:
     void checkValid();
+    void createFormattedAddress();
 
     qint64 m_paymentAmount = 0;
     int m_fiatAmount = 0;

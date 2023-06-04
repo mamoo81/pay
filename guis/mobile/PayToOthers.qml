@@ -193,8 +193,11 @@ Page {
                         font.italic: paymentDetail.address === ""
                         text: {
                             var s = paymentDetail.niceAddress
-                            if (s === "")
-                                return qsTr("unset", "indication of empty");
+                            if (s === "") {
+                                if (paymentDetail.address === "") // the user-specified text is empty
+                                    return qsTr("unset", "indication of empty");
+                                return qsTr("invalid", "address is not correct");
+                            }
                             return s;
                         }
                         color: addressInfo.addressOk || paymentDetail.address === ""
