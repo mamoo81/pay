@@ -178,7 +178,7 @@ Wallet::WalletTransaction Wallet::createWalletTransactionFromTx(const Tx &tx, co
             output.value = iter.longData();
         }
         else if (iter.tag() == Tx::OutputScript) {
-            output.walletSecretId = findSecretFor(iter.byteData());
+            output.walletSecretId = findSecretFor(iter.byteData(), output.holdsCashToken);
             if (output.walletSecretId > 0) {
                 logDebug(LOG_WALLET) << "   output"<< outputIndex << "pays to wallet id" << output.walletSecretId;
                 wtx.outputs.insert(std::make_pair(outputIndex, output));
@@ -924,11 +924,43 @@ void Wallet::performUpgrades()
     }
 }
 
-int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript) const
+int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript, bool &isCashToken) const
 {
+    auto theScript(outputScript);
+    isCashToken = false;
+    constexpr int MinTokenSize = /* prefix */ 1 + /* category */ + 32 + /* flags */ 1;
+    if (outputScript.size() > MinTokenSize
+        && static_cast<uint8_t>(outputScript.begin()[0]) == 0xef) {
+        /*
+         * This output holds a cash-token.
+         * We eat the bytes that hold the cashtoken data and continue identifying the outputScript
+         */
+        const uint8_t* tokenData = reinterpret_cast<const uint8_t*>(outputScript.begin());
+        uint8_t flags = tokenData[33];
+        int skipAmount = MinTokenSize;
+        if ((flags & 0x40) == 0x40) // has-commitment-length bit is set.
+            skipAmount += tokenData[skipAmount++];
+        if ((flags & 0x10) == 0x10) { // has-amount bit is set.
+            const uint8_t amount = tokenData[skipAmount++];
+            if (amount == 253) // compact-size design.
+                skipAmount += 2;
+            else if (amount == 254)
+                skipAmount += 4;
+            else if (amount == 255)
+                skipAmount += 8;
+        }
+
+        isCashToken = true;
+        if (outputScript.size() <= skipAmount) {
+            logWarning() << "Invalid token data";
+            return -1;
+        }
+        theScript = outputScript.mid(skipAmount);
+    }
+
     std::vector<std::vector<uint8_t> > vSolutions;
     Script::TxnOutType whichType;
-    if (!Script::solver(outputScript, whichType, vSolutions))
+    if (!Script::solver(theScript, whichType, vSolutions))
         return -1;
 
     KeyId keyID;

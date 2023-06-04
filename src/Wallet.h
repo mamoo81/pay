@@ -412,7 +412,7 @@ private:
      *
      * @return the wallet-secret-id or -1 if none match.
      */
-    int findSecretFor(const Streaming::ConstBuffer &outputScript) const;
+    int findSecretFor(const Streaming::ConstBuffer &outputScript, bool &isCashToken) const;
 
     /// Fill the bloom filter with all the unspent transactions and addresses we handle.
     void rebuildBloom();
@@ -469,6 +469,7 @@ private:
     struct Output {
         int walletSecretId = -1;
         uint64_t value = 0;
+        bool holdsCashToken = false;
     };
 
     struct WalletTransaction {
