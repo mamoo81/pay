@@ -33,8 +33,6 @@ ColumnLayout {
     property QtObject infoObject: null
     property int minedHeight: model.height // local cache
 
-    spacing: 10
-
     QQC2.Label {
         property bool isRejected: root.minedHeight == -2; // -2 is the magic block-height indicating 'rejected'
         text: {
@@ -56,7 +54,6 @@ ColumnLayout {
 
     GridLayout {
         columns: 2
-        rowSpacing: 10
         width: parent.width
 
         Flowee.Label {
@@ -98,6 +95,29 @@ ColumnLayout {
             value: Math.abs(colorizeValue)
             fiatTimestamp: model.date
             showFiat: false // might not fit
+        }
+    }
+
+    Image {
+        sourceSize.width: 22
+        sourceSize.height: 22
+        smooth: true
+        visible: {
+            if (infoObject == null)
+                return false;
+            // visible if at least one output has a token.
+            var outputs = infoObject.outputs;
+            for (let o of outputs) {
+                if (o.hasCashToken)
+                    return true;
+            }
+            return false;
+        }
+        source: visible ? "qrc:/CashTokens.svg" : ""
+        Flowee.Label {
+            x: 30
+            text: qsTr("Holds a token")
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 
@@ -145,6 +165,8 @@ ColumnLayout {
                 if (isMoved)
                     return false;
                 if (valueThenLabel.fiatPrice === 0)
+                    return false;
+                if (Math.abs(amountBch) < 10000) // hardcode 10k sats here, may need adjustment later
                     return false;
                 return true;
             }
