@@ -49,7 +49,8 @@ QQC2.Popup {
         // 'mainWindow' is defined in main.qml
         var window = mainWindow.contentItem;
         var globalX = (window.width - root.width) / 2;
-        var globalY = window.height / 3 - root.height;
+        var unit = window.height / 3;
+        var globalY = unit - Math.min(unit - 10, root.height / 2);
         var local = parent.mapFromItem(null, globalX, globalY);
         x = local.x;
         y = local.y;
@@ -92,6 +93,7 @@ QQC2.Popup {
         Label {
             id: mainTextLabel
             width: parent.width
+            visible: text !== ""
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         }
         Loader {
