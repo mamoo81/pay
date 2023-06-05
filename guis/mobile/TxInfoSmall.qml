@@ -108,7 +108,7 @@ ColumnLayout {
             // visible if at least one output has a token.
             var outputs = infoObject.outputs;
             for (let o of outputs) {
-                if (o.hasCashToken)
+                if (o != null && o.hasCashToken)
                     return true;
             }
             return false;
