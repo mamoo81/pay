@@ -71,14 +71,20 @@ Page {
             autostart: true
             onFinished: {
                 var rc = scanResult
-                if (rc === "") { // scanning failed
+                if (rc === "") { // scanning interrupted
                     thePile.pop();
+                    return;
                 }
-                else {
-                    payment.targetAddress = rc
-                    // should the price be included in the QR code, don't show editing widgets.
-                    root.allowEditAmount = payment.paymentAmount <= 0;
+                // Take the entire QR-url and let the Payment object parse it.
+                // this updates things like amount, comment and indeed address.
+                payment.targetAddress = rc
+                if (payment.formattedTargetAddress == "") {
+                    // that means that the address is invalid.
+                    scannedUrlFaultyDialog.open();
                 }
+
+                // should the price be included in the QR code, don't show editing widgets.
+                root.allowEditAmount = payment.paymentAmount <= 0;
             }
         }
         Payment {
@@ -92,6 +98,44 @@ Page {
             // paymentAmount: 100000000
             // targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
             // userComment: "bla bla bla"
+        }
+        Flowee.Dialog {
+            id: scannedUrlFaultyDialog
+            title: qsTr("Invalid QR code")
+            standardButtons: QQC2.DialogButtonBox.Close
+            onRejected: thePile.pop(); // remove this entire page
+            contentComponent: dialogForFaultyUrl
+        }
+        Component {
+            id: dialogForFaultyUrl
+            Column {
+                width: parent.width
+                spacing: 10
+                Flowee.Label {
+                    id: mainText
+                    width: parent.width
+                    text: qsTr("I don't understand the scanned code. I'm sorry, I can't start a payment.")
+                    wrapMode: Text.Wrap
+                }
+                Flowee.Label {
+                    text: qsTr("details")
+                    font.italic: true
+                    color: palette.link
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: detailsLabel.visible = true;
+                    }
+                }
+                Flowee.Label {
+                    id: detailsLabel
+                    text: qsTr("Scanned text: <pre>%1</pre>").arg(scanner.scanResult);
+                    visible: false
+                    font.pixelSize: mainText.pixelSize * 0.8
+                    wrapMode: Text.Wrap
+                    width: parent.width
+                }
+            }
         }
     }
 
