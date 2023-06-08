@@ -4,12 +4,17 @@
   <context>
     <name>AccountInfo</name>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="115"/>
+      <location filename="../src/AccountInfo.cpp" line="118"/>
+      <source>Offline</source>
+      <translation>Offline</translation>
+    </message>
+    <message>
+      <location filename="../src/AccountInfo.cpp" line="119"/>
       <source>Wallet: Up to date</source>
       <translation>Portemonnee: gesynchroniseerd</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="125"/>
+      <location filename="../src/AccountInfo.cpp" line="130"/>
       <source>Behind: %1 weeks, %2 days</source>
       <comment>counter on weeks</comment>
       <translation>
@@ -18,7 +23,7 @@
       </translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="129"/>
+      <location filename="../src/AccountInfo.cpp" line="134"/>
       <source>Behind: %1 days</source>
       <translation>
         <numerusform>%1 dag oude data</numerusform>
@@ -26,17 +31,17 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="131"/>
+      <location filename="../src/AccountInfo.cpp" line="136"/>
       <source>Up to date</source>
       <translation>Is volledig bijgewerkt</translation>
     </message>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="133"/>
+      <location filename="../src/AccountInfo.cpp" line="138"/>
       <source>Updating</source>
       <translation>Aan het bijwerken</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="134"/>
+      <location filename="../src/AccountInfo.cpp" line="139"/>
       <source>Still %1 hours behind</source>
       <translation>
         <numerusform>Nog één uur</numerusform>
@@ -65,7 +70,7 @@
   <context>
     <name>AddressInfoWidget</name>
     <message>
-      <location filename="../guis/Flowee/AddressInfoWidget.qml" line="60"/>
+      <location filename="../guis/Flowee/AddressInfoWidget.qml" line="57"/>
       <source>self</source>
       <comment>payment to self</comment>
       <translation>zelf</translation>
@@ -246,22 +251,22 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="120"/>
+      <location filename="../src/Payment.cpp" line="138"/>
       <source>Invalid PIN</source>
       <translation>Ongeldige PIN</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="205"/>
+      <location filename="../src/Payment.cpp" line="223"/>
       <source>Not enough funds selected for fees</source>
       <translation>Onvoldoende saldo voor transactiekosten</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="215"/>
+      <location filename="../src/Payment.cpp" line="233"/>
       <source>Not enough funds in wallet to make payment!</source>
       <translation>Niet genoeg saldo in portemonnee om te betalen!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="280"/>
+      <location filename="../src/Payment.cpp" line="298"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Transactie te groot. Geselecteerd bedrag vereist te veel munten.</translation>
     </message>
@@ -278,13 +283,13 @@
     <name>Wallet</name>
     <message>
       <location filename="../src/Wallet_support.cpp" line="265"/>
-      <location filename="../src/Wallet_support.cpp" line="302"/>
+      <location filename="../src/Wallet_support.cpp" line="303"/>
       <source>Change #%1</source>
       <translation>Wisselmunt #%1</translation>
     </message>
     <message>
       <location filename="../src/Wallet_support.cpp" line="268"/>
-      <location filename="../src/Wallet_support.cpp" line="305"/>
+      <location filename="../src/Wallet_support.cpp" line="306"/>
       <source>Main #%1</source>
       <translation>Standaard#%1</translation>
     </message>
