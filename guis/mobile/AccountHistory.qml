@@ -139,34 +139,30 @@ ListView {
                 width: parent.width
             }
 
+            Item { width: 10; height: 25 } // spacer
+
             Row {
-                height: startScan.height
+                height: startScan.height + 20
                 x: (parent.width - width) / 2
-                spacing: 16
+                spacing: 25
                 Flowee.ImageButton {
                     id: startScan
                     source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
-                    width: 60
                     onClicked: thePile.push("PayWithQR.qml")
-                    iconSize: 40
-                    height: 60
+                    iconSize: 70
+                    text: qsTr("Pay")
                 }
                 Flowee.ImageButton {
-                    width: 60
-                    height: startScan.height
-                    iconSize: 50
+                    iconSize: 70
                     source: "qrc:/receive.svg"
                     onClicked: switchToTab(2) // receive tab
+                    text: qsTr("Receive")
                 }
             }
 
             /* TODO
-              "Is archive" / "Unrchive""
-
               Is Encryopted / Decrypt
              */
-
-            Item { width: 10; height: 15 } // spacer
         }
     }
 

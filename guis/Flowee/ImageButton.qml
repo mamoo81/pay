@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +20,14 @@ import QtQuick
 import QtQuick.Controls as QQC2
 
 QQC2.Control {
-    width: 42
-    height: width
+    implicitWidth: iconSize + 8
+    implicitHeight: iconSize + 8 + (label.visible ? label.height  + 6 : 0)
 
     signal clicked;
     property alias source: imageIcon.source;
     property alias responseText: comment.text;
-    property int iconSize: width
+    property int iconSize: 42
+    property alias text: label.text
 
     Rectangle {
         id: highlight
@@ -38,9 +39,19 @@ QQC2.Control {
     Image {
         id: imageIcon
         width: Math.min(parent.width - 8, iconSize)
-        height: Math.min(parent.height - 8, iconSize)
-        anchors.centerIn: parent
+        height: width
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 4
         smooth: true
+    }
+    Label {
+        id: label
+        width: parent.width
+        visible: text !== ""
+        horizontalAlignment: Text.AlignHCenter
+        anchors.top: imageIcon.bottom
+        anchors.topMargin: 4
     }
     MouseArea {
         id: mouseArea
