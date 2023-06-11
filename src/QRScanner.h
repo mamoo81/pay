@@ -51,7 +51,7 @@ public:
     void finishedScan(const QString &resultString);
 
     QString scanResult() const;
-    void setScanResult(const QString &newScanResult);
+    void setScanResult(const QString &result);
     void resetScanResult();
 
     bool autostart() const;

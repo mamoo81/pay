@@ -115,6 +115,47 @@ FocusScope {
         onClicked: CameraController.abort();
     }
 
+
+    Rectangle {
+        x: 50
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 50
+        visible: CameraController.supportsPaste
+        width: pasteButton.width
+        height: pasteButton.height
+        color: palette.base
+        Flowee.ImageButton {
+            id: pasteButton
+            source: "qrc:/edit-clipboard" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+            text: qsTr("Paste")
+            onClicked: pasteFeedback.visible = !CameraController.importScanFromClipboard();
+        }
+
+        Rectangle {
+            id: pasteFeedback
+            color: palette.toolTipBase
+            border.color: palette.toolTipText
+            border.width: 2
+            width: errorLabel.width + 10
+            height: errorLabel.height + 10
+            radius: 5
+            anchors.top : pasteButton.bottom
+            visible: false
+
+            Flowee.Label {
+                id: errorLabel
+                anchors.centerIn: parent
+                text: qsTr("Failed")
+                color: palette.toolTipText
+            }
+            Timer {
+                interval: 4000
+                running: parent.visible
+                onTriggered: parent.visible = false
+            }
+        }
+    }
+
     Component {
         id: videoFeedPanel
         Item {
@@ -145,7 +186,8 @@ FocusScope {
             }
             VideoOutput {
                 id: videoOutput
-                fillMode: VideoOutput.Stretch
+                fillMode: VideoOutput.PreserveAspectCrop
+                orientation: 90
                 width: parent.width
                 height: parent.height
             }

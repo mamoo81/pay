@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,18 +75,21 @@ QString QRScanner::scanResult() const
     return m_scanResult;
 }
 
-void QRScanner::setScanResult(const QString &newScanResult)
+void QRScanner::setScanResult(const QString &result)
 {
-    if (m_scanResult == newScanResult)
+    if (m_scanResult == result || result.isEmpty())
         return;
-    m_scanResult = newScanResult;
+    m_scanResult = result;
     emit scanResultChanged();
     setIsScanning(false);
 }
 
 void QRScanner::resetScanResult()
 {
-    setScanResult({});
+    if (!m_scanResult.isEmpty()) {
+        m_scanResult.clear();
+        emit scanResultChanged();
+    }
 }
 
 bool QRScanner::autostart() const

@@ -42,6 +42,8 @@ class CameraController : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool visible READ visible NOTIFY visibleChanged)
+    /// return true if calling importScanFromClipboard can work with current QRScanner::ScanType
+    Q_PROPERTY(bool supportsPaste READ supportsPaste NOTIFY visibleChanged)
     Q_PROPERTY(bool loadCamera READ loadCamera NOTIFY loadCameraChanged)
     Q_PROPERTY(bool cameraActive READ cameraActive NOTIFY cameraActiveChanged)
     Q_PROPERTY(QObject* camera READ camera WRITE setCamera NOTIFY cameraChanged)
@@ -53,6 +55,11 @@ public:
     void abortRequest(QRScanner *request);
 
     Q_INVOKABLE void abort();
+    /**
+     * Try to complete the current scan request by instead looking at the clipboard
+     * for some data that could be used to fulfill the scan.
+     */
+    Q_INVOKABLE bool importScanFromClipboard();
 
     void setCamera(QObject *object);
     QObject *camera() const;
@@ -63,6 +70,8 @@ public:
     bool loadCamera() const;
     bool cameraActive() const;
     bool visible() const;
+
+    bool supportsPaste() const;
 
 signals:
     void cameraChanged();

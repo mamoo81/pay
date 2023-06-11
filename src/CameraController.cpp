@@ -18,6 +18,7 @@
  */
 #include "CameraController.h"
 #include "QRScanner.h"
+#include "qclipboard.h"
 
 #include <ZXing/ReadBarcode.h>
 
@@ -521,6 +522,34 @@ void CameraController::abortRequest(QRScanner *request)
 void CameraController::abort()
 {
     abortRequest(d->scanRequest);
+}
+
+bool CameraController::supportsPaste() const
+{
+    if (d->scanRequest == nullptr)
+        return false;
+    //
+    return d->scanRequest->scanType() == QRScanner::PaymentDetails;
+}
+
+bool CameraController::importScanFromClipboard()
+{
+    if (d->scanRequest == nullptr)
+        return false;
+    if (d->scanRequest->scanType() != QRScanner::PaymentDetails)
+        return false;
+
+    auto text = QGuiApplication::clipboard()->text();
+    auto index = text.indexOf("bitcoincash:");
+    if (index >= 0) {
+        auto end = text.indexOf(' ', index + 10);
+        d->scanRequest->setScanResult(text.mid(index, end));
+        // stop camera
+        d->cameraStarted = false;
+        emit cameraActiveChanged();
+        return true;
+    }
+    return false;
 }
 
 void CameraController::setCamera(QObject *object)
