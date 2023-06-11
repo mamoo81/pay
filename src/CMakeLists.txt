@@ -52,6 +52,11 @@ set (PAY_SOURCES
     Wallet_support.cpp
     Wallet_spending.cpp
     WalletEnums.cpp
+
+    # Modules support
+    ModuleInfo.cpp
+    ModuleManager.cpp
+    ModuleSection.cpp
 )
 
 if (NetworkLogClient)
@@ -73,4 +78,3 @@ target_link_libraries(pay_lib
     ${OPENSSL_LIBRARIES}
     ${Boost_LIBRARIES}
     Qt6::Core Qt6::Quick ${Qt6DBus_LIBRARIES} ${PayLib_PRIVATE_LIBS} ${QREncode_LIBRARIES})
-

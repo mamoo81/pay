@@ -20,7 +20,7 @@
 #include "NewWalletConfig.h"
 #include "AddressInfo.h"
 #include "PriceDataProvider.h"
-#include "AccountConfig.h"
+#include "ModuleManager.h"
 
 #include <base58.h>
 #include <ripemd160.h>
@@ -885,6 +885,16 @@ void FloweePay::setFontScaling(int newFontScaling)
 PriceDataProvider *FloweePay::prices() const
 {
     return m_prices.get();
+}
+
+ModuleManager *FloweePay::modules()
+{
+    if (m_modulesManager.get() == nullptr) {
+        m_modulesManager.reset(new ModuleManager(this));
+        // actually load the available modules:
+        m_modulesManager->init();
+    }
+    return m_modulesManager.get();
 }
 
 bool FloweePay::isOffline() const

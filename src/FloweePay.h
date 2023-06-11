@@ -102,6 +102,8 @@ public:
      */
     PriceDataProvider *prices() const;
 
+    ModuleManager *modules();
+
     /// return the amount of milli-seconds we wait for a double-spent-proof
     int dspTimeout() const;
     void setDspTimeout(int milliseconds);
@@ -341,6 +343,7 @@ private:
     std::string m_chainPrefix;
     std::unique_ptr<DownloadManager> m_downloadManager;
     std::unique_ptr<PriceDataProvider> m_prices;
+    std::unique_ptr<ModuleManager> m_modulesManager;
     NotificationManager m_notifications;
     CameraController* m_cameraController;
     QList<Wallet*> m_wallets;

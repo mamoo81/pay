@@ -1,5 +1,5 @@
 # This file is part of the Flowee project
-# Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+# Copyright (C) 2023 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,13 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set(CMAKE_AUTOMOC ON)
+project(build-transaction_module)
 
-include_directories(${Qt6Test_INCLUDE_DIRS})
-
-add_executable(test_price_history
-    TestPriceHistory.cpp
-    ${CMAKE_SOURCE_DIR}/src/ModuleManager_empty.cpp
+set (SOURCES
+    BuildTransactionModuleInfo.cpp
 )
-target_link_libraries(test_price_history pay_lib Qt6::Test)
-add_test(NAME Pay_test_price_history COMMAND test_price_history)
+add_library (build-transaction_module_lib STATIC ${SOURCES})
+target_link_libraries(build-transaction_module_lib pay_lib)
+

@@ -21,6 +21,7 @@ include_directories(${Qt6Test_INCLUDE_DIRS})
 add_executable(test_wallet
     TestWallet.cpp
     ${CMAKE_SOURCE_DIR}/src/Wallet_test.cpp
+    ${CMAKE_SOURCE_DIR}/src/ModuleManager_empty.cpp
 )
 target_link_libraries(test_wallet pay_lib Qt6::Test)
 add_test(NAME Pay_test_wallet COMMAND test_wallet)

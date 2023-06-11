@@ -128,6 +128,7 @@ if (BUILD_DESKTOP_PAY)
     set (SOURCES_PAY
         src/main.cpp
         guis/desktop/qml_path_helper.cpp
+        src/ModuleManager_empty.cpp # because we don't have modules in the desktop one
     )
     qt6_add_resources(SOURCES_PAY
         guis/desktop.qrc
@@ -146,6 +147,26 @@ option (BUILD_MOBILE_PAY "Build the mobile client of Pay" ON)
 if (NOT "${Qt6Multimedia_FOUND}" OR NOT "${ZXing_FOUND}")
     set (BUILD_MOBILE_PAY OFF)
 endif ()
+
+set (PAY_MOBILE_LIBS "")
+if (BUILD_MOBILE_PAY)
+    add_subdirectory(modules)
+
+    # find all modules present in the source-tree and make sure we link them into the
+    # flowee-pay-mobile executable.
+    # Notice that the 'modules' subdir has similar code to actually compile these libs.
+    file(GLOB _module_sub_directories ${CMAKE_CURRENT_SOURCE_DIR}/modules/*)
+    foreach (child ${_module_sub_directories})
+        if (IS_DIRECTORY ${child} AND NOT IS_SYMLINK ${child})
+            file(GLOB subModule ${child}/*ModuleInfo.h)
+            file(RELATIVE_PATH moduleName ${CMAKE_CURRENT_SOURCE_DIR}/modules ${child})
+            list(APPEND PAY_MOBILE_LIBS "${moduleName}_module_lib")
+        endif()
+    endforeach()
+
+    include_directories(${CMAKE_SOURCE_DIR}/modules)
+endif()
+
 
 if (ANDROID AND BUILD_MOBILE_PAY)
     # blockheaders to be included in the APK
@@ -172,6 +193,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
         src/CameraController.cpp
         src/QRScanner.cpp
         guis/mobile/qml_path_helper.cpp
+        ${CMAKE_BINARY_DIR}/modules/modules-load.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
         guis/mobile.qrc
@@ -187,7 +209,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
 
     # For 6.2 - 6.4 the Qt Core permission APIs are only available as Android private apis
     if (${Qt6Multimedia_FOUND} AND ${QT_VERSION_MINOR} GREATER_EQUAL 2 AND ${QT_VERSION_MINOR} LESS_EQUAL 4)
-        set (PAY_MOBILE_LIBS Qt6::CorePrivate)
+        LIST (APPEND PAY_MOBILE_LIBS Qt6::CorePrivate)
         message(STATUS "including private QtCore APIs for Android support")
     endif ()
     target_link_libraries(pay_mobile PRIVATE pay_lib ZXing::ZXing Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
@@ -210,6 +232,7 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
         src/main.cpp
         src/CameraController.cpp
         src/QRScanner.cpp
+        ${CMAKE_BINARY_DIR}/modules/modules-load.cpp
         guis/mobile/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
@@ -221,7 +244,8 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
     set_target_properties(pay_mobile PROPERTIES
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
     )
-    target_link_libraries(pay_mobile PRIVATE pay_lib ZXing::ZXing Qt6::Svg Qt6::Multimedia)
+
+    target_link_libraries(pay_mobile PRIVATE pay_lib ZXing::ZXing Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
     install(TARGETS pay_mobile DESTINATION bin)
 endif()
 

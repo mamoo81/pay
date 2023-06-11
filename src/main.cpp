@@ -25,6 +25,7 @@
 #include "PaymentBackend.h"
 #include "QRCreator.h"
 #include "MenuModel.h"
+#include "ModuleManager.h"
 #ifdef NETWORK_LOGGER
 # include "NetworkLogClient.h"
 #endif
@@ -143,6 +144,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("Fiat", app->prices());
     MenuModel menuModel;
     engine.rootContext()->setContextProperty("MenuModel", &menuModel);
+    engine.rootContext()->setContextProperty("ModuleManager", app->modules());
 
 #ifdef MOBILE
     qmlRegisterType<QRScanner>("Flowee.org.pay", 1, 0, "QRScanner");

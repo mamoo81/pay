@@ -20,6 +20,7 @@ include_directories(${Qt6Test_INCLUDE_DIRS})
 
 add_executable(test_wallethistorymodel
     TestWalletHistoryModel.cpp
+    ${CMAKE_SOURCE_DIR}/src/ModuleManager_empty.cpp
 )
 target_link_libraries(test_wallethistorymodel pay_lib Qt6::Test)
 add_test(NAME Pay_test_wallet_history_model COMMAND test_wallethistorymodel)

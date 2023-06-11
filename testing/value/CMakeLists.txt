@@ -18,7 +18,7 @@ set(CMAKE_AUTOMOC ON)
 
 include_directories(${Qt6Test_INCLUDE_DIRS})
 
-add_executable(test_value TestValue.cpp)
+add_executable(test_value TestValue.cpp ${CMAKE_SOURCE_DIR}/src/ModuleManager_empty.cpp)
 target_link_libraries(test_value
     pay_lib
     Qt6::Test)
