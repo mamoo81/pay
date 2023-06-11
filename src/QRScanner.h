@@ -29,6 +29,7 @@ class QRScanner : public QObject
     Q_PROPERTY(QString scanResult READ scanResult WRITE setScanResult RESET resetScanResult NOTIFY scanResultChanged)
     Q_PROPERTY(bool autostart READ autostart WRITE setAutostart NOTIFY autostartChanged)
     Q_PROPERTY(bool isScanning READ isScanning NOTIFY isScanningChanged)
+    Q_PROPERTY(ResultSource resultSource READ resultSource NOTIFY scanResultChanged)
 public:
     explicit QRScanner(QObject *parent = nullptr);
     ~QRScanner();
@@ -50,8 +51,14 @@ public:
     /// Notice that resultString may be empty if we didn't scan any valid QR
     void finishedScan(const QString &resultString);
 
+    enum ResultSource {
+        Camera,
+        Clipboard
+    };
+    Q_ENUM(ResultSource)
+
     QString scanResult() const;
-    void setScanResult(const QString &result);
+    void setScanResult(const QString &result, ResultSource source = Camera);
     void resetScanResult();
 
     bool autostart() const;
@@ -59,6 +66,8 @@ public:
 
     bool isScanning() const;
     void setIsScanning(bool now);
+
+    ResultSource resultSource() const;
 
 private slots:
     void completed();
@@ -72,6 +81,7 @@ signals:
 
 private:
     ScanType m_scanType;
+    ResultSource m_resultSource = Camera;
     QString m_scanResult;
     bool m_autostart = false;
     bool m_isScanning = false;

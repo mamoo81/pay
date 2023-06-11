@@ -543,7 +543,7 @@ bool CameraController::importScanFromClipboard()
     auto index = text.indexOf("bitcoincash:");
     if (index >= 0) {
         auto end = text.indexOf(' ', index + 10);
-        d->scanRequest->setScanResult(text.mid(index, end));
+        d->scanRequest->setScanResult(text.mid(index, end), QRScanner::Clipboard);
         // stop camera
         d->cameraStarted = false;
         emit cameraActiveChanged();

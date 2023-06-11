@@ -75,6 +75,11 @@ Page {
                     thePile.pop();
                     return;
                 }
+                // if the scanner got bypassed with a 'paste' instead then
+                // we don't allow instpay
+                if (resultSource === QRScanner.Clipboard)
+                    payment.instaPay = false;
+
                 // Take the entire QR-url and let the Payment object parse it.
                 // this updates things like amount, comment and indeed address.
                 payment.targetAddress = rc

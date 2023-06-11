@@ -75,11 +75,12 @@ QString QRScanner::scanResult() const
     return m_scanResult;
 }
 
-void QRScanner::setScanResult(const QString &result)
+void QRScanner::setScanResult(const QString &result, ResultSource source)
 {
     if (m_scanResult == result || result.isEmpty())
         return;
     m_scanResult = result;
+    m_resultSource = source;
     emit scanResultChanged();
     setIsScanning(false);
 }
@@ -122,4 +123,9 @@ void QRScanner::completed()
 {
     if (m_autostart)
         start();
+}
+
+QRScanner::ResultSource QRScanner::resultSource() const
+{
+    return m_resultSource;
 }
