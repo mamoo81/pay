@@ -40,12 +40,5 @@ FocusScope {
             showPageIcon: true
             onClicked: thePile.push("PayToOthers.qml")
         }
-        /*
-        TextButton {
-            text: qsTr("My Wallets")
-            subtext: qsTr("Move between wallets")
-            showPageIcon: true
-            onClicked: thePile.push("MoveBetweeWallets.qml")
-        } */
     }
 }
