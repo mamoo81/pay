@@ -38,6 +38,10 @@ FocusScope {
         anchors.fill: parent
         color: palette.window
     }
+    MouseArea {
+        anchors.fill: parent
+        // eat all clicks
+    }
 
     // We put the 'Camera' in a loader to avoid Android permissions to be popped up until the
     // feature is actually requisted by the user.
