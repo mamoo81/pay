@@ -89,14 +89,19 @@ if(NOT ANDROID)
         translations/floweepay-mobile_en.ts
         translations/floweepay-mobile_nl.ts
         translations/floweepay-mobile_pl.ts
+
+        translations/module-build-transaction_en.ts
     )
     qt6_add_translation(qmFiles ${TS_FILES})
 
     add_custom_target(i18n
-        COMMAND lupdate guis/desktop.qrc -ts ${TS_FILES_DESKTOP} translations/floweepay-desktop.ts
+        COMMAND lupdate guis/desktop.qrc -ts translations/floweepay-desktop.ts
         COMMAND lupdate src guis/widgets.qrc
-                    -ts ${TS_FILES_GENERIC} translations/floweepay-common.ts
-        COMMAND lupdate guis/mobile.qrc -ts ${TS_FILES_MOBILE} translations/floweepay-mobile.ts
+                    -ts translations/floweepay-common.ts
+        COMMAND lupdate guis/mobile.qrc -ts translations/floweepay-mobile.ts
+        COMMAND lupdate modules/build-transaction/data.qrc
+                        modules/build-transaction/BuildTransactionModuleInfo.cpp
+                        -ts translations/module-build-transaction.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT
             "Updating internationalization (i18n) translation files"

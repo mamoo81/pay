@@ -108,6 +108,10 @@ int main(int argc, char *argv[])
     logger->addChannel(new NetworkLogClient(FloweePay::instance()->ioService()));
 #endif
 
+    auto app = FloweePay::instance();
+    // load the modules and its translations units first, which gives them the lowest priority
+    app->modules();
+
     static const char* languagePacks[] = {
 #ifdef DESKTOP
         "floweepay-desktop",
@@ -139,7 +143,6 @@ int main(int argc, char *argv[])
 #endif
 
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
-    auto app = FloweePay::instance();
     engine.rootContext()->setContextProperty("Pay", app);
     engine.rootContext()->setContextProperty("Fiat", app->prices());
     MenuModel menuModel;

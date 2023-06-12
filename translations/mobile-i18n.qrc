@@ -6,5 +6,6 @@
         <file>floweepay-mobile_en.qm</file>
         <file>floweepay-mobile_nl.qm</file>
         <file>floweepay-mobile_pl.qm</file>
+        <file>module-build-transaction_en.qm</file>
     </qresource>
 </RCC>

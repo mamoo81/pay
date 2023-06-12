@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/modules/build-transaction">
+        <file>PayToOthers.qml</file>
+    </qresource>
+</RCC>

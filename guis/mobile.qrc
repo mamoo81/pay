@@ -53,7 +53,6 @@
         <file>mobile/AccountSyncState.qml</file>
         <file>mobile/SendTransactionsTab.qml</file>
         <file>mobile/QRScannerOverlay.qml</file>
-        <file>mobile/PayToOthers.qml</file>
         <file>mobile/PayWithQR.qml</file>
         <file>mobile/SlideToApprove.qml</file>
         <file>mobile/ReceiveTab.qml</file>
