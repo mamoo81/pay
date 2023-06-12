@@ -108,10 +108,9 @@ int main(int argc, char *argv[])
     logger->addChannel(new NetworkLogClient(FloweePay::instance()->ioService()));
 #endif
 
-    auto app = FloweePay::instance();
     // load the modules and its translations units first, which gives them the lowest priority
-    app->modules();
-
+    ModuleManager modules;
+    // then the core translations.
     static const char* languagePacks[] = {
 #ifdef DESKTOP
         "floweepay-desktop",
@@ -142,12 +141,13 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
 #endif
 
+    auto app = FloweePay::instance();
     engine.addImageProvider(QLatin1String("qr"), new QRCreator());
     engine.rootContext()->setContextProperty("Pay", app);
     engine.rootContext()->setContextProperty("Fiat", app->prices());
     MenuModel menuModel;
     engine.rootContext()->setContextProperty("MenuModel", &menuModel);
-    engine.rootContext()->setContextProperty("ModuleManager", app->modules());
+    engine.rootContext()->setContextProperty("ModuleManager", &modules);
 
 #ifdef MOBILE
     qmlRegisterType<QRScanner>("Flowee.org.pay", 1, 0, "QRScanner");

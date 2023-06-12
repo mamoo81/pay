@@ -22,6 +22,8 @@
 
 #include "ModuleInfo.h"
 
+#include <functional>
+
 class ModuleManager : public QObject
 {
     Q_OBJECT
@@ -30,12 +32,9 @@ class ModuleManager : public QObject
 public:
     explicit ModuleManager(QObject *parent = nullptr);
 
-    /**
-     * Finds all intalled modules and loads them.
-     */
-    void init();
+    void load(const char *translationUnit, const std::function<ModuleInfo*()> &function);
 
-    void registerModule(ModuleInfo *info);
+    // void registerModule(ModuleInfo *info);
 
     QList<ModuleInfo *> registeredModules() const;
 

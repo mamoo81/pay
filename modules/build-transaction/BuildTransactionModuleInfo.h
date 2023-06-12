@@ -23,5 +23,9 @@ class BuildTransactionModuleInfo : public QObject
 {
     Q_OBJECT
 public:
-    static void init(ModuleManager *manager);
+    static ModuleInfo *build();
+
+    static const char *translationUnit() {
+        return "module-build-transaction";
+    }
 };

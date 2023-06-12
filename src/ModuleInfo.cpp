@@ -32,11 +32,6 @@ void ModuleInfo::setId(const QString &newId)
     m_id = newId;
 }
 
-QString ModuleInfo::translationUnit() const
-{
-    return m_translationUnit;
-}
-
 QString ModuleInfo::title() const
 {
     return m_title;
@@ -81,9 +76,4 @@ bool ModuleInfo::enabled() const
 void ModuleInfo::setEnabled(bool newEnabled)
 {
     m_enabled = newEnabled;
-}
-
-void ModuleInfo::setTranslationUnit(const QString &name)
-{
-    m_translationUnit = name;
 }

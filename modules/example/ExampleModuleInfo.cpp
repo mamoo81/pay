@@ -17,10 +17,9 @@
  */
 #include "ExampleModuleInfo.h"
 
-void ExampleModuleInfo::init(ModuleManager *manager)
+ModuleInfo * ExampleModuleInfo::build()
 {
-    ModuleInfo *info = new ModuleInfo(manager);
+    ModuleInfo *info = new ModuleInfo();
     info->setId("exampleModule");
-
-    manager->registerModule(info);
+    return info;
 }

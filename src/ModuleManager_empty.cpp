@@ -1,1 +1,3 @@
-void load_all_modules() { }
+class ModuleManager;
+
+void load_all_modules(ModuleManager*) { }

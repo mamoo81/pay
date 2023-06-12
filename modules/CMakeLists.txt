@@ -43,14 +43,15 @@ endforeach()
 
 # After compiling them, generate a little cpp file that actually loads those modules
 # into the ModulesManager
-set (MODULES_LOAD_CPP "#include <FloweePay.h>\n")
+set (MODULES_LOAD_CPP "#include <ModuleManager.h>\n")
 foreach (include ${INCLUDES_LIST})
     set (MODULES_LOAD_CPP "${MODULES_LOAD_CPP}#include <${include}>\n")
 endforeach()
 
-set (MODULES_LOAD_CPP "${MODULES_LOAD_CPP}\nvoid load_all_modules() {\n  auto *m=FloweePay::instance()->modules();\n")
+set (MODULES_LOAD_CPP "${MODULES_LOAD_CPP}\nvoid load_all_modules(ModuleManager *m) {\n")
 foreach (className ${CLASSES_LIST})
-    set (MODULES_LOAD_CPP "${MODULES_LOAD_CPP}  ${className}::init(m);\n")
+    set (MODULES_LOAD_CPP
+        "${MODULES_LOAD_CPP}  m->load(${className}::translationUnit(), &${className}::build);\n")
 endforeach()
 
 # finally, write out the cpp file.

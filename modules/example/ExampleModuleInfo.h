@@ -19,7 +19,21 @@
 
 #include <ModuleManager.h>
 
-namespace ExampleModuleInfo
+class ExampleModuleInfo : public QObject
 {
-    void init(ModuleManager *manager);
-}
+    Q_OBJECT
+public:
+    static ModuleInfo *build();
+
+    /**
+     * A module has its own translations, to make the wallet load
+     * those translations we need to report what the basename of
+     * our translation-unit is.
+     * Note that returning nullptr is legal and just skips this part.
+     *
+     * Example: "module-build-transaction"
+     */
+    static const char *translationUnit() {
+        return nullptr;
+    }
+};

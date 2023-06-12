@@ -22,6 +22,14 @@
 
 #include "ModuleSection.h"
 
+/**
+ * This is part of the Flowee Pay Modules section.
+ *
+ * A module is an optional product that is shipped in the Flowee Pay application
+ * in a way that it can be enabled or disabled by the user.
+ * The ModuleInfo is the metadata about the module, data that is shown to the user
+ * to allow them to select if they like to enable this module or not.
+ */
 class ModuleInfo : public QObject
 {
     Q_OBJECT
@@ -34,17 +42,6 @@ public:
 
     QString id() const;
     void setId(const QString &newId);
-
-    /**
-     * A module ships its own translations, to make the wallet load
-     * those translations you need to put them into the QRC system
-     * and then let us know the base of the filenames you picked
-     * for them.
-     * Example: "module-build-transaction"
-     */
-    void setTranslationUnit(const QString &name);
-    /// returns the set translation unit, or empty string if none
-    QString translationUnit() const;
 
     /**
      * >The title as shown in the module selector UI.
@@ -75,7 +72,7 @@ private:
     QString m_title;
     QString m_description;
     QString m_translationUnit;
-    bool m_enabled;
+    bool m_enabled = true;
 
     QList<ModuleSection*> m_sections;
 };
