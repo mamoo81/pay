@@ -86,9 +86,4 @@ QQC2.Control {
             anchors.centerIn: parent
         }
     }
-
-    Label {
-        id: textArea
-
-    }
 }
