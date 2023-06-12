@@ -154,7 +154,8 @@ if (NOT "${Qt6Multimedia_FOUND}" OR NOT "${ZXing_FOUND}")
 endif ()
 
 set (PAY_MOBILE_LIBS "")
-if (BUILD_MOBILE_PAY)
+set (PAY_MOBILE_RESOURCES "")
+if (BUILD_MOBILE_PAY)  # support modules, which get enabled currently for mobile only
     add_subdirectory(modules)
 
     # find all modules present in the source-tree and make sure we link them into the
@@ -166,6 +167,9 @@ if (BUILD_MOBILE_PAY)
             file(GLOB subModule ${child}/*ModuleInfo.h)
             file(RELATIVE_PATH moduleName ${CMAKE_CURRENT_SOURCE_DIR}/modules ${child})
             list(APPEND PAY_MOBILE_LIBS "${moduleName}_module_lib")
+
+            file(GLOB resources ${child}/*qrc)
+            list(APPEND PAY_MOBILE_RESOURCES "${resources}")
         endif()
     endforeach()
 
@@ -203,6 +207,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
     qt6_add_resources(SOURCES_PAY_MOBILE
         guis/mobile.qrc
         guis/widgets.qrc
+        ${PAY_MOBILE_RESOURCES}
     )
     if (EXISTS "${CMAKE_BINARY_DIR}/floweepay-mobile_nl.qm")
         message ("pay_mobile: Found pre-compiled translations")
@@ -244,6 +249,7 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
         guis/mobile.qrc
         guis/widgets.qrc
         ${CMAKE_BINARY_DIR}/mobile-i18n.qrc
+        ${PAY_MOBILE_RESOURCES}
     )
     add_executable(pay_mobile ${SOURCES_PAY_MOBILE})
     set_target_properties(pay_mobile PROPERTIES

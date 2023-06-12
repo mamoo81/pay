@@ -37,6 +37,52 @@ QString ModuleInfo::translationUnit() const
     return m_translationUnit;
 }
 
+QString ModuleInfo::title() const
+{
+    return m_title;
+}
+
+void ModuleInfo::setTitle(const QString &newTitle)
+{
+    m_title = newTitle;
+}
+
+QString ModuleInfo::description() const
+{
+    return m_description;
+}
+
+void ModuleInfo::addSection(ModuleSection *section)
+{
+    // defensive programming here...
+    assert(section);
+    if (!section)
+        return;
+    section->setParent(this);
+    m_sections.removeAll(section);
+    m_sections.append(section);
+}
+
+void ModuleInfo::setDescription(const QString &newDescription)
+{
+    m_description = newDescription;
+}
+
+QList<ModuleSection*> ModuleInfo::sections() const
+{
+    return m_sections;
+}
+
+bool ModuleInfo::enabled() const
+{
+    return m_enabled;
+}
+
+void ModuleInfo::setEnabled(bool newEnabled)
+{
+    m_enabled = newEnabled;
+}
+
 void ModuleInfo::setTranslationUnit(const QString &name)
 {
     m_translationUnit = name;

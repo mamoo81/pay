@@ -25,16 +25,27 @@
 class ModuleManager : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QList<ModuleInfo*> registeredModules READ registeredModules CONSTANT)
+    Q_PROPERTY(QList<ModuleSection*> sendMenuItems READ sendMenuSections CONSTANT)
 public:
     explicit ModuleManager(QObject *parent = nullptr);
 
+    /**
+     * Finds all intalled modules and loads them.
+     */
     void init();
 
     void registerModule(ModuleInfo *info);
 
+    QList<ModuleInfo *> registeredModules() const;
+
+    // lists per type
+    QList<ModuleSection*> sendMenuSections() const;
 
 private:
-
+    QList<ModuleInfo*> m_modules;
+    QList<ModuleSection*> m_sendMenuSections;
+    QString m_configFile;
 };
 
 #endif

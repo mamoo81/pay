@@ -35,10 +35,14 @@ FocusScope {
             showPageIcon: true
             onClicked: thePile.push("PayWithQR.qml")
         }
-        TextButton {
-            text: qsTr("Build transaction")
-            showPageIcon: true
-            onClicked: thePile.push("PayToOthers.qml")
+        Repeater {
+            model: ModuleManager.sendMenuItems
+            TextButton {
+                text: modelData.text
+                subtext: modelData.subtext
+                showPageIcon: true
+                onClicked: thePile.push(modelData.qml)
+            }
         }
     }
 }

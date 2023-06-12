@@ -17,11 +17,16 @@
  */
 #include "BuildTransactionModuleInfo.h"
 
-
 void BuildTransactionModuleInfo::init(ModuleManager *manager)
 {
     auto module = new ModuleInfo(manager);
     module->setTranslationUnit("module-build-transaction");
+
+    auto sendButton = new ModuleSection(ModuleSection::SendMethod, module);
+    sendButton->setText(tr("Build Transaction"));
+    // notice that the directory it is in is registered in the data.qrc header
+    sendButton->setStartQMLFile("qrc:/build-transaction/PayToOthers.qml");
+    module->addSection(sendButton);
 
     manager->registerModule(module);
 }

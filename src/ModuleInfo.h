@@ -25,6 +25,10 @@
 class ModuleInfo : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(QString title READ title CONSTANT)
+    Q_PROPERTY(QString description READ description CONSTANT)
+    Q_PROPERTY(QList<ModuleSection*> sections READ sections CONSTANT)
 public:
     explicit ModuleInfo(QObject *parent = nullptr);
 
@@ -42,13 +46,38 @@ public:
     /// returns the set translation unit, or empty string if none
     QString translationUnit() const;
 
+    /**
+     * >The title as shown in the module selector UI.
+     */
+    void setTitle(const QString &newTitle);
+    QString title() const;
+
+    /**
+     * >The description of this module, as shown in the module selector UI.
+     */
+    void setDescription(const QString &newDescription);
+    QString description() const;
+
+    /**
+     * Sections define where a module is used, add them to "plug" your module into the UI
+     */
+    void addSection(ModuleSection *section);
+    QList<ModuleSection *> sections() const;
+
+    bool enabled() const;
+    void setEnabled(bool newEnabled);
+
+signals:
+    void enabledChanged();
+
 private:
     QString m_id;
     QString m_title;
     QString m_description;
     QString m_translationUnit;
+    bool m_enabled;
 
-    QList<ModuleSection> m_sections;
+    QList<ModuleSection*> m_sections;
 };
 
 #endif

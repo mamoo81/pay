@@ -17,7 +17,53 @@
  */
 #include "ModuleSection.h"
 
-ModuleSection::ModuleSection(QObject *parent)
-    : QObject(parent)
+ModuleSection::ModuleSection(SectionType type, QObject *parent)
+    : QObject(parent),
+    m_type(type)
 {
+}
+
+QString ModuleSection::text() const
+{
+    return m_text;
+}
+
+QString ModuleSection::subtext() const
+{
+    return m_subtext;
+}
+
+QStringList ModuleSection::requiredModules() const
+{
+    return m_requiredModules;
+}
+
+QString ModuleSection::startQMLFile() const
+{
+    return m_startQMLfile;
+}
+
+ModuleSection::SectionType ModuleSection::type() const
+{
+    return m_type;
+}
+
+void ModuleSection::setStartQMLFile(const QString &filename)
+{
+    m_startQMLfile = filename;
+}
+
+void ModuleSection::setRequiredModules(const QStringList &modules)
+{
+    m_requiredModules = modules;
+}
+
+void ModuleSection::setSubtext(const QString &newSubtext)
+{
+    m_subtext = newSubtext;
+}
+
+void ModuleSection::setText(const QString &newText)
+{
+    m_text = newText;
 }

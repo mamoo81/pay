@@ -22,8 +22,6 @@
         <file alias="backspace-light.svg">mobile/images/backspace-light.svg</file>
         <file alias="settingsIcon-light.svg">mobile/images/settingsIcon-light.svg</file>
         <file alias="settingsIcon.svg">mobile/images/settingsIcon.svg</file>
-        <file alias="edit.svg">mobile/images/edit.svg</file>
-        <file alias="edit-light.svg">mobile/images/edit-light.svg</file>
         <file alias="edit-pen.svg">mobile/images/edit-pen.svg</file>
         <file alias="edit-pen-light.svg">mobile/images/edit-pen-light.svg</file>
         <file alias="tx-receiving.svg">mobile/images/tx-receiving.svg</file>

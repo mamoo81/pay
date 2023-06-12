@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import QtQuick
-import QtQuick.Layouts
-import QtQuick.Controls as QQC2
-import "../Flowee" as Flowee
+import QtQuick;
+import QtQuick.Layouts;
+import QtQuick.Controls as QQC2;
+import "../Flowee" as Flowee;
+import "../mobile";
 import Flowee.org.pay;
 
 
@@ -547,7 +548,7 @@ Page {
                             let additional = Math.max(0, Math.min(listItem.x * -1 - width, 16))
                             return parent.width + additional;
                         }
-                        source: "qrc:/edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
+                        source: "./edit" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
                         smooth: true
                     }
 

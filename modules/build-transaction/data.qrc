@@ -1,5 +1,7 @@
 <RCC>
-    <qresource prefix="/modules/build-transaction">
+    <qresource prefix="/build-transaction">
         <file>PayToOthers.qml</file>
+        <file>edit.svg</file>
+        <file>edit-light.svg</file>
     </qresource>
 </RCC>

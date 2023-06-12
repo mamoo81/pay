@@ -19,7 +19,7 @@ project(build-transaction_module)
 set (SOURCES
     BuildTransactionModuleInfo.cpp
 )
-qt6_add_resources(SOURCES data.qrc)
+#qt6_add_resources(SOURCES data.qrc)
 add_library (build-transaction_module_lib STATIC ${SOURCES})
 target_link_libraries(build-transaction_module_lib pay_lib)
 

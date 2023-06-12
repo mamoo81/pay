@@ -23,17 +23,48 @@
 class ModuleSection : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString text READ text CONSTANT)
+    Q_PROPERTY(QString subtext READ subtext CONSTANT)
+    Q_PROPERTY(QString qml READ startQMLFile CONSTANT)
 public:
-    explicit ModuleSection(QObject *parent = nullptr);
+    /// The placement in the main app of this section.
+    enum SectionType {
+        SendMethod,     //< A specific way to send coin, shown in list of send-methods.
+    };
 
-/*
- * some info about how this section can be plugged into the UI.
- */
+    explicit ModuleSection(SectionType type, QObject *parent = nullptr);
+
+    /**
+     * This text is used on in the chosen UI-type to select this module.
+     */
+    void setText(const QString &newText);
+    QString text() const;
+
+    /// This text is the alt-text
+    void setSubtext(const QString &newSubtext);
+    QString subtext() const;
+
+    /**
+     * This section may only show if another module is enabled,
+     * name that module (by id) here.
+     * \sa ModuleInfo::id()
+     */
+    void setRequiredModules(const QStringList &modules);
+    QStringList requiredModules() const;
+
+    /**
+     * The QML file that should be loaded to invoke this module.
+     */
+    void setStartQMLFile(const QString &filename);
+    QString startQMLFile() const;
+
+    SectionType type() const;
 
 private:
-    /// generic texts, for the UI button to activates this module.
+    const SectionType m_type;
     QString m_text;
     QString m_subtext;
+    QString m_startQMLfile;
 
     QStringList m_requiredModules;
 };
