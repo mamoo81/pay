@@ -74,5 +74,6 @@
         <file>mobile/SelectDefaultAccountPage.qml</file>
         <file>mobile/InstaPayConfigPage.qml</file>
         <file>mobile/InstaPayConfigButton.qml</file>
+        <file>mobile/ExploreModules.qml</file>
     </qresource>
 </RCC>

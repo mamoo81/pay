@@ -48,6 +48,19 @@ ModuleSection::SectionType ModuleSection::type() const
     return m_type;
 }
 
+bool ModuleSection::enabled() const
+{
+    return m_enabled;
+}
+
+void ModuleSection::setEnabled(bool on)
+{
+    if (m_enabled == on)
+        return;
+    m_enabled = on;
+    emit enabledChanged();
+}
+
 void ModuleSection::setStartQMLFile(const QString &filename)
 {
     m_startQMLfile = filename;

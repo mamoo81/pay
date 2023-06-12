@@ -54,8 +54,10 @@ void ModuleInfo::addSection(ModuleSection *section)
     if (!section)
         return;
     section->setParent(this);
-    m_sections.removeAll(section);
+    if (m_sections.contains(section))
+        return;
     m_sections.append(section);
+    connect (section, SIGNAL(enabledChanged()), this, SIGNAL(enabledChanged()));
 }
 
 void ModuleInfo::setDescription(const QString &newDescription)
@@ -70,10 +72,19 @@ QList<ModuleSection*> ModuleInfo::sections() const
 
 bool ModuleInfo::enabled() const
 {
-    return m_enabled;
+    for (auto s : m_sections) {
+        if (s->enabled())
+            return true;
+    }
+    return false;
 }
 
-void ModuleInfo::setEnabled(bool newEnabled)
+QString ModuleInfo::iconSource() const
 {
-    m_enabled = newEnabled;
+    return m_iconSource;
+}
+
+void ModuleInfo::setIconSource(const QString &newIconSource)
+{
+    m_iconSource = newIconSource;
 }

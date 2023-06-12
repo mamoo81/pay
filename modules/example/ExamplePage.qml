@@ -15,18 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "BuildTransactionModuleInfo.h"
+import QtQuick
+import QtQuick.Layouts
+import "../Flowee" as Flowee
+import "../mobile";
 
-ModuleInfo * BuildTransactionModuleInfo::build()
-{
-    auto module = new ModuleInfo();
-    module->setTitle(tr("Create Transactions"));
-    module->setDescription(tr("This module allows building more powerful transactions in one simple user interface."));
+Page {
+    headerText: qsTr("Example")
 
-    auto sendButton = new ModuleSection(ModuleSection::SendMethod, module);
-    sendButton->setText(tr("Build Transaction"));
-    // notice that the directory it is in is registered in the data.qrc header
-    sendButton->setStartQMLFile("qrc:/build-transaction/PayToOthers.qml");
-    module->addSection(sendButton);
-    return module;
+    Flowee.Label {
+        y: 10
+        text: "This is an example page"
+    }
 }

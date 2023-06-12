@@ -26,6 +26,7 @@ class ModuleSection : public QObject
     Q_PROPERTY(QString text READ text CONSTANT)
     Q_PROPERTY(QString subtext READ subtext CONSTANT)
     Q_PROPERTY(QString qml READ startQMLFile CONSTANT)
+    Q_PROPERTY(bool isSendMethod READ isSendMethod CONSTANT)
 public:
     /// The placement in the main app of this section.
     enum SectionType {
@@ -59,14 +60,25 @@ public:
     QString startQMLFile() const;
 
     SectionType type() const;
+    bool isSendMethod() const {
+        return m_type == SendMethod;
+    }
+
+    bool enabled() const;
+    void setEnabled(bool on);
+
+signals:
+    void enabledChanged();
 
 private:
     const SectionType m_type;
     QString m_text;
     QString m_subtext;
     QString m_startQMLfile;
+    bool m_enabled = true;
 
     QStringList m_requiredModules;
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
 };
 
 #endif

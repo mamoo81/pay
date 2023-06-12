@@ -21,5 +21,17 @@ ModuleInfo * ExampleModuleInfo::build()
 {
     ModuleInfo *info = new ModuleInfo();
     info->setId("exampleModule");
+    info->setTitle(tr("Example Module"));
+    info->setDescription(tr("The example module is helpful in order to show the concept of a module "
+        "and what it can do in Flowee Pay. This text is shown in the module explorer UI."));
+    info->setIconSource("qrc:/example/example.svg");
+
+    auto sendButtonExample = new ModuleSection(ModuleSection::SendMethod, info);
+    sendButtonExample->setText(tr("Example Module"));
+    sendButtonExample->setSubtext(tr("This is some helptext"));
+    // notice that the directory it is in is registered in the data.qrc header
+    sendButtonExample->setStartQMLFile("qrc:/example/ExamplePage.qml");
+    info->addSection(sendButtonExample);
+
     return info;
 }

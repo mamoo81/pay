@@ -33,10 +33,11 @@
 class ModuleInfo : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(bool enabled READ enabled NOTIFY enabledChanged)
     Q_PROPERTY(QString title READ title CONSTANT)
     Q_PROPERTY(QString description READ description CONSTANT)
     Q_PROPERTY(QList<ModuleSection*> sections READ sections CONSTANT)
+    Q_PROPERTY(QString iconSource READ iconSource CONSTANT)
 public:
     explicit ModuleInfo(QObject *parent = nullptr);
 
@@ -62,7 +63,13 @@ public:
     QList<ModuleSection *> sections() const;
 
     bool enabled() const;
-    void setEnabled(bool newEnabled);
+
+    /**
+     * Sets the path to the icon for this module.
+     * This should be part of the QRC system and inside the module dir.
+     */
+    void setIconSource(const QString &newIconSource);
+    QString iconSource() const;
 
 signals:
     void enabledChanged();
@@ -72,7 +79,7 @@ private:
     QString m_title;
     QString m_description;
     QString m_translationUnit;
-    bool m_enabled = true;
+    QString m_iconSource;
 
     QList<ModuleSection*> m_sections;
 };

@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/example">
+        <file>example.svg</file>
+        <file>ExamplePage.qml</file>
+    </qresource>
+</RCC>

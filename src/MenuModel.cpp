@@ -21,6 +21,7 @@ MenuModel::MenuModel(QObject *parent)
     : QAbstractListModel{parent},
       m_current(&m_root)
 {
+    m_root.children.append({tr("Explore"), "./ExploreModules.qml", {}});
     m_root.children.append({tr("Settings"), "./GuiSettings.qml", {}});
     m_root.children.append({tr("Network Details"), "./NetView.qml", {}});
     m_root.children.append({tr("About"), "./About.qml", {}});
