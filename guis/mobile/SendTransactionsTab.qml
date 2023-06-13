@@ -31,7 +31,7 @@ FocusScope {
         }
 
         TextButton {
-            text: qsTr("Scan a QR code")
+            text: qsTr("Start Payment")
             showPageIcon: true
             onClicked: thePile.push("PayWithQR.qml")
         }
