@@ -37,7 +37,8 @@ class ModuleSection : public QObject
 public:
     /// The placement in the main app of this section.
     enum SectionType {
-        SendMethod,     //< A specific way to send coin, shown in list of send-methods.
+        SendMethod,         //< A specific way to send coin, shown in list of send-methods.
+        // BuildTxComponent,   //< Inside the 'build-transactions' this adds a new buildingblock.
     };
 
     explicit ModuleSection(SectionType type, QObject *parent = nullptr);

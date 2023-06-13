@@ -35,9 +35,10 @@ class ModuleManager : public QObject
      * This property holds all the module-sections which are enabled and have the type 'send-menu'.
      * \see ModduleSection::SectionType
      */
-    Q_PROPERTY(QList<ModuleSection*> sendMenuItems READ sendMenuSections CONSTANT)
+    Q_PROPERTY(QList<ModuleSection*> sendMenuItems READ sendMenuSections NOTIFY sendMenuSectionsChanged)
 public:
     explicit ModuleManager(QObject *parent = nullptr);
+    ~ModuleManager();
 
     /// This is automatically called by a module at statup to register itself.
     void load(const char *translationUnit, const std::function<ModuleInfo*()> &function);
@@ -47,9 +48,14 @@ public:
     // lists per type
     QList<ModuleSection*> sendMenuSections() const;
 
+signals:
+    void sendMenuSectionsChanged();
+
 private:
+    void load();
+    void save() const;
+
     QList<ModuleInfo*> m_modules;
-    QList<ModuleSection*> m_sendMenuSections;
     QString m_configFile;
 };
 
