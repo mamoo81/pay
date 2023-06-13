@@ -99,9 +99,12 @@ if(NOT ANDROID)
         COMMAND lupdate src guis/widgets.qrc
                     -ts translations/floweepay-common.ts
         COMMAND lupdate guis/mobile.qrc -ts translations/floweepay-mobile.ts
-        COMMAND lupdate modules/build-transaction/data.qrc
+        COMMAND lupdate modules/build-transaction/build-transactions-data.qrc
                         modules/build-transaction/BuildTransactionModuleInfo.cpp
                         -ts translations/module-build-transaction.ts
+        COMMAND lupdate modules/example/example-data.qrc
+                        modules/example/ExampleModuleInfo.cpp
+                        -ts translations/module-example.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT
             "Updating internationalization (i18n) translation files"
