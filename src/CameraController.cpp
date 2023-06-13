@@ -18,6 +18,7 @@
  */
 #include "CameraController.h"
 #include "QRScanner.h"
+#include "FloweePay.h"
 #include "qclipboard.h"
 
 #include <ZXing/ReadBarcode.h>
@@ -539,17 +540,39 @@ bool CameraController::importScanFromClipboard()
     if (d->scanRequest->scanType() != QRScanner::PaymentDetails)
         return false;
 
+    QString result;
+    const QString prefix = QString::fromStdString(chainPrefix()) + ":";
     auto text = QGuiApplication::clipboard()->text();
-    auto index = text.indexOf("bitcoincash:");
+    auto index = text.indexOf(prefix);
     if (index >= 0) {
         auto end = text.indexOf(' ', index + 10);
-        d->scanRequest->setScanResult(text.mid(index, end), QRScanner::Clipboard);
+        result = text.mid(index, end);
+    }
+    else {
+        // find the address if it doesn't have the prefix.
+        for (auto word : text.split(' ', Qt::SkipEmptyParts)) {
+            if (word.length() > 40 && word.length() < 50) {
+                auto id = FloweePay::instance()->identifyString(prefix + word);
+                if (id == WalletEnums::CashPKH || id == WalletEnums::CashSH) {
+                    result = prefix + word;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!result.isEmpty()) {
+        logInfo() << "Processing clipboard segment for payment:" << result;
+        d->scanRequest->setScanResult(result, QRScanner::Clipboard);
         // stop camera
         d->cameraStarted = false;
         emit cameraActiveChanged();
-        return true;
+        if (d->m_scanningThread == nullptr) {
+            // then the above would have no effect;
+            qrScanFinished();
+        }
     }
-    return false;
+    return !result.isEmpty();
 }
 
 void CameraController::setCamera(QObject *object)
