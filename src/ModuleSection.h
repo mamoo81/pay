@@ -20,6 +20,13 @@
 
 #include <QObject>
 
+/**
+ * The module section represts a single Hook into the Flowee Pay user interface.
+ * This class fits in the ModuleInfo and ModuleManager framework for modules.
+ *
+ * A module can fit into one or more placs in the UI and the user can enable those
+ * separately in the modules overview.
+ */
 class ModuleSection : public QObject
 {
     Q_OBJECT
@@ -65,6 +72,9 @@ public:
     }
 
     bool enabled() const;
+    /**
+     * This is set by the user or restored from the save file upon restart.
+     */
     void setEnabled(bool on);
 
 signals:

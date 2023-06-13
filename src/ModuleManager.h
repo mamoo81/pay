@@ -27,14 +27,20 @@
 class ModuleManager : public QObject
 {
     Q_OBJECT
+    /**
+     * This property holds all the registered modules, regardless of being enabled or not.
+     */
     Q_PROPERTY(QList<ModuleInfo*> registeredModules READ registeredModules CONSTANT)
+    /**
+     * This property holds all the module-sections which are enabled and have the type 'send-menu'.
+     * \see ModduleSection::SectionType
+     */
     Q_PROPERTY(QList<ModuleSection*> sendMenuItems READ sendMenuSections CONSTANT)
 public:
     explicit ModuleManager(QObject *parent = nullptr);
 
+    /// This is automatically called by a module at statup to register itself.
     void load(const char *translationUnit, const std::function<ModuleInfo*()> &function);
-
-    // void registerModule(ModuleInfo *info);
 
     QList<ModuleInfo *> registeredModules() const;
 
