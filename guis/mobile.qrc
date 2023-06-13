@@ -34,6 +34,7 @@
         <file alias="tx-move-light.svg">mobile/images/tx-move-light.svg</file>
         <file alias="edit-clipboard.svg">mobile/images/edit-clipboard.svg</file>
         <file alias="edit-clipboard-light.svg">mobile/images/edit-clipboard-light.svg</file>
+        <file alias="ribbon.svg">mobile/images/ribbon.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>
