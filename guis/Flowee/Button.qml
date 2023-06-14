@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,19 +23,33 @@ import "../ControlColors.js" as ControlColors
 // between enabled and disabled buttons.
 QQC2.Button {
     id: button
-    onEnabledChanged: updateColors();
-    Connections {
-        target: Pay
-        function onUseDarkSkinChanged() { updateColors(); }
+
+    contentItem: Text {
+        text: button.text
+        font: button.font
+        color: {
+            if (!button.enabled)
+                return Pay.useDarkSkin ? Qt.darker(palette.buttonText, 1.8) : Qt.lighter(palette.buttonText, 2);
+            return palette.buttonText;
+        }
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
     }
 
-    function updateColors() {
-        ControlColors.applySkin(this);
-        if (!enabled) {
-            palette.buttonText = Pay.useDarkSkin
-                ? Qt.darker(palette.buttonText, 1.8)
-                : Qt.lighter(palette.buttonText, 2)
-            palette.button = Qt.darker(palette.button, 1.2)
+    background: Rectangle {
+        implicitWidth: 90
+        implicitHeight: contentItem.implicitHeight + 10
+        opacity: enabled ? 1 : 0.8
+        border.color: Pay.useDarkSkin ? Qt.lighter(palette.button)
+                                  : Qt.darker(palette.button);
+        color: {
+            if (button.down || button.checked)
+                return Pay.useDarkSkin ? Qt.darker(palette.button)
+                                       : Qt.lighter(palette.button);
+            return palette.button
         }
+        border.width: 1.5
+        radius: 2
     }
 }
