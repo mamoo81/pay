@@ -398,6 +398,7 @@ FocusScope {
                 priceInput.paymentBackend.paymentAmount = 0;
                 request.account = portfolio.current;
                 request.start();
+                switchToTab(0); // go to the 'main' tab.
             }
         }
     }
