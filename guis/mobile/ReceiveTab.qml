@@ -178,6 +178,7 @@ FocusScope {
         Flowee.Button {
             anchors.right: parent.right
             text: qsTr("Clear")
+            enabled: description.text != "" || priceInput.paymentBackend.paymentAmount > 0;
             onClicked: {
                 request.clear();
                 request.account = portfolio.current;
