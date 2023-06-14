@@ -191,7 +191,6 @@ FocusScope {
             VideoOutput {
                 id: videoOutput
                 fillMode: VideoOutput.PreserveAspectCrop
-                orientation: 90
                 width: parent.width
                 height: parent.height
             }
