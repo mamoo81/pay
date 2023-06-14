@@ -147,10 +147,12 @@ void ModuleManager::load()
             type = parser.intData();
         }
         else if (parser.tag() == ModuleSectionEnabled) {
-            for (auto *s : info->sections()) {
-                if (s->type() == type) {
-                    s->setEnabled(parser.boolData());
-                    break;
+            if (info) {
+                for (auto *s : info->sections()) {
+                    if (s->type() == type) {
+                        s->setEnabled(parser.boolData());
+                        break;
+                    }
                 }
             }
         }
