@@ -172,6 +172,7 @@ QQC2.Control {
             onTextChanged: payment.userComment = text
             placeholderText: qsTr("Add a personal note")
             placeholderTextColor: "#3e3e3e"
+            text: payment.userComment
         }
 
         RowLayout {
