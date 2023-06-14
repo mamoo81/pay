@@ -138,6 +138,12 @@ void PaymentRequest::setAccount(QObject *account)
                 if (tx.state != WalletKeyView::UTXORejected) {
                     seen += tx.amount;
                 }
+                // copy the user typed payment request to the wallet
+                // for paying transactions.
+                if (!m_message.isEmpty()) {
+                    Wallet::OutputRef ref(tx.ref);
+                    m_account->wallet()->setTransactionComment(ref.txIndex(), m_message);
+                }
             }
 
             if (seen != m_amountSeen) {
