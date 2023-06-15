@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  * Copyright (C) 2020 Axel Waggershauser <awagger@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -70,6 +70,7 @@ public:
     bool cameraLoaded = false;
     bool cameraStarted = false;
     bool visible = false;
+    bool torchEnabled = false;
     int streamWidth = -1;
     int streamHeight = -1;
 
@@ -578,6 +579,46 @@ bool CameraController::supportsPaste() const
     return d->scanRequest->scanType() == QRScanner::PaymentDetails;
 }
 
+bool CameraController::torchEnabled() const
+{
+    return d->torchEnabled;
+}
+
+void CameraController::setTorchEnabled(bool on)
+{
+    if (d->torchEnabled == on)
+        return;
+    if (!d->cameraStarted) {
+        assert(d->torchEnabled == false);
+        return;
+    }
+    QCamera *cam = qobject_cast<QCamera *>(d->camera);
+    if (cam == nullptr)
+        return;
+    if (cam->isTorchModeSupported(on ? QCamera::TorchOn : QCamera::TorchOff) == false) {
+        logWarning() << "Trying to toggle torch, but the camera does not support that";
+        return;
+    }
+    d->torchEnabled = on;
+    cam->setTorchMode(on ? QCamera::TorchOn : QCamera::TorchOff);
+    logFatal() << "toggling the torch";
+
+    if (on) {
+        if (cam->isWhiteBalanceModeSupported(QCamera::WhiteBalanceFlash))
+            cam->setWhiteBalanceMode(QCamera::WhiteBalanceFlash);
+    } else if (cam->whiteBalanceMode() == QCamera::WhiteBalanceFlash) {
+        // we should not just turn it off but also set it to the most appropriate normal mode.
+        constexpr QCamera::WhiteBalanceMode w_modess[] = { QCamera::WhiteBalanceShade, QCamera::WhiteBalanceAuto };
+        for (auto m : w_modess) {
+            if (cam->isWhiteBalanceModeSupported(m)) {
+                cam->setWhiteBalanceMode(QCamera::WhiteBalanceAuto);
+                break;
+            }
+        }
+    }
+    emit torchEnabledChanged();
+}
+
 bool CameraController::importScanFromClipboard()
 {
     if (d->scanRequest == nullptr)
@@ -689,6 +730,10 @@ void CameraController::qrScanFinished()
     QCamera *cam = qobject_cast<QCamera *>(d->camera);
     if (cam)
         cam->setTorchMode(QCamera::TorchOff);
+    if (d->torchEnabled) {
+        d->torchEnabled = false;
+        emit torchEnabledChanged();
+    }
 }
 
 void CameraController::checkState()

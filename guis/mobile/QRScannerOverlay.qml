@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,10 +121,12 @@ FocusScope {
 
 
     Rectangle {
+        id: pasteFrame
         x: 50
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 50
         visible: CameraController.supportsPaste
+        radius: 6
         width: pasteButton.width
         height: pasteButton.height
         color: palette.base
@@ -159,6 +161,24 @@ FocusScope {
             }
         }
     }
+    Rectangle {
+        id: flashFrame
+        anchors.top: pasteFrame.top
+        anchors.right: parent.right
+        anchors.rightMargin: 50
+        radius: 6
+        visible: false
+
+        width: flashButton.width
+        height: flashButton.height
+        color: palette.base
+        Flowee.ImageButton {
+            id: flashButton
+            source: "qrc:/flash" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+            opacity: CameraController.torchEnabled ? 0.3 : 1
+            onClicked: CameraController.torchEnabled = !CameraController.torchEnabled
+        }
+    }
 
     Component {
         id: videoFeedPanel
@@ -172,6 +192,7 @@ FocusScope {
                 function onCameraActiveChanged() {
                      if (CameraController.cameraActive) {
                          camera.start();
+                         flashFrame.visible = camera.isTorchModeSupported(Camera.TorchOn)
                      } else if (Qt.platform.os !== "linux") {
                          // at least on Linux stopping a camera and turning it on again fails with
                          // "Camera is in use"

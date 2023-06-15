@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@ class CameraController : public QObject
     Q_PROPERTY(bool supportsPaste READ supportsPaste NOTIFY visibleChanged)
     Q_PROPERTY(bool loadCamera READ loadCamera NOTIFY loadCameraChanged)
     Q_PROPERTY(bool cameraActive READ cameraActive NOTIFY cameraActiveChanged)
+    Q_PROPERTY(bool torchEnabled READ torchEnabled WRITE setTorchEnabled NOTIFY torchEnabledChanged)
     Q_PROPERTY(QObject* camera READ camera WRITE setCamera NOTIFY cameraChanged)
     Q_PROPERTY(QObject* videoSink READ videoSink WRITE setVideoSink NOTIFY videoSinkChanged)
 public:
@@ -70,8 +71,9 @@ public:
     bool loadCamera() const;
     bool cameraActive() const;
     bool visible() const;
-
     bool supportsPaste() const;
+    bool torchEnabled() const;
+    void setTorchEnabled(bool on);
 
 signals:
     void cameraChanged();
@@ -80,6 +82,7 @@ signals:
     void loadCameraChanged();
     void cameraActiveChanged();
     void visibleChanged();
+    void torchEnabledChanged();
 
     // \internal (used to move thread)
     void startCheckState();

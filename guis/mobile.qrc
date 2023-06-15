@@ -35,6 +35,8 @@
         <file alias="edit-clipboard.svg">mobile/images/edit-clipboard.svg</file>
         <file alias="edit-clipboard-light.svg">mobile/images/edit-clipboard-light.svg</file>
         <file alias="ribbon.svg">mobile/images/ribbon.svg</file>
+        <file alias="flash.svg">mobile/images/flash.svg</file>
+        <file alias="flash-light.svg">mobile/images/flash-light.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>
