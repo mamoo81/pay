@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2018-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2018-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,13 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "QRCreator.h"
+#include "FloweePay.h"
 
 #include <Logger.h>
-// cmake requires the presence of the lib.
-#include <qrencode.h>
+// cmake ensures the presence of the ZXing lib.
+#include <ZXing/BarcodeFormat.h>
+#include <ZXing/MultiFormatWriter.h>
+#include <ZXing/BitMatrix.h>
 
-QRCreator::QRCreator()
-    : QQuickImageProvider(QQmlImageProviderBase::Image)
+QRCreator::QRCreator(QRType type)
+    : QQuickImageProvider(QQmlImageProviderBase::Image),
+    m_type(type)
 {
 }
 
@@ -30,22 +34,29 @@ QImage QRCreator::requestImage(const QString &id, QSize *size, const QSize &requ
 {
     Q_UNUSED(size);
     Q_UNUSED(requestedSize);
-    QUrl url(id); // go via URL to encode spaces and special chars
-    QRcode *code = QRcode_encodeString(url.toEncoded().constData(), 0, QR_ECLEVEL_L, QR_MODE_8, 1);
-    if (code == nullptr) { // failed to encode.
-        QImage blank = QImage(37, 37, QImage::Format_RGB32);
-        blank.fill(0x232629); // gray
-        return blank;
+    std::string data; // assumed utf8 by zxing
+    if (m_type == URLEncoded) {
+        QUrl url(id); // go via URL to encode spaces and special chars
+        data = url.toEncoded();
+    } else if (m_type == RawString) {
+        data = id.toUtf8();
     }
-    QImage result = QImage(code->width + 8, code->width + 8, QImage::Format_RGB32);
-    result.fill(0xffffff);
-    unsigned char *p = code->data;
-    for (int y = 0; y < code->width; y++) {
-        for (int x = 0; x < code->width; x++) {
-            result.setPixel(x + 4, y + 4, ((*p & 1) ? 0x0 : 0xffffff));
-            ++p;
-        }
-    }
-    QRcode_free(code);
+
+    auto writer = ZXing::MultiFormatWriter(ZXing::BarcodeFormat::QRCode).setMargin(16);
+    ZXing::BitMatrix matrix = writer.encode(data, 250, 250);
+
+    QImage result = QImage(matrix.height(), matrix.width(), QImage::Format_RGB32);
+    constexpr uint Black = 0xFF000000;
+    constexpr uint White = 0xFFFFFFFF;
+    uint black = Black;
+    uint white = White;
+    // inverted QRs are perfectly legal, lets make it nice for our users.
+    if (FloweePay::instance()->darkSkin())
+        qSwap(black, white);
+
+    for (int y = 0; y < matrix.height(); ++y)
+        for (int x = 0; x < matrix.width(); ++x)
+            result.setPixel(x, y, matrix.get(x, y) ? black : white);
+
     return result;
 }

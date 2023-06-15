@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2018-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2018-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +34,16 @@
 class QRCreator : public QQuickImageProvider
 {
 public:
-    QRCreator();
+    enum QRType {
+        URLEncoded,
+        RawString
+    };
+    QRCreator(QRType type);
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
+
+private:
+    QRType m_type;
 };
 
 #endif

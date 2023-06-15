@@ -171,7 +171,7 @@ void CameraControllerPrivate::initCamera()
             if (preferredIsCheap && !formatIsCheap)
                 continue;
             // avoid going for the biggest feed, but not too small either.
-            if (oldSize.width() < 600 || (size.width() < oldSize.width() && size.width() >= 600)) {
+            if (oldSize.width() < 800 || (size.width() < oldSize.width() && size.width() >= 800)) {
                 preferred = format;
                 logInfo() << "picked";
             }
@@ -268,9 +268,28 @@ void QRScanningThread::run()
 
             switch (m_scanType) {
             case QRScanner::Seed: {
-                // We can't be certain something is a seed here, we can just check the basics
-                // only normal characters and spaces
+                /*
+                 * The Seed QR would obviously just use the 12 or 24 words sentence in a QR.
+                 * Simple.
+                 *
+                 * But a pretty big wallet has instead put a bit more in the QR which ends up having
+                 * the following content:
+                 *
+                 * 1|this holds twelve words|livenet|m/44'/0'/0'|false
+                 *
+                 * No clue what the leading 1 and the trailing false are about. All wallets I tried
+                 * have those :shrug:
+                 *
+                 * Lets try to recognize those two types of QR.
+                 * ------
+                 * While seeds can be verified with their checksum, here we just check if the general
+                 * pattern fits.
+                 * Only normal characters and spaces are allowed in the basic seed, and 12 words or 24 words.
+                 */
                 QString possibleSeed = QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+                if (possibleSeed.startsWith("1|") && possibleSeed.endsWith("|livenet|m/44'/0'/0'|false"))
+                    possibleSeed = possibleSeed.mid(2, possibleSeed.length() - 28);
+
                 int wordCount = 0;
                 bool seenSpace = false;
                 bool failedChecks = false;
@@ -290,9 +309,12 @@ void QRScanningThread::run()
                     if (failedChecks)
                         break;
                 }
+                if (seenSpace == false && wordCount > 0)
+                    ++wordCount; // one more word not registered due to lack of space after.
                 if (!failedChecks && (wordCount == 12 || wordCount == 24)) {
                     text = possibleSeed;
                     return; // makes the 'QThread::finished()' signal get emitted.
+
                 }
                 break;
             }

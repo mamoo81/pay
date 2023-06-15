@@ -24,6 +24,8 @@ Item {
     property alias textVisible: addressLine.visible
     property string qrText: ""
 
+    property bool useRawString: false
+
     implicitWidth: qrImage.width
     implicitHeight: qrImage.height + (addressLine.visible ? addressLine.height : 0)
 
@@ -39,6 +41,8 @@ Item {
             var text = root.qrText;
             if (text === "")
                 return "";
+            if (useRawString)
+                return "image://qr-raw/" + text;
             return "image://qr/" + text;
         }
         smooth: false

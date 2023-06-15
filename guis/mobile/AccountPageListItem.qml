@@ -106,6 +106,7 @@ QQC2.Control {
                                 id: seedQr
                                 qrSize: 250
                                 textVisible: false
+                                useRawString: true
                             }
                         }
                     }

@@ -142,7 +142,8 @@ int main(int argc, char *argv[])
 #endif
 
     auto app = FloweePay::instance();
-    engine.addImageProvider(QLatin1String("qr"), new QRCreator());
+    engine.addImageProvider(QLatin1String("qr"), new QRCreator(QRCreator::URLEncoded));
+    engine.addImageProvider(QLatin1String("qr-raw"), new QRCreator(QRCreator::RawString));
     engine.rootContext()->setContextProperty("Pay", app);
     engine.rootContext()->setContextProperty("Fiat", app->prices());
     MenuModel menuModel;

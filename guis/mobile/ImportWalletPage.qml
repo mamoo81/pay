@@ -58,7 +58,21 @@ Page {
                     text: importAccount.finished ? "✔" : "  "
                     color: Pay.useDarkSkin ? "#37be2d" : "green"
                     font.pixelSize: 24
+                    anchors.right: startScan.left
+                }
+                Flowee.ImageButton {
+                    id: startScan
+                    source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+                    onClicked: scanner.start();
+                    iconSize: 25
+                    anchors.verticalCenter: secrets.verticalCenter
                     anchors.right: parent.right
+
+                    QRScanner {
+                        id: scanner
+                        scanType: QRScanner.Seed
+                        onFinished: if (scanResult !== "") secrets.text = scanResult;
+                    }
                 }
             }
         }
