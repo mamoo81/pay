@@ -90,6 +90,7 @@ if(NOT ANDROID)
         translations/floweepay-mobile_pl.ts
 
         translations/module-build-transaction_en.ts
+        translations/module-build-transaction_nl.ts
     )
     qt6_add_translation(qmFiles ${TS_FILES})
 
@@ -101,9 +102,6 @@ if(NOT ANDROID)
         COMMAND lupdate modules/build-transaction/build-transactions-data.qrc
                         modules/build-transaction/BuildTransactionModuleInfo.cpp
                         -ts translations/module-build-transaction.ts
-        COMMAND lupdate modules/example/example-data.qrc
-                        modules/example/ExampleModuleInfo.cpp
-                        -ts translations/module-example.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT
             "Updating internationalization (i18n) translation files"

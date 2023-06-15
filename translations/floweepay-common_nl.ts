@@ -99,17 +99,17 @@
       <translation>Voeg een persoonlijke notitie toe</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="187"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="188"/>
       <source>Copied TXID to clipboard</source>
       <translation>Gekopieerd TXID naar klipbord</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="192"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="193"/>
       <source>Opening Website</source>
       <translation>Open Website</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="200"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="201"/>
       <source>Close</source>
       <translation>Sluiten</translation>
     </message>
@@ -125,30 +125,30 @@
   <context>
     <name>FloweePay</name>
     <message>
-      <location filename="../src/FloweePay.cpp" line="395"/>
+      <location filename="../src/FloweePay.cpp" line="394"/>
       <source>Initial Wallet</source>
       <translation>Eerste portemonnee</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="586"/>
-      <location filename="../src/FloweePay.cpp" line="644"/>
+      <location filename="../src/FloweePay.cpp" line="585"/>
+      <location filename="../src/FloweePay.cpp" line="643"/>
       <source>Today</source>
       <translation>Vandaag</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="588"/>
-      <location filename="../src/FloweePay.cpp" line="646"/>
+      <location filename="../src/FloweePay.cpp" line="587"/>
+      <location filename="../src/FloweePay.cpp" line="645"/>
       <source>Yesterday</source>
       <translation>Gisteren</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="633"/>
+      <location filename="../src/FloweePay.cpp" line="632"/>
       <source>Now</source>
       <comment>timestamp</comment>
       <translation>Nu</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="634"/>
+      <location filename="../src/FloweePay.cpp" line="633"/>
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
       <translation>
@@ -157,13 +157,13 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="638"/>
+      <location filename="../src/FloweePay.cpp" line="637"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
       <translation>Half uur geleden</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="640"/>
+      <location filename="../src/FloweePay.cpp" line="639"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
       <translation>
@@ -184,21 +184,26 @@
     <name>MenuModel</name>
     <message>
       <location filename="../src/MenuModel.cpp" line="24"/>
+      <source>Explore</source>
+      <translation>Ontdek</translation>
+    </message>
+    <message>
+      <location filename="../src/MenuModel.cpp" line="25"/>
       <source>Settings</source>
       <translation>Instellingen</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="25"/>
+      <location filename="../src/MenuModel.cpp" line="26"/>
       <source>Network Details</source>
       <translation>Netwerk Details</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="26"/>
+      <location filename="../src/MenuModel.cpp" line="27"/>
       <source>About</source>
       <translation>Over Ons</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="27"/>
+      <location filename="../src/MenuModel.cpp" line="28"/>
       <source>Wallets</source>
       <translation>Portemonnees</translation>
     </message>
@@ -274,7 +279,7 @@
   <context>
     <name>QRWidget</name>
     <message>
-      <location filename="../guis/Flowee/QRWidget.qml" line="106"/>
+      <location filename="../guis/Flowee/QRWidget.qml" line="110"/>
       <source>Copied to clipboard</source>
       <translation>Naar klembord gekopieerd</translation>
     </message>
