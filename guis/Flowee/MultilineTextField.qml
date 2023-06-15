@@ -49,7 +49,10 @@ QQC2.Control {
     }
 
     Connections {
-        function onTextChanged() { textEdit.text = text; }
+        function onTextChanged() {
+            textEdit.showingPlaceholder = false
+            textEdit.text = text;
+        }
         function onPlaceholderTextChanged() {
             if (textEdit.text === "") {
                 textEdit.showingPlaceholder = true
@@ -84,11 +87,11 @@ QQC2.Control {
 
         property bool showingPlaceholder: false
         onActiveFocusChanged: {
-            if (activeFocus && showingPlaceholder) {
+            if (activeFocus && showingPlaceholder && text == root.placeholderText) {
                 showingPlaceholder = false;
                 text = ""
             }
-            else if (!activeFocus && !showingPlaceholder && text === "") {
+            else if (!activeFocus && !showingPlaceholder && text === "" && root.placeholderText !== "") {
                 showingPlaceholder = true;
                 text = root.placeholderText
             }
