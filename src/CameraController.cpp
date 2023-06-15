@@ -171,7 +171,8 @@ void CameraControllerPrivate::initCamera()
             if (preferredIsCheap && !formatIsCheap)
                 continue;
             // avoid going for the biggest feed, but not too small either.
-            if (oldSize.width() < 800 || (size.width() < oldSize.width() && size.width() >= 800)) {
+            if (oldSize.width() < 800 || (size.width() < oldSize.width() && size.width() >= 800)
+                    || (size.width() == oldSize.width() && size.height() > oldSize.height() && size.height() < 1000)) {
                 preferred = format;
                 logInfo() << "picked";
             }
@@ -210,8 +211,30 @@ void CameraControllerPrivate::checkState()
             logFatal() << "CameraController found cam error:" << cam->errorString();
 
         cam->setCameraFormat(preferredFormat);
-        cam->setFocusMode(QCamera::FocusModeAutoNear); // macro focus mode.
-        cam->setWhiteBalanceMode(QCamera::WhiteBalanceAuto); // avoid flash
+        // best too least-acceptbale focus mode.
+        constexpr QCamera::FocusMode f_modes[] = { QCamera::FocusModeAutoNear, QCamera::FocusModeAuto,
+                QCamera::FocusModeHyperfocal, QCamera::FocusModeInfinity };
+        for (auto m : f_modes) {
+            if (cam->isFocusModeSupported(m)) {
+                cam->setFocusMode(m);
+                break;
+            }
+        }
+        constexpr QCamera::WhiteBalanceMode w_modess[] = { QCamera::WhiteBalanceShade, QCamera::WhiteBalanceAuto };
+        for (auto m : w_modess) {
+            if (cam->isWhiteBalanceModeSupported(m)) {
+                cam->setWhiteBalanceMode(QCamera::WhiteBalanceAuto);
+                break;
+            }
+        }
+        constexpr QCamera::ExposureMode e_modes[] = { QCamera::ExposureBarcode,
+                QCamera::ExposurePortrait, QCamera::ExposureAuto };
+        for (auto m : e_modes) {
+            if (cam->isExposureModeSupported(m)) {
+                cam->setExposureMode(m);
+                break;
+            }
+        }
         cameraStarted = true;
         QObject::connect(sink, &QVideoSink::videoFrameChanged, q, [=](const QVideoFrame &frame) {
             currentFrame = frame;
