@@ -144,7 +144,7 @@ if (BUILD_DESKTOP_PAY)
     )
     add_executable(pay ${SOURCES_PAY})
     set_target_properties(pay PROPERTIES COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} DESKTOP")
-    target_link_libraries(pay PRIVATE pay_lib ZXing::ZXing Qt6::Svg)
+    target_link_libraries(pay PRIVATE pay_lib Qt6::Svg)
     install(TARGETS pay DESTINATION bin)
 endif()
 
@@ -224,7 +224,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
         LIST (APPEND PAY_MOBILE_LIBS Qt6::CorePrivate)
         message(STATUS "including private QtCore APIs for Android support")
     endif ()
-    target_link_libraries(pay_mobile PRIVATE pay_lib ZXing::ZXing Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
+    target_link_libraries(pay_mobile PRIVATE pay_lib Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
     set_target_properties(pay_mobile PROPERTIES
        QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
@@ -258,7 +258,7 @@ if(NOT ANDROID AND BUILD_MOBILE_PAY)
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
     )
 
-    target_link_libraries(pay_mobile PRIVATE pay_lib ZXing::ZXing Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
+    target_link_libraries(pay_mobile PRIVATE pay_lib Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
     install(TARGETS pay_mobile DESTINATION bin)
 endif()
 

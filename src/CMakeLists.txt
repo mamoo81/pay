@@ -77,4 +77,4 @@ target_link_libraries(pay_lib
     flowee_p2p
     ${OPENSSL_LIBRARIES}
     ${Boost_LIBRARIES}
-    Qt6::Core Qt6::Quick ${Qt6DBus_LIBRARIES} ${PayLib_PRIVATE_LIBS} ${QREncode_LIBRARIES})
+    Qt6::Core Qt6::Quick ${Qt6DBus_LIBRARIES} ${PayLib_PRIVATE_LIBS} ZXing::ZXing )
