@@ -49,7 +49,6 @@
         <file>mobile/MainView.qml</file>
         <file>mobile/AccountHistory.qml</file>
         <file>mobile/Loading.qml</file>
-        <file>mobile/IconButton.qml</file>
         <file>mobile/TextButton.qml</file>
         <file>mobile/AccountSyncState.qml</file>
         <file>mobile/SendTransactionsTab.qml</file>
