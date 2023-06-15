@@ -65,7 +65,7 @@ Page {
                     source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
                     onClicked: scanner.start();
                     iconSize: 25
-                    anchors.verticalCenter: secrets.verticalCenter
+                    anchors.verticalCenter: feedback.verticalCenter
                     anchors.right: parent.right
 
                     QRScanner {
