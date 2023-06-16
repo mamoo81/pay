@@ -147,7 +147,7 @@ ListView {
                 spacing: 25
                 Flowee.ImageButton {
                     id: startScan
-                    source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+                    source: "qrc:/qr-code-scan" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
                     onClicked: thePile.push("PayWithQR.qml")
                     iconSize: 70
                     text: qsTr("Pay")

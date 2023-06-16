@@ -18,6 +18,8 @@
         <file alias="receive.svg">mobile/images/receive.svg</file>
         <file alias="qr-code.svg">mobile/images/qr-code.svg</file>
         <file alias="qr-code-light.svg">mobile/images/qr-code-light.svg</file>
+        <file alias="qr-code-scan.svg">mobile/images/qr-code-scan.svg</file>
+        <file alias="qr-code-scan-light.svg">mobile/images/qr-code-scan-light.svg</file>
         <file alias="backspace.svg">mobile/images/backspace.svg</file>
         <file alias="backspace-light.svg">mobile/images/backspace-light.svg</file>
         <file alias="settingsIcon-light.svg">mobile/images/settingsIcon-light.svg</file>

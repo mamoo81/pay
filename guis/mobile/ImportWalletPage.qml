@@ -62,7 +62,7 @@ Page {
                 }
                 Flowee.ImageButton {
                     id: startScan
-                    source: "qrc:/qr-code" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+                    source: "qrc:/qr-code-scan" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
                     onClicked: scanner.start();
                     iconSize: 25
                     anchors.verticalCenter: feedback.verticalCenter
