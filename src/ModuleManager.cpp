@@ -201,12 +201,11 @@ void ModuleManager::save() const
     try {
         auto configFile = m_configFile.toStdString();
         auto configFileNew = configFile + "~";
-        boost::filesystem::remove(configFileNew);
         std::ofstream outFile(configFileNew);
         outFile.write(data.begin(), data.size());
         outFile.flush();
         outFile.close();
-        boost::filesystem::rename(configFileNew, configFile);
+        std::filesystem::rename(configFileNew, configFile);
     } catch (const std::exception &e) {
         logFatal() << "Failed to save the wallet.dat. Reason:" << e;
     }

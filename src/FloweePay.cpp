@@ -44,6 +44,10 @@
 #include <QTimer>
 #include <QUrl>
 
+#include <system_error>
+#include <filesystem>
+#include <fstream>
+
 constexpr const char *UNIT_TYPE = "unit";
 constexpr const char *CREATE_START_WALLET = "create-start-wallet";
 constexpr const char *WINDOW_WIDTH = "window/width";
@@ -461,24 +465,15 @@ void FloweePay::saveData()
         }
     }
 
-    QFile out(filebase + "~");
-    out.remove(); // avoid overwrite issues.
-    if (out.open(QIODevice::WriteOnly)) {
-        auto rc = out.write(buf.begin(), buf.size());
-        if (rc == -1) {
-            logFatal() << "Failed to write. Disk full?";
-            // TODO have an app-wide error
-            return;
-        }
+    try {
+        std::string filebaseStr(filebase.toStdString());
+        std::ofstream out(filebaseStr + "~");
+        out.write(buf.begin(), buf.size());
+        out.flush();
         out.close();
-        QFile::remove(filebase);
-        if (!out.rename(filebase)) {
-            logFatal() << "Failed to rename to" << filebase;
-        // TODO have an app-wide error
-        }
-    } else {
-        logFatal() << "Failed to create data file. Permissions issue?";
-        // TODO have an app-wide error
+        std::filesystem::rename(filebaseStr + "~", filebaseStr);
+    } catch (const std::exception &e) {
+        logFatal() << "Failed to create data file. Permissions issue?" << e;
     }
 }
 

@@ -1743,8 +1743,7 @@ void Wallet::saveSecrets()
     auto data = builder.buffer();
 
     try {
-        boost::filesystem::create_directories(m_basedir);
-        boost::filesystem::remove(m_basedir / "secrets.dat~");
+        std::filesystem::create_directories(m_basedir.string());
 
         if (m_encryptionLevel == FullyEncrypted) {
             auto &pool = Streaming::pool(data.size() + AES_BLOCKSIZE);
@@ -1752,11 +1751,12 @@ void Wallet::saveSecrets()
             int size = crypto.encrypt(data.begin(), data.size(), pool.data());
             data = pool.commit(size);
         }
-        std::ofstream outFile((m_basedir / "secrets.dat~").string());
+        const auto basefile = (m_basedir / "secrets.dat").string();
+        std::ofstream outFile(basefile + "~");
         outFile.write(data.begin(), data.size());
         outFile.flush();
         outFile.close();
-        boost::filesystem::rename(m_basedir / "secrets.dat~", m_basedir / "secrets.dat");
+        std::filesystem::rename(basefile + "~", basefile);
     } catch (const std::exception &e) {
         logFatal(LOG_WALLET) << "Failed to save the database. Reason:" << e.what();
     }
@@ -2038,15 +2038,14 @@ void Wallet::saveWallet()
     QMutexLocker locker(&m_lock);
     if (m_walletNameChanged) {
         try {
-            boost::filesystem::create_directories(m_basedir);
-            boost::filesystem::remove(m_basedir / "name~");
-            std::ofstream outFile((m_basedir / "name~").string());
+            std::filesystem::create_directories(m_basedir.string());
+            const auto basefile = (m_basedir / "name").string();
+            std::ofstream outFile(basefile + "~");
             const auto nameBytes = m_name.toUtf8();
             outFile.write(nameBytes.constBegin(), nameBytes.size());
             outFile.flush();
             outFile.close();
-            boost::filesystem::remove(m_basedir / "name");
-            boost::filesystem::rename(m_basedir / "name~", m_basedir / "name");
+            std::filesystem::rename(basefile + "~", basefile);
             m_walletNameChanged = false;
         } catch (const std::exception &e) {
             logFatal(LOG_WALLET) << "Failed to save the wallet-name. Reason:" << e;
@@ -2111,9 +2110,7 @@ void Wallet::saveWallet()
 
     auto data = builder.buffer();
     try {
-        boost::filesystem::create_directories(m_basedir);
-        boost::filesystem::remove(m_basedir / "wallet.dat~");
-
+        std::filesystem::create_directories(m_basedir.string());
         if (m_encryptionLevel == FullyEncrypted) {
             AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
             pool.reserve(data.size() + AES_BLOCKSIZE);
@@ -2121,11 +2118,12 @@ void Wallet::saveWallet()
             data = pool.commit(size);
         }
 
-        std::ofstream outFile((m_basedir / "wallet.dat~").string());
+        const auto basefile = (m_basedir / "wallet.dat").string();
+        std::ofstream outFile(basefile + "~");
         outFile.write(data.begin(), data.size());
         outFile.flush();
         outFile.close();
-        boost::filesystem::rename(m_basedir / "wallet.dat~", m_basedir / "wallet.dat");
+        std::filesystem::rename(basefile + "~", basefile);
     } catch (const std::exception &e) {
         logFatal(LOG_WALLET) << "Failed to save the wallet.dat. Reason:" << e;
     }
