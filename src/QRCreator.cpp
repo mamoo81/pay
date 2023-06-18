@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "QRCreator.h"
-#include "FloweePay.h"
 
 #include <Logger.h>
 // cmake ensures the presence of the ZXing lib.
@@ -46,14 +45,8 @@ QImage QRCreator::requestImage(const QString &id, QSize *size, const QSize &requ
     ZXing::BitMatrix matrix = writer.encode(data, 250, 250);
 
     QImage result = QImage(matrix.height(), matrix.width(), QImage::Format_RGB32);
-    constexpr uint Black = 0xFF000000;
-    constexpr uint White = 0xFFFFFFFF;
-    uint black = Black;
-    uint white = White;
-    // inverted QRs are perfectly legal, lets make it nice for our users.
-    if (FloweePay::instance()->darkSkin())
-        qSwap(black, white);
-
+    constexpr uint black = 0xFF000000;
+    constexpr uint white = 0xFFFFFFFF;
     for (int y = 0; y < matrix.height(); ++y)
         for (int x = 0; x < matrix.width(); ++x)
             result.setPixel(x, y, matrix.get(x, y) ? black : white);
