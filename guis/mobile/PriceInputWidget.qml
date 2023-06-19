@@ -108,12 +108,17 @@ FocusScope {
             color: palette.highlight
             opacity: 0.3
             radius: 6
-            width: 35
+            width: {
+                if (root.fiatFollowsSats)
+                    return 35;
+                return currencyNameShort.width + 10
+            }
             height: parent.height - 4
             y: 2
             x: root.fiatFollowsSats ? 5 : 45
 
             Behavior on x { NumberAnimation { } }
+            Behavior on width { NumberAnimation { } }
         }
 
         Row {
@@ -137,10 +142,10 @@ FocusScope {
             Item { width: 8; height: 1 } // spacer
 
             Flowee.Label {
-                text: (Fiat.currencySymbolPost + Fiat.currencySymbolPrefix).trim()
-                width: 24
+                id: currencyNameShort
+                text: (Fiat.currencySymbolPost + Fiat.currencySymbolPrefix).trim();
+                width: Math.max(24, implicitWidth)
                 font.pixelSize: 32
-                horizontalAlignment: Text.AlignRight
                 anchors.baseline: logo.bottom
 
                 MouseArea {

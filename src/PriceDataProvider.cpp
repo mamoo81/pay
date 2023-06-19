@@ -76,6 +76,10 @@ void PriceDataProvider::setCurrency(const QLocale &countryLocale)
     m_displayCents = !(m_currency == QLatin1String("JPY")
                    || m_currency == QLatin1String("NOK"));
 
+    if (m_currency == QLatin1String("CHF")) {
+        m_currencySymbolPrefix += QLatin1String(" ");
+    }
+
     emit currencySymbolChanged();
     if (!m_basedir.isEmpty()) {
         assert(m_priceHistory.get());
