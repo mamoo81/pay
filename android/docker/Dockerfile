@@ -39,6 +39,8 @@ RUN useradd builduser -d /home/builds -m -u 1000 -U \
     libb2 \
     md4c \
     wget \
+    libc++ \
+    libxcrypt-compat \
     jdk11-openjdk \
     && pacman -Sc --noconfirm \
     && rm -rf /var/cache/pacman/pkg/* \
