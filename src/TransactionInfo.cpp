@@ -33,10 +33,21 @@ double TransactionInfo::fees() const
     qint64 fees = 0;
     if (m_createdByUs) {
         for (const auto i : m_inputs) {
-            fees += i->value();
+            /*
+             * We may assume that if a transaction is created by us that this
+             * means we have all inputs. An assumption that makes sense.
+             * It does hit the snag that if a user started an import at a later date
+             * than the input was created that we don't actually have it. We should, but
+             * we don't.
+             *
+             * So, make sure to check our pointers here.
+             */
+            if (i)
+                fees += i->value();
         }
         for (const auto o : m_outputs) {
-            fees -= o->value();
+            if (o)
+                fees -= o->value();
         }
     }
     return static_cast<double>(fees);
