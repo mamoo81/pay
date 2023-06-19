@@ -228,7 +228,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
     )
     qt6_android_generate_deployment_settings(pay_mobile)
-    qt6_android_add_apk_target(pay_mobile)
+    qt6_android_add_apk_target(pay_mobile) #notice; this call is deprecated since 6.5
 endif ()
 
 if(NOT ANDROID AND BUILD_MOBILE_PAY)
