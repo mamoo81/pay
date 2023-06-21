@@ -97,24 +97,22 @@ void PriceDataProvider::setCountry(const QString &countrycode)
     setCurrency(QLocale(countrycode));
 }
 
-QString PriceDataProvider::formattedPrice(double amountSats, int price) const
+QString PriceDataProvider::formattedPrice(double amountSats, int64_t price) const
 {
     if (price == 0)
         return QString();
     return formattedPrice(priceFor(amountSats, price));
 }
 
-int PriceDataProvider::priceFor(double amountSats, int price) const
+int64_t PriceDataProvider::priceFor(double amountSats, int64_t price) const
 {
     if (std::isnan(amountSats))
         return 0;
     qint64 fiatValue = amountSats * price;
-    fiatValue = (fiatValue + (amountSats > 0 ? 50000000: -50000000)) / qint64(100000000);
-    assert(fiatValue < INT_MAX);
-    return static_cast<int>(fiatValue);
+    return (fiatValue + (amountSats > 0 ? 50000000: -50000000)) / qint64(100000000);
 }
 
-QString PriceDataProvider::formattedPrice(int fiatValue) const
+QString PriceDataProvider::formattedPrice(int64_t fiatValue) const
 {
     // convert cheaply (low number of mallocs) to a price.
     // since our fiat is in cents, we assume we may add up to two leading zeros.
@@ -187,7 +185,7 @@ int PriceDataProvider::historicalPriceAccurate(int days) const
             PriceHistoryDataProvider::Accurate);
 }
 
-QString PriceDataProvider::priceToStringSimple(int cents) const
+QString PriceDataProvider::priceToStringSimple(int64_t cents) const
 {
     auto value = QString::number(cents);
     if (!m_displayCents)

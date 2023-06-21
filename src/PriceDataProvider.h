@@ -53,14 +53,14 @@ public:
      * This takes the BCH amount (in sats) and renders it into a price as the current locale defines,
      * based on \a price.
      */
-    Q_INVOKABLE QString formattedPrice(double amountSats, int price) const;
+    Q_INVOKABLE QString formattedPrice(double amountSats, int64_t price) const;
     /// Return the price as int (in cents) for the number of sats and the given price.
-    Q_INVOKABLE int priceFor(double amountSats, int price) const;
+    Q_INVOKABLE int64_t priceFor(double amountSats, int64_t price) const;
 
     /**
      * Return a formatted string with the locale-defined price of a fiat price from \a cents.
      */
-    Q_INVOKABLE QString formattedPrice(int cents) const;
+    Q_INVOKABLE QString formattedPrice(int64_t cents) const;
 
     /**
      * Return the price at a certain time in the past.
@@ -84,7 +84,7 @@ public:
     ///           where they hae no separator.
     /// \see currencySymbolPrefix()
     /// \see currencySymbolPost()
-    Q_INVOKABLE QString priceToStringSimple(int price) const;
+    Q_INVOKABLE QString priceToStringSimple(int64_t price) const;
 
     /**
      * Returns if the locale defined currency wants to display cents.
