@@ -66,7 +66,7 @@ FocusScope {
                     if (a) // disable the other one
                         verticalTabs.children[(index + 1) % 2].active = false
                     // update page-scope state variables
-                    if (index == 1)
+                    if (index === 1)
                         a = !a;
                     qrViewActive = a;
                     editViewActive = !a;
@@ -116,7 +116,7 @@ FocusScope {
         id: qr
         width: parent.width
         y: qrViewActive ? 40 : editBox.height
-        x: priceInput.activeFocus ? 0 - width : 0
+        x: qrViewActive || editBox.editingTextField ? 0 : 0 - width
         qrSize: qrViewActive ? 256 : 160
         textVisible: false
         qrText: request.qr
@@ -222,8 +222,9 @@ FocusScope {
             id: description
             width: parent.width
             onTextChanged: if (!inputMethodComposing) request.message = text
-            onActiveFocusOnPressChanged: editBox.editingTextField = true
+            onActiveFocusChanged: if (activeFocus) editBox.editingTextField = true
         }
+
         Behavior on opacity { OpacityAnimator { } }
 
         PriceInputWidget {
@@ -253,7 +254,7 @@ FocusScope {
     NumericKeyboardWidget {
         id: numericKeyboard
         width: parent.width
-        x: priceInput.activeFocus ? 0 : width + 10
+        x: qrViewActive || editBox.editingTextField ? width + 10 : 0
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 15
     }
