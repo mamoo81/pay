@@ -314,15 +314,15 @@ void Payment::prepare()
 #endif
 
     if (m_allowInstaPay) {
-        PaymentDetailOutput *out = nullptr;
+        PaymentDetailOutput *output = nullptr;
         if (m_paymentDetails.length() == 1) {
             // insta-pay is used to fund a single output, anything more complex than that
             // should be presented to the user for approval, no exceptions.
-            out = m_paymentDetails.first()->toOutput();
+            output = m_paymentDetails.first()->toOutput();
         }
-        if (!out)
+        if (!output)
             return;
-        if (out->maxSelected())
+        if (output->maxSelected())
             return;
 
         auto *fp = FloweePay::instance();
@@ -336,8 +336,8 @@ void Payment::prepare()
             return;
         }
         auto limit = conf.fiatInstaPayLimit(currency);
-        logInfo() << "Payment-prepare. Insta-pay for" << currency << "set to" << limit << "payment is" << out->paymentAmountFiat();
-        if (out->paymentAmountFiat() > limit)
+        logInfo() << "Payment-prepare. Insta-pay for" << currency << "set to" << limit << "payment is" << output->paymentAmountFiat();
+        if (output->paymentAmountFiat() > limit)
             return;
 
         // schedule broadcast in a different event in order to
@@ -589,9 +589,9 @@ void Payment::remove(PaymentDetail *detail)
         if (detail->isOutput()) {
             bool seenOne = false;
             for (auto iter = m_paymentDetails.rbegin(); iter != m_paymentDetails.rend(); ++iter) {
-                auto *detail = *iter;
-                if (detail->isOutput()) {
-                    detail->toOutput()->setMaxAllowed(!seenOne);
+                auto *otherDetail = *iter;
+                if (otherDetail->isOutput()) {
+                    otherDetail->toOutput()->setMaxAllowed(!seenOne);
                     seenOne = true;
                 }
             }
@@ -713,10 +713,10 @@ int Payment::paymentAmountFiat() const
                 totalBch = inputSelector->selectedValue();
             } else {
                 // then the total amount is actually trivial, it is all that is available in the wallet.
-                auto wallet = m_wallet; // use the one we prepare()d from if available
-                if (wallet == nullptr)
-                    wallet = m_account->wallet();
-                totalBch = wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
+                auto bestWallet = m_wallet; // use the one we prepare()d from if available
+                if (bestWallet == nullptr)
+                    bestWallet = m_account->wallet();
+                totalBch = bestWallet->balanceConfirmed() + bestWallet->balanceUnconfirmed();
             }
 
             return (totalBch * m_fiatPrice / 10000000 + 5) / 10;
@@ -741,10 +741,10 @@ double Payment::paymentAmount() const
             if (inputSelector)
                 return inputSelector->selectedValue();
             // then the total amount is actually trivial, it is all that is available in the wallet.
-            auto wallet = m_wallet; // use the one we prepare()d from if available
-            if (wallet == nullptr)
-                wallet = m_account->wallet();
-            return wallet->balanceConfirmed() + wallet->balanceUnconfirmed();
+            auto bestWallet = m_wallet; // use the one we prepare()d from if available
+            if (bestWallet == nullptr)
+                bestWallet = m_account->wallet();
+            return bestWallet->balanceConfirmed() + bestWallet->balanceUnconfirmed();
         }
         amount += out->paymentAmount();
     }
