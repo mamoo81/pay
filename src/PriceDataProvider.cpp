@@ -190,15 +190,14 @@ int PriceDataProvider::historicalPriceAccurate(int days) const
 QString PriceDataProvider::priceToStringSimple(int cents) const
 {
     auto value = QString::number(cents);
-    if (m_displayCents) {
-        const QChar comma = QLocale::system().decimalPoint().at(0);
-        if (cents < 10)
-            return "0" % comma % "0" % value;
-        if (cents < 100)
-            return"0" % comma % value;
-        return value.left(value.size() - 2) % comma % value.right(2);
-    }
-    return value.left(value.size() - 2);
+    if (!m_displayCents)
+        return value;
+    const QChar comma = QLocale::system().decimalPoint().at(0);
+    if (cents < 10)
+        return "0" % comma % "0" % value;
+    if (cents < 100)
+        return "0" % comma % value;
+    return value.left(value.size() - 2) % comma % value.right(2);
 }
 
 void PriceDataProvider::fetch()

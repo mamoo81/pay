@@ -32,13 +32,13 @@ double PaymentBackend::paymentAmount() const
 
 void PaymentBackend::setPaymentAmount(double amount)
 {
-    if (qFuzzyCompare(m_paymentAmount, amount))
-        return;
     if (amount < 0)
         return;
+    auto priceInFiat = std::round(FloweePay::instance()->prices()->price() * amount / 1E8);
+    if (qFuzzyCompare(m_paymentAmount, amount) && m_paymentAmountFiat == priceInFiat)
+        return;
     m_paymentAmount = amount;
-    auto priceInFiat = FloweePay::instance()->prices()->price() * amount / 1E8;
-    m_paymentAmountFiat = std::round(priceInFiat);
+    m_paymentAmountFiat = priceInFiat;
     emit amountChanged();
 }
 
@@ -49,11 +49,12 @@ int PaymentBackend::paymentAmountFiat() const
 
 void PaymentBackend::setPaymentAmountFiat(int amount)
 {
-    if (m_paymentAmountFiat == amount)
-        return;
     if (amount < 0)
         return;
+    auto satsAmount = amount * 1E8 / FloweePay::instance()->prices()->price();
+    if (m_paymentAmountFiat == amount && m_paymentAmount == satsAmount)
+        return;
     m_paymentAmountFiat = amount;
-    m_paymentAmount = amount * 1E8 / FloweePay::instance()->prices()->price();
+    m_paymentAmount = satsAmount;
     emit amountChanged();
 }

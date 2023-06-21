@@ -387,6 +387,7 @@ void Payment::reset()
     out->setCollapsable(false);
     // the first one is special since its used to emulate a dumb payment API
     connect (out, SIGNAL(paymentAmountChanged()), this, SIGNAL(amountChanged()));
+    connect (out, SIGNAL(paymentAmountFiatChanged()), this, SIGNAL(amountFiatChanged()));
     connect (out, SIGNAL(addressChanged()), this, SIGNAL(targetAddressChanged()));
     addDetail(out);
 
@@ -504,6 +505,19 @@ void Payment::setFiatPrice(int pricePerCoin)
         return;
     m_fiatPrice = pricePerCoin;
     emit fiatPriceChanged();
+
+    for (auto *detail : m_paymentDetails) {
+        if (detail->isOutput()) {
+            auto out = detail->toOutput();
+            assert(out);
+            // ensure that the UI fetches the price based on the new exchange rate.
+            if (out->fiatFollows())
+                emit out->paymentAmountFiatChanged();
+            else
+                emit out->paymentAmountChanged();
+        }
+    }
+
     doAutoPrepare();
 }
 

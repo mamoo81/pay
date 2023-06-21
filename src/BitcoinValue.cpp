@@ -20,14 +20,21 @@
 
 #include <QClipboard>
 #include <QGuiApplication>
+#include <QTimer>
 
 BitcoinValue::BitcoinValue(QObject *parent)
     : QObject(parent),
       m_value(0)
 {
     connect (FloweePay::instance(), &FloweePay::unitChanged, this, [this]() {
-        // we follow what the user actually typed.
-        setStringValue(m_typedNumber);
+        if (m_maxFractionalDigits == -1) {
+            if (m_valueSource == UserInput) { // m_typedNumber is leading
+                // we follow what the user actually typed. For crypto values anyway.
+                setStringValue(m_typedNumber);
+            } else {
+                QTimer::singleShot(10, this, SLOT(processNumberValue()));
+            }
+        }
     });
 }
 
@@ -36,29 +43,16 @@ qint64 BitcoinValue::value() const
     return m_value;
 }
 
-void BitcoinValue::setValue(qint64 value)
+void BitcoinValue::setValue(qint64 value, ValueSource source)
 {
     if (m_value == value)
         return;
     m_value = value;
+    m_valueSource = source;
     emit valueChanged();
-    if (value && m_typedNumber.isEmpty()) {
-        const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
-        m_typedNumber = QString::number(m_value / pow(10, unitConfigDecimals), 'f', unitConfigDecimals);
-        if (unitConfigDecimals > 0) { // there is a comma separator in the string
-            // remove trailing zeros
-            bool done = false;
-            while (!done) {
-                if (m_typedNumber.endsWith('.'))
-                    done = true;
-                if (done || m_typedNumber.endsWith('0'))
-                    m_typedNumber = m_typedNumber.left(m_typedNumber.size() - 1);
-                else
-                    done = true;
-            }
-        }
-        setCursorPos(m_typedNumber.size());
-    }
+
+    if (source == FromNumber)
+        QTimer::singleShot(10, this, SLOT(processNumberValue()));
 }
 
 void BitcoinValue::moveLeft()
@@ -77,26 +71,31 @@ bool BitcoinValue::insertNumber(QChar number)
 {
     if (!number.isNumber())
         throw std::runtime_error("Only numbers can be inserted in insertNumber");
+    auto backup(m_typedNumber);
     int pos = m_typedNumber.indexOf('.');
     const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
     if (pos > -1 && m_cursorPos > pos && m_typedNumber.size() - pos - unitConfigDecimals > 0)
         return false;
-    int cursorPos = m_cursorPos;
-    m_typedNumber.insert(cursorPos, number);
+    int cursorPosNow = m_cursorPos;
+    m_typedNumber.insert(cursorPosNow, number);
     while (((pos < 0 && m_typedNumber.size() > 1) || pos > 1) && m_typedNumber.startsWith('0')) {
-        --cursorPos;
+        --cursorPosNow;
         m_typedNumber = m_typedNumber.mid(1);
     }
 
-    setStringValue(m_typedNumber);
-    setCursorPos(cursorPos + 1);
+    if (!setStringValue(m_typedNumber)) {
+        // revert due to error
+        m_typedNumber = backup;
+        return false;
+    }
+    setCursorPos(cursorPosNow + 1);
     emit enteredStringChanged();
     return true;
 }
 
 bool BitcoinValue::addSeparator()
 {
-    if (m_typedNumber.indexOf('.') != -1)
+    if (m_typedNumber.indexOf('.') != -1 || m_maxFractionalDigits == 0)
         return false;
     m_typedNumber.insert(m_cursorPos, '.');
     int movedPlaces = 1;
@@ -114,7 +113,11 @@ void BitcoinValue::paste()
 {
     QClipboard *clipboard = QGuiApplication::clipboard();
     assert(clipboard);
-    setEnteredString(clipboard->text().trimmed());
+
+    auto newValue = clipboard->text().trimmed().replace(',', '.');
+    setStringValue(newValue);
+    m_valueSource = FromNumber;
+    QTimer::singleShot(10, this, SLOT(processNumberValue()));
 }
 
 bool BitcoinValue::backspacePressed()
@@ -144,29 +147,7 @@ void BitcoinValue::reset()
     emit valueChanged();
 }
 
-void BitcoinValue::setEnteredString(const QString &value)
-{
-    bool started = false;
-    setCursorPos(0);
-    m_typedNumber.clear();
-    for (int i = 0; i < value.size(); ++i) {
-        auto k = value.at(i);
-        if (k.isDigit()) {
-            started = true;
-            insertNumber(k);
-        }
-        else if ((started || (value.size() > i + 1 && value.at(i+1).isDigit()))
-                  && (k.unicode() == ',' || k.unicode() == '.')) {
-            addSeparator();
-        }
-        else if (started)
-            return;
-    }
-    if (!m_cursorPos)
-        setValue(0);
-}
-
-void BitcoinValue::setStringValue(const QString &value)
+bool BitcoinValue::setStringValue(const QString &value)
 {
     int separator = value.indexOf('.');
     QStringView before;
@@ -187,17 +168,17 @@ void BitcoinValue::setStringValue(const QString &value)
         after += '0';
 
     newVal += QStringView(after).left(unitConfigDecimals).toInt();
-    setValue(newVal);
+
+    constexpr int64_t Coin = 100000000; // num satoshis in a single coin
+    constexpr int64_t MaxMoney = 21000000 * Coin; // number of maxim monies ever to be created
+    if (newVal > MaxMoney)
+        return false;
+    setValue(newVal, UserInput);
+    return true;
 }
 
 QString BitcoinValue::enteredString() const
 {
-    const char decimalPoint = QLocale::system().decimalPoint().at(0).unicode();
-    if (decimalPoint != '.') { // make the user-visible one always use the locale-aware decimalpoint.
-        QString answer(m_typedNumber);
-        answer.replace('.', decimalPoint);
-        return answer;
-    }
     return m_typedNumber;
 }
 
@@ -213,11 +194,17 @@ void BitcoinValue::setMaxFractionalDigits(int newMaxFractionalDigits)
     m_maxFractionalDigits = newMaxFractionalDigits;
     emit maxFractionalDigitsChanged();
 
-    // the behavior here assumes that this is a property most won't set and those that do
-    // only set it once
-    if (m_value) {
-        m_typedNumber = QString::number(m_value / pow(10, m_maxFractionalDigits), 'f', m_maxFractionalDigits);
-        m_cursorPos = m_typedNumber.size();
+    // recalc the integer baesd one from the user-typed string.
+    if (m_valueSource == UserInput) {
+        if (newMaxFractionalDigits  == 0) {
+            // special case this. Drop the separator if the new currency has none.
+            int index = m_typedNumber.indexOf('.');
+            if (index > 0) {
+                m_typedNumber = m_typedNumber.left(index);
+                setCursorPos(std::min(index, m_cursorPos));
+            }
+        }
+        setStringValue(m_typedNumber);
     }
 }
 
@@ -237,4 +224,32 @@ void BitcoinValue::setCursorPos(int cp)
         return;
     m_cursorPos = cp;
     emit cursorPosChanged();
+}
+
+/*
+ * Use m_value as the 'user input' and update
+ * the cursor pos and the m_typedNumber variables in a heuristically pleasing manner.
+ */
+void BitcoinValue::processNumberValue()
+{
+    if (m_valueSource == UserInput)
+        return;
+
+    const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
+    m_typedNumber = QString::number(m_value / pow(10, unitConfigDecimals), 'f', unitConfigDecimals);
+    if (unitConfigDecimals > 0) { // there is a comma separator in the string
+        int length;
+        if (m_typedNumber.startsWith("0."))
+            length = -1;
+        else
+            length = m_typedNumber.indexOf('.')  - 1;
+        for (int i = length + 1; i < m_typedNumber.size(); ++i) {
+            if (m_typedNumber.at(i).isDigit() && m_typedNumber.at(i).unicode() != '0') {
+                length = i;
+            }
+        }
+        m_typedNumber = m_typedNumber.left(length + 1);
+    }
+    setCursorPos(m_typedNumber.size());
+    emit enteredStringChanged();
 }

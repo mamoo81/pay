@@ -231,6 +231,22 @@ FocusScope {
             fiatFollowsSats: false
             width: parent.width
             onActiveFocusChanged: if (activeFocus) editBox.editingTextField = false
+
+            Connections {
+                target: Fiat
+                /*
+                 * The price may change simply because the market moved and we re-cheked the server,
+                 * but more important is the case where the user changed which currency they use.
+                 */
+                function onPriceChanged() {
+                    // set the value again to trigger an updated exchange-rate calculation to happen.
+                    var price = priceInput.editor.value;
+                    if (priceInput.fiatFollowsSats)
+                        priceInput.paymentBackend.paymentAmount = price;
+                    else
+                        priceInput.paymentBackend.paymentAmountFiat = price;
+                }
+            }
         }
     }
 
@@ -267,6 +283,8 @@ FocusScope {
             }
         }
         opacity: request.state === PaymentRequest.Unpaid ? 0: 1
+        enabled: opacity > 0
+        visible: opacity > 0
 
         // animating timer to indicate our checking the security of the transaction.
         // (i.e. waiting for the double spent proof)

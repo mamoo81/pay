@@ -39,7 +39,7 @@ class Payment : public QObject
     /// The payment-wide amount of funds being sent by this Payment.
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY amountChanged)
     /// The payment-wide amount of funds being sent by this Payment.
-    Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY amountChanged)
+    Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY amountFiatChanged)
     /// The single-output address we will send to
     Q_PROPERTY(QString targetAddress READ targetAddress WRITE setTargetAddress NOTIFY targetAddressChanged)
     // cleaned up and re-formatted
@@ -222,6 +222,7 @@ private slots:
 signals:
     void feePerByteChanged();
     void amountChanged();
+    void amountFiatChanged();
     void targetAddressChanged();
     void txPreparedChanged();
     void preferSchnorrChanged();

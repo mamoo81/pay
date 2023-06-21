@@ -31,6 +31,7 @@ FocusScope {
     // this allows us to wrap methods
     property Item money: Item {
         property alias enteredString: privValue.enteredString
+        property alias value: privValue.value
         function insertNumber(character) {
             let rc = privValue.insertNumber(character);
             if (rc)

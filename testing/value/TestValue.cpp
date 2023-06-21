@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,32 @@
 #include <BitcoinValue.h>
 #include <FloweePay.h>
 
+class MockBitcoinValue : public BitcoinValue
+{
+public:
+    void setEnteredString(const QString &string)
+    {
+        bool started = false;
+        setCursorPos(0);
+        m_typedNumber.clear();
+        for (int i = 0; i < string.size(); ++i) {
+            auto k = string.at(i);
+            if (k.isDigit()) {
+                started = true;
+                insertNumber(k);
+            }
+            else if ((started || (string.size() > i + 1 && string.at(i+1).isDigit()))
+                     && (k.unicode() == ',' || k.unicode() == '.')) {
+                addSeparator();
+            }
+            else if (started)
+                return;
+        }
+        if (!m_cursorPos)
+            setValue(0, UserInput);
+    }
+};
+
 void TestValue::init()
 {
     FloweePay::instance()->setUnit(FloweePay::BCH);
@@ -26,7 +52,7 @@ void TestValue::init()
 
 void TestValue::basics()
 {
-    BitcoinValue testObject;
+    MockBitcoinValue testObject;
     testObject.setRealValue(8790.9); // We only use the whole
     QCOMPARE(testObject.value(), 8790);
 
@@ -112,7 +138,7 @@ void TestValue::basics()
 
 void TestValue::insertAtCursor()
 {
-    BitcoinValue testObject;
+    MockBitcoinValue testObject;
     testObject.setEnteredString("156.1");
     QCOMPARE(testObject.value(), 15610000000);
     QCOMPARE(testObject.cursorPos(), 5);
@@ -168,7 +194,7 @@ void TestValue::insertAtCursor()
 
 void TestValue::fiatValues()
 {
-    BitcoinValue testObject;
+    MockBitcoinValue testObject;
     testObject.setMaxFractionalDigits(2);
     // this sets it to a fiat mode, like the Euro
 
@@ -192,7 +218,7 @@ void TestValue::fiatValues()
 
 void TestValue::setText()
 {
-    BitcoinValue testObject;
+    MockBitcoinValue testObject;
     testObject.setEnteredString("1.23456789");
     QCOMPARE(testObject.value(), 123456789);
     FloweePay::instance()->setUnit(FloweePay::BCH);

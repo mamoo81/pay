@@ -87,6 +87,7 @@ void PaymentDetailOutput::setPaymentAmount(double amount_)
     setFiatFollows(true);
     setMaxSelected(false);
     emit paymentAmountChanged();
+    emit paymentAmountFiatChanged();
     checkValid();
 }
 
@@ -220,6 +221,7 @@ void PaymentDetailOutput::setWallet(Wallet *)
 {
     if (m_maxAllowed && m_maxSelected) {
         emit paymentAmountChanged();
+        emit paymentAmountFiatChanged();
     }
 }
 
@@ -237,6 +239,7 @@ void PaymentDetailOutput::setMaxSelected(bool on)
     setFiatFollows(on);
     emit maxSelectedChanged();
     emit paymentAmountChanged();
+    emit paymentAmountFiatChanged();
     checkValid();
 }
 
@@ -244,6 +247,7 @@ void PaymentDetailOutput::recalcMax()
 {
     if (m_maxSelected && m_maxAllowed) {
         emit paymentAmountChanged();
+        emit paymentAmountFiatChanged();
     }
 }
 
@@ -299,6 +303,7 @@ void PaymentDetailOutput::setPaymentAmountFiat(int amount)
     setFiatFollows(false);
     setMaxSelected(false);
     emit paymentAmountChanged();
+    emit paymentAmountFiatChanged();
     checkValid();
 }
 
@@ -328,8 +333,10 @@ void PaymentDetailOutput::setMaxAllowed(bool max)
     m_maxAllowed = max;
     emit maxAllowedChanged();
 
-    if (max == false && m_paymentAmount == -1)
+    if (max == false && m_paymentAmount == -1) {
         setPaymentAmount(0);
-    else
+    } else {
         emit paymentAmountChanged();
+        emit paymentAmountFiatChanged();
+    }
 }

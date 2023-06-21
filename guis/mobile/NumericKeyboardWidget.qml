@@ -18,59 +18,100 @@
 import QtQuick
 import QtQuick.Controls as QQC2
 
-Flow {
+Item {
     id: root
-    Repeater {
-        model: 12
-        delegate: Item {
-            width: root.width / 3
-            height: 70
-            QQC2.Label {
-                id: textLabel
-                anchors.centerIn: parent
-                font.pixelSize: 28
-                text: {
-                    if (index < 9)
-                        return index + 1;
-                    if (index === 9)
-                        return Qt.locale().decimalPoint
-                    if (index === 10)
-                        return "0"
-                    return ""; // index === 11, the backspace.
-                }
-                // make dim when not enabled.
-                color: {
-                    if (!enabled)
-                        return Pay.useDarkSkin ? Qt.darker(palette.buttonText, 2) : Qt.lighter(palette.buttonText, 2);
-                    return palette.windowText;
-                }
-            }
-            Image {
-                visible: index === 11
-                anchors.centerIn: parent
-                source: index === 11 ? ("qrc:/backspace" + (Pay.useDarkSkin ? "-light" : "") + ".svg") : ""
-                width: 27
-                height: 17
-                opacity: enabled ? 1 : 0.4
-            }
+    implicitHeight: flowLayout.implicitHeight
+    Rectangle {
+        // when the typed items are not allowd
+        // by the back-end, we flash this red area for a very brief time
+        // to let the user know.
+        // notice we also 'shake' the actual typed text, but if the user is
+        // focused on this widget they might miss that.
+        // Useful since some currencies don't allow dots/commas, which should
+        // be clearly communicated to the user!
+        id: errorFeedback
+        anchors.fill: parent
+        radius: 20
+        color: mainWindow.errorRedBg
+        opacity: 0
 
-            MouseArea {
-                anchors.fill: parent
-                function doSomething() {
-                    let editor = priceInput.editor;
-                    if (index < 9) // these are digits
-                        var shake = !editor.insertNumber("" + (index + 1));
-                    else if (index === 9)
-                        shake = !editor.addSeparator()
-                    else if (index === 10)
-                        shake = !editor.insertNumber("0");
-                    else
-                        shake = !editor.backspacePressed();
-                    if (shake)
-                        priceInput.shake();
+        Timer {
+            interval: 100
+            running: errorFeedback.opacity > 0
+            repeat: true
+            onTriggered: {
+                anim.duration = 400
+                errorFeedback.opacity = 0
+            }
+        }
+
+        Behavior on opacity {
+            NumberAnimation {
+                id: anim
+                duration: 50
+                easing.type: Easing.InOutQuad
+            }
+        }
+    }
+
+    Flow {
+        id: flowLayout
+        width: parent.width
+        Repeater {
+            model: 12
+            delegate: Item {
+                width: root.width / 3
+                height: 70
+                QQC2.Label {
+                    id: textLabel
+                    anchors.centerIn: parent
+                    font.pixelSize: 28
+                    text: {
+                        if (index < 9)
+                            return index + 1;
+                        if (index === 9)
+                            return Qt.locale().decimalPoint
+                        if (index === 10)
+                            return "0"
+                        return ""; // index === 11, the backspace.
+                    }
+                    // make dim when not enabled.
+                    color: {
+                        if (!enabled)
+                            return Pay.useDarkSkin ? Qt.darker(palette.buttonText, 2) : Qt.lighter(palette.buttonText, 2);
+                        return palette.windowText;
+                    }
                 }
-                onClicked: doSomething();
-                onDoubleClicked: doSomething();
+                Image {
+                    visible: index === 11
+                    anchors.centerIn: parent
+                    source: index === 11 ? ("qrc:/backspace" + (Pay.useDarkSkin ? "-light" : "") + ".svg") : ""
+                    width: 27
+                    height: 17
+                    opacity: enabled ? 1 : 0.4
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    function doSomething() {
+                        let editor = priceInput.editor;
+                        if (index < 9) // these are digits
+                            var fail = !editor.insertNumber("" + (index + 1));
+                        else if (index === 9)
+                            fail = !editor.addSeparator()
+                        else if (index === 10)
+                            fail = !editor.insertNumber("0");
+                        else
+                            fail = !editor.backspacePressed();
+                        if (fail) {
+                            anim.duration = 40
+                            errorFeedback.opacity = 0.7
+                            priceInput.shake();
+                        }
+                    }
+                    onClicked: doSomething();
+                    onDoubleClicked: doSomething();
+                }
             }
         }
     }

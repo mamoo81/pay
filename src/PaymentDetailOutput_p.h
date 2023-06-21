@@ -30,7 +30,7 @@ class PaymentDetailOutput : public PaymentDetail
      */
     Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY paymentAmountChanged)
-    Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY paymentAmountChanged)
+    Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY paymentAmountFiatChanged)
     // cleaned up and re-formatted, empty if invalid.
     Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY correctAddressChanged)
     // same as formatted, but without prefix.
@@ -84,9 +84,9 @@ public:
 
 signals:
     void paymentAmountChanged();
+    void paymentAmountFiatChanged();
     void addressChanged();
     void correctAddressChanged();
-    void fiatIsMainChanged();
     void fiatFollowsChanged();
     void maxSelectedChanged();
     void forceLegacyOkChanged();

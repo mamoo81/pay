@@ -25,20 +25,25 @@ class BitcoinValue : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(double value READ realValue WRITE setRealValue NOTIFY valueChanged)
-    Q_PROPERTY(QString enteredString READ enteredString WRITE setEnteredString NOTIFY enteredStringChanged)
+    Q_PROPERTY(QString enteredString READ enteredString NOTIFY enteredStringChanged)
     Q_PROPERTY(int maxFractionalDigits READ maxFractionalDigits WRITE setMaxFractionalDigits RESET resetMaxFractionalDigits NOTIFY maxFractionalDigitsChanged)
     Q_PROPERTY(int cursorPos READ cursorPos WRITE setCursorPos NOTIFY cursorPosChanged)
 public:
     explicit BitcoinValue(QObject *parent = nullptr);
 
+    enum ValueSource {
+        UserInput, // the result of things like insertNumnber() or paste()
+        FromNumber // setValue() with a number was called.
+    };
+
     qint64 value() const;
-    void setValue(qint64 value);
+    void setValue(qint64 value, ValueSource source);
 
     inline double realValue() {
         return m_value;
     }
     inline void setRealValue(double val) {
-        setValue(val);
+        setValue(val, FromNumber);
     }
 
     Q_INVOKABLE void moveLeft();
@@ -50,7 +55,6 @@ public:
     Q_INVOKABLE void reset();
 
     QString enteredString() const;
-    void setEnteredString(const QString &s);
 
     /*
      * For fiat prices we want to limit the number of digits after
@@ -71,14 +75,19 @@ signals:
     void maxFractionalDigitsChanged();
     void cursorPosChanged();
 
-private:
+protected slots:
+    void processNumberValue();
+
+protected:
     // sets integer form of m_value from the \a value
-    void setStringValue(const QString &value);
+    // returns false if the string is not a proper number (or out of bounds)
+    bool setStringValue(const QString &value);
 
     qint64 m_value;
     QString m_typedNumber;
     int m_cursorPos = 0;
     int m_maxFractionalDigits = -1;
+    ValueSource m_valueSource = UserInput;
 };
 
 #endif

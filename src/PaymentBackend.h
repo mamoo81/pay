@@ -31,10 +31,10 @@ public:
     explicit PaymentBackend(QObject *parent = nullptr);
 
     double paymentAmount() const;
-    void setPaymentAmount(double newPaymentAmount);
+    void setPaymentAmount(double amount);
 
     int paymentAmountFiat() const;
-    void setPaymentAmountFiat(int newPaymentAmountFiat);
+    void setPaymentAmountFiat(int amount);
 
 signals:
     void amountChanged();
