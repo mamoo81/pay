@@ -26,8 +26,9 @@ function makeAur(
 
 
 makeAur android-ndk
-makeAur android-sdk-platform-tools
-makeAur android-sdk-build-tools
+# For now we hardcode the 31.0.3 release of the sdk, seeing as Qt hardcodes gradle 7.4.2, which doesn't like a newer sdk.
+makeAur android-sdk-platform-tools 89f6840df092ea2f1fc3d446c41be78cf9b66339
+makeAur android-sdk-build-tools 87aea36e5aef112d7af0c2ae5db154e96ab633c3
 makeAur android-sdk-cmdline-tools-latest
 makeAur android-platform
 

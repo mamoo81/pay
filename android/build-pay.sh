@@ -48,7 +48,7 @@ if test "$_ok" -eq 0; then
 fi
 
 if test -z "$_docker_name_"; then
-    _docker_name_="flowee/buildenv-android:v6.4.3"
+    _docker_name_="codeberg.org/flowee/buildenv-android:v6.5.1"
 fi
 
 if ! test -f "$_pay_native_name_/blockheaders-meta-extractor"; then
@@ -97,6 +97,7 @@ export QT_ANDROID_KEYSTORE_STORE_PASS=longPassword
 export QT_ANDROID_KEYSTORE_KEY_PASS=longPassword
 
 /usr/local/bin/androiddeployqt \
+    --release \
     --input /home/builds/build/android-pay_mobile-deployment-settings.json \
     --output /home/builds/build/android-build \
     --sign /home/builds/src/android/selfsigned.keystore floweepay

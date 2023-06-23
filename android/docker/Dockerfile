@@ -1,4 +1,4 @@
-ARG QtVersion=v6.4.3
+ARG QtVersion=v6.5.1
 
 FROM archlinux:latest
 ARG QtVersion
