@@ -167,7 +167,7 @@ FloweePay::FloweePay()
              * not active, they may all have been removed or timed out already.
              *
              * What we'll do is to start the actions again which will check up on our connections
-             * and create new ones or download blocks if we need to.
+             * and create new ones if we need to.
              */
             if (!m_offline && m_loadingCompleted)
                 p2pNet()->start();
