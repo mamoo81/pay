@@ -88,7 +88,6 @@ signals:
     void startCheckState();
 
 private slots:
-    void initialize();
     void qrScanFinished();
     void checkState();
     void initCamera();

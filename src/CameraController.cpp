@@ -19,7 +19,7 @@
 #include "CameraController.h"
 #include "QRScanner.h"
 #include "FloweePay.h"
-#include "qclipboard.h"
+#include <Logger.h>
 
 #include <ZXing/ReadBarcode.h>
 
@@ -28,14 +28,17 @@
 #include <QVideoSink>
 #include <QCamera>
 #include <QGuiApplication>
+#include <QClipboard>
 #include <QPointer>
 #include <QMutex>
 #include <QThread>
-#ifdef TARGET_OS_Android
-#include <private/qandroidextras_p.h>
-#endif
 
-#include <Logger.h>
+#if TARGET_OS_Android && QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+# include <private/qandroidextras_p.h>
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && QT_CONFIG(permissions)
+#include <QPermissions>
+#endif
 
 enum AskingState {
     NotAsked,
@@ -475,33 +478,10 @@ CameraController::CameraController(QObject *parent)
     : QObject(parent),
     d(new CameraControllerPrivate(this))
 {
-    // pre-load the camera for stability sake
-    // QTimer::singleShot(3000, this, SLOT(initialize()));
-
     // The Android permissions requesting stuff returns results in a different thread,
     // allow an easy way to move back to the main thread using a connection.
     QObject::connect(this, SIGNAL(startCheckState()), this, SLOT(checkState()), Qt::QueuedConnection);
 }
-
-void CameraController::initialize()
-{
-#ifdef TARGET_OS_Android
-    QMutexLocker locker(&d->lock);
-    if (d->state == NotAsked) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-        auto future = QtAndroidPrivate::checkPermission(QtAndroidPrivate::Camera);
-        future.then([=](QtAndroidPrivate::PermissionResult res) {
-            if (res == QtAndroidPrivate::PermissionResult::Authorized) {
-                // the camera had been authorized before, load the camera components in the UI.
-                d->cameraLoaded = true;
-                emit loadCameraChanged();
-            }
-        });
-#endif
-    }
-#endif
-}
-
 
 void CameraController::startRequest(QRScanner *request)
 {
@@ -514,10 +494,30 @@ void CameraController::startRequest(QRScanner *request)
     }
 
     if (d->state == NotAsked) {
-#ifdef TARGET_OS_Android
-#if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
-        // we expect that in Qt65 this API will be changed or removed as the QCoreApplication::requestPermission will then become available.
-        // for now, use the private APIs (since 6.5 is still 4 months from release)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && QT_CONFIG(permissions)
+        switch (QCoreApplication::instance()->checkPermission(QCameraPermission {})) {
+        case Qt::PermissionStatus::Granted: d->state = Authorized; break;
+        case Qt::PermissionStatus::Denied: d->state = Denied; break;
+        case Qt::PermissionStatus::Undetermined:
+            d->state = Asking;
+            QCoreApplication::instance()->requestPermission(QCameraPermission {},
+                       this, [=](const QPermission &permission) {
+
+                if (permission.status() == Qt::PermissionStatus::Granted) {
+                    d->state = Authorized;
+                    // move the actual turning on of the camera to the next event.
+                    // please notice that this reply came in a different thread than the main one.
+                    // We must move back to the main one before doing anything.
+                    emit startCheckState();
+                } else {
+                    d->state = Denied;
+                }
+            });
+            break;
+        }
+#else
+# ifdef TARGET_OS_Android
+        // QCoreApplication::requestPermission was only introduced in Qt6.5
         d->state = Asking;
         auto future = QtAndroidPrivate::checkPermission(QtAndroidPrivate::Camera);
         future.then([=](QtAndroidPrivate::PermissionResult res) {
@@ -542,9 +542,9 @@ void CameraController::startRequest(QRScanner *request)
             }
         });
         return;
-#endif // version check
-#else
+# else
         d->state = Authorized;
+# endif
 #endif
     }
     d->checkState();
@@ -636,7 +636,7 @@ bool CameraController::importScanFromClipboard()
     }
     else {
         // find the address if it doesn't have the prefix.
-        for (auto word : text.split(' ', Qt::SkipEmptyParts)) {
+        for (auto &word : text.split(' ', Qt::SkipEmptyParts)) {
             if (word.length() > 40 && word.length() < 50) {
                 auto id = FloweePay::instance()->identifyString(prefix + word);
                 if (id == WalletEnums::CashPKH || id == WalletEnums::CashSH) {
