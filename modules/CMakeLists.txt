@@ -18,9 +18,6 @@
 #add_subdirectory(build-transaction)
 
 # Find all modules to auto-invoke and write them to a file.
-message("")
-message("Modules")
-message("=======")
 set(INCLUDES_LIST "")
 set(CLASSES_LIST "")
 file(GLOB sub_directories ${CMAKE_CURRENT_SOURCE_DIR}/*)
@@ -30,9 +27,7 @@ foreach (child ${sub_directories})
         if (EXISTS ${subModule})
             add_subdirectory(${child})
             file (RELATIVE_PATH module ${CMAKE_CURRENT_SOURCE_DIR} ${child})
-            message("-- Including module '${module}'")
             get_filename_component(className ${subModule} NAME_WE)
-            message("   ${className}")
             list (APPEND CLASSES_LIST ${className})
 
             file (RELATIVE_PATH include_file ${CMAKE_CURRENT_SOURCE_DIR} ${subModule})
