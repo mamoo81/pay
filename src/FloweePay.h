@@ -47,7 +47,6 @@ class FloweePay : public QObject, public WorkerThreads, public HeaderSyncInterfa
     Q_OBJECT
     Q_PROPERTY(QString version READ version CONSTANT)
     Q_PROPERTY(QString libsVersion READ libsVersion CONSTANT)
-    Q_PROPERTY(QString platform READ platform CONSTANT)
     // p2p net
     Q_PROPERTY(int headerChainHeight READ headerChainHeight NOTIFY headerChainHeightChanged)
     Q_PROPERTY(int expectedChainHeight READ expectedChainHeight NOTIFY expectedChainHeightChanged)
@@ -108,9 +107,6 @@ public:
 
     /// return the app data location
     QString basedir() const;
-
-    /// returns platform name, Linux / Android / etc
-    QString platform() const;
 
     /**
      * Load p2p layer in a worker-thread.
