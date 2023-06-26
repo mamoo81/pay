@@ -44,8 +44,15 @@ Item {
         height: 16
         smooth: true
         source: "qrc:/edit-pen" + (Pay.useDarkSkin ? "-light" : "") + ".svg"
-        opacity: root.editable ? 1 : 0
+        opacity: {
+            if (root.editable == false)
+                return 0;
+            if (editWidget.visible) // button is disabled.
+                return 0.4
+            return 1; // enabled
+        }
         visible: opacity > 0
+        enabled: editWidget.visible == false
         MouseArea {
             anchors.fill: parent
             anchors.margins: -15
