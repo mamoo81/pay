@@ -33,7 +33,7 @@ QQC2.Control {
         id: highlight
         anchors.fill: parent
         color: palette.button
-        visible: mouseArea.containsMouse
+        visible: enabled && mouseArea.containsMouse
         radius: 6
     }
     Image {
@@ -44,6 +44,7 @@ QQC2.Control {
         anchors.top: parent.top
         anchors.topMargin: 4
         smooth: true
+        opacity: enabled ? 1 : 0.6
     }
     Label {
         id: label
@@ -52,6 +53,7 @@ QQC2.Control {
         horizontalAlignment: Text.AlignHCenter
         anchors.top: imageIcon.bottom
         anchors.topMargin: 4
+        opacity: enabled ? 1 : 0.6
     }
     MouseArea {
         id: mouseArea
