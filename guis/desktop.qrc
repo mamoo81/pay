@@ -12,13 +12,7 @@
         <file alias="settingsIcon-light.png">desktop/images/settingsIcon-light.png</file>
         <file alias="activityIcon.png">desktop/images/activityIcon.png</file>
         <file alias="activityIcon-light.png">desktop/images/activityIcon-light.png</file>
-        <file alias="eye-closed-light.png">desktop/images/eye-closed-light.png</file>
-        <file alias="eye-closed.png">desktop/images/eye-closed.png</file>
-        <file alias="eye-open-light.png">desktop/images/eye-open-light.png</file>
-        <file alias="eye-open.png">desktop/images/eye-open.png</file>
         <file alias="edit-delete.svg">desktop/images/edit-delete.svg</file>
-        <file alias="lock-light.svg">desktop/images/lock-light.svg</file>
-        <file alias="lock-dark.svg">desktop/images/lock-dark.svg</file>
         <file alias="defaults.ini">desktop/defaults.ini</file>
         <file>desktop/ConfigItem.qml</file>
         <file>ControlColors.js</file>

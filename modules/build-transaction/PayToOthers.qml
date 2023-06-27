@@ -341,6 +341,7 @@ Page {
                     anchors.bottomMargin: 15
                     width: parent.width
                     enabled: !paymentDetail.maxSelected
+                    dataInput: priceInput
                 }
 
                 Rectangle {

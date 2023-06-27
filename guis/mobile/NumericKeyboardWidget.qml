@@ -21,6 +21,9 @@ import QtQuick.Controls as QQC2
 Item {
     id: root
     implicitHeight: flowLayout.implicitHeight
+
+    required property var dataInput;
+
     Rectangle {
         // when the typed items are not allowd
         // by the back-end, we flash this red area for a very brief time
@@ -94,7 +97,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     function doSomething() {
-                        let editor = priceInput.editor;
+                        let editor = dataInput.editor;
                         if (index < 9) // these are digits
                             var fail = !editor.insertNumber("" + (index + 1));
                         else if (index === 9)
@@ -106,7 +109,7 @@ Item {
                         if (fail) {
                             anim.duration = 40
                             errorFeedback.opacity = 0.7
-                            priceInput.shake();
+                            dataInput.shake();
                         }
                     }
                     onClicked: doSomething();

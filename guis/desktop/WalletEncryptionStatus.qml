@@ -27,7 +27,7 @@ Item {
 
     Image {
         id: lockIcon
-        source: Pay.useDarkSkin ? "qrc:/lock-light.svg" : "qrc:/lock-dark.svg"
+        source: "qrc:/lock" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
         height: parent.height + 2
         width: height
         opacity: root.account.isDecrypted ? 0.65 : 1

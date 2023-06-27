@@ -178,7 +178,7 @@ FocusScope {
         Flowee.Button {
             anchors.right: parent.right
             text: qsTr("Clear")
-            enabled: description.text != "" || priceInput.paymentBackend.paymentAmount > 0;
+            enabled: description.text !== "" || priceInput.paymentBackend.paymentAmount > 0;
             onClicked: {
                 request.clear();
                 request.account = portfolio.current;
@@ -257,6 +257,7 @@ FocusScope {
         x: qrViewActive || editBox.editingTextField ? width + 10 : 0
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 15
+        dataInput: priceInput
     }
 
     // the "payment received" screen.

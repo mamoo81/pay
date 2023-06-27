@@ -1,9 +1,15 @@
 <RCC>
     <qresource prefix="/">
+        <file alias="eye-closed-light.png">images/eye-closed-light.png</file>
+        <file alias="eye-closed.png">images/eye-closed.png</file>
+        <file alias="eye-open-light.png">images/eye-open-light.png</file>
+        <file alias="eye-open.png">images/eye-open.png</file>
         <file alias="edit-copy.svg">images/edit-copy.svg</file>
         <file alias="edit-copy-light.svg">images/edit-copy-light.svg</file>
         <file alias="internet.svg">images/internet.svg</file>
         <file alias="CashTokens.svg">images/CashTokens.svg</file>
+        <file alias="lock-light.svg">images/lock-light.svg</file>
+        <file alias="lock.svg">images/lock.svg</file>
         <file alias="Flowee-Symbols.otf">images/Flowee-Symbols.otf</file>
         <file>Flowee/ArrowPoint.qml</file>
         <file>Flowee/BitcoinAmountLabel.qml</file>

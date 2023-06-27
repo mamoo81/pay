@@ -237,6 +237,7 @@ Page {
         width: parent.width
         enabled: !payment.details[0].maxSelected
         x: allowEditAmount ? 0 : 0 - width
+        dataInput: priceInput
 
         Behavior on x { NumberAnimation { } }
     }

@@ -39,6 +39,10 @@
         <file alias="ribbon.svg">mobile/images/ribbon.svg</file>
         <file alias="flash.svg">mobile/images/flash.svg</file>
         <file alias="flash-light.svg">mobile/images/flash-light.svg</file>
+        <file alias="keyboard.svg">mobile/images/keyboard.svg</file>
+        <file alias="keyboard-light.svg">mobile/images/keyboard-light.svg</file>
+        <file alias="num-keyboard-light.svg">mobile/images/num-keyboard-light.svg</file>
+        <file alias="num-keyboard.svg">mobile/images/num-keyboard.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>
@@ -79,5 +83,6 @@
         <file>mobile/InstaPayConfigPage.qml</file>
         <file>mobile/InstaPayConfigButton.qml</file>
         <file>mobile/ExploreModules.qml</file>
+        <file>mobile/UnlockWalletPanel.qml</file>
     </qresource>
 </RCC>

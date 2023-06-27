@@ -159,10 +159,6 @@ ListView {
                     text: qsTr("Receive")
                 }
             }
-
-            /* TODO
-              Is Encryopted / Decrypt
-             */
         }
     }
 

@@ -196,4 +196,28 @@ QQC2.Control {
             }
         }
     }
+
+    /*
+     * Fully encrypted wallet are useless to inspect or use until they are opened.
+     * This is an overlay that covers the entire screen except for the header to make
+     * unlocking a "modal" dialogue.
+     */
+    Rectangle {
+        color: palette.window
+        anchors.top: header.bottom
+        anchors.bottom: parent.bottom
+        width: parent.width
+        visible: portfolio.current.needsPinToOpen && !portfolio.current.isDecrypted
+
+        // eat all taps / clicks.
+        MouseArea { anchors.fill: parent }
+
+        // to avoid using resources in the 99% of the time the user is not unlocking his wallet,
+        // we use a loader for the unlocking screen.
+        Loader {
+            id: unlockWalletWidget
+            anchors.fill: parent
+            source: parent.visible ? "./UnlockWalletPanel.qml" : ""
+        }
+    }
 }
