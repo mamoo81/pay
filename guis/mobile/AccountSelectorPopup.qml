@@ -103,7 +103,7 @@ QQC2.Popup {
                     anchors.right: parent.right
                     anchors.rightMargin: 6
                     text: Fiat.formattedPrice(modelData.balanceConfirmed + modelData.balanceUnconfirmed, Fiat.price)
-                    visible: modelData.isDecrypted || !modelData.needsPinToOpen
+                    visible: modelData.countBalance && (modelData.isDecrypted || !modelData.needsPinToOpen)
                 }
                 Flowee.Label {
                     id: lastActive
@@ -132,7 +132,7 @@ QQC2.Popup {
                     showFiat: false
                     value: modelData.balanceConfirmed + modelData.balanceUnconfirmed
                     colorize: false
-                    visible: modelData.isDecrypted || !modelData.needsPinToOpen
+                    visible: fiat.visible
                 }
                 MouseArea {
                     anchors.fill: parent

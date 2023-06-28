@@ -340,6 +340,12 @@ QQC2.Control {
         }
         Flowee.CheckBox {
             visible: !singleAccountSetup && !root.account.isArchived
+            checked: root.account.countBalance === false
+            text: qsTr("Hide balance in overviews")
+            onClicked: root.account.countBalance = !checked
+        }
+        Flowee.CheckBox {
+            visible: !singleAccountSetup && !root.account.isArchived
             checked: root.account.isPrivate
             text: qsTr("Hide in private mode")
             onClicked: root.account.isPrivate = checked
