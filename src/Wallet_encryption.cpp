@@ -330,7 +330,6 @@ void Wallet::forgetEncryptedSecrets()
             m_hdData->walletMnemonicPwd.clear();
             m_hdData->masterKey = HDMasterKey();
         }
-        // above method emits encryptionChanged()
     }
     else if (m_encryptionLevel == FullyEncrypted) {
         if (m_segment)

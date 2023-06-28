@@ -128,10 +128,10 @@ FocusScope {
 
                 Label {
                     text: {
-                        if (root.account.needsPinToPay)
-                            return qsTr("Wallet already has pin to pay applied")
                         if (root.account.needsPinToOpen)
                             return qsTr("Wallet already has pin to open applied")
+                        if (root.account.needsPinToPay)
+                            return qsTr("Wallet already has pin to pay applied")
                         return qsTr("Your wallet will get partially encrypted and payments will become impossible without a password. If you don't have a backup of this wallet, make one first.")
                     }
                     wrapMode: Text.WordWrap
@@ -148,7 +148,7 @@ FocusScope {
                         width: stack.width
                     }
                     Label {
-                        visible: root.account.needsPinToPay
+                        visible: root.account.needsPinToPay && !root.account.needPinToOpen
                         text:  "This wallet already has pin to pay applied, you may upgrade it to pin to open but it will remove pin to pay. The password you provide must be the same as the one for pin to pay";
                         wrapMode: Text.WordWrap
                         width: stack.width
@@ -158,10 +158,10 @@ FocusScope {
 
             GridLayout {
                 visible: {
-                    if (root.account.needsPinToPay)
-                        return optionsRow.selectedKey == 1;
                     if (root.account.needsPinToOpen)
                         return false;
+                    if (root.account.needsPinToPay)
+                        return optionsRow.selectedKey == 1;
                     return true;
                 }
 

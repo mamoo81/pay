@@ -300,7 +300,7 @@ void AccountInfo::setHasFreshTransactions(bool fresh)
 
 bool AccountInfo::needsPinToPay() const
 {
-    return m_wallet->encryption() == Wallet::SecretsEncrypted;
+    return m_wallet->encryption() != Wallet::NotEncrypted;
 }
 
 bool AccountInfo::needsPinToOpen() const
@@ -310,17 +310,7 @@ bool AccountInfo::needsPinToOpen() const
 
 bool AccountInfo::isDecrypted() const
 {
-    if (m_wallet->encryption() == Wallet::NotEncrypted)
-        return true;
-
-    const auto &secrets = m_wallet->walletSecrets();
-    if (secrets.empty())
-        return false;
-    for (auto i = secrets.begin(); i != secrets.end(); ++i) {
-        if (i->second.privKey.isValid())
-            return true;
-    }
-    return false;
+    return m_wallet->isDecrypted();
 }
 
 void AccountInfo::setPrimaryAccount(bool isPrimary)
@@ -371,6 +361,10 @@ void AccountInfo::encryptPinToOpen(const QString &password)
 
 bool AccountInfo::decrypt(const QString &password)
 {
+    if (isDecrypted()) {
+        logCritical() << "Requested to decrypt an already decrypted wallet";
+        return false;
+    }
     const bool shouldAutoclose = m_wallet->encryption() == Wallet::SecretsEncrypted;
     const bool success = m_wallet->decrypt(password);
     if (shouldAutoclose && success) {

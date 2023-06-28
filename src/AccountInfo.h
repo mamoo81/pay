@@ -141,8 +141,19 @@ public:
     bool hasFreshTransactions() const;
     void setHasFreshTransactions(bool fresh);
 
+    /**
+     * Returns true if a PIN is needed to start a payment.
+     * This means that the wallet is either partially or fully encrypted.
+     */
     bool needsPinToPay() const;
+    /**
+     * Returns true if a PIN is needed to open the wallet.
+     * This means that the wallet is fully encrypted.
+     */
     bool needsPinToOpen() const;
+    /**
+     * Returs true if the wallet is either not encrypted, or currently decrypted.
+     */
     bool isDecrypted() const;
 
     int initialBlockHeight() const;

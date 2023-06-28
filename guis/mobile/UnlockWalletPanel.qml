@@ -26,6 +26,8 @@ Item {
 
     property bool numericInput: true
 
+    property QtObject account: portfolio.current
+
     Image {
         id: lockIcon
         source: "qrc:/lock" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
@@ -135,7 +137,7 @@ Item {
 
     Flowee.TextField {
         id: pwdField
-        x: parent.numericInput ? parent.width + 10 : 0
+        x: parent.numericInput ? parent.width + 30 : 0
         anchors.top: introText.bottom
         anchors.topMargin: 20
         width: parent.width
@@ -189,9 +191,11 @@ Item {
             else
                 pwd = pwdField.text;
             if (pwd !== "") {
-                portfolio.current.decrypt(pwd);
-                if (!portfolio.current.isDecrypted) {
-                    keyboard.dataInput.editor.reset();
+                root.account.decrypt(pwd);
+                keyboard.dataInput.editor.reset();
+                if (root.account.isDecrypted) {
+                    pwdField.text = "";
+                } else {
                     shaker.start();
                     if (!numericInput) {
                         pwdField.selectAll();

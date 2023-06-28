@@ -261,6 +261,49 @@ Page {
         width: parent.width
         enabled: payment.isValid && payment.txPrepared
         onActivated: payment.broadcast()
+        visible: payment.account.isDecrypted || !payment.account.needsPinToPay
+    }
+
+    Item {
+        id: decryptButton
+        visible: !slideToApprove.visible
+        anchors.fill: slideToApprove
+
+        Image {
+            id: lockIcon
+            source: "qrc:/lock" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+            x: 10
+            y: 5
+            width: 50
+            height: 50
+            smooth: true
+        }
+
+        Flowee.Button {
+            height: parent.height - 10
+            width: parent.width - 80
+            x: 70
+            y: 5
+            text: qsTr("Unlock Wallet")
+            onClicked: thePile.push(unlockInPage)
+        }
+
+        Component {
+            id: unlockInPage
+            Page {
+                headerText: payment.account.name
+                UnlockWalletPanel {
+                    account: payment.account
+                    Connections {
+                        target: payment.account
+                        function onIsDecryptedChanged() {
+                            if (payment.account.isDecrypted)
+                                thePile.pop()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Flowee.BroadcastFeedback {

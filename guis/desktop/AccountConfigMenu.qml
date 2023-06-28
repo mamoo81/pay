@@ -64,7 +64,7 @@ ConfigItem {
             items.push(detailsAction);
         var encrypted = root.account.needsPinToOpen;
         var decrypted = root.account.isDecrypted;
-        if ((encrypted || root.account.needsPinToPay) && decrypted)
+        if (root.account.needsPinToPay && decrypted)
             items.push(closeWalletAction);
         if (onMainView && encrypted && !decrypted && tabbar.currentIndex != 0)
             items.push(openWalletAction);

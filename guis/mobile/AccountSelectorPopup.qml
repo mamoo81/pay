@@ -97,7 +97,7 @@ QQC2.Popup {
                     width: 12
                     height: 12
                     anchors.verticalCenter: parent.verticalCenter
-                    visible: modelData.needsPinToPay || modelData.needsPinToOpen
+                    visible: modelData.needsPinToPay
                     source: {
                         if (visible)
                             return "qrc:/lock" + (Pay.useDarkSkin ? "-light.svg" : ".svg");

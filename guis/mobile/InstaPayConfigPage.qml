@@ -41,7 +41,7 @@ Page {
         width: parent.width
         radius: 10
         height: warning.implicitHeight + 20
-        visible: root.account.needsPinToOpen || root.account.needsPinToPay
+        visible: root.account.needsPinToPay
         color: "#00000000"
         border.width: 2
         border.color: "blue"
