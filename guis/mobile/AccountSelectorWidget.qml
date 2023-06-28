@@ -98,5 +98,9 @@ Rectangle {
         y: -10
         onSelectedAccountChanged: payment.account = selectedAccount
         selectedAccount: payment.account
+
+        // when showing the selector widget these make little to no sense.
+        showTotalBalance: false
+        showEncryptedAccounts: false
     }
 }

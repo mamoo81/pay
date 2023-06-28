@@ -27,6 +27,8 @@ QQC2.Popup {
     focus: true // to allow Escape to close it
 
     property QtObject selectedAccount: portfolio.current
+    property bool showTotalBalance: true
+    property bool showEncryptedAccounts: true
 
     Connections {
         target: menuOverlay
@@ -52,7 +54,19 @@ QQC2.Popup {
 
         Repeater { // portfolio holds all our accounts
             width: parent.width
-            model: portfolio.accounts
+            model: {
+                var accounts = portfolio.accounts
+                if (root.showEncryptedAccounts === false) {
+                    // then we filter them out here.
+                    let copy = accounts;
+                    accounts = [];
+                    for (let account of copy) {
+                        if (account.isDecrypted || !account.needsPinToOpen)
+                            accounts.push(account);
+                    }
+                }
+                return accounts;
+            }
             delegate: Item {
                 width: columnLayout.width
                 height: {
@@ -147,6 +161,7 @@ QQC2.Popup {
         Item {
             width: parent.width
             opacity: 0.8 // less bright || dark text
+            visible: !portfolio.singleAccountSetup && root.showTotalBalance
             implicitHeight: 5 + totalLabel.implicitHeight +
                              (totalLabel.width + 6 + 6 + totalAmount.width + 6 > width
                                 ? totalAmount.implicitHeight : 0)
@@ -155,7 +170,6 @@ QQC2.Popup {
                 x: 6
                 y: 5
                 text: qsTr("Balance Total") + ":"
-                visible: !portfolio.singleAccountSetup
                 font.pixelSize: root.font.pixelSize * 0.8
             }
             Flowee.BitcoinAmountLabel {
