@@ -55,7 +55,14 @@ QQC2.Popup {
             model: portfolio.accounts
             delegate: Item {
                 width: columnLayout.width
-                height: accountName.height + lastActive.height + 6 * 3
+                height: {
+                    var h = accountName.height + lastActive.height + 6 * 3;
+                    // if the width is not enough to fit, the bchamount moves
+                    // to its own line.
+                    if (6 + lastActive.width + 6 + bchAmountLabel.width + 6 > width)
+                        h += bchAmountLabel.height + 6
+                    return h;
+                }
                 Rectangle {
                     id: selectedItemIndicator
                     visible: modelData === root.selectedAccount
@@ -69,10 +76,25 @@ QQC2.Popup {
                     color: palette.highlight
                     visible: selectedItemIndicator.visible
                 }
+
+                Image {
+                    id: lockIcon
+                    x: 6
+                    width: 12
+                    height: 12
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: modelData.needsPinToPay || modelData.needsPinToOpen
+                    source: {
+                        if (visible)
+                            return "qrc:/lock" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+                        return "";
+                    }
+                }
+
                 Flowee.Label {
                     id: accountName
                     y: 6
-                    x: 6
+                    x: lockIcon.visible ? 24: 6
                     text: modelData.name
                 }
                 Flowee.Label {
@@ -81,22 +103,36 @@ QQC2.Popup {
                     anchors.right: parent.right
                     anchors.rightMargin: 6
                     text: Fiat.formattedPrice(modelData.balanceConfirmed + modelData.balanceUnconfirmed, Fiat.price)
+                    visible: modelData.isDecrypted || !modelData.needsPinToOpen
                 }
                 Flowee.Label {
                     id: lastActive
                     anchors.top: accountName.bottom
+                    anchors.topMargin: 6
                     anchors.left: accountName.left
                     text: qsTr("last active") + ": " + Pay.formatDate(modelData.lastMinedTransaction)
                     font.pixelSize: root.font.pixelSize * 0.8
-                    font.bold: false
+                    visible: modelData.isDecrypted || !modelData.needsPinToOpen
+                }
+                Flowee.Label {
+                    id: lockStatus
+                    anchors.top: accountName.bottom
+                    anchors.topMargin: 6
+                    anchors.left: accountName.left
+                    text: qsTr("Needs PIN to open")
+                    font.pixelSize: root.font.pixelSize * 0.8
+                    visible: !lastActive.visible
                 }
                 Flowee.BitcoinAmountLabel {
+                    id: bchAmountLabel
                     anchors.right: fiat.right
-                    anchors.top: lastActive.top
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 6
                     font.pixelSize: lastActive.font.pixelSize
                     showFiat: false
                     value: modelData.balanceConfirmed + modelData.balanceUnconfirmed
                     colorize: false
+                    visible: modelData.isDecrypted || !modelData.needsPinToOpen
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -105,6 +141,31 @@ QQC2.Popup {
                         root.close();
                     }
                 }
+            }
+        }
+
+        Item {
+            width: parent.width
+            opacity: 0.8 // less bright || dark text
+            implicitHeight: 5 + totalLabel.implicitHeight +
+                             (totalLabel.width + 6 + 6 + totalAmount.width + 6 > width
+                                ? totalAmount.implicitHeight : 0)
+            Flowee.Label {
+                id: totalLabel
+                x: 6
+                y: 5
+                text: qsTr("Balance Total") + ":"
+                visible: !portfolio.singleAccountSetup
+                font.pixelSize: root.font.pixelSize * 0.8
+            }
+            Flowee.BitcoinAmountLabel {
+                id: totalAmount
+                value: portfolio.totalBalance
+                anchors.right: parent.right
+                anchors.rightMargin: 6
+                anchors.bottom: parent.bottom
+                font.pixelSize: root.font.pixelSize * 0.8
+                colorize: false
             }
         }
     }
