@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
     ECC_State crypo_state; // allows the secp256k1 to function.
     qmlRegisterType<TransactionInfo>("Flowee.org.pay", 1, 0, "TransactionInfo");
     qmlRegisterType<PaymentRequest>("Flowee.org.pay", 1, 0, "PaymentRequest");
+    qmlRegisterUncreatableType<FloweePay>("Flowee.org.pay", 1, 0, "FloweePay", "");
     QQmlApplicationEngine engine;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
     // quit on error in the QMLs

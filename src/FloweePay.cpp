@@ -22,13 +22,14 @@
 #include "PriceDataProvider.h"
 
 #include <base58.h>
-#include <ripemd160.h>
 #include <cashaddr.h>
 #include <streaming/MessageParser.h>
 #include <streaming/BufferPools.h>
 #include <streaming/MessageBuilder.h>
 #include <random.h>
 #include <config/flowee-config.h>
+#include <crypto/ripemd160.h>
+#include <crypto/sha256.h>
 #include <SyncSPVAction.h>
 
 #include <QClipboard>
@@ -41,6 +42,7 @@
 #include <QResource>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QThread>
 #include <QTimer>
 #include <QUrl>
 
@@ -76,6 +78,10 @@ enum FileTags {
     WalletSetting_FiatInstaPayEnabled, // bool
     WalletSetting_FiatInstaPayLimitCurrency, // string, ISO-currency-code
     WalletSetting_FiatInstaPayLimit, // int, cents. Has to be directly behind the currency.
+
+    // security features
+    AppProtectionType = 20, // see enum FloweePay::ApplicationProtection
+    AppProtectionHash,      // the hash of the password in case type is AppPassword
 };
 
 static P2PNet::Chain s_chain = P2PNet::MainChain;
@@ -152,6 +158,7 @@ FloweePay::FloweePay()
     connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
         if (state == Qt::ApplicationInactive || state == Qt::ApplicationSuspended) {
             logInfo() << "App no longer active. Start saving data";
+            m_sleepStart = QDateTime::currentDateTimeUtc();
             saveAll();
             p2pNet()->saveData();
             saveData();
@@ -167,10 +174,16 @@ FloweePay::FloweePay()
              * not active, they may all have been removed or timed out already.
              *
              * What we'll do is to start the actions again which will check up on our connections
-             * and create new ones if we need to.
+             * and create new ones if we need them.
              */
             if (!m_offline && m_loadingCompleted)
                 p2pNet()->start();
+
+            if (m_appProtection == AppUnlocked
+                    && m_sleepStart.addSecs(60 * 10) < QDateTime::currentDateTimeUtc()) {
+                // re-lock the app after 10 minutes of not being in the front.
+                setAppProtection(AppPassword);
+            }
         }
     });
 #endif
@@ -235,6 +248,29 @@ FloweePay::FloweePay()
             if (QFile::exists(fullPath))
                 m_hdSeedValidator.registerWordList(lang.id, fullPath);
         }
+    }
+
+    // load the AppData file and only fetch the AppProtection tags.
+    // the rest of the data is used in init() when there is a valid p2pNet loaded.
+    QFile in(m_basedir + AppdataFilename);
+    if (in.open(QIODevice::ReadOnly)) {
+        const auto dataSize = in.size();
+        auto &pool = Streaming::pool(dataSize);
+        in.read(pool.begin(), dataSize);
+        Streaming::MessageParser parser(pool.commit(dataSize));
+        while (parser.next() == Streaming::FoundTag) {
+            switch (parser.tag()) {
+            case AppProtectionType:
+                m_appProtection = static_cast<ApplicationProtection>(parser.intData());
+                break;
+            case AppProtectionHash:
+                m_appProtectionHash = parser.uint256Data();
+                break;
+            default:
+                break;
+            }
+        }
+        in.close();
     }
 
     // forward signal
@@ -413,7 +449,11 @@ void FloweePay::loadingCompleted()
             m_prices->start();
     }
     m_loadingCompleted = true;
-    emit loadComplete();
+    if (m_appProtection != AppPassword) { // in that case, wait for password.
+        assert(!m_loadCompletEmitted);
+        m_loadCompletEmitted = true;
+        emit loadComplete();
+    }
 }
 
 void FloweePay::saveData()
@@ -443,6 +483,16 @@ void FloweePay::saveData()
             builder.add(WalletSetting_FiatInstaPayLimit, iter.value());
         }
     }
+
+    auto protection = m_appProtection;
+    if (protection == AppUnlocked) // thats an in-memory only state.
+        protection = AppPassword;
+    builder.add(AppProtectionType, protection);
+    if (protection == AppPassword) {
+        assert(!m_appProtectionHash.IsNull()); // it would be impossible to unlock if so.
+        builder.add(AppProtectionHash, m_appProtectionHash);
+    }
+
     auto buf = builder.buffer();
 
     // hash the new file and check if its different lest we can skip saving
@@ -820,6 +870,19 @@ void FloweePay::connectToWallet(Wallet *wallet)
         }, Qt::QueuedConnection);
 }
 
+FloweePay::ApplicationProtection FloweePay::appProtection() const
+{
+    return m_appProtection;
+}
+
+void FloweePay::setAppProtection(ApplicationProtection prot)
+{
+    if (m_appProtection == prot)
+        return;
+    m_appProtection = prot;
+    emit appProtectionChanged();
+}
+
 bool FloweePay::privateMode() const
 {
     return m_privateMode;
@@ -984,6 +1047,45 @@ QObject *FloweePay::researchAddress(const QString &address, QObject *parent)
         }
     }
     return info;
+}
+
+bool FloweePay::checkAppPassword(const QString &password)
+{
+    if (m_appProtection != AppPassword && m_appProtection != AppUnlocked)
+        return false;
+
+    // Possible attack vectors here are limited to the hash leaking to the
+    // world and the users chosen password leaking.
+    // As we aim for the hash to never leave the device any salting or similar
+    // is irrelevant.
+    const auto data = password.toUtf8();
+    CSHA256 hasher;
+    hasher.write(data.constData(), data.size());
+    uint256 hash;
+    hasher.finalize(hash.begin());
+    const bool ok = (hash == m_appProtectionHash);
+    if (ok) {
+        setAppProtection(AppUnlocked);
+        if (m_loadingCompleted && !m_loadCompletEmitted) {
+            m_loadCompletEmitted = true;
+            emit loadComplete();
+        }
+    }
+    return ok;
+}
+
+void FloweePay::setAppPassword(const QString &password)
+{
+    if (password.isEmpty()) {
+        m_appProtectionHash.SetNull();
+        setAppProtection(NoProtection);
+        return;
+    }
+    setAppProtection(AppUnlocked);
+    const auto data = password.toUtf8();
+    CSHA256 hasher;
+    hasher.write(data.constData(), data.size());
+    hasher.finalize(m_appProtectionHash.begin());
 }
 
 NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, const QDateTime &date)

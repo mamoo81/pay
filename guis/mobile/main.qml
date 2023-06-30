@@ -19,6 +19,8 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import "../ControlColors.js" as ControlColors
+import "../Flowee" as Flowee
+import Flowee.org.pay;
 
 import QtQuick.Controls.Basic
 
@@ -61,7 +63,7 @@ ApplicationWindow {
     StackView {
         id: thePile
         anchors.fill: parent
-        initialItem: "./Loading.qml";
+        initialItem: Pay.appProtection === FloweePay.AppPassword ? "./UnlockApplication.qml" : "./Loading.qml";
         onCurrentItemChanged: if (currentItem != null) currentItem.takeFocus();
         enabled: !menuOverlay.open
 
@@ -80,5 +82,57 @@ ApplicationWindow {
 
     QRScannerOverlay {
         anchors.fill: parent
+    }
+    QQC2.Popup {
+        id: notificationPopup
+        y: 110
+        x: 25
+        width: mainWindow.contentItem.width - 50
+        height: label.implicitHeight * 3
+        dim: true
+        property alias text: label.text
+
+        function show(message) {
+            if (message === "")
+                return;
+            text = message;
+            visible = true;
+        }
+        Flowee.Label {
+            id: label
+            width: parent.width - 12
+            anchors.verticalCenter: parent.verticalCenter
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        }
+        Rectangle {
+            id: timeoutBar
+            width: 5
+            height: visible ? parent.height - 12 : 1
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: 6
+            color: palette.highlight
+
+            Behavior on height { NumberAnimation { duration: notificationPopupTimer.interval } }
+        }
+
+        background: Rectangle {
+            color: palette.light
+            border.color: palette.midlight
+            border.width: 1
+            radius: 5
+        }
+        Overlay.modeless: Rectangle {
+            color: Pay.useDarkSkin ? "#33000000" : "#33ffffff"
+        }
+
+        Timer {
+            id: notificationPopupTimer
+            running: parent.visible;
+            interval: 6000
+            onTriggered: notificationPopup.visible = false;
+
+        }
     }
 }

@@ -293,6 +293,9 @@ Page {
             Page {
                 headerText: payment.account.name
                 UnlockWalletPanel {
+                    anchors.fill: parent
+                    anchors.margins: 10
+
                     account: payment.account
                     Connections {
                         target: payment.account

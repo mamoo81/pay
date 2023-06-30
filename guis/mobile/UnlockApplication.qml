@@ -18,14 +18,10 @@
 import QtQuick
 
 UnlockWidget {
-    id: root
-    // allows users to override which wallet is to be unlocked.
-    property QtObject account: portfolio.current;
+    onPasswordEntered: if (!Pay.checkAppPassword(password)) passwordIncorrect();
 
-    onPasswordEntered: {
-        var pwd = password;
-        root.account.decrypt(pwd);
-        if (!root.account.isDecrypted)
-            passwordIncorrect();
+    // called from main.qml, need to be implemented here
+    // since we dont extend the Page type.
+    function takeFocus() {
     }
 }

@@ -22,6 +22,7 @@ MenuModel::MenuModel(QObject *parent)
 {
     m_data.append({tr("Explore"), "./ExploreModules.qml"});
     m_data.append({tr("Settings"), "./GuiSettings.qml"});
+    m_data.append({tr("Security"), "./LockApplication.qml"});
     m_data.append({tr("Network Details"), "./NetView.qml"}); // TODO move to a module
     m_data.append({tr("About"), "./About.qml"});
     m_data.append({tr("Wallets"), "AccountsList.qml"});

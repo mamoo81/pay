@@ -389,7 +389,29 @@ Page {
                 }
             }
         }
-    }
+        /*
+         * A helper page that allows unlocking an account prior to paying from it.
+         */
+        Component {
+            id: unlockInPage
+            Page {
+                headerText: payment.account.name
+                UnlockWalletPanel {
+                    anchors.fill: parent
+                    anchors.margins: 10
+
+                    account: payment.account
+                    Connections {
+                        target: payment.account
+                        function onIsDecryptedChanged() {
+                            if (payment.account.isDecrypted)
+                                thePile.pop()
+                        }
+                    }
+                }
+            }
+        }
+}
     // check the comment at loaderForPayments to understand this one
     function pushToThePile(componentId, detail) {
         thePile.push(loaderForPayments,
@@ -607,10 +629,16 @@ Page {
             }
 */
             Flowee.Button {
-                text: qsTr("Prepare Payment...")
+                property bool walletNeedsDecryptFirst: !payment.account.isDecrypted && payment.account.needsPinToPay;
+                text: walletNeedsDecryptFirst ? qsTr("Unlock Wallet") : qsTr("Prepare Payment...")
                 enabled: payment.isValid
                 anchors.right: parent.right
                 onClicked: {
+                    if (walletNeedsDecryptFirst) {
+                        thePile.push(unlockInPage);
+                        return;
+                    }
+
                     payment.prepare();
                     if (payment.error !== "") {
                         errorDialog.visible = true;

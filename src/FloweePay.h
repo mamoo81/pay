@@ -31,6 +31,7 @@
 #include <QList>
 #include <QString>
 #include <QDateTime>
+#include <uint256.h>
 
 
 class Wallet;
@@ -47,6 +48,7 @@ class FloweePay : public QObject, public WorkerThreads, public HeaderSyncInterfa
     Q_OBJECT
     Q_PROPERTY(QString version READ version CONSTANT)
     Q_PROPERTY(QString libsVersion READ libsVersion CONSTANT)
+    Q_PROPERTY(ApplicationProtection appProtection READ appProtection WRITE setAppProtection NOTIFY appProtectionChanged)
     // p2p net
     Q_PROPERTY(int headerChainHeight READ headerChainHeight NOTIFY headerChainHeightChanged)
     Q_PROPERTY(int expectedChainHeight READ expectedChainHeight NOTIFY expectedChainHeightChanged)
@@ -75,6 +77,19 @@ public:
         Bits,
         Satoshis
     };
+    Q_ENUM(UnitOfBitcoin)
+
+    /**
+     * The protection the user has selected for his Flowee Pay.
+     */
+    enum ApplicationProtection {
+        NoProtection,       //< No application-wide protection. Notice individual wallets can be protected.
+        AppPassword,        //< A single password for the app. No encryption.
+        AppUnlocked,        //< App-password has been provided.
+        WalletsPinToPay,    //< All wallets are PIN-to-Pay
+        WalletsPinToOpe     //< All wallets are PIN-to-Open
+    };
+    Q_ENUM(ApplicationProtection)
 
     FloweePay();
 
@@ -143,6 +158,13 @@ public:
 
     /// Find out about the address and return an instance of AddressInfo if known.
     Q_INVOKABLE QObject* researchAddress(const QString &address, QObject *parent);
+
+    /**
+     * If property appProtection is set to AppPassword, this method will return true
+     * only if the provided password is the one set by the user.
+     */
+    Q_INVOKABLE bool checkAppPassword(const QString &password);
+    Q_INVOKABLE void setAppPassword(const QString &password);
 
     /**
      * Import a mnemonics based (BIP39)  wallet.
@@ -286,6 +308,9 @@ public:
     bool privateMode() const;
     void setPrivateMode(bool newPrivateMode);
 
+    ApplicationProtection appProtection() const;
+    void setAppProtection(ApplicationProtection newAppProtection);
+
 signals:
     void loadComplete();
     /// \internal
@@ -306,6 +331,8 @@ signals:
     void activityShowsBchChanged();
     void totalBalanceConfigChanged();
     void privateModeChanged();
+
+    void appProtectionChanged();
 
 private slots:
     void loadingCompleted();
@@ -332,8 +359,10 @@ private:
     mutable Mnemonic m_hdSeedValidator;
 
     UnitOfBitcoin m_unit = BCH;
-    QString m_basedir;
+    ApplicationProtection m_appProtection = NoProtection;
     P2PNet::Chain m_chain = P2PNet::MainChain;
+    uint256 m_appProtectionHash;
+    QString m_basedir;
     std::string m_chainPrefix;
     std::unique_ptr<DownloadManager> m_downloadManager;
     std::unique_ptr<PriceDataProvider> m_prices;
@@ -346,6 +375,8 @@ private:
     int m_windowHeight = 500;
     int m_fontScaling = 100;
     bool m_loadingCompleted = false; // 'init()' completed
+    bool m_loadCompletEmitted = false; // ensure we only emit this once.
+    bool m_appUnlocked = false;
     bool m_darkSkin = true;
     bool m_createStartWallet = false;
     bool m_hideBalance = false;
@@ -355,6 +386,11 @@ private:
     bool m_gotHeadersSyncedOnce = false;
     bool m_privateMode = false; // wallets marked private are hidden when true
 
+#ifdef TARGET_OS_Android
+    // when the app is no longer the front app we record the time in order to
+    // know how much time has passed when we get active again.
+    QDateTime m_sleepStart;
+#endif
     friend class AccountConfig;
 };
 

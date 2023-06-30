@@ -83,6 +83,9 @@
         <file>mobile/InstaPayConfigPage.qml</file>
         <file>mobile/InstaPayConfigButton.qml</file>
         <file>mobile/ExploreModules.qml</file>
+        <file>mobile/UnlockWidget.qml</file>
         <file>mobile/UnlockWalletPanel.qml</file>
+        <file>mobile/UnlockApplication.qml</file>
+        <file>mobile/LockApplication.qml</file>
     </qresource>
 </RCC>
