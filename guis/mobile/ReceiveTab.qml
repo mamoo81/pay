@@ -178,7 +178,7 @@ FocusScope {
         Flowee.Button {
             anchors.right: parent.right
             text: qsTr("Clear")
-            enabled: description.text !== "" || priceInput.paymentBackend.paymentAmount > 0;
+            enabled: description.totalText !== "" || priceInput.paymentBackend.paymentAmount > 0;
             onClicked: {
                 request.clear();
                 request.account = portfolio.current;
@@ -221,7 +221,7 @@ FocusScope {
         Flowee.TextField {
             id: description
             width: parent.width
-            onTextChanged: if (!inputMethodComposing) request.message = text
+            onTotalTextChanged: request.message = totalText
             onActiveFocusChanged: if (activeFocus) editBox.editingTextField = true
         }
 

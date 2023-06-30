@@ -28,6 +28,22 @@ QQC2.TextField {
     placeholderTextColor: Pay.useDarkSkin ? "#cecece" : "#3e3e3e"
     color: palette.windowText
 
+    property string totalText: {
+        var t = text;
+        /**
+         * Qt has a special variable for dealing with input-methods. For us it makes life just
+         * a little harder as we simply want to be able to get the total in order to validate
+         * it or update the backend as the user is typing in order to not lose "uncommitted" text.
+         */
+        var pre = preeditText;
+        if (pre !== "") {
+            let first = t.substring(0, cursorPosition)
+            let last = t.substring(cursorPosition)
+            t = first + pre + last;
+        }
+        return t;
+    }
+
     background: Rectangle {
         implicitHeight: root.contentHeight + 2
         implicitWidth: 140

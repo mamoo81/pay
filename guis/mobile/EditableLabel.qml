@@ -72,8 +72,8 @@ Item {
         visible: false
         focus: visible
         text: ourLabel.text
-        onTextChanged: {
-            ourLabel.text = text;
+        onTotalTextChanged: {
+            ourLabel.text = totalText;
             root.edited();
         }
         onEditingFinished: visible = false

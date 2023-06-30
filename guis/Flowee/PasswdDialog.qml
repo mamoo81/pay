@@ -35,7 +35,7 @@ Dialog {
         id: textEntryField
         Flowee.TextField {
             echoMode: TextInput.Password
-            onTextChanged: passwdDialog.pwd = text
+            onTotalTextChanged: passwdDialog.pwd = totalText
             onAccepted: passwdDialog.accept();
             focus: true
         }

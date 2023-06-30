@@ -25,7 +25,7 @@ Page {
     id: importAccount
     headerText: qsTr("Import Wallet")
 
-    property var typedData: Pay.identifyString(secrets.text)
+    property var typedData: Pay.identifyString(secrets.totalText)
     property bool finished: typedData === Wallet.PrivateKey || (typedData === Wallet.CorrectMnemonic && derivationPath.derivationOk);
     property bool isMnemonic: typedData === Wallet.CorrectMnemonic || typedData === Wallet.PartialMnemonic || typedData === Wallet.PartialMnemonicWithTypo;
     property bool isPrivateKey: typedData === Wallet.PrivateKey

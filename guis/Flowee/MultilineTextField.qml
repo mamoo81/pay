@@ -31,11 +31,28 @@ QQC2.Control {
     id: root
 
     property string text: ""
+    property string totalText: {
+        var t = textEdit.text;
+        /**
+         * Qt has a special variable for dealing with input-methods. For us it makes life just
+         * a little harder as we simply want to be able to get the total in order to validate
+         * it or update the backend as the user is typing in order to not lose "uncommitted" text.
+         */
+        var pre = textEdit.preeditText;
+        if (pre !== "") {
+            let first = t.substring(0, textEdit.cursorPosition)
+            let last = t.substring(textEdit.cursorPosition)
+            t = first + pre + last;
+        }
+        return t;
+    }
+
     property string placeholderText: ""
     property var nextFocusTarget: null
     property color color: palette.text
     signal editingFinished;
     property alias readOnly: textEdit.readOnly
+    property alias inputMethodHints: textEdit.inputMethodHints
 
     implicitHeight: textEdit.implicitHeight + 10
     implicitWidth: 100
