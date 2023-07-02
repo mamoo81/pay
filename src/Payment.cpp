@@ -173,7 +173,7 @@ void Payment::prepare()
     m_wallet = m_account->wallet();
     if (m_wallet->encryption() > Wallet::NotEncrypted) {
         if (!m_wallet->isDecrypted())
-            throw std::runtime_error("Wallet is needs to be decrypted first");
+            throw std::runtime_error("Wallet needs to be decrypted first");
     }
 
     TransactionBuilder builder;
