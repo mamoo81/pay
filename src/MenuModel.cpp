@@ -18,20 +18,13 @@
 #include "MenuModel.h"
 
 MenuModel::MenuModel(QObject *parent)
-    : QAbstractListModel{parent},
-      m_current(&m_root)
+    : QAbstractListModel{parent}
 {
-    m_root.children.append({tr("Explore"), "./ExploreModules.qml", {}});
-    m_root.children.append({tr("Settings"), "./GuiSettings.qml", {}});
-    m_root.children.append({tr("Network Details"), "./NetView.qml", {}});
-    m_root.children.append({tr("About"), "./About.qml", {}});
-    m_root.children.append({tr("Wallets"), "AccountsList.qml", {}});
-    /*
-    m_root.children.append({tr("Settings"), "", {
-            { tr("Security"), "", {} },
-            { tr("Settings 2"), "", {} },
-    }}); */
-
+    m_data.append({tr("Explore"), "./ExploreModules.qml"});
+    m_data.append({tr("Settings"), "./GuiSettings.qml"});
+    m_data.append({tr("Network Details"), "./NetView.qml"}); // TODO move to a module
+    m_data.append({tr("About"), "./About.qml"});
+    m_data.append({tr("Wallets"), "AccountsList.qml"});
 }
 
 int MenuModel::rowCount(const QModelIndex &parent) const
@@ -39,8 +32,7 @@ int MenuModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid()) // only for the (invalid) root node we return a count, since this is a list not a tree
         return 0;
 
-    assert(m_current);
-    return m_current->children.size();
+    return m_data.size();
 }
 
 QVariant MenuModel::data(const QModelIndex &index, int role) const
@@ -48,17 +40,14 @@ QVariant MenuModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
     assert(index.row() >= 0);
-    assert(m_current);
-    assert(m_current->children.size() > index.row());
-    const auto &item = m_current->children.at(index.row());
+    assert(m_data.size() > index.row());
+    const auto &item = m_data.at(index.row());
 
     switch (role) {
     case Name:
         return item.name;
     case Target:
         return item.target;
-    case HasChildren:
-        return !item.children.isEmpty();
     }
     return QVariant();
 }
@@ -68,6 +57,5 @@ QHash<int, QByteArray> MenuModel::roleNames() const
     QHash<int, QByteArray> answer;
     answer[Name] = "name";
     answer[Target] = "target";
-    answer[HasChildren] = "hasChildren";
     return answer;
 }

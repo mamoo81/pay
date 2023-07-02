@@ -33,18 +33,15 @@ public:
 private:
     enum Roles {
         Name,
-        Target,
-        HasChildren
+        Target
     };
 
     struct MenuItem {
         QString name;
         QString target; // the QML component to load
-        QList<MenuItem> children;
     };
 
-    MenuItem m_root;
-    MenuItem *m_current;
+    QList<MenuItem> m_data;
 };
 
 #endif
