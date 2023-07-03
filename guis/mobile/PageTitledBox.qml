@@ -21,6 +21,7 @@ import "../Flowee" as Flowee
 
 Item {
     property alias title: boxTitle.text
+    property alias spacing: contentColumn.spacing
     default property alias content: contentColumn.children
 
     implicitHeight: {

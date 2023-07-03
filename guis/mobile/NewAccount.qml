@@ -39,10 +39,11 @@ Page {
             PageTitledBox {
                 title: qsTr("Create a New Wallet")
                 width: parent.width
+                spacing: 10
 
                 Flowee.CardTypeSelector {
                     title: qsTr("HD wallet")
-                    onClicked: root.selectedKey = key
+                    onClicked: thePile.push(newHDWalletScreen);
                     width: parent.width * 0.75
                     anchors.horizontalCenter: parent.horizontalCenter
                     selected: true
@@ -52,11 +53,6 @@ Page {
                         qsTr("Easy to backup", "Context: wallet type"),
                         qsTr("Most compatible", "The most compatible wallet type")
                     ]
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: thePile.push(newHDWalletScreen);
-                    }
                     Rectangle {
                         anchors.fill: parent
                         color: "#00000000"
@@ -69,7 +65,7 @@ Page {
                 Flowee.CardTypeSelector {
                     title: qsTr("Basic")
                     width: parent.width * 0.75
-                    onClicked: root.selectedKey = key
+                    onClicked: thePile.push(newBaseWalletScreen);
                     selected: true
                     anchors.horizontalCenter: parent.horizontalCenter
 
@@ -78,18 +74,6 @@ Page {
                         qsTr("Difficult to backup", "Context: wallet type"),
                         qsTr("Great for brief usage", "Context: wallet type")
                     ]
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: thePile.push(newBaseWalletScreen);
-                    }
-                    Rectangle {
-                        anchors.fill: parent
-                        color: "#00000000"
-                        radius: 10
-                        border.width: 5
-                        border.color: palette.mid
-                    }
                 }
             }
 
@@ -99,7 +83,7 @@ Page {
                 Flowee.CardTypeSelector {
                     title: qsTr("Import")
                     width: parent.width * 0.75
-                    onClicked: root.selectedKey = key
+                    onClicked: thePile.push("./ImportWalletPage.qml");
                     anchors.horizontalCenter: parent.horizontalCenter
                     selected: true
 
@@ -107,17 +91,6 @@ Page {
                         qsTr("Imports seed-phrase"),
                         qsTr("Imports private key")
                     ]
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: thePile.push("./ImportWalletPage.qml");
-                    }
-                    Rectangle {
-                        anchors.fill: parent
-                        color: "#00000000"
-                        radius: 10
-                        border.width: 5
-                        border.color: palette.mid
-                    }
                 }
             }
         }
