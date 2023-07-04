@@ -1,0 +1,62 @@
+Modules are the main way for Flowee Pay to extend the user interface
+beyond the basics that all users will want.
+
+It is currently only supported in the mobile 'skin' due to the simple
+fact that the desktop one is unofficially meant for the developers and
+its Ok to have all features enabled in there by default.
+Additionally it avoids modules needing to support multiple form-factors.
+
+How to create a new module:
+
+start by copying the example module. Taking care that the base name of
+the new module is defined by the directory. Please use all-lowercase for
+your directory name!
+
+Adjust the CMake file and replace the project and library names by
+replacing the 'example' word with your project name.
+Notice that this is case sensitive and dashes and underscores are
+different characters here.
+
+Your lib will be [dirname]_module_lib.
+So if your dir name is "hello-world" your lib name is "hello-world_module_lib.
+
+
+**Next** you need a ModuleInfo class. Any class ending with that name is Ok,
+please use CamelCase for your filename and your class names.
+
+The class will have a build() method which you need to implement in order
+to get your module to be used by Flowee Pay. Exactly one ModuleInfo and
+a minimum of one ModuleSection is useful to get anything visual.
+
+**QML dirs** all QML files are expected to be added in the qrc file because
+that will cause them to be included in the finished executable.
+Due to the way that cmake works it is required that the qrc file has a
+unique name, so please prefix the module name to avoid any conflicts.
+
+The 'qrc' system is a virtual file system and modules should have their own
+unique subdirectory. This subdirectory is defined in your qrc file.
+In the QRC file you can find a tag like this, it specifies your qrc subdir.
+    <qresource prefix="/my-module-name">
+
+In order to reuse the QML classes from the rest of the project you can 
+import them like such:
+
+import "../Flowee" as Flowee
+import "../mobile"
+
+These imports map directly to the guis/mobile and guis/Flowee directories
+in the global Flowee Pay project repository.
+
+Feel free to make some symlinks to help autocomplete in QtCreator, just please
+don't commit them.
+
+
+**Buildsystem** the build-system will automatically detect a new module
+without any need to alter anything outside of the module directory you are
+creating. This is intended to avoid merge conflicts if there are multiple
+modules being prepared for inclusion at the same time.
+
+
+Please see the wiki for more details:
+
+https://codeberg.org/Flowee/pay/wiki/dev/modules
