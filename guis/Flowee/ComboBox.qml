@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,12 @@ QQC2.ComboBox {
         background: Rectangle {
             color: basicButton.highlighted ? root.palette.highlight : root.palette.button
         }
+    }
+    background: Rectangle {
+        color: palette.dark
+        implicitWidth: 120
+        implicitHeight: 40
+        radius: 2
     }
 
     // Personal preference, the single arrow down makes more sense to me.
