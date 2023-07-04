@@ -70,6 +70,10 @@ FocusScope {
                         a = !a;
                     qrViewActive = a;
                     editViewActive = !a;
+                    if (a)
+                        feedbackScope.forceActiveFocus();
+                    else
+                        editScope.forceActiveFocus();
                 }
                 width: 50
                 height: 50
@@ -143,109 +147,105 @@ FocusScope {
     }
 
     // feedback-fields
-    Column {
+    FocusScope {
+        id: feedbackScope
         width: parent.width
-        spacing: 10
-        opacity: qrViewActive ? 1 : 0
-        y: instructions.height + qr.height + 30
+        height: column.height
+        Column {
+            id: column
+            width: parent.width
+            spacing: 10
+            opacity: qrViewActive ? 1 : 0
+            y: instructions.height + qr.height + 30
 
-        PageTitledBox {
-            width: parent.width
-            visible: request.message !== ""
-            title: qsTr("Description")
-            Flowee.Label {
-                text: request.message
-            }
-        }
-        PageTitledBox {
-            width: parent.width
-            visible: request.amount > 0
-            title: qsTr("Amount", "requested amount of coin")
-            Flowee.BitcoinAmountLabel {
-                colorize: false
-                value: request.amount
-            }
-        }
-        PageTitledBox {
-            width: parent.width
-            title: qsTr("Address", "Bitcoin Cash address")
-            Flowee.LabelWithClipboard {
+            PageTitledBox {
                 width: parent.width
-                text: request.addressShort
-                font.pixelSize: instructions.font.pixelSize * 0.9
+                visible: request.message !== ""
+                title: qsTr("Description")
+                Flowee.Label {
+                    text: request.message
+                }
             }
-        }
-        Flowee.Button {
-            anchors.right: parent.right
-            text: qsTr("Clear")
-            enabled: description.totalText !== "" || priceInput.paymentBackend.paymentAmount > 0;
-            onClicked: {
-                request.clear();
-                request.account = portfolio.current;
-                description.text = "";
-                priceInput.paymentBackend.paymentAmount = 0;
-                request.start();
+            PageTitledBox {
+                width: parent.width
+                visible: request.amount > 0
+                title: qsTr("Amount", "requested amount of coin")
+                Flowee.BitcoinAmountLabel {
+                    colorize: false
+                    value: request.amount
+                }
             }
+            PageTitledBox {
+                width: parent.width
+                title: qsTr("Address", "Bitcoin Cash address")
+                Flowee.LabelWithClipboard {
+                    width: parent.width
+                    text: request.addressShort
+                    font.pixelSize: instructions.font.pixelSize * 0.9
+                }
+            }
+            Flowee.Button {
+                anchors.right: parent.right
+                text: qsTr("Clear")
+                enabled: description.totalText !== "" || priceInput.paymentBackend.paymentAmount > 0;
+                onClicked: {
+                    request.clear();
+                    request.account = portfolio.current;
+                    description.text = "";
+                    priceInput.paymentBackend.paymentAmount = 0;
+                    request.start();
+                }
+            }
+            Behavior on opacity { OpacityAnimator { } }
         }
-        Behavior on opacity { OpacityAnimator { } }
     }
 
     // edit fields
-    PageTitledBox {
-        id: editBox
-        width: parent.width - 50
-        x: 50
-        title: qsTr("Description")
-        opacity: editViewActive ? 1 : 0
-        enabled: editViewActive
+    FocusScope {
+        id: editScope
+        width: parent.width
+        height: editBox.height
+        PageTitledBox {
+            id: editBox
+            width: parent.width - 50
+            x: 50
+            title: qsTr("Description")
+            opacity: editViewActive ? 1 : 0
 
-        // little state-machine to switch between the two
-        // input options
-        property bool editingTextField: true
+            // little state-machine to switch between the two
+            // input options
+            property bool editingTextField: true
 
-        onEnabledChanged: {
-            // due to lack of a good statemachine, a bit hackish to
-            // switch states properly.
-            if (enabled) {
-                if (editingTextField)
-                    description.forceActiveFocus()
-                else
-                    priceInput.forceActiveFocus()
+            Flowee.TextField {
+                id: description
+                width: parent.width
+                focus: true
+                onTotalTextChanged: request.message = totalText
+                onActiveFocusChanged: if (activeFocus) editBox.editingTextField = true
             }
-            else {
-                priceInput.focus = false;
-                description.focus = false;
-            }
-        }
 
-        Flowee.TextField {
-            id: description
-            width: parent.width
-            onTotalTextChanged: request.message = totalText
-            onActiveFocusChanged: if (activeFocus) editBox.editingTextField = true
-        }
+            Behavior on opacity { OpacityAnimator { } }
 
-        Behavior on opacity { OpacityAnimator { } }
+            PriceInputWidget {
+                id: priceInput
+                fiatFollowsSats: false
+                width: parent.width
+                onActiveFocusChanged: if (activeFocus) editBox.editingTextField = false
 
-        PriceInputWidget {
-            id: priceInput
-            fiatFollowsSats: false
-            width: parent.width
-            onActiveFocusChanged: if (activeFocus) editBox.editingTextField = false
-
-            Connections {
-                target: Fiat
-                /*
-                 * The price may change simply because the market moved and we re-cheked the server,
-                 * but more important is the case where the user changed which currency they use.
-                 */
-                function onPriceChanged() {
-                    // set the value again to trigger an updated exchange-rate calculation to happen.
-                    var price = priceInput.editor.value;
-                    if (priceInput.fiatFollowsSats)
-                        priceInput.paymentBackend.paymentAmount = price;
-                    else
-                        priceInput.paymentBackend.paymentAmountFiat = price;
+                Connections {
+                    target: Fiat
+                    /*
+                     * The price may change simply because the market moved and we re-cheked the server,
+                     * but more important is the case where the user changed which currency they use.
+                     */
+                    function onPriceChanged() {
+                        // set the value again to trigger an updated exchange-rate calculation to happen.
+                        var price = priceInput.editor.value;
+                        if (priceInput.fiatFollowsSats)
+                            priceInput.paymentBackend.paymentAmount = price;
+                        else
+                            priceInput.paymentBackend.paymentAmountFiat = price;
+                    }
                 }
             }
         }
