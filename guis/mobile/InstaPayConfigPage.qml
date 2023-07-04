@@ -101,6 +101,7 @@ Page {
         anchors.bottomMargin: 15
         width: parent.width
         enabled: mainToggle.checked
+        dataInput: priceInput
     }
 
 
