@@ -19,6 +19,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import "../Flowee" as Flowee
+import "../mobile";
 
 Page {
     headerText: qsTr("Peers")

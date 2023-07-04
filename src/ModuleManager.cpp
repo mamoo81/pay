@@ -75,6 +75,8 @@ ModuleManager::ModuleManager(QObject *parent)
                 switch (s->type()) {
                 case ModuleSection::SendMethod:
                     emit sendMenuSectionsChanged();
+                case ModuleSection::MainMenuItem:
+                    emit mainMenuSectionsChanged();
                 default:
                     break;
                 }
@@ -222,6 +224,18 @@ QList<ModuleSection *> ModuleManager::sendMenuSections() const
     for (const auto *m : m_modules) {
         for (auto *s : m->sections()) {
             if (s->enabled() && s->type() == ModuleSection::SendMethod)
+                answer.append(s);
+        }
+    }
+    return answer;
+}
+
+QList<ModuleSection *> ModuleManager::maindMenuSections() const
+{
+    QList<ModuleSection *> answer;
+    for (const auto *m : m_modules) {
+        for (auto *s : m->sections()) {
+            if (s->enabled() && s->type() == ModuleSection::MainMenuItem)
                 answer.append(s);
         }
     }

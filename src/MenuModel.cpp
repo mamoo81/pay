@@ -16,16 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "MenuModel.h"
+#include "ModuleManager.h"
+#include "ModuleSection.h"
 
-MenuModel::MenuModel(QObject *parent)
-    : QAbstractListModel{parent}
+MenuModel::MenuModel(ModuleManager *mm)
+    : QAbstractListModel{mm},
+    m_moduleManager(mm)
 {
-    m_data.append({tr("Explore"), "./ExploreModules.qml"});
-    m_data.append({tr("Settings"), "./GuiSettings.qml"});
-    m_data.append({tr("Security"), "./LockApplication.qml"});
-    m_data.append({tr("Network Details"), "./NetView.qml"}); // TODO move to a module
-    m_data.append({tr("About"), "./About.qml"});
-    m_data.append({tr("Wallets"), "AccountsList.qml"});
+    assert(mm);
+    m_baseItems.append({tr("Explore"), "./ExploreModules.qml"});
+    m_baseItems.append({tr("Settings"), "./GuiSettings.qml"});
+    m_baseItems.append({tr("Security"), "./LockApplication.qml"});
+    m_baseItems.append({tr("About"), "./About.qml"});
+    m_baseItems.append({tr("Wallets"), "AccountsList.qml"});
+    initData();
+
+    connect (m_moduleManager, &ModuleManager::mainMenuSectionsChanged, this, [=]() {
+        initData();
+    });
 }
 
 int MenuModel::rowCount(const QModelIndex &parent) const
@@ -59,4 +67,28 @@ QHash<int, QByteArray> MenuModel::roleNames() const
     answer[Name] = "name";
     answer[Target] = "target";
     return answer;
+}
+
+void MenuModel::initData()
+{
+    if (!m_data.isEmpty()) {
+        beginRemoveRows(QModelIndex(), 0, m_data.size() - 1);
+        m_data.clear();
+        endRemoveRows();
+    }
+    m_data.append(m_baseItems.at(0));   // explore
+    m_data.append(m_baseItems.at(1));   // settings
+    m_data.append(m_baseItems.at(2));   // security
+
+    // from plugins
+    for (auto module : m_moduleManager->maindMenuSections()) {
+        m_data.append( { module->text(), module->startQMLFile() } );
+    }
+
+    // and the rest.
+    for (int i = 3; i < m_baseItems.size(); ++i)
+        m_data.append(m_baseItems.at(i));
+
+    beginInsertRows(QModelIndex(), 0, m_data.size() - 1);
+    endInsertRows();
 }

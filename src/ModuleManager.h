@@ -36,6 +36,11 @@ class ModuleManager : public QObject
      * \see ModduleSection::SectionType
      */
     Q_PROPERTY(QList<ModuleSection*> sendMenuItems READ sendMenuSections NOTIFY sendMenuSectionsChanged)
+    /**
+     * This property holds all the module-sections which are enabled and have the type 'main-menu'.
+     * \see ModduleSection::SectionType
+     */
+    Q_PROPERTY(QList<ModuleSection*> mainMenuItems READ sendMenuSections NOTIFY mainMenuSectionsChanged)
 public:
     explicit ModuleManager(QObject *parent = nullptr);
     ~ModuleManager();
@@ -47,9 +52,11 @@ public:
 
     // lists per type
     QList<ModuleSection*> sendMenuSections() const;
+    QList<ModuleSection*> maindMenuSections() const;
 
 signals:
     void sendMenuSectionsChanged();
+    void mainMenuSectionsChanged();
 
 private:
     void load();

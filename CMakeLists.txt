@@ -91,6 +91,11 @@ if(NOT ANDROID)
 
         translations/module-build-transaction_en.ts
         translations/module-build-transaction_nl.ts
+        translations/module-build-transaction_pl.ts
+
+        translations/module-peers-view_en.ts
+        translations/module-peers-view_nl.ts
+        translations/module-peers-view_pl.ts
     )
     qt6_add_translation(qmFiles ${TS_FILES})
 
@@ -102,6 +107,9 @@ if(NOT ANDROID)
         COMMAND lupdate modules/build-transaction/build-transactions-data.qrc
                         modules/build-transaction/BuildTransactionModuleInfo.cpp
                         -ts translations/module-build-transaction.ts
+        COMMAND lupdate modules/peers-view/peers-page-data.qrc
+                        modules/peers-view/PeersViewModuleInfo.cpp
+                        -ts translations/module-peers-view.ts
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT
             "Updating internationalization (i18n) translation files"

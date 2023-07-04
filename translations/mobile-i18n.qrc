@@ -8,5 +8,9 @@
         <file>floweepay-mobile_pl.qm</file>
         <file>module-build-transaction_en.qm</file>
         <file>module-build-transaction_nl.qm</file>
+        <file>module-build-transaction_pl.qm</file>
+        <file>module-peers-view_en.qm</file>
+        <file>module-peers-view_nl.qm</file>
+        <file>module-peers-view_pl.qm</file>
     </qresource>
 </RCC>

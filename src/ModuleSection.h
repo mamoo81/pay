@@ -39,6 +39,7 @@ public:
     enum SectionType {
         SendMethod,         //< A specific way to send coin, shown in list of send-methods.
         // BuildTxComponent,   //< Inside the 'build-transactions' this adds a new buildingblock.
+        MainMenuItem,       //< A text-button in the main menu
     };
 
     explicit ModuleSection(SectionType type, QObject *parent = nullptr);

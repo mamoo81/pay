@@ -3,3 +3,4 @@ floweepay-desktop.ts
 floweepay-mobile.ts
 module-build-transaction.ts
 module-example.ts
+module-peers-view.ts

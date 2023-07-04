@@ -26,12 +26,21 @@ ModuleInfo * ExampleModuleInfo::build()
         "and what it can do in Flowee Pay. This text is shown in the module explorer UI."));
     info->setIconSource("qrc:/example/example.svg");
 
+    // A section is a definition on where in the application this module is able
+    // to be plugged-in.
     auto sendButtonExample = new ModuleSection(ModuleSection::SendMethod, info);
     sendButtonExample->setText(tr("Example Module"));
     sendButtonExample->setSubtext(tr("This is some helptext"));
-    // notice that the directory it is in is registered in the data.qrc header
+    // notice that the directory it is in, is registered in the example-data.qrc file
     sendButtonExample->setStartQMLFile("qrc:/example/ExamplePage.qml");
     info->addSection(sendButtonExample);
+
+    auto menuExample = new ModuleSection(ModuleSection::MainMenuItem, info);
+    menuExample->setText(tr("Example Module"));
+    menuExample->setSubtext(tr("This is some helptext"));
+    // notice that the directory it is in, is registered in the example-data.qrc file
+    menuExample->setStartQMLFile("qrc:/example/ExamplePage.qml");
+    info->addSection(menuExample);
 
     return info;
 }

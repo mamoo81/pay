@@ -49,7 +49,6 @@
         <file>mobile/About.qml</file>
         <file>mobile/MenuOverlay.qml</file>
         <file>mobile/NewAccount.qml</file>
-        <file>mobile/NetView.qml</file>
         <file>mobile/Page.qml</file>
         <file>mobile/MainViewBase.qml</file>
         <file>mobile/MainView.qml</file>

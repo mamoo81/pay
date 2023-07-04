@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
     engine.addImageProvider(QLatin1String("qr-raw"), new QRCreator(QRCreator::RawString));
     engine.rootContext()->setContextProperty("Pay", app);
     engine.rootContext()->setContextProperty("Fiat", app->prices());
-    MenuModel menuModel;
+    MenuModel menuModel(&modules);
     engine.rootContext()->setContextProperty("MenuModel", &menuModel);
     engine.rootContext()->setContextProperty("ModuleManager", &modules);
 
