@@ -40,7 +40,7 @@
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="75"/>
-      <location filename="../modules/build-transaction/PayToOthers.qml" line="597"/>
+      <location filename="../modules/build-transaction/PayToOthers.qml" line="620"/>
       <source>Add Destination</source>
       <translation>Voeg bestemming toe</translation>
     </message>
@@ -131,34 +131,39 @@
       <translation>Bitcoin Cash-adres</translation>
     </message>
     <message>
-      <location filename="../modules/build-transaction/PayToOthers.qml" line="366"/>
+      <location filename="../modules/build-transaction/PayToOthers.qml" line="367"/>
       <source>Warning</source>
       <translation>Waarschuwing</translation>
     </message>
     <message>
-      <location filename="../modules/build-transaction/PayToOthers.qml" line="374"/>
+      <location filename="../modules/build-transaction/PayToOthers.qml" line="375"/>
       <source>This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</source>
       <translation>Dit is een verzoek om te betalen aan een BTC-adres, wat een incompatibele munt is. Uw tegoeden konden verloren gaan en Flowee zal geen manier hebben om ze te herstellen. Weet u zeker dat u aan dit BTC-adres wilt betalen?</translation>
     </message>
     <message>
-      <location filename="../modules/build-transaction/PayToOthers.qml" line="383"/>
+      <location filename="../modules/build-transaction/PayToOthers.qml" line="384"/>
       <source>I am certain</source>
       <translation>Ik ben zeker</translation>
     </message>
     <message>
-      <location filename="../modules/build-transaction/PayToOthers.qml" line="574"/>
+      <location filename="../modules/build-transaction/PayToOthers.qml" line="597"/>
       <source>Drag to Edit</source>
       <translation>Sleep om te bewerken</translation>
     </message>
     <message>
-      <location filename="../modules/build-transaction/PayToOthers.qml" line="574"/>
+      <location filename="../modules/build-transaction/PayToOthers.qml" line="597"/>
       <source>Drag to Delete</source>
       <translation>Sleep om te verwijderen</translation>
     </message>
     <message>
-      <location filename="../modules/build-transaction/PayToOthers.qml" line="609"/>
+      <location filename="../modules/build-transaction/PayToOthers.qml" line="633"/>
       <source>Prepare Payment...</source>
       <translation>Betaling voorbereiden...</translation>
+    </message>
+    <message>
+      <location filename="../modules/build-transaction/PayToOthers.qml" line="633"/>
+      <source>Unlock Wallet</source>
+      <translation>Portemonnee ontgrendelen</translation>
     </message>
   </context>
 </TS>

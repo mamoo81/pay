@@ -4,12 +4,17 @@
   <context>
     <name>AccountInfo</name>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="112"/>
+      <location filename="../src/AccountInfo.cpp" line="118"/>
+      <source>Offline</source>
+      <translation type="unfinished">Offline</translation>
+    </message>
+    <message>
+      <location filename="../src/AccountInfo.cpp" line="119"/>
       <source>Wallet: Up to date</source>
       <translation type="unfinished">Wallet: Up to date</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="122"/>
+      <location filename="../src/AccountInfo.cpp" line="130"/>
       <source>Behind: %1 weeks, %2 days</source>
       <comment>counter on weeks</comment>
       <translation type="unfinished">
@@ -18,7 +23,7 @@
       </translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="126"/>
+      <location filename="../src/AccountInfo.cpp" line="134"/>
       <source>Behind: %1 days</source>
       <translation type="unfinished">
         <numerusform>Behind: %1 day</numerusform>
@@ -26,17 +31,17 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="128"/>
+      <location filename="../src/AccountInfo.cpp" line="136"/>
       <source>Up to date</source>
       <translation type="unfinished">Up to date</translation>
     </message>
     <message>
-      <location filename="../src/AccountInfo.cpp" line="130"/>
+      <location filename="../src/AccountInfo.cpp" line="138"/>
       <source>Updating</source>
       <translation type="unfinished">Updating</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/AccountInfo.cpp" line="131"/>
+      <location filename="../src/AccountInfo.cpp" line="139"/>
       <source>Still %1 hours behind</source>
       <translation type="unfinished">
         <numerusform>Still an hour behind</numerusform>
@@ -63,6 +68,15 @@
     </message>
   </context>
   <context>
+    <name>AddressInfoWidget</name>
+    <message>
+      <location filename="../guis/Flowee/AddressInfoWidget.qml" line="57"/>
+      <source>self</source>
+      <comment>payment to self</comment>
+      <translation type="unfinished">self</translation>
+    </message>
+  </context>
+  <context>
     <name>BroadcastFeedback</name>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="60"/>
@@ -85,17 +99,17 @@
       <translation type="unfinished">Add a personal note</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="187"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="188"/>
       <source>Copied TXID to clipboard</source>
       <translation type="unfinished">Copied TXID to clipboard</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="192"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="193"/>
       <source>Opening Website</source>
       <translation type="unfinished">Opening Website</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="200"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="201"/>
       <source>Close</source>
       <translation type="unfinished">Close</translation>
     </message>
@@ -111,30 +125,30 @@
   <context>
     <name>FloweePay</name>
     <message>
-      <location filename="../src/FloweePay.cpp" line="275"/>
+      <location filename="../src/FloweePay.cpp" line="434"/>
       <source>Initial Wallet</source>
       <translation type="unfinished">Initial Wallet</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="453"/>
-      <location filename="../src/FloweePay.cpp" line="511"/>
+      <location filename="../src/FloweePay.cpp" line="619"/>
+      <location filename="../src/FloweePay.cpp" line="677"/>
       <source>Today</source>
       <translation type="unfinished">Today</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="455"/>
-      <location filename="../src/FloweePay.cpp" line="513"/>
+      <location filename="../src/FloweePay.cpp" line="621"/>
+      <location filename="../src/FloweePay.cpp" line="679"/>
       <source>Yesterday</source>
       <translation type="unfinished">Yesterday</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="500"/>
+      <location filename="../src/FloweePay.cpp" line="666"/>
       <source>Now</source>
       <comment>timestamp</comment>
       <translation type="unfinished">Now</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="501"/>
+      <location filename="../src/FloweePay.cpp" line="667"/>
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
       <translation type="unfinished">
@@ -143,13 +157,13 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="505"/>
+      <location filename="../src/FloweePay.cpp" line="671"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
       <translation type="unfinished">½ hour ago</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="507"/>
+      <location filename="../src/FloweePay.cpp" line="673"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
       <translation type="unfinished">
@@ -169,24 +183,29 @@
   <context>
     <name>MenuModel</name>
     <message>
-      <location filename="../src/MenuModel.cpp" line="24"/>
+      <location filename="../src/MenuModel.cpp" line="27"/>
+      <source>Explore</source>
+      <translation type="unfinished">Explore</translation>
+    </message>
+    <message>
+      <location filename="../src/MenuModel.cpp" line="28"/>
       <source>Settings</source>
       <translation type="unfinished">Settings</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="25"/>
-      <source>Wallet Information</source>
-      <translation type="unfinished">Wallet Information</translation>
+      <location filename="../src/MenuModel.cpp" line="29"/>
+      <source>Security</source>
+      <translation type="unfinished">Security</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="26"/>
-      <source>Network Details</source>
-      <translation type="unfinished">Network Details</translation>
-    </message>
-    <message>
-      <location filename="../src/MenuModel.cpp" line="27"/>
+      <location filename="../src/MenuModel.cpp" line="30"/>
       <source>About</source>
       <translation type="unfinished">About</translation>
+    </message>
+    <message>
+      <location filename="../src/MenuModel.cpp" line="31"/>
+      <source>Wallets</source>
+      <translation type="unfinished">Wallets</translation>
     </message>
   </context>
   <context>
@@ -237,22 +256,22 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="157"/>
+      <location filename="../src/Payment.cpp" line="138"/>
       <source>Invalid PIN</source>
       <translation type="unfinished">Invalid PIN</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="242"/>
+      <location filename="../src/Payment.cpp" line="223"/>
       <source>Not enough funds selected for fees</source>
       <translation type="unfinished">Not enough funds selected for fees</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="252"/>
+      <location filename="../src/Payment.cpp" line="233"/>
       <source>Not enough funds in wallet to make payment!</source>
       <translation type="unfinished">Not enough funds in wallet to make payment!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="317"/>
+      <location filename="../src/Payment.cpp" line="298"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation type="unfinished">Transaction too large. Amount selected needs too many coins.</translation>
     </message>
@@ -260,7 +279,7 @@
   <context>
     <name>QRWidget</name>
     <message>
-      <location filename="../guis/Flowee/QRWidget.qml" line="57"/>
+      <location filename="../guis/Flowee/QRWidget.qml" line="110"/>
       <source>Copied to clipboard</source>
       <translation type="unfinished">Copied to clipboard</translation>
     </message>
@@ -268,10 +287,16 @@
   <context>
     <name>Wallet</name>
     <message>
-      <location filename="../src/Wallet_support.cpp" line="278"/>
-      <location filename="../src/Wallet_support.cpp" line="300"/>
+      <location filename="../src/Wallet_support.cpp" line="265"/>
+      <location filename="../src/Wallet_support.cpp" line="303"/>
       <source>Change #%1</source>
       <translation type="unfinished">Change #%1</translation>
+    </message>
+    <message>
+      <location filename="../src/Wallet_support.cpp" line="268"/>
+      <location filename="../src/Wallet_support.cpp" line="306"/>
+      <source>Main #%1</source>
+      <translation type="unfinished">Main #%1</translation>
     </message>
   </context>
   <context>
@@ -326,27 +351,27 @@
   <context>
     <name>WalletHistoryModel</name>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="218"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="213"/>
       <source>Today</source>
       <translation type="unfinished">Today</translation>
     </message>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="220"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="215"/>
       <source>Yesterday</source>
       <translation type="unfinished">Yesterday</translation>
     </message>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="222"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="217"/>
       <source>Earlier this week</source>
       <translation type="unfinished">Earlier this week</translation>
     </message>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="224"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="219"/>
       <source>This week</source>
       <translation type="unfinished">This week</translation>
     </message>
     <message>
-      <location filename="../src/WalletHistoryModel.cpp" line="226"/>
+      <location filename="../src/WalletHistoryModel.cpp" line="221"/>
       <source>Earlier this month</source>
       <translation type="unfinished">Earlier this month</translation>
     </message>
@@ -354,23 +379,37 @@
   <context>
     <name>WalletSecretsView</name>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="59"/>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="92"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="48"/>
+      <source>Explanation</source>
+      <translation type="unfinished">Explanation</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="54"/>
+      <source>Coins a / b
+ a) active coin-count.
+ b) historical coin-count.</source>
+      <translation type="unfinished">Coins a / b
+ a) active coin-count.
+ b) historical coin-count.</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="100"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="133"/>
       <source>Copy Address</source>
       <translation type="unfinished">Copy Address</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="96"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="137"/>
       <source>Copy Private Key</source>
       <translation type="unfinished">Copy Private Key</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="122"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="163"/>
       <source>Coins: %1 / %2</source>
       <translation type="unfinished">Coins: %1 / %2</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/WalletSecretsView.qml" line="148"/>
+      <location filename="../guis/Flowee/WalletSecretsView.qml" line="185"/>
       <source>Signed with Schnorr signatures in the past</source>
       <translation type="unfinished">Signed with Schnorr signatures in the past</translation>
     </message>

@@ -125,30 +125,30 @@
   <context>
     <name>FloweePay</name>
     <message>
-      <location filename="../src/FloweePay.cpp" line="394"/>
+      <location filename="../src/FloweePay.cpp" line="434"/>
       <source>Initial Wallet</source>
       <translation>Eerste portemonnee</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="585"/>
-      <location filename="../src/FloweePay.cpp" line="643"/>
+      <location filename="../src/FloweePay.cpp" line="619"/>
+      <location filename="../src/FloweePay.cpp" line="677"/>
       <source>Today</source>
       <translation>Vandaag</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="587"/>
-      <location filename="../src/FloweePay.cpp" line="645"/>
+      <location filename="../src/FloweePay.cpp" line="621"/>
+      <location filename="../src/FloweePay.cpp" line="679"/>
       <source>Yesterday</source>
       <translation>Gisteren</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="632"/>
+      <location filename="../src/FloweePay.cpp" line="666"/>
       <source>Now</source>
       <comment>timestamp</comment>
       <translation>Nu</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="633"/>
+      <location filename="../src/FloweePay.cpp" line="667"/>
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
       <translation>
@@ -157,13 +157,13 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="637"/>
+      <location filename="../src/FloweePay.cpp" line="671"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
       <translation>Half uur geleden</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="639"/>
+      <location filename="../src/FloweePay.cpp" line="673"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
       <translation>
@@ -183,27 +183,27 @@
   <context>
     <name>MenuModel</name>
     <message>
-      <location filename="../src/MenuModel.cpp" line="24"/>
+      <location filename="../src/MenuModel.cpp" line="27"/>
       <source>Explore</source>
       <translation>Ontdek</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="25"/>
+      <location filename="../src/MenuModel.cpp" line="28"/>
       <source>Settings</source>
       <translation>Instellingen</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="26"/>
-      <source>Network Details</source>
-      <translation>Netwerk Details</translation>
+      <location filename="../src/MenuModel.cpp" line="29"/>
+      <source>Security</source>
+      <translation type="unfinished">Security</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="27"/>
+      <location filename="../src/MenuModel.cpp" line="30"/>
       <source>About</source>
       <translation>Over Ons</translation>
     </message>
     <message>
-      <location filename="../src/MenuModel.cpp" line="28"/>
+      <location filename="../src/MenuModel.cpp" line="31"/>
       <source>Wallets</source>
       <translation>Portemonnees</translation>
     </message>
