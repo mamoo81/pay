@@ -136,6 +136,7 @@ Page {
             }
         }
 
+        /*
         PageTitledBox {
             title: qsTr("Encrypt your wallet data")
             width: parent.width
@@ -150,12 +151,8 @@ Page {
                 subtext: qsTr("Secure against all usage")
                 showPageIcon: true
             }
-        }
+        } */
     }
-
-    Item {
-    }
-
 
     // the invisible drag handler is separate but on similar to the input widget.
     Item {
