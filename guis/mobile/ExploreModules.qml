@@ -161,6 +161,23 @@ Page {
                                         return null; // module doesn't have such a section.
                                     }
                                 }
+
+                                Image {
+                                    source: "qrc:/module-mainmenu" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+                                    width: 16
+                                    height: width
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    visible: section != null
+                                    opacity: (visible && section.enabled) ? 0.8 : 0.3
+                                    property QtObject section: {
+                                        // find the section our icon represents.
+                                        for (let s of modelData.sections) {
+                                            if (s.isSendMethod)
+                                                return s;
+                                        }
+                                        return null; // module doesn't have such a section.
+                                    }
+                                }
                             }
                         }
                     }

@@ -43,6 +43,8 @@
         <file alias="keyboard-light.svg">mobile/images/keyboard-light.svg</file>
         <file alias="num-keyboard-light.svg">mobile/images/num-keyboard-light.svg</file>
         <file alias="num-keyboard.svg">mobile/images/num-keyboard.svg</file>
+        <file alias="module-mainmenu.svg">mobile/images/module-mainmenu.svg</file>
+        <file alias="module-mainmenu-light.svg">mobile/images/module-mainmenu-light.svg</file>
         <file>mobile/main.qml</file>
         <file alias="defaults.ini">mobile/defaults.ini</file>
         <file>ControlColors.js</file>

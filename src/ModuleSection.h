@@ -34,6 +34,7 @@ class ModuleSection : public QObject
     Q_PROPERTY(QString subtext READ subtext CONSTANT)
     Q_PROPERTY(QString qml READ startQMLFile CONSTANT)
     Q_PROPERTY(bool isSendMethod READ isSendMethod CONSTANT)
+    Q_PROPERTY(bool isMainMenuMethod READ isMainMenuMethod CONSTANT)
 public:
     /// The placement in the main app of this section.
     enum SectionType {
@@ -71,6 +72,9 @@ public:
     SectionType type() const;
     bool isSendMethod() const {
         return m_type == SendMethod;
+    }
+    bool isMainMenuMethod() const {
+        return m_type == MainMenuItem;
     }
 
     bool enabled() const;
