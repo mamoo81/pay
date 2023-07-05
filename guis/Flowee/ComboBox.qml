@@ -30,7 +30,7 @@ QQC2.ComboBox {
         id: basicButton
         width: root.width
         highlighted: root.highlightedIndex === index
-        contentItem: Text {
+        contentItem: Label {
             text: modelData
             color: basicButton.highlighted ? root.palette.highlightedText : root.palette.buttonText
             verticalAlignment: Text.AlignVCenter
@@ -44,6 +44,17 @@ QQC2.ComboBox {
         implicitWidth: 120
         implicitHeight: 40
         radius: 2
+    }
+
+    contentItem: Text {
+        leftPadding: 6
+        rightPadding: root.indicator.width + root.spacing
+
+        text: root.displayText
+        font: root.font
+        color: root.palette.light
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
     }
 
     // Personal preference, the single arrow down makes more sense to me.

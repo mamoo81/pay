@@ -158,7 +158,7 @@ QQC2.Control {
         Repeater {
             model: stack.children.length
             delegate: Item {
-                height: 55
+                height: 65
                 width: root.width / stack.children.length;
 
                 Rectangle {
@@ -176,8 +176,8 @@ QQC2.Control {
                 }
                 Image {
                     source: stack.children[modelData].icon
-                    width: 20
-                    height: 20
+                    width: 30
+                    height: 30
                     smooth: true
                     y: 8
                     anchors.horizontalCenter: parent.horizontalCenter

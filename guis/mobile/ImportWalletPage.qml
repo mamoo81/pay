@@ -121,7 +121,7 @@ Page {
                 Flow {
                     width: parent.width
                     spacing: 10
-                    QQC2.ComboBox {
+                    Flowee.ComboBox {
                         id: month
                         model: {
                             let locale = Qt.locale();
@@ -131,8 +131,9 @@ Page {
                             }
                             return list;
                         }
+                        width: implicitWidth * 1.3 // this makes it fit for bigger fonts.
                     }
-                    QQC2.ComboBox {
+                    Flowee.ComboBox {
                         id: year
                         model: {
                             var list = [];

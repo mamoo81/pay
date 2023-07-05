@@ -101,6 +101,7 @@ QQC2.Control {
         selectionColor: palette.highlight
         selectByMouse: true
         wrapMode: TextEdit.Wrap
+        font: root.font
 
         property bool showingPlaceholder: false
         onActiveFocusChanged: {

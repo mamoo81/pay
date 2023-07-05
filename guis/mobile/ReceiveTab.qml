@@ -150,53 +150,62 @@ FocusScope {
     FocusScope {
         id: feedbackScope
         width: parent.width
-        height: column.height
-        Column {
-            id: column
-            width: parent.width
-            spacing: 10
-            opacity: qrViewActive ? 1 : 0
-            y: instructions.height + qr.height + 30
+        y: instructions.height + qr.height + 30
+        height: receiveTab.height - y
+        clip: true
 
-            PageTitledBox {
+        Flickable {
+            anchors.fill: parent
+            contentHeight: column.height
+            contentWidth: parent.width
+            boundsMovement: Flickable.StopAtBounds
+
+            Column {
+                id: column
                 width: parent.width
-                visible: request.message !== ""
-                title: qsTr("Description")
-                Flowee.Label {
-                    text: request.message
-                }
-            }
-            PageTitledBox {
-                width: parent.width
-                visible: request.amount > 0
-                title: qsTr("Amount", "requested amount of coin")
-                Flowee.BitcoinAmountLabel {
-                    colorize: false
-                    value: request.amount
-                }
-            }
-            PageTitledBox {
-                width: parent.width
-                title: qsTr("Address", "Bitcoin Cash address")
-                Flowee.LabelWithClipboard {
+                spacing: 10
+                opacity: qrViewActive ? 1 : 0
+
+                PageTitledBox {
                     width: parent.width
-                    text: request.addressShort
-                    font.pixelSize: instructions.font.pixelSize * 0.9
+                    visible: request.message !== ""
+                    title: qsTr("Description")
+                    Flowee.Label {
+                        text: request.message
+                    }
                 }
-            }
-            Flowee.Button {
-                anchors.right: parent.right
-                text: qsTr("Clear")
-                enabled: description.totalText !== "" || priceInput.paymentBackend.paymentAmount > 0;
-                onClicked: {
-                    request.clear();
-                    request.account = portfolio.current;
-                    description.text = "";
-                    priceInput.paymentBackend.paymentAmount = 0;
-                    request.start();
+                PageTitledBox {
+                    width: parent.width
+                    visible: request.amount > 0
+                    title: qsTr("Amount", "requested amount of coin")
+                    Flowee.BitcoinAmountLabel {
+                        colorize: false
+                        value: request.amount
+                    }
                 }
+                PageTitledBox {
+                    width: parent.width
+                    title: qsTr("Address", "Bitcoin Cash address")
+                    Flowee.LabelWithClipboard {
+                        width: parent.width
+                        text: request.addressShort
+                        font.pixelSize: instructions.font.pixelSize * 0.9
+                    }
+                }
+                Flowee.Button {
+                    anchors.right: parent.right
+                    text: qsTr("Clear")
+                    enabled: description.totalText !== "" || priceInput.paymentBackend.paymentAmount > 0;
+                    onClicked: {
+                        request.clear();
+                        request.account = portfolio.current;
+                        description.text = "";
+                        priceInput.paymentBackend.paymentAmount = 0;
+                        request.start();
+                    }
+                }
+                Behavior on opacity { OpacityAnimator { } }
             }
-            Behavior on opacity { OpacityAnimator { } }
         }
     }
 

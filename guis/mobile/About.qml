@@ -33,6 +33,8 @@ Page {
 
         Flowee.Label {
             text: "Flowee Pay (mobile) v" + Application.version
+            Layout.fillWidth: true
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         }
         Item { width: 10; height: 10 } // spacer
 

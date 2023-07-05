@@ -135,6 +135,7 @@ Page {
             visible: Pay.isMainChain // because we only have one option right now
 
             Flowee.CheckBox {
+                width: parent.width
                 text: qsTr("Show Bitcoin Cash value")
                 checked: Pay.activityShowsBch
                 onCheckedChanged: Pay.activityShowsBch = checked

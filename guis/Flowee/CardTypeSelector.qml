@@ -1,5 +1,5 @@
 /* * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ Item {
     property bool selected: parent.selectedKey === key
     width: name.width * 2
     height: 270
+    clip: true
 
     Rectangle {
         color: {
@@ -51,16 +52,16 @@ Item {
     Label {
         id: name
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pointSize: 14
+        font.pixelSize: mainWindow.font.pixelSize * 1.3
         font.bold: true
-        y: 14 + 25
+        y: 25
     }
     Column {
         id: contentArea
         spacing: 15
         width: parent.width
         anchors.top: name.bottom
-        anchors.topMargin: 26
+        anchors.topMargin: 16
 
         Repeater {
             model: root.features

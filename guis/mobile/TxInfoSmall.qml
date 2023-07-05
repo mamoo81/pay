@@ -33,7 +33,7 @@ ColumnLayout {
     property QtObject infoObject: null
     property int minedHeight: model.height // local cache
 
-    QQC2.Label {
+    Flowee.Label {
         property bool isRejected: root.minedHeight == -2; // -2 is the magic block-height indicating 'rejected'
         text: {
             if (isRejected)
@@ -43,13 +43,7 @@ ColumnLayout {
             return "";
         }
         visible: text !== ""
-        color: {
-            if (isRejected) {
-                // Transaction is rejected by network
-                return Pay.useDarkSkin ? "#ec2327" : "#b41214";
-            }
-            return palette.windowText
-        }
+        color: isRejected ? mainWindow.errorRed : palette.windowText
     }
 
     GridLayout {
@@ -108,7 +102,7 @@ ColumnLayout {
             // visible if at least one output has a token.
             var outputs = infoObject.outputs;
             for (let o of outputs) {
-                if (o != null && o.hasCashToken)
+                if (o !== null && o.hasCashToken)
                     return true;
             }
             return false;
@@ -193,4 +187,5 @@ ColumnLayout {
             newItem.infoObject = root.infoObject;
         }
     }
+    Item { width: 10; height: 4 } // spacing
 }

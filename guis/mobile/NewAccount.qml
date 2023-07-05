@@ -17,7 +17,6 @@
  */
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 import Flowee.org.pay
 
@@ -126,6 +125,7 @@ Page {
                     }
                 }
                 Flowee.CheckBox {
+                    Layout.fillWidth: true
                     id: singleAddress
                     text: qsTr("Force Single Address");
                     toolTipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
@@ -133,7 +133,7 @@ Page {
                 Item {
                     width: parent.width
                     height: createButton.implicitHeight
-                    QQC2.Button {
+                    Flowee.Button {
                         id: createButton
                         anchors.right: parent.right
                         text: qsTr("Create")
@@ -187,7 +187,7 @@ Page {
                 Item {
                     width: parent.width
                     height: createButton.implicitHeight
-                    QQC2.Button {
+                    Flowee.Button {
                         id: createButton
                         enabled: derivationPath.derivationOk
                         anchors.right: parent.right

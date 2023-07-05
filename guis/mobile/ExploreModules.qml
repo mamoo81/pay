@@ -75,6 +75,7 @@ Page {
                             anchors.bottom: statusField.top
                             anchors.bottomMargin: 10
                             anchors.right: parent.right
+                            z: 10
                             Rectangle {
                                 color: palette.alternateBase
                                 anchors.fill: descriptionLabel
@@ -128,6 +129,7 @@ Page {
                             width: parent.width
                             height: 40
                             anchors.bottom: parent.bottom
+                            z: 1
 
                             Row {
                                 spacing: 10
@@ -138,8 +140,9 @@ Page {
                                     anchors.verticalCenter: parent.verticalCenter
                                     checked: modelData.enabled
                                     onClicked: {
+                                        var newValue = checked;
                                         for (let s of modelData.sections) {
-                                            s.enabled = checked
+                                            s.enabled = newValue;
                                         }
                                     }
                                 }
@@ -172,7 +175,7 @@ Page {
                                     property QtObject section: {
                                         // find the section our icon represents.
                                         for (let s of modelData.sections) {
-                                            if (s.isSendMethod)
+                                            if (s.isMainMenuMethod)
                                                 return s;
                                         }
                                         return null; // module doesn't have such a section.

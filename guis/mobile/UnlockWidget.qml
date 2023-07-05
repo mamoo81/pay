@@ -68,7 +68,7 @@ Item {
         height: 80
         anchors.horizontalCenter: parent.horizontalCenter
         smooth: true
-        y: 40
+        y: parent.height > 700 ? 40 : 10
     }
 
     Image {
@@ -98,13 +98,16 @@ Item {
         text: qsTr("Enter your wallet passcode")
         anchors.top: lockIcon.bottom
         anchors.topMargin: 20
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        width: parent.width
         Flowee.ObjectShaker { id: shaker } // 'shake' to give feedback on mistakes
     }
 
     // Show the typed pin code, but as bullets as you type.
     Row {
         anchors.top: introText.bottom
-        anchors.topMargin: 20
+        anchors.topMargin: root.height > 700 ? 20 : 6
         spacing: 10
         anchors.horizontalCenter: parent.horizontalCenter
         visible: switchButton.numericInput
@@ -141,7 +144,8 @@ Item {
         id: keyboard
 
         x: switchButton.numericInput ? 0 : 0 - parent.width
-        y: parent.height - openButton.height - height - 20
+        y: parent.height - openButton.height - height
+                - (root.height > 700 ? 20 : 6)
         width: parent.width
         dataInput: Item {
             property QtObject editor: Item {
@@ -200,10 +204,10 @@ Item {
             }
 
             MouseArea {
-                width: parent.width + 20 // extend to right physical edge
-                x: -5
+                width: parent.width + 50 // extend to right physical edge
+                x: -15
                 y: 0 - parent.y - 5
-                height: parent.height + 10
+                height: pwdField.height + 10
                 onClicked: pwdField.hideText = !pwdField.hideText
             }
         }
@@ -216,7 +220,7 @@ Item {
         y: {
             if (switchButton.numericInput)
                 return parent.height - height
-            return pwdField.y + pwdField.height + 10;
+            return pwdField.y + pwdField.height + 20;
         }
 
         text: qsTr("Open", "open wallet with PIN")

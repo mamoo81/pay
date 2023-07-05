@@ -25,16 +25,14 @@ T.CheckBox {
     property bool sliderOnIndicator: true
     property string toolTipText: ""
 
-    implicitWidth: slider.width + 6 + title.width + (toolTipText === "" ? 0 : (questionMarkIcon.width + 16))
+    implicitWidth: slider.width + 6 + title.implicitWidth + (toolTipText === "" ? 0 : (questionMarkIcon.width + 16))
     implicitHeight: Math.max(slider.implicitHeight, title.implicitHeight)
     clip: true
 
     indicator: Item {
         id: slider
-        width: implicitWidth
-        height: implicitHeight
-        implicitWidth: 50
-        implicitHeight: 22
+        implicitWidth: implicitHeight * 2.1
+        implicitHeight: title.implicitHeight / title.lineCount
 
         Rectangle {
             anchors.fill: parent
@@ -84,14 +82,16 @@ T.CheckBox {
         anchors.left: slider.right
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 6
+        anchors.right: parent.right
         color: enabled ? palette.windowText : "darkgray"
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
     }
 
     Rectangle {
         id: questionMarkIcon
         visible: control.toolTipText !== "" && control.enabled
-        width: q.width + 14
-        height: width
+        width: title.implicitWidth + 14
+        height: title.implicitHeight
         anchors.left: title.right
         anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 16
