@@ -106,6 +106,7 @@ Page {
                             opacity: modelData.enabled ? 1 : 0
                             visible: opacity > 0
                             Behavior on opacity { NumberAnimation { } }
+                            z: 11
 
                             Item {
                                 rotation: 45

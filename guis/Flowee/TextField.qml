@@ -25,7 +25,7 @@ QQC2.TextField {
     id: root
     selectByMouse: true
     // In Qt6.3 this is just always black, so adjust to color
-    placeholderTextColor: Pay.useDarkSkin ? "#cecece" : "#3e3e3e"
+    placeholderTextColor: Pay.useDarkSkin ? "#cecece" : "#505050"
     color: palette.windowText
 
     property string totalText: {

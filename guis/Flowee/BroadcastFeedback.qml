@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import QtQuick.Shapes
-import "../Flowee" as Flowee
 import "../ControlColors.js" as ControlColors
 import Flowee.org.pay
 
@@ -83,9 +82,14 @@ QQC2.Control {
             StateChangeScript { script: ControlColors.applyDarkSkin(root) }
             PropertyChanges { target: background; color: "#7f0000" }
             PropertyChanges { target: circleShape; opacity: 0 }
-            PropertyChanges { target: root; status:   qsTr("Transaction rejected by network") }
+            PropertyChanges { target: root; status: qsTr("Failed") }
+            PropertyChanges { target: errorLabel; text: qsTr("Transaction rejected by network") }
         }
     ]
+    MouseArea {
+        anchors.fill: parent // eat all mouse events.
+    }
+
     Rectangle {
         id: background
         width: parent.width
@@ -95,102 +99,130 @@ QQC2.Control {
         color: mainWindow.floweeGreen
         y: height + 2
 
-        // The 'progress' icon.
-        Shape {
-            id: circleShape
-            anchors.horizontalCenter: parent.horizontalCenter
-            y: 25
-            anchors.top: title.bottom
-            anchors.topMargin: 10
-            width: 160
-            height: width
-            smooth: true
-            ShapePath {
-                strokeWidth: 20
-                strokeColor: "#dedede"
-                fillColor: "transparent"
-                capStyle: ShapePath.RoundCap
-                startX: 100; startY: 10
+        Column {
+            spacing: 10
+            width: parent.width
+            Label {
+                id: errorLabel
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                width: parent.width
+            }
 
-                PathAngleArc {
-                    id: progressCircle
-                    centerX: 80
-                    centerY: 80
-                    radiusX: 70; radiusY: 70
-                    startAngle: -80
-                    sweepAngle: 0
-                    Behavior on sweepAngle {  NumberAnimation { duration: 2500 } }
-                    Behavior on startAngle {  NumberAnimation { } }
+            Item {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 160
+                height: 160
+
+                // The 'progress' icon.
+                Shape {
+                    id: circleShape
+                    width: 160
+                    height: width
+                    smooth: true
+                    ShapePath {
+                        strokeWidth: 20
+                        strokeColor: "#dedede"
+                        fillColor: "transparent"
+                        capStyle: ShapePath.RoundCap
+                        startX: 100; startY: 10
+
+                        PathAngleArc {
+                            id: progressCircle
+                            centerX: 80
+                            centerY: 80
+                            radiusX: 70; radiusY: 70
+                            startAngle: -80
+                            sweepAngle: 0
+                            Behavior on sweepAngle {  NumberAnimation { duration: 2500 } }
+                            Behavior on startAngle {  NumberAnimation { } }
+                        }
+                    }
+                    Behavior on opacity {  NumberAnimation { } }
+                }
+                Shape {
+                    id: checkShape
+                    anchors.fill: circleShape
+                    smooth: true
+                    opacity: 0
+                    ShapePath {
+                        id: checkPath
+                        strokeWidth: 16
+                        strokeColor: "green"
+                        fillColor: "transparent"
+                        capStyle: ShapePath.RoundCap
+                        startX: 52; startY: 80
+                        PathLine { x: 76; y: 110 }
+                        PathLine { x: 125; y: 47 }
+                    }
                 }
             }
-            Behavior on opacity {  NumberAnimation { } }
-        }
-        Shape {
-            id: checkShape
-            anchors.fill: circleShape
-            smooth: true
-            opacity: 0
-            ShapePath {
-                id: checkPath
-                strokeWidth: 16
-                strokeColor: "green"
-                fillColor: "transparent"
-                capStyle: ShapePath.RoundCap
-                startX: 52; startY: 80
-                PathLine { x: 76; y: 110 }
-                PathLine { x: 125; y: 47 }
+
+            Label {
+                id: fiatAmount
+                anchors.horizontalCenter: parent.horizontalCenter
+                // color: "black"
+                font.pixelSize: paymentAddressLabel.font.pixelSize * 1.5
+                text: Fiat.formattedPrice(payment.paymentAmountFiat)
+                visible: Fiat.price !== 0
             }
-        }
-
-        Label {
-            id: fiatAmount
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: circleShape.bottom
-            anchors.topMargin: 10
-            color: "black"
-            font.pixelSize: 38
-            text: Fiat.formattedPrice(payment.paymentAmountFiat)
-            visible: Fiat.price !== 0
-        }
-        BitcoinAmountLabel {
-            id: cryptoAmount
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: fiatAmount.bottom
-            anchors.topMargin: 20
-            fontPixelSize: 28
-            value: payment.paymentAmount
-            colorize: false
-            showFiat: false
-        }
-
-        TextField {
-            id: transactionComment
-            anchors.top: txIdFeedback.bottom
-            anchors.topMargin: 20
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: Math.min(400, parent.width - 40);
-            onTextChanged: payment.userComment = text
-            placeholderText: qsTr("Add a personal note")
-            placeholderTextColor: "#3e3e3e"
-            text: payment.userComment
-        }
-
-        RowLayout {
-            id: txIdFeedback
-            spacing: 30
-            anchors.top: cryptoAmount.bottom
-            visible: root.state === "waiting" || root.state === "success"
-            anchors.topMargin: 10
-            anchors.horizontalCenter: parent.horizontalCenter
-            ImageButton {
-                source: "qrc:/edit-copy.svg"
-                onClicked: Pay.copyToClipboard(payment.txid);
-                responseText: qsTr("Copied TXID to clipboard")
+            BitcoinAmountLabel {
+                id: cryptoAmount
+                anchors.horizontalCenter: parent.horizontalCenter
+                fontPixelSize: paymentAddressLabel.font.pixelSize * 1.15
+                value: payment.paymentAmount
+                colorize: false
+                showFiat: false
             }
-            ImageButton {
-                source: "qrc:/internet.svg"
-                onClicked: Pay.openInExplorer(payment.txid);
-                responseText: qsTr("Opening Website")
+
+            Column {
+                // column to avoid spacing between these two labels.
+                width: parent.width
+                Label {
+                    id: paymentAddressLabel
+                    // color: "black"
+                    text: qsTr("Payment has been sent to:")
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    width: parent.width
+                }
+                Label {
+                    text: payment.niceAddress
+                    // color: "black"
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    width: parent.width
+                    font.pixelSize: paymentAddressLabel.font.pixelSize * 0.8
+                }
+            }
+            Item { width: 1; height: 10} // spacer
+            RowLayout {
+                id: txIdFeedback
+                spacing: 30
+                visible: root.state === "waiting" || root.state === "success"
+                anchors.horizontalCenter: parent.horizontalCenter
+                ImageButton {
+                    source: "qrc:/edit-copy.svg"
+                    onClicked: Pay.copyToClipboard(payment.formattedTargetAddress);
+                    responseText: qsTr("Copied address to clipboard")
+                }
+                ImageButton {
+                    source: "qrc:/internet.svg"
+                    onClicked: Pay.openInExplorer(payment.txid);
+                    responseText: qsTr("Opening Website")
+                }
+            }
+
+            Item { width: 1; height: 10} // spacer
+
+            TextField {
+                id: transactionComment
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: Math.min(400, parent.width - 40);
+                onEditingFinished: payment.userComment = text
+                placeholderText: qsTr("Add a personal note")
+                placeholderTextColor: "#505050"
+                text: payment.userComment
             }
         }
         Button {
