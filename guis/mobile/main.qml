@@ -63,7 +63,7 @@ ApplicationWindow {
     StackView {
         id: thePile
         anchors.fill: parent
-        initialItem: Pay.appProtection === FloweePay.AppPassword ? "./UnlockApplication.qml" : "./Loading.qml";
+        initialItem: "./Loading.qml"
         onCurrentItemChanged: if (currentItem != null) currentItem.takeFocus();
         enabled: !menuOverlay.open
 
@@ -134,5 +134,9 @@ ApplicationWindow {
             onTriggered: notificationPopup.visible = false;
 
         }
+    }
+    Loader {
+        source: Pay.appProtection === FloweePay.AppPassword ? "./UnlockApplication.qml" : ""
+        anchors.fill: parent
     }
 }

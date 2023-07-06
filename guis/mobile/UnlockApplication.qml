@@ -17,11 +17,26 @@
  */
 import QtQuick
 
-UnlockWidget {
-    onPasswordEntered: if (!Pay.checkAppPassword(password)) passwordIncorrect();
+FocusScope {
+    Rectangle {
+        anchors.fill: parent
+        color: palette.window
+    }
+    MouseArea { // eat all mouse events.
+        anchors.fill: parent
+    }
 
-    // called from main.qml, need to be implemented here
-    // since we dont extend the Page type.
-    function takeFocus() {
+    UnlockWidget {
+        anchors.fill: parent
+        anchors.margins: 10
+        onPasswordEntered: if (!Pay.checkAppPassword(password)) passwordIncorrect();
+
+        // called from main.qml, need to be implemented here
+        // since we dont extend the Page type.
+        function takeFocus() {
+        }
+    }
+    Keys.onPressed: (event)=> {
+        event.accepted = true; // at all key events.
     }
 }
