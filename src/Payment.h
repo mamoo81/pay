@@ -275,6 +275,8 @@ class PaymentDetail : public QObject
     Q_PROPERTY(Payment::DetailType type READ type CONSTANT)
     Q_PROPERTY(bool collapsable READ collapsable WRITE setCollapsable NOTIFY collapsableChanged)
     Q_PROPERTY(bool collapsed READ collapsed WRITE setCollapsed NOTIFY collapsedChanged)
+    Q_PROPERTY(bool isOutput READ isOutput CONSTANT)
+    Q_PROPERTY(bool isInput READ isInputs CONSTANT)
 public:
     PaymentDetail(Payment *parent, Payment::DetailType type);
 

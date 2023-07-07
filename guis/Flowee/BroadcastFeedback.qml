@@ -86,9 +86,6 @@ QQC2.Control {
             PropertyChanges { target: errorLabel; text: qsTr("Transaction rejected by network") }
         }
     ]
-    MouseArea {
-        anchors.fill: parent // eat all mouse events.
-    }
 
     Rectangle {
         id: background
@@ -98,6 +95,9 @@ QQC2.Control {
         visible: opacity > 0
         color: mainWindow.floweeGreen
         y: height + 2
+        MouseArea {
+            anchors.fill: parent // eat all mouse events.
+        }
 
         Column {
             spacing: 10
@@ -161,7 +161,6 @@ QQC2.Control {
             Label {
                 id: fiatAmount
                 anchors.horizontalCenter: parent.horizontalCenter
-                // color: "black"
                 font.pixelSize: paymentAddressLabel.font.pixelSize * 1.5
                 text: Fiat.formattedPrice(payment.paymentAmountFiat)
                 visible: Fiat.price !== 0
@@ -178,17 +177,27 @@ QQC2.Control {
             Column {
                 // column to avoid spacing between these two labels.
                 width: parent.width
+                visible: addressLabel.visible
                 Label {
                     id: paymentAddressLabel
-                    // color: "black"
                     text: qsTr("Payment has been sent to:")
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     width: parent.width
                 }
                 Label {
-                    text: payment.niceAddress
-                    // color: "black"
+                    id: addressLabel
+                    text: {
+                        var answer = "";
+                        for (let detail of payment.details) {
+                            if (detail.isOutput) {
+                                if (answer !== "") // then there are multiple outputs!
+                                    return "";
+                                answer = detail.niceAddress;
+                            }
+                        }
+                        return answer;
+                    }
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     width: parent.width

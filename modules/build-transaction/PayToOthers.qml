@@ -153,22 +153,9 @@ Page {
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 10
                     width: parent.width
-                    onActivated: payment.broadcast()
-                }
-
-                Flowee.BroadcastFeedback {
-                    id: broadcastPage
-                    anchors.leftMargin: -10 // go against the margins Page gave us to show more fullscreen.
-                    anchors.rightMargin: -10
-                    onStatusChanged: {
-                        if (status !== "")
-                            root.headerText = status;
-                    }
-                    onCloseButtonPressed: {
-                        var mainView = thePile.get(0);
-                        mainView.currentIndex = 0; // go to the 'main' tab.
-                        thePile.pop(); // this screen
-                        thePile.pop(); // parent screen
+                    onActivated: {
+                        payment.broadcast()
+                        thePile.pop(); // the broadcast feedback is on the main screen.
                     }
                 }
             }
@@ -647,8 +634,20 @@ Page {
                         thePile.push(paymentInfoPage);
                     }
                 }
-
             }
+        }
+    }
+    Flowee.BroadcastFeedback {
+        anchors.leftMargin: -10 // go against the margins that Page gave us to show more fullscreen.
+        anchors.rightMargin: -10
+        onStatusChanged: {
+            if (status !== "")
+                root.headerText = status;
+        }
+        onCloseButtonPressed: {
+            var mainView = thePile.get(0);
+            mainView.currentIndex = 0; // go to the 'main' tab.
+            thePile.pop();
         }
     }
 }
