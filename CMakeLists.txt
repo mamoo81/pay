@@ -19,7 +19,6 @@ project(flowee_pay VERSION 0.2 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 # calling find_package Qt two times seems to be needed to get the Qt version :shrug:
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Core)
