@@ -73,7 +73,7 @@ double PaymentDetailOutput::paymentAmount() const
 
 void PaymentDetailOutput::setPaymentAmount(double amount_)
 {
-    qint64 amount = static_cast<qint64>(amount_);
+    qint64 amount = std::round(amount_);
     if (m_paymentAmount == amount)
         return;
     if (m_maxAllowed && m_maxSelected) {
