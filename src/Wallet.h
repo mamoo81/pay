@@ -415,7 +415,12 @@ private:
     int findSecretFor(const Streaming::ConstBuffer &outputScript, bool &isCashToken) const;
 
     /// Fill the bloom filter with all the unspent transactions and addresses we handle.
-    void rebuildBloom();
+    enum RebuildBloomOption {
+        ForceBuild,
+        OnlyWhenDirty
+    };
+
+    void rebuildBloom(RebuildBloomOption option = OnlyWhenDirty);
 
     // returns true if any of the transactions are unknown to the wallet
     bool anythingNew(int blockHeight, const std::deque<Tx> &transactions) const;
@@ -594,6 +599,7 @@ private:
     bool parsePassword(const QString &password);
     bool m_saveStarted = false;
     bool m_haveEncryptionKey = false;
+    bool m_utxoDirty = false; // if dirty, rebuildBloom makes sense.
     uint32_t m_encryptionSeed = 0;
     uint16_t m_encryptionChecksum = 0;
     EncryptionLevel m_encryptionLevel = NotEncrypted;

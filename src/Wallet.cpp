@@ -102,7 +102,7 @@ Wallet::Wallet(const boost::filesystem::path &basedir, uint16_t segmentId, uint3
         assert(!isDecrypted()); // because, how?
         m_segment->setEnabled(false);
     }
-    rebuildBloom();
+    rebuildBloom(ForceBuild);
     connect (this, SIGNAL(startDelayedSave()), this, SLOT(delayedSave()), Qt::QueuedConnection); // ensure right thread calls us.
 }
 
@@ -310,6 +310,7 @@ void Wallet::deriveHDKeys(int mainChain, int changeChain, uint32_t startHeight)
 
         m_walletSecrets.insert(std::make_pair(m_nextWalletSecretId++, secret));
         m_secretsChanged = true;
+        m_utxoDirty = true;
     }
 
     rebuildBloom();
@@ -367,9 +368,10 @@ void Wallet::newTransaction(const Tx &tx)
         if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
             // no connection to our UTXOs
             if (++m_bloomScore > 25)
-                rebuildBloom();
+                rebuildBloom(ForceBuild);
             return;
         }
+        m_utxoDirty = true;
         setUserOwnedWallet(true);
         wtx.minedBlockHeight = WalletPriv::Unconfirmed;
         bool dummy = false;
@@ -469,6 +471,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
                     continue;
                 walletTransactionId = oldTx->second;
             }
+            m_utxoDirty = true;
             const bool wasUnconfirmed = wtx.minedBlockHeight == WalletPriv::Unconfirmed;
             while (updateHDSignatures(wtx, needNewBloom)) {
                 // if we added a bunch of new private keys, then rerun the matching
@@ -989,7 +992,7 @@ int Wallet::findSecretFor(const Streaming::ConstBuffer &outputScript, bool &isCa
     return -1;
 }
 
-void Wallet::rebuildBloom()
+void Wallet::rebuildBloom(RebuildBloomOption option)
 {
     int unusedToInclude = filter_unusedToInclude;
     int hdUnusedToInclude = filter_hdUnusedToInclude;
@@ -1012,6 +1015,9 @@ void Wallet::rebuildBloom()
             return;
         }
     }
+    if (option != ForceBuild && !m_utxoDirty)
+        return;
+    m_utxoDirty = false;
 
     auto lock = m_segment->clearFilter();
     //    ^ notice that the 'lock' we get back will broadcast the new filter when it goes out of scope.
@@ -1302,8 +1308,10 @@ int Wallet::reserveUnusedAddress(KeyId &keyId, PrivKeyType pkt)
             continue;
         secret.reserved = true;
         keyId = secret.address;
-        // TODO check if this address has already been sent and we can avoid the bloom rebuild
-        rebuildBloom(); // make sure that we actually observe changes on this address
+
+        // check if this address has already been sent and we can avoid the bloom rebuild
+        if (m_hdData == nullptr || m_hdData->lastIncludedMainKey < i->first)
+            rebuildBloom(ForceBuild); // make sure that we actually observe changes on this address
         return i->first;
     }
 
@@ -1407,7 +1415,7 @@ void Wallet::headerSyncComplete()
     if (changedOne) {
         // broadcast to peers our bloom filter, which would have skipped all
         // time-based blocks before.
-        rebuildBloom();
+        rebuildBloom(ForceBuild);
         // make the wallet initial sync also show something sane.
         if (m_segment)
             m_segment->blockSynched(FloweePay::instance()->p2pNet()->blockHeight());
@@ -1473,7 +1481,7 @@ void Wallet::createNewPrivateKey(uint32_t currentBlockheight)
 
     if (currentBlockheight < 10000000) {
         // if that is false, its a timestamp: headers are not yet synched)
-        rebuildBloom();
+        rebuildBloom(ForceBuild);
     }
 }
 
@@ -1499,7 +1507,7 @@ bool Wallet::addPrivateKey(const QString &privKey, uint32_t startBlockHeight)
 
         if (startBlockHeight < 10000000) {
             // if that is false, its a timestamp: headers are not yet synched)
-            rebuildBloom();
+            rebuildBloom(ForceBuild);
             m_walletIsImporting = true;
         }
         return true;
