@@ -74,7 +74,8 @@ void PriceDataProvider::setCurrency(const QLocale &countryLocale)
     }
     // drop the '.00' behind the prices as this country doesn't traditionlly do that
     m_displayCents = !(m_currency == QLatin1String("JPY")
-                   || m_currency == QLatin1String("NOK"));
+                   || m_currency == QLatin1String("NOK")
+                   || m_currency == QLatin1String("ARS"));
 
     if (m_currency == QLatin1String("CHF")) {
         m_currencySymbolPrefix += QLatin1String(" ");
