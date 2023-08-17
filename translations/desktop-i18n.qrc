@@ -3,8 +3,10 @@
         <file>floweepay-desktop_nl.qm</file>
         <file>floweepay-desktop_pl.qm</file>
         <file>floweepay-desktop_en.qm</file>
+        <file>floweepay-desktop_de.qm</file>
         <file>floweepay-common_nl.qm</file>
         <file>floweepay-common_pl.qm</file>
         <file>floweepay-common_en.qm</file>
+        <file>floweepay-common_de.qm</file>
     </qresource>
 </RCC>

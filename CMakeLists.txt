@@ -79,22 +79,32 @@ if(NOT ANDROID)
         translations/floweepay-desktop_en.ts
         translations/floweepay-desktop_nl.ts
         translations/floweepay-desktop_pl.ts
+        translations/floweepay-desktop_de.ts
+        translations/floweepay-desktop_es.ts
 
         translations/floweepay-common_en.ts
         translations/floweepay-common_nl.ts
         translations/floweepay-common_pl.ts
+        translations/floweepay-common_de.ts
+        translations/floweepay-common_es.ts
 
         translations/floweepay-mobile_en.ts
         translations/floweepay-mobile_nl.ts
         translations/floweepay-mobile_pl.ts
+        translations/floweepay-mobile_de.ts
+        translations/floweepay-mobile_es.ts
 
         translations/module-build-transaction_en.ts
         translations/module-build-transaction_nl.ts
         translations/module-build-transaction_pl.ts
+        translations/module-build-transaction_de.ts
+        translations/module-build-transaction_es.ts
 
         translations/module-peers-view_en.ts
         translations/module-peers-view_nl.ts
         translations/module-peers-view_pl.ts
+        translations/module-peers-view_de.ts
+        translations/module-peers-view_es.ts
     )
     qt6_add_translation(qmFiles ${TS_FILES})
 

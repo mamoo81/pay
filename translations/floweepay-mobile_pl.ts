@@ -9,38 +9,38 @@
       <translation>O programie</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="41"/>
+      <location filename="../guis/mobile/About.qml" line="43"/>
       <source>Help translate this app</source>
       <translation>Pomóż w tłumaczeniu tej aplikacji</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="46"/>
+      <location filename="../guis/mobile/About.qml" line="48"/>
       <source>License</source>
       <translation>Licencja</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="51"/>
-      <location filename="../guis/mobile/About.qml" line="59"/>
+      <location filename="../guis/mobile/About.qml" line="53"/>
+      <location filename="../guis/mobile/About.qml" line="61"/>
       <source>Credits</source>
       <translation>Autorzy</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="52"/>
+      <location filename="../guis/mobile/About.qml" line="54"/>
       <source>© 2020-2023 Tom Zander and contributors</source>
       <translation>©️ 2020-2023 Tom Zander i współtwórcy</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="94"/>
+      <location filename="../guis/mobile/About.qml" line="96"/>
       <source>Project Home</source>
       <translation>Strona projektu</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="95"/>
+      <location filename="../guis/mobile/About.qml" line="97"/>
       <source>With git repository and issues tracker</source>
       <translation>Z repozytorium git i trackerem problemów</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="100"/>
+      <location filename="../guis/mobile/About.qml" line="102"/>
       <source>Telegram</source>
       <translation>Telegram</translation>
     </message>
@@ -168,52 +168,52 @@
       <translation>Pokaż indeks</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="208"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="209"/>
       <source>Change Addresses</source>
       <translation>Adres Reszty</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="211"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="212"/>
       <source>Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</source>
       <translation>Przełącza pomiędzy adresami, na które możesz otrzymać środki od innych a adresami, na które portfel wysyła własną resztę.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="214"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="216"/>
       <source>Used Addresses</source>
       <translation>Wykorzystane adresy</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="217"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="219"/>
       <source>Switches between still in use addresses and formerly used, new empty, addresses</source>
       <translation>Przełącza się pomiędzy nadal używanymi adresami i wcześniej używanymi, nowymi pustymi adresami</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="297"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="299"/>
       <source>Addresses and keys</source>
       <translation>Adresy i klucze</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="305"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="307"/>
       <source>Sync Status</source>
       <translation>Status synchronizacji</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="344"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="347"/>
       <source>Hide balance in overviews</source>
       <translation type="unfinished">Hide balance in overviews</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="350"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="354"/>
       <source>Hide in private mode</source>
       <translation>Ukryj w trybie prywatnym</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="365"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="369"/>
       <source>Unarchive Wallet</source>
       <translation>Anuluj archiwizację portfela</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="365"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="369"/>
       <source>Archive Wallet</source>
       <translation>Zarchiwizuj portfel</translation>
     </message>
@@ -313,7 +313,7 @@
       <translation type="unfinished">Explore</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ExploreModules.qml" line="119"/>
+      <location filename="../guis/mobile/ExploreModules.qml" line="121"/>
       <source>ON</source>
       <comment>Enabled. SHORT TEXT!</comment>
       <translation type="unfinished">ON</translation>
@@ -347,7 +347,7 @@
       <translation type="unfinished">Main View</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/GuiSettings.qml" line="138"/>
+      <location filename="../guis/mobile/GuiSettings.qml" line="139"/>
       <source>Show Bitcoin Cash value</source>
       <translation type="unfinished">Show Bitcoin Cash value</translation>
     </message>
@@ -411,17 +411,17 @@ Change will come back to the imported key.</translation>
       <translation type="unfinished">Oldest Transaction</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="151"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="152"/>
       <source>Derivation</source>
       <translation type="unfinished">Derivation</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="162"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="163"/>
       <source>Alternate phrase</source>
       <translation type="unfinished">Alternate phrase</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="179"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="180"/>
       <source>Create</source>
       <translation type="unfinished">Create</translation>
     </message>
@@ -530,32 +530,7 @@ Change will come back to the imported key.</translation>
       <translation type="unfinished">PIN has been set</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/LockApplication.qml" line="140"/>
-      <source>Encrypt your wallet data</source>
-      <translation type="unfinished">Encrypt your wallet data</translation>
-    </message>
-    <message>
-      <location filename="../guis/mobile/LockApplication.qml" line="144"/>
-      <source>Require PIN to Pay on wallet</source>
-      <translation type="unfinished">Require PIN to Pay on wallet</translation>
-    </message>
-    <message>
-      <location filename="../guis/mobile/LockApplication.qml" line="145"/>
-      <source>Secure against spending</source>
-      <translation type="unfinished">Secure against spending</translation>
-    </message>
-    <message>
-      <location filename="../guis/mobile/LockApplication.qml" line="149"/>
-      <source>Require PIN to Open wallet</source>
-      <translation type="unfinished">Require PIN to Open wallet</translation>
-    </message>
-    <message>
-      <location filename="../guis/mobile/LockApplication.qml" line="150"/>
-      <source>Secure against all usage</source>
-      <translation type="unfinished">Secure against all usage</translation>
-    </message>
-    <message>
-      <location filename="../guis/mobile/LockApplication.qml" line="216"/>
+      <location filename="../guis/mobile/LockApplication.qml" line="213"/>
       <source>Ok</source>
       <translation type="unfinished">Ok</translation>
     </message>
@@ -571,93 +546,93 @@ Change will come back to the imported key.</translation>
   <context>
     <name>NewAccount</name>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="27"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="26"/>
       <source>New Bitcoin Cash Wallet</source>
       <translation type="unfinished">New Bitcoin Cash Wallet</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="40"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="39"/>
       <source>Create a New Wallet</source>
       <translation type="unfinished">Create a New Wallet</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="45"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="44"/>
       <source>HD wallet</source>
       <translation>Portfel HD</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="52"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="51"/>
       <source>Seed-phrase based</source>
       <comment>Context: wallet type</comment>
       <translation>Portfel bazujący na ciągu losowych słów (seedzie)</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="53"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="52"/>
       <source>Easy to backup</source>
       <comment>Context: wallet type</comment>
       <translation type="unfinished">Easy to backup</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="54"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="53"/>
       <source>Most compatible</source>
       <comment>The most compatible wallet type</comment>
       <translation>Najbardziej kompatybilny</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="66"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="65"/>
       <source>Basic</source>
       <translation type="unfinished">Basic</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="73"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="72"/>
       <source>Private keys based</source>
       <comment>Property of a wallet</comment>
       <translation type="unfinished">Private keys based</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="74"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="73"/>
       <source>Difficult to backup</source>
       <comment>Context: wallet type</comment>
       <translation type="unfinished">Difficult to backup</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="75"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="74"/>
       <source>Great for brief usage</source>
       <comment>Context: wallet type</comment>
       <translation type="unfinished">Great for brief usage</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="81"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="80"/>
       <source>Import Existing Wallet</source>
       <translation>Importuj istniejący portfel</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="84"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="83"/>
       <source>Import</source>
       <translation>Importuj</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="91"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="90"/>
       <source>Imports seed-phrase</source>
       <translation>Importuje seeda</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="92"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="91"/>
       <source>Imports private key</source>
       <translation>Importuj klucz prywatny</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="107"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="106"/>
       <source>New Wallet</source>
       <translation>Nowy Portfel</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="115"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="114"/>
       <source>This creates a new empty wallet with simple multi-address capability</source>
       <translation>Tworzy nowy, pusty portfel jedno- lub wieloadresowy</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/NewAccount.qml" line="121"/>
+      <location filename="../guis/mobile/NewAccount.qml" line="120"/>
       <location filename="../guis/mobile/NewAccount.qml" line="169"/>
       <source>Name</source>
       <translation>Nazwa</translation>
@@ -828,66 +803,66 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
       <translation type="unfinished">Import Running...</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="164"/>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="212"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="172"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="221"/>
       <source>Description</source>
       <translation type="unfinished">Description</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="172"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="180"/>
       <source>Amount</source>
       <comment>requested amount of coin</comment>
       <translation type="unfinished">Amount</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="180"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="188"/>
       <source>Address</source>
       <comment>Bitcoin Cash address</comment>
       <translation type="unfinished">Address</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="189"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="197"/>
       <source>Clear</source>
       <translation type="unfinished">Clear</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="358"/>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="385"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="367"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="394"/>
       <source>Payment Seen</source>
       <translation type="unfinished">Payment Seen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="365"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="374"/>
       <source>Checking...</source>
       <translation type="unfinished">Checking...</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="380"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="389"/>
       <source>Transaction high risk</source>
       <translation type="unfinished">Transaction high risk</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="383"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="392"/>
       <source>Partially Paid</source>
       <translation type="unfinished">Partially Paid</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="387"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="396"/>
       <source>Payment Accepted</source>
       <translation type="unfinished">Payment Accepted</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="389"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="398"/>
       <source>Payment Settled</source>
       <translation type="unfinished">Payment Settled</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="405"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="414"/>
       <source>Instant payment failed. Wait for confirmation. (double spent proof received)</source>
       <translation type="unfinished">Instant payment failed. Wait for confirmation. (double spent proof received)</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="414"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="423"/>
       <source>Continue</source>
       <translation type="unfinished">Continue</translation>
     </message>
@@ -928,7 +903,7 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
       <translation type="unfinished">Send</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/SendTransactionsTab.qml" line="34"/>
+      <location filename="../guis/mobile/SendTransactionsTab.qml" line="35"/>
       <source>Start Payment</source>
       <translation type="unfinished">Start Payment</translation>
     </message>
@@ -1091,12 +1066,12 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
       <translation type="unfinished">Processing</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="61"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="55"/>
       <source>Mined</source>
       <translation type="unfinished">Mined</translation>
     </message>
     <message numerus="yes">
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="72"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="66"/>
       <source>%1 blocks ago</source>
       <comment>Confirmations</comment>
       <translation type="unfinished">
@@ -1107,52 +1082,52 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
       </translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="81"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="75"/>
       <source>Miner Reward</source>
       <translation type="unfinished">Miner Reward</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="83"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="77"/>
       <source>Cash Fusion</source>
       <translation type="unfinished">Cash Fusion</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="85"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="79"/>
       <source>Received</source>
       <translation type="unfinished">Received</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="87"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="81"/>
       <source>Payment to self</source>
       <translation type="unfinished">Payment to self</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="88"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="82"/>
       <source>Sent</source>
       <translation type="unfinished">Sent</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="119"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="113"/>
       <source>Holds a token</source>
       <translation type="unfinished">Holds a token</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="125"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="119"/>
       <source>Sent to</source>
       <translation type="unfinished">Sent to</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="142"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="136"/>
       <source>Value now</source>
       <translation type="unfinished">Value now</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="173"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="167"/>
       <source>Value then</source>
       <translation type="unfinished">Value then</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TxInfoSmall.qml" line="187"/>
+      <location filename="../guis/mobile/TxInfoSmall.qml" line="181"/>
       <source>Transaction Details</source>
       <translation type="unfinished">Transaction Details</translation>
     </message>
@@ -1165,7 +1140,7 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
       <translation type="unfinished">Enter your wallet passcode</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/UnlockWidget.qml" line="222"/>
+      <location filename="../guis/mobile/UnlockWidget.qml" line="226"/>
       <source>Open</source>
       <comment>open wallet with PIN</comment>
       <translation type="unfinished">Open</translation>
