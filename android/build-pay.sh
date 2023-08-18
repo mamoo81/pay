@@ -101,6 +101,9 @@ export QT_ANDROID_KEYSTORE_KEY_PASS=longPassword
     --input /home/builds/build/android-pay_mobile-deployment-settings.json \
     --output /home/builds/build/android-build \
     --sign /home/builds/src/android/selfsigned.keystore floweepay
+
+echo -n "-- COPYING: "
+cp -v android-build//build/outputs/apk/release/android-build-release-signed.apk floweepay.apk
 HERE
     chmod 755 .sign
 fi
@@ -161,8 +164,6 @@ fi
 if test -n "\$MAKE_SIGNED_APK"
 then
     \$execInDocker build/.sign
-    echo -n "-- COPYING: "
-    cp -v android-build//build/outputs/apk/release/android-build-release-signed.apk floweepay.apk
 fi
 
 HERE
