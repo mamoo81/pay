@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
-// import QtQuick.Layouts
 import "../Flowee" as Flowee
 
 Page {
@@ -36,6 +35,7 @@ Page {
     }
 
     Rectangle {
+        id: warningLabel
         anchors.top: introText.bottom
         anchors.topMargin: 10
         width: parent.width
@@ -51,14 +51,16 @@ Page {
             width: parent.width - 20
             id: warning
             text: qsTr("Protected wallets can not be used for InstaPay because they require a PIN before usage")
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         }
     }
 
     Flowee.CheckBox {
         id: mainToggle
-        anchors.top: introText.bottom
+        anchors.top: root.account.needsPinToPay ? warningLabel.bottom : introText.bottom
         anchors.topMargin: 10
         width: parent.width
+        enabled: root.account.needsPinToPay === false
         text: qsTr("Enable Instant Pay for this wallet")
         checked: root.account.allowInstaPay
         onClicked: root.account.allowInstaPay = checked
