@@ -64,6 +64,19 @@ Page {
                         text: "## Author and maintainer
 Tom Zander
 
+## Translations
+
+Deutc
+<dl><dt>h</dt>
+<dd>Georg Engelmann</dd>
+<dt>Español</dt>
+<dd>Gerard H.R.(devperate)</dd>
+<dt>Nederlands</dt>
+<dd>Tom Zander</dd>
+<dt>Polski</dt>
+<dd>Yantri & Karol Trzeszczkowski</dd>
+</dl>
+
 ## Code Contributors
 
 You?
@@ -71,19 +84,6 @@ You?
 ## Art Contributors
 
 You?
-
-## Beta Testers
-
-fshinetop
-
-## Translations
-
-Nederland<dl>
-<dt>s</dt>
-<dd>Tom Zander</dd>
-<dt>Polski</dt>
-<dd>yantri</dd>
-</dl>
 "
                         textFormat: Text.MarkdownText
                         wrapMode: Text.WordWrap
