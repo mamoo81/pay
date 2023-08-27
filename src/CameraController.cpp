@@ -215,7 +215,7 @@ void CameraControllerPrivate::checkState()
             logFatal() << "CameraController found cam error:" << cam->errorString();
 
         cam->setCameraFormat(preferredFormat);
-        // best too least-acceptbale focus mode.
+        // best too least-acceptable focus mode.
         constexpr QCamera::FocusMode f_modes[] = { QCamera::FocusModeAutoNear, QCamera::FocusModeAuto,
                 QCamera::FocusModeHyperfocal, QCamera::FocusModeInfinity };
         for (auto m : f_modes) {
