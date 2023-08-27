@@ -234,18 +234,11 @@ if (ANDROID AND BUILD_MOBILE_PAY)
 
     qt6_add_executable(pay_mobile ${SOURCES_PAY_MOBILE})
 
-    # For 6.2 - 6.4 the Qt Core permission APIs are only available as Android private apis
-    if (${Qt6Multimedia_FOUND} AND ${QT_VERSION_MINOR} GREATER_EQUAL 2 AND ${QT_VERSION_MINOR} LESS_EQUAL 4)
-        LIST (APPEND PAY_MOBILE_LIBS Qt6::CorePrivate)
-        message(STATUS "including private QtCore APIs for Android support")
-    endif ()
     target_link_libraries(pay_mobile PRIVATE pay_lib Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
     set_target_properties(pay_mobile PROPERTIES
-       QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android
+       QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/android
        COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS} MOBILE"
     )
-    qt6_android_generate_deployment_settings(pay_mobile)
-    qt6_android_add_apk_target(pay_mobile) #notice; this call is deprecated since 6.5
 endif ()
 
 if(NOT ANDROID AND BUILD_MOBILE_PAY)
