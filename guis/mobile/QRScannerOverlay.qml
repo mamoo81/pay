@@ -112,13 +112,6 @@ FocusScope {
             PathLine { x: 0; y: 0 }
         }
     }
-    Flowee.CloseIcon {
-        anchors.right: parent.right
-        anchors.rightMargin: 10
-        y: 10
-        onClicked: CameraController.abort();
-    }
-
 
     Rectangle {
         id: pasteFrame
@@ -180,6 +173,47 @@ FocusScope {
         }
     }
 
+    Rectangle {
+        width: parent.width
+        height: Math.max(closeIcon.height, instaLabel.height) + 20
+        color: mainWindow.floweeBlue
+
+        Flowee.CloseIcon {
+            id: closeIcon
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            y: 10
+            onClicked: CameraController.abort();
+        }
+
+        Flowee.Label {
+            id: instaLabel
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.right: closeIcon.left
+            anchors.margins: 10
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            color: "white"
+
+            text: {
+                let cur = portfolio.current;
+                if (cur === null || !cur.allowInstaPay)
+                    return "";
+                let fiatName = Fiat.currencyName;
+                let limit = cur.fiatInstaPayLimit(fiatName);
+                if (limit === 0)
+                    return "";
+                var answer = qsTr("Instant Pay limit is %1").arg(Fiat.formattedPrice(limit));
+
+                if (!portfolio.singleAccountSetup)
+                    answer += "\n" + qsTr("Selected wallet: '%1'").arg(cur.name);
+                return answer;
+            }
+        }
+    }
+
+
+    // ------ components below this, which are not instantiated by default -----
     Component {
         id: videoFeedPanel
         Item {
