@@ -80,7 +80,7 @@ Page {
             Flowee.Label {
                 id: iso
                 y: 10
-                text: Qt.locale(modelData).currencySymbol(Locale.XCurrencyIsoCode)
+                text: Qt.locale(modelData).currencySymbol(Locale.CurrencyIsoCode)
             }
 
             Flowee.Label {
@@ -104,6 +104,5 @@ Page {
                 }
             }
         }
-
     }
 }
