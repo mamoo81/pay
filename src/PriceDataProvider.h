@@ -117,6 +117,7 @@ signals:
 private slots:
     void fetch();
     void finishedDownload();
+    void finishedYadioDownload();
 
 private:
     struct Price {
@@ -132,6 +133,10 @@ private:
     bool m_displayCents = true; // if true, display 2 digits behind the unit-separator
     int m_failedCount = 0;
     QTimer m_timer;
+
+    // Prices converted via USD
+    bool m_yadioViaUSD = false;
+    QMap<QString, double> m_currencyConversions;
 
     QString m_basedir; // where the priceHistory is stored.
     std::unique_ptr<PriceHistoryDataProvider> m_priceHistory;

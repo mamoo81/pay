@@ -30,6 +30,10 @@
 static const char *CoinGeckoURL = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin-cash&vs_currencies=%1";
 static const char *CoinGeckoJSONRoot = "bitcoin-cash";
 // CoinGecko end
+// Yadio (conversion from USD to various currencies)
+static const char * YadioURL = "https://api.yadio.io/exrates/USD";
+static const char * YadioURLJSONRoot = "USD";
+// Yadio end
 
 static constexpr int ReloadTimeout = 7 * 60 * 1000;
 
@@ -79,6 +83,12 @@ void PriceDataProvider::setCurrency(const QLocale &countryLocale)
 
     if (m_currency == QLatin1String("CHF")) {
         m_currencySymbolPrefix += QLatin1String(" ");
+    }
+
+    // some currencies need conversion from USD
+    if (m_currency == QLatin1String("ARS")
+        || m_currency == QLatin1String("VES")) {
+        m_yadioViaUSD = true;
     }
 
     emit currencySymbolChanged();
@@ -201,10 +211,18 @@ QString PriceDataProvider::priceToStringSimple(int64_t cents) const
 
 void PriceDataProvider::fetch()
 {
+    assert(m_reply == nullptr);
+    if (m_yadioViaUSD && m_currencyConversions.isEmpty()) {
+        m_reply = m_network.get(QNetworkRequest(QUrl(YadioURL)));
+        logInfo() << "fetching yadio.io USD-conversions";
+        connect(m_reply, SIGNAL(finished()), this, SLOT(finishedYadioDownload()));
+        return; // one feed at a time.
+    }
+
     QString url(CoinGeckoURL);
-    QNetworkRequest req(QUrl(url.arg(m_currency.toLower())));
-    logInfo() << "fetch" << m_currency;
-    m_reply = m_network.get(req);
+    url = url.arg(m_yadioViaUSD ? "usd" : m_currency.toLower());
+    logInfo() << "fetch" << url;
+    m_reply = m_network.get(QNetworkRequest(QUrl(url)));
     connect(m_reply, SIGNAL(finished()), this, SLOT(finishedDownload()));
 }
 
@@ -243,13 +261,25 @@ void PriceDataProvider::finishedDownload()
         auto root = doc.object();
         // coingecko
         auto section = root.value(CoinGeckoJSONRoot).toObject();
-        auto price = section.value(m_currency.toLower());
+        auto price = section.value(m_yadioViaUSD ? QLatin1String("usd") : m_currency.toLower());
         if (price.isUndefined()) { // our provider does not support this coin.
             logCritical() << " provider does not support this coin" << m_currency;
+            assert(!m_yadioViaUSD);
             setCountry("en_US");
             return;
         }
-        m_currentPrice.price = price.toDouble() * 100;
+        if (m_yadioViaUSD) {
+            auto multiplier = m_currencyConversions.value(m_currency);
+            if (multiplier == 0) {
+                logCritical() << "Currency conversion not available in the yadio feed";
+                setCountry("en_US");
+                return;
+            }
+
+            m_currentPrice.price = std::round(price.toDouble() * 100 * multiplier);
+        } else {
+            m_currentPrice.price = price.toDouble() * 100;
+        }
         m_currentPrice.timestamp = time(nullptr);
         emit priceChanged(m_currentPrice.price);
     } catch (const std::runtime_error &error) {
@@ -261,6 +291,48 @@ void PriceDataProvider::finishedDownload()
     }
     logCritical().nospace() << "Current fiat price: " << m_currencySymbolPrefix << m_currentPrice.price << m_currencySymbolPost;
     m_timer.start(ReloadTimeout);
+}
+
+void PriceDataProvider::finishedYadioDownload()
+{
+    logInfo();
+    assert(m_reply);
+    const auto data = m_reply->readAll();
+    const bool failed = m_reply->error() != QNetworkReply::NoError || data.isEmpty();
+    if (failed)
+        logCritical() << "   failed";
+    m_reply->deleteLater();
+    m_reply = nullptr;
+    if (failed) {
+        m_timer.stop();
+        if (m_failedCount++ < 5)
+            fetch();
+        else
+            m_timer.start(20 * 1000);
+        return;
+    }
+    try {
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        if (doc.isEmpty())
+            throw std::runtime_error("Failed parsing the yadio data");
+
+        m_currencyConversions.clear();
+        auto root = doc.object();
+        auto prices = root.value(YadioURLJSONRoot).toObject();
+        for (auto i = prices.begin(); i != prices.end(); ++i) {
+            if (i.key().size() != 3)
+                continue;
+            auto value = i.value().toDouble(-1);
+            if (value > 0)
+                m_currencyConversions.insert(i.key(), value);
+        }
+        logInfo() << "got" << m_currencyConversions.size() << "values";
+        logInfo() << m_currencyConversions.value("ARS");
+        fetch(); // fetch the CoinGecko one next.
+    } catch (const std::runtime_error &error) {
+        logWarning() << "PriceDataProvider Yadio feed failed:" << error.what();
+        m_timer.start(200 * 1000);
+    }
 }
 
 QString PriceDataProvider::currencySymbolPost() const
