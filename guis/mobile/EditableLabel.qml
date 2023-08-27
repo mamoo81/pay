@@ -72,10 +72,10 @@ Item {
         visible: false
         focus: visible
         text: ourLabel.text
-        onTotalTextChanged: {
+        onEditingFinished: {
             ourLabel.text = totalText;
             root.edited();
+            visible = false
         }
-        onEditingFinished: visible = false
     }
 }
