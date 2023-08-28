@@ -269,7 +269,7 @@ Item {
 
         DragHandler {
             id: dragOpenHandler
-            enabled: root.open === false
+            enabled: root.open === false && thePile.depth === 1
             yAxis.enabled: false // the anchors of parent do that too ¯\_(ツ)_/¯
             xAxis.minimum: 0
             xAxis.maximum: parent.width
