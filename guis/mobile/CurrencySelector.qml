@@ -80,7 +80,8 @@ Page {
             Flowee.Label {
                 id: iso
                 y: 10
-                text: Qt.locale(modelData).currencySymbol(Locale.CurrencyIsoCode)
+                text: Qt.locale(modelData).currencySymbol(0)
+                // text: Qt.locale(modelData).currencySymbol(Locale.CurrencyIsoCode)
             }
 
             Flowee.Label {
@@ -91,8 +92,9 @@ Page {
                 anchors.right: parent.right
                 text: {
                     var loc = Qt.locale(modelData);
-                    return "(" + loc.currencySymbol(Locale.CurrencySymbol) + ") "
-                            + loc.currencySymbol(Locale.CurrencyDisplayName);
+                    return loc.currencySymbol(2) + "  [" + loc.currencySymbol(1) + "]";
+                    // return loc.currencySymbol(Locale.CurrencyDisplayName)
+                    //         + "  [" + loc.currencySymbol(Locale.CurrencySymbol) + "]";
                 }
             }
 
