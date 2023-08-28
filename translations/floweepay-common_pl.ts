@@ -205,7 +205,7 @@
     <message>
       <location filename="../src/MenuModel.cpp" line="29"/>
       <source>Security</source>
-      <translation type="unfinished">Security</translation>
+      <translation>Bezpieczeństwo</translation>
     </message>
     <message>
       <location filename="../src/MenuModel.cpp" line="30"/>
@@ -240,7 +240,7 @@
       <source>New Transactions</source>
       <comment>dialog-title</comment>
       <translation type="unfinished">
-        <numerusform>Nowe transakcje</numerusform>
+        <numerusform>Nowa Transakcja</numerusform>
         <numerusform>Nowe Transakcje</numerusform>
         <numerusform>Nowych transakcji</numerusform>
         <numerusform>New Transactions</numerusform>
