@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -243,6 +243,46 @@ Item {
         anchors.right: parent.right
         enabled: root.open
         onClicked: root.open = false;
+    }
+    Item {
+        id: menuSwipy
+        width: parent.width / 2
+        height: parent.height / 3
+        anchors.bottom: parent.bottom
+
+        onXChanged: {
+            // moving this drag area makes the menu slowly open.
+            let progress = x / width;
+            let menuX = 0;
+            if (progress < 0.2) // threshold for movement
+                return;
+            if (progress < 0.39) { // first 50% movement
+                menuX = Math.pow((progress - 0.1) * 10, 2) * width / 10;
+            }
+            else {
+                // progress between 0.4 and 1.0
+                // this movement goes linear instead.
+                menuX = 10 + (progress - 0.4) * 2 * (menuArea.width / 2) + menuArea.width / 2;
+            }
+            menuArea.x = Math.min(0, 0 - menuArea.width + menuX + 10);
+        }
+
+        DragHandler {
+            id: dragOpenHandler
+            enabled: root.open === false
+            yAxis.enabled: false // the anchors of parent do that too ¯\_(ツ)_/¯
+            xAxis.minimum: 0
+            xAxis.maximum: parent.width
+            onActiveChanged: {
+                if (!active) {
+                    if (menuArea.x > -30)
+                        root.open = true;
+                    menuSwipy.x = 0; // reset
+                    // restore the original binding
+                    menuArea.x = root.open ? 0 : 0 - width -3
+                }
+            }
+        }
     }
 
     Component {
