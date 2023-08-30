@@ -42,6 +42,8 @@ ApplicationWindow {
             thePile.replace("./MainView.qml");
             if (!portfolio.current.isUserOwned)
                 thePile.push("./StartupScreen.qml");
+            else if (Pay.paymentProtocolRequest !== "")
+                thePile.push("./PayWithQR.qml")
         }
     }
     Component.onCompleted: updateFontSize();

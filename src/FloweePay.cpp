@@ -870,6 +870,19 @@ void FloweePay::connectToWallet(Wallet *wallet)
         }, Qt::QueuedConnection);
 }
 
+QString FloweePay::paymentProtocolRequest() const
+{
+    return m_paymentProtocolRequest;
+}
+
+void FloweePay::setPaymentProtocolRequest(const QString &ppr)
+{
+    if (m_paymentProtocolRequest == ppr)
+        return;
+    m_paymentProtocolRequest = ppr;
+    emit paymentProtocolRequestChanged();
+}
+
 FloweePay::ApplicationProtection FloweePay::appProtection() const
 {
     return m_appProtection;

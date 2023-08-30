@@ -46,6 +46,7 @@ struct CommandLineParserData
         parser.addOption(connect);
         parser.addOption(testnet4);
         parser.addOption(offline);
+        parser.addPositionalArgument("pay-data", "Payment URI", "[bitcoincash:/xxx]");
 #ifndef NDEBUG
         // to protect people from the bad effect of having and later not having headers we only allow this
         // override in debug mode.
@@ -59,6 +60,7 @@ struct CommandLineParserData
         FloweePay::selectChain(chain);
         if (parser.isSet(offline))
             FloweePay::instance()->setOffline(true);
+        payRequest = parser.positionalArguments();
     }
 
     QCommandLineParser parser;
@@ -70,6 +72,8 @@ struct CommandLineParserData
     QCommandLineOption offline;
     QCommandLineOption headers;
     P2PNet::Chain chain = P2PNet::MainChain;
+
+    QStringList payRequest;
 };
 
 CommandLineParserData* createCLD(QGuiApplication &app)
@@ -133,6 +137,8 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData *cld)
 void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *cld)
 {
     FloweePay *app = FloweePay::instance();
+    if (cld->payRequest.size() == 1)
+        app->setPaymentProtocolRequest(cld->payRequest.first());
 
     NetDataProvider *netData = new NetDataProvider(&engine);
     app->p2pNet()->addP2PNetListener(netData);
@@ -145,5 +151,6 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *c
         app->p2pNet()->connectionManager().peerAddressDb().addOne( // add it to the DB, making sure there is at least one.
                     EndPoint(cld->parser.value(cld->connect).toStdString(), 8333));
     }
+
     app->startNet(); // lets go!
 }

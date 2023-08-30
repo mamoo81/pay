@@ -96,39 +96,18 @@ const QString &PaymentDetailOutput::address() const
     return m_address;
 }
 
-void PaymentDetailOutput::setAddress(const QString &address_)
+void PaymentDetailOutput::setAddress(const QString &address)
 {
-    const QString addressOrURL = address_.trimmed();
-    if (m_address == addressOrURL)
+    if (m_address == address)
         return;
-    m_address = addressOrURL;
-    /*
-     * Users may paste an address that is really a payment url.
-     * This basically means we may have a price added after a questionmark.
-     * bitcoincash:qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45?amount=2.1
-     */
-    int urlStart = addressOrURL.indexOf('?');
-    if (urlStart > 0) {
-        QUrl url(addressOrURL);
-        auto query = QUrlQuery(url.query(QUrl::FullyDecoded));
-        for (const auto &item : query.queryItems()) {
-            if (item.first == "amount") {
-                bool ok;
-                auto amount = item.second.toDouble(&ok);
-                if (ok)
-                    setPaymentAmount(amount * 1E8);
-            }
-            else if (item.first == "label" || item.first == "message") {
-                // message goes on the main payment..
-                Payment *p = qobject_cast<Payment*>(parent());
-                assert(p);
-                p->setUserComment(item.second);
-            }
-        }
-
-        m_address = addressOrURL.left(urlStart);
+    if (address.indexOf('?') >= 12) {
+        // this is a payment protocol, go via the Payment object to do the right thing.
+        Payment *p = qobject_cast<Payment*>(parent());
+        assert(p);
+        p->setTargetAddress(address);
+        return;
     }
-
+    m_address = address;
     createFormattedAddress();
     emit addressChanged(); // always emit at least once.
 }

@@ -24,6 +24,7 @@
 #include "AccountInfo.h"
 #include "PriceDataProvider.h"
 #include "AccountConfig.h"
+#include "PaymentProtocol.h"
 
 #include <cashaddr.h>
 #include <TransactionBuilder.h>
@@ -80,21 +81,12 @@ void Payment::setPaymentAmountFiat(int amount)
 
 void Payment::setTargetAddress(const QString &address)
 {
-    soleOut()->setAddress(address);
-    emit targetAddressChanged();
-    if (m_autoPrepare) {
-        try { prepare(); } catch (...) {}
-         /*
-         * InstaPay is typically enabled together with auto-prepare and that gives
-         * great UX for, well, instantly paying.
-         *
-         * The above will have created AND send the transaction.
-         * BUT, if the prepare() failed, we should stop trying to do the 'instaPay'.
-         * It failed, now let the user decide when to send.
-         *
-         * Either way, we can set it to false now.
-         */
-        m_allowInstaPay = false;
+    if (m_paymentDetails.size() == 1) { // payment protocols only allowed on empty tx
+        PaymentProtocol::create(this, address);
+        return;
+    }
+    else {
+        soleOut()->setAddress(address.trimmed());
     }
 }
 

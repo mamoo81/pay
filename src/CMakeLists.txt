@@ -37,6 +37,8 @@ set (PAY_SOURCES
     PaymentRequest.cpp
     PaymentDetailOutput.cpp
     PaymentDetailInputs.cpp
+
+    PaymentProtocol.cpp
     PortfolioDataProvider.cpp
     PriceDataProvider.cpp
     PriceHistoryDataProvider.cpp

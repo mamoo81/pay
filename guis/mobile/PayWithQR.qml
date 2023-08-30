@@ -69,7 +69,7 @@ Page {
         QRScanner {
             id: scanner
             scanType: QRScanner.PaymentDetails
-            autostart: true
+            autostart: Pay.paymentProtocolRequest === ""
             onFinished: {
                 var rc = scanResult
                 if (rc === "") { // scanning interrupted
@@ -99,6 +99,24 @@ Page {
             fiatPrice: Fiat.price
             autoPrepare: true
             instaPay: true
+
+            Component.onCompleted: {
+                /*
+                  The application can be started with a click on a payment link,
+                  in that case the link gets made available in the following property
+                  and we start a payment protocol with the value.
+                  Afterwards we reset the property to avoid the next opening of this
+                  screen repeating the payment.
+                 */
+
+                var paymentProtcolUrl = Pay.paymentProtocolRequest;
+                if (paymentProtcolUrl !== "") {
+                    scanner.autostart = false;
+                    payment.targetAddress = paymentProtcolUrl;
+                    Pay.paymentProtocolRequest = "";
+                    root.allowEditAmount = payment.paymentAmount <= 0;
+                }
+            }
 
             // easier testing values (for when you don't have a camera)
             // paymentAmount: 100000000

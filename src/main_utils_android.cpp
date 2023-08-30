@@ -28,11 +28,14 @@
 
 struct CommandLineParserData
 {
+    QStringList payRequest;
 };
 
-CommandLineParserData* createCLD(QGuiApplication &)
+CommandLineParserData* createCLD(QGuiApplication &app)
 {
-    return new CommandLineParserData();
+    auto dat = new CommandLineParserData();
+    dat->payRequest = app.arguments();
+    return dat;
 }
 
 Log::Verbosity logVerbosity(CommandLineParserData*)
@@ -97,6 +100,8 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
 void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData*)
 {
     FloweePay *app = FloweePay::instance();
+    if (cld->payRequest.size() == 1)
+        app->setPaymentProtocolRequest(cld->payRequest.first());
     NetDataProvider *netData = new NetDataProvider(&engine);
     app->p2pNet()->addP2PNetListener(netData);
     netData->startRefreshTimer();

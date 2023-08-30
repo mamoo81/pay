@@ -69,6 +69,9 @@ class FloweePay : public QObject, public WorkerThreads, public HeaderSyncInterfa
     // notifications
     Q_PROPERTY(bool newBlockMuted READ newBlockMuted WRITE setNewBlockMuted NOTIFY newBlockMutedChanged)
     Q_PROPERTY(bool privateMode READ privateMode WRITE setPrivateMode NOTIFY privateModeChanged)
+
+    // unique helper property..
+    Q_PROPERTY(QString paymentProtocolRequest READ paymentProtocolRequest WRITE setPaymentProtocolRequest NOTIFY paymentProtocolRequestChanged FINAL)
 public:
     enum UnitOfBitcoin {
         BCH,
@@ -311,6 +314,9 @@ public:
     ApplicationProtection appProtection() const;
     void setAppProtection(ApplicationProtection newAppProtection);
 
+    QString paymentProtocolRequest() const;
+    void setPaymentProtocolRequest(const QString &newPaymentProtocolRequest);
+
 signals:
     void loadComplete();
     /// \internal
@@ -331,8 +337,8 @@ signals:
     void activityShowsBchChanged();
     void totalBalanceConfigChanged();
     void privateModeChanged();
-
     void appProtectionChanged();
+    void paymentProtocolRequestChanged();
 
 private slots:
     void loadingCompleted();
@@ -385,6 +391,9 @@ private:
     bool m_offline = false;
     bool m_gotHeadersSyncedOnce = false;
     bool m_privateMode = false; // wallets marked private are hidden when true
+
+    // the string passed in the app in order to instantly start paying.
+    QString m_paymentProtocolRequest;
 
 #ifdef TARGET_OS_Android
     // when the app is no longer the front app we record the time in order to
