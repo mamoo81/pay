@@ -1,6 +1,6 @@
 #!/bin/bash
 # This file is part of the Flowee project
-# Copyright (C) 2022 Tom Zander <tom@flowee.org>
+# Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ if test "$_ok" -eq 0; then
 fi
 
 if test -z "$_docker_name_"; then
-    _docker_name_="codeberg.org/flowee/buildenv-android:v6.5.2"
+    _docker_name_="codeberg.org/flowee/buildenv-android:v6.5.1"
 fi
 
 if ! test -f "$_pay_native_name_/blockheaders-meta-extractor"; then
@@ -114,7 +114,10 @@ cat << HERE > smartBuild.sh
 #Created by build-pay.sh
 
 if test "\$1" = "distclean"; then
-    perl -e 'use File::Path qw(remove_tree); opendir DIR, "."; while (\$entry = readdir DIR) { if (\$entry=~/^\./) { next; } if (\$entry=~/smartBuild.sh$/ || \$entry=~/^imports$/) { next; } unlink "\$entry"; remove_tree "\$entry"; }'
+    mv android-build/assets/blockheaders .
+    perl -e 'use File::Path qw(remove_tree); opendir DIR, "."; while (\$entry = readdir DIR) { if (\$entry=~/^\./) { next; } if (\$entry=~/smartBuild.sh$/ || \$entry=~/^imports$/ || \$entry=~/^blockheaders$/) { next; } unlink "\$entry"; remove_tree "\$entry"; }'
+    mkdir -p android-build/assets/
+    mv blockheaders android-build/assets/
 fi
 
 if test "\$1" = "sign" -o "\$2" = "sign"
