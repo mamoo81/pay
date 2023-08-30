@@ -48,6 +48,7 @@ Page {
             priceInput.forceActiveFocus();
             priceInput.fiatFollowsSats = false
         }
+        checked: root.allowEditAmount
     }
     menuItems: {
         // only have menu items as long as we are effectively
@@ -55,7 +56,7 @@ Page {
         if (payment.broadcastStatus === Payment.NotStarted && !scanner.isScanning) {
             // a QR _with_ a bch-amount will turn off editing of amount-to-send
             if (allowEditAmount)
-                return [ sendAllAction ];
+                return [ showTargetAddress, sendAllAction ];
             else
                 return [ showTargetAddress, editPrice ];
         }
@@ -183,18 +184,85 @@ Page {
 
     Flowee.Label {
         id: commentLabel
-        text: qsTr("Payment description") + ":"
-        visible: userComment.text !== ""
-        anchors.top: priceInput.bottom
-        anchors.topMargin: 10
+        text: qsTr("Payment description")
+        visible: userComment.visible
+        y: {
+            if (!userComment.visible)
+                return 0;
+            if (root.allowEditAmount) { // the numpad is on
+                /*
+                  position based on available space and how many items
+                  need to be visible.
+                  If invisible, place at -100
+                 */
+                let space = walletNameBackground.y - (priceInput.y + priceInput.height)
+                if (destinationAddress.visible)
+                    space -= destinationAddress.height + 10
+                space -= userComment.height + 10;
+                if (space < height + 10)
+                    return -100;
+                return priceInput.y + priceInput.height + 10;
+            }
+            return walletNameBackground.y + walletNameBackground.height + 10;
+        }
     }
     Flowee.Label {
         id: userComment
         text: payment.userComment
-        visible: text !== ""
+        visible: text !== "" && !errorLabel.visible
         color: palette.highlight
         font.italic: true
-        anchors.top: commentLabel.bottom
+        y: {
+            if (!visible)
+                return 0;
+            if (commentLabel.y < 0)
+                return priceInput.y + priceInput.height + 10;
+            return commentLabel.y + commentLabel.height + 10;
+        }
+    }
+
+    Flowee.Label {
+        id: destinationAddressHeader
+        text: qsTr("Destination Address")
+        visible: destinationAddress.visible
+
+        y: {
+            if (!visible)
+                return 0;
+            if (root.allowEditAmount) { // the numpad is on
+                let space = walletNameBackground.y - (priceInput.y + priceInput.height)
+                if (userComment.visible)
+                    space -= userComment.height + 10
+                if (commentLabel.visible)
+                    space -= commentLabel.height + 10
+                space -= destinationAddress.height + 10;
+                if (space < height + 10)
+                    return -100;
+                if (userComment.visible)
+                    return userComment.y + userComment.height + 10;
+                return priceInput.y + priceInput.height + 10;
+            }
+            if (userComment.visible)
+                return userComment.y + userComment.height + 10;
+            return walletNameBackground.y + walletNameBackground.height + 10;
+        }
+    }
+    Flowee.LabelWithClipboard {
+        id: destinationAddress
+        text: payment.niceAddress
+        width: parent.width
+        visible: showTargetAddress.checked && !errorLabel.visible
+        font.pixelSize: mainWindow.font.pixelSize * 0.9
+        y: {
+            if (!visible)
+                return 0;
+            if (destinationAddressHeader.y < 0){
+                if (userComment.visible)
+                    return userComment.y + userComment.height + 10;
+                return priceInput.y + priceInput.height + 10;
+            }
+            return destinationAddressHeader.y + destinationAddressHeader.height + 10;
+        }
     }
 
     Rectangle {
@@ -227,7 +295,11 @@ Page {
         anchors.bottom: numericKeyboard.top
         anchors.bottomMargin: 10
 
-        balanceActions: [ sendAllAction ]
+        balanceActions: {
+            if (editPrice.checked)
+                return [ sendAllAction ];
+            return [];
+        }
     }
 
     NumericKeyboardWidget {
@@ -240,18 +312,6 @@ Page {
         dataInput: priceInput
 
         Behavior on x { NumberAnimation { } }
-    }
-
-    PageTitledBox {
-        anchors.top: numericKeyboard.top
-        width: parent.width
-        visible: !allowEditAmount && showTargetAddress.checked
-        title: qsTr("Destination Address")
-        Flowee.LabelWithClipboard {
-            text: payment.niceAddress
-            width: parent.width
-            font.pixelSize: mainWindow.font.pixelSize * 0.9
-        }
     }
 
     SlideToApprove {
