@@ -23,6 +23,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
+#include <streaming/BufferPool.h>
+
 class Payment;
 
 class PaymentProtocolBip21 : public PaymentProtocol
@@ -44,10 +46,29 @@ public:
 
 private slots:
     void fetchedRequest();
+    void sentTransaction();
+    void errored(QNetworkReply::NetworkError err);
+    void sslErrors(const QList<QSslError> &errors);
+
+    void sendReply();
 
 private:
     QNetworkAccessManager m_network;
     QNetworkReply *m_reply = nullptr;
+    Streaming::BufferPool m_pool;
+
+    QDateTime m_requestCreated;
+    QDateTime m_requestExpiry;
+
+    QString m_memo;
+    QString m_replyUrl;
+    Streaming::ConstBuffer m_merchantData;
+
+    struct Output {
+        uint64_t amount = 0;
+        Streaming::ConstBuffer script;
+    };
+    std::vector<Output> m_outputs;
 };
 
 #endif

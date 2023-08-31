@@ -105,6 +105,8 @@ private:
     bool m_forceLegacyOk = false;
     QString m_address;
     QString m_formattedTarget;
+
+
 };
 
 inline PaymentDetailOutput* PaymentDetail::toOutput() {

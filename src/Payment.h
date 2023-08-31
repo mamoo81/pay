@@ -165,6 +165,9 @@ public:
     Q_INVOKABLE PaymentDetail* addExtraOutput();
     Q_INVOKABLE PaymentDetail* addInputSelector();
     Q_INVOKABLE void remove(PaymentDetail *detail);
+    /**
+     * Unlock the account in order to allow funding of this payment.
+     */
     Q_INVOKABLE void decrypt(const QString &password);
 
     /// return the txid, should there be a transaction (otherwise empty string)
@@ -213,6 +216,8 @@ public:
 
     bool allowInstaPay() const;
     void setAllowInstaPay(bool allowIt);
+
+    Tx tx() const;
 
 private slots:
     void sentToPeer();

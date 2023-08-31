@@ -421,6 +421,11 @@ void Payment::addDetail(PaymentDetail *detail)
     doAutoPrepare();
 }
 
+Tx Payment::tx() const
+{
+    return m_tx;
+}
+
 bool Payment::allowInstaPay() const
 {
     return m_allowInstaPay;
