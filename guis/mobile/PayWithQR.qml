@@ -119,6 +119,7 @@ Page {
             }
 
             // easier testing values (for when you don't have a camera)
+            //    ps. in case of testing, you want above instaPay: property => false!!
             // paymentAmount: 100000000
             // targetAddress: "qrejlchcwl232t304v8ve8lky65y3s945u7j2msl45"
             // userComment: "bla bla bla"
@@ -338,8 +339,59 @@ Page {
         anchors.bottomMargin: 10
         width: parent.width
         enabled: payment.isValid && payment.txPrepared
-        onActivated: payment.broadcast()
+        onActivated: payment.markUserApproved()
         visible: payment.account.isDecrypted || !payment.account.needsPinToPay
+    }
+
+    Flickable {
+        anchors.fill: parent
+        contentWidth: width
+        contentHeight: warningsColumn.implicitHeight
+
+        Column {
+            id: warningsColumn
+            width: parent.width
+            Repeater {
+                model: payment.warnings
+
+                Rectangle {
+                    y: 8
+                    width: root.width - 16
+                    height: Math.max(75, Math.max(warningIcon.height, warningText.height) + 20)
+                    radius: 20
+                    color: palette.alternateBase
+                    border.width: 1
+                    border.color: palette.midlight
+
+                    Rectangle { // placeholder icon
+                        id: warningIcon
+                        x: 20
+                        width: 40
+                        height: 40
+                        radius: 20
+                        color: mainWindow.errorRedBg
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Flowee.Label {
+                        id: warningText
+                        text: modelData
+                        wrapMode: Text.Wrap
+                        anchors.left: warningIcon.right
+                        anchors.leftMargin: 10
+                        anchors.right: parent.right
+                        anchors.rightMargin: 10
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Flowee.CloseIcon {
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.margins: 10
+                        onClicked: payment.clearWarnings();
+                    }
+                }
+            }
+        }
     }
 
     Item {

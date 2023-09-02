@@ -82,7 +82,7 @@ void Payment::setPaymentAmountFiat(int amount)
 void Payment::setTargetAddress(const QString &address)
 {
     if (m_paymentDetails.size() == 1) { // payment protocols only allowed on empty tx
-        PaymentProtocol::create(this, address);
+        PaymentProtocol::create(this, address, m_paymentDetails.at(0));
         return;
     }
     else {
@@ -127,8 +127,7 @@ void Payment::decrypt(const QString &password)
         emit errorChanged();
     }
     if (!m_account->decrypt(password)) {
-        m_error = tr("Invalid PIN");
-        emit errorChanged();
+        forwardError(tr("Invalid PIN"));
     }
     doAutoPrepare();
 }
@@ -181,22 +180,27 @@ void Payment::prepare()
                 totalOut += o->paymentAmount();
             builder.appendOutput(o->paymentAmount());
 
-            bool ok = false;
-            auto address = o->formattedTarget();
-            if (address.isEmpty())
-                address = o->address();
-            assert(!address.isEmpty());
-            CashAddress::Content c = CashAddress::decodeCashAddrContent(address.toStdString(), chainPrefix());
-            assert(!c.hash.empty());
-            if (c.type == CashAddress::PUBKEY_TYPE) {
-                builder.pushOutputPay2Address(KeyId(reinterpret_cast<const char*>(c.hash.data())));
-                ok = true;
+            if (!o->outputScript().isEmpty()) {
+                builder.pushOutputScript(o->outputScript());
             }
-            else if (c.type == CashAddress::SCRIPT_TYPE) {
-                builder.pushOutputPay2Script(CScriptID(reinterpret_cast<const char*>(c.hash.data())));
-                ok = true;
+            else {
+                bool ok = false;
+                auto address = o->formattedTarget();
+                if (address.isEmpty())
+                    address = o->address();
+                assert(!address.isEmpty());
+                CashAddress::Content c = CashAddress::decodeCashAddrContent(address.toStdString(), chainPrefix());
+                assert(!c.hash.empty());
+                if (c.type == CashAddress::PUBKEY_TYPE) {
+                    builder.pushOutputPay2Address(KeyId(reinterpret_cast<const char*>(c.hash.data())));
+                    ok = true;
+                }
+                else if (c.type == CashAddress::SCRIPT_TYPE) {
+                    builder.pushOutputPay2Script(CScriptID(reinterpret_cast<const char*>(c.hash.data())));
+                    ok = true;
+                }
+                assert(ok); // mismatch between PaymentDetailOutput::setAddress and this method...
             }
-            assert(ok); // mismatch between PaymentDetailOutput::setAddress and this method...
         }
         else if (detail->type() == InputSelector) {
             inputs = detail->toInputs();
@@ -212,8 +216,7 @@ void Payment::prepare()
         funding = inputs->selectedInputs(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
         if (funding.outputs.empty()) { // not enough funds.
             // This can only be due to fees as we called 'verify' above.
-            m_error = tr("Not enough funds selected for fees");
-            emit errorChanged();
+            forwardError(tr("Not enough funds selected for fees"));
             m_txPrepared = false;
             emit txPreparedChanged();
             return;
@@ -222,8 +225,7 @@ void Payment::prepare()
     else {
         funding = m_wallet->findInputsFor(seenMaxAmount ? -1 : totalOut, m_fee, tx.size(), change);
         if (funding.outputs.empty()) { // not enough funds.
-            m_error = tr("Not enough funds in wallet to make payment!");
-            emit errorChanged();
+            forwardError(tr("Not enough funds in wallet to make payment!"));
             m_txPrepared = false;
             emit txPreparedChanged();
             return;
@@ -287,8 +289,7 @@ void Payment::prepare()
     }
 
     if (m_tx.size() > 100000) { // max size of a transaction is 100KB
-        m_error = tr("Transaction too large. Amount selected needs too many coins.");
-        emit errorChanged();
+        forwardError(tr("Transaction too large. Amount selected needs too many coins."));
         return;
     }
 
@@ -332,11 +333,21 @@ void Payment::prepare()
         if (output->paymentAmountFiat() > limit)
             return;
 
-        // schedule broadcast in a different event in order to
+        // schedule markUserApproved in a different event in order to
         // allow multiple changes and prepare()s to happen and
         // only send the best version to the network.
-        QTimer::singleShot(50, this, SLOT(broadcast()));
+        QTimer::singleShot(50, this, SLOT(markUserApproved()));
     }
+}
+
+void Payment::markUserApproved()
+{
+    assert(m_txPrepared);
+    // give external factors the opportunity to object.
+    m_error.clear();
+    emit approvedByUser();
+    if (m_error.isEmpty()) // nobody objected.
+        broadcast();
 }
 
 void Payment::broadcast()
@@ -424,6 +435,56 @@ void Payment::addDetail(PaymentDetail *detail)
 Tx Payment::tx() const
 {
     return m_tx;
+}
+
+void Payment::forwardError(const QString &error)
+{
+    if (m_error == error)
+        return;
+    m_error = error;
+    emit errorChanged();
+}
+
+void Payment::addWarning(Warning warning)
+{
+    if (m_warnings.contains(warning))
+        return;
+    m_warnings.insert(warning);
+    emit warningsChanged();
+}
+
+QStringList Payment::warnings() const
+{
+    QStringList answer;
+    for (auto w : m_warnings) {
+        switch (w) {
+        case InsecureTransport:
+            answer.append(tr("Request received over insecure channel. Anyone could have altered it!"));
+            break;
+        case DownloadFailed:
+            answer.append(tr("Download of payment request Failed."));
+            break;
+        }
+    }
+    return answer;
+}
+
+void Payment::clearWarnings()
+{
+    if (m_warnings.isEmpty())
+        return;
+    m_warnings.clear();
+    emit warningsChanged();
+}
+
+void Payment::confirmReceivedOk()
+{
+    if (m_infoObject.get() == nullptr)
+        return;
+    m_infoObject.reset();
+    m_sentPeerCount = 1;
+    m_rejectedPeerCount = 0;
+    emit broadcastStatusChanged();
 }
 
 bool Payment::allowInstaPay() const

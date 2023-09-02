@@ -20,6 +20,7 @@
 
 
 #include <QObject>
+#include <QSet>
 
 #include <BroadcastTxData.h>
 #include <primitives/Tx.h>
@@ -68,6 +69,9 @@ class Payment : public QObject
     /// If prepare() failed, this is set.
     Q_PROPERTY(QString error READ error NOTIFY errorChanged)
 
+    Q_PROPERTY(QStringList warnings READ warnings NOTIFY warningsChanged)
+
+
     Q_ENUMS(DetailType BroadcastStatus)
 public:
     enum DetailType {
@@ -101,6 +105,12 @@ public:
         TxBroadcastSuccess, //< Tx broadcast and accepted by multiple peers.
         TxRejected      //< Tx has been offered, downloaded and rejected by at least one peer.
     };
+
+    enum Warning {
+        InsecureTransport,
+        DownloadFailed
+    };
+    Q_ENUM(Warning);
 
     Payment(QObject *parent = nullptr);
 
@@ -160,7 +170,7 @@ public:
     const QString &error() const;
 
     Q_INVOKABLE void prepare();
-    Q_INVOKABLE void broadcast();
+    Q_INVOKABLE void markUserApproved();
     Q_INVOKABLE void reset();
     Q_INVOKABLE PaymentDetail* addExtraOutput();
     Q_INVOKABLE PaymentDetail* addInputSelector();
@@ -219,10 +229,26 @@ public:
 
     Tx tx() const;
 
+    /*
+     * When an issue occurred with a consumer of this class and the error should be shown to the user.
+     */
+    void forwardError(const QString &error);
+
+    /**
+     * When an warning occurred with a consumer of this class and the warning should be shown to the user.
+     */
+    void addWarning(Warning warning);
+    QStringList warnings() const;
+    Q_INVOKABLE void clearWarnings();
+
+    /// Bypass the broadcast mechanism and mark the transaction as received.
+    void confirmReceivedOk();
+
 private slots:
     void sentToPeer();
     void txRejected(short reason, const QString &message);
     void recalcAmounts();
+    void broadcast();
 
 signals:
     void feePerByteChanged();
@@ -242,6 +268,9 @@ signals:
     void walletPinChanged();
     void autoPrepareChanged();
     void allowInstaPayChanged();
+    void warningsChanged();
+
+    void approvedByUser();
 
 private:
     void doAutoPrepare();
@@ -255,6 +284,7 @@ private:
     AccountInfo *m_account = nullptr;
 
     // Payment Variable initialization in reset() please
+    QSet<Warning> m_warnings;
     QList<PaymentDetail*> m_paymentDetails;
     bool m_autoPrepare = false;
     bool m_txPrepared;

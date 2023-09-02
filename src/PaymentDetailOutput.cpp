@@ -108,12 +108,20 @@ void PaymentDetailOutput::setAddress(const QString &address)
         return;
     }
     m_address = address;
+    m_outputScript.clear();
     createFormattedAddress();
     emit addressChanged(); // always emit at least once.
 }
 
 void PaymentDetailOutput::createFormattedAddress()
 {
+    if (m_address.isEmpty() && !m_outputScript.isEmpty()) {
+        m_formattedTarget.clear();
+        checkValid();
+        emit correctAddressChanged(); // the formatted target is tied to this signal
+        return;
+    }
+
     const std::string &chainPrefixCopy = chainPrefix();
 
     std::string encodedAddress;
@@ -204,6 +212,14 @@ void PaymentDetailOutput::setWallet(Wallet *)
     }
 }
 
+void PaymentDetailOutput::setEditable(bool on)
+{
+    if (m_editable == on)
+        return;
+    m_editable = on;
+    emit editableChanged();
+}
+
 bool PaymentDetailOutput::maxSelected() const
 {
     return m_maxSelected;
@@ -289,6 +305,21 @@ void PaymentDetailOutput::setPaymentAmountFiat(int amount)
 const QString &PaymentDetailOutput::formattedTarget() const
 {
     return m_formattedTarget;
+}
+
+void PaymentDetailOutput::setOutputScript(const Streaming::ConstBuffer &script)
+{
+    if (m_outputScript == script)
+        return;
+    m_outputScript = script;
+    m_address.clear();
+    createFormattedAddress();
+    emit addressChanged(); // always emit at least once.
+}
+
+Streaming::ConstBuffer PaymentDetailOutput::outputScript() const
+{
+    return m_outputScript;
 }
 
 QString PaymentDetailOutput::niceAddress() const

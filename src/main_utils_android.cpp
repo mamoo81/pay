@@ -97,7 +97,7 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
     return blockheaders;
 }
 
-void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData*)
+void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *cld)
 {
     FloweePay *app = FloweePay::instance();
     if (cld->payRequest.size() == 1)

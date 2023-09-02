@@ -26,9 +26,9 @@ class PaymentProtocol : public QObject
 {
     Q_OBJECT
 public:
-    explicit PaymentProtocol(Payment *payment);
+    explicit PaymentProtocol(Payment *payment, QObject *parent);
 
-    static PaymentProtocol* create(Payment *target, const QString &uri);
+    static PaymentProtocol* create(Payment *target, const QString &uri, QObject *parent);
 
 protected:
     virtual void setUri(const QString &uri) = 0;

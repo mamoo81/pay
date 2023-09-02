@@ -39,18 +39,27 @@ class PaymentDetailOutput : public PaymentDetail
     Q_PROPERTY(bool fiatFollows READ fiatFollows WRITE setFiatFollows NOTIFY fiatFollowsChanged)
     Q_PROPERTY(bool maxSelected READ maxSelected WRITE setMaxSelected NOTIFY maxSelectedChanged)
     Q_PROPERTY(bool forceLegacyOk READ forceLegacyOk WRITE setForceLegacyOk NOTIFY forceLegacyOkChanged)
+    /**
+     * An output created by a payment protocol is not editable by users.
+     */
+    Q_PROPERTY(bool editable READ editable NOTIFY editableChanged)
 public:
     explicit PaymentDetailOutput(Payment *parent);
 
     double paymentAmount() const;
     void setPaymentAmount(double newPaymentAmount);
 
-    /// this method also sets formattedTarget if its a proper address.
+    /// this method also sets formattedTarget if it's a proper address.
     /// @see FloweePay::identifyString()
+    /// @see setOutputScript()
     const QString &address() const;
     void setAddress(const QString &newAddress);
     /// is non-empty if the address() is proper.
     const QString &formattedTarget() const;
+
+    void setOutputScript(const Streaming::ConstBuffer &script);
+    Streaming::ConstBuffer outputScript() const;
+
     /**
      * The nicest to display address version.
      * This will always return (if available) the BCH style (cash-address) address, without
@@ -82,6 +91,11 @@ public:
 
     void setWallet(Wallet *wallet) override;
 
+    bool editable() const {
+        return m_editable;
+    }
+    void setEditable(bool on);
+
 signals:
     void paymentAmountChanged();
     void paymentAmountFiatChanged();
@@ -91,6 +105,7 @@ signals:
     void maxSelectedChanged();
     void forceLegacyOkChanged();
     void maxAllowedChanged();
+    void editableChanged();
 
 private:
     void checkValid();
@@ -103,10 +118,10 @@ private:
     bool m_maxSelected = false;
     bool m_addressOk = false;
     bool m_forceLegacyOk = false;
+    bool m_editable = true;
     QString m_address;
     QString m_formattedTarget;
-
-
+    Streaming::ConstBuffer m_outputScript;
 };
 
 inline PaymentDetailOutput* PaymentDetail::toOutput() {

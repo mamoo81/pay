@@ -44,7 +44,7 @@ Item {
             var paymentProtcolUrl = Pay.paymentProtocolRequest;
             if (paymentProtcolUrl !== "") {
                 payment.targetAddress = paymentProtcolUrl;
-                Pay.paymentProtocolRequestChanged = "";
+                Pay.paymentProtocolRequest = "";
             }
         }
     }
@@ -158,6 +158,21 @@ Item {
                             payment.prepare();
                     }
                 }
+                Flowee.Dialog {
+                    title: qsTr("Warning")
+                    standardButtons: DialogButtonBox.Ok
+                    text: {
+                        var warnings = payment.warnings
+                        if (warnings.length === 0)
+                            return "";
+
+                        return qsTr("Payment Request returned with:")
+                            + "\n" + warnings.join("\n");
+                    }
+                    visible: text !== ""
+
+                    onAccepted: payment.clearWarnings();
+                }
             }
             Flowee.WarningLabel {
                 id: warningLabel
@@ -248,7 +263,7 @@ Item {
                                 && prepareButton.portfolioUsed === portfolio.current; // also make sure we prepared for the current portfolio.
                 onCanSendChanged: setEnabled(DialogButtonBox.Ok, canSend)
                 onRejected: payment.reset();
-                onAccepted: payment.broadcast();
+                onAccepted: payment.markUserApproved();
             }
         }
     }
@@ -325,6 +340,7 @@ Item {
                                     return mainWindow.errorRed
                                 return palette.windowText
                             }
+                            enabled: paymentDetail.editable
                         }
                         Label {
                             color: "green"
@@ -583,7 +599,7 @@ Item {
                                 coinsListView.menuIsOpen = false
                                 return;
                             }
-                            if (mouse.button == Qt.LeftButton) {
+                            if (mouse.button === Qt.LeftButton) {
                                 var willCheck = !selectedBox.checked
                                 selectedBox.checked = willCheck
                                 inputsPane.paymentDetail.setRowIncluded(index, willCheck)

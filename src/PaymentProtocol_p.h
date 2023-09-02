@@ -31,7 +31,7 @@ class PaymentProtocolBip21 : public PaymentProtocol
 {
     Q_OBJECT
 public:
-    explicit PaymentProtocolBip21(Payment *payment);
+    explicit PaymentProtocolBip21(Payment *payment, QObject *parent);
 
     void setUri(const QString &uri) override;
 };
@@ -40,7 +40,7 @@ class PaymentProtocolBip70 : public PaymentProtocol
 {
     Q_OBJECT
 public:
-    explicit PaymentProtocolBip70(Payment *payment);
+    explicit PaymentProtocolBip70(Payment *payment, QObject *parent);
 
     void setUri(const QString &uri) override;
 
@@ -69,6 +69,7 @@ private:
         Streaming::ConstBuffer script;
     };
     std::vector<Output> m_outputs;
+    bool m_sent = false;
 };
 
 #endif

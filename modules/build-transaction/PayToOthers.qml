@@ -271,10 +271,11 @@ Page {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     height: Math.max(destinationLabel.height * 2.3, implicitHeight)
-                    focus: true
+                    focus: enabled
                     property var addressType: Pay.identifyString(text);
                     text: paymentDetail.address
                     nextFocusTarget: priceInput
+                    enabled: paymentDetail.editable
                     onTextChanged: {
                         paymentDetail.address = text
                         addressInfo.createInfo();

@@ -28,13 +28,14 @@
 #include <QFile>
 #include <QUrlQuery>
 
-PaymentProtocol::PaymentProtocol(Payment *payment)
-    : QObject{payment},
+PaymentProtocol::PaymentProtocol(Payment *payment, QObject *parent)
+    : QObject{parent},
     m_payment(payment)
 {
+    assert(payment);
 }
 
-PaymentProtocol *PaymentProtocol::create(Payment *target, const QString &uri)
+PaymentProtocol *PaymentProtocol::create(Payment *target, const QString &uri, QObject *parent)
 {
     PaymentProtocol *pp = nullptr;
     if (uri.length() < 20 || !uri.startsWith("bitcoincash:")) {
@@ -42,10 +43,10 @@ PaymentProtocol *PaymentProtocol::create(Payment *target, const QString &uri)
         return nullptr;
     }
     else if (uri.at(12) == '?' && uri.at(13) == 'r') {
-        pp = new PaymentProtocolBip70(target);
+        pp = new PaymentProtocolBip70(target, parent);
     }
     else if (uri.at(12) == 'q' || uri.at(12) == 'p') {
-        pp = new PaymentProtocolBip21(target);
+        pp = new PaymentProtocolBip21(target, parent);
     }
     else {
         logWarning(10003) << "Payment protocol missing support for uri:" << uri;
@@ -77,10 +78,9 @@ void PaymentProtocol::finished()
 
 // ------------------------------------
 
-PaymentProtocolBip21::PaymentProtocolBip21(Payment *payment)
-    : PaymentProtocol(payment)
+PaymentProtocolBip21::PaymentProtocolBip21(Payment *payment, QObject *parent)
+    : PaymentProtocol(payment, parent)
 {
-    assert(payment);
 }
 
 void PaymentProtocolBip21::setUri(const QString &uri)
@@ -115,13 +115,21 @@ void PaymentProtocolBip21::setUri(const QString &uri)
     finished();
 }
 
-PaymentProtocolBip70::PaymentProtocolBip70(Payment *payment)
-    : PaymentProtocol(payment)
+PaymentProtocolBip70::PaymentProtocolBip70(Payment *payment, QObject *parent)
+    : PaymentProtocol(payment, parent)
 {
 }
 
 void PaymentProtocolBip70::setUri(const QString &uri)
 {
+    /*
+     * Make sure that we account for the async nature of bip70 and also the fact
+     * that the bip70 usage implies that the user should not edit the amount.
+     * So, we set a dummy amount in the payment in order to make the UI aware
+     * of the fact that the amount is pre-filled.
+     */
+    m_payment->setPaymentAmount(1);
+
     if (FloweePay::instance()->isOffline()) {
         logCritical(10003) << "App is offline, can't handle BIP70 payment";
         finished();
@@ -145,14 +153,28 @@ void PaymentProtocolBip70::setUri(const QString &uri)
 
 void PaymentProtocolBip70::fetchedRequest()
 {
+    m_payment->setPaymentAmount(0); // reset to zero
+
     m_pool.reserve(m_reply->size());
     logInfo(10003) << "BIP 70 request fetched, payload:" << m_reply->size();
     auto readBytes = m_reply->read(m_pool.data(), m_pool.capacity());
+    if (readBytes == -1) {
+        m_payment->addWarning(Payment::DownloadFailed);
+        return;
+    }
     auto buf = m_pool.commit(readBytes);
+
+    const auto ssl = m_reply->sslConfiguration();
+    if (ssl.isNull() || ssl.sessionProtocol() < QSsl::TlsV1_3) {
+        m_payment->setAllowInstaPay(false); // require user approval
+        m_payment->addWarning(Payment::InsecureTransport);
+    }
+
+    const auto contentType = m_reply->header(QNetworkRequest::ContentTypeHeader);
     delete m_reply;
     m_reply = nullptr;
 
-    // PaymentRequest with embedded PaymentDetails / Outputs
+    // protocol buffers PaymentRequest with embedded PaymentDetails / Outputs
     Streaming::ProtoParser parser(buf);
     bool inDetails = false;
     bool inOutput = false;
@@ -172,8 +194,19 @@ void PaymentProtocolBip70::fetchedRequest()
         }
         else if (parsed == Streaming::Error) {
             logCritical(10003) << "failed parsing the protobuf";
-            // TODO check if its a different format, or an error message?
             logCritical(10003) << buf.toString();
+            auto mime(contentType.toString());
+            int semicolon = mime.indexOf(';');
+            if (semicolon > 0)
+                mime = mime.left(semicolon);
+            if ((mime == "text/html" || mime == "text/plain") && buf.size() < 100) {
+                auto str = buf.toString();
+                if (str.find('<') == std::string::npos) {
+                    m_payment->forwardError(QString::fromLatin1(str));
+                    return;
+                }
+            }
+            m_payment->forwardError(tr("Payment Request unreadable"));
             return;
         }
 
@@ -192,6 +225,8 @@ void PaymentProtocolBip70::fetchedRequest()
             switch (parser.tag()) {
             case 1: // chain
                 if (parser.stringData() != "main") {
+                    // lets not translate this, its unlikely to ever happen.
+                    m_payment->forwardError("not for mainchain");
                     logCritical(10003) << "Payment request for not mainchain. Ignoring";
                     return;
                 }
@@ -210,7 +245,7 @@ void PaymentProtocolBip70::fetchedRequest()
             case 5: // memo
                 m_memo = QString::fromUtf8(parser.stringData());
                 break;
-            case 6: // memo
+            case 6: // reply URL
                 m_replyUrl = QString::fromUtf8(parser.stringData());
                 break;
             case 7: // merchant data
@@ -236,15 +271,21 @@ void PaymentProtocolBip70::fetchedRequest()
     logDebug(10003) << "Reply to" << m_replyUrl;
     logDebug(10003) << "Created:" << m_requestCreated.toString();
     logDebug(10003) << "Expires:" << m_requestExpiry.toString();
-    if (m_requestExpiry < QDateTime::currentDateTimeUtc())
+    if (m_requestExpiry < QDateTime::currentDateTimeUtc()) {
         logWarning(10003) << "   + expired";
+        m_payment->forwardError(tr("Payment Request Expired"));
+    }
 
+    m_payment->setUserComment(m_memo);
     for (const auto &out : m_outputs) {
         auto simple = CashAddress::extractAddressFromScript(out.script);
         if (simple.hash.empty()) {
-            // TODO invent new payment output type
-            logFatal(10003) << "Not an address";
-            assert(false);
+            logInfo(10003) << "Output is not an address. Using bytearray instead";
+            auto *addressDetail = m_payment->addExtraOutput()->toOutput();
+            addressDetail->setOutputScript(out.script);
+            addressDetail->setFiatFollows(true);
+            addressDetail->setPaymentAmount(out.amount);
+            addressDetail->setEditable(false);
         } else {
             auto address = CashAddress::encodeCashAddr(chainPrefix(), simple);
             logDebug(10003) << "Payment to" << address;
@@ -253,29 +294,38 @@ void PaymentProtocolBip70::fetchedRequest()
                 // is the most compatible for consumers of its properties.
                 m_payment->setTargetAddress(QString::fromLatin1(address));
                 m_payment->setPaymentAmount(out.amount);
+                assert(m_payment->paymentDetails().size() == 1);
+                auto *first = m_payment->paymentDetails().at(0);
+                assert(first);
+                auto *out = qobject_cast<PaymentDetailOutput*>(first);
+                assert(out);
+                out->setEditable(false);
             }
             else {
                 auto *addressDetail = m_payment->addExtraOutput()->toOutput();
                 addressDetail->setAddress(QString::fromLatin1(address));
                 addressDetail->setFiatFollows(true);
                 addressDetail->setPaymentAmount(out.amount);
+                addressDetail->setEditable(false);
             }
         }
     }
 
-    // TODO instead of this, we should be triggerd on the user askign the broadcast the transaction.
+    // then we have to wait for the user to Ok it and only after broadcast started,
+    // we send the transaction also to the payment processor.
+    connect (m_payment, &Payment::approvedByUser, this, [=]() {
+        assert(m_payment->txPrepared());
+        if (m_requestExpiry < QDateTime::currentDateTimeUtc()) {
+            m_payment->forwardError(tr("Payment Request Expired"));
+            return;
+        }
+        sendReply();
+   });
+
+    // Help the payment object start the broadcast if its properties automate this.
     if (m_payment->autoPrepare()) {
         try { m_payment->prepare(); } catch (...) {}
-        m_payment->setAllowInstaPay(false);
-        sendReply();
-    }
-    else {
-        // then we have to wait for the user to Ok it and only after it has been prepared
-        // do we send it.
-        connect (m_payment, &Payment::txPreparedChanged, this, [=]() {
-            if (m_payment->txPrepared())
-                sendReply();
-       });
+        m_payment->setAllowInstaPay(false); // avoid instapay if the prepare failed.
     }
 }
 
@@ -287,31 +337,42 @@ void PaymentProtocolBip70::sentTransaction()
     auto data = m_pool.commit(readBytes);
     delete m_reply;
     m_reply = nullptr;
-
-    Streaming::ProtoParser::debug(data);
-    logFatal(10003) << data.toString();
+    m_payment->confirmReceivedOk();
+    deleteLater();
 }
 
 void PaymentProtocolBip70::errored(QNetworkReply::NetworkError err)
 {
-    logFatal(10003) << "Error: " << err;
-    logFatal(10003) << m_reply->errorString();
+    logCritical(10003) << m_reply->errorString();
     if (m_reply->error() == 302) {
         logFatal(10003) << " to:" << m_reply->header(QNetworkRequest::LocationHeader).toString();
+    }
+    else if (m_reply->error() == QNetworkReply::SslHandshakeFailedError) {
+        m_payment->setAllowInstaPay(false);
+        m_payment->addWarning(Payment::InsecureTransport);
+    }
+    else if (m_reply->error() <= 99) {
+        // covers all the remote network errors.
+        // notify the user why nothing is happening.
+        m_payment->addWarning(Payment::DownloadFailed);
     }
 }
 
 void PaymentProtocolBip70::sslErrors(const QList<QSslError> &errors)
 {
-    logFatal(10003) << "multiple errors:" << errors.size();
+    m_payment->setAllowInstaPay(false);
+    m_payment->addWarning(Payment::InsecureTransport);
+    logCritical(10003) << "multiple errors:" << errors.size();
     for (const auto &e : errors) {
-        logFatal(10003) << " " << e.errorString();
+        logCritical(10003) << " " << e.errorString();
     }
 }
 
 void PaymentProtocolBip70::sendReply()
 {
-    // TODO check if we have not passed the expired time
+    if (m_sent)
+        return;
+
     assert(m_payment->txPrepared());
     assert(!m_replyUrl.isEmpty());
     auto tx = m_payment->tx();
