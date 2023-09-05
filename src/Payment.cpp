@@ -467,7 +467,7 @@ QStringList Payment::warnings() const
             answer.append(tr("Request received over insecure channel. Anyone could have altered it!"));
             break;
         case DownloadFailed:
-            answer.append(tr("Download of payment request Failed."));
+            answer.append(tr("Download of payment request failed."));
             break;
         case OfflineWarning:
             answer.append("App is offline, can't handle BIP70 payment request");

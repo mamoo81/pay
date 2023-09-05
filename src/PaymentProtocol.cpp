@@ -216,7 +216,7 @@ void PaymentProtocolBip70::fetchedRequest()
                     return;
                 }
             }
-            m_payment->forwardError(tr("Payment Request unreadable"));
+            m_payment->forwardError(tr("Payment request unreadable"));
             return;
         }
 
@@ -283,7 +283,7 @@ void PaymentProtocolBip70::fetchedRequest()
     logDebug(10003) << "Expires:" << m_requestExpiry.toString();
     if (m_requestExpiry < QDateTime::currentDateTimeUtc()) {
         logWarning(10003) << "   + expired";
-        m_payment->forwardError(tr("Payment Request Expired"));
+        m_payment->forwardError(tr("Payment request expired"));
     }
 
     m_payment->setUserComment(m_memo);
@@ -320,7 +320,7 @@ void PaymentProtocolBip70::fetchedRequest()
     connect (m_payment, &Payment::approvedByUser, this, [=]() {
         assert(m_payment->txPrepared());
         if (m_requestExpiry < QDateTime::currentDateTimeUtc()) {
-            m_payment->forwardError(tr("Payment Request Expired"));
+            m_payment->forwardError(tr("Payment request expired"));
             return;
         }
         sendReply();

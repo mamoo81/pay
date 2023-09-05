@@ -168,7 +168,7 @@ Item {
                         if (warnings.length === 0)
                             return "";
 
-                        return qsTr("Payment Request returned with:")
+                        return qsTr("Payment request warnings:")
                             + "\n" + warnings.join("\n");
                     }
                     visible: text !== ""
