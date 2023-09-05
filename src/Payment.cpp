@@ -79,15 +79,20 @@ void Payment::setPaymentAmountFiat(int amount)
     doAutoPrepare();
 }
 
-void Payment::setTargetAddress(const QString &address)
+bool Payment::pasteTargetAddress(const QString &address)
 {
     if (m_paymentDetails.size() == 1) { // payment protocols only allowed on empty tx
-        PaymentProtocol::create(this, address, m_paymentDetails.at(0));
-        return;
+        auto protocol = PaymentProtocol::create(this, address, m_paymentDetails.at(0));
+        return protocol;
     }
-    else {
-        soleOut()->setAddress(address.trimmed());
-    }
+    auto out = soleOut();
+    out->setAddress(address.trimmed());
+    return !out->formattedTarget().isEmpty();
+}
+
+void Payment::setTargetAddress(const QString &address)
+{
+    pasteTargetAddress(address);
 }
 
 QString Payment::targetAddress()
@@ -463,6 +468,9 @@ QStringList Payment::warnings() const
             break;
         case DownloadFailed:
             answer.append(tr("Download of payment request Failed."));
+            break;
+        case OfflineWarning:
+            answer.append("App is offline, can't handle BIP70 payment request");
             break;
         }
     }

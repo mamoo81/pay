@@ -27,26 +27,28 @@ Item {
     id: sendPanel
     focus: true
 
+    onActiveFocusChanged: {
+        if (!activeFocus)
+            return;
+        /*
+          The application can be started with a click on a payment link,
+          in that case the link gets made available in the following property
+          and we start a payment protocol with the value.
+          Afterwards we reset the property to avoid the next opening of this
+          screen repeating the payment.
+         */
+        var paymentProtcolUrl = Pay.paymentProtocolRequest;
+        if (paymentProtcolUrl !== "") {
+            payment.targetAddress = paymentProtcolUrl;
+            Pay.paymentProtocolRequest = "";
+        }
+    }
+
     Payment { // the model behind the Payment logic
         id: payment
         fiatPrice: Fiat.price
         account: portfolio.current
 
-        Component.onCompleted: {
-            /*
-              The application can be started with a click on a payment link,
-              in that case the link gets made available in the following property
-              and we start a payment protocol with the value.
-              Afterwards we reset the property to avoid the next opening of this
-              screen repeating the payment.
-             */
-
-            var paymentProtcolUrl = Pay.paymentProtocolRequest;
-            if (paymentProtcolUrl !== "") {
-                payment.targetAddress = paymentProtcolUrl;
-                Pay.paymentProtocolRequest = "";
-            }
-        }
     }
     Rectangle { // background
         anchors.fill: parent

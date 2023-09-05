@@ -48,7 +48,7 @@ ApplicationWindow {
             if (!portfolio.current.isUserOwned) { // Open on receive tab if the wallet is effectively empty
                 tabbar.currentIndex = 2;
             }
-            else if (Pay.paymentProtocolRequestChanged !== "") {
+            else if (Pay.paymentProtocolRequest !== "") {
                 tabbar.currentIndex = 1;
             }
             else {

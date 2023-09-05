@@ -108,7 +108,8 @@ public:
 
     enum Warning {
         InsecureTransport,
-        DownloadFailed
+        DownloadFailed,
+        OfflineWarning
     };
     Q_ENUM(Warning);
 
@@ -139,8 +140,10 @@ public:
      *
      * This method can no longer be used after addExtraOutput has been called.
      * This method assumes a single output, which is the default for this class.
+     * @see pasteTargetAddress()
      */
     void setTargetAddress(const QString &address);
+
     /**
      * Returns the address to pay to, as the user typed it.
      *
@@ -175,6 +178,15 @@ public:
     Q_INVOKABLE PaymentDetail* addExtraOutput();
     Q_INVOKABLE PaymentDetail* addInputSelector();
     Q_INVOKABLE void remove(PaymentDetail *detail);
+    /**
+     * Set a should-be-correct address and return true if valid.
+     *
+     * Calling thie function is very similar to setting the property 'targetAddress'
+     * with the main difference that should the address pasted not be a valid one,
+     * this method returns false.
+     * @see setTargetAddress
+     */
+    Q_INVOKABLE bool pasteTargetAddress(const QString &address);
     /**
      * Unlock the account in order to allow funding of this payment.
      */

@@ -83,11 +83,9 @@ Page {
 
                 // Take the entire QR-url and let the Payment object parse it.
                 // this updates things like amount, comment and indeed address.
-                payment.targetAddress = rc
-                if (payment.formattedTargetAddress == "") {
-                    // that means that the address is invalid.
+                let success = payment.pasteTargetAddress(rc);
+                if (!success)
                     scannedUrlFaultyDialog.open();
-                }
 
                 // should the price be included in the QR code, don't show editing widgets.
                 root.allowEditAmount = payment.paymentAmount <= 0;
@@ -379,11 +377,12 @@ Page {
                         wrapMode: Text.Wrap
                         anchors.left: warningIcon.right
                         anchors.leftMargin: 10
-                        anchors.right: parent.right
+                        anchors.right: closeIcon.left
                         anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
                     }
                     Flowee.CloseIcon {
+                        id: closeIcon
                         anchors.right: parent.right
                         anchors.top: parent.top
                         anchors.margins: 10

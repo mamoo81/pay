@@ -34,7 +34,10 @@ struct CommandLineParserData
 CommandLineParserData* createCLD(QGuiApplication &app)
 {
     auto dat = new CommandLineParserData();
-    dat->payRequest = app.arguments();
+    // disable this for now, the argument has some weird stuff passed in
+    // upon normal starting of the app.
+    // Need to figure out how to do this the android style...
+    // dat->payRequest = app.arguments();
     return dat;
 }
 

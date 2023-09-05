@@ -37,6 +37,7 @@ PaymentProtocol::PaymentProtocol(Payment *payment, QObject *parent)
 
 PaymentProtocol *PaymentProtocol::create(Payment *target, const QString &uri, QObject *parent)
 {
+    assert(target->paymentDetails().size() == 1);
     PaymentProtocol *pp = nullptr;
     if (uri.length() < 20 || !uri.startsWith("bitcoincash:")) {
         logWarning(10003) << "Payment protocol unrecognized URI:" << uri;
@@ -132,9 +133,18 @@ void PaymentProtocolBip70::setUri(const QString &uri)
 
     if (FloweePay::instance()->isOffline()) {
         logCritical(10003) << "App is offline, can't handle BIP70 payment";
+        m_payment->addWarning(Payment::OfflineWarning);
         finished();
         return;
     }
+
+    // Mark the detail as not editable as soon as possible.
+    assert(m_payment->paymentDetails().size() == 1);
+    auto *first = m_payment->paymentDetails().at(0);
+    assert(first);
+    auto *out = qobject_cast<PaymentDetailOutput*>(first);
+    assert(out);
+    out->setEditable(false);
 
     // uri typically starts with: bitcoincash:?r=https://
     assert(uri.startsWith("bitcoincash:?r="));
@@ -294,12 +304,6 @@ void PaymentProtocolBip70::fetchedRequest()
                 // is the most compatible for consumers of its properties.
                 m_payment->setTargetAddress(QString::fromLatin1(address));
                 m_payment->setPaymentAmount(out.amount);
-                assert(m_payment->paymentDetails().size() == 1);
-                auto *first = m_payment->paymentDetails().at(0);
-                assert(first);
-                auto *out = qobject_cast<PaymentDetailOutput*>(first);
-                assert(out);
-                out->setEditable(false);
             }
             else {
                 auto *addressDetail = m_payment->addExtraOutput()->toOutput();
