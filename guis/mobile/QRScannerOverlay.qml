@@ -196,6 +196,8 @@ FocusScope {
             color: "white"
 
             text: {
+                if (isLoading)
+                    return "";
                 let cur = portfolio.current;
                 if (cur === null || !cur.allowInstaPay)
                     return "";
