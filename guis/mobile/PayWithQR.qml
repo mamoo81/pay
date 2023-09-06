@@ -345,6 +345,7 @@ Page {
         anchors.fill: parent
         contentWidth: width
         contentHeight: warningsColumn.implicitHeight
+        enabled: warningsColumn.implicitHeight > 0
 
         Column {
             id: warningsColumn
