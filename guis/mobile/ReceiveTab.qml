@@ -214,6 +214,7 @@ FocusScope {
         id: editScope
         width: parent.width
         height: editBox.height
+        enabled: editViewActive
         PageTitledBox {
             id: editBox
             width: parent.width - 50
