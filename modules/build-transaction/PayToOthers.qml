@@ -154,7 +154,7 @@ Page {
                     anchors.bottomMargin: 10
                     width: parent.width
                     onActivated: {
-                        payment.broadcast()
+                        payment.markUserApproved()
                         thePile.pop(); // the broadcast feedback is on the main screen.
                     }
                 }
