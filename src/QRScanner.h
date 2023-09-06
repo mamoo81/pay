@@ -32,7 +32,6 @@ class QRScanner : public QObject
     Q_PROPERTY(ResultSource resultSource READ resultSource NOTIFY scanResultChanged)
 public:
     explicit QRScanner(QObject *parent = nullptr);
-    ~QRScanner();
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void abort();

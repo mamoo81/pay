@@ -30,11 +30,6 @@ QRScanner::QRScanner(QObject *parent)
     QTimer::singleShot(1, this, SLOT(completed()));
 }
 
-QRScanner::~QRScanner()
-{
-    abort();
-}
-
 void QRScanner::start()
 {
     resetScanResult();
