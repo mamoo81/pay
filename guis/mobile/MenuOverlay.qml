@@ -273,6 +273,7 @@ Item {
             yAxis.enabled: false // the anchors of parent do that too ¯\_(ツ)_/¯
             xAxis.minimum: 0
             xAxis.maximum: parent.width
+            acceptedDevices: PointerDevice.TouchScreen | PointerDevice.Stylus
             onActiveChanged: {
                 if (!active) {
                     if (menuArea.x > -30)
