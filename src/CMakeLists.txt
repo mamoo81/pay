@@ -71,7 +71,8 @@ else ()
     list(APPEND PAY_SOURCES main_utils.cpp)
 endif ()
 
-add_library(pay_lib STATIC ${PAY_SOURCES})
+add_library(pay_lib STATIC ${PAY_SOURCES}
+    QMLClipboardHelper.h QMLClipboardHelper.cpp)
 
 target_link_libraries(pay_lib
     flowee_apputils

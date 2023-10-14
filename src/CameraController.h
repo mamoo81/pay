@@ -57,10 +57,9 @@ public:
 
     Q_INVOKABLE void abort();
     /**
-     * Try to complete the current scan request by instead looking at the clipboard
-     * for some data that could be used to fulfill the scan.
+     * Try to complete the current scan request by instead taking the \a string.
      */
-    Q_INVOKABLE bool importScanFromClipboard();
+    Q_INVOKABLE bool importScanData(const QString &string);
 
     void setCamera(QObject *object);
     QObject *camera() const;

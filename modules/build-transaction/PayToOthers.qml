@@ -272,20 +272,59 @@ Page {
                     anchors.right: parent.right
                     height: Math.max(destinationLabel.height * 2.3, implicitHeight)
                     focus: enabled
-                    property var addressType: Pay.identifyString(text);
+                    property var addressType: Pay.identifyString(totalText);
                     text: paymentDetail.address
                     nextFocusTarget: priceInput
                     enabled: paymentDetail.editable
-                    onTextChanged: {
-                        paymentDetail.address = text
+                    onTotalTextChanged: {
+                        paymentDetail.address = totalText
                         addressInfo.createInfo();
                     }
                     color: {
-                        if (!activeFocus && text !== "" && !addressInfo.addressOk)
+                        if (!activeFocus && totalText !== "" && !addressInfo.addressOk)
                             return mainWindow.errorRed
                         return palette.windowText
                     }
                 }
+                Rectangle {
+                    id: pasteButton
+                    anchors.verticalCenter: destination.bottom
+                    anchors.horizontalCenter: destination.horizontalCenter
+                    width: labelText.height + labelText.width + 20 + 5 + 20
+                    height: labelText.height + 10
+                    radius: 6
+                    color: palette.window
+                    border.color: palette.midlight
+                    border.width: 1
+                    visible: destination.totalText === "" && cbh.text !== ""
+
+                    ClipboardHelper {
+                        id: cbh
+                        filter: ClipboardHelper.Addresses + ClipboardHelper.LegacyAddresses
+                    }
+
+                    Image {
+                        x: 20
+                        width: labelText.height
+                        height: width
+                        source: "qrc:/edit-clipboard" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Flowee.Label {
+                        id: labelText
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.right: parent.right
+                        anchors.rightMargin: 20
+                        text: qsTr("Paste")
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: destination.text = cbh.text
+                    }
+                }
+
                 Flowee.LabelWithClipboard {
                     id: nativeLabel
                     width: parent.width

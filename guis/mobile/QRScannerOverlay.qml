@@ -20,6 +20,7 @@ import QtQuick.Controls as QQC2
 import QtQuick.Shapes
 import QtMultimedia
 import "../Flowee" as Flowee
+import Flowee.org.pay;
 
 FocusScope {
     id: root
@@ -118,7 +119,7 @@ FocusScope {
         x: 50
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 50
-        visible: CameraController.supportsPaste
+        visible: CameraController.supportsPaste && cbh.text !== ""
         radius: 6
         width: pasteButton.width
         height: pasteButton.height
@@ -127,7 +128,12 @@ FocusScope {
             id: pasteButton
             source: "qrc:/edit-clipboard" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
             text: qsTr("Paste")
-            onClicked: pasteFeedback.visible = !CameraController.importScanFromClipboard();
+            onClicked: pasteFeedback.visible = !CameraController.importScanData(cbh.text);
+        }
+
+        ClipboardHelper {
+            id: cbh
+            filter: ClipboardHelper.Addresses + ClipboardHelper.LegacyAddresses | ClipboardHelper.AddressUrl
         }
 
         Rectangle {
