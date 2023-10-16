@@ -227,7 +227,7 @@ ListView {
             }
 
             radius: 20
-            color: palette.alternateBase
+            color: palette.base
             border.width: 1
             border.color: palette.midlight
         }

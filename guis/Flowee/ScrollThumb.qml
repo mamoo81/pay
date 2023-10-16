@@ -71,14 +71,18 @@ QQC2.ScrollBar {
             Repeater {
                 model: 3
                 delegate: Rectangle {
-                    color: palette.light
+                    color: palette.dark
                     width: column.width
                     height: 2
                     radius: 1
                 }
             }
         }
-        color: thumbInput.engaged ? palette.highlight : palette.dark
+        color: {
+            if (Pay.useDarkSkin)
+                return Qt.darker(palette.highlight, 1.6);
+            return Qt.lighter(palette.highlight, 1.6);
+        }
 
         Timer {
             running: thumbRect.open && !thumbRect.moving
@@ -96,7 +100,7 @@ QQC2.ScrollBar {
 
     MouseArea {
         id: thumbInput
-        // make it easier to grab by having a bigger mouse area than the visial thumb
+        // make it easier to grab by having a bigger mouse area than the visual thumb
         width: thumbRect.width + 20 + root.width
         height: thumbRect.height + 50
         anchors.right: parent.right

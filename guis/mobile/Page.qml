@@ -114,6 +114,7 @@ QQC2.Control {
             anchors.right: parent.right
             anchors.rightMargin: 15
             anchors.verticalCenter: parent.verticalCenter
+            color: "white"
             MouseArea {
                 anchors.fill: parent
                 anchors.margins: -15
