@@ -22,36 +22,52 @@
 #include <QGuiApplication>
 #include <QClipboard>
 #include <QTimer>
+#include <QMimeData>
 
 QMLClipboardHelper::QMLClipboardHelper(QObject *parent)
-    : QObject{parent}
+    : QObject{parent},
+    m_filter(Addresses)
 {
-    connect(QGuiApplication::clipboard(), &QClipboard::changed, this,
-            [=](QClipboard::Mode changed) {
-        if (changed == QClipboard::Clipboard) {
-            parseClipboard();
-        }
+    // when the app regains main-app status, check for changes in the clipboard.
+    auto guiApp = qobject_cast<QGuiApplication*>(QCoreApplication::instance());
+    assert(guiApp);
+    connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationActive)
+            delayedParse();
     });
-    // parse it in the next event, so filters can be set by the user first.
+    // parse it in the next event, when properties are fully set
     delayedParse();
 }
 
 void QMLClipboardHelper::parseClipboard()
 {
     m_delayedParseStarted = false;
-    QString result;
-    const QString prefix = QString::fromStdString(chainPrefix()) + ":";
-    auto text = QGuiApplication::clipboard()->text();
-    if (m_filter == NoFilter) {
+    if (!m_enabled)
+        return;
+    auto *mimeData = QGuiApplication::clipboard()->mimeData();
+    QString text;
+    if (mimeData->hasText())
+        text = mimeData->text();
+    else if (mimeData->hasHtml())
+        text = mimeData->html();
+
+    if (text.isEmpty() || m_filter == NoFilter) {
         setClipboardText(text);
         return;
     }
+    // often found whitespace, make it all spaces.
+    text = text.replace(QLatin1String("<br>"), QLatin1String(" "));
+    text = text.replace(QLatin1String("\n"), QLatin1String(" "));
+    text = text.replace(QLatin1String("\r"), QLatin1String(" "));
+    text = text.trimmed();
 
+    const QString prefix = QString::fromStdString(chainPrefix()) + ":";
+    QString result;
     auto type = FloweePay::instance()->identifyString(text);
-    if (type == WalletEnums::Unknown) { // try harder
+    if (type == WalletEnums::Unknown || type == WalletEnums::PartialMnemonicWithTypo || type == WalletEnums::PartialMnemonic) { // try harder
         auto index = text.indexOf(prefix);
         if (index >= 0) {
-            auto end = text.indexOf(' ', index + 10);
+            auto end = text.indexOf(' ', index + prefix.size());
             result = text.mid(index, end);
         }
         else {
@@ -71,7 +87,9 @@ void QMLClipboardHelper::parseClipboard()
     }
 
     bool itsAHit = false;
-    if (type == WalletEnums::Unknown && m_filter.testAnyFlag(AddressUrl)) { // try finding AddressUrl (aka bip21)
+    if ((type == WalletEnums::Unknown || type == WalletEnums::PartialMnemonicWithTypo
+              || type == WalletEnums::PartialMnemonic)
+            && m_filter.testAnyFlag(AddressUrl)) { // try finding AddressUrl (aka bip21)
         const int endOfAddress = text.indexOf('?');
         if (endOfAddress > 0 && text.startsWith(prefix))
             itsAHit = true;
@@ -81,8 +99,6 @@ void QMLClipboardHelper::parseClipboard()
         itsAHit = true;
     else if (m_filter.testAnyFlag(LegacyAddresses)
               && (type == WalletEnums::LegacyPKH || type == WalletEnums::LegacySH))
-        itsAHit = true;
-    else if (m_filter.testAnyFlag(Mnemonic) && type == WalletEnums::CorrectMnemonic)
         itsAHit = true;
 
     if (itsAHit)
@@ -103,6 +119,20 @@ void QMLClipboardHelper::delayedParse()
         return;
     QTimer::singleShot(0, this, &QMLClipboardHelper::parseClipboard);
     m_delayedParseStarted = true;
+}
+
+bool QMLClipboardHelper::enabled() const
+{
+    return m_enabled;
+}
+
+void QMLClipboardHelper::setEnabled(bool newEnabled)
+{
+    if (m_enabled == newEnabled)
+        return;
+    m_enabled = newEnabled;
+    emit enabledChanged();
+    parseClipboard();
 }
 
 QString QMLClipboardHelper::clipboardText() const

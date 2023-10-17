@@ -96,16 +96,19 @@ const QString &PaymentDetailOutput::address() const
     return m_address;
 }
 
-void PaymentDetailOutput::setAddress(const QString &address)
+void PaymentDetailOutput::setAddress(const QString &address_)
 {
+    QString address = address_.trimmed();
     if (m_address == address)
         return;
     if (address.indexOf('?') >= 12) {
         // this is a payment protocol, go via the Payment object to do the right thing.
         Payment *p = qobject_cast<Payment*>(parent());
         assert(p);
-        p->setTargetAddress(address);
-        return;
+        if (p->paymentDetails().size() == 1) { // payment protocols only for sole-outputs
+            p->setTargetAddress(address);
+            return;
+        }
     }
     m_address = address;
     m_outputScript.clear();

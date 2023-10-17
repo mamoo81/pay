@@ -134,6 +134,7 @@ FocusScope {
         ClipboardHelper {
             id: cbh
             filter: ClipboardHelper.Addresses + ClipboardHelper.LegacyAddresses | ClipboardHelper.AddressUrl
+            enabled: CameraController.cameraActive
         }
 
         Rectangle {

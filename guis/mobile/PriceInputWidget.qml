@@ -38,10 +38,7 @@ FocusScope {
     onFiatFollowsSatsChanged: {
         if (!activeFocus)
             return;
-        if (fiatFollowsSats)
-            priceBch.forceActiveFocus();
-        else
-            priceFiat.forceActiveFocus();
+        takeFocus();
     }
 
     function shake() {
@@ -53,6 +50,13 @@ FocusScope {
 
     implicitHeight: 140
     height: implicitHeight
+
+    function takeFocus() {
+        if (fiatFollowsSats)
+            priceBch.forceActiveFocus();
+        else
+            priceFiat.forceActiveFocus();
+    }
 
     Flowee.BitcoinValueField {
         id: priceBch

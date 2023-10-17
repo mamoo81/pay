@@ -288,6 +288,7 @@ Page {
                 }
                 Rectangle {
                     id: pasteButton
+                    property bool appWasHidden: false
                     anchors.verticalCenter: destination.bottom
                     anchors.horizontalCenter: destination.horizontalCenter
                     width: labelText.height + labelText.width + 20 + 5 + 20
@@ -296,7 +297,25 @@ Page {
                     color: palette.window
                     border.color: palette.midlight
                     border.width: 1
-                    visible: destination.totalText === "" && cbh.text !== ""
+                    visible: destination.totalText === "" && (cbh.text !== "" || appWasHidden)
+                    Connections {
+                        /*
+                         * A usecase of pasting is that the user opens this screen, goes to another app and
+                         * copies something they want to copy and then comes back here to paste it.
+                         * This causes the 'appWasHidden' to be set to true and we then 'enable' the clipboardHelper
+                         * in order to read the clipboard-data.
+                         *
+                         * Notice that this is needed because the clipboard doesn't notice something new being
+                         * present after we just got unfrozen.
+                         */
+                        target: Application
+                        function onActiveChanged() {
+                            if (Application.active !== Qt.ApplicationActive) {
+                                pasteButton.appWasHidden = true;
+                                cbh.enabled = false;
+                            }
+                        }
+                    }
 
                     ClipboardHelper {
                         id: cbh
@@ -321,7 +340,16 @@ Page {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: destination.text = cbh.text
+                        onClicked: {
+                            if (pasteButton.appWasHidden) {
+                                pasteButton.appWasHidden = false;
+                                cbh.enabled = true; // fills text, if there is something to fill.
+                            }
+                            if (cbh.text !== "") {
+                                destination.text = cbh.text
+                                priceInput.takeFocus();
+                            }
+                        }
                     }
                 }
 

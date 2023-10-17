@@ -26,12 +26,23 @@
  *
  * This component reads the clipboard, it is not meant to write to the clipboard.
  * Please see FloweePay::copyToClipboard(const QString &text); for that.
+ *
+ * The Clipboard is device-wide (or user-wide on desktop) and that makes it a
+ * precious resource and we should thus avoid reading it unless relevant.
+ * Please take care to only instantiate AND set 'enabled' to true when some paste
+ * functionality is actually directly on screen.
+ *
+ * This component allows setting of filters on what kind of content we are interested.
+ * When the filtered content is found on the clipboard, the text property will contain
+ * a copy of the content, where the not-relevant parts of the clipboard have already
+ * been removed.
  */
 class QMLClipboardHelper : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString text READ clipboardText NOTIFY textChanged)
     Q_PROPERTY(Types filter READ filter WRITE setFilter NOTIFY filterChanged)
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged FINAL)
 public:
     explicit QMLClipboardHelper(QObject *parent = nullptr);
 
@@ -40,7 +51,6 @@ public:
         Addresses = 1 ,
         LegacyAddresses = 2,
         AddressUrl = 4,
-        Mnemonic = 8
     };
     Q_ENUM(Type)
     Q_DECLARE_FLAGS(Types, Type)
@@ -50,9 +60,13 @@ public:
     void setFilter(Types filters);
     Types filter() const;
 
+    bool enabled() const;
+    void setEnabled(bool newEnabled);
+
 signals:
     void textChanged();
     void filterChanged();
+    void enabledChanged();
 
 private:
     void parseClipboard();
@@ -62,6 +76,7 @@ private:
     Types m_filter;
     QString m_text;
     bool m_delayedParseStarted = false;
+    bool m_enabled = true;
 };
 
 #endif
