@@ -85,7 +85,7 @@ following workflow:
   make install
 ```
 
-The executables will be in `floweepay/build/bin/` and by adding the `local_qml`
+The executables will be in `pay/build/bin/` and by adding the `local_qml`
 cmake option the build will bake in the path to your QML files. On
 your local harddrive. This allows you to change the QML files and simply
 restart the app without recompile.
