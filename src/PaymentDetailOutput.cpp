@@ -66,7 +66,7 @@ double PaymentDetailOutput::paymentAmount() const
             if (detail->isInputs())
                 baseBalance = detail->toInputs()->selectedValue();
         }
-        return static_cast<double>(std::max(0l, baseBalance - outputs));
+        return static_cast<double>(std::max(int64_t{0}, baseBalance - outputs));
     }
     return static_cast<double>(m_paymentAmount);
 }
@@ -284,7 +284,7 @@ int PaymentDetailOutput::paymentAmountFiat() const
                 if (detail->isInputs())
                     baseBalance = detail->toInputs()->selectedValue();
             }
-            amount = std::max(0l, baseBalance - outputs);
+            amount = std::max(int64_t{0}, baseBalance - outputs);
         }
 
         return (amount * p->fiatPrice() / 10000000 + 5) / 10;
