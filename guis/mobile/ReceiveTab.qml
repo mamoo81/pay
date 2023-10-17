@@ -64,7 +64,7 @@ FocusScope {
                 onActiveChanged: {
                     let a = active;
                     if (a) // disable the other one
-                        verticalTabs.children[(index + 1) % 2].active = false
+                        verticalTabs.children[(index + 1) % 2].active = false // yes, this warns during construction ツ)_/¯
                     // update page-scope state variables
                     if (index === 1)
                         a = !a;
