@@ -148,8 +148,10 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *c
     engine.rootContext()->setContextProperty("net", netData);
     engine.rootContext()->setContextProperty("portfolio", portfolio);
     if (!cld->parser.isSet(cld->offline) && cld->parser.isSet(cld->connect)) {
-        app->p2pNet()->connectionManager().peerAddressDb().addOne( // add it to the DB, making sure there is at least one.
-                    EndPoint(cld->parser.value(cld->connect).toStdString(), 8333));
+        const int port = cld->parser.isSet(cld->testnet4) ?  28333 : 8333;
+        // add it to the DB, making sure there is at least one.
+        app->p2pNet()->connectionManager().peerAddressDb().addOne(
+                    EndPoint(cld->parser.value(cld->connect).toStdString(), port));
     }
 
     app->startNet(); // lets go!
