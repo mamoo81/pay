@@ -49,7 +49,7 @@ int Wallet::scoreForSolution(const OutputSet &set, int64_t change, size_t unspen
      */
     assert(unspentOutputCount > 0);
     assert(set.outputs.size() > 0);
-    assert(change > 0);
+    assert(change >= 0);
 
     const int resultingOutputCount = unspentOutputCount - set.outputs.size();
     int score = 0;
