@@ -33,7 +33,7 @@
 #include <QMutex>
 #include <QThread>
 
-#if TARGET_OS_Android && QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
+#if defined(TARGET_OS_Android) && QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
 # include <private/qandroidextras_p.h>
 #endif
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && QT_CONFIG(permissions)

@@ -49,6 +49,7 @@
 #include <system_error>
 #include <filesystem>
 #include <fstream>
+#include <utility>
 
 constexpr const char *UNIT_TYPE = "unit";
 constexpr const char *CREATE_START_WALLET = "create-start-wallet";
@@ -217,7 +218,7 @@ FloweePay::FloweePay()
     connect (timer, SIGNAL(timeout()), this, SIGNAL(expectedChainHeightChanged()));
 
     QString base;
-#if TARGET_OS_Android
+#ifdef TARGET_OS_Android
     base = QLatin1String("assets:/");
 #else
     QDir baseDir(QCoreApplication::applicationDirPath() + "/../share/floweepay/");
@@ -1046,7 +1047,7 @@ QObject *FloweePay::researchAddress(const QString &address, QObject *parent)
     // if we don't know the address, return a nullptr
     AddressInfo *info = nullptr;
 
-    for (const auto *wallet : qAsConst(m_wallets)) {
+    for (const auto *wallet : std::as_const(m_wallets)) {
         int privKeyId = wallet->findPrivKeyId(key);
         if (privKeyId != -1) {
             info = new AddressInfo(address, parent);
