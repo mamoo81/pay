@@ -34,6 +34,12 @@ TextButton {
             updateLimit();
         }
     }
+    Connections {
+        target: Fiat
+        function onCurrencyNameChanged() {
+            updateLimit();
+        }
+    }
 
     subtext: {
         if (!root.account.allowInstaPay)

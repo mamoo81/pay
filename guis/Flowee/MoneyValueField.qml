@@ -24,7 +24,7 @@ FocusScope {
     activeFocusOnTab: true
     property alias value: privValue.value
     property alias cursorPos: privValue.cursorPos
-    property alias maxFractionalDigits: privValue.maxFractionalDigits
+    property alias fiatMode: privValue.fiatMode
     signal valueEdited;
 
     // provide nested access to the BitcoinValue

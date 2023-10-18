@@ -195,8 +195,8 @@ void TestValue::insertAtCursor()
 void TestValue::fiatValues()
 {
     MockBitcoinValue testObject;
-    testObject.setMaxFractionalDigits(2);
-    // this sets it to a fiat mode, like the Euro
+    testObject.setFiatMode(true);
+    testObject.setDisplayCents(true);
 
     testObject.setEnteredString("4.5");
     QCOMPARE(testObject.cursorPos(), 3);

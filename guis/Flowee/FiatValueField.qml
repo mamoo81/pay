@@ -28,20 +28,23 @@ MoneyValueField  {
     baselineOffset: fiat.baselineOffset
     implicitHeight: fiat.implicitHeight
     implicitWidth: Math.max(row.width, 70)
-    maxFractionalDigits: Fiat.displayCents ? 2 : 0
+    fiatMode: true
 
     RowLayout {
         id: row
         anchors.right: parent.right
         height: parent.height
         spacing: 0
-        property string amountString: Fiat.priceToStringSimple(root.value)
+        property string amountString: {
+            var displayCents = Fiat.displayCents; // forcably call the method again on displayCents change
+            return Fiat.priceToStringSimple(root.value)
+        }
 
         Label {
             text: Fiat.currencySymbolPrefix
             font.pixelSize: fiat.fontPixelSize
             color: fiat.color
-            visible: text != ""
+            visible: text !== ""
         }
         LabelWithCursor {
             id: fiat
@@ -54,7 +57,7 @@ MoneyValueField  {
             text: Fiat.currencySymbolPost
             font.pixelSize: fiat.fontPixelSize
             color: fiat.color
-            visible: text != ""
+            visible: text !== ""
         }
     }
 }

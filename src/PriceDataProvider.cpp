@@ -200,7 +200,7 @@ QString PriceDataProvider::priceToStringSimple(int64_t cents) const
 {
     auto value = QString::number(cents);
     if (!m_displayCents)
-        return value;
+        return value.left(value.size() - 2);
     const QChar comma = QLocale::system().decimalPoint().at(0);
     if (cents < 10)
         return "0" % comma % "0" % value;

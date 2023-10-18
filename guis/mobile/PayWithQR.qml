@@ -45,8 +45,8 @@ Page {
             root.closeHeaderMenu();
             // this action can only ever be used to start editing.
             root.allowEditAmount = true;
-            priceInput.forceActiveFocus();
             priceInput.fiatFollowsSats = false
+            priceInput.takeFocus()
         }
         checked: root.allowEditAmount
     }
@@ -76,8 +76,8 @@ Page {
                     thePile.pop();
                     return;
                 }
-                // if the scanner got bypassed with a 'paste' instead then
-                // we don't allow instpay
+                // if the scanner got bypassed with a 'paste' then
+                // we don't allow instapay
                 if (resultSource === QRScanner.Clipboard)
                     payment.instaPay = false;
 
@@ -89,6 +89,8 @@ Page {
 
                 // should the price be included in the QR code, don't show editing widgets.
                 root.allowEditAmount = payment.paymentAmount <= 0;
+                if (root.allowEditAmount)
+                    priceInput.takeFocus();
             }
         }
         Payment {

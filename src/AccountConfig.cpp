@@ -71,7 +71,7 @@ void AccountConfig::setCountBalance(bool newCountBalance)
         return;
     i->countBalance = newCountBalance;
     fp->m_accountConfigs = configs;
-    fp->startSaveData_priv();
+    emit fp->startSaveData_priv();
     emit fp->totalBalanceConfigChanged();
 }
 
@@ -122,7 +122,7 @@ void AccountConfig::setFiatInstaPayLimit(const QString &currencyCode, int limitI
         return;
     i->fiatInstaPayLimits[currencyCode] = limitInCent;
     fp->m_accountConfigs = configs;
-    fp->startSaveData_priv();
+    emit fp->startSaveData_priv();
 }
 
 bool AccountConfig::isPrivate() const
@@ -143,5 +143,5 @@ void AccountConfig::setIsPrivate(bool newIsPrivate)
         return;
     i->privateWallet = newIsPrivate;
     fp->m_accountConfigs = configs;
-    fp->startSaveData_priv();
+    emit fp->startSaveData_priv();
 }

@@ -17,17 +17,19 @@
  */
 #include "BitcoinValue.h"
 #include "FloweePay.h"
+#include "PriceDataProvider.h"
 
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QTimer>
+#include <QMimeData>
 
 BitcoinValue::BitcoinValue(QObject *parent)
     : QObject(parent),
       m_value(0)
 {
     connect (FloweePay::instance(), &FloweePay::unitChanged, this, [this]() {
-        if (m_maxFractionalDigits == -1) {
+        if (!m_fiatMode) {
             if (m_valueSource == UserInput) { // m_typedNumber is leading
                 // we follow what the user actually typed. For crypto values anyway.
                 setStringValue(m_typedNumber);
@@ -35,6 +37,10 @@ BitcoinValue::BitcoinValue(QObject *parent)
                 QTimer::singleShot(10, this, SLOT(processNumberValue()));
             }
         }
+    });
+    connect (FloweePay::instance()->prices(), &PriceDataProvider::currencySymbolChanged, this, [this]() {
+        if (m_fiatMode)
+            setDisplayCents(FloweePay::instance()->prices()->displayCents());
     });
 }
 
@@ -73,7 +79,8 @@ bool BitcoinValue::insertNumber(QChar number)
         throw std::runtime_error("Only numbers can be inserted in insertNumber");
     auto backup(m_typedNumber);
     int pos = m_typedNumber.indexOf('.');
-    const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
+    const int unitConfigDecimals = m_fiatMode ? (m_displayCents ? 2 : 0)
+                                              : FloweePay::instance()->unitAllowedDecimals();
     if (pos > -1 && m_cursorPos > pos && m_typedNumber.size() - pos - unitConfigDecimals > 0)
         return false;
     int cursorPosNow = m_cursorPos;
@@ -95,7 +102,7 @@ bool BitcoinValue::insertNumber(QChar number)
 
 bool BitcoinValue::addSeparator()
 {
-    if (m_typedNumber.indexOf('.') != -1 || m_maxFractionalDigits == 0)
+    if (m_typedNumber.indexOf('.') != -1 || (m_fiatMode && !m_displayCents))
         return false;
     m_typedNumber.insert(m_cursorPos, '.');
     int movedPlaces = 1;
@@ -111,10 +118,13 @@ bool BitcoinValue::addSeparator()
 
 void BitcoinValue::paste()
 {
-    QClipboard *clipboard = QGuiApplication::clipboard();
-    assert(clipboard);
+    auto *mimeData = QGuiApplication::clipboard()->mimeData();
+    QString newValue;
+    if (mimeData->hasText())
+        newValue = mimeData->text();
+    else if (mimeData->hasHtml()) // apps like telegram use this, even if they don't have the html tags wrapping it.
+        newValue = mimeData->html();
 
-    auto newValue = clipboard->text().trimmed().replace(',', '.');
     setStringValue(newValue);
     m_valueSource = FromNumber;
     QTimer::singleShot(10, this, SLOT(processNumberValue()));
@@ -160,7 +170,7 @@ bool BitcoinValue::setStringValue(const QString &value)
         after = value.mid(separator + 1);
     }
     qint64 newVal = before.toLong();
-    const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
+    const int unitConfigDecimals = m_fiatMode ? 2 : FloweePay::instance()->unitAllowedDecimals();
     for (int i = 0; i < unitConfigDecimals; ++i) {
         newVal *= 10;
     }
@@ -169,48 +179,63 @@ bool BitcoinValue::setStringValue(const QString &value)
 
     newVal += QStringView(after).left(unitConfigDecimals).toInt();
 
-    constexpr int64_t Coin = 100000000; // num satoshis in a single coin
-    constexpr int64_t MaxMoney = 21000000 * Coin; // number of maxim monies ever to be created
-    if (newVal > MaxMoney)
-        return false;
+    if (!m_fiatMode) {
+        constexpr int64_t Coin = 100000000; // num satoshis in a single coin
+        constexpr int64_t MaxMoney = 21000000 * Coin; // number of maxim monies ever to be created
+        if (newVal > MaxMoney)
+            return false;
+    }
     setValue(newVal, UserInput);
     return true;
+}
+
+bool BitcoinValue::displayCents() const
+{
+    return m_displayCents;
+}
+
+void BitcoinValue::setDisplayCents(bool newDisplayCents)
+{
+    if (m_displayCents == newDisplayCents)
+        return;
+    m_displayCents = newDisplayCents;
+    emit displayCentsChanged();
+
+    // a BitcoinValue instance does not change its 'fiatMode' in usage, just at construction time
+    // as a result we can do the action on displayCents changes here.
+    if (!m_fiatMode)
+        return;
+
+    if (!m_displayCents) {
+            // special case this. Drop the separator if the new currency has none.
+        int index = m_typedNumber.indexOf('.');
+        if (index > 0) {
+            m_typedNumber = m_typedNumber.left(index);
+            setCursorPos(std::min(index, m_cursorPos));
+        }
+    }
+    setStringValue(m_typedNumber);
+}
+
+bool BitcoinValue::fiatMode() const
+{
+    return m_fiatMode;
+}
+
+void BitcoinValue::setFiatMode(bool newFiatMode)
+{
+    if (m_fiatMode == newFiatMode)
+        return;
+    m_fiatMode = newFiatMode;
+    emit fiatModeChanged();
+
+    if (m_fiatMode)
+        setDisplayCents(FloweePay::instance()->prices()->displayCents());
 }
 
 QString BitcoinValue::enteredString() const
 {
     return m_typedNumber;
-}
-
-int BitcoinValue::maxFractionalDigits() const
-{
-    return m_maxFractionalDigits;
-}
-
-void BitcoinValue::setMaxFractionalDigits(int newMaxFractionalDigits)
-{
-    if (m_maxFractionalDigits == newMaxFractionalDigits)
-        return;
-    m_maxFractionalDigits = newMaxFractionalDigits;
-    emit maxFractionalDigitsChanged();
-
-    // recalc the integer baesd one from the user-typed string.
-    if (m_valueSource == UserInput) {
-        if (newMaxFractionalDigits  == 0) {
-            // special case this. Drop the separator if the new currency has none.
-            int index = m_typedNumber.indexOf('.');
-            if (index > 0) {
-                m_typedNumber = m_typedNumber.left(index);
-                setCursorPos(std::min(index, m_cursorPos));
-            }
-        }
-        setStringValue(m_typedNumber);
-    }
-}
-
-void BitcoinValue::resetMaxFractionalDigits()
-{
-    setMaxFractionalDigits(-1);
 }
 
 int BitcoinValue::cursorPos() const
@@ -235,8 +260,9 @@ void BitcoinValue::processNumberValue()
     if (m_valueSource == UserInput)
         return;
 
-    const int unitConfigDecimals = m_maxFractionalDigits == -1 ? FloweePay::instance()->unitAllowedDecimals() : m_maxFractionalDigits;
-    m_typedNumber = QString::number(m_value / pow(10, unitConfigDecimals), 'f', unitConfigDecimals);
+    const int unitConfigDecimals = m_fiatMode ? (m_displayCents ? 2 : 0)
+                                              : FloweePay::instance()->unitAllowedDecimals();
+    m_typedNumber = QString::number(m_value / pow(10, m_fiatMode ? 2 : unitConfigDecimals), 'f', unitConfigDecimals);
     if (unitConfigDecimals > 0) { // there is a comma separator in the string
         int length;
         if (m_typedNumber.startsWith("0."))

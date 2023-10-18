@@ -26,8 +26,19 @@ class BitcoinValue : public QObject
     Q_OBJECT
     Q_PROPERTY(double value READ realValue WRITE setRealValue NOTIFY valueChanged)
     Q_PROPERTY(QString enteredString READ enteredString NOTIFY enteredStringChanged)
-    Q_PROPERTY(int maxFractionalDigits READ maxFractionalDigits WRITE setMaxFractionalDigits RESET resetMaxFractionalDigits NOTIFY maxFractionalDigitsChanged)
     Q_PROPERTY(int cursorPos READ cursorPos WRITE setCursorPos NOTIFY cursorPosChanged)
+
+    /**
+     * In 'fiat' mode we always use 2 digits behind the separator and we no longer follow
+     * the application-wide setting for BCH-units.
+     * Notice that for **display** the fiatDigits property is still relevant.
+     */
+    Q_PROPERTY(bool fiatMode READ fiatMode WRITE setFiatMode NOTIFY fiatModeChanged FINAL)
+    /**
+     * When fiatMode is true, this property is used to make the display and editing use
+     * either 2 or zero digits behind the separator.
+     */
+    Q_PROPERTY(bool displayCents READ displayCents WRITE setDisplayCents NOTIFY displayCentsChanged FINAL)
 public:
     explicit BitcoinValue(QObject *parent = nullptr);
 
@@ -56,24 +67,21 @@ public:
 
     QString enteredString() const;
 
-    /*
-     * For fiat prices we want to limit the number of digits after
-     * the unit separator. This allows us to do so.
-     * Notice that reset unsets this making the number of digits follow the
-     * Bitcoin Cash unit selected application-wide.
-     */
-    int maxFractionalDigits() const;
-    void setMaxFractionalDigits(int newMaxFractionalDigits);
-    void resetMaxFractionalDigits();
-
     int cursorPos() const;
     void setCursorPos(int newCursorPos);
+
+    bool fiatMode() const;
+    void setFiatMode(bool newFiatMode);
+
+    bool displayCents() const;
+    void setDisplayCents(bool newDisplayCents);
 
 signals:
     void valueChanged();
     void enteredStringChanged();
-    void maxFractionalDigitsChanged();
     void cursorPosChanged();
+    void fiatModeChanged();
+    void displayCentsChanged();
 
 protected slots:
     void processNumberValue();
@@ -86,8 +94,9 @@ protected:
     qint64 m_value;
     QString m_typedNumber;
     int m_cursorPos = 0;
-    int m_maxFractionalDigits = -1;
     ValueSource m_valueSource = UserInput;
+    bool m_fiatMode = false;
+    bool m_displayCents = true;
 };
 
 #endif

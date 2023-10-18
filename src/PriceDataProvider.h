@@ -78,10 +78,7 @@ public:
     Q_INVOKABLE int historicalPriceAccurate(int days) const;
 
     /// return a string with the given price and needed decimal separator.
-    /// Notes: 1. the currency indicators are not included, unlike in formattedPrice()
-    ///        2. the current fiat properties are used and we expect the 'price' in the
-    ///           smallest unit. Cents for things like Euro, whole coins for currencies
-    ///           where they hae no separator.
+    /// Note: the currency indicators are not included, unlike in formattedPrice()
     /// \see currencySymbolPrefix()
     /// \see currencySymbolPost()
     Q_INVOKABLE QString priceToStringSimple(int64_t price) const;
