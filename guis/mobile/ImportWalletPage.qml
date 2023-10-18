@@ -26,8 +26,11 @@ Page {
     headerText: qsTr("Import Wallet")
 
     property var typedData: Pay.identifyString(secrets.totalText)
-    property bool finished: typedData === Wallet.PrivateKey || (typedData === Wallet.CorrectMnemonic && derivationPath.derivationOk);
-    property bool isMnemonic: typedData === Wallet.CorrectMnemonic || typedData === Wallet.PartialMnemonic || typedData === Wallet.PartialMnemonicWithTypo;
+    property bool finished: typedData === Wallet.PrivateKey || ((typedData === Wallet.CorrectMnemonic
+                                                                 || typedData === Wallet.ElectrumMnemonic)
+                                                                && derivationPath.derivationOk);
+    property bool isMnemonic: typedData === Wallet.CorrectMnemonic || typedData === Wallet.PartialMnemonic || typedData === Wallet.PartialMnemonicWithTypo || typedData === Wallet.ElectrumMnemonic;
+    property bool isElectrumMnemonic: typedData === Wallet.ElectrumMnemonic
     property bool isPrivateKey: typedData === Wallet.PrivateKey
 
     Flickable {
@@ -91,8 +94,13 @@ Page {
                     var typedData = importAccount.typedData
                     if (typedData === Wallet.PrivateKey)
                         return qsTr("Private key", "description of type") // TODO print address to go with it
-                    if (typedData === Wallet.CorrectMnemonic)
+                    if (typedData === Wallet.CorrectMnemonic) {
+                        if (forceElectrum.checked)
+                            return qsTr("BIP 39 seed-phrase (interpreted as Electrum)", "description of type")
                         return qsTr("BIP 39 seed-phrase", "description of type")
+                    }
+                    if (typedData === Wallet.ElectrumMnemonic)
+                        return qsTr("Electrum seed-phrase", "description of type")
                     if (typedData === Wallet.PartialMnemonicWithTypo)
                         return qsTr("Unrecognized word", "Word from the seed-phrases lexicon")
                     if (typedData === Wallet.MissingLexicon)
@@ -116,6 +124,27 @@ Page {
                 checked: true
                 visible: importAccount.isPrivateKey
             }
+            Flowee.CheckBox {
+                id: forceElectrum
+                text: qsTr("Force Electrum");
+                toolTipText: qsTr("When enabled, the seed phrase specified will be force-interpreted as an Electrum and/or Electron Cash phrase.")
+                checked: importAccount.isElectrumMnemonic
+                visible: importAccount.isMnemonic
+                enabled: importAccount.isMnemonic && !importAccount.isElectrumMnemonic
+                property string prevDerPath: ""
+                onCheckedChanged: {
+                    derivationLabel.enabled = !checked;
+                    derivationPath.enabled = !checked;
+                    if (checked) {
+                        // Electrum mnemonics always use derivation path: "m/" and never anything else.
+                        prevDerPath = derivationPath.text;
+                        derivationPath.text = "m/";
+                    } else if (prevDerPath) {
+                        derivationPath.text = prevDerPath;
+                    }
+                }
+            }
+
             PageTitledBox {
                 title: qsTr("Oldest Transaction")
                 Flow {
@@ -149,6 +178,7 @@ Page {
             }
 
             PageTitledBox {
+                id: derivationLabel
                 title: qsTr("Derivation")
                 visible: !importAccount.isPrivateKey
                 Flowee.TextField {
@@ -181,7 +211,7 @@ Page {
                     onClicked: {
                         var sh = new Date(year.currentIndex + 2010, month.currentIndex, 1);
                         if (importAccount.isMnemonic)
-                            var options = Pay.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh);
+                            var options = Pay.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh, forceElectrum.checked);
                         else
                             options = Pay.createImportedWallet(secrets.text, accountName.text, sh)
 
