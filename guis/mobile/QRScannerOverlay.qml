@@ -205,6 +205,11 @@ FocusScope {
             text: {
                 if (isLoading)
                     return "";
+
+                // slight hack, make this field be re-calculated on camera active change in order to ensure
+                // we have the latest limit (which doesn't have a signal of its owo)
+                var dummy = CameraController.cameraActive;
+
                 let cur = portfolio.current;
                 if (cur === null || !cur.allowInstaPay)
                     return "";
