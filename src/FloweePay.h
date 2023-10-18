@@ -179,12 +179,15 @@ public:
      * @param walletName the name the user knows this wallet as.
      * @param startHeight the first block we should check for transactions, or zero for "future blocks"
      *        If you set this to 1 then we set it to a more sane value of when Bitcoin became more well known.
+     * @param electrumFormat if true, interpret the mnemonic phrase using the Electrum format rather than BIP39.
      */
     Q_INVOKABLE NewWalletConfig *createImportedHDWallet(const QString &mnemonic, const QString &password,
-                                                        const QString &derivationPath, const QString &walletName, int startHeight = 0);
+                                                        const QString &derivationPath, const QString &walletName, int startHeight = 0,
+                                                        bool electrumFormat = false);
     /// Alternative arguments version. With date instead of block-height
     Q_INVOKABLE NewWalletConfig *createImportedHDWallet(const QString &mnemonic, const QString &password,
-                                                        const QString &derivationPath, const QString &walletName, const QDateTime &date);
+                                                        const QString &derivationPath, const QString &walletName, const QDateTime &date,
+                                                        bool electrumFormat = false);
 
     Q_INVOKABLE bool checkDerivation(const QString &path) const;
 

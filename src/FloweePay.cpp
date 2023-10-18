@@ -1102,13 +1102,13 @@ void FloweePay::setAppPassword(const QString &password)
     hasher.finalize(m_appProtectionHash.begin());
 }
 
-NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, const QDateTime &date)
+NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, const QDateTime &date, bool electrumFormat)
 {
     const int height = p2pNet()->blockchain().blockHeightAtTime(date.toSecsSinceEpoch());
-    return createImportedHDWallet(mnemonic, password, derivationPathStr, walletName, height);
+    return createImportedHDWallet(mnemonic, password, derivationPathStr, walletName, height, electrumFormat);
 }
 
-NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, int startHeight)
+NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, const QString &password, const QString &derivationPathStr, const QString &walletName, int startHeight, bool electrumFormat)
 {
     auto wallet = createWallet(walletName);
     try {
@@ -1117,7 +1117,7 @@ NewWalletConfig* FloweePay::createImportedHDWallet(const QString &mnemonic, cons
             startHeight = m_chain == P2PNet::MainChain ? 550000 : 1000;
         auto seedWords = splitString(mnemonic); // this is great to remove any type of whitespace
         wallet->createHDMasterKey(joinWords(seedWords, true), password.trimmed().remove('\n'),
-                                  derivationPath, startHeight);
+                                  derivationPath, startHeight, electrumFormat);
         emit walletsChanged();
         if (!m_offline)
             p2pNet()->addAction<SyncSPVAction>(); // make sure that we get peers for the new wallet.
@@ -1166,9 +1166,12 @@ WalletEnums::StringType FloweePay::identifyString(const QString &string) const
                 firstWord = index;
                 if (index != -1) {
                     QString mnemonic = joinWords(words, lowerCased);
-                    auto validity = m_hdSeedValidator.validateMnemonic(mnemonic, index);
+                    bool maybeElectrum;
+                    auto validity = m_hdSeedValidator.validateMnemonic(mnemonic, index, &maybeElectrum);
                     if (validity == Mnemonic::Valid)
                         return WalletEnums::CorrectMnemonic;
+                    else if (maybeElectrum)
+                        return WalletEnums::ElectrumMnemonic;
                 }
                 else { // not a recognized word
                     break;

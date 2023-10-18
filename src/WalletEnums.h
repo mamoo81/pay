@@ -36,7 +36,8 @@ public:
         PartialMnemonic,
         PartialMnemonicWithTypo,
         CorrectMnemonic,
-        MissingLexicon
+        MissingLexicon,
+        ElectrumMnemonic,
     };
     Q_ENUM(StringType)
 

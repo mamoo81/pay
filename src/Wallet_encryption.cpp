@@ -352,11 +352,12 @@ void Wallet::forgetEncryptedSecrets()
 
 // //////////////////////////////////////////////////
 
-Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd)
-    : masterKey(HDMasterKey::fromMnemonic(std::string(seedWords.begin(), seedWords.end()), std::string(pwd.begin(), pwd.end()))),
+Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd, bool electrum)
+    : masterKey(HDMasterKey::fromMnemonic(std::string(seedWords.begin(), seedWords.end()), std::string(pwd.begin(), pwd.end()), electrum)),
       masterPubkey(HDMasterPubkey::fromHDMaster(masterKey, derivationPath)),
       walletMnemonic(seedWords.begin(), seedWords.end()),
       walletMnemonicPwd(pwd.begin(), pwd.end()),
+      electrumFormat(electrum),
       derivationPath(derivationPath)
 {
 }

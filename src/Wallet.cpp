@@ -781,6 +781,13 @@ QString Wallet::hdWalletMnemonic() const
     return QString();
 }
 
+bool Wallet::isElectrumMnemonic() const
+{
+    if (m_hdData.get())
+        return m_hdData->electrumFormat;
+    return false;
+}
+
 QString Wallet::hdWalletMnemonicPwd() const
 {
     if (m_hdData.get())
@@ -813,7 +820,7 @@ QString Wallet::xpub() const
     return QString();
 }
 
-void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight)
+void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight, bool electrumFormat)
 {
     assert(m_hdData.get() == nullptr);
     if (m_hdData.get()) {
@@ -833,7 +840,7 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     pool.write(pwdBytes.constData(), pwdBytes.size());
     auto pwdBuf = pool.commit();
 
-    m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonicBuf, derivationPath, pwdBuf));
+    m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonicBuf, derivationPath, pwdBuf, electrumFormat));
     // append two random numbers, to make clear the full length
     m_hdData->derivationPath.push_back(0);
     m_hdData->derivationPath.push_back(0);
@@ -1569,6 +1576,7 @@ void Wallet::loadSecrets()
     int derivationPathChangeIndex = -1;
     int derivationPathMainIndex = -1;
     int index = 0;
+    bool electrumFormat = false;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
             if (index > 0 && secret.address.size() > 0) {
@@ -1638,6 +1646,9 @@ void Wallet::loadSecrets()
         else if (parser.tag() == WalletPriv::HDWalletMnemonicPassword) {
             mnemonicPwd = parser.bytesDataBuffer();
         }
+        else if (parser.tag() == WalletPriv::ElectrumMnemonicFormat) {
+            electrumFormat = parser.boolData();
+        }
         else if (parser.tag() == WalletPriv::HDWalletMnemonicPasswordEncrypted) {
             encryptedMnemonicPwd = parser.bytesData();
             m_encryptionLevel = SecretsEncrypted;
@@ -1663,7 +1674,7 @@ void Wallet::loadSecrets()
     if ((xpub.empty() && mnemonic.isEmpty()) != derivationPath.empty())
         logFatal(LOG_WALLET) << "Found incomplete data for HD wallet";
     else if (!mnemonic.isEmpty())
-        m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, derivationPath, mnemonicPwd));
+        m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, derivationPath, mnemonicPwd, electrumFormat));
     else if (!xpub.empty())
         m_hdData.reset(new HierarchicallyDeterministicWalletData(xpub, derivationPath));
     if (m_hdData) {
@@ -1699,17 +1710,20 @@ void Wallet::saveSecrets()
         builder.add(WalletPriv::CryptoChecksum, (uint64_t) m_encryptionChecksum);
     }
     builder.add(WalletPriv::WalletVersion, m_walletVersion);
+    bool hasMnemonic = false;
     if (m_hdData.get()) {
         if (m_encryptionLevel == SecretsEncrypted) {
             // Save encrypted mnemonic and 'password' here, with the unencrypted xpub.
             assert(!m_hdData->encryptedWalletMnemonic.empty());
             builder.add(WalletPriv::HDWalletMnemonicEncrypted, m_hdData->encryptedWalletMnemonic);
+            hasMnemonic = true;
             if (!m_hdData->encryptedWalletMnemonicPwd.empty())
                 builder.add(WalletPriv::HDWalletMnemonicPasswordEncrypted, m_hdData->encryptedWalletMnemonicPwd);
             builder.add(WalletPriv::HDXPub, m_hdData->masterPubkey.toString());
         }
         else {
             builder.add(WalletPriv::HDWalletMnemonic, std::string(m_hdData->walletMnemonic.data(), m_hdData->walletMnemonic.size()));
+            hasMnemonic = true;
             if (!m_hdData->walletMnemonicPwd.empty())
                 builder.add(WalletPriv::HDWalletMnemonicPassword,
                                      std::string(m_hdData->walletMnemonicPwd.data(), m_hdData->walletMnemonicPwd.size()));
@@ -1721,6 +1735,8 @@ void Wallet::saveSecrets()
             builder.add(WalletPriv::HDWalletLastChangeIndex,  m_hdData->lastChangeKey);
         if (m_hdData->lastMainKey >= 0)
             builder.add(WalletPriv::HDWalletLastReceiveIndex,  m_hdData->lastMainKey);
+        if (hasMnemonic && m_hdData->electrumFormat)
+            builder.add(WalletPriv::ElectrumMnemonicFormat, true);
     }
     for (const auto &item : m_walletSecrets) {
         const auto &secret = item.second;

@@ -78,6 +78,7 @@ enum PrivateSaveTags {
     HDWalletMnemonicPasswordEncrypted,
     HDXPub,
 
+    ElectrumMnemonicFormat, // bool
 
     END_OF_PRIV_SAVE_TAGS
 };
