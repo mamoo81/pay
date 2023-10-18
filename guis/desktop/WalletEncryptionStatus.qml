@@ -41,10 +41,10 @@ Item {
         anchors.leftMargin: 3
         text: {
             var txt = "";
-            if (root.account.needsPinToPay)
-                txt = qsTr("Pin to Pay");
-            else if (root.account.needsPinToOpen)
+            if (root.account.needsPinToOpen)
                 txt = qsTr("Pin to Open");
+            else if (root.account.needsPinToPay)
+                txt = qsTr("Pin to Pay");
             if (root.account.isDecrypted)
                 txt += " " + qsTr("(Opened)", "Wallet is decrypted");
             return txt;
