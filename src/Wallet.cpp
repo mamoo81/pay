@@ -1914,7 +1914,6 @@ void Wallet::loadWallet()
 
         else if (parser.tag() == WalletPriv::KeyStoreIndex) {
             assert(outputIndex >= 0);
-            assert(output.value > 0);
             output.walletSecretId = parser.intData();
             wtx.outputs.insert(std::make_pair(outputIndex, output));
 
