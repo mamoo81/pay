@@ -247,7 +247,7 @@ bool Wallet::decrypt(const QString &password)
             }
             std::string seedWords(m_hdData->walletMnemonic.begin(), m_hdData->walletMnemonic.end());
             std::string pwd(m_hdData->walletMnemonicPwd.begin(), m_hdData->walletMnemonicPwd.end());
-            m_hdData->masterKey = HDMasterKey::fromMnemonic(seedWords, pwd);
+            m_hdData->masterKey = HDMasterKey::fromMnemonic(seedWords, m_hdData->mnemonicFormat, pwd);
             assert(m_hdData->masterKey.isValid());
         }
 
@@ -352,12 +352,12 @@ void Wallet::forgetEncryptedSecrets()
 
 // //////////////////////////////////////////////////
 
-Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd, bool electrum)
-    : masterKey(HDMasterKey::fromMnemonic(std::string(seedWords.begin(), seedWords.end()), std::string(pwd.begin(), pwd.end()), electrum)),
+Wallet::HierarchicallyDeterministicWalletData::HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd, HDMasterKey::MnemonicType mnemonicFmt)
+    : masterKey(HDMasterKey::fromMnemonic(std::string(seedWords.begin(), seedWords.end()), mnemonicFmt, std::string(pwd.begin(), pwd.end()))),
       masterPubkey(HDMasterPubkey::fromHDMaster(masterKey, derivationPath)),
       walletMnemonic(seedWords.begin(), seedWords.end()),
       walletMnemonicPwd(pwd.begin(), pwd.end()),
-      electrumFormat(electrum),
+      mnemonicFormat(mnemonicFmt),
       derivationPath(derivationPath)
 {
 }

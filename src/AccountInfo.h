@@ -54,7 +54,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(bool isHDWallet READ isHDWallet NOTIFY encryptionChanged)
     Q_PROPERTY(bool isArchived READ isArchived WRITE setIsArchived NOTIFY isArchivedChanged)
     Q_PROPERTY(QString mnemonic READ hdWalletMnemonic NOTIFY encryptionChanged)
-    Q_PROPERTY(bool isElectrumMnemonic READ isElectrumMnemonic CONSTANT)
+    Q_PROPERTY(bool isElectrumMnemonic READ isElectrumMnemonic NOTIFY encryptionChanged)
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath NOTIFY encryptionChanged)
     Q_PROPERTY(QString xpub READ xpub NOTIFY encryptionChanged)
     Q_PROPERTY(QDateTime lastMinedTransaction READ lastMinedTransaction NOTIFY balanceChanged)

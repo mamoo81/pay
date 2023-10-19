@@ -301,7 +301,7 @@ Item {
                     Label {
                         id: seedPhraseFormat
                         font.bold: true
-                        text: root.account.isElectrumMnemonic ? "Electrum" : "BIP39"
+                        text: "Electrum"
                         visible: root.account.isElectrumMnemonic
                     }
                     Label {

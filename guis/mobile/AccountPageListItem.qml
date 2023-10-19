@@ -147,16 +147,9 @@ QQC2.Control {
                         PageTitledBox {
                             title: qsTr("Seed format")
                             visible: root.account.isElectrumMnemonic
-                            Item {
-                                implicitHeight: electrumLabel.implicitHeight
-                                width: parent.width
-                                Flowee.Label {
-                                    id: electrumLabel
-                                    text: "Electrum"
-                                    width: parent.width - 36
-                                    font.italic: true
-                                    font.wordSpacing: 1
-                                }
+                            Flowee.Label {
+                                text: "Electrum"
+                                font.italic: true
                             }
                         }
 

@@ -453,13 +453,13 @@ private:
     struct HierarchicallyDeterministicWalletData {
         /// the strings should have utf8 encoded text.
         HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd,
-                                              bool electrumFormat = false);
+                                              HDMasterKey::MnemonicType mnemonicFormat);
         HierarchicallyDeterministicWalletData(const std::string &xpub, const std::vector<uint32_t> &derivationPath);
         HDMasterKey masterKey;
         HDMasterPubkey masterPubkey;
         std::vector<char, secure_allocator<char> > walletMnemonic; // utf8-encoding
         std::vector<char, secure_allocator<char> >  walletMnemonicPwd;// utf8-encoding
-        bool electrumFormat = false;
+        HDMasterKey::MnemonicType mnemonicFormat = HDMasterKey::BIP39Mnemonic;
 
         std::vector<char> encryptedWalletMnemonic;
         std::vector<char> encryptedWalletMnemonicPwd;
