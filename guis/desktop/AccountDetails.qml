@@ -295,6 +295,16 @@ Item {
                         padding: 0
                     }
                     Label {
+                        text: qsTr("Seed format") + ":"
+                        visible: root.account.isElectrumMnemonic
+                    }
+                    Label {
+                        id: seedPhraseFormat
+                        font.bold: true
+                        text: "Electrum"
+                        visible: root.account.isElectrumMnemonic
+                    }
+                    Label {
                         text: qsTr("Derivation") + ":"
                     }
                     Flowee.LabelWithClipboard {

@@ -404,6 +404,11 @@ QString AccountInfo::hdWalletMnemonic() const
     return m_wallet->hdWalletMnemonic();
 }
 
+bool AccountInfo::isElectrumMnemonic() const
+{
+    return m_wallet->isElectrumMnemonic();
+}
+
 QString AccountInfo::hdDerivationPath() const
 {
     return m_wallet->derivationPath();

@@ -781,6 +781,13 @@ QString Wallet::hdWalletMnemonic() const
     return QString();
 }
 
+bool Wallet::isElectrumMnemonic() const
+{
+    if (m_hdData.get())
+        return m_hdData->mnemonicFormat == HDMasterKey::ElectrumMnemonic;
+    return false;
+}
+
 QString Wallet::hdWalletMnemonicPwd() const
 {
     if (m_hdData.get())
@@ -813,7 +820,7 @@ QString Wallet::xpub() const
     return QString();
 }
 
-void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight)
+void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight, bool electrumFormat)
 {
     assert(m_hdData.get() == nullptr);
     if (m_hdData.get()) {
@@ -833,7 +840,9 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     pool.write(pwdBytes.constData(), pwdBytes.size());
     auto pwdBuf = pool.commit();
 
-    m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonicBuf, derivationPath, pwdBuf));
+    m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonicBuf, derivationPath, pwdBuf,
+                                                             electrumFormat ? HDMasterKey::ElectrumMnemonic
+                                                                            : HDMasterKey::BIP39Mnemonic));
     // append two random numbers, to make clear the full length
     m_hdData->derivationPath.push_back(0);
     m_hdData->derivationPath.push_back(0);
@@ -1569,6 +1578,7 @@ void Wallet::loadSecrets()
     int derivationPathChangeIndex = -1;
     int derivationPathMainIndex = -1;
     int index = 0;
+    HDMasterKey::MnemonicType mnemonicFormat = HDMasterKey::BIP39Mnemonic;
     while (parser.next() == Streaming::FoundTag) {
         if (parser.tag() == WalletPriv::Separator) {
             if (index > 0 && secret.address.size() > 0) {
@@ -1638,6 +1648,9 @@ void Wallet::loadSecrets()
         else if (parser.tag() == WalletPriv::HDWalletMnemonicPassword) {
             mnemonicPwd = parser.bytesDataBuffer();
         }
+        else if (parser.tag() == WalletPriv::HDWalletMnemonicFormat) {
+            mnemonicFormat = static_cast<HDMasterKey::MnemonicType>(parser.intData());
+        }
         else if (parser.tag() == WalletPriv::HDWalletMnemonicPasswordEncrypted) {
             encryptedMnemonicPwd = parser.bytesData();
             m_encryptionLevel = SecretsEncrypted;
@@ -1660,10 +1673,12 @@ void Wallet::loadSecrets()
     }
 
     assert(m_hdData.get() == nullptr);
+    if (mnemonicFormat != HDMasterKey::BIP39Mnemonic && mnemonicFormat != HDMasterKey::ElectrumMnemonic)
+        logFatal(LOG_WALLET) << "Found unknown mnemonic type for HD wallet:" << int(mnemonicFormat);
     if ((xpub.empty() && mnemonic.isEmpty()) != derivationPath.empty())
         logFatal(LOG_WALLET) << "Found incomplete data for HD wallet";
     else if (!mnemonic.isEmpty())
-        m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, derivationPath, mnemonicPwd));
+        m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonic, derivationPath, mnemonicPwd, mnemonicFormat));
     else if (!xpub.empty())
         m_hdData.reset(new HierarchicallyDeterministicWalletData(xpub, derivationPath));
     if (m_hdData) {
@@ -1671,6 +1686,7 @@ void Wallet::loadSecrets()
         m_hdData->lastMainKey = derivationPathMainIndex;
         m_hdData->encryptedWalletMnemonic = encryptedMnemonic;
         m_hdData->encryptedWalletMnemonicPwd = encryptedMnemonicPwd;
+        m_hdData->mnemonicFormat = mnemonicFormat;
     }
 
     m_secretsChanged = false;
@@ -1690,7 +1706,7 @@ void Wallet::saveSecrets()
         hdDataSize += m_hdData->encryptedWalletMnemonicPwd.size();
         hdDataSize += m_hdData->encryptedWalletMnemonic.size();
         hdDataSize += m_hdData->derivationPath.size() * 6;
-        hdDataSize += 100; // for the xpub, lastChangeIndex, lastReceiveIndex
+        hdDataSize += 104; // for the xpub, lastChangeIndex, lastReceiveIndex, mnemonicFormat
     }
 
     Streaming::MessageBuilder builder(Streaming::pool(100 + m_walletSecrets.size() * 90 + hdDataSize));
@@ -1721,6 +1737,7 @@ void Wallet::saveSecrets()
             builder.add(WalletPriv::HDWalletLastChangeIndex,  m_hdData->lastChangeKey);
         if (m_hdData->lastMainKey >= 0)
             builder.add(WalletPriv::HDWalletLastReceiveIndex,  m_hdData->lastMainKey);
+        builder.add(WalletPriv::HDWalletMnemonicFormat, static_cast<int>(m_hdData->mnemonicFormat));
     }
     for (const auto &item : m_walletSecrets) {
         const auto &secret = item.second;

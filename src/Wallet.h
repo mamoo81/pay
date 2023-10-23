@@ -324,6 +324,8 @@ public:
     bool isHDWallet() const;
     /// Provided that this is a HD wallet, return the seed-words (aka mnemonic)
     QString hdWalletMnemonic() const;
+    /// Returns true if the wallet mnemonic is in Electrum format
+    bool isElectrumMnemonic() const;
     /// Provided that this is a HD wallet, return the seed-words (aka mnemonic) passphrase
     QString hdWalletMnemonicPwd() const;
     /// Provided that this is a HD wallet, return the derivation path used for this wallet.
@@ -339,8 +341,9 @@ public:
      * @param pwd the password that was created with the seed-phrase. Can be empty.
      * @param derivationPath the derivation steps. We will add 2 ints to this internally, so typically this vector has 3 fields.
      * @param initialBlockHeight either a timestamp or blockheight, or zero if unsure.
+     * @param electrumFormat Set to true to interpret this mnemonic as an Electrum-style phrase.
      */
-    void createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight = 0);
+    void createHDMasterKey(const QString &mnemonic, const QString &pwd, const std::vector<uint32_t> &derivationPath, uint32_t startHeight = 0, bool electrumFormat = false);
 
     /// return the height of the last seen transaction that is mined
     int lastTransactionTimestamp() const;
@@ -449,12 +452,14 @@ private:
 
     struct HierarchicallyDeterministicWalletData {
         /// the strings should have utf8 encoded text.
-        HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd);
+        HierarchicallyDeterministicWalletData(const Streaming::ConstBuffer &seedWords, const std::vector<uint32_t> &derivationPath, const Streaming::ConstBuffer &pwd,
+                                              HDMasterKey::MnemonicType mnemonicFormat);
         HierarchicallyDeterministicWalletData(const std::string &xpub, const std::vector<uint32_t> &derivationPath);
         HDMasterKey masterKey;
         HDMasterPubkey masterPubkey;
         std::vector<char, secure_allocator<char> > walletMnemonic; // utf8-encoding
         std::vector<char, secure_allocator<char> >  walletMnemonicPwd;// utf8-encoding
+        HDMasterKey::MnemonicType mnemonicFormat = HDMasterKey::BIP39Mnemonic;
 
         std::vector<char> encryptedWalletMnemonic;
         std::vector<char> encryptedWalletMnemonicPwd;

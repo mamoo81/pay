@@ -145,6 +145,15 @@ QQC2.Control {
                         }
 
                         PageTitledBox {
+                            title: qsTr("Seed format")
+                            visible: root.account.isElectrumMnemonic
+                            Flowee.Label {
+                                text: "Electrum"
+                                font.italic: true
+                            }
+                        }
+
+                        PageTitledBox {
                             title: qsTr("Starting Height", "height refers to block-height")
                             Flowee.LabelWithClipboard { text: root.account.initialBlockHeight }
                         }

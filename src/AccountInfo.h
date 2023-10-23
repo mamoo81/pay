@@ -54,6 +54,7 @@ class AccountInfo : public QObject
     Q_PROPERTY(bool isHDWallet READ isHDWallet NOTIFY encryptionChanged)
     Q_PROPERTY(bool isArchived READ isArchived WRITE setIsArchived NOTIFY isArchivedChanged)
     Q_PROPERTY(QString mnemonic READ hdWalletMnemonic NOTIFY encryptionChanged)
+    Q_PROPERTY(bool isElectrumMnemonic READ isElectrumMnemonic NOTIFY encryptionChanged)
     Q_PROPERTY(QString hdDerivationPath READ hdDerivationPath NOTIFY encryptionChanged)
     Q_PROPERTY(QString xpub READ xpub NOTIFY encryptionChanged)
     Q_PROPERTY(QDateTime lastMinedTransaction READ lastMinedTransaction NOTIFY balanceChanged)
@@ -124,6 +125,8 @@ public:
     bool isHDWallet() const;
     /// Return the mnemonic seed that is the basis of this wallet.
     QString hdWalletMnemonic() const;
+    /// Return true if the mnemonic seed is in Electrum format
+    bool isElectrumMnemonic() const;
     /// Return the derivation base path that is the basis of this wallet.
     QString hdDerivationPath() const;
     /// Return the XPub for this wallet (or empty if its not a HD wallet)

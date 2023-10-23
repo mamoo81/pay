@@ -78,6 +78,7 @@ enum PrivateSaveTags {
     HDWalletMnemonicPasswordEncrypted,
     HDXPub,
 
+    HDWalletMnemonicFormat, // int, one of the HDMasterKey::MnemonicType enums values, if missing default to BIP39
 
     END_OF_PRIV_SAVE_TAGS
 };
