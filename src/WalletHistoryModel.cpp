@@ -375,11 +375,6 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
     } else {
         timestamp = secsSinceEpochFor(blockheight);
     }
-    assert(timestamp > 0);
-    if (timestamp == 0) {
-        // some inconsistency between wallet and libp2p.
-        return;
-    }
 
     if (!m_groups.back().add(txIndex, timestamp, m_today)) {
         // didn't fit, make a new group and add it there.
@@ -446,7 +441,10 @@ bool WalletHistoryModel::isModelFrozen() const
 
 uint32_t WalletHistoryModel::secsSinceEpochFor(int blockHeight) const
 {
-    return FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
+    // wrap this for convenience and also ensure that we never return an insanely old
+    // date (1970) just because we lack blockheader data.
+    return std::max<uint32_t>(1250000000,
+            FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime);
 }
 
 QDate WalletHistoryModel::today() const

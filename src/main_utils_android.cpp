@@ -63,39 +63,35 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData*)
      * copy of those files to our private homedir.
      */
     QFileInfo target("staticHeaders");
-    QFileInfo infTarget("staticHeaders.info");
     QFileInfo orig("assets:/blockheaders");
-    QFileInfo infOrig("assets:/blockheaders.info");
+    const QString infoFilePath = target.absoluteFilePath() + ".info";
 
-    bool install = orig.exists() && infOrig.exists()
-            && (!target.exists() || !infTarget.exists() || orig.size() != target.size()
-                || infOrig.size() != infTarget.size());
+    bool install = orig.exists() && (!target.exists() || orig.size() > target.size());
     if (install) {
-        // make sure we have a local up-to-date copy
+        // make sure we have a local copy
+        QFile::remove(infoFilePath);
         QFile::remove(target.absoluteFilePath());
         bool ok = QFile::copy(orig.filePath(), target.absoluteFilePath());
         if (!ok) {
             logFatal() << "Failed copying blockheaders";
             abort();
         }
-        QFile::remove(infTarget.absoluteFilePath());
-        ok = QFile::copy(orig.filePath() + ".info", infTarget.absoluteFilePath());
-        if (!ok) {
-            logFatal() << "Failed copying blockheaders.info";
-            abort();
-        }
     }
-    if (!target.exists() || !infTarget.exists()) // We didn't find a source for the headers
+    if (!target.exists()) // We didn't find a source for the headers
         abort();
 
     blockheaders.reset(new QFile(target.absoluteFilePath()));
-    if (!blockheaders->open(QIODevice::ReadOnly)) { // can't be opened for reading.
+    if (!blockheaders->open(QIODevice::ReadOnly)) { // if can't be opened for reading.
         blockheaders.reset();
         return blockheaders;
     }
 
+    // if not previously created, create metadata file now.
+    if (!QFile::exists(infoFilePath))
+        Blockchain::createStaticHeaders(blockheaders->fileName().toStdString(),
+                                        infoFilePath.toStdString());
     Blockchain::setStaticChain(blockheaders->map(0, blockheaders->size()), blockheaders->size(),
-                              infTarget.absoluteFilePath().toStdString());
+                              infoFilePath.toStdString());
     blockheaders->close();
     return blockheaders;
 }

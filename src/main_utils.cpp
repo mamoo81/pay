@@ -126,6 +126,22 @@ std::unique_ptr<QFile> handleStaticChain(CommandLineParserData *cld)
         }
         else {
             QString infoFilePath = blockheaders->fileName() + ".info";
+            bool needsCreation = false;
+            if (!QFile::exists(infoFilePath)) {
+                // early versions of Flowee Pay shipped the info file together with the
+                // static file in the original install, lets check if we should instead
+                // create one here on first run.
+                infoFilePath = FloweePay::instance()->basedir() + "/staticHeaders.info";
+                QFileInfo meta(infoFilePath);
+                QFileInfo data(blockheaders->fileName());
+                if (!meta.exists())
+                    needsCreation = true;
+                else if (data.lastModified() > meta.lastModified())
+                    needsCreation = true;
+            }
+            if (needsCreation) // create a user-local info file.
+                Blockchain::createStaticHeaders(blockheaders->fileName().toStdString(),
+                                                infoFilePath.toStdString());
             Blockchain::setStaticChain(blockheaders->map(0, blockheaders->size()), blockheaders->size(),
                                       infoFilePath.toStdString());
             blockheaders->close();
