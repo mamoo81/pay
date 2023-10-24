@@ -1649,6 +1649,8 @@ void Wallet::loadSecrets()
             mnemonicPwd = parser.bytesDataBuffer();
         }
         else if (parser.tag() == WalletPriv::HDWalletMnemonicFormat) {
+            static_assert(HDMasterKey::BIP39Mnemonic == 0);
+            static_assert(HDMasterKey::ElectrumMnemonic == 1);
             mnemonicFormat = static_cast<HDMasterKey::MnemonicType>(parser.intData());
         }
         else if (parser.tag() == WalletPriv::HDWalletMnemonicPasswordEncrypted) {
