@@ -58,7 +58,6 @@ fi
 
 mkdir -p imports
 cp -f "$_pay_native_name_"/*qm imports/
-cp -f "$_pay_native_name_"/blockheaders-meta-extractor imports/
 
 floweePaySrcDir=`dirname $0`/..
 if test -f $floweePaySrcDir/android/netlog.conf; then
@@ -155,9 +154,6 @@ if test ! -f build.ninja; then
     \$execInDocker build/.config
 fi
 
-if test -f android-build/assets/blockheaders -a ! -f android-build/assets/blockheaders.info; then
-    imports/blockheaders-meta-extractor android-build/assets
-fi
 if test -f $floweePaySrcDir/android/netlog.conf; then
     cp $floweePaySrcDir/android/netlog.conf android-build/assets/
 fi
