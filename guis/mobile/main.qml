@@ -32,7 +32,7 @@ ApplicationWindow {
     minimumWidth: 300
     minimumHeight: 400
     visible: true
-    onVisibleChanged: if (visible) ControlColors.applySkin(mainWindow)
+    onVisibleChanged: if (visible) ControlColors.applySkin(mainWindow);
 
     property bool isLoading: typeof portfolio === "undefined";
     onIsLoadingChanged: {
@@ -54,6 +54,7 @@ ApplicationWindow {
     Connections {
         target: Pay
         function onFontScalingChanged() { updateFontSize(); }
+        function onUseDarkSkinChanged() { ControlColors.applySkin(mainWindow); }
     }
 
     property color floweeSalmon: "#ff9d94"

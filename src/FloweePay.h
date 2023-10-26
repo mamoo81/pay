@@ -58,6 +58,7 @@ class FloweePay : public QObject, public WorkerThreads, public HeaderSyncInterfa
     Q_PROPERTY(int windowWidth READ windowWidth WRITE setWindowWidth NOTIFY windowWidthChanged)
     Q_PROPERTY(int windowHeight READ windowHeight WRITE setWindowHeight NOTIFY windowHeightChanged)
     Q_PROPERTY(bool useDarkSkin READ darkSkin WRITE setDarkSkin NOTIFY darkSkinChanged)
+    Q_PROPERTY(bool skinFollowsPlatform READ skinFollowsPlatform WRITE setSkinFollowsPlatform NOTIFY skinFollowsPlatformChanged FINAL)
     Q_PROPERTY(bool hideBalance READ hideBalance WRITE setHideBalance NOTIFY hideBalanceChanged)
     Q_PROPERTY(bool activityShowsBch READ activityShowsBch WRITE setActivityShowsBch NOTIFY activityShowsBchChanged)
     Q_PROPERTY(int fontScaling READ fontScaling WRITE setFontScaling NOTIFY fontScalingChanged)
@@ -222,6 +223,9 @@ public:
     bool darkSkin() const;
     void setDarkSkin(bool darkSkin);
 
+    bool skinFollowsPlatform() const;
+    void setSkinFollowsPlatform(bool newSkinFollowsPlatform);
+
     UnitOfBitcoin unit() const;
     void setUnit(const UnitOfBitcoin &unit);
 
@@ -343,6 +347,8 @@ signals:
     void appProtectionChanged();
     void paymentProtocolRequestChanged();
 
+    void skinFollowsPlatformChanged();
+
 private slots:
     void loadingCompleted();
     void saveData();
@@ -387,6 +393,7 @@ private:
     bool m_loadCompletEmitted = false; // ensure we only emit this once.
     bool m_appUnlocked = false;
     bool m_darkSkin = true;
+    bool m_skinFollowsPlatform = false;
     bool m_createStartWallet = false;
     bool m_hideBalance = false;
     /// Show the BCH amount involved in a transaction on the activity screen.

@@ -19,12 +19,13 @@
 #include "PortfolioDataProvider.h"
 #include "NetDataProvider.h"
 
+#include <P2PNet.h>
+
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QFileInfo>
-#include <qqmlcontext.h>
+#include <QQmlContext>
 
-#include <P2PNet.h>
 
 struct CommandLineParserData
 {

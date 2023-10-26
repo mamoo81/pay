@@ -18,7 +18,6 @@
 import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
-import "../ControlColors.js" as ControlColors
 import "../Flowee" as Flowee
 
 Item {
@@ -98,10 +97,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     anchors.margins: -10
-                    onClicked: {
-                        Pay.useDarkSkin = !Pay.useDarkSkin
-                        ControlColors.applySkin(mainWindow)
-                    }
+                    onClicked: Pay.useDarkSkin = !Pay.useDarkSkin
                 }
             }
             Flowee.Label {

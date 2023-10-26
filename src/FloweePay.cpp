@@ -46,6 +46,10 @@
 #include <QTimer>
 #include <QUrl>
 
+#ifdef TARGET_OS_Android
+# include <QJniObject>
+#endif
+
 #include <system_error>
 #include <filesystem>
 #include <fstream>
@@ -57,6 +61,7 @@ constexpr const char *WINDOW_WIDTH = "window/width";
 constexpr const char *WINDOW_HEIGHT = "window/height";
 constexpr const char *FONTSCALING = "window/font-scaling";
 constexpr const char *DARKSKIN = "darkSkin";
+constexpr const char *DARKSKIN_FROM_PLATFORM = "darkSkin-from-platform";
 constexpr const char *ACTIVITYSHOWBCH = "activity-show-bch";
 constexpr const char *HIDEBALANCE = "hide-balance";
 constexpr const char *USERAGENT = "net/useragent";
@@ -203,7 +208,20 @@ FloweePay::FloweePay()
     m_unit = static_cast<UnitOfBitcoin>(appConfig.value(UNIT_TYPE, m_unit).toInt());
     m_windowHeight = appConfig.value(WINDOW_HEIGHT, m_windowHeight).toInt();
     m_windowWidth = appConfig.value(WINDOW_WIDTH, m_windowWidth).toInt();
+
+    /*
+     * Darkskin and darkskinFromSystem were introduced one after the other.
+     * People that have darkskin stored, but not darkskinFromSystem thus need to
+     * be migrated from the old setup to the new.
+     * For migrating users, the darkSkinFromSystem is set to false. For
+     * new users (i.e. everyone else), it defaults to true.
+     */
+     bool defaultPlatform = true;
+     if (!appConfig.value(DARKSKIN_FROM_PLATFORM).isValid() && appConfig.value(DARKSKIN).isValid())
+         defaultPlatform = false;
+
     m_darkSkin = appConfig.value(DARKSKIN, m_darkSkin).toBool();
+    setSkinFollowsPlatform(appConfig.value(DARKSKIN_FROM_PLATFORM, defaultPlatform).toBool());
     m_activityShowsBch = appConfig.value(ACTIVITYSHOWBCH, m_activityShowsBch).toBool();
     m_fontScaling = appConfig.value(FONTSCALING, m_fontScaling).toInt();
     m_dspTimeout = appConfig.value(DSPTIMEOUT, m_dspTimeout).toInt();
@@ -869,6 +887,38 @@ void FloweePay::connectToWallet(Wallet *wallet)
         // Save as soon as the data changed.
         saveData();
         }, Qt::QueuedConnection);
+}
+
+bool FloweePay::skinFollowsPlatform() const
+{
+    return m_skinFollowsPlatform;
+}
+
+void FloweePay::setSkinFollowsPlatform(bool newSkinFollowsPlatform)
+{
+    if (m_skinFollowsPlatform == newSkinFollowsPlatform)
+        return;
+    m_skinFollowsPlatform = newSkinFollowsPlatform;
+    emit skinFollowsPlatformChanged();
+    QSettings appConfig;
+    appConfig.setValue(DARKSKIN_FROM_PLATFORM, m_skinFollowsPlatform);
+
+#ifdef TARGET_OS_Android
+    if (newSkinFollowsPlatform) {
+        auto context = QJniObject(QNativeInterface::QAndroidApplication::context());
+        // In Java:
+        //   context.getResources().getConfiguration().uiMode
+        auto resources = context.callObjectMethod("getResources",
+                "()Landroid/content/res/Resources;");
+        auto config = resources.callObjectMethod("getConfiguration",
+                "()Landroid/content/res/Configuration;");
+        auto uiMode = config.getField<jint>("uiMode");
+        constexpr int UI_MODE_NIGHT_MASK = 0x30;
+        constexpr int UI_MODE_NIGHT_YES = 0x20;
+        const bool dark = (uiMode & UI_MODE_NIGHT_MASK) == UI_MODE_NIGHT_YES;
+        setDarkSkin(dark);
+    }
+#endif
 }
 
 QString FloweePay::paymentProtocolRequest() const

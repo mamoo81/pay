@@ -65,6 +65,31 @@ Page {
         }
 
         PageTitledBox {
+            title: qsTr("Dark Theme")
+            Flowee.RadioButton {
+                text: "Follow System"
+                checked: Pay.skinFollowsPlatform
+                onClicked: Pay.skinFollowsPlatform = true;
+            }
+            Flowee.RadioButton {
+                text: "Dark"
+                checked: !Pay.skinFollowsPlatform && Pay.useDarkSkin
+                onClicked: {
+                    Pay.skinFollowsPlatform = false;
+                    Pay.useDarkSkin = true;
+                }
+            }
+            Flowee.RadioButton {
+                text: "Light"
+                checked: !Pay.skinFollowsPlatform && !Pay.useDarkSkin
+                onClicked: {
+                    Pay.skinFollowsPlatform = false;
+                    Pay.useDarkSkin = false;
+                }
+            }
+        }
+
+        PageTitledBox {
             title: qsTr("Unit")
 
             Flowee.ComboBox {
