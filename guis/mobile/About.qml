@@ -75,11 +75,13 @@ Deutc
 <dd>Tom Zander</dd>
 <dt>Polski</dt>
 <dd>Yantri & Karol Trzeszczkowski</dd>
+<dt>Portuguese</dt>
+<dd>bitcoincashbrazil</dd>
 </dl>
 
 ## Code Contributors
 
-You?
+Calin Culianu
 
 ## Art Contributors
 
