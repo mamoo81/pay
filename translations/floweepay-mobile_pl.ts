@@ -456,12 +456,12 @@ Change will come back to the imported key.</source>
   <context>
     <name>InstaPayConfigPage</name>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="24"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="23"/>
       <source>Instant Pay</source>
       <translation>Szybkie płatności</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="30"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="29"/>
       <source>Requests for payment can be approved automatically using Instant Pay.</source>
       <translation>Przy Szybkich Płatnościach żądania będą automatycznie zatwierdzane.</translation>
     </message>
@@ -471,12 +471,12 @@ Change will come back to the imported key.</source>
       <translation>Zabezpieczone portfele nie mogą być używane do Szybkich Płatności, ponieważ wymagają PIN-u przed użyciem</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="62"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="64"/>
       <source>Enable Instant Pay for this wallet</source>
       <translation>Włącz Szybkie Płatności w tym portfelu</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="69"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="71"/>
       <source>Maximum Amount</source>
       <translation>Maksymalna Kwota</translation>
     </message>
@@ -537,7 +537,7 @@ Change will come back to the imported key.</source>
   <context>
     <name>MenuOverlay</name>
     <message>
-      <location filename="../guis/mobile/MenuOverlay.qml" line="270"/>
+      <location filename="../guis/mobile/MenuOverlay.qml" line="310"/>
       <source>Add Wallet</source>
       <translation>Dodaj Portfel</translation>
     </message>
@@ -696,37 +696,37 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
       <translation>Edytuj kwotę</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="109"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="127"/>
       <source>Invalid QR code</source>
       <translation>Nieprawidłowy kod QR</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="122"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="140"/>
       <source>I don&apos;t understand the scanned code. I&apos;m sorry, I can&apos;t start a payment.</source>
       <translation>Nie rozumiem zeskanowanego kodu. Przepraszam, mogę rozpocząć płatności.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="126"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="144"/>
       <source>details</source>
       <translation>szczegóły</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="137"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="155"/>
       <source>Scanned text: &lt;pre&gt;%1&lt;/pre&gt;</source>
       <translation>Zeskanowany tekst: &lt;pre&gt;%1&lt;/pre&gt;</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="186"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="204"/>
       <source>Payment description</source>
       <translation>Opis płatności</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="249"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="243"/>
       <source>Destination Address</source>
       <translation>Adres docelowy</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="287"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="416"/>
       <source>Unlock Wallet</source>
       <translation>Odblokuj portfel</translation>
     </message>
@@ -769,14 +769,24 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
   <context>
     <name>QRScannerOverlay</name>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="136"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="129"/>
       <source>Paste</source>
       <translation>Wklej</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="154"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="147"/>
       <source>Failed</source>
       <translation>Niepowodzenie</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="208"/>
+      <source>Instant Pay limit is %1</source>
+      <translation>Limit szybkiej płatności wynosi %1</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="211"/>
+      <source>Selected wallet: &apos;%1&apos;</source>
+      <translation>Wybrany portfel: &apos;%1&apos;</translation>
     </message>
   </context>
   <context>
@@ -838,32 +848,32 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="389"/>
       <source>Transaction high risk</source>
-      <translation type="unfinished">Transaction high risk</translation>
+      <translation>Transakcja o wysokim poziomie ryzyka</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="392"/>
       <source>Partially Paid</source>
-      <translation type="unfinished">Partially Paid</translation>
+      <translation>Częściowo opłacona</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="396"/>
       <source>Payment Accepted</source>
-      <translation type="unfinished">Payment Accepted</translation>
+      <translation>Płatność zaakceptowana</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="398"/>
       <source>Payment Settled</source>
-      <translation type="unfinished">Payment Settled</translation>
+      <translation>Płatność rozliczona</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="414"/>
       <source>Instant payment failed. Wait for confirmation. (double spent proof received)</source>
-      <translation type="unfinished">Instant payment failed. Wait for confirmation. (double spent proof received)</translation>
+      <translation>Płatność błyskawiczna nie powiodła się. Poczekaj na potwierdzenie. (otrzymano dowód podwójnej płatności)</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="423"/>
       <source>Continue</source>
-      <translation type="unfinished">Continue</translation>
+      <translation>Kontynuuj</translation>
     </message>
   </context>
   <context>
@@ -871,27 +881,27 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="22"/>
       <source>Select Wallet</source>
-      <translation type="unfinished">Select Wallet</translation>
+      <translation>Wybierz portfel</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="30"/>
       <source>Pick which wallet will be selected on starting Flowee Pay</source>
-      <translation type="unfinished">Pick which wallet will be selected on starting Flowee Pay</translation>
+      <translation>Wybierz portfel, który zostanie pokazany przy uruchomieniu FloweePay</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="69"/>
       <source>No InstaPay limit set</source>
-      <translation type="unfinished">No InstaPay limit set</translation>
+      <translation>Nie ustawiono limitu Szybkich Płatności</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="70"/>
       <source>InstaPay till %1</source>
-      <translation type="unfinished">InstaPay till %1</translation>
+      <translation>Szybkie płatności do %1</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="72"/>
       <source>InstaPay is turned off</source>
-      <translation type="unfinished">InstaPay is turned off</translation>
+      <translation>Szybkie Płatności wyłączone</translation>
     </message>
   </context>
   <context>
@@ -899,12 +909,12 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     <message>
       <location filename="../guis/mobile/SendTransactionsTab.qml" line="24"/>
       <source>Send</source>
-      <translation type="unfinished">Send</translation>
+      <translation>Wyślij</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SendTransactionsTab.qml" line="35"/>
       <source>Start Payment</source>
-      <translation type="unfinished">Start Payment</translation>
+      <translation>Rozpocznij płatność</translation>
     </message>
   </context>
   <context>
@@ -912,7 +922,7 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     <message>
       <location filename="../guis/mobile/SlideToApprove.qml" line="31"/>
       <source>SLIDE TO SEND</source>
-      <translation type="unfinished">SLIDE TO SEND</translation>
+      <translation>PRZECIĄGNIJ ŻEBY WYSŁAĆ</translation>
     </message>
   </context>
   <context>
@@ -920,32 +930,32 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="25"/>
       <source>Welcome!</source>
-      <translation type="unfinished">Welcome!</translation>
+      <translation>Witaj!</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="27"/>
       <source>Continue</source>
-      <translation type="unfinished">Continue</translation>
+      <translation>Kontynuuj</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="100"/>
       <source>Moving the world towards a Bitcoin&#xa0;Cash economy</source>
-      <translation type="unfinished">Moving the world towards a Bitcoin&#xa0;Cash economy</translation>
+      <translation>Przesuwamy świat w kierunku ekonomii Bitcoin&#xa0;Cash</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="111"/>
       <source>Scan me to send funds to your HD wallet</source>
-      <translation type="unfinished">Scan me to send funds to your HD wallet</translation>
+      <translation>Zeskanuj mnie, aby wysłać środki do swojego portfela HD</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="152"/>
       <source>OR</source>
-      <translation type="unfinished">OR</translation>
+      <translation>LUB</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="174"/>
       <source>Add a different wallet</source>
-      <translation type="unfinished">Add a different wallet</translation>
+      <translation>Dodaj inny portfel</translation>
     </message>
   </context>
   <context>
@@ -953,12 +963,12 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="28"/>
       <source>Transaction Details</source>
-      <translation type="unfinished">Transaction Details</translation>
+      <translation>Szczegóły transakcji</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="39"/>
       <source>Transaction Hash</source>
-      <translation type="unfinished">Transaction Hash</translation>
+      <translation>Hasz Transakcji</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="73"/>
@@ -978,11 +988,11 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     <message numerus="yes">
       <location filename="../guis/mobile/TransactionDetails.qml" line="93"/>
       <source>%1 blocks ago</source>
-      <translation type="unfinished">
+      <translation>
+        <numerusform>%1 blok temu</numerusform>
+        <numerusform>%1 bloki temu</numerusform>
         <numerusform>%1 bloków temu</numerusform>
-        <numerusform>%1 blocks ago</numerusform>
-        <numerusform>%1 blocks ago</numerusform>
-        <numerusform>%1 blocks ago</numerusform>
+        <numerusform>%1 bloki temu</numerusform>
       </translation>
     </message>
     <message>
@@ -1073,11 +1083,11 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
       <location filename="../guis/mobile/TxInfoSmall.qml" line="66"/>
       <source>%1 blocks ago</source>
       <comment>Confirmations</comment>
-      <translation type="unfinished">
-        <numerusform>%1 blocks ago</numerusform>
-        <numerusform>%1 blocks ago</numerusform>
+      <translation>
+        <numerusform>%1 blok temu</numerusform>
+        <numerusform>%1 bloki temu</numerusform>
         <numerusform>%1 bloków temu</numerusform>
-        <numerusform>%1 blocks ago</numerusform>
+        <numerusform>%1 bloki temu</numerusform>
       </translation>
     </message>
     <message>

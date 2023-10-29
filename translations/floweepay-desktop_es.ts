@@ -530,195 +530,201 @@ El cambio volverá a la clave importada.</translation>
   <context>
     <name>SendTransactionPane</name>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="105"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="123"/>
       <source>Confirm delete</source>
       <translation>Confirmar eliminación</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="106"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="124"/>
       <source>Do you really want to delete this detail?</source>
-      <translation type="unfinished">Do you really want to delete this detail?</translation>
+      <translation>¿Realmente quieres borrar esta especificación?</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="115"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="133"/>
       <source>Add Destination</source>
       <translation>Añadir destino</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="121"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="139"/>
       <source>Prepare</source>
       <translation>Preparar</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="137"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="155"/>
       <source>Enter your PIN</source>
       <translation>Introduce tu código PIN</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="156"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="164"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="434"/>
+      <source>Warning</source>
+      <translation>Advertencia</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="171"/>
+      <source>Payment request warnings:</source>
+      <translation type="unfinished">Payment request warnings:</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="189"/>
       <source>Transaction Details</source>
       <translation>Detalles de la transacción</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="170"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="203"/>
       <source>Not prepared yet</source>
       <translation>Aún no preparado</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="176"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="209"/>
       <source>Copy transaction-ID</source>
       <translation>Copiar ID de la transacción</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="179"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="212"/>
       <source>Fee</source>
       <translation>Comisión</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="189"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="222"/>
       <source>Transaction size</source>
       <translation>Tamaño de la transacción</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="197"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="230"/>
       <source>%1 bytes</source>
       <translation>%1 bytes</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="202"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="235"/>
       <source>Fee per byte</source>
       <translation>Comisión por byte</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="213"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="246"/>
       <source>%1 sat/byte</source>
       <comment>fee</comment>
       <translation>%1 sat/byte</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="227"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="260"/>
       <source>Send</source>
       <translation>Enviar</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="267"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="300"/>
       <source>Destination</source>
       <translation>Destino</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="274"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="307"/>
       <source>Max available</source>
       <comment>The maximum balance available</comment>
       <translation>Máximo disponible</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="283"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="316"/>
       <source>%1 to %2</source>
       <comment>summary text to pay X-euro to address M</comment>
       <translation>%1 a %2</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="301"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="334"/>
       <source>Enter Bitcoin Cash Address</source>
       <translation>Introduzca la dirección de Bitcoin Cash</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="325"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="359"/>
       <source>Copy Address</source>
       <translation>Copiar dirección</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="335"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="369"/>
       <source>Amount</source>
       <translation>Monto</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="359"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="393"/>
       <source>Max</source>
       <translation>Máx</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="400"/>
-      <source>Warning</source>
-      <translation>Advertencia</translation>
-    </message>
-    <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="405"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="439"/>
       <source>This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</source>
       <translation>Esta es una dirección BTC, que es una moneda incompatible. Tus fondos podrían perderse y Flowee no tendrá forma de recuperarlos. ¿Estás seguro de que esta es la dirección correcta?</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="417"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="451"/>
       <source>Continue</source>
       <translation>Continuar</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="421"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="455"/>
       <source>Cancel</source>
       <translation>Cancelar</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="445"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="476"/>
       <source>Coin Selector</source>
       <translation>Selector de monedas</translation>
     </message>
     <message numerus="yes">
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="446"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="477"/>
       <source>Selected %1 %2 in %3 coins</source>
       <comment>selected 2 BCH in 5 coins</comment>
       <translation type="unfinished">
-        <numerusform>Selected %1 %2 in %3 coins</numerusform>
+        <numerusform>Seleccionadas %1 %2 en %3 monedas</numerusform>
         <numerusform>Selected %1 %2 in %3 coins</numerusform>
       </translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="457"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="488"/>
       <source>Total</source>
       <comment>Number of coins</comment>
       <translation>Total</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="464"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="495"/>
       <source>Needed</source>
       <translation>Necesario</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="474"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="505"/>
       <source>Selected</source>
       <translation>Seleccionado</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="481"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="512"/>
       <source>Value</source>
       <translation>Valor</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="519"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="550"/>
       <source>Locked coins will never be used for payments. Right-click for menu.</source>
-      <translation type="unfinished">Locked coins will never be used for payments. Right-click for menu.</translation>
+      <translation>Las monedas bloqueadas nunca se utilizarán para los pagos. Clic derecho para desplegar el menú.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="555"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="586"/>
       <source>Age</source>
       <translation>Edad</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="593"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="624"/>
       <source>Unselect All</source>
       <translation>Deseleccionar Todo</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="593"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="624"/>
       <source>Select All</source>
       <translation>Seleccionar Todo</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="603"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="634"/>
       <source>Unlock coin</source>
       <translation>Desbloquear moneda</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/SendTransactionPane.qml" line="603"/>
+      <location filename="../guis/desktop/SendTransactionPane.qml" line="634"/>
       <source>Lock coin</source>
       <translation>Bloquear moneda</translation>
     </message>
@@ -743,12 +749,12 @@ El cambio volverá a la clave importada.</translation>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="118"/>
       <source>Show Block Notifications</source>
-      <translation type="unfinished">Show Block Notifications</translation>
+      <translation>Mostrar notificaciones bloqueadas</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="119"/>
       <source>When a new block is mined, Flowee Pay shows a desktop notification</source>
-      <translation type="unfinished">When a new block is mined, Flowee Pay shows a desktop notification</translation>
+      <translation>Cuando un nuevo bloque es minado, Flowee Pay muestra una notificación de escritorio</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="133"/>
@@ -763,7 +769,7 @@ El cambio volverá a la clave importada.</translation>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="145"/>
       <source>Hides private wallets while enabled</source>
-      <translation type="unfinished">Hides private wallets while enabled</translation>
+      <translation>Oculta monederos privados mientras está habilitado</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="149"/>
@@ -773,7 +779,7 @@ El cambio volverá a la clave importada.</translation>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="157"/>
       <source>Library Version</source>
-      <translation type="unfinished">Library Version</translation>
+      <translation>Versión de la biblioteca</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="165"/>
@@ -796,7 +802,7 @@ El cambio volverá a la clave importada.</translation>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="89"/>
       <source>Pin to Pay</source>
-      <translation type="unfinished">Pin to Pay</translation>
+      <translation>PIN para pagar</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="94"/>
@@ -808,18 +814,18 @@ El cambio volverá a la clave importada.</translation>
       <location filename="../guis/desktop/WalletEncryption.qml" line="95"/>
       <source>Fully open, except for sending funds</source>
       <comment>pin to pay</comment>
-      <translation type="unfinished">Fully open, except for sending funds</translation>
+      <translation>Totalmente abierto, excepto para el envío de fondos</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="96"/>
       <source>Keeps in sync</source>
       <comment>pin to pay</comment>
-      <translation type="unfinished">Keeps in sync</translation>
+      <translation>Mantener sincronizado</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="102"/>
       <source>Pin to Open</source>
-      <translation type="unfinished">Pin to Open</translation>
+      <translation>PIN para abrir</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="107"/>
@@ -831,84 +837,84 @@ El cambio volverá a la clave importada.</translation>
       <location filename="../guis/desktop/WalletEncryption.qml" line="108"/>
       <source>Balance and history protected</source>
       <comment>pin to open</comment>
-      <translation type="unfinished">Balance and history protected</translation>
+      <translation>Balance e historial protegidos</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="109"/>
       <source>Requires Pin to view, sync or pay</source>
       <comment>pin to open</comment>
-      <translation type="unfinished">Requires Pin to view, sync or pay</translation>
+      <translation>Requiere Pin para ver, sincronizar o pagar</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="119"/>
       <source>Make &quot;%1&quot; wallet require a pin to pay</source>
-      <translation type="unfinished">Make &quot;%1&quot; wallet require a pin to pay</translation>
+      <translation>Hacer &quot;%1&quot; monedero requiere un pin para pagar</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="120"/>
       <source>Make &quot;%1&quot; wallet require a pin to open</source>
-      <translation type="unfinished">Make &quot;%1&quot; wallet require a pin to open</translation>
+      <translation>Hacer &quot;%1&quot; monedero requiere un pin para abrir</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="132"/>
-      <source>Wallet already has pin to pay applied</source>
-      <translation type="unfinished">Wallet already has pin to pay applied</translation>
+      <location filename="../guis/desktop/WalletEncryption.qml" line="144"/>
+      <source>Wallet already has pin to open applied</source>
+      <translation>El monedero ya tiene un pin para abrir aplicado</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="134"/>
-      <location filename="../guis/desktop/WalletEncryption.qml" line="144"/>
-      <source>Wallet already has pin to open applied</source>
-      <translation type="unfinished">Wallet already has pin to open applied</translation>
+      <source>Wallet already has pin to pay applied</source>
+      <translation>El monedero ya tiene pin para pagar aplicado</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="135"/>
       <source>Your wallet will get partially encrypted and payments will become impossible without a password. If you don&apos;t have a backup of this wallet, make one first.</source>
-      <translation type="unfinished">Your wallet will get partially encrypted and payments will become impossible without a password. If you don&apos;t have a backup of this wallet, make one first.</translation>
+      <translation>Su monedero se cifrará parcialmente y los pagos serán imposibles sin una contraseña. Si no tienes una copia de seguridad de esta cartera, haz una primero.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="145"/>
       <source>Your full wallet gets encrypted, opening it will need a password. If you don&apos;t have a backup of this wallet, make one first.</source>
-      <translation type="unfinished">Your full wallet gets encrypted, opening it will need a password. If you don&apos;t have a backup of this wallet, make one first.</translation>
+      <translation>Tu monedero completo se cifra, para abrirla necesitará una contraseña. Si no tienes una copia de seguridad de esta cartera, haz una primero.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="171"/>
       <source>Password</source>
-      <translation type="unfinished">Password</translation>
+      <translation>Contraseña</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="194"/>
       <source>Wallet</source>
-      <translation type="unfinished">Wallet</translation>
+      <translation>Monedero</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="216"/>
       <source>Encrypt</source>
-      <translation type="unfinished">Encrypt</translation>
+      <translation>Encriptar</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="223"/>
       <source>Invalid password to open this wallet</source>
-      <translation type="unfinished">Invalid password to open this wallet</translation>
+      <translation>Contraseña no válida para abrir este monedero</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="235"/>
       <source>Close</source>
-      <translation type="unfinished">Close</translation>
+      <translation>Cerrar</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="245"/>
       <source>Repeat password</source>
-      <translation type="unfinished">Repeat password</translation>
+      <translation>Repetir contraseña</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="246"/>
       <source>Please confirm the password by entering it again</source>
-      <translation type="unfinished">Please confirm the password by entering it again</translation>
+      <translation>Por favor confirme su contraseña introduciéndola nuevamente</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="251"/>
       <source>Typed passwords do not match</source>
-      <translation type="unfinished">Typed passwords do not match</translation>
+      <translation>Las contraseñas escritas no coinciden</translation>
     </message>
   </context>
   <context>
@@ -916,18 +922,18 @@ El cambio volverá a la clave importada.</translation>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="45"/>
       <source>Pin to Pay</source>
-      <translation type="unfinished">Pin to Pay</translation>
+      <translation>PIN para pagar</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="47"/>
       <source>Pin to Open</source>
-      <translation type="unfinished">Pin to Open</translation>
+      <translation>PIN para abrir</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="49"/>
       <source>(Opened)</source>
       <comment>Wallet is decrypted</comment>
-      <translation type="unfinished">(Opened)</translation>
+      <translation>(Abierto)</translation>
     </message>
   </context>
   <context>
@@ -935,37 +941,37 @@ El cambio volverá a la clave importada.</translation>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="63"/>
       <source>Miner Reward</source>
-      <translation type="unfinished">Miner Reward</translation>
+      <translation>Recompensa del minero</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="65"/>
       <source>Cash Fusion</source>
-      <translation type="unfinished">Cash Fusion</translation>
+      <translation>Fusión de Monedas</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="67"/>
       <source>Received</source>
-      <translation type="unfinished">Received</translation>
+      <translation>Recibido</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="70"/>
       <source>Moved</source>
-      <translation type="unfinished">Moved</translation>
+      <translation>Movido</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="71"/>
       <source>Sent</source>
-      <translation type="unfinished">Sent</translation>
+      <translation>Enviado</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="79"/>
       <source>rejected</source>
-      <translation type="unfinished">rejected</translation>
+      <translation>rechazada</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="82"/>
       <source>unconfirmed</source>
-      <translation type="unfinished">unconfirmed</translation>
+      <translation>sin confirmar</translation>
     </message>
   </context>
   <context>
@@ -973,50 +979,50 @@ El cambio volverá a la clave importada.</translation>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="31"/>
       <source>Copy transaction-ID</source>
-      <translation type="unfinished">Copy transaction-ID</translation>
+      <translation>Copiar ID de la transacción</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="37"/>
       <source>Status</source>
-      <translation type="unfinished">Status</translation>
+      <translation>Estado</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="44"/>
       <source>rejected</source>
-      <translation type="unfinished">rejected</translation>
+      <translation>rechazada</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="46"/>
       <source>unconfirmed</source>
-      <translation type="unfinished">unconfirmed</translation>
+      <translation>sin confirmar</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="48"/>
       <source>%1 confirmations (mined in block %2)</source>
       <translation type="unfinished">
         <numerusform>%1 confirmations (mined in block %2)</numerusform>
-        <numerusform>%1 confirmations (mined in block %2)</numerusform>
+        <numerusform>%1 confirmaciones (minadas en el bloque %2)</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="52"/>
       <source>Copy block height</source>
-      <translation type="unfinished">Copy block height</translation>
+      <translation>Copiar altura del bloque</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="73"/>
       <source>Fees</source>
-      <translation type="unfinished">Fees</translation>
+      <translation>Comisiones</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="82"/>
       <source>Size</source>
-      <translation type="unfinished">Size</translation>
+      <translation>Tamaño</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="85"/>
       <source>%1 bytes</source>
-      <translation type="unfinished">
+      <translation>
         <numerusform>%1 bytes</numerusform>
         <numerusform>%1 bytes</numerusform>
       </translation>
@@ -1024,123 +1030,123 @@ El cambio volverá a la clave importada.</translation>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="88"/>
       <source>Inputs</source>
-      <translation type="unfinished">Inputs</translation>
+      <translation>Entradas</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="135"/>
-      <location filename="../guis/desktop/WalletTransactionDetails.qml" line="219"/>
+      <location filename="../guis/desktop/WalletTransactionDetails.qml" line="241"/>
       <source>Copy Address</source>
-      <translation type="unfinished">Copy Address</translation>
+      <translation>Copiar dirección</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="164"/>
       <source>Outputs</source>
-      <translation type="unfinished">Outputs</translation>
+      <translation>Salidas</translation>
     </message>
   </context>
   <context>
     <name>main</name>
     <message>
-      <location filename="../guis/desktop/main.qml" line="171"/>
+      <location filename="../guis/desktop/main.qml" line="174"/>
       <source>Activity</source>
-      <translation type="unfinished">Activity</translation>
+      <translation>Actividad</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="200"/>
+      <location filename="../guis/desktop/main.qml" line="203"/>
       <source>Archived wallets do not check for activities. Balance may be out of date.</source>
-      <translation type="unfinished">Archived wallets do not check for activities. Balance may be out of date.</translation>
+      <translation>Las carteras archivadas no verifican las actividades. El saldo puede estar desactualizado.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="204"/>
+      <location filename="../guis/desktop/main.qml" line="207"/>
       <source>Unarchive</source>
-      <translation type="unfinished">Unarchive</translation>
+      <translation>Desarchivar</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="236"/>
+      <location filename="../guis/desktop/main.qml" line="239"/>
       <source>This wallet needs a password to open.</source>
-      <translation type="unfinished">This wallet needs a password to open.</translation>
+      <translation>Esta cartera necesita una contraseña para abrirse.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="243"/>
+      <location filename="../guis/desktop/main.qml" line="246"/>
       <source>Password:</source>
-      <translation type="unfinished">Password:</translation>
+      <translation>Contraseña:</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="262"/>
+      <location filename="../guis/desktop/main.qml" line="265"/>
       <source>Invalid password</source>
-      <translation type="unfinished">Invalid password</translation>
+      <translation>Contraseña invalida</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="267"/>
+      <location filename="../guis/desktop/main.qml" line="270"/>
       <source>Open</source>
-      <translation type="unfinished">Open</translation>
+      <translation>Abrir</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="342"/>
+      <location filename="../guis/desktop/main.qml" line="345"/>
       <source>Send</source>
-      <translation type="unfinished">Send</translation>
+      <translation>Enviar</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="350"/>
+      <location filename="../guis/desktop/main.qml" line="353"/>
       <source>Receive</source>
-      <translation type="unfinished">Receive</translation>
+      <translation>Recibir</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="424"/>
+      <location filename="../guis/desktop/main.qml" line="427"/>
       <source>Balance</source>
-      <translation type="unfinished">Balance</translation>
+      <translation>Balance</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="492"/>
+      <location filename="../guis/desktop/main.qml" line="495"/>
       <source>Main</source>
       <comment>balance (money), non specified</comment>
-      <translation type="unfinished">Main</translation>
+      <translation>Principal</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="502"/>
+      <location filename="../guis/desktop/main.qml" line="505"/>
       <source>Unconfirmed</source>
       <comment>balance (money)</comment>
-      <translation type="unfinished">Unconfirmed</translation>
+      <translation>Sin confirmar</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="511"/>
+      <location filename="../guis/desktop/main.qml" line="514"/>
       <source>Immature</source>
       <comment>balance (money)</comment>
-      <translation type="unfinished">Immature</translation>
+      <translation>Sin madurar</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="558"/>
+      <location filename="../guis/desktop/main.qml" line="561"/>
       <source>1 BCH is: %1</source>
-      <translation type="unfinished">1 BCH is: %1</translation>
+      <translation>1 BCH es: %1</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="604"/>
+      <location filename="../guis/desktop/main.qml" line="607"/>
       <source>Network status</source>
-      <translation type="unfinished">Network status</translation>
+      <translation>Estado de la red</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="616"/>
+      <location filename="../guis/desktop/main.qml" line="619"/>
       <source>Offline</source>
-      <translation type="unfinished">Offline</translation>
+      <translation>Sin conexión</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="648"/>
+      <location filename="../guis/desktop/main.qml" line="651"/>
       <source>Add Bitcoin Cash wallet</source>
-      <translation type="unfinished">Add Bitcoin Cash wallet</translation>
+      <translation>Añadir monedero de Bitcoin Cash</translation>
     </message>
     <message numerus="yes">
-      <location filename="../guis/desktop/main.qml" line="683"/>
+      <location filename="../guis/desktop/main.qml" line="686"/>
       <source>Archived wallets [%1]</source>
       <comment>Arg is wallet count</comment>
       <translation type="unfinished">
-        <numerusform>Archived wallets [%1]</numerusform>
+        <numerusform>Monederos archivados [%1]</numerusform>
         <numerusform>Archived wallets [%1]</numerusform>
       </translation>
     </message>
     <message>
-      <location filename="../guis/desktop/main.qml" line="713"/>
+      <location filename="../guis/desktop/main.qml" line="716"/>
       <source>Preparing...</source>
-      <translation type="unfinished">Preparing...</translation>
+      <translation>Preparando...</translation>
     </message>
   </context>
 </TS>

@@ -17,9 +17,9 @@
       <location filename="../src/AccountInfo.cpp" line="130"/>
       <source>Behind: %1 weeks, %2 days</source>
       <comment>counter on weeks</comment>
-      <translation type="unfinished">
+      <translation>
         <numerusform>W tyle: %1 tyg., %2 d.</numerusform>
-        <numerusform>Behind: %1 weeks, %2 days</numerusform>
+        <numerusform>W tyle: %1 tydzień, %2 dni</numerusform>
         <numerusform>W tyle: %1 tygodni, %2 dzień</numerusform>
         <numerusform>W tyle: %1 tyg., %2 d.</numerusform>
       </translation>
@@ -27,10 +27,10 @@
     <message numerus="yes">
       <location filename="../src/AccountInfo.cpp" line="134"/>
       <source>Behind: %1 days</source>
-      <translation type="unfinished">
+      <translation>
         <numerusform>W tyle: %1 dzień</numerusform>
         <numerusform>W tyle: %1 dni</numerusform>
-        <numerusform>Behind: %1 days</numerusform>
+        <numerusform>W tyle: %1 dni</numerusform>
         <numerusform>W tyle: %1 dnia</numerusform>
       </translation>
     </message>
@@ -47,8 +47,8 @@
     <message numerus="yes">
       <location filename="../src/AccountInfo.cpp" line="139"/>
       <source>Still %1 hours behind</source>
-      <translation type="unfinished">
-        <numerusform>Still %1 hours behind</numerusform>
+      <translation>
+        <numerusform>Nadal %1 godzinę w tyle</numerusform>
         <numerusform>Nadal %1 godzin w tyle</numerusform>
         <numerusform>Nadal %1 godziny w tyle</numerusform>
         <numerusform>Nadal %1 godzin w tyle</numerusform>
@@ -85,14 +85,19 @@
   <context>
     <name>BroadcastFeedback</name>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="60"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="59"/>
       <source>Sending Payment</source>
       <translation>Wysyłanie Płatności</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="77"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="76"/>
       <source>Payment Sent</source>
       <translation>Płatność Wysłana</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="85"/>
+      <source>Failed</source>
+      <translation>Niepowodzenie</translation>
     </message>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="86"/>
@@ -100,22 +105,27 @@
       <translation>Transakcja odrzucona przez sieć</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="173"/>
-      <source>Add a personal note</source>
-      <translation>Dodaj osobistą notatkę</translation>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="183"/>
+      <source>Payment has been sent to:</source>
+      <translation>Płatność została wysłana do:</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="188"/>
-      <source>Copied TXID to clipboard</source>
-      <translation>ID transakcji skopiowane do schowka</translation>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="216"/>
+      <source>Copied address to clipboard</source>
+      <translation>Adres skopiowany do schowka</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="193"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="221"/>
       <source>Opening Website</source>
       <translation>Otwieranie Strony</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="201"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="232"/>
+      <source>Add a personal note</source>
+      <translation>Dodaj osobistą notatkę</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="242"/>
       <source>Close</source>
       <translation>Zamknij</translation>
     </message>
@@ -174,11 +184,11 @@
       <location filename="../src/FloweePay.cpp" line="673"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
-      <translation type="unfinished">
-        <numerusform>%1 hours ago</numerusform>
-        <numerusform>%1 hours ago</numerusform>
+      <translation>
+        <numerusform>%1 godzinę temu</numerusform>
+        <numerusform>%1 godzin temu</numerusform>
         <numerusform>%1 godziy temu</numerusform>
-        <numerusform>%1 hours ago</numerusform>
+        <numerusform>%1 godziny temu</numerusform>
       </translation>
     </message>
   </context>
@@ -239,11 +249,11 @@
       <location filename="../src/NotificationManager.cpp" line="178"/>
       <source>New Transactions</source>
       <comment>dialog-title</comment>
-      <translation type="unfinished">
+      <translation>
         <numerusform>Nowa Transakcja</numerusform>
         <numerusform>Nowe Transakcje</numerusform>
         <numerusform>Nowych transakcji</numerusform>
-        <numerusform>New Transactions</numerusform>
+        <numerusform>Nowych transakcji</numerusform>
       </translation>
     </message>
     <message>
@@ -270,12 +280,12 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="138"/>
+      <location filename="../src/Payment.cpp" line="135"/>
       <source>Invalid PIN</source>
       <translation>Nieprawidłowy PIN</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="223"/>
+      <location filename="../src/Payment.cpp" line="224"/>
       <source>Not enough funds selected for fees</source>
       <translation>Brak środków, by pokryć koszt transakcji</translation>
     </message>
@@ -285,9 +295,33 @@
       <translation>Niewystarczająca ilość środków w portfelu, aby dokonać płatności!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="298"/>
+      <location filename="../src/Payment.cpp" line="297"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Transakcja jest zbyt duża. Wybrana kwota wymaga zbyt wielu monet.</translation>
+    </message>
+    <message>
+      <location filename="../src/Payment.cpp" line="467"/>
+      <source>Request received over insecure channel. Anyone could have altered it!</source>
+      <translation>Żądanie otrzymane przez niezabezpieczony kanał. Ktoś mógł go zmodyfikować!</translation>
+    </message>
+    <message>
+      <location filename="../src/Payment.cpp" line="470"/>
+      <source>Download of payment request failed.</source>
+      <translation>Pobieranie żądania płatności nie powiodło się.</translation>
+    </message>
+  </context>
+  <context>
+    <name>PaymentProtocolBip70</name>
+    <message>
+      <location filename="../src/PaymentProtocol.cpp" line="219"/>
+      <source>Payment request unreadable</source>
+      <translation>Żądanie płatności nieczytelne</translation>
+    </message>
+    <message>
+      <location filename="../src/PaymentProtocol.cpp" line="286"/>
+      <location filename="../src/PaymentProtocol.cpp" line="323"/>
+      <source>Payment request expired</source>
+      <translation>Żądanie płatności wygasło</translation>
     </message>
   </context>
   <context>
@@ -335,33 +369,33 @@
       <location filename="../src/WalletCoinsModel.cpp" line="94"/>
       <source>%1 days</source>
       <comment>age, like: days old</comment>
-      <translation type="unfinished">
-        <numerusform>%1 days</numerusform>
+      <translation>
+        <numerusform>%1 dzień</numerusform>
         <numerusform>%1 dni</numerusform>
         <numerusform>%1 dni</numerusform>
-        <numerusform>%1 days</numerusform>
+        <numerusform>%1 dnia</numerusform>
       </translation>
     </message>
     <message numerus="yes">
       <location filename="../src/WalletCoinsModel.cpp" line="97"/>
       <source>%1 weeks</source>
       <comment>age, like: weeks old</comment>
-      <translation type="unfinished">
+      <translation>
         <numerusform>%1 tydzień</numerusform>
         <numerusform>%1 tygodnie</numerusform>
         <numerusform>%1 tygodni</numerusform>
-        <numerusform>%1 weeks</numerusform>
+        <numerusform>%1 tygodnia</numerusform>
       </translation>
     </message>
     <message numerus="yes">
       <location filename="../src/WalletCoinsModel.cpp" line="100"/>
       <source>%1 months</source>
       <comment>age, like: months old</comment>
-      <translation type="unfinished">
+      <translation>
         <numerusform>%1 miesiąc</numerusform>
         <numerusform>%1 miesiące</numerusform>
         <numerusform>%1 miesięcy</numerusform>
-        <numerusform>%1 months</numerusform>
+        <numerusform>%1 miesiąca</numerusform>
       </translation>
     </message>
     <message>

@@ -457,12 +457,12 @@ Wisselgeld gaat weer naar de geïmporteerde sleutel.</translation>
   <context>
     <name>InstaPayConfigPage</name>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="24"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="23"/>
       <source>Instant Pay</source>
       <translation>Direct Betalen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="30"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="29"/>
       <source>Requests for payment can be approved automatically using Instant Pay.</source>
       <translation>Betalingsverzoeken worden automatisch goedgekeurd met behulp van Direct Betalen.</translation>
     </message>
@@ -472,12 +472,12 @@ Wisselgeld gaat weer naar de geïmporteerde sleutel.</translation>
       <translation>Beveiligde portemonnees kunnen niet worden gebruikt voor Direct Betalen ze een PIN vereisen voor gebruik</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="62"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="64"/>
       <source>Enable Instant Pay for this wallet</source>
       <translation>Actief maken voor portemonnee</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="69"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="71"/>
       <source>Maximum Amount</source>
       <translation>Maximum Bedrag</translation>
     </message>
@@ -538,7 +538,7 @@ Wisselgeld gaat weer naar de geïmporteerde sleutel.</translation>
   <context>
     <name>MenuOverlay</name>
     <message>
-      <location filename="../guis/mobile/MenuOverlay.qml" line="270"/>
+      <location filename="../guis/mobile/MenuOverlay.qml" line="310"/>
       <source>Add Wallet</source>
       <translation>Portemonnee toevoegen</translation>
     </message>
@@ -697,37 +697,37 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>Bedrag aanpassen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="109"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="127"/>
       <source>Invalid QR code</source>
       <translation>Ongeldige QR-code</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="122"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="140"/>
       <source>I don&apos;t understand the scanned code. I&apos;m sorry, I can&apos;t start a payment.</source>
       <translation>Ik begrijp de gelezen code niet. Sorry, ik kan de betaling niet starten.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="126"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="144"/>
       <source>details</source>
       <translation>details</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="137"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="155"/>
       <source>Scanned text: &lt;pre&gt;%1&lt;/pre&gt;</source>
       <translation>Gelezen tekst: &lt;pre&gt;%1&lt;/pre&gt;</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="186"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="204"/>
       <source>Payment description</source>
       <translation>Omschrijving betaling</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="249"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="243"/>
       <source>Destination Address</source>
       <translation>Bestemmingsadres</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="287"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="416"/>
       <source>Unlock Wallet</source>
       <translation>Portemonnee ontgrendelen</translation>
     </message>
@@ -770,14 +770,24 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
   <context>
     <name>QRScannerOverlay</name>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="136"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="129"/>
       <source>Paste</source>
       <translation>Plak</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="154"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="147"/>
       <source>Failed</source>
       <translation>Mislukt!</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="208"/>
+      <source>Instant Pay limit is %1</source>
+      <translation>Directbetalen limiet is %1</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="211"/>
+      <source>Selected wallet: &apos;%1&apos;</source>
+      <translation>Geselecteerde portemonnee: &apos;%1&apos;</translation>
     </message>
   </context>
   <context>

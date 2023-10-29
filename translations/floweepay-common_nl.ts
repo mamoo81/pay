@@ -79,14 +79,19 @@
   <context>
     <name>BroadcastFeedback</name>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="60"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="59"/>
       <source>Sending Payment</source>
       <translation>Betaling wordt verzonden</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="77"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="76"/>
       <source>Payment Sent</source>
       <translation>Betaling Verzonden</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="85"/>
+      <source>Failed</source>
+      <translation>Mislukt</translation>
     </message>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="86"/>
@@ -94,22 +99,27 @@
       <translation>Transactie afgewezen door het netwerk</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="173"/>
-      <source>Add a personal note</source>
-      <translation>Voeg een persoonlijke notitie toe</translation>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="183"/>
+      <source>Payment has been sent to:</source>
+      <translation>Betaling is verzonden naar:</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="188"/>
-      <source>Copied TXID to clipboard</source>
-      <translation>Gekopieerd TXID naar klipbord</translation>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="216"/>
+      <source>Copied address to clipboard</source>
+      <translation>Adres gekopieerd naar klembord</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="193"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="221"/>
       <source>Opening Website</source>
       <translation>Open Website</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="201"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="232"/>
+      <source>Add a personal note</source>
+      <translation>Voeg een persoonlijke notitie toe</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="242"/>
       <source>Close</source>
       <translation>Sluiten</translation>
     </message>
@@ -256,12 +266,12 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="138"/>
+      <location filename="../src/Payment.cpp" line="135"/>
       <source>Invalid PIN</source>
       <translation>Ongeldige PIN</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="223"/>
+      <location filename="../src/Payment.cpp" line="224"/>
       <source>Not enough funds selected for fees</source>
       <translation>Onvoldoende saldo voor transactiekosten</translation>
     </message>
@@ -271,9 +281,33 @@
       <translation>Niet genoeg saldo in portemonnee om te betalen!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="298"/>
+      <location filename="../src/Payment.cpp" line="297"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Transactie te groot. Geselecteerd bedrag vereist te veel munten.</translation>
+    </message>
+    <message>
+      <location filename="../src/Payment.cpp" line="467"/>
+      <source>Request received over insecure channel. Anyone could have altered it!</source>
+      <translation>Verzoek ontvangen via onveilig kanaal. Hij kan door eenieder gewijzigd zijn!</translation>
+    </message>
+    <message>
+      <location filename="../src/Payment.cpp" line="470"/>
+      <source>Download of payment request failed.</source>
+      <translation>Downloaden van betalingsverzoek mislukt.</translation>
+    </message>
+  </context>
+  <context>
+    <name>PaymentProtocolBip70</name>
+    <message>
+      <location filename="../src/PaymentProtocol.cpp" line="219"/>
+      <source>Payment request unreadable</source>
+      <translation>Betalingsverzoek onleesbaar</translation>
+    </message>
+    <message>
+      <location filename="../src/PaymentProtocol.cpp" line="286"/>
+      <location filename="../src/PaymentProtocol.cpp" line="323"/>
+      <source>Payment request expired</source>
+      <translation>Betalingsverzoek verlopen</translation>
     </message>
   </context>
   <context>

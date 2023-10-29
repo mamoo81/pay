@@ -457,12 +457,12 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
   <context>
     <name>InstaPayConfigPage</name>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="24"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="23"/>
       <source>Instant Pay</source>
       <translation>Sofortzahlung</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="30"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="29"/>
       <source>Requests for payment can be approved automatically using Instant Pay.</source>
       <translation>Zahlungsanfragen können automatisch mit Sofortzahlung bewilligt werden.</translation>
     </message>
@@ -472,12 +472,12 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
       <translation>Geschützte Geldbörsen können nicht für Sofortzahlung verwendet werden, da sie vor der Nutzung eine PIN benötigen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="62"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="64"/>
       <source>Enable Instant Pay for this wallet</source>
       <translation>Sofortzahlung für diese Geldbörse aktivieren</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="69"/>
+      <location filename="../guis/mobile/InstaPayConfigPage.qml" line="71"/>
       <source>Maximum Amount</source>
       <translation>Höchstbetrag</translation>
     </message>
@@ -538,7 +538,7 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
   <context>
     <name>MenuOverlay</name>
     <message>
-      <location filename="../guis/mobile/MenuOverlay.qml" line="270"/>
+      <location filename="../guis/mobile/MenuOverlay.qml" line="310"/>
       <source>Add Wallet</source>
       <translation>Geldbörse hinzufügen</translation>
     </message>
@@ -697,37 +697,37 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
       <translation>Betrag bearbeiten</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="109"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="127"/>
       <source>Invalid QR code</source>
       <translation>Ungültiger QR Code</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="122"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="140"/>
       <source>I don&apos;t understand the scanned code. I&apos;m sorry, I can&apos;t start a payment.</source>
       <translation>Ich verstehe den gescannten Code nicht. Ich entschuldige mich, ich kann keine Zahlung starten.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="126"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="144"/>
       <source>details</source>
       <translation>details</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="137"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="155"/>
       <source>Scanned text: &lt;pre&gt;%1&lt;/pre&gt;</source>
       <translation>Gescannter Text: &lt;pre&gt;%1&lt;/pre&gt;</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="186"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="204"/>
       <source>Payment description</source>
       <translation>Zahlungsbeschreibung</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="249"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="243"/>
       <source>Destination Address</source>
       <translation>Zieladresse</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="287"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="416"/>
       <source>Unlock Wallet</source>
       <translation>Geldbörse entsperren</translation>
     </message>
@@ -770,14 +770,24 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
   <context>
     <name>QRScannerOverlay</name>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="136"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="129"/>
       <source>Paste</source>
       <translation>Einfügen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="154"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="147"/>
       <source>Failed</source>
       <translation>Fehlgeschlagen</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="208"/>
+      <source>Instant Pay limit is %1</source>
+      <translation type="unfinished">Instant Pay limit is %1</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="211"/>
+      <source>Selected wallet: &apos;%1&apos;</source>
+      <translation type="unfinished">Selected wallet: &apos;%1&apos;</translation>
     </message>
   </context>
   <context>

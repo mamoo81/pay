@@ -79,14 +79,19 @@
   <context>
     <name>BroadcastFeedback</name>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="60"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="59"/>
       <source>Sending Payment</source>
       <translation>Sende Zahlung</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="77"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="76"/>
       <source>Payment Sent</source>
       <translation>Zahlung gesendet</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="85"/>
+      <source>Failed</source>
+      <translation type="unfinished">Failed</translation>
     </message>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="86"/>
@@ -94,22 +99,27 @@
       <translation>Transaktion wurde vom Netzwerk abgelehnt</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="173"/>
-      <source>Add a personal note</source>
-      <translation>Eine persönliche Notiz hinzufügen</translation>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="183"/>
+      <source>Payment has been sent to:</source>
+      <translation type="unfinished">Payment has been sent to:</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="188"/>
-      <source>Copied TXID to clipboard</source>
-      <translation>TXID in die Zwischenablage kopiert</translation>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="216"/>
+      <source>Copied address to clipboard</source>
+      <translation type="unfinished">Copied address to clipboard</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="193"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="221"/>
       <source>Opening Website</source>
       <translation>Öffne Website</translation>
     </message>
     <message>
-      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="201"/>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="232"/>
+      <source>Add a personal note</source>
+      <translation>Eine persönliche Notiz hinzufügen</translation>
+    </message>
+    <message>
+      <location filename="../guis/Flowee/BroadcastFeedback.qml" line="242"/>
       <source>Close</source>
       <translation>Schließen</translation>
     </message>
@@ -256,12 +266,12 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="138"/>
+      <location filename="../src/Payment.cpp" line="135"/>
       <source>Invalid PIN</source>
       <translation>Ungültige PIN</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="223"/>
+      <location filename="../src/Payment.cpp" line="224"/>
       <source>Not enough funds selected for fees</source>
       <translation>Nicht genug Guthaben für Gebühren ausgewählt</translation>
     </message>
@@ -271,9 +281,33 @@
       <translation>Nicht genügend Guthaben in der Geldbörse, um eine Zahlung zu machen!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="298"/>
+      <location filename="../src/Payment.cpp" line="297"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Transaktion zu groß. Der ausgewählte Betrag benötigt zu viele Coins.</translation>
+    </message>
+    <message>
+      <location filename="../src/Payment.cpp" line="467"/>
+      <source>Request received over insecure channel. Anyone could have altered it!</source>
+      <translation type="unfinished">Request received over insecure channel. Anyone could have altered it!</translation>
+    </message>
+    <message>
+      <location filename="../src/Payment.cpp" line="470"/>
+      <source>Download of payment request failed.</source>
+      <translation type="unfinished">Download of payment request failed.</translation>
+    </message>
+  </context>
+  <context>
+    <name>PaymentProtocolBip70</name>
+    <message>
+      <location filename="../src/PaymentProtocol.cpp" line="219"/>
+      <source>Payment request unreadable</source>
+      <translation type="unfinished">Payment request unreadable</translation>
+    </message>
+    <message>
+      <location filename="../src/PaymentProtocol.cpp" line="286"/>
+      <location filename="../src/PaymentProtocol.cpp" line="323"/>
+      <source>Payment request expired</source>
+      <translation type="unfinished">Payment request expired</translation>
     </message>
   </context>
   <context>

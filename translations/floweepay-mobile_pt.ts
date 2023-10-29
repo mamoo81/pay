@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en" sourcelanguage="en">
+<TS version="2.1" language="pt" sourcelanguage="en">
   <context>
     <name>About</name>
     <message>
@@ -1083,7 +1083,7 @@ This ensures only one private key will need to be backed up</translation>
       <source>%1 blocks ago</source>
       <comment>Confirmations</comment>
       <translation type="unfinished">
-        <numerusform>%1 block ago</numerusform>
+        <numerusform>%1 blocks ago</numerusform>
         <numerusform>%1 blocks ago</numerusform>
       </translation>
     </message>
