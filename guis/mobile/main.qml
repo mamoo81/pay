@@ -69,14 +69,6 @@ ApplicationWindow {
         initialItem: "./Loading.qml"
         onCurrentItemChanged: if (currentItem != null) currentItem.takeFocus();
         enabled: !menuOverlay.open
-
-        Keys.onPressed: (event)=> {
-            if (event.key === Qt.Key_Back) {
-                // We eat this and have nothing happen.
-                // This is useful to avoid the app closing on pressing 'back' one time too many on Android
-                event.accepted = true;
-            }
-        }
     }
     MenuOverlay {
         id: menuOverlay
