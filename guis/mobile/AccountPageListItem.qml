@@ -214,14 +214,12 @@ QQC2.Control {
                     PageTitledBox {
                         id: optionsBox
                         Flowee.CheckBox {
-                            width: parent.width
                             text: qsTr("Change Addresses")
                             visible: root.account.isHDWallet
                             onClicked: root.account.secrets.showChangeChain = checked
                             toolTipText: qsTr("Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.")
                         }
                         Flowee.CheckBox {
-                            width: parent.width
                             text: qsTr("Used Addresses");
                             visible: !root.account.isSingleAddressAccount
                             onClicked: root.account.secrets.showUsedAddresses = checked
