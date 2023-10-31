@@ -287,32 +287,26 @@ void PaymentProtocolBip70::fetchedRequest()
     }
 
     m_payment->setUserComment(m_memo);
+    assert(m_payment->paymentDetails().size() == 1);
+    auto *firstOut = dynamic_cast<PaymentDetailOutput*>(m_payment->paymentDetails().first());
+    assert(firstOut);
+    // lets add all the outputs
     for (const auto &out : m_outputs) {
         auto simple = CashAddress::extractAddressFromScript(out.script);
+        PaymentDetailOutput *addressDetail = firstOut;
+        firstOut = nullptr;
+        if (!addressDetail) // first was already used, create next
+            addressDetail = m_payment->addExtraOutput()->toOutput();
         if (simple.hash.empty()) {
             logInfo(10003) << "Output is not an address. Using bytearray instead";
-            auto *addressDetail = m_payment->addExtraOutput()->toOutput();
             addressDetail->setOutputScript(out.script);
-            addressDetail->setFiatFollows(true);
-            addressDetail->setPaymentAmount(out.amount);
-            addressDetail->setEditable(false);
         } else {
             auto address = CashAddress::encodeCashAddr(chainPrefix(), simple);
             logDebug(10003) << "Payment to" << address;
-            if (m_outputs.size() == 1) {
-                // we place the data directly on the payment object because that
-                // is the most compatible for consumers of its properties.
-                m_payment->setTargetAddress(QString::fromLatin1(address));
-                m_payment->setPaymentAmount(out.amount);
-            }
-            else {
-                auto *addressDetail = m_payment->addExtraOutput()->toOutput();
-                addressDetail->setAddress(QString::fromLatin1(address));
-                addressDetail->setFiatFollows(true);
-                addressDetail->setPaymentAmount(out.amount);
-                addressDetail->setEditable(false);
-            }
+            addressDetail->setAddress(QString::fromLatin1(address));
         }
+        addressDetail->setPaymentAmount(out.amount);
+        addressDetail->setEditable(false);
     }
 
     // then we have to wait for the user to Ok it and only after broadcast started,
