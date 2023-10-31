@@ -331,7 +331,7 @@ Item {
                             property var addressType: Pay.identifyString(text);
                             Layout.fillWidth: true
                             Layout.columnSpan: 3
-                            placeholderText: qsTr("Enter Bitcoin Cash Address")
+                            placeholderText: enabled ? qsTr("Enter Bitcoin Cash Address") : ""
                             text: destinationPane.paymentDetail.address
                             onTextChanged: {
                                 destinationPane.paymentDetail.address = text
