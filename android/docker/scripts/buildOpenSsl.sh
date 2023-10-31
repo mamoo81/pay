@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # this runs as root.
-VERSION=1.1.1q
+VERSION=3.1.3
 echo "Using OpenSSL $VERSION" >> /etc/versions
 source /etc/profile
 cd /usr/local/cache

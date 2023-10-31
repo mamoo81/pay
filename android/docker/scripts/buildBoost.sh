@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=1.67.0
+VERSION=1.83.0
 
 echo "Based on boost version $VERSION" >> /etc/versions
 source /etc/profile
@@ -16,12 +16,13 @@ tar xf /usr/local/cache/boost_$VER2.tar.bz2
 
 cd boost_$VER2
 export PATH="$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
+
 ./bootstrap.sh --without-icu \
     --with-toolset=clang \
     --with-libraries=chrono,filesystem,iostreams,program_options,system,thread \
     --prefix=/opt/android-boost
 
-echo "using clang : arm : /opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang++ : <cxxflags>\"-std=c++17 -fvisibility=hidden -fPIC\" <cflags>\"-fPIC\" ;" > user-config.jam
+echo "using clang : arm : /opt/android-ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang++ : <cxxflags>\"-std=c++17 -DBOOST_FILESYSTEM_DISABLE_STATX -DBOOST_FILESYSTEM_DISABLE_GETRANDOM -fvisibility=hidden -fPIC\" <cflags>\"-fPIC\" ;" > user-config.jam
 
 ./b2 \
     --reconfigure \

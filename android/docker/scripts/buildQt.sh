@@ -26,14 +26,18 @@ function checkout (
 
 # The QtBase builds are different.
 checkout qtbase
+cd ~builduser
+curl 'https://code.qt.io/cgit/qt/qtbase.git/patch/?id=8af35d27' > libxkbcommon-1.6.patch
+patch -d qtbase -p1 < libxkbcommon-1.6.patch # Fix build with libxkbcommon 1.6
 mkdir -p ~builduser/build/qtbase
-(cd ~builduser/build/qtbase && \
+cd ~builduser/build/qtbase
 ~builduser/qtbase/configure \
     -prefix /usr/local  \
     -no-openssl \
     -nomake examples \
-    -no-dbus && \
-ninja install)
+    -no-dbus
+cmake --build . --parallel
+cmake --install .
 rm -rf ~builduser/build/*
 
 ###  Android build
@@ -51,7 +55,8 @@ cd ~builduser/build/qtbase
     -- \
     -DOPENSSL_USE_STATIC_LIBS=ON \
     -DOPENSSL_ROOT_DIR=/opt/android-ssl
-ninja install
+cmake --build . --parallel
+cmake --install .
 rm -rf ~builduser/build/*
 
 
@@ -62,7 +67,8 @@ do
     mkdir -p ~builduser/build/$i
     cd ~builduser/build/$i
     /usr/local/bin/qt-configure-module ~builduser/$i
-    ninja install
+    cmake --build . --parallel
+    cmake --install .
     cd ~builduser
     rm -rf build/*
 
@@ -70,7 +76,8 @@ do
     mkdir -p ~builduser/build/$i
     cd ~builduser/build/$i
     /opt/android-qt6/bin/qt-configure-module ~builduser/$i
-    ninja install
+    cmake --build . --parallel
+    cmake --install .
     cd ~builduser
     rm -rf build/*
 done

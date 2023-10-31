@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=1.4.0
+VERSION=2.1.0
 
 echo "Based on zxing version $VERSION" >> /etc/versions
 source /etc/profile

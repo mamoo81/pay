@@ -14,7 +14,7 @@ if test "$1" != "force"; then
     fi
 fi
 
-QtVersion=v6.5.2
+QtVersion=v6.5.3
 
 cd `dirname $0`
 docker build . --tag flowee/buildenv-android:$QtVersion --build-arg QtVersion=$QtVersion
