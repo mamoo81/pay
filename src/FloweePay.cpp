@@ -163,11 +163,13 @@ FloweePay::FloweePay()
     assert(guiApp);
     connect(guiApp, &QGuiApplication::applicationStateChanged, this, [=](Qt::ApplicationState state) {
         if (state == Qt::ApplicationInactive || state == Qt::ApplicationSuspended) {
-            logInfo() << "App no longer active. Start saving data";
-            m_sleepStart = QDateTime::currentDateTimeUtc();
-            saveAll();
-            p2pNet()->saveData();
-            saveData();
+            if (m_sleepStart.isNull()) {
+                logInfo() << "App no longer active. Start saving data";
+                m_sleepStart = QDateTime::currentDateTimeUtc();
+                saveAll();
+                p2pNet()->saveData();
+                saveData();
+            }
         }
         else if (state == Qt::ApplicationActive) {
             /*
@@ -190,6 +192,7 @@ FloweePay::FloweePay()
                 // re-lock the app after 10 minutes of not being in the front.
                 setAppProtection(AppPassword);
             }
+            m_sleepStart = QDateTime();
         }
     });
 #endif
