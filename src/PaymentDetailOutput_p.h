@@ -30,7 +30,7 @@ class PaymentDetailOutput : public PaymentDetail
      */
     Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
     Q_PROPERTY(double paymentAmount READ paymentAmount WRITE setPaymentAmount NOTIFY paymentAmountChanged)
-    Q_PROPERTY(int paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY paymentAmountFiatChanged)
+    Q_PROPERTY(qint64 paymentAmountFiat READ paymentAmountFiat WRITE setPaymentAmountFiat NOTIFY paymentAmountFiatChanged)
     // cleaned up and re-formatted, empty if invalid.
     Q_PROPERTY(QString formattedTarget READ formattedTarget NOTIFY correctAddressChanged)
     // same as formatted, but without prefix.
@@ -74,8 +74,8 @@ public:
     bool maxAllowed() const;
     void setMaxAllowed(bool on);
 
-    int paymentAmountFiat() const;
-    void setPaymentAmountFiat(int amount);
+    qint64 paymentAmountFiat() const;
+    void setPaymentAmountFiat(qint64 amount);
 
     bool fiatFollows() const;
     void setFiatFollows(bool on);
@@ -112,7 +112,7 @@ private:
     void createFormattedAddress();
 
     qint64 m_paymentAmount = 0;
-    int m_fiatAmount = 0;
+    qint64 m_fiatAmount = 0;
     bool m_maxAllowed = true; // only the last in the sequence can have 'max'
     bool m_fiatFollows = false;
     bool m_maxSelected = false;

@@ -24,6 +24,8 @@
 #include <QTimer>
 #include <QMimeData>
 
+#include <limits>
+
 BitcoinValue::BitcoinValue(QObject *parent)
     : QObject(parent),
       m_value(0)
@@ -169,7 +171,7 @@ bool BitcoinValue::setStringValue(const QString &value)
         before = QStringView(value).left(separator);
         after = value.mid(separator + 1);
     }
-    qint64 newVal = before.toLong();
+    quint64 newVal = before.toLongLong();
     const int unitConfigDecimals = m_fiatMode ? 2 : FloweePay::instance()->unitAllowedDecimals();
     for (int i = 0; i < unitConfigDecimals; ++i) {
         newVal *= 10;
@@ -177,7 +179,13 @@ bool BitcoinValue::setStringValue(const QString &value)
     while (after.size() < unitConfigDecimals)
         after += '0';
 
-    newVal += QStringView(after).left(unitConfigDecimals).toInt();
+    newVal += QStringView(after).left(unitConfigDecimals).toLongLong();
+    if (newVal > std::numeric_limits<qint64>::max())
+        return false;
+    double test = newVal;
+    qint64 test2 = test;
+    if (test2 != static_cast<qint64>(newVal)) // we lose on conversion, then the value is too big.
+        return false;
 
     if (!m_fiatMode) {
         constexpr int64_t Coin = 100000000; // num satoshis in a single coin

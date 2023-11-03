@@ -40,7 +40,10 @@ double PaymentDetailOutput::paymentAmount() const
         if (p->fiatPrice() == 0)
             return 0;
 
-        return static_cast<double>(m_fiatAmount * 100000000L / p->fiatPrice());
+        double answer = m_fiatAmount;
+        answer /= p->fiatPrice();
+        answer *= 1E8;
+        return answer;
     }
     if (m_maxAllowed && m_maxSelected) {
         /*
@@ -262,14 +265,14 @@ void PaymentDetailOutput::setFiatFollows(bool on)
     emit fiatFollowsChanged();
 }
 
-int PaymentDetailOutput::paymentAmountFiat() const
+qint64 PaymentDetailOutput::paymentAmountFiat() const
 {
     if (m_fiatFollows) {
         Payment *p = qobject_cast<Payment*>(parent());
         assert(p);
         if (p->fiatPrice() == 0)
             return 0;
-        qint64 amount = m_paymentAmount;
+        quint64 amount = m_paymentAmount;
         if (m_maxAllowed && m_maxSelected) {
             assert(p->currentAccount());
             auto wallet = p->currentAccount()->wallet();
@@ -292,7 +295,7 @@ int PaymentDetailOutput::paymentAmountFiat() const
     return m_fiatAmount;
 }
 
-void PaymentDetailOutput::setPaymentAmountFiat(int amount)
+void PaymentDetailOutput::setPaymentAmountFiat(qint64 amount)
 {
     if (m_fiatAmount == amount)
         return;
