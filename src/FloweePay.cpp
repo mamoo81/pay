@@ -138,8 +138,8 @@ QString joinWords(const QList<QStringView> &words, bool lowercaseFirstWord)
 }
 
 FloweePay::FloweePay()
-    : m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)),
-    m_chain(s_chain)
+    : m_chain(s_chain),
+    m_basedir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))
 {
     // make sure the lifetime of the lockedPoolManager exceeds mine (LIFO of globals)
     LockedPoolManager::instance();
