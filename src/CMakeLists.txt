@@ -19,9 +19,6 @@ project(flowee_lib)
 option(local_qml "Allow local QML loading" OFF)
 option(NetworkLogClient "Include the network based logging in the executables" OFF)
 
-add_definitions(-DLOG_DEFAULT_SECTION=10000)
-add_definitions(-DLOG_WALLET=10001)
-
 set (PAY_SOURCES
     AccountInfo.cpp
     AddressInfo.cpp
@@ -43,6 +40,7 @@ set (PAY_SOURCES
     PriceDataProvider.cpp
     PriceHistoryDataProvider.cpp
     QRCreator.cpp
+    QMLClipboardHelper.cpp
     TransactionInfo.cpp
     Wallet.cpp
     WalletCoinsModel.cpp
@@ -71,8 +69,7 @@ else ()
     list(APPEND PAY_SOURCES main_utils.cpp)
 endif ()
 
-add_library(pay_lib STATIC ${PAY_SOURCES}
-    QMLClipboardHelper.h QMLClipboardHelper.cpp)
+add_library(pay_lib STATIC ${PAY_SOURCES})
 
 target_link_libraries(pay_lib
     flowee_apputils
