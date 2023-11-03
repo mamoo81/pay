@@ -160,8 +160,8 @@ QString PriceDataProvider::formattedPrice(int64_t fiatValue) const
                 % m_currencySymbolPost;
     }
     else {
-        return  m_currencySymbolPrefix
-                % (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
+        return (fiatValue < 0 ? QLatin1String("-") : QLatin1String(""))
+                % m_currencySymbolPrefix
                 % actualPrice
                 % m_currencySymbolPost;
     }
