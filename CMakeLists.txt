@@ -137,6 +137,9 @@ add_compile_definitions(LOG_DEFAULT_SECTION=10000)
 add_compile_definitions(LOG_WALLET=10001)
 if (NetworkLogClient)
     add_compile_definitions(NETWORK_LOGGER)
+elseif (ANDROID)
+    # include much less logging in the codebase, no point since we can't access it anyway
+    add_compile_definitions(BCH_NO_DEBUG_OUTPUT BCH_NO_INFO_OUTPUT BCH_NO_WARNING_OUTPUT)
 endif()
 
 ###### Pay executable
