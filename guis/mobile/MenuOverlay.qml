@@ -19,6 +19,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import "../Flowee" as Flowee
+import Flowee.org.pay;
 
 Item {
     id: root
@@ -242,18 +243,19 @@ Item {
     }
     Item {
         id: menuSwipy
-        width: parent.width / 2
+        width: 50
         height: parent.height / 3
         anchors.bottom: parent.bottom
 
         onXChanged: {
             // moving this drag area makes the menu slowly open.
-            let progress = x / width;
+            let SwipeDistance = dragOpenHandler.xAxis.maximum
+            let progress = x / SwipeDistance;
             let menuX = 0;
             if (progress < 0.2) // threshold for movement
                 return;
             if (progress < 0.39) { // first 50% movement
-                menuX = Math.pow((progress - 0.1) * 10, 2) * width / 10;
+                menuX = Math.pow((progress - 0.1) * 10, 2) * SwipeDistance / 10;
             }
             else {
                 // progress between 0.4 and 1.0
@@ -265,10 +267,10 @@ Item {
 
         DragHandler {
             id: dragOpenHandler
-            enabled: root.open === false && thePile.depth === 1
+            enabled: root.open === false && thePile.depth === 1 && Pay.appProtection !== FloweePay.AppPassword
             yAxis.enabled: false // the anchors of parent do that too ¯\_(ツ)_/¯
             xAxis.minimum: 0
-            xAxis.maximum: parent.width
+            xAxis.maximum: mainWindow.width / 2
             acceptedDevices: PointerDevice.TouchScreen | PointerDevice.Stylus
             onActiveChanged: {
                 if (!active) {
