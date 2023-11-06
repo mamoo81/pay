@@ -30,13 +30,10 @@ FocusScope {
         anchors.fill: parent
         anchors.margins: 10
         onPasswordEntered: if (!Pay.checkAppPassword(password)) passwordIncorrect();
-
-        // called from main.qml, need to be implemented here
-        // since we dont extend the Page type.
-        function takeFocus() {
-        }
     }
     Keys.onPressed: (event)=> {
-        event.accepted = true; // at all key events.
+        if (event.key !== Qt.Key_Back) { // exit app on 'back'.
+            event.accepted = true; // at all other key events.
+        }
     }
 }

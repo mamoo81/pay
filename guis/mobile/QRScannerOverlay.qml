@@ -28,12 +28,6 @@ FocusScope {
     enabled: visible
     onVisibleChanged: if (visible) root.forceActiveFocus();
 
-    Keys.onPressed: (event)=> {
-        if (event.key === Qt.Key_Back || event.key === Qt.Key_Escape) {
-            event.accepted = true;
-            CameraController.abort();
-        }
-    }
     Rectangle {
         id: background
         anchors.fill: parent

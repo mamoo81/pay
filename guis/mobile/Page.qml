@@ -129,10 +129,4 @@ QQC2.Control {
     contentItem: FocusScope {
         id: focusScope
     }
-    Keys.onPressed: (event)=> {
-        if (event.key === Qt.Key_Back) {
-            event.accepted = true;
-            thePile.pop();
-        }
-    }
 }

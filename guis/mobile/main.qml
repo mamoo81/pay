@@ -63,21 +63,55 @@ ApplicationWindow {
     property color errorRed: Pay.useDarkSkin ? "#ff6568" : "#940000"
     property color errorRedBg: Pay.useDarkSkin ? "#671314" : "#9f1d1f"
 
-    StackView {
-        id: thePile
+    FocusScope {
+        id: rootFocusScope
         anchors.fill: parent
-        initialItem: "./Loading.qml"
-        onCurrentItemChanged: if (currentItem != null) currentItem.takeFocus();
-        enabled: !menuOverlay.open
-    }
-    MenuOverlay {
-        id: menuOverlay
-        anchors.fill: parent
+
+        StackView {
+            id: thePile
+            anchors.fill: parent
+            initialItem: "./Loading.qml"
+            onCurrentItemChanged: if (currentItem != null) currentItem.takeFocus();
+            enabled: !menuOverlay.open
+            Keys.onPressed: (event)=> {
+                if (depth > 1
+                        && (event.key === Qt.Key_Escape || event.key === Qt.Key_Back)) {
+                    pop();
+                    event.accepted = true;
+                }
+            }
+        }
+        MenuOverlay {
+            id: menuOverlay
+            anchors.fill: parent
+        }
+        QRScannerOverlay {
+            id: scannerOverlay
+            anchors.fill: parent
+        }
+        Loader {
+            source: Pay.appProtection === FloweePay.AppPassword ? "./UnlockApplication.qml" : ""
+            anchors.fill: parent
+        }
+
+        Keys.onPressed: (event)=> {
+            if (event.key === Qt.Key_Escape || event.key === Qt.Key_Back) {
+                event.accepted = true;
+                // Aborting the camera will simply close its user page.
+                if (scannerOverlay.visible) {
+                    CameraController.abort();
+                }
+                // the 'menu' can be closed on back.
+                else if (menuOverlay.open) {
+                    menuOverlay.open = false;
+                }
+                else {
+                    mainWindow.close();
+                }
+            }
+        }
     }
 
-    QRScannerOverlay {
-        anchors.fill: parent
-    }
     QQC2.Popup {
         id: notificationPopup
         y: 110
@@ -129,9 +163,5 @@ ApplicationWindow {
             onTriggered: notificationPopup.visible = false;
 
         }
-    }
-    Loader {
-        source: Pay.appProtection === FloweePay.AppPassword ? "./UnlockApplication.qml" : ""
-        anchors.fill: parent
     }
 }

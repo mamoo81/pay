@@ -220,4 +220,14 @@ QQC2.Control {
             source: parent.visible ? "./UnlockWalletPanel.qml" : ""
         }
     }
+    Keys.onPressed: (event)=> {
+        if (event.key === Qt.Key_Escape || event.key === Qt.Key_Back) {
+            // when we are on another tab, we can go to 'main' on back.
+            if (root.currentIndex != 0) {
+                root.currentIndex = 0;
+                event.accepted = true;
+            }
+        }
+        // in all other cases, propagate the event up the stack.
+    }
 }
