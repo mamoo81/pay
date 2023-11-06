@@ -4,7 +4,7 @@ import QtQuick.Controls 2.11 as QQC2
 Image {
     id: fusedIcon
     visible: fusedCount > 0
-    source: "qrc:/cashfusion.svg"
+    source: "qrc:/cf.svg"
     width: 24
     height: 24
     QQC2.ToolTip {

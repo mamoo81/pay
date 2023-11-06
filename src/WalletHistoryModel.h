@@ -50,7 +50,7 @@ public:
         FundsOut,     ///< value (in sats) of the outputs created we own
         WalletIndex,  ///< wallet-internal index for this transaction.
         IsCoinbase,
-        IsCashFusion,
+        IsFused,
         Comment,
         PlacementInGroup,   ///< Is an enum WalletEnums::PlacementInGroup to help with painting outlines.
         GroupId             ///< The index in the m_groups vector

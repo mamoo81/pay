@@ -73,8 +73,8 @@ ColumnLayout {
             text: {
                 if (model.isCoinbase)
                     return qsTr("Miner Reward") + ":";
-                if (model.isCashFusion)
-                    return qsTr("Cash Fusion") + ":";
+                if (model.isFused)
+                    return qsTr("Fees") + ":";
                 if (model.fundsIn === 0)
                     return qsTr("Received") + ":";
                 if (isMoved)
@@ -154,7 +154,7 @@ ColumnLayout {
             visible: {
                 if (root.minedHeight < 1)
                     return false;
-                if (model.isCashFusion)
+                if (model.isFused)
                     return false;
                 if (isMoved)
                     return false;

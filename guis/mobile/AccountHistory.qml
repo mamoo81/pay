@@ -195,7 +195,7 @@ ListView {
         // Is this transaction a 'move between addresses' tx.
         // This is a heuristic and not available in the model, which is why its in the view.
         property bool isMoved: {
-            if (model.isCoinbase || model.isCashFusion || model.fundsIn === 0)
+            if (model.isCoinbase || model.isFused || model.fundsIn === 0)
                 return false;
             var amount = model.fundsOut - model.fundsIn
             return amount < 0 && amount > -2500 // then the diff is likely just fees.
@@ -241,8 +241,8 @@ ListView {
         // icon
         Image {
             source: {
-                if (model.isCashFusion)
-                    return "qrc:/cashfusion.svg";
+                if (model.isFused)
+                    return "qrc:/cf.svg";
                 if (model.fundsIn === 0)
                     var base = "receiving";
                 else if (isMoved)
@@ -272,8 +272,8 @@ ListView {
 
                 if (model.isCoinbase)
                     return qsTr("Miner Reward");
-                if (model.isCashFusion)
-                    return qsTr("Cash Fusion");
+                if (model.isFused)
+                    return qsTr("Fused");
                 if (model.fundsIn === 0)
                     return qsTr("Received");
                 if (isMoved)
@@ -325,7 +325,7 @@ ListView {
             anchors.rightMargin: 20
             radius: 6
             baselineOffset: amount.baselineOffset + 4 // 4 is half the spacing added at height:
-            visible: !model.isCashFusion
+            visible: !model.isFused
 
             color: (isMoved || amountBch < 0) ? "#00000000"
                      : (Pay.useDarkSkin ? "#1d6828" : "#97e282") // green background

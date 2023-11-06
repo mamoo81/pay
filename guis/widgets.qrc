@@ -8,6 +8,7 @@
         <file alias="edit-copy-light.svg">images/edit-copy-light.svg</file>
         <file alias="internet.svg">images/internet.svg</file>
         <file alias="CashTokens.svg">images/CashTokens.svg</file>
+        <file alias="cf.svg">images/cashfusion.svg</file>
         <file alias="lock-light.svg">images/lock-light.svg</file>
         <file alias="lock.svg">images/lock.svg</file>
         <file alias="Flowee-Symbols.otf">images/Flowee-Symbols.otf</file>
@@ -31,7 +32,7 @@
         <file>Flowee/FiatValueField.qml</file>
         <file>Flowee/BitcoinValueField.qml</file>
         <file>Flowee/Dialog.qml</file>
-        <file>Flowee/CashFusionIcon.qml</file>
+        <file>Flowee/CFIcon.qml</file>
         <file>Flowee/DialogButtonBox.qml</file>
         <file>Flowee/WarningLabel.qml</file>
         <file>Flowee/PasswdDialog.qml</file>

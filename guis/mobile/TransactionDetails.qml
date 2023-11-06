@@ -116,12 +116,7 @@ Page {
                     text: qsTr("Coinbase")
                     visible: root.transaction != null && root.transaction.isCoinbase
                 }
-                Flowee.Label {
-                    text: qsTr("Is a CashFusion transaction.")
-                    visible: root.transaction != null && root.transaction.isCashFusion
-                }
             }
-
 
             // We can't calculate the fees of just any transaction, only for the ones
             // this account created.
@@ -142,11 +137,11 @@ Page {
                 title: {
                     if (root.infoObject == null)
                         return "";
-                    if (infoObject.isCashFusion)
+                    if (infoObject.isFused)
                         return qsTr("Fused from my addresses");
                     if (infoObject.createdByUs)
                         return qsTr("Sent from my addresses");
-                    if (infoObject.isCashFusion)
+                    if (infoObject.isFused)
                         return qsTr("Sent from addresses");
                     return "";
                 }
@@ -213,7 +208,7 @@ Page {
                 title: {
                     if (root.infoObject == null)
                         return "";
-                    if (infoObject.isCashFusion)
+                    if (infoObject.isFused)
                         return qsTr("Fused into my addresses");
                     if (infoObject.createdByUs)
                         return qsTr("Received at addresses");

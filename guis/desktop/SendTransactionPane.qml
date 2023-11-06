@@ -578,7 +578,7 @@ Item {
                         value: model.value
                         anchors.baseline: mainText.baseline
                         anchors.right: parent.right
-                        // only HD wallets can use cash-fusion
+                        // only HD wallets can use this
                         anchors.rightMargin: portfolio.current.isHDWallet ? 30 : 0
                     }
                     Label {
@@ -640,7 +640,7 @@ Item {
                             }
                         }
                     }
-                    Flowee.CashFusionIcon {
+                    Flowee.CFIcon {
                         id: fusedIcon
                         anchors.right: parent.right
                         anchors.verticalCenter: mainText.verticalCenter

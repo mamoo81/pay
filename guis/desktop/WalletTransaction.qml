@@ -41,7 +41,7 @@ Rectangle {
        model.height
        model.date
        model.isCoinbase
-       model.isCashFusion
+       model.isFused
        model.comment
      */
 
@@ -61,8 +61,8 @@ Rectangle {
         text: {
             if (model.isCoinbase)
                 return qsTr("Miner Reward")
-            if (model.isCashFusion)
-                return qsTr("Cash Fusion")
+            if (model.isFused)
+                return qsTr("Fused")
             if (model.fundsIn === 0)
                 return qsTr("Received")
             let diff = model.fundsOut - model.fundsIn;
@@ -96,9 +96,9 @@ Rectangle {
         }
     }
 
-    Flowee.CashFusionIcon {
+    Flowee.CFIcon {
         id: fusedIcon
-        visible: model.isCashFusion
+        visible: model.isFused
         anchors.right: userComment.left
         anchors.rightMargin: 6
         anchors.verticalCenter: userComment.verticalCenter
@@ -138,7 +138,7 @@ Rectangle {
             let inputs = model.fundsIn
             let outputs = model.fundsOut
             let diff = model.fundsOut - model.fundsIn
-            if (!model.isCashFusion
+            if (!model.isFused
                     && diff < 0 && diff > -1000) // then the diff is likely just fees.
                 return inputs;
             return diff;

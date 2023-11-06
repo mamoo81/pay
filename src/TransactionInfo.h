@@ -104,7 +104,7 @@ class TransactionInfo : public QObject
      */
     Q_PROPERTY(QString receiver READ receiver CONSTANT)
     Q_PROPERTY(bool isCoinbase READ isCoinbase CONSTANT)
-    Q_PROPERTY(bool isCashFusion READ isCashFusion CONSTANT)
+    Q_PROPERTY(bool isFused READ isFused CONSTANT)
     Q_PROPERTY(bool createdByUs READ createdByUs CONSTANT)
     Q_PROPERTY(bool commentEditable READ commentEditable CONSTANT)
 
@@ -118,7 +118,7 @@ public:
     const QString &userComment() const;
     void setUserComment(const QString &comment);
     bool isCoinbase() const;
-    bool isCashFusion() const;
+    bool isFused() const;
     bool createdByUs() const;
 
     QString receiver() const;
@@ -137,7 +137,7 @@ public:
     QList<TransactionInputInfo *> m_inputs;
     QString m_userComment;
     bool m_isCoinbase = false;
-    bool m_isCashFusion = false;
+    bool m_isFused = false;
     bool m_createdByUs = false;
 
 signals:

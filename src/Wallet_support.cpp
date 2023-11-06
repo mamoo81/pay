@@ -205,7 +205,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
         throw std::runtime_error("Invalid tx-index");
 
     const auto &wtx = iter->second;
-    info->m_isCashFusion = wtx.isCashFusionTx;
+    info->m_isFused = wtx.isCashFusionTx;
     info->m_isCoinbase = wtx.isCoinbase;
     info->m_userComment = wtx.userComment;
 

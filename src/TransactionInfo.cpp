@@ -86,9 +86,9 @@ void TransactionInfo::setUserComment(const QString &comment)
     emit commentChanged();
 }
 
-bool TransactionInfo::isCashFusion() const
+bool TransactionInfo::isFused() const
 {
-    return m_isCashFusion;
+    return m_isFused;
 }
 
 bool TransactionInfo::isCoinbase() const

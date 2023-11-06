@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file alias="FloweePay-light.svg">images/FloweePay-light.svg</file>
         <file alias="FloweePay.svg">images/FloweePay.svg</file>
-        <file alias="cashfusion.svg">images/cashfusion.svg</file>
         <file alias="bch.svg">images/bch.svg</file>
         <file alias="back-arrow.svg">mobile/images/back-arrow.svg</file>
         <file alias="maslenica.svg">mobile/images/maslenica.svg</file>
