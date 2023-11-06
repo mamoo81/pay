@@ -66,7 +66,7 @@ Tom Zander
 
 ## Translations
 
-Deutc
+Deutsc
 <dl><dt>h</dt>
 <dd>Georg Engelmann</dd>
 <dt>Español</dt>
