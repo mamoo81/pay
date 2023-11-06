@@ -20,7 +20,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 
 QQC2.Control {
-    implicitWidth: iconSize + 8
+    implicitWidth: Math.max(iconSize + 8, label.contentWidth)
     implicitHeight: iconSize + 8 + (label.visible ? label.height  + 6 : 0)
 
     signal clicked;
