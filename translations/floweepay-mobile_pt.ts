@@ -69,8 +69,8 @@
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="276"/>
-      <source>Cash Fusion</source>
-      <translation type="unfinished">Cash Fusion</translation>
+      <source>Fused</source>
+      <translation type="unfinished">Fused</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="278"/>
@@ -1010,11 +1010,6 @@ This ensures only one private key will need to be backed up</translation>
       <translation type="unfinished">Coinbase</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="120"/>
-      <source>Is a CashFusion transaction.</source>
-      <translation type="unfinished">Is a CashFusion transaction.</translation>
-    </message>
-    <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="129"/>
       <source>Fees paid</source>
       <translation type="unfinished">Fees paid</translation>
@@ -1094,8 +1089,8 @@ This ensures only one private key will need to be backed up</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="77"/>
-      <source>Cash Fusion</source>
-      <translation type="unfinished">Cash Fusion</translation>
+      <source>Fees</source>
+      <translation type="unfinished">Fees</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="79"/>

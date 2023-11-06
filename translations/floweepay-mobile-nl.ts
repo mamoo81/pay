@@ -69,8 +69,8 @@
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="280"/>
-      <source>Cash Fusion</source>
-      <translation>Cash Fusion</translation>
+      <source>Fused</source>
+      <translation>Fused</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="282"/>
@@ -966,11 +966,6 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>Grootte: %1 bytes</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="120"/>
-      <source>Is a CashFusion transaction.</source>
-      <translation>CashFusion transactie.</translation>
-    </message>
-    <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="129"/>
       <source>Fees paid</source>
       <translation>Betaalde kosten</translation>
@@ -1055,8 +1050,8 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="83"/>
-      <source>Cash Fusion</source>
-      <translation>Cash Fusion</translation>
+      <source>Fees</source>
+      <translation>Kosten</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="85"/>

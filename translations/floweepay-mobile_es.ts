@@ -69,7 +69,7 @@
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="276"/>
-      <source>Cash Fusion</source>
+      <source>Fused</source>
       <translation>Fusión de Monedas</translation>
     </message>
     <message>
@@ -1010,11 +1010,6 @@ Esto asegura que solo una clave privada tendrá que ser respaldada</translation>
       <translation>Coinbase</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="120"/>
-      <source>Is a CashFusion transaction.</source>
-      <translation>Es una transacción de CashFusion.</translation>
-    </message>
-    <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="129"/>
       <source>Fees paid</source>
       <translation>Comisiones pagadas</translation>
@@ -1094,8 +1089,8 @@ Esto asegura que solo una clave privada tendrá que ser respaldada</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="77"/>
-      <source>Cash Fusion</source>
-      <translation>Fusión de Monedas</translation>
+      <source>Fees</source>
+      <translation>Comisiones</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="79"/>

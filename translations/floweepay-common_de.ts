@@ -91,7 +91,7 @@
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="85"/>
       <source>Failed</source>
-      <translation type="unfinished">Failed</translation>
+      <translation>Fehlgeschlagen</translation>
     </message>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="86"/>
@@ -101,12 +101,12 @@
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="183"/>
       <source>Payment has been sent to:</source>
-      <translation type="unfinished">Payment has been sent to:</translation>
+      <translation>Zahlung wurde gesendet an:</translation>
     </message>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="216"/>
       <source>Copied address to clipboard</source>
-      <translation type="unfinished">Copied address to clipboard</translation>
+      <translation>Adresse in Zwischenablage kopiert</translation>
     </message>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="221"/>
@@ -125,9 +125,9 @@
     </message>
   </context>
   <context>
-    <name>CashFusionIcon</name>
+    <name>CFIcon</name>
     <message>
-      <location filename="../guis/Flowee/CashFusionIcon.qml" line="12"/>
+      <location filename="../guis/Flowee/CFIcon.qml" line="12"/>
       <source>Coin has been fused for increased anonymity</source>
       <translation>Coin wurde für eine erhöhte Anonymität fusioniert</translation>
     </message>
@@ -288,12 +288,12 @@
     <message>
       <location filename="../src/Payment.cpp" line="467"/>
       <source>Request received over insecure channel. Anyone could have altered it!</source>
-      <translation type="unfinished">Request received over insecure channel. Anyone could have altered it!</translation>
+      <translation>Anfrage über unsicheren Kanal empfangen. Jeder hätte sie verändern können!</translation>
     </message>
     <message>
       <location filename="../src/Payment.cpp" line="470"/>
       <source>Download of payment request failed.</source>
-      <translation type="unfinished">Download of payment request failed.</translation>
+      <translation>Download der Zahlungsanfrage fehlgeschlagen.</translation>
     </message>
   </context>
   <context>
@@ -301,13 +301,13 @@
     <message>
       <location filename="../src/PaymentProtocol.cpp" line="219"/>
       <source>Payment request unreadable</source>
-      <translation type="unfinished">Payment request unreadable</translation>
+      <translation>Zahlungsanfrage unlesbar</translation>
     </message>
     <message>
       <location filename="../src/PaymentProtocol.cpp" line="286"/>
       <location filename="../src/PaymentProtocol.cpp" line="323"/>
       <source>Payment request expired</source>
-      <translation type="unfinished">Payment request expired</translation>
+      <translation>Zahlungsanfrage abgelaufen</translation>
     </message>
   </context>
   <context>

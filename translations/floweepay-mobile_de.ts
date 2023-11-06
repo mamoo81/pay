@@ -69,8 +69,8 @@
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="276"/>
-      <source>Cash Fusion</source>
-      <translation>Cash Fusion</translation>
+      <source>Fused</source>
+      <translation>Fused</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="278"/>
@@ -782,12 +782,12 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
     <message>
       <location filename="../guis/mobile/QRScannerOverlay.qml" line="208"/>
       <source>Instant Pay limit is %1</source>
-      <translation type="unfinished">Instant Pay limit is %1</translation>
+      <translation>Sofortzahlungslimit ist %1</translation>
     </message>
     <message>
       <location filename="../guis/mobile/QRScannerOverlay.qml" line="211"/>
       <source>Selected wallet: &apos;%1&apos;</source>
-      <translation type="unfinished">Selected wallet: &apos;%1&apos;</translation>
+      <translation>Ausgewählte Geldbörse: &apos;%1&apos;</translation>
     </message>
   </context>
   <context>
@@ -1010,11 +1010,6 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
       <translation>Coinbase</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="120"/>
-      <source>Is a CashFusion transaction.</source>
-      <translation>Ist eine CashFusion Transaktion.</translation>
-    </message>
-    <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="129"/>
       <source>Fees paid</source>
       <translation>Bezahlte Gebühren</translation>
@@ -1094,8 +1089,8 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="77"/>
-      <source>Cash Fusion</source>
-      <translation>Cash Fusion</translation>
+      <source>Fees</source>
+      <translation>Bezahlte Gebühren</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="79"/>

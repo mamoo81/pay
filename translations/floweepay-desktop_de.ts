@@ -563,7 +563,7 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="171"/>
       <source>Payment request warnings:</source>
-      <translation type="unfinished">Payment request warnings:</translation>
+      <translation>Warnungen für Zahlungsanforderungen:</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="189"/>

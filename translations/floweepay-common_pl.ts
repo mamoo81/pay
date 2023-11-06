@@ -131,9 +131,9 @@
     </message>
   </context>
   <context>
-    <name>CashFusionIcon</name>
+    <name>CFIcon</name>
     <message>
-      <location filename="../guis/Flowee/CashFusionIcon.qml" line="12"/>
+      <location filename="../guis/Flowee/CFIcon.qml" line="12"/>
       <source>Coin has been fused for increased anonymity</source>
       <translation>Moneta poddana fuzji dla podniesienia anonimowości</translation>
     </message>

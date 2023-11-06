@@ -69,8 +69,8 @@
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="276"/>
-      <source>Cash Fusion</source>
-      <translation>Cash Fusion</translation>
+      <source>Fused</source>
+      <translation>Fused</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="278"/>
@@ -1011,11 +1011,6 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
       <translation>Coinbase</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="120"/>
-      <source>Is a CashFusion transaction.</source>
-      <translation>Jest transakcją CashFusion.</translation>
-    </message>
-    <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="129"/>
       <source>Fees paid</source>
       <translation>Koszt transakcji</translation>
@@ -1097,8 +1092,8 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="77"/>
-      <source>Cash Fusion</source>
-      <translation>Cash Fusion</translation>
+      <source>Fees</source>
+      <translation>Fees</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="79"/>
