@@ -91,6 +91,8 @@ Page {
                 root.allowEditAmount = payment.paymentAmount <= 0;
                 if (root.allowEditAmount)
                     priceInput.takeFocus();
+                else
+                    root.takeFocus();
             }
         }
         Payment {
