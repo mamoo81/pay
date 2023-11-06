@@ -98,7 +98,10 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     anchors.margins: -10
-                    onClicked: Pay.useDarkSkin = !Pay.useDarkSkin
+                    onClicked: {
+                        Pay.skinFollowsPlatform = false;
+                        Pay.useDarkSkin = !Pay.useDarkSkin;
+                    }
                 }
             }
             Flowee.Label {
