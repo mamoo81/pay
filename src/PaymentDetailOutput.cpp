@@ -188,7 +188,7 @@ void PaymentDetailOutput::createFormattedAddress()
 
 void PaymentDetailOutput::checkValid()
 {
-    bool valid = m_addressOk;
+    bool valid = m_addressOk || !m_outputScript.isEmpty();
     valid = valid
             && ((m_maxSelected && m_maxAllowed)
                 || (m_fiatFollows && m_paymentAmount > 600)
