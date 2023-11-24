@@ -22,7 +22,7 @@
 #include <BlockHeader.h>
 #include <QObject>
 
-#include <utils/primitives/key.h>
+#include <utils/primitives/PrivateKey.h>
 
 struct ECC_State {
     ECC_State() { ECC_Start(); }

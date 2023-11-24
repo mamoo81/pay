@@ -35,7 +35,7 @@
 #include "QRScanner.h"
 #endif
 
-#include <primitives/key.h> // for ECC_Start()
+#include <primitives/PrivateKey.h> // for ECC_Start()
 
 #include <QGuiApplication>
 #include <QFontDatabase>

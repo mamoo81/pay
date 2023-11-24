@@ -19,7 +19,7 @@
 #define PAYMENTREQUEST_H
 
 #include <QObject>
-#include <primitives/pubkey.h>
+#include <primitives/PublicKey.h>
 
 class AccountInfo;
 class WalletKeyView;

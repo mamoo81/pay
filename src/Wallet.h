@@ -27,8 +27,8 @@
 
 #include <HDMasterKey.h>
 #include <HDMasterPubkey.h>
-#include <primitives/key.h>
-#include <primitives/pubkey.h>
+#include <primitives/PrivateKey.h>
+#include <primitives/PublicKey.h>
 #include <primitives/Tx.h>
 
 #include <boost/unordered_map.hpp>

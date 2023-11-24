@@ -22,7 +22,7 @@
 
 #include <p2p/PrivacySegment.h>
 #include <utils/base58.h>
-#include <utils/primitives/key.h>
+#include <utils/primitives/PrivateKey.h>
 #include <utils/cashaddr.h>
 #include <SyncSPVAction.h>
 
