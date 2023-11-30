@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     QGuiApplication qapp(argc, argv);
     qapp.setOrganizationName("flowee");
     qapp.setApplicationName("pay");
-    qapp.setApplicationVersion("2023.11.0");
+    qapp.setApplicationVersion("2023.11.1");
     qapp.setWindowIcon(QIcon(":/FloweePay.png"));
 
     qmlRegisterType<WalletEnums>("Flowee.org.pay", 1, 0, "Wallet");
