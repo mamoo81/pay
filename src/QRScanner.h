@@ -26,7 +26,7 @@ class QRScanner : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(ScanType scanType READ scanType WRITE setScanType NOTIFY scanTypeChanged REQUIRED)
-    Q_PROPERTY(QString scanResult READ scanResult WRITE setScanResult RESET resetScanResult NOTIFY scanResultChanged)
+    Q_PROPERTY(QString scanResult READ scanResult NOTIFY scanResultChanged)
     Q_PROPERTY(bool autostart READ autostart WRITE setAutostart NOTIFY autostartChanged)
     Q_PROPERTY(bool isScanning READ isScanning NOTIFY isScanningChanged)
     Q_PROPERTY(ResultSource resultSource READ resultSource NOTIFY scanResultChanged)
@@ -46,18 +46,16 @@ public:
 
     ScanType scanType() const;
     void setScanType(ScanType type);
-
-    /// Notice that resultString may be empty if we didn't scan any valid QR
-    void finishedScan(const QString &resultString);
-
     enum ResultSource {
         Camera,
         Clipboard
     };
     Q_ENUM(ResultSource)
 
+    /// Notice that resultString may be empty if we didn't scan any valid QR
+    void finishedScan(const QString &resultString, ResultSource source);
+
     QString scanResult() const;
-    void setScanResult(const QString &result, ResultSource source = Camera);
     void resetScanResult();
 
     bool autostart() const;

@@ -34,6 +34,9 @@ public:
     explicit PaymentProtocolBip21(Payment *payment, QObject *parent);
 
     void setUri(const QString &uri) override;
+    bool simpleAddressTarget() const override {
+        return true;
+    }
 };
 
 class PaymentProtocolBip70 : public PaymentProtocol
@@ -43,6 +46,10 @@ public:
     explicit PaymentProtocolBip70(Payment *payment, QObject *parent);
 
     void setUri(const QString &uri) override;
+
+    bool simpleAddressTarget() const override {
+        return false;
+    }
 
 private slots:
     void fetchedRequest();

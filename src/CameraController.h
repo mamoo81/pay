@@ -59,7 +59,7 @@ public:
     /**
      * Try to complete the current scan request by instead taking the \a string.
      */
-    Q_INVOKABLE bool importScanData(const QString &string);
+    Q_INVOKABLE bool pasteData(const QString &string);
 
     void setCamera(QObject *object);
     QObject *camera() const;

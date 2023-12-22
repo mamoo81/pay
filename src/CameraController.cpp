@@ -352,6 +352,11 @@ void QRScanningThread::run()
                     text = QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
                     return;
                 }
+                if (bytes.size() > 40 && bytes.size() < 45 && (bytes[0] == 'q' || bytes[0] == 'p')) {
+                    // possibly a raw bitcoin cash address.
+                    text = QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+                    return;
+                }
                 break;
             case QRScanner::PaymentDetailsTestnet:
                 assert(false);  // TODO
@@ -619,7 +624,7 @@ void CameraController::setTorchEnabled(bool on)
     emit torchEnabledChanged();
 }
 
-bool CameraController::importScanData(const QString &string)
+bool CameraController::pasteData(const QString &string)
 {
     if (d->scanRequest == nullptr)
         return false;
@@ -627,7 +632,8 @@ bool CameraController::importScanData(const QString &string)
         return false;
 
     if (!string.isEmpty()) {
-        d->scanRequest->setScanResult(string, QRScanner::Clipboard);
+        d->scanRequest->finishedScan(string, QRScanner::Clipboard);
+        d->scanRequest = nullptr;
         // stop camera
         d->cameraStarted = false;
         emit cameraActiveChanged();
@@ -702,7 +708,7 @@ void CameraController::qrScanFinished()
     QObject::disconnect(d->videoSink, nullptr, this, nullptr);
 
     if (d->scanRequest) {
-        d->scanRequest->finishedScan(resultText);
+        d->scanRequest->finishedScan(resultText, QRScanner::Camera);
         d->scanRequest = nullptr;
     }
     QCamera *cam = qobject_cast<QCamera *>(d->camera);

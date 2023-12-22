@@ -81,10 +81,17 @@ void Payment::setPaymentAmountFiat(int amount)
 
 bool Payment::pasteTargetAddress(const QString &address)
 {
-    if (m_paymentDetails.size() == 1) { // payment protocols only allowed on empty tx
+    // payment protocols only allowed on empty tx
+    const bool possiblyPaymentProtocol = m_paymentDetails.size() == 1;
+    if (possiblyPaymentProtocol) {
         auto protocol = PaymentProtocol::create(this, address, m_paymentDetails.at(0));
-        return protocol;
+        if (protocol) {
+            m_simpleAddressTarget = protocol->simpleAddressTarget();
+            emit simpleAddressTargetChanged();
+            return true;
+        }
     }
+
     auto out = soleOut();
     out->setAddress(address.trimmed());
     return !out->formattedTarget().isEmpty();
@@ -435,6 +442,11 @@ void Payment::addDetail(PaymentDetail *detail)
     emit paymentDetailsChanged();
     emit validChanged(); // pretty sure we are invalid after ;-)
     doAutoPrepare();
+}
+
+bool Payment::simpleAddressTarget() const
+{
+    return m_simpleAddressTarget;
 }
 
 Tx Payment::tx() const

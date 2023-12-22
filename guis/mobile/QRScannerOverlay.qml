@@ -122,7 +122,7 @@ FocusScope {
             id: pasteButton
             source: "qrc:/edit-clipboard" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
             text: qsTr("Paste")
-            onClicked: pasteFeedback.visible = !CameraController.importScanData(cbh.text);
+            onClicked: pasteFeedback.visible = !CameraController.pasteData(cbh.text);
         }
 
         ClipboardHelper {

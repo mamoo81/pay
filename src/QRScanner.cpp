@@ -58,9 +58,13 @@ void QRScanner::setScanType(ScanType type)
     emit scanTypeChanged();
 }
 
-void QRScanner::finishedScan(const QString &resultString)
+void QRScanner::finishedScan(const QString &result, ResultSource source)
 {
-    setScanResult(resultString);
+    if (m_scanResult == result || result.isEmpty())
+        return;
+    m_scanResult = result;
+    m_resultSource = source;
+    emit scanResultChanged();
     emit finished();
     setIsScanning(false);
 }
@@ -68,16 +72,6 @@ void QRScanner::finishedScan(const QString &resultString)
 QString QRScanner::scanResult() const
 {
     return m_scanResult;
-}
-
-void QRScanner::setScanResult(const QString &result, ResultSource source)
-{
-    if (m_scanResult == result || result.isEmpty())
-        return;
-    m_scanResult = result;
-    m_resultSource = source;
-    emit scanResultChanged();
-    setIsScanning(false);
 }
 
 void QRScanner::resetScanResult()

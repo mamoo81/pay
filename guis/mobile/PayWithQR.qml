@@ -37,6 +37,7 @@ Page {
     }
     property QtObject showTargetAddress: QQC2.Action {
         checkable: true
+        checked: true
         text: qsTr("Show Address", "to show a bitcoincash address")
     }
     property QtObject editPrice: QQC2.Action {
@@ -80,6 +81,9 @@ Page {
                 // we don't allow instapay
                 if (resultSource === QRScanner.Clipboard)
                     payment.instaPay = false;
+
+                // check if payment has been done from 'simple' payment-protocol
+                showTargetAddress.checked = payment.simpleAddressTarget;
 
                 // Take the entire QR-url and let the Payment object parse it.
                 // this updates things like amount, comment and indeed address.

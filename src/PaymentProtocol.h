@@ -30,6 +30,15 @@ public:
 
     static PaymentProtocol* create(Payment *target, const QString &uri, QObject *parent);
 
+    /**
+     * A payment protocol decides if the target is a simple address or not.
+     * If it is, then the UI will default to show the address we are paying to
+     * as that helps end-users to verify they are paying to the right person.
+     * More complex protocols probably want to turn this off as the address
+     * idea is more hidden for them.
+     */
+    virtual bool simpleAddressTarget() const = 0;
+
 protected:
     virtual void setUri(const QString &uri) = 0;
     void finished();

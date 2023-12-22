@@ -59,6 +59,7 @@ class Payment : public QObject
     Q_PROPERTY(bool walletNeedsPin READ walletNeedsPin NOTIFY walletPinChanged)
     Q_PROPERTY(bool autoPrepare READ autoPrepare WRITE setAutoPrepare NOTIFY autoPrepareChanged)
     Q_PROPERTY(bool instaPay READ allowInstaPay WRITE setAllowInstaPay NOTIFY allowInstaPayChanged)
+    Q_PROPERTY(bool simpleAddressTarget READ simpleAddressTarget NOTIFY simpleAddressTargetChanged FINAL)
 
     // --- Stuff that becomes available / useful after prepare has been called:
     /// Tx has been prepared
@@ -256,6 +257,9 @@ public:
     /// Bypass the broadcast mechanism and mark the transaction as received.
     void confirmReceivedOk();
 
+    bool simpleAddressTarget() const;
+    void setSimpleAddressTarget(bool newSimpleAddressTarget);
+
 private slots:
     void sentToPeer();
     void txRejected(short reason, const QString &message);
@@ -281,7 +285,7 @@ signals:
     void autoPrepareChanged();
     void allowInstaPayChanged();
     void warningsChanged();
-
+    void simpleAddressTargetChanged();
     void approvedByUser();
 
 private:
@@ -303,6 +307,7 @@ private:
     bool m_txBroadcastStarted;
     bool m_preferSchnorr;
     bool m_allowInstaPay = false;
+    bool m_simpleAddressTarget = true; // only 'advanced' payment protocols set this to false
     Tx m_tx;
     int m_fee; // in sats per byte
     int m_assignedFee;
