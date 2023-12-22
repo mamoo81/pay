@@ -60,9 +60,9 @@ PriceHistoryDataProvider::PriceHistoryDataProvider(const QString &basedir, const
                     le32toh(*reinterpret_cast<int*>(buf + 4))));
             }
         } else {
-            auto &pool = Streaming::pool(static_cast<int>(fileSize));
-            input.read(pool.begin(), fileSize);
-            data->valueBlob = pool.commit(fileSize);
+            auto pool = Streaming::pool(static_cast<int>(fileSize));
+            input.read(pool->begin(), fileSize);
+            data->valueBlob = pool->commit(fileSize);
             data->hasBlob = true;
         }
     }
@@ -199,13 +199,13 @@ struct Day {
         return diff >= 60 * 60 * 24;
     }
 
-    void writeAverage(Streaming::BufferPool &pool)
+    void writeAverage(const std::shared_ptr<Streaming::BufferPool>&pool)
     {
         if (count > 0) {
             char buf[8];
             *reinterpret_cast<uint32_t*>(buf) = htole32(timestampCum / count);
             *reinterpret_cast<uint32_t*>(buf + 4) = htole32(valueCum / count);
-            pool.write(buf, 8);
+            pool->write(buf, 8);
         }
     }
 
@@ -233,8 +233,8 @@ void PriceHistoryDataProvider::processLog()
     assert(data->log);
     data->log->close();
 
-    auto &pool = Streaming::pool(data->logValues.size() * 8 + data->valueBlob.size());
-    pool.write(data->valueBlob);
+    auto pool = Streaming::pool(data->logValues.size() * 8 + data->valueBlob.size());
+    pool->write(data->valueBlob);
 
     // Iterate over the log and for each 24h period compress all items into
     // one entry for that day.
@@ -259,7 +259,7 @@ void PriceHistoryDataProvider::processLog()
     QFile blobData(fiatPath);
     if (!blobData.open(QIODevice::WriteOnly))
         throw std::runtime_error("PriceHistory: Failed to open file for write");
-    data->valueBlob = pool.commit();
+    data->valueBlob = pool->commit();
     auto count = blobData.write(data->valueBlob.begin(), data->valueBlob.size());
     assert(count == data->valueBlob.size());
     data->logValues.clear();
@@ -313,9 +313,9 @@ void PriceHistoryDataProvider::initialPopulate()
             QFile input(m_basedir + '/' + currency);
             if (input.open(QIODevice::ReadOnly)) {
                 const auto fileSize = input.size();
-                auto &pool = Streaming::pool(static_cast<int>(fileSize));
-                input.read(pool.begin(), fileSize);
-                data->valueBlob = pool.commit(fileSize);
+                auto pool = Streaming::pool(static_cast<int>(fileSize));
+                input.read(pool->begin(), fileSize);
+                data->valueBlob = pool->commit(fileSize);
             }
         });
         f->fetch(m_basedir, m_currency);

@@ -277,9 +277,9 @@ FloweePay::FloweePay()
     QFile in(m_basedir + AppdataFilename);
     if (in.open(QIODevice::ReadOnly)) {
         const auto dataSize = in.size();
-        auto &pool = Streaming::pool(dataSize);
-        in.read(pool.begin(), dataSize);
-        Streaming::MessageParser parser(pool.commit(dataSize));
+        auto pool = Streaming::pool(dataSize);
+        in.read(pool->begin(), dataSize);
+        Streaming::MessageParser parser(pool->commit(dataSize));
         while (parser.next() == Streaming::FoundTag) {
             switch (parser.tag()) {
             case AppProtectionType:
@@ -480,7 +480,7 @@ void FloweePay::loadingCompleted()
 
 void FloweePay::saveData()
 {
-    Streaming::BufferPool data(m_wallets.size() * 100);
+    auto data = std::make_shared<Streaming::BufferPool>(m_wallets.size() * 100);
     Streaming::MessageBuilder builder(data);
     for (auto &wallet : m_wallets) {
         if (wallet->encryptionSeed() != 0)

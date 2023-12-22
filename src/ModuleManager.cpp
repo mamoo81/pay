@@ -169,7 +169,7 @@ void ModuleManager::save() const
         saveFileSize += m->sections().size() * 5;
     }
 
-    Streaming::BufferPool pool(saveFileSize);
+    auto pool = std::make_shared<Streaming::BufferPool>(saveFileSize);
     Streaming::MessageBuilder builder(pool);
     for (const auto *m : m_modules) {
         builder.add(ModuleId, m->id().toStdString());

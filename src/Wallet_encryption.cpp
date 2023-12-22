@@ -138,17 +138,17 @@ void Wallet::setEncryption(EncryptionLevel level, const QString &password)
                 logDebug(LOG_WALLET) << "Missing transaction file";
                 continue;
             }
-            auto &pool = Streaming::pool(reader.size());
-            reader.read(pool.begin(), reader.size());
+            auto pool = Streaming::pool(reader.size());
+            reader.read(pool->begin(), reader.size());
             reader.close();
-            auto orig = pool.commit(reader.size());
+            auto orig = pool->commit(reader.size());
 
             if (crypto.get() == nullptr)
                 crypto.reset(new AES256CBCEncrypt(&m_encryptionKey[0], &m_encryptionIR[0], true));
-            pool.reserve(orig.size());
-            auto newSize = crypto->encrypt(orig.begin(), orig.size(), pool.data());
+            pool->reserve(orig.size());
+            auto newSize = crypto->encrypt(orig.begin(), orig.size(), pool->data());
             assert(newSize > 0);
-            auto newFile = pool.commit(newSize);
+            auto newFile = pool->commit(newSize);
 
             uint256 txid(i->second.txid);
             for (int j = 0; j < 32; ++j) {

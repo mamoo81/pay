@@ -635,9 +635,9 @@ void Wallet::saveTransaction(const Tx &tx)
             }
 
             AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
-            auto &pool = Streaming::pool(data.size() + AES_BLOCKSIZE);
-            int size = crypto.encrypt(data.begin(), data.size(), pool.data());
-            data = pool.commit(size);
+            auto pool = Streaming::pool(data.size() + AES_BLOCKSIZE);
+            int size = crypto.encrypt(data.begin(), data.size(), pool->data());
+            data = pool->commit(size);
         }
         QString filename = QString::fromStdString(txid.ToString());
         QString localdir = dir.arg(filename.left(2));
@@ -654,7 +654,7 @@ void Wallet::saveTransaction(const Tx &tx)
     }
 }
 
-Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) const
+Tx Wallet::loadTransaction(const uint256 &txid, const std::shared_ptr<Streaming::BufferPool> &pool) const
 {
     uint256 filename(txid);
     if (m_encryptionLevel == FullyEncrypted) {
@@ -671,17 +671,17 @@ Tx Wallet::loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) con
     QFile reader(path);
     if (reader.open(QIODevice::ReadOnly)) {
         int txSize = reader.size();
-        pool.reserve(txSize);
-        reader.read(pool.begin(), txSize);
+        pool->reserve(txSize);
+        reader.read(pool->begin(), txSize);
         if (m_encryptionLevel == FullyEncrypted) {
             // decrypt the tx
             assert(m_haveEncryptionKey); // checked above
             AES256CBCDecrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
-            auto encryptedTx = pool.commit(txSize);
-            pool.reserve(txSize);
-            txSize = crypto.decrypt(encryptedTx.begin(), txSize, pool.data());
+            auto encryptedTx = pool->commit(txSize);
+            pool->reserve(txSize);
+            txSize = crypto.decrypt(encryptedTx.begin(), txSize, pool->data());
         }
-        return Tx(pool.commit(txSize));
+        return Tx(pool->commit(txSize));
     }
     // return empty tx
     return Tx();
@@ -834,11 +834,11 @@ void Wallet::createHDMasterKey(const QString &mnemonic, const QString &pwd, cons
     const auto mnemonicBytes = mnemonic.toUtf8();
     const auto pwdBytes = pwd.toUtf8();
     // convert to constBuf containers.
-    auto &pool = Streaming::pool(mnemonicBytes.size() + pwdBytes.size());
-    pool.write(mnemonicBytes.constData(), mnemonicBytes.size());
-    auto mnemonicBuf = pool.commit();
-    pool.write(pwdBytes.constData(), pwdBytes.size());
-    auto pwdBuf = pool.commit();
+    auto pool = Streaming::pool(mnemonicBytes.size() + pwdBytes.size());
+    pool->write(mnemonicBytes.constData(), mnemonicBytes.size());
+    auto mnemonicBuf = pool->commit();
+    pool->write(pwdBytes.constData(), pwdBytes.size());
+    auto pwdBuf = pool->commit();
 
     m_hdData.reset(new HierarchicallyDeterministicWalletData(mnemonicBuf, derivationPath, pwdBuf,
                                                              electrumFormat ? HDMasterKey::ElectrumMnemonic
@@ -1531,9 +1531,9 @@ Streaming::ConstBuffer Wallet::readSecrets() const
     if (!in.is_open())
         throw std::runtime_error("Missing secrets.dat");
     const auto dataSize = boost::filesystem::file_size(m_basedir / "secrets.dat");
-    auto &pool = Streaming::pool(dataSize);
-    in.read(pool.begin(), dataSize);
-    return pool.commit(dataSize);
+    auto pool = Streaming::pool(dataSize);
+    in.read(pool->begin(), dataSize);
+    return pool->commit(dataSize);
 }
 
 void Wallet::loadSecrets()
@@ -1773,10 +1773,10 @@ void Wallet::saveSecrets()
         std::filesystem::create_directories(m_basedir.string());
 
         if (m_encryptionLevel == FullyEncrypted) {
-            auto &pool = Streaming::pool(data.size() + AES_BLOCKSIZE);
+            auto pool = Streaming::pool(data.size() + AES_BLOCKSIZE);
             AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
-            int size = crypto.encrypt(data.begin(), data.size(), pool.data());
-            data = pool.commit(size);
+            int size = crypto.encrypt(data.begin(), data.size(), pool->data());
+            data = pool->commit(size);
         }
         const auto basefile = (m_basedir / "secrets.dat").string();
         std::ofstream outFile(basefile + "~");
@@ -2092,7 +2092,7 @@ void Wallet::saveWallet()
         saveFileSize += 110 + wtx.inputToWTX.size() * 22 + wtx.outputs.size() * 30;
     }
 
-    Streaming::BufferPool pool(saveFileSize);
+    auto pool = std::make_shared<Streaming::BufferPool>(saveFileSize);
     Streaming::MessageBuilder builder(pool);
     for (const auto &item : m_walletTransactions) {
         builder.add(WalletPriv::Index, item.first);
@@ -2139,9 +2139,9 @@ void Wallet::saveWallet()
         std::filesystem::create_directories(m_basedir.string());
         if (m_encryptionLevel == FullyEncrypted) {
             AES256CBCEncrypt crypto(&m_encryptionKey[0], &m_encryptionIR[0], true);
-            pool.reserve(data.size() + AES_BLOCKSIZE);
-            int size = crypto.encrypt(data.begin(), data.size(), pool.data());
-            data = pool.commit(size);
+            pool->reserve(data.size() + AES_BLOCKSIZE);
+            int size = crypto.encrypt(data.begin(), data.size(), pool->data());
+            data = pool->commit(size);
         }
 
         const auto basefile = (m_basedir / "wallet.dat").string();

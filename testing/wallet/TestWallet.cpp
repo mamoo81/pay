@@ -39,7 +39,7 @@ public:
         broadcastTxFinished(txIndex, false);
     }
 
-    Tx loadTx(const uint256 &txHash, Streaming::BufferPool &pool) const {
+    Tx loadTx(const uint256 &txHash, const std::shared_ptr<Streaming::BufferPool> &pool) const {
         return loadTransaction(txHash, pool);
     }
 };
@@ -50,13 +50,13 @@ void TestWallet::transactionOrdering()
     uint256 prevTxId = uint256S("0x12830924807308721309128309128");
     b1.appendInput(prevTxId, 0);
     b1.appendOutput(10000);
-    Streaming::BufferPool pool;
-    Tx t1 = b1.createTransaction(&pool);
+    auto pool = std::make_shared<Streaming::BufferPool>();
+    Tx t1 = b1.createTransaction(pool);
 
     TransactionBuilder b2;
     b2.appendInput(t1.createHash(), 0); // t2 spends an output of t1
     b2.appendOutput(10000);
-    Tx t2 = b2.createTransaction(&pool);
+    Tx t2 = b2.createTransaction(pool);
 
 
     {
@@ -90,8 +90,8 @@ void TestWallet::addingTransactions()
     b1.appendInput(prevTxId, 0);
     b1.appendOutput(1000000);
     b1.pushOutputPay2Address(wallet->nextUnusedAddress());
-    Streaming::BufferPool pool;
-    Tx t1 = b1.createTransaction(&pool);
+    auto pool = std::make_shared<Streaming::BufferPool>();
+    Tx t1 = b1.createTransaction(pool);
     QCOMPARE(wallet->balanceConfirmed(), 0);
     QCOMPARE(wallet->balanceUnconfirmed(), 0);
     QCOMPARE(wallet->balanceImmature(), 0);
@@ -128,7 +128,7 @@ void TestWallet::addingTransactions()
     b2.pushOutputPay2Address(id);
 
     int64_t change = -1;
-    auto funding = wallet->findInputsFor(990000, 1, b2.createTransaction(&pool).size(), change);
+    auto funding = wallet->findInputsFor(990000, 1, b2.createTransaction(pool).size(), change);
     QCOMPARE(funding.outputs.size(), 1L);
 
     for (auto ref : funding.outputs) {
@@ -137,7 +137,7 @@ void TestWallet::addingTransactions()
         QCOMPARE(wallet->unlockKey(ref).sigType, Wallet::NotUsedYet);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
-    Tx t2 = b2.createTransaction(&pool);
+    Tx t2 = b2.createTransaction(pool);
     QCOMPARE(wallet->balanceConfirmed(), 1000000);
     QCOMPARE(wallet->balanceUnconfirmed(), 0);
     QCOMPARE(wallet->balanceImmature(), 0);
@@ -161,14 +161,14 @@ void TestWallet::addingTransactions()
     TransactionBuilder b3;
     b3.appendOutput(698700);
     b3.pushOutputPay2Address(wallet->nextUnusedAddress());
-    funding = wallet->findInputsFor(698700, 1, b3.createTransaction(&pool).size(), change);
+    funding = wallet->findInputsFor(698700, 1, b3.createTransaction(pool).size(), change);
     QCOMPARE(funding.outputs.size(), 2L);
     for (auto ref : funding.outputs) {
         b3.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutput(ref);
         b3.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
-    Tx t3 = b3.createTransaction(&pool);
+    Tx t3 = b3.createTransaction(pool);
 
     QCOMPARE(wallet->balanceConfirmed(), 0);
     QCOMPARE(wallet->balanceUnconfirmed(), 200000 + 500000);
@@ -195,7 +195,7 @@ void TestWallet::addingTransactions()
     }
     QVERIFY(found);
     b4.pushOutputPay2Address(wallet->nextUnusedAddress());
-    Tx t4 = b4.createTransaction(&pool);
+    Tx t4 = b4.createTransaction(pool);
 
     // then add the double spend as confirmed.
     //   This should replace the previous one.
@@ -247,8 +247,8 @@ void TestWallet::addingTransactions2()
     b1.pushOutputPay2Address(wallet->nextUnusedAddress());
     b1.appendOutput(5000);
     b1.pushOutputPay2Address(wallet->nextUnusedAddress());
-    Streaming::BufferPool pool;
-    Tx tx1 = b1.createTransaction(&pool);
+    auto pool = std::make_shared<Streaming::BufferPool>();
+    Tx tx1 = b1.createTransaction(pool);
     QCOMPARE(wallet->balanceConfirmed(), 0);
     QCOMPARE(wallet->balanceUnconfirmed(), 0);
     QCOMPARE(wallet->balanceImmature(), 0);
@@ -261,14 +261,14 @@ void TestWallet::addingTransactions2()
     b2.appendInput(tx1.createHash(), 0);
     b2.appendOutput(999);
     b2.pushOutputPay2Address(wallet->nextUnusedAddress());
-    Tx tx2 = b2.createTransaction(&pool);
+    Tx tx2 = b2.createTransaction(pool);
 
     TransactionBuilder b3;
     b3.appendInput(tx1.createHash(), 1);
     b3.appendInput(tx2.createHash(), 0);
     b3.appendOutput(5990);
     b3.pushOutputPay2Address(wallet->nextUnusedAddress());
-    Tx tx3 = b3.createTransaction(&pool);
+    Tx tx3 = b3.createTransaction(pool);
 
     wallet->newTransactions(blockId210, 210, {tx3});
     // the wallet doesn't know we spent one of its own
@@ -294,7 +294,7 @@ void TestWallet::addingTransactions2()
 
 void TestWallet::lockingOutputs()
 {
-    Streaming::BufferPool pool;
+    auto pool = std::make_shared<Streaming::BufferPool>();
     {
         // See if locking outputs manually has an effect on findInputs
         auto wallet = createWallet();
@@ -326,7 +326,7 @@ void TestWallet::lockingOutputs()
         for (auto ref2 : walletSet.outputs) {
             try {
                 b1.appendInput(wallet->txid(ref2), ref2.outputIndex());
-                b1.pushInputSignature(wallet->unlockKey(ref2).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
+                b1.pushInputSignature(wallet->unlockKey(ref2).key, pool->commit(100), 1, TransactionBuilder::Schnorr);
             } catch (const std::exception &e) {
                 logFatal() << e;
             }
@@ -335,7 +335,7 @@ void TestWallet::lockingOutputs()
         KeyId address;
         wallet->reserveUnusedAddress(address);
         b1.pushOutputPay2Address(address);
-        Tx t1 = b1.createTransaction(&pool);
+        Tx t1 = b1.createTransaction(pool);
         wallet->newTransaction(t1);
         QCOMPARE(wallet->balanceUnconfirmed(), 5000);
 
@@ -377,7 +377,7 @@ void TestWallet::lockingOutputs()
         for (auto ref : walletSet.outputs) {
             try {
                 b1.appendInput(wallet->txid(ref), ref.outputIndex());
-                b1.pushInputSignature(wallet->unlockKey(ref).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
+                b1.pushInputSignature(wallet->unlockKey(ref).key, pool->commit(100), 1, TransactionBuilder::Schnorr);
             } catch (const std::exception &e) {
                 logFatal() << e;
             }
@@ -386,7 +386,7 @@ void TestWallet::lockingOutputs()
         KeyId address;
         wallet->reserveUnusedAddress(address);
         b1.pushOutputPay2Address(address);
-        Tx t1 = b1.createTransaction(&pool);
+        Tx t1 = b1.createTransaction(pool);
         wallet->newTransaction(t1);
         QCOMPARE(wallet->balanceUnconfirmed(), 700000);
 
@@ -422,8 +422,8 @@ void TestWallet::testSpam()
     b1.appendInput(prevTxId, 0);
     b1.appendOutput(1000000);
     b1.pushOutputPay2Address(wallet->nextUnusedAddress());
-    Streaming::BufferPool pool;
-    Tx t1 = b1.createTransaction(&pool);
+    auto pool = std::make_shared<Streaming::BufferPool>();
+    Tx t1 = b1.createTransaction(pool);
     wallet->newTransactions(dummyBlockId, 1, { t1 });
     QCOMPARE(wallet->balanceConfirmed(), 1000000);
 
@@ -439,13 +439,13 @@ void TestWallet::testSpam()
     b2.pushOutputPay2Address(id);
 
     int64_t change = -1;
-    auto funding = wallet->findInputsFor(990000, 1, b2.createTransaction(&pool).size(), change);
+    auto funding = wallet->findInputsFor(990000, 1, b2.createTransaction(pool).size(), change);
     for (auto ref : funding.outputs) {
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutput(ref);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
     }
-    Tx t2 = b2.createTransaction(&pool);
+    Tx t2 = b2.createTransaction(pool);
     wallet->newTransactions(dummyBlockId, 2, { t2 } );
     QCOMPARE(wallet->balanceConfirmed(), 200000); // does NOT include the 547
     QCOMPARE(wallet->balanceUnconfirmed(), 0);
@@ -454,7 +454,7 @@ void TestWallet::testSpam()
 
 void TestWallet::saveTransaction()
 {
-    Streaming::BufferPool pool;
+    auto pool = std::make_shared<Streaming::BufferPool>();
     // add a simple transaction and see if it saves.
     {
         auto wallet = createWallet();
@@ -463,7 +463,7 @@ void TestWallet::saveTransaction()
         b1.appendInput(prevTxId, 0);
         b1.appendOutput(1000000);
         b1.pushOutputPay2Address(wallet->nextUnusedAddress());
-        Tx t1 = b1.createTransaction(&pool);
+        Tx t1 = b1.createTransaction(pool);
         QCOMPARE(wallet->balanceConfirmed(), 0);
         QCOMPARE(wallet->balanceUnconfirmed(), 0);
         QCOMPARE(wallet->balanceImmature(), 0);
@@ -489,13 +489,13 @@ void TestWallet::saveTransaction()
         b2.pushOutputPay2Address(id);
 
         int64_t change = -1;
-        auto funding = wallet->findInputsFor(990000, 1, b2.createTransaction(&pool).size(), change);
+        auto funding = wallet->findInputsFor(990000, 1, b2.createTransaction(pool).size(), change);
         QCOMPARE(funding.outputs.size(), 1L);
         auto ref = funding.outputs.front();
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutput(ref);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
-        Tx t2 = b2.createTransaction(&pool);
+        Tx t2 = b2.createTransaction(pool);
 
         QCOMPARE(wallet->balanceConfirmed(), 0);
         QCOMPARE(wallet->balanceUnconfirmed(), 1000000);
@@ -519,7 +519,7 @@ void TestWallet::saveTransaction()
 
 void TestWallet::saveTransaction2()
 {
-    Streaming::BufferPool pool;
+    auto pool = std::make_shared<Streaming::BufferPool>();
     // add a simple transaction and see if it saves.
     {
         auto wallet = createWallet();
@@ -527,7 +527,7 @@ void TestWallet::saveTransaction2()
         b1.appendInput(uint256(), 0); // coinbase
         b1.appendOutput(50);
         b1.pushOutputPay2Address(wallet->nextUnusedAddress());
-        Tx t1 = b1.createTransaction(&pool);
+        Tx t1 = b1.createTransaction(pool);
         std::deque<Tx> list;
         list.push_back(t1);
         wallet->newTransactions(dummyBlockId, 10, list);
@@ -539,7 +539,7 @@ void TestWallet::saveTransaction2()
         b2.appendInput(uint256(), 0); // coinbase
         b2.appendOutput(51);
         b2.pushOutputPay2Address(wallet->nextUnusedAddress());
-        Tx t2 = b2.createTransaction(&pool);
+        Tx t2 = b2.createTransaction(pool);
         list[0] = t2;
         wallet->newTransactions(dummyBlockId, 50, list);
         QCOMPARE(wallet->balanceConfirmed(), 0);
@@ -553,7 +553,7 @@ void TestWallet::saveTransaction2()
         b3.appendOutput(10);
         KeyId id("66666666666666666666");
         b3.pushOutputPay2Address(id);
-        Tx t3 = b3.createTransaction(&pool);
+        Tx t3 = b3.createTransaction(pool);
         list[0] = t3;
         wallet->newTransactions(dummyBlockId, 140, list);
         QCOMPARE(wallet->balanceConfirmed(), 40);
@@ -592,7 +592,7 @@ void TestWallet::unconfirmed()
      * Then spend one with a transaction that places new coins in the wallet.
      * Make sure that after reload the balance is proper.
      */
-    Streaming::BufferPool pool;
+    auto pool = std::make_shared<Streaming::BufferPool>();
     {
         auto wallet = createWallet();
         TransactionBuilder b1;
@@ -600,7 +600,7 @@ void TestWallet::unconfirmed()
         b1.appendInput(prevTxId, 0);
         b1.appendOutput(1000000);
         b1.pushOutputPay2Address(wallet->nextUnusedAddress());
-        Tx t1 = b1.createTransaction(&pool);
+        Tx t1 = b1.createTransaction(pool);
         QCOMPARE(wallet->balanceConfirmed(), 0);
         QCOMPARE(wallet->balanceUnconfirmed(), 0);
         QCOMPARE(wallet->balanceImmature(), 0);
@@ -624,13 +624,13 @@ void TestWallet::unconfirmed()
         b2.pushOutputPay2Address(wallet->nextUnusedAddress());
 
         int64_t change = -1;
-        auto funding = wallet->findInputsFor(900000, 1, b2.createTransaction(&pool).size(), change);
+        auto funding = wallet->findInputsFor(900000, 1, b2.createTransaction(pool).size(), change);
         QCOMPARE(funding.outputs.size(), 1L);
         auto ref = funding.outputs.front();
         b2.appendInput(wallet->txid(ref), ref.outputIndex());
         auto output = wallet->txOutput(ref);
         b2.pushInputSignature(wallet->unlockKey(ref).key, output.outputScript, output.outputValue, TransactionBuilder::ECDSA);
-        Tx t2 = b2.createTransaction(&pool);
+        Tx t2 = b2.createTransaction(pool);
 
         QCOMPARE(wallet->balanceConfirmed(), 1000000);
         QCOMPARE(wallet->balanceUnconfirmed(), 0);
@@ -725,7 +725,7 @@ void TestWallet::hierarchicallyDeterministic()
 
 void TestWallet::rejectTx()
 {
-    Streaming::BufferPool pool;
+    auto pool = std::make_shared<Streaming::BufferPool>();
     {
         auto wallet = createWallet();
         wallet->addTestTransactions();
@@ -735,13 +735,13 @@ void TestWallet::rejectTx()
         TransactionBuilder b1;
         for (auto ref : walletSet.outputs) {
             b1.appendInput(wallet->txid(ref), ref.outputIndex());
-            b1.pushInputSignature(wallet->unlockKey(ref).key, pool.commit(100), 1, TransactionBuilder::Schnorr);
+            b1.pushInputSignature(wallet->unlockKey(ref).key, pool->commit(100), 1, TransactionBuilder::Schnorr);
         }
         b1.appendOutput(5000); // 9000000 was available, so the fee is enormous. But this makes it easy to test.
         KeyId address;
         wallet->reserveUnusedAddress(address);
         b1.pushOutputPay2Address(address);
-        Tx t1 = b1.createTransaction(&pool);
+        Tx t1 = b1.createTransaction(pool);
         wallet->newTransaction(t1);
         QCOMPARE(wallet->balanceUnconfirmed(), 5000); // simple check to know its been accepted
 
@@ -858,7 +858,7 @@ void TestWallet::testEncryption2()
     const QString PWD("Hello this is a password");
     uint32_t seed = 0; // the seed is stored outside of the wallet.
     Tx theTx;
-    Streaming::BufferPool pool;
+    auto pool = std::make_shared<Streaming::BufferPool>();
     {
         auto wallet = createWallet();
         QCOMPARE(wallet->encryptionSeed(), 0);

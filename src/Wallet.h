@@ -523,7 +523,7 @@ private:
      *
      * pool.reserve() is called by this method with the actual tx size.
      */
-    Tx loadTransaction(const uint256 &txid, Streaming::BufferPool &pool) const;
+    Tx loadTransaction(const uint256 &txid, const std::shared_ptr<Streaming::BufferPool> &pool) const;
 
     struct InsertBeforeData
     {
