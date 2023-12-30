@@ -148,8 +148,8 @@ GridLayout {
         }
         Flowee.CheckBox {
             id: forceElectrum
-            text: qsTr("Force Electrum");
-            toolTipText: qsTr("When enabled, the seed phrase specified will be force-interpreted as an Electrum and/or Electron Cash phrase.")
+            text: qsTr("Old Electrum Phrase");
+            toolTipText: qsTr("When Electrum detection fails, and you are sure it was created in that wallet, enable this option.")
             checked: importAccount.isElectrumMnemonic
             visible: importAccount.isMnemonic
             enabled: importAccount.isMnemonic && !importAccount.isElectrumMnemonic
