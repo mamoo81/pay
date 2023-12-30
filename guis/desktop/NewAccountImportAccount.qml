@@ -27,10 +27,14 @@ GridLayout {
     rowSpacing: 10
 
     property var typedData: Pay.identifyString(secrets.text)
-    property bool finished: typedData === Wallet.PrivateKey || ((typedData === Wallet.CorrectMnemonic
-                                                                 || typedData === Wallet.ElectrumMnemonic)
-                                                                && derivationPath.derivationOk);
-    property bool isMnemonic: typedData === Wallet.CorrectMnemonic || typedData === Wallet.PartialMnemonic || typedData === Wallet.PartialMnemonicWithTypo || typedData === Wallet.ElectrumMnemonic;
+    property bool finished: typedData === Wallet.PrivateKey
+            || ((typedData === Wallet.CorrectMnemonic
+                || typedData === Wallet.ElectrumMnemonic)
+              && derivationPath.derivationOk);
+    property bool isMnemonic: typedData === Wallet.CorrectMnemonic
+            || typedData === Wallet.PartialMnemonic
+            || typedData === Wallet.PartialMnemonicWithTypo
+            || typedData === Wallet.ElectrumMnemonic;
     property bool isElectrumMnemonic: typedData === Wallet.ElectrumMnemonic
     property bool isPrivateKey: typedData === Wallet.PrivateKey
 
