@@ -60,8 +60,6 @@ void QRScanner::setScanType(ScanType type)
 
 void QRScanner::finishedScan(const QString &result, ResultSource source)
 {
-    if (m_scanResult == result || result.isEmpty())
-        return;
     m_scanResult = result;
     m_resultSource = source;
     emit scanResultChanged();

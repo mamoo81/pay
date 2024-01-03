@@ -693,10 +693,8 @@ bool CameraController::visible() const
 void CameraController::qrScanFinished()
 {
     QString resultText;
-    if (d->m_scanningThread) {
+    if (d->m_scanningThread)
         resultText = d->m_scanningThread->text;
-        logFatal() << " -> " << d->m_scanningThread->text;
-    }
 
     delete d->m_scanningThread;
     d->m_scanningThread = nullptr;
