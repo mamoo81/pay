@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en" sourcelanguage="en">
+<TS version="2.1" language="ha" sourcelanguage="en">
   <context>
     <name>About</name>
     <message>
       <location filename="../guis/mobile/About.qml" line="23"/>
       <source>About</source>
-      <translation type="unfinished">About</translation>
+      <translation>Game da</translation>
     </message>
     <message>
       <location filename="../guis/mobile/About.qml" line="43"/>
       <source>Help translate this app</source>
-      <translation type="unfinished">Help translate this app</translation>
+      <translation>Taimaka fassara wannan manhaja</translation>
     </message>
     <message>
       <location filename="../guis/mobile/About.qml" line="48"/>
       <source>License</source>
-      <translation type="unfinished">License</translation>
+      <translation>Lasisi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/About.qml" line="53"/>
       <location filename="../guis/mobile/About.qml" line="61"/>
       <source>Credits</source>
-      <translation type="unfinished">Credits</translation>
+      <translation>Sanya kudi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/About.qml" line="54"/>
       <source>© 2020-2023 Tom Zander and contributors</source>
-      <translation type="unfinished">© 2020-2023 Tom Zander and contributors</translation>
+      <translation>© 2020-2023 Tom Zander da masu ba da gudummawa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/About.qml" line="98"/>
       <source>Project Home</source>
-      <translation type="unfinished">Project Home</translation>
+      <translation>Gidan Aikin</translation>
     </message>
     <message>
       <location filename="../guis/mobile/About.qml" line="99"/>
       <source>With git repository and issues tracker</source>
-      <translation type="unfinished">With git repository and issues tracker</translation>
+      <translation>Tare da ma'ajiyar git da mai bin diddigin batutuwa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/About.qml" line="104"/>
       <source>Telegram</source>
-      <translation type="unfinished">Telegram</translation>
+      <translation>Telegram</translation>
     </message>
   </context>
   <context>
@@ -50,57 +50,57 @@
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="28"/>
       <source>Home</source>
-      <translation type="unfinished">Home</translation>
+      <translation>Gida</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="153"/>
       <source>Pay</source>
-      <translation type="unfinished">Pay</translation>
+      <translation>Biya</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="159"/>
       <source>Receive</source>
-      <translation type="unfinished">Receive</translation>
+      <translation>Karɓa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="274"/>
       <source>Miner Reward</source>
-      <translation type="unfinished">Miner Reward</translation>
+      <translation>Ladan Ma'adinai</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="276"/>
       <source>Fused</source>
-      <translation type="unfinished">Fused</translation>
+      <translation>Fuskanci</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="278"/>
       <source>Received</source>
-      <translation type="unfinished">Received</translation>
+      <translation>An samu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="280"/>
       <source>Moved</source>
-      <translation type="unfinished">Moved</translation>
+      <translation>Motsa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="281"/>
       <source>Sent</source>
-      <translation type="unfinished">Sent</translation>
+      <translation>An aika</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="294"/>
       <source>Sending</source>
-      <translation type="unfinished">Sending</translation>
+      <translation>Aikawa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="295"/>
       <source>Seen</source>
-      <translation type="unfinished">Seen</translation>
+      <translation>An gani</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="298"/>
       <source>Rejected</source>
-      <translation type="unfinished">Rejected</translation>
+      <translation>An ƙii</translation>
     </message>
   </context>
   <context>
@@ -108,119 +108,119 @@
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="41"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Suna</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="64"/>
       <source>Archived wallets do not check for activities. Balance may be out of date</source>
-      <translation type="unfinished">Archived wallets do not check for activities. Balance may be out of date</translation>
+      <translation>Asusun ɗin da aka adana ba sa bincika ayyuka. Ma'auni na iya zama ya ƙare</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="76"/>
       <source>Backup information</source>
-      <translation type="unfinished">Backup information</translation>
+      <translation>Ajiyayyen Bayanai</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="86"/>
       <source>Backup Details</source>
-      <translation type="unfinished">Backup Details</translation>
+      <translation>Ajiyayyen bayanai</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="119"/>
       <source>Wallet seed-phrase</source>
-      <translation type="unfinished">Wallet seed-phrase</translation>
+      <translation>Asusun Jumla iri-iri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="148"/>
       <source>Seed format</source>
-      <translation type="unfinished">Seed format</translation>
+      <translation>Tsarin iri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="157"/>
       <source>Starting Height</source>
       <comment>height refers to block-height</comment>
-      <translation type="unfinished">Starting Height</translation>
+      <translation>Fara tsawo</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="162"/>
       <source>Derivation Path</source>
-      <translation type="unfinished">Derivation Path</translation>
+      <translation>Hanyar Fitowa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="169"/>
       <source>xpub</source>
-      <translation type="unfinished">xpub</translation>
+      <translation>Xpub</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="180"/>
       <source>Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case you lose your mobile.</source>
-      <translation type="unfinished">Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case you lose your mobile.</translation>
+      <translation>Da fatan za a ajiye jimlar iri akan takarda, cikin tsari mai kyau, tare da hanyar da aka samo asali. Wannan nau'in zai ba ku damar dawo da walat ɗin ku idan akwai gazawar kwamfuta.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="187"/>
       <source>&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</source>
-      <translation type="unfinished">&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</translation>
+      <translation>&lt;b&gt;Muhimmanci&lt;/b&gt;: Kada ku taɓa raba jumlar irin ku ga wasu!</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="199"/>
       <source>Wallet keys</source>
-      <translation type="unfinished">Wallet keys</translation>
+      <translation>Maɓallan asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="202"/>
       <source>Show Index</source>
       <comment>toggle to show numbers</comment>
-      <translation type="unfinished">Show Index</translation>
+      <translation>Nuna index</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="217"/>
       <source>Change Addresses</source>
-      <translation type="unfinished">Change Addresses</translation>
+      <translation>Chanjin adireshi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="220"/>
       <source>Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</source>
-      <translation type="unfinished">Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</translation>
+      <translation>Canjawa tsakanin jerin adireshin da wasu za su iya biyan ku dashi, da adiresoshin da asusun ɗin ke amfani da su don aika canji ga kanku.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="223"/>
       <source>Used Addresses</source>
-      <translation type="unfinished">Used Addresses</translation>
+      <translation>Adireshin da aka yi amfani da shi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="226"/>
       <source>Switches between still in use addresses and formerly used, new empty, addresses</source>
-      <translation type="unfinished">Switches between still in use addresses and formerly used, new empty, addresses</translation>
+      <translation>Yana canzawa tsakanin adiresoshin da ake amfani da su da waɗanda aka yi amfani da su a baya, sabon fankon, adireshi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="306"/>
       <source>Addresses and keys</source>
-      <translation type="unfinished">Addresses and keys</translation>
+      <translation>Adireshi da maɓallai</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="314"/>
       <source>Sync Status</source>
-      <translation type="unfinished">Sync Status</translation>
+      <translation>Daidaita matsayi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="354"/>
       <source>Hide balance in overviews</source>
-      <translation type="unfinished">Hide balance in overviews</translation>
+      <translation>Boye ma'auni a cikin bayyani</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="361"/>
       <source>Hide in private mode</source>
-      <translation type="unfinished">Hide in private mode</translation>
+      <translation>Boye a yanayin sirri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="376"/>
       <source>Unarchive Wallet</source>
-      <translation type="unfinished">Unarchive Wallet</translation>
+      <translation>Ma'ajiyin taskoki</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="376"/>
       <source>Archive Wallet</source>
-      <translation type="unfinished">Archive Wallet</translation>
+      <translation>Ma'ajiyin taskoki</translation>
     </message>
   </context>
   <context>
@@ -228,22 +228,22 @@
     <message>
       <location filename="../guis/mobile/AccountSelectorPopup.qml" line="50"/>
       <source>Your Wallets</source>
-      <translation type="unfinished">Your Wallets</translation>
+      <translation>Asusun ku</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountSelectorPopup.qml" line="127"/>
       <source>last active</source>
-      <translation type="unfinished">last active</translation>
+      <translation>aiki na ƙarshe</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountSelectorPopup.qml" line="136"/>
       <source>Needs PIN to open</source>
-      <translation type="unfinished">Needs PIN to open</translation>
+      <translation>Akwai buƙatar PIN don buɗewa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountSelectorPopup.qml" line="172"/>
       <source>Balance Total</source>
-      <translation type="unfinished">Balance Total</translation>
+      <translation>Jimlar Ma'auni</translation>
     </message>
   </context>
   <context>
@@ -251,7 +251,7 @@
     <message>
       <location filename="../guis/mobile/AccountSyncState.qml" line="156"/>
       <source>Status: Offline</source>
-      <translation type="unfinished">Status: Offline</translation>
+      <translation>Matsayi: Akashe</translation>
     </message>
   </context>
   <context>
@@ -259,47 +259,47 @@
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="25"/>
       <source>Wallet</source>
-      <translation type="unfinished">Wallet</translation>
+      <translation>Asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="25"/>
       <source>Wallets</source>
-      <translation type="unfinished">Wallets</translation>
+      <translation>Asusun</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="28"/>
       <source>Add Wallet</source>
-      <translation type="unfinished">Add Wallet</translation>
+      <translation>Ƙara Asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="59"/>
       <source>Default Wallet</source>
-      <translation type="unfinished">Default Wallet</translation>
+      <translation>Tsohuwar asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="69"/>
       <source>%1 is used on startup</source>
-      <translation type="unfinished">%1 is used on startup</translation>
+      <translation>Ana amfani da %1 akan farawa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="74"/>
       <source>Exit Private Mode</source>
-      <translation type="unfinished">Exit Private Mode</translation>
+      <translation>Fita daga Yanayin Sirri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="74"/>
       <source>Enter Private Mode</source>
-      <translation type="unfinished">Enter Private Mode</translation>
+      <translation>Shiga Keɓaɓɓen Yanayin</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="75"/>
       <source>Reveals wallets marked private</source>
-      <translation type="unfinished">Reveals wallets marked private</translation>
+      <translation>Bayyana asusun ɗin da ke da alamar sirri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="76"/>
       <source>Hides wallets marked private</source>
-      <translation type="unfinished">Hides wallets marked private</translation>
+      <translation>Ɓoye asusun ɗin da aka yiwa alama na sirri</translation>
     </message>
   </context>
   <context>
@@ -307,7 +307,7 @@
     <message>
       <location filename="../guis/mobile/CurrencySelector.qml" line="24"/>
       <source>Select Currency</source>
-      <translation type="unfinished">Select Currency</translation>
+      <translation>Zaɓi Kuɗi</translation>
     </message>
   </context>
   <context>
@@ -315,13 +315,13 @@
     <message>
       <location filename="../guis/mobile/ExploreModules.qml" line="24"/>
       <source>Explore</source>
-      <translation type="unfinished">Explore</translation>
+      <translation>Bincika</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ExploreModules.qml" line="121"/>
       <source>ON</source>
       <comment>Enabled. SHORT TEXT!</comment>
-      <translation type="unfinished">ON</translation>
+      <translation>Kan</translation>
     </message>
   </context>
   <context>
@@ -329,37 +329,37 @@
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="24"/>
       <source>Display Settings</source>
-      <translation type="unfinished">Display Settings</translation>
+      <translation>Baiyana Saituna</translation>
     </message>
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="39"/>
       <source>Font sizing</source>
-      <translation type="unfinished">Font sizing</translation>
+      <translation>Girman haruffa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="75"/>
       <source>Dark Theme</source>
-      <translation type="unfinished">Dark Theme</translation>
+      <translation>Jigo mai duhu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="100"/>
       <source>Unit</source>
-      <translation type="unfinished">Unit</translation>
+      <translation>Na'ura</translation>
     </message>
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="161"/>
       <source>Change Currency (%1)</source>
-      <translation type="unfinished">Change Currency (%1)</translation>
+      <translation>Canja Kuɗi (%1)</translation>
     </message>
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="167"/>
       <source>Main View</source>
-      <translation type="unfinished">Main View</translation>
+      <translation>Babban Duba</translation>
     </message>
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="172"/>
       <source>Show Bitcoin Cash value</source>
-      <translation type="unfinished">Show Bitcoin Cash value</translation>
+      <translation>Nuna darajar Bitcoin Cash</translation>
     </message>
   </context>
   <context>
@@ -367,95 +367,94 @@
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="26"/>
       <source>Import Wallet</source>
-      <translation type="unfinished">Import Wallet</translation>
+      <translation>Ɗauko asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="48"/>
       <source>Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.</source>
-      <translation type="unfinished">Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.</translation>
+      <translation>Ataimaka a shigar da sirrin asusu don shigo da shi. Wannan na iya zama jimla-jinin ko maɓalli na sirri.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="54"/>
       <source>Secret</source>
       <comment>The seed-phrase or private key</comment>
-      <translation type="unfinished">Secret</translation>
+      <translation>Sirri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="96"/>
       <source>Private key</source>
       <comment>description of type</comment>
-      <translation type="unfinished">Private key</translation>
+      <translation>Keɓaɓɓen maɓalli</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="99"/>
       <source>BIP 39 seed-phrase (interpreted as Electrum)</source>
       <comment>description of type</comment>
-      <translation type="unfinished">BIP 39 seed-phrase (interpreted as Electrum)</translation>
+      <translation>BIP 39 zuriyar jimla (an fassara shi azaman Electrum)</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="100"/>
       <source>BIP 39 seed-phrase</source>
       <comment>description of type</comment>
-      <translation type="unfinished">BIP 39 seed-phrase</translation>
+      <translation>BIP 39 zuriyar jimla</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="103"/>
       <source>Electrum seed-phrase</source>
       <comment>description of type</comment>
-      <translation type="unfinished">Electrum seed-phrase</translation>
+      <translation>Zuriyar jimlar Electrum</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="105"/>
       <source>Unrecognized word</source>
       <comment>Word from the seed-phrases lexicon</comment>
-      <translation type="unfinished">Unrecognized word</translation>
+      <translation>Kalmar da ba'a gane ba</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="113"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Suna</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="122"/>
       <source>Force Single Address</source>
-      <translation type="unfinished">Force Single Address</translation>
+      <translation>Tilasta Adireshi Guda Daya</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="123"/>
       <source>When enabled, no extra addresses will be auto-generated in this wallet.
 Change will come back to the imported key.</source>
-      <translation type="unfinished">When enabled, no extra addresses will be auto-generated in this wallet.
-Change will come back to the imported key.</translation>
+      <translation>Lokacin da aka kunna, ba za'a samar da ƙarin adireshi ta atomatik a cikin wannan wallet ɗin ba. Canji zai dawo kan maɓallin da aka shigo da shi.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="129"/>
       <source>Old Electrum Phrase</source>
-      <translation type="unfinished">Old Electrum Phrase</translation>
+      <translation>Tsohon Zuriyar jimlar Electrum</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="130"/>
       <source>When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</source>
-      <translation type="unfinished">When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</translation>
+      <translation>Lokacin gano Electrum ya gaza, kuma kun tabbata an ƙirƙira shi a cikin wallet ɗin, kunna wannan zaɓi.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="149"/>
       <source>Oldest Transaction</source>
-      <translation type="unfinished">Oldest Transaction</translation>
+      <translation>Tsohon ciniki</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="182"/>
       <source>Derivation</source>
-      <translation type="unfinished">Derivation</translation>
+      <translation>Samo asali</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="193"/>
       <source>Alternate phrase</source>
-      <translation type="unfinished">Alternate phrase</translation>
+      <translation>Madadin magana</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="210"/>
       <source>Create</source>
-      <translation type="unfinished">Create</translation>
+      <translation>Ƙirƙiri</translation>
     </message>
   </context>
   <context>
@@ -463,27 +462,27 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/mobile/InstaPayConfigButton.qml" line="24"/>
       <source>Enable Instant Pay</source>
-      <translation type="unfinished">Enable Instant Pay</translation>
+      <translation>Kunna Biyan Nan take</translation>
     </message>
     <message>
       <location filename="../guis/mobile/InstaPayConfigButton.qml" line="24"/>
       <source>Configure Instant Pay</source>
-      <translation type="unfinished">Configure Instant Pay</translation>
+      <translation>Sanya Biyan Nan take</translation>
     </message>
     <message>
       <location filename="../guis/mobile/InstaPayConfigButton.qml" line="46"/>
       <source>Fast payments for low amounts</source>
-      <translation type="unfinished">Fast payments for low amounts</translation>
+      <translation>Biyan kuɗi mai sauri don ƙananan kuɗi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/InstaPayConfigButton.qml" line="48"/>
       <source>Not configured</source>
-      <translation type="unfinished">Not configured</translation>
+      <translation>Ba a saita shi ba</translation>
     </message>
     <message>
       <location filename="../guis/mobile/InstaPayConfigButton.qml" line="49"/>
       <source>Limit set to: %1</source>
-      <translation type="unfinished">Limit set to: %1</translation>
+      <translation>An saita iyaka zuwa: %1</translation>
     </message>
   </context>
   <context>
@@ -491,27 +490,27 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/mobile/InstaPayConfigPage.qml" line="23"/>
       <source>Instant Pay</source>
-      <translation type="unfinished">Instant Pay</translation>
+      <translation>Biyan Nan take</translation>
     </message>
     <message>
       <location filename="../guis/mobile/InstaPayConfigPage.qml" line="29"/>
       <source>Requests for payment can be approved automatically using Instant Pay.</source>
-      <translation type="unfinished">Requests for payment can be approved automatically using Instant Pay.</translation>
+      <translation>Ana iya amincewa da buƙatun biyan kuɗi ta atomatik ta amfani da Biyan Nan take.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/InstaPayConfigPage.qml" line="53"/>
       <source>Protected wallets can not be used for InstaPay because they require a PIN before usage</source>
-      <translation type="unfinished">Protected wallets can not be used for InstaPay because they require a PIN before usage</translation>
+      <translation>Ba za a iya amfani da kariyar asusu ɗin don InstaPay ba saboda suna buƙatar PIN kafin amfani</translation>
     </message>
     <message>
       <location filename="../guis/mobile/InstaPayConfigPage.qml" line="64"/>
       <source>Enable Instant Pay for this wallet</source>
-      <translation type="unfinished">Enable Instant Pay for this wallet</translation>
+      <translation>Kunna Biyan Nan take na wannan asusun</translation>
     </message>
     <message>
       <location filename="../guis/mobile/InstaPayConfigPage.qml" line="71"/>
       <source>Maximum Amount</source>
-      <translation type="unfinished">Maximum Amount</translation>
+      <translation>Makurar Adadi</translation>
     </message>
   </context>
   <context>
@@ -519,52 +518,52 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="25"/>
       <source>Security</source>
-      <translation type="unfinished">Security</translation>
+      <translation>Tsaro</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="35"/>
       <source>PIN on startup</source>
-      <translation type="unfinished">PIN on startup</translation>
+      <translation>PIN akan farawa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="45"/>
       <source>Enter current PIN</source>
-      <translation type="unfinished">Enter current PIN</translation>
+      <translation>Shigar da lambar tsaro na yanzu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="45"/>
       <source>Enter new PIN</source>
-      <translation type="unfinished">Enter new PIN</translation>
+      <translation>Shigar da lambar tsaro</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="80"/>
       <source>Repeat PIN</source>
-      <translation type="unfinished">Repeat PIN</translation>
+      <translation>Maimaita lambar tsaro</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="117"/>
       <source>Remove PIN</source>
-      <translation type="unfinished">Remove PIN</translation>
+      <translation>Cire lambar tsaro</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="117"/>
       <source>Set PIN</source>
-      <translation type="unfinished">Set PIN</translation>
+      <translation>Saita lambar tsaro</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="124"/>
       <source>PIN has been removed</source>
-      <translation type="unfinished">PIN has been removed</translation>
+      <translation>An cire lambar tsaro</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="127"/>
       <source>PIN has been set</source>
-      <translation type="unfinished">PIN has been set</translation>
+      <translation>An saita lambar tsaro</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="213"/>
       <source>Ok</source>
-      <translation type="unfinished">Ok</translation>
+      <translation>Ya yi</translation>
     </message>
   </context>
   <context>
@@ -572,7 +571,7 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/mobile/MenuOverlay.qml" line="312"/>
       <source>Add Wallet</source>
-      <translation type="unfinished">Add Wallet</translation>
+      <translation>Ƙara Asusu</translation>
     </message>
   </context>
   <context>
@@ -580,127 +579,126 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="26"/>
       <source>New Bitcoin Cash Wallet</source>
-      <translation type="unfinished">New Bitcoin Cash Wallet</translation>
+      <translation>Sabon asusun Bitcoin Cash</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="39"/>
       <source>Create a New Wallet</source>
-      <translation type="unfinished">Create a New Wallet</translation>
+      <translation>Ƙirƙiri sabon asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="44"/>
       <source>HD wallet</source>
-      <translation type="unfinished">HD wallet</translation>
+      <translation>Asusun HD</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="51"/>
       <source>Seed-phrase based</source>
       <comment>Context: wallet type</comment>
-      <translation type="unfinished">Seed-phrase based</translation>
+      <translation>Tushen jimlar iri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="52"/>
       <source>Easy to backup</source>
       <comment>Context: wallet type</comment>
-      <translation type="unfinished">Easy to backup</translation>
+      <translation>Sauƙi wurin dawo da ajiya</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="53"/>
       <source>Most compatible</source>
       <comment>The most compatible wallet type</comment>
-      <translation type="unfinished">Most compatible</translation>
+      <translation>Mafi dacewa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="65"/>
       <source>Basic</source>
-      <translation type="unfinished">Basic</translation>
+      <translation>Na asali</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="72"/>
       <source>Private keys based</source>
       <comment>Property of a wallet</comment>
-      <translation type="unfinished">Private keys based</translation>
+      <translation>Maɓallai masu zaman kansu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="73"/>
       <source>Difficult to backup</source>
       <comment>Context: wallet type</comment>
-      <translation type="unfinished">Difficult to backup</translation>
+      <translation>Wahalar dawo da ajiya</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="74"/>
       <source>Great for brief usage</source>
       <comment>Context: wallet type</comment>
-      <translation type="unfinished">Great for brief usage</translation>
+      <translation>Mai girma don taƙaitaccen amfani</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="80"/>
       <source>Import Existing Wallet</source>
-      <translation type="unfinished">Import Existing Wallet</translation>
+      <translation>Shigo da asusun da ke akwai</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="83"/>
       <source>Import</source>
-      <translation type="unfinished">Import</translation>
+      <translation>Shigo da</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="90"/>
       <source>Imports seed-phrase</source>
-      <translation type="unfinished">Imports seed-phrase</translation>
+      <translation>Shigo da jumla iri-iri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="91"/>
       <source>Imports private key</source>
-      <translation type="unfinished">Imports private key</translation>
+      <translation>Shigo da maɓalli na sirri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="106"/>
       <source>New Wallet</source>
-      <translation type="unfinished">New Wallet</translation>
+      <translation>Sabon Asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="114"/>
       <source>This creates a new empty wallet with simple multi-address capability</source>
-      <translation type="unfinished">This creates a new empty wallet with simple multi-address capability</translation>
+      <translation>Wannan yana haifar da sabon asusu mara komai tare da sauƙin adireshi da yawa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="120"/>
       <location filename="../guis/mobile/NewAccount.qml" line="169"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Suna</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="130"/>
       <source>Force Single Address</source>
-      <translation type="unfinished">Force Single Address</translation>
+      <translation>Tilasta Adireshi Guda</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="131"/>
       <source>When enabled, this wallet will be limited to one address.
 This ensures only one private key will need to be backed up</source>
-      <translation type="unfinished">When enabled, this wallet will be limited to one address.
-This ensures only one private key will need to be backed up</translation>
+      <translation>Lokacin da aka kunna, wannan asusun za'a iyakance shi ga adireshi ɗaya. Wannan yana tabbatar da maɓallin keɓaɓɓen maɓalli ɗaya ne kawai zai buƙaci a yi masa tallafi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="139"/>
       <location filename="../guis/mobile/NewAccount.qml" line="194"/>
       <source>Create</source>
-      <translation type="unfinished">Create</translation>
+      <translation>Ƙirƙiri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="157"/>
       <source>New HD-Wallet</source>
-      <translation type="unfinished">New HD-Wallet</translation>
+      <translation>Sabon Asusun HD</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="165"/>
       <source>This creates a new wallet that can be backed up with a seed-phrase</source>
-      <translation type="unfinished">This creates a new wallet that can be backed up with a seed-phrase</translation>
+      <translation>Wannan yana haifar da sabon asusu wanda za'a iya tallafawa ko dawo dashi tare da jimlar iri</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="177"/>
       <source>Derivation</source>
-      <translation type="unfinished">Derivation</translation>
+      <translation>Samo asali</translation>
     </message>
   </context>
   <context>
@@ -708,60 +706,60 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="26"/>
       <source>Approve Payment</source>
-      <translation type="unfinished">Approve Payment</translation>
+      <translation>Amincewa Biya</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="31"/>
       <source>Send All</source>
       <comment>all money in wallet</comment>
-      <translation type="unfinished">Send All</translation>
+      <translation>Tura duka</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="41"/>
       <source>Show Address</source>
       <comment>to show a bitcoincash address</comment>
-      <translation type="unfinished">Show Address</translation>
+      <translation>Nuna adireshi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="44"/>
       <source>Edit Amount</source>
       <comment>Edit amount of money to send</comment>
-      <translation type="unfinished">Edit Amount</translation>
+      <translation>Gyara Adadin</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="135"/>
       <source>Invalid QR code</source>
-      <translation type="unfinished">Invalid QR code</translation>
+      <translation>Lambar QR mara inganci</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="148"/>
       <source>I don&apos;t understand the scanned code. I&apos;m sorry, I can&apos;t start a payment.</source>
-      <translation type="unfinished">I don&apos;t understand the scanned code. I&apos;m sorry, I can&apos;t start a payment.</translation>
+      <translation>Ban fahimci lambar da aka bincika ba. Yi hakuri, ba zan iya fara biya ba.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="152"/>
       <source>details</source>
-      <translation type="unfinished">details</translation>
+      <translation>bayanai</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="163"/>
       <source>Scanned text: &lt;pre&gt;%1&lt;/pre&gt;</source>
-      <translation type="unfinished">Scanned text: &lt;pre&gt;%1&lt;/pre&gt;</translation>
+      <translation>Rubutun da aka duba: &lt;pre&gt;%1&lt;/pre&gt;</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="212"/>
       <source>Payment description</source>
-      <translation type="unfinished">Payment description</translation>
+      <translation>Bayanin biyan kuɗi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="251"/>
       <source>Destination Address</source>
-      <translation type="unfinished">Destination Address</translation>
+      <translation>Adireshin Zuwa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PayWithQR.qml" line="425"/>
       <source>Unlock Wallet</source>
-      <translation type="unfinished">Unlock Wallet</translation>
+      <translation>Buɗe Asusu</translation>
     </message>
   </context>
   <context>
@@ -770,25 +768,25 @@ This ensures only one private key will need to be backed up</translation>
       <location filename="../guis/mobile/PriceDetails.qml" line="45"/>
       <source>1 BCH is: %1</source>
       <comment>Price of a whole bitcoin cash</comment>
-      <translation type="unfinished">1 BCH is: %1</translation>
+      <translation>1 BCH is: %1</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PriceDetails.qml" line="93"/>
       <source>7d</source>
       <comment>7 days</comment>
-      <translation type="unfinished">7d</translation>
+      <translation>7d</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PriceDetails.qml" line="95"/>
       <source>1m</source>
       <comment>1 month</comment>
-      <translation type="unfinished">1m</translation>
+      <translation>1m</translation>
     </message>
     <message>
       <location filename="../guis/mobile/PriceDetails.qml" line="97"/>
       <source>3m</source>
       <comment>3 months</comment>
-      <translation type="unfinished">3m</translation>
+      <translation>3m</translation>
     </message>
   </context>
   <context>
@@ -796,7 +794,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/PriceInputWidget.qml" line="200"/>
       <source>All Currencies</source>
-      <translation type="unfinished">All Currencies</translation>
+      <translation>Ireiren kuɗaɗe</translation>
     </message>
   </context>
   <context>
@@ -804,22 +802,22 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/QRScannerOverlay.qml" line="124"/>
       <source>Paste</source>
-      <translation type="unfinished">Paste</translation>
+      <translation>Wallafa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/QRScannerOverlay.qml" line="148"/>
       <source>Failed</source>
-      <translation type="unfinished">Failed</translation>
+      <translation>Ba a yi nasara ba</translation>
     </message>
     <message>
       <location filename="../guis/mobile/QRScannerOverlay.qml" line="214"/>
       <source>Instant Pay limit is %1</source>
-      <translation type="unfinished">Instant Pay limit is %1</translation>
+      <translation>Iyakar Biyan Nan take shine %1</translation>
     </message>
     <message>
       <location filename="../guis/mobile/QRScannerOverlay.qml" line="217"/>
       <source>Selected wallet: &apos;%1&apos;</source>
-      <translation type="unfinished">Selected wallet: &apos;%1&apos;</translation>
+      <translation>Asusun da aka zaɓa: &apos;%1&apos;</translation>
     </message>
   </context>
   <context>
@@ -827,86 +825,86 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="27"/>
       <source>Receive</source>
-      <translation type="unfinished">Receive</translation>
+      <translation>Karɓa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="114"/>
       <source>Share this QR to receive</source>
-      <translation type="unfinished">Share this QR to receive</translation>
+      <translation>Raba wannan QR don karɓa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="133"/>
       <source>Encrypted Wallet</source>
-      <translation type="unfinished">Encrypted Wallet</translation>
+      <translation>Rufaffen asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="135"/>
       <source>Import Running...</source>
-      <translation type="unfinished">Import Running...</translation>
+      <translation>Tsarin Shiga na gudu...</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="172"/>
       <location filename="../guis/mobile/ReceiveTab.qml" line="222"/>
       <source>Description</source>
-      <translation type="unfinished">Description</translation>
+      <translation>Bayani</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="180"/>
       <source>Amount</source>
       <comment>requested amount of coin</comment>
-      <translation type="unfinished">Amount</translation>
+      <translation>Adadi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="188"/>
       <source>Address</source>
       <comment>Bitcoin Cash address</comment>
-      <translation type="unfinished">Address</translation>
+      <translation>Adireshi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="197"/>
       <source>Clear</source>
-      <translation type="unfinished">Clear</translation>
+      <translation>Share</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="368"/>
       <location filename="../guis/mobile/ReceiveTab.qml" line="395"/>
       <source>Payment Seen</source>
-      <translation type="unfinished">Payment Seen</translation>
+      <translation>Anga shaidar biya</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="375"/>
       <source>Checking...</source>
-      <translation type="unfinished">Checking...</translation>
+      <translation>Ana dubawa...</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="390"/>
       <source>Transaction high risk</source>
-      <translation type="unfinished">Transaction high risk</translation>
+      <translation>Haɗarin cinikayya</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="393"/>
       <source>Partially Paid</source>
-      <translation type="unfinished">Partially Paid</translation>
+      <translation>An biya wani bangare</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="397"/>
       <source>Payment Accepted</source>
-      <translation type="unfinished">Payment Accepted</translation>
+      <translation>An Karɓa Biya</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="399"/>
       <source>Payment Settled</source>
-      <translation type="unfinished">Payment Settled</translation>
+      <translation>Biya An daidaita</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="415"/>
       <source>Instant payment failed. Wait for confirmation. (double spent proof received)</source>
-      <translation type="unfinished">Instant payment failed. Wait for confirmation. (double spent proof received)</translation>
+      <translation>Biyan nan take ya kasa. Jira tabbaci. (Anga shaida guda biyu da aka kashe)</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="424"/>
       <source>Continue</source>
-      <translation type="unfinished">Continue</translation>
+      <translation>Ci gaba</translation>
     </message>
   </context>
   <context>
@@ -914,27 +912,27 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="22"/>
       <source>Select Wallet</source>
-      <translation type="unfinished">Select Wallet</translation>
+      <translation>Zabi asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="30"/>
       <source>Pick which wallet will be selected on starting Flowee Pay</source>
-      <translation type="unfinished">Pick which wallet will be selected on starting Flowee Pay</translation>
+      <translation>Zaɓi wanne asusun kuɗi za a zaɓi akan farawa Flowee Pay</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="69"/>
       <source>No InstaPay limit set</source>
-      <translation type="unfinished">No InstaPay limit set</translation>
+      <translation>Ba a saita iyakar InstaPay</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="70"/>
       <source>InstaPay till %1</source>
-      <translation type="unfinished">InstaPay till %1</translation>
+      <translation>InstaPay har zuwa %1</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SelectDefaultAccountPage.qml" line="72"/>
       <source>InstaPay is turned off</source>
-      <translation type="unfinished">InstaPay is turned off</translation>
+      <translation>An kashe InstaPay</translation>
     </message>
   </context>
   <context>
@@ -942,12 +940,12 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/SendTransactionsTab.qml" line="24"/>
       <source>Send</source>
-      <translation type="unfinished">Send</translation>
+      <translation>Aika</translation>
     </message>
     <message>
       <location filename="../guis/mobile/SendTransactionsTab.qml" line="35"/>
       <source>Start Payment</source>
-      <translation type="unfinished">Start Payment</translation>
+      <translation>Fara Biyan Kuɗi</translation>
     </message>
   </context>
   <context>
@@ -955,7 +953,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/SlideToApprove.qml" line="31"/>
       <source>SLIDE TO SEND</source>
-      <translation type="unfinished">SLIDE TO SEND</translation>
+      <translation>TURA DON AIKA</translation>
     </message>
   </context>
   <context>
@@ -963,22 +961,22 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="25"/>
       <source>Welcome!</source>
-      <translation type="unfinished">Welcome!</translation>
+      <translation>Barka da zuwa!</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="27"/>
       <source>Continue</source>
-      <translation type="unfinished">Continue</translation>
+      <translation>Ci gaba</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="100"/>
       <source>Moving the world towards a Bitcoin&#xa0;Cash economy</source>
-      <translation type="unfinished">Moving the world towards a Bitcoin&#xa0;Cash economy</translation>
+      <translation>Matsar da duniya zuwa tattalin arzikin Bitcoin&#xa0;Cash</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="111"/>
       <source>Scan me to send funds to your HD wallet</source>
-      <translation type="unfinished">Scan me to send funds to your HD wallet</translation>
+      <translation>Duba ni don aika kuɗi zuwa asusun ku na HD</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="152"/>
@@ -996,7 +994,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="28"/>
       <source>Transaction Details</source>
-      <translation type="unfinished">Transaction Details</translation>
+      <translation>Cikakken Bayanin Kasuwanci</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="39"/>
@@ -1006,7 +1004,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="73"/>
       <source>Rejected</source>
-      <translation type="unfinished">Rejected</translation>
+      <translation>An ƙii</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="75"/>
@@ -1110,7 +1108,7 @@ This ensures only one private key will need to be backed up</translation>
       <source>%1 blocks ago</source>
       <comment>Confirmations</comment>
       <translation type="unfinished">
-        <numerusform>%1 block ago</numerusform>
+        <numerusform>%1 blocks ago</numerusform>
         <numerusform>%1 blocks ago</numerusform>
       </translation>
     </message>
@@ -1162,7 +1160,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="181"/>
       <source>Transaction Details</source>
-      <translation type="unfinished">Transaction Details</translation>
+      <translation>Cikakken Bayanin Kasuwanci</translation>
     </message>
   </context>
   <context>
@@ -1176,7 +1174,7 @@ This ensures only one private key will need to be backed up</translation>
       <location filename="../guis/mobile/UnlockWidget.qml" line="226"/>
       <source>Open</source>
       <comment>open wallet with PIN</comment>
-      <translation type="unfinished">Open</translation>
+      <translation>Bude</translation>
     </message>
   </context>
 </TS>

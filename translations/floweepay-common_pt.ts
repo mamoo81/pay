@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="pt" sourcelanguage="en">
+<TS version="2.1" language="pt-BR" sourcelanguage="en">
   <context>
     <name>AccountInfo</name>
     <message>
@@ -135,50 +135,50 @@
   <context>
     <name>FloweePay</name>
     <message>
-      <location filename="../src/FloweePay.cpp" line="434"/>
+      <location filename="../src/FloweePay.cpp" line="456"/>
       <source>Initial Wallet</source>
       <translation>Carteira inicial</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="619"/>
-      <location filename="../src/FloweePay.cpp" line="677"/>
+      <location filename="../src/FloweePay.cpp" line="641"/>
+      <location filename="../src/FloweePay.cpp" line="699"/>
       <source>Today</source>
       <translation>Hoje</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="621"/>
-      <location filename="../src/FloweePay.cpp" line="679"/>
+      <location filename="../src/FloweePay.cpp" line="643"/>
+      <location filename="../src/FloweePay.cpp" line="701"/>
       <source>Yesterday</source>
       <translation>Ontem</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="666"/>
+      <location filename="../src/FloweePay.cpp" line="688"/>
       <source>Now</source>
       <comment>timestamp</comment>
       <translation>Agora</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="667"/>
+      <location filename="../src/FloweePay.cpp" line="689"/>
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
-      <translation type="unfinished">
-        <numerusform>%1 minuto(s) atrás</numerusform>
-        <numerusform>%1 minutes ago</numerusform>
+      <translation>
+        <numerusform>%1 minuto atrás</numerusform>
+        <numerusform>%1 minutos atrás</numerusform>
       </translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="671"/>
+      <location filename="../src/FloweePay.cpp" line="693"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
       <translation>Meia hora atrás</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="673"/>
+      <location filename="../src/FloweePay.cpp" line="695"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
-      <translation type="unfinished">
-        <numerusform>%1 hora(s) atrás</numerusform>
-        <numerusform>%1 hours ago</numerusform>
+      <translation>
+        <numerusform>%1 hora atrás</numerusform>
+        <numerusform>%1 horas atrás</numerusform>
       </translation>
     </message>
   </context>
@@ -266,32 +266,32 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="135"/>
+      <location filename="../src/Payment.cpp" line="142"/>
       <source>Invalid PIN</source>
       <translation>PIN inválido</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="224"/>
+      <location filename="../src/Payment.cpp" line="231"/>
       <source>Not enough funds selected for fees</source>
       <translation>Saldo insuficiente para taxas</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="233"/>
+      <location filename="../src/Payment.cpp" line="240"/>
       <source>Not enough funds in wallet to make payment!</source>
       <translation>Saldo insuficiente para realizar pagamento!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="297"/>
+      <location filename="../src/Payment.cpp" line="304"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Valor muito alto. A quantia selecionada requer moedas demais.</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="467"/>
+      <location filename="../src/Payment.cpp" line="479"/>
       <source>Request received over insecure channel. Anyone could have altered it!</source>
       <translation type="unfinished">Request received over insecure channel. Anyone could have altered it!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="470"/>
+      <location filename="../src/Payment.cpp" line="482"/>
       <source>Download of payment request failed.</source>
       <translation type="unfinished">Download of payment request failed.</translation>
     </message>
@@ -305,7 +305,7 @@
     </message>
     <message>
       <location filename="../src/PaymentProtocol.cpp" line="286"/>
-      <location filename="../src/PaymentProtocol.cpp" line="323"/>
+      <location filename="../src/PaymentProtocol.cpp" line="317"/>
       <source>Payment request expired</source>
       <translation type="unfinished">Payment request expired</translation>
     </message>
@@ -344,18 +344,18 @@
       <location filename="../src/WalletCoinsModel.cpp" line="90"/>
       <source>%1 hours</source>
       <comment>age, like: hours old</comment>
-      <translation type="unfinished">
-        <numerusform>%1 hora(s)</numerusform>
-        <numerusform>%1 hours</numerusform>
+      <translation>
+        <numerusform>%1 hora</numerusform>
+        <numerusform>%1 horas</numerusform>
       </translation>
     </message>
     <message numerus="yes">
       <location filename="../src/WalletCoinsModel.cpp" line="94"/>
       <source>%1 days</source>
       <comment>age, like: days old</comment>
-      <translation type="unfinished">
-        <numerusform>%1 dia(s)</numerusform>
-        <numerusform>%1 days</numerusform>
+      <translation>
+        <numerusform>%1 dia</numerusform>
+        <numerusform>%1 dias</numerusform>
       </translation>
     </message>
     <message numerus="yes">

@@ -130,21 +130,26 @@
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="298"/>
+      <source>Seed format</source>
+      <translation type="unfinished">Seed format</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/AccountDetails.qml" line="308"/>
       <source>Derivation</source>
       <translation>Derywacja</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="310"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="320"/>
       <source>Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case of computer failure.</source>
       <translation>Prosimy o zapisanie seeda oraz ścieżki derywacji na papierze, z zachowaniem kolejności słów. Pozwoli to na odzyskanie portfela w przypadku awarii komputera.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="320"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="330"/>
       <source>&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</source>
       <translation>&lt;b&gt;Ważne&lt;/b&gt;: Nigdy nie udostępniaj seeda innym!</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="328"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="338"/>
       <source>This wallet is protected by password (pin-to-pay). To see the backup details you need to provide the password.</source>
       <translation>Ten portfel jest chroniony hasłem (PIN by płacić). Aby zobaczyć szczegóły kopii zapasowej musisz podać hasło.</translation>
     </message>
@@ -282,78 +287,100 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
   <context>
     <name>NewAccountImportAccount</name>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="35"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="42"/>
       <source>Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.</source>
       <translation>Wprowadź sekrety portfela, który chcesz importować. Może to być seed lub klucz prywatny.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="40"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="47"/>
       <source>Secret</source>
       <comment>The seed-phrase or private key</comment>
       <translation>Sekret</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="47"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="54"/>
       <source>Example: %1</source>
       <comment>placeholder text</comment>
       <translation>Przykład: %1</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="57"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="64"/>
       <source>Name</source>
       <translation>Nazwa</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="75"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="82"/>
       <source>Private key</source>
       <comment>description of type</comment>
       <translation>Klucz prywatny</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="77"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="85"/>
+      <source>BIP 39 seed-phrase (interpreted as Electrum format)</source>
+      <comment>description of type</comment>
+      <translation type="unfinished">BIP 39 seed-phrase (interpreted as Electrum format)</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="86"/>
       <source>BIP 39 seed-phrase</source>
       <comment>description of type</comment>
       <translation>Seed BIP 39</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="79"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="89"/>
+      <source>Electrum seed-phrase</source>
+      <comment>description of type</comment>
+      <translation type="unfinished">Electrum seed-phrase</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="91"/>
       <source>Unrecognized word</source>
       <comment>Word from the seed-phrases lexicon</comment>
       <translation>Nierozpoznawalne słowo</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="90"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="102"/>
       <source>Import wallet</source>
       <translation>Importuj portfel</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="116"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="128"/>
       <source>Advanced Options</source>
       <translation>Opcje zaawansowane</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="131"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="143"/>
       <source>Force Single Address</source>
       <translation>Wymuś jeden adres</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="132"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="144"/>
       <source>When enabled, no extra addresses will be auto-generated in this wallet.
 Change will come back to the imported key.</source>
       <translation>Gdy włączone, dodatkowe adresy nie zostaną automatycznie stworzone dla tego portfela. Reszta wróci do zaimportowanego klucza.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="138"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="151"/>
+      <source>Old Electrum Phrase</source>
+      <translation type="unfinished">Old Electrum Phrase</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="152"/>
+      <source>When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</source>
+      <translation type="unfinished">When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="171"/>
       <source>Start Height</source>
       <translation>Wysokość początkowa</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="145"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="179"/>
       <source>Derivation</source>
       <translation>Derywacja</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="156"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="190"/>
       <source>Alternate phrase</source>
       <translation>Alternatywna fraza</translation>
     </message>
@@ -923,12 +950,12 @@ Change will come back to the imported key.</source>
   <context>
     <name>WalletEncryptionStatus</name>
     <message>
-      <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="45"/>
+      <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="47"/>
       <source>Pin to Pay</source>
       <translation>PIN by płacić</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="47"/>
+      <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="45"/>
       <source>Pin to Open</source>
       <translation>PIN by otworzyć</translation>
     </message>
@@ -948,8 +975,8 @@ Change will come back to the imported key.</source>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="65"/>
-      <source>Cash Fusion</source>
-      <translation>Cash Fusion</translation>
+      <source>Fused</source>
+      <translation type="unfinished">Fused</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="67"/>

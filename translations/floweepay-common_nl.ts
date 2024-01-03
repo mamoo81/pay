@@ -135,30 +135,30 @@
   <context>
     <name>FloweePay</name>
     <message>
-      <location filename="../src/FloweePay.cpp" line="434"/>
+      <location filename="../src/FloweePay.cpp" line="456"/>
       <source>Initial Wallet</source>
       <translation>Eerste portemonnee</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="619"/>
-      <location filename="../src/FloweePay.cpp" line="677"/>
+      <location filename="../src/FloweePay.cpp" line="641"/>
+      <location filename="../src/FloweePay.cpp" line="699"/>
       <source>Today</source>
       <translation>Vandaag</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="621"/>
-      <location filename="../src/FloweePay.cpp" line="679"/>
+      <location filename="../src/FloweePay.cpp" line="643"/>
+      <location filename="../src/FloweePay.cpp" line="701"/>
       <source>Yesterday</source>
       <translation>Gisteren</translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="666"/>
+      <location filename="../src/FloweePay.cpp" line="688"/>
       <source>Now</source>
       <comment>timestamp</comment>
       <translation>Nu</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="667"/>
+      <location filename="../src/FloweePay.cpp" line="689"/>
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
       <translation>
@@ -167,13 +167,13 @@
       </translation>
     </message>
     <message>
-      <location filename="../src/FloweePay.cpp" line="671"/>
+      <location filename="../src/FloweePay.cpp" line="693"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
       <translation>Half uur geleden</translation>
     </message>
     <message numerus="yes">
-      <location filename="../src/FloweePay.cpp" line="673"/>
+      <location filename="../src/FloweePay.cpp" line="695"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
       <translation>
@@ -266,32 +266,32 @@
   <context>
     <name>Payment</name>
     <message>
-      <location filename="../src/Payment.cpp" line="135"/>
+      <location filename="../src/Payment.cpp" line="142"/>
       <source>Invalid PIN</source>
       <translation>Ongeldige PIN</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="224"/>
+      <location filename="../src/Payment.cpp" line="231"/>
       <source>Not enough funds selected for fees</source>
       <translation>Onvoldoende saldo voor transactiekosten</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="233"/>
+      <location filename="../src/Payment.cpp" line="240"/>
       <source>Not enough funds in wallet to make payment!</source>
       <translation>Niet genoeg saldo in portemonnee om te betalen!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="297"/>
+      <location filename="../src/Payment.cpp" line="304"/>
       <source>Transaction too large. Amount selected needs too many coins.</source>
       <translation>Transactie te groot. Geselecteerd bedrag vereist te veel munten.</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="467"/>
+      <location filename="../src/Payment.cpp" line="479"/>
       <source>Request received over insecure channel. Anyone could have altered it!</source>
       <translation>Verzoek ontvangen via onveilig kanaal. Hij kan door eenieder gewijzigd zijn!</translation>
     </message>
     <message>
-      <location filename="../src/Payment.cpp" line="470"/>
+      <location filename="../src/Payment.cpp" line="482"/>
       <source>Download of payment request failed.</source>
       <translation>Downloaden van betalingsverzoek mislukt.</translation>
     </message>
@@ -305,7 +305,7 @@
     </message>
     <message>
       <location filename="../src/PaymentProtocol.cpp" line="286"/>
-      <location filename="../src/PaymentProtocol.cpp" line="323"/>
+      <location filename="../src/PaymentProtocol.cpp" line="317"/>
       <source>Payment request expired</source>
       <translation>Betalingsverzoek verlopen</translation>
     </message>

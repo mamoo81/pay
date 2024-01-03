@@ -6,23 +6,27 @@
         <file>floweepay-common_de.qm</file>
         <file>floweepay-common_es.qm</file>
         <file>floweepay-common_pt.qm</file>
+        <file>floweepay-common_ha.qm</file>
         <file>floweepay-mobile_en.qm</file>
         <file>floweepay-mobile_nl.qm</file>
         <file>floweepay-mobile_pl.qm</file>
         <file>floweepay-mobile_de.qm</file>
         <file>floweepay-mobile_es.qm</file>
         <file>floweepay-mobile_pt.qm</file>
+        <file>floweepay-mobile_ha.qm</file>
         <file>module-build-transaction_en.qm</file>
         <file>module-build-transaction_nl.qm</file>
         <file>module-build-transaction_pl.qm</file>
         <file>module-build-transaction_de.qm</file>
         <file>module-build-transaction_es.qm</file>
         <file>module-build-transaction_pt.qm</file>
+        <file>module-build-transaction_ha.qm</file>
         <file>module-peers-view_en.qm</file>
         <file>module-peers-view_nl.qm</file>
         <file>module-peers-view_pl.qm</file>
         <file>module-peers-view_de.qm</file>
         <file>module-peers-view_es.qm</file>
         <file>module-peers-view_pt.qm</file>
+        <file>module-peers-view_ha.qm</file>
     </qresource>
 </RCC>

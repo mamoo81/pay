@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="de" sourcelanguage="en">
+<TS version="2.1" language="ha" sourcelanguage="en">
   <context>
     <name>AccountConfigMenu</name>
     <message>
       <location filename="../guis/desktop/AccountConfigMenu.qml" line="26"/>
       <source>Details</source>
-      <translation>Details</translation>
+      <translation>Bayanai</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountConfigMenu.qml" line="33"/>
       <source>Unarchive</source>
-      <translation>Entarchivieren</translation>
+      <translation>Cire Takardu</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountConfigMenu.qml" line="33"/>
       <source>Archive Wallet</source>
-      <translation>Geldbörse archivieren</translation>
+      <translation>Ma'ajiyin taskoki</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountConfigMenu.qml" line="38"/>
       <source>Make Primary</source>
-      <translation>Primär setzen</translation>
+      <translation>Haɗin farko</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountConfigMenu.qml" line="38"/>
       <source>★ Primary</source>
-      <translation>★ Primär</translation>
+      <translation>Mafari</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountConfigMenu.qml" line="42"/>
       <source>Protect With Pin...</source>
-      <translation>Mit Pin schützen...</translation>
+      <translation>Tsarewa da ɗan makulli...</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountConfigMenu.qml" line="49"/>
       <source>Open</source>
       <comment>Open encrypted wallet</comment>
-      <translation>Öffnen</translation>
+      <translation>Budewa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountConfigMenu.qml" line="54"/>
       <source>Close</source>
       <comment>Close encrypted wallet</comment>
-      <translation>Schließen</translation>
+      <translation>Kullewa</translation>
     </message>
   </context>
   <context>
@@ -51,82 +51,82 @@
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="50"/>
       <source>Wallet Details</source>
-      <translation>Geldbörsen Details</translation>
+      <translation>Bayanan asusun ajiya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="74"/>
       <source>Name</source>
-      <translation>Name</translation>
+      <translation>Suna</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="114"/>
       <source>Sync Status</source>
-      <translation>Sync Status</translation>
+      <translation>Daidaita matsayi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="149"/>
       <source>Encryption</source>
-      <translation>Verschlüsselung</translation>
+      <translation>Rufewa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="160"/>
       <source>Password</source>
-      <translation>Passwort</translation>
+      <translation>Kwadon shiga</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="189"/>
       <source>Open</source>
-      <translation>Öffnen</translation>
+      <translation>Bude</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="199"/>
       <source>Invalid PIN</source>
-      <translation>Ungültige PIN</translation>
+      <translation>Makulli Mara inganci</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="214"/>
       <source>Include balance in total</source>
-      <translation>Inkludiere Guthaben in Gesamtsumme</translation>
+      <translation>Haɗa ma'aunin chanji baki ɗaya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="224"/>
       <source>Hide in private mode</source>
-      <translation>Im privaten Modus ausblenden</translation>
+      <translation>Ɓoye a yanayin sirri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="233"/>
       <source>Address List</source>
-      <translation>Adressliste</translation>
+      <translation>Jerin adireshi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="239"/>
       <source>Change Addresses</source>
-      <translation>Wechselgeldadressen</translation>
+      <translation>Chanjin adireshi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="242"/>
       <source>Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</source>
-      <translation>Wechselt zwischen Adressen auf welchen Sie von anderen Leuten bezahlt werden können, und Adressen die die Geldbörse verwendet, um Wechselgeld an sich selbst zu senden.</translation>
+      <translation>Canjawa tsakanin jerin adireshin da wasu za su iya biyan ku dashi, da adiresoshin da asusun ɗin ke amfani da su don aika canji ga kanku.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="246"/>
       <source>Used Addresses</source>
-      <translation>Benutzte Adressen</translation>
+      <translation>Adireshin da aka yi amfani da shi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="249"/>
       <source>Switches between unused and used Bitcoin addresses</source>
-      <translation>Wechselt zwischen ungenutzten und benutzten Bitcoin-Adressen</translation>
+      <translation>Canzawa tsakanin adiresoshin Bitcoin da akayi amfani da wanda ba'a yi amfani da su ba</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="269"/>
       <source>Backup details</source>
-      <translation>Backup-Details</translation>
+      <translation>Ajiyayyen bayanai</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="286"/>
       <source>Seed-phrase</source>
-      <translation>Seed-Phrase</translation>
+      <translation>Jimlar iri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="298"/>
@@ -136,22 +136,22 @@
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="308"/>
       <source>Derivation</source>
-      <translation>Ableitung</translation>
+      <translation>Samo asali</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="320"/>
       <source>Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case of computer failure.</source>
-      <translation>Bitte speichern Sie die Seed-Phrase in der richtigen Reihenfolge mit dem Ableitungspfad. Mit diesem Seed können Sie Ihre Geldbörse im Falle eines Computerfehlers wiederherstellen.</translation>
+      <translation>Da fatan za a ajiye jimlar iri akan takarda, cikin tsari mai kyau, tare da hanyar da aka samo asali. Wannan nau'in zai ba ku damar dawo da walat ɗin ku idan akwai gazawar kwamfuta.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="330"/>
       <source>&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</source>
-      <translation>&lt;b&gt;Wichtig&lt;/b&gt;: Teilen Sie Ihre Seed-Phrase nie mit anderen!</translation>
+      <translation>&lt;b&gt;Muhimmanci&lt;/b&gt;: Kada ku taɓa raba jumlar irin ku ga wasu!</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="338"/>
       <source>This wallet is protected by password (pin-to-pay). To see the backup details you need to provide the password.</source>
-      <translation>Diese Geldbörse ist passwortgeschützt (pin-to-pay). Um die Backup-Details zu sehen, müssen Sie das Passwort angeben.</translation>
+      <translation>Wannan asusun na tsare da almar sirri (pin-to-pay). Don ganin bayanan ciki akwai buƙatar samar da kalmar wucewa.</translation>
     </message>
   </context>
   <context>
@@ -159,7 +159,7 @@
     <message>
       <location filename="../guis/desktop/AccountListItem.qml" line="76"/>
       <source>Last Transaction</source>
-      <translation>Letzte Transaktion</translation>
+      <translation>Ciniki na ƙarshe</translation>
     </message>
   </context>
   <context>
@@ -167,8 +167,8 @@
     <message numerus="yes">
       <location filename="../guis/desktop/NetView.qml" line="30"/>
       <source>Peers (%1)</source>
-      <translation>
-        <numerusform>Peers (%1)</numerusform>
+      <translation type="unfinished">
+        <numerusform>Takwarori (%1)</numerusform>
         <numerusform>Peers (%1)</numerusform>
       </translation>
     </message>
@@ -176,47 +176,47 @@
       <location filename="../guis/desktop/NetView.qml" line="64"/>
       <source>Address</source>
       <comment>network address (IP)</comment>
-      <translation>Adresse</translation>
+      <translation>Adireshi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NetView.qml" line="70"/>
       <source>Start-height: %1</source>
-      <translation>Starthöhe: %1</translation>
+      <translation>Fara-tsawo: %1</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NetView.qml" line="73"/>
       <source>ban-score: %1</source>
-      <translation>ban-score: %1</translation>
+      <translation>Tsame-ci: %1</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NetView.qml" line="84"/>
       <source>initializing connection</source>
-      <translation>Initialisiere Verbindung</translation>
+      <translation>Farawa haɗi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NetView.qml" line="86"/>
       <source>Verifying peer</source>
-      <translation>Überprüfe Peer</translation>
+      <translation>Tabbatar da tsari</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NetView.qml" line="87"/>
       <source>Assigning...</source>
-      <translation>Zuweisen...</translation>
+      <translation>Sanyawa...</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NetView.qml" line="92"/>
       <source>Peer for wallet: %1</source>
-      <translation>Peer für Geldbörse: %1</translation>
+      <translation>Haɗin asusu %1</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NetView.qml" line="94"/>
       <source>Peer for initial wallet</source>
-      <translation>Peer für die erste Geldbörse</translation>
+      <translation>Haɗi na asusun farko</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NetView.qml" line="120"/>
       <source>Close</source>
-      <translation>Schließen</translation>
+      <translation>Kulle</translation>
     </message>
   </context>
   <context>
@@ -224,34 +224,33 @@
     <message>
       <location filename="../guis/desktop/NewAccountCreateBasicAccount.qml" line="27"/>
       <source>This creates a new empty wallet with simple multi-address capability</source>
-      <translation>Dies erzeugt eine neue leere Geldbörse mit einfacher Mehradressen-Fähigkeit</translation>
+      <translation>Wannan yana haifar da sabon asusu mara komai tare da sauƙin adireshi da yawa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateBasicAccount.qml" line="33"/>
       <source>Name</source>
-      <translation>Name</translation>
+      <translation>Suna</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateBasicAccount.qml" line="46"/>
       <source>Go</source>
-      <translation>Los</translation>
+      <translation>Tafi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateBasicAccount.qml" line="66"/>
       <source>Advanced Options</source>
-      <translation>Erweiterte Optionen</translation>
+      <translation>Zaɓuɓɓuka na ci gaba</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateBasicAccount.qml" line="73"/>
       <source>Force Single Address</source>
-      <translation>Erzwinge einzelne Adresse</translation>
+      <translation>Tilasta Adireshi Guda Daya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateBasicAccount.qml" line="74"/>
       <source>When enabled, this wallet will be limited to one address.
 This ensures only one private key will need to be backed up</source>
-      <translation>Wenn aktiviert, wird diese Geldbörse auf eine Adresse beschränkt.
-Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</translation>
+      <translation>Lokacin da aka kunna, wannan asusun za'a iyakance shi ga adireshi ɗaya. Wannan yana tabbatar da maɓallin keɓaɓɓen maɓalli ɗaya ne kawai zai buƙaci a yi masa tallafi</translation>
     </message>
   </context>
   <context>
@@ -259,27 +258,27 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
     <message>
       <location filename="../guis/desktop/NewAccountCreateHDAccount.qml" line="28"/>
       <source>This creates a new empty wallet with smart creation of addresses from a single seed-phrase</source>
-      <translation>Dies erzeugt eine neue leere Geldbörse mit intelligenter Erstellung von Adressen aus einer einzigen Seed-Phrase</translation>
+      <translation>Wannan yana haifar da sabon asusu mara komai tare da ƙirƙirar adireshi masu wayo daga jimla iri ɗaya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateHDAccount.qml" line="34"/>
       <source>Name</source>
-      <translation>Name</translation>
+      <translation>Suna</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateHDAccount.qml" line="47"/>
       <source>Go</source>
-      <translation>Los</translation>
+      <translation>Tafi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateHDAccount.qml" line="65"/>
       <source>Advanced Options</source>
-      <translation>Erweiterte Optionen</translation>
+      <translation>Zaɓuɓɓuka na ci gaba</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateHDAccount.qml" line="78"/>
       <source>Derivation</source>
-      <translation>Ableitung</translation>
+      <translation>Samo asali</translation>
     </message>
   </context>
   <context>
@@ -287,30 +286,30 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="42"/>
       <source>Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.</source>
-      <translation>Bitte geben Sie die Geheimnisse der zu importierenden Geldbörse ein. Dies kann eine Seed-Phrase oder ein privater Schlüssel sein.</translation>
+      <translation>Ataimaka a shigar da sirrin asusu don shigo da shi. Wannan na iya zama jimla-jinin ko maɓalli na sirri.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="47"/>
       <source>Secret</source>
       <comment>The seed-phrase or private key</comment>
-      <translation>Geheimnis</translation>
+      <translation>Sirri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="54"/>
       <source>Example: %1</source>
       <comment>placeholder text</comment>
-      <translation>Beispiel: %1</translation>
+      <translation>Misali: %1</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="64"/>
       <source>Name</source>
-      <translation>Name</translation>
+      <translation>Suna</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="82"/>
       <source>Private key</source>
       <comment>description of type</comment>
-      <translation>Privater Schlüssel</translation>
+      <translation>Keɓaɓɓen maɓalli</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="85"/>
@@ -322,7 +321,7 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="86"/>
       <source>BIP 39 seed-phrase</source>
       <comment>description of type</comment>
-      <translation>BIP 39 Seed-Phrase</translation>
+      <translation>BIP 39 zuriyar jimla</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="89"/>
@@ -334,29 +333,28 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="91"/>
       <source>Unrecognized word</source>
       <comment>Word from the seed-phrases lexicon</comment>
-      <translation>Unerkanntes Wort</translation>
+      <translation>Kalmar da ba'a gane ba</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="102"/>
       <source>Import wallet</source>
-      <translation>Geldbörse importieren</translation>
+      <translation>Ɗauko asusu</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="128"/>
       <source>Advanced Options</source>
-      <translation>Erweiterte Optionen</translation>
+      <translation>Zaɓuɓɓuka na ci gaba</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="143"/>
       <source>Force Single Address</source>
-      <translation>Erzwinge einzelne Adresse</translation>
+      <translation>Tilasta Adireshi Guda</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="144"/>
       <source>When enabled, no extra addresses will be auto-generated in this wallet.
 Change will come back to the imported key.</source>
-      <translation>Wenn aktiviert, werden keine zusätzlichen Adressen automatisch in dieser Geldbörse generiert.
-Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
+      <translation>Lokacin da aka kunna, ba za'a samar da ƙarin adireshi ta atomatik a cikin wannan wallet ɗin ba. Canji zai dawo kan maɓallin da aka shigo da shi.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="151"/>
@@ -371,17 +369,17 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="171"/>
       <source>Start Height</source>
-      <translation>Starthöhe</translation>
+      <translation>Fara tsawo</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="179"/>
       <source>Derivation</source>
-      <translation>Ableitung</translation>
+      <translation>Samo asali</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="190"/>
       <source>Alternate phrase</source>
-      <translation>Alternative Phrase</translation>
+      <translation>Madadin magana</translation>
     </message>
   </context>
   <context>
@@ -389,83 +387,83 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="67"/>
       <source>New Bitcoin Cash Wallet</source>
-      <translation>Neue Bitcoin Cash Geldbörse</translation>
+      <translation>Sabon asusun Bitcoin Cash</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="93"/>
       <source>Basic</source>
-      <translation>Einfach</translation>
+      <translation>Na asali</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="98"/>
       <source>Private keys based</source>
       <comment>Property of a wallet</comment>
-      <translation>Private Schlüssel basiert</translation>
+      <translation>Maɓallai masu zaman kansu</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="99"/>
       <source>Difficult to backup</source>
       <comment>Context: wallet type</comment>
-      <translation>Schwierig zu sichern</translation>
+      <translation>Wahalar dawo da ajiya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="100"/>
       <source>Great for brief usage</source>
       <comment>Context: wallet type</comment>
-      <translation>Ideal für kurze Nutzung</translation>
+      <translation>Mai girma don taƙaitaccen amfani</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="106"/>
       <source>HD wallet</source>
-      <translation>HD Geldbörse</translation>
+      <translation>Asusun HD</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="111"/>
       <source>Seed-phrase based</source>
       <comment>Context: wallet type</comment>
-      <translation>Seed-Phrase basiert</translation>
+      <translation>Tushen jimlar iri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="112"/>
       <source>Easy to backup</source>
       <comment>Context: wallet type</comment>
-      <translation>Einfach zu sichern</translation>
+      <translation>Sauƙi wurin dawo da ajiya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="113"/>
       <source>Most compatible</source>
       <comment>The most compatible wallet type</comment>
-      <translation>Am kompatibelsten</translation>
+      <translation>Mafi dacewa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="119"/>
       <source>Import</source>
-      <translation>Import</translation>
+      <translation>Shigo da</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="124"/>
       <source>Imports seed-phrase</source>
-      <translation>Importiert Seed-Phrase</translation>
+      <translation>Shigo da jumla iri-iri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="125"/>
       <source>Imports private key</source>
-      <translation>Importiert privaten Schlüssel</translation>
+      <translation>Shigo da maɓalli na sirri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="136"/>
       <source>Basic wallet with private keys</source>
-      <translation>Einfache Geldbörse mit privaten Schlüsseln</translation>
+      <translation>Asusu na asali tare da maɓallan sirri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="138"/>
       <source>Seed-phrase wallet</source>
-      <translation>Seed-Phrase Geldbörse</translation>
+      <translation>Tushen jimlar iri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountPane.qml" line="139"/>
       <source>Import of an existing wallet</source>
-      <translation>Import einer vorhandenen Geldbörse</translation>
+      <translation>Shigo da asusun da ke akwai</translation>
     </message>
   </context>
   <context>
@@ -473,17 +471,17 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/PaymentTweakingPanel.qml" line="79"/>
       <source>Add Detail</source>
-      <translation>Detail hinzufügen</translation>
+      <translation>Ƙara Dalla-dalla</translation>
     </message>
     <message>
       <location filename="../guis/desktop/PaymentTweakingPanel.qml" line="97"/>
       <source>Coin Selector</source>
-      <translation>Coin Selektor</translation>
+      <translation>Zaɓin Tsabar kudi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/PaymentTweakingPanel.qml" line="114"/>
       <source>To override the default selection of coins that are used to pay a transaction, you can add the &apos;Coin Selector&apos; where the wallets coins will be made visible.</source>
-      <translation>Um die Standardauswahl von Coins zu überschreiben, die zur Zahlung einer Transaktion verwendet werden, können Sie den &apos;Coin Selektor&apos; hinzufügen, in dem die Coins der Geldbörse sichtbar gemacht werden.</translation>
+      <translation>Domin soke tsoffin zaɓin tsabar kudi waɗanda ake amfani da su don yin mu'amala, zaku iya ƙara &apos;tsabar kudi r&apos; inda tsabar kudi inda za'a iya gani.</translation>
     </message>
   </context>
   <context>
@@ -491,67 +489,67 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="51"/>
       <source>Share your QR code or copy address to receive</source>
-      <translation>Teilen Sie Ihren QR-Code oder kopieren Sie Ihre Adresse zum Empfang</translation>
+      <translation>Bada lambar QR ɗinku ko a kwafi adireshin don karɓa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="68"/>
       <source>Encrypted Wallet</source>
-      <translation>Verschlüsselte Geldbörse</translation>
+      <translation>Rufaffen asusu</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="70"/>
       <source>Import Running...</source>
-      <translation>Import läuft...</translation>
+      <translation>Tsarin Shiga na gudu...</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="144"/>
       <source>Checking</source>
-      <translation>Überprüfe</translation>
+      <translation>Dubawa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="165"/>
       <source>Transaction high risk</source>
-      <translation>Hoch-Risiko Transaktion</translation>
+      <translation>Haɗarin cinikayya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="167"/>
       <source>Payment Seen</source>
-      <translation>Zahlung gesichtet</translation>
+      <translation>Anga shaidar biya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="169"/>
       <source>Payment Accepted</source>
-      <translation>Zahlung akzeptiert</translation>
+      <translation>An Karɓa Biya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="171"/>
       <source>Payment Settled</source>
-      <translation>Zahlung abgeschlossen</translation>
+      <translation>Biya An daidaita</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="189"/>
       <source>Instant payment failed. Wait for confirmation. (double spent proof received)</source>
-      <translation>Sofortige Zahlung fehlgeschlagen. Warten Sie auf Bestätigung. (Double-Spend Proof erhalten)</translation>
+      <translation>Biyan nan take ya kasa. Jira tabbaci. (Anga shaida guda biyu da aka kashe)</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="204"/>
       <source>Description</source>
-      <translation>Beschreibung</translation>
+      <translation>Bayani</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="216"/>
       <source>Amount</source>
-      <translation>Betrag</translation>
+      <translation>Adadi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="239"/>
       <source>Clear</source>
-      <translation>Leeren</translation>
+      <translation>Share</translation>
     </message>
     <message>
       <location filename="../guis/desktop/ReceiveTransactionPane.qml" line="239"/>
       <source>Done</source>
-      <translation>Erledigt</translation>
+      <translation>An gama</translation>
     </message>
   </context>
   <context>
@@ -559,201 +557,201 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="123"/>
       <source>Confirm delete</source>
-      <translation>Löschen bestätigen</translation>
+      <translation>Tabbatar da gogewa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="124"/>
       <source>Do you really want to delete this detail?</source>
-      <translation>Möchten Sie dieses Detail wirklich löschen?</translation>
+      <translation>Shin kuna son share wannan dalla-dalla?</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="133"/>
       <source>Add Destination</source>
-      <translation>Ziel hinzufügen</translation>
+      <translation>Ƙara madakata</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="139"/>
       <source>Prepare</source>
-      <translation>Vorbereiten</translation>
+      <translation>Shirya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="155"/>
       <source>Enter your PIN</source>
-      <translation>Geben Sie Ihre PIN ein</translation>
+      <translation>Shigar da lambar tsaro</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="164"/>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="434"/>
       <source>Warning</source>
-      <translation>Warnung</translation>
+      <translation>Gargaɗi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="171"/>
       <source>Payment request warnings:</source>
-      <translation>Warnungen für Zahlungsanforderungen:</translation>
+      <translation>Gargadin neman biyan kuɗi:</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="189"/>
       <source>Transaction Details</source>
-      <translation>Transaktionsdetails</translation>
+      <translation>Cikakken Bayanin Kasuwanci</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="203"/>
       <source>Not prepared yet</source>
-      <translation>Noch nicht vorbereitet</translation>
+      <translation>Ba'a shirya ba tukuna</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="209"/>
       <source>Copy transaction-ID</source>
-      <translation>Transaktions-ID kopieren</translation>
+      <translation>Kwafi shaidar ma'amala-ID</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="212"/>
       <source>Fee</source>
-      <translation>Gebühr</translation>
+      <translation>Kudin</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="222"/>
       <source>Transaction size</source>
-      <translation>Transaktionsgröße</translation>
+      <translation>Girman ciniki</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="230"/>
       <source>%1 bytes</source>
-      <translation>%1 Bytes</translation>
+      <translation>%1 bytes</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="235"/>
       <source>Fee per byte</source>
-      <translation>Gebühr pro Byte</translation>
+      <translation>Kudin kowane byte</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="246"/>
       <source>%1 sat/byte</source>
       <comment>fee</comment>
-      <translation>%1 Sat/Byte</translation>
+      <translation>%1 sat/bytes</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="260"/>
       <source>Send</source>
-      <translation>Senden</translation>
+      <translation type="unfinished">Send</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="300"/>
       <source>Destination</source>
-      <translation>Ziel</translation>
+      <translation type="unfinished">Destination</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="307"/>
       <source>Max available</source>
       <comment>The maximum balance available</comment>
-      <translation>Max. verfügbar</translation>
+      <translation type="unfinished">Max available</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="316"/>
       <source>%1 to %2</source>
       <comment>summary text to pay X-euro to address M</comment>
-      <translation>%1 zu %2</translation>
+      <translation type="unfinished">%1 to %2</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="334"/>
       <source>Enter Bitcoin Cash Address</source>
-      <translation>Geben Sie eine Bitcoin Cash Adresse ein</translation>
+      <translation type="unfinished">Enter Bitcoin Cash Address</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="359"/>
       <source>Copy Address</source>
-      <translation>Adresse kopieren</translation>
+      <translation type="unfinished">Copy Address</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="369"/>
       <source>Amount</source>
-      <translation>Betrag</translation>
+      <translation>Adadi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="393"/>
       <source>Max</source>
-      <translation>Max</translation>
+      <translation type="unfinished">Max</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="439"/>
       <source>This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</source>
-      <translation>Dies ist eine BTC-Adresse, welche eine inkompatible Währung ist. Ihr Guthaben könnte verloren gehen und Flowee wird keine Möglichkeit haben, es wiederherzustellen. Sind Sie sicher, dass dies die richtige Adresse ist?</translation>
+      <translation type="unfinished">This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="451"/>
       <source>Continue</source>
-      <translation>Fortfahren</translation>
+      <translation type="unfinished">Continue</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="455"/>
       <source>Cancel</source>
-      <translation>Abbrechen</translation>
+      <translation type="unfinished">Cancel</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="476"/>
       <source>Coin Selector</source>
-      <translation>Coin Selektor</translation>
+      <translation>Zaɓin Tsabar kudi</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/SendTransactionPane.qml" line="477"/>
       <source>Selected %1 %2 in %3 coins</source>
       <comment>selected 2 BCH in 5 coins</comment>
-      <translation>
-        <numerusform>%1 %2 in %3 Coins ausgewählt</numerusform>
-        <numerusform>%1 %2 in %3 Coins ausgewählt</numerusform>
+      <translation type="unfinished">
+        <numerusform>Selected %1 %2 in %3 coins</numerusform>
+        <numerusform>Selected %1 %2 in %3 coins</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="488"/>
       <source>Total</source>
       <comment>Number of coins</comment>
-      <translation>Gesamt</translation>
+      <translation type="unfinished">Total</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="495"/>
       <source>Needed</source>
-      <translation>Benötigt</translation>
+      <translation type="unfinished">Needed</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="505"/>
       <source>Selected</source>
-      <translation>Ausgewählt</translation>
+      <translation type="unfinished">Selected</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="512"/>
       <source>Value</source>
-      <translation>Wert</translation>
+      <translation type="unfinished">Value</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="550"/>
       <source>Locked coins will never be used for payments. Right-click for menu.</source>
-      <translation>Gesperrte Coins werden nie für Zahlungen verwendet. Rechtsklick für Menü.</translation>
+      <translation type="unfinished">Locked coins will never be used for payments. Right-click for menu.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="586"/>
       <source>Age</source>
-      <translation>Alter</translation>
+      <translation type="unfinished">Age</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="624"/>
       <source>Unselect All</source>
-      <translation>Alles abwählen</translation>
+      <translation>Cire Zaɓi Duk</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="624"/>
       <source>Select All</source>
-      <translation>Alles auswählen</translation>
+      <translation>Zaɓi Duk</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="634"/>
       <source>Unlock coin</source>
-      <translation>Coin entsperren</translation>
+      <translation>Buɗe tsabar kudi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="634"/>
       <source>Lock coin</source>
-      <translation>Coin sperren</translation>
+      <translation>Kulle tsabar kudi</translation>
     </message>
   </context>
   <context>
@@ -761,62 +759,62 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="26"/>
       <source>Settings</source>
-      <translation>Einstellungen</translation>
+      <translation>Saituna</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="35"/>
       <source>Unit</source>
-      <translation>Einheit</translation>
+      <translation>Naúrar</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="105"/>
       <source>Show Bitcoin Cash value on Activity page</source>
-      <translation>Bitcoin Cash Wert auf der Aktivitätsseite anzeigen</translation>
+      <translation>Nuna ƙimar Bitcoin Cash akan shafin Aiki</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="118"/>
       <source>Show Block Notifications</source>
-      <translation>Zeige Blockbenachrichtigungen</translation>
+      <translation>Nuna Sanarwa da ta toshe</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="119"/>
       <source>When a new block is mined, Flowee Pay shows a desktop notification</source>
-      <translation>Wenn ein neuer Block erzeugt wird, zeigt Flowee Pay eine Desktop-Benachrichtigung</translation>
+      <translation>Lokacin da aka haƙa sabon toshe, Flowee Pay yana nuna sanarwar tebur</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="133"/>
       <source>Night Mode</source>
-      <translation>Nachtmodus</translation>
+      <translation>Yanayin dare</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="144"/>
       <source>Private Mode</source>
-      <translation>Privater Modus</translation>
+      <translation>Yanayin sirri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="145"/>
       <source>Hides private wallets while enabled</source>
-      <translation>Versteckt private Geldbörsen, wenn aktiviert</translation>
+      <translation>Ɓoye sirrin asusu yayin kunnawa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="149"/>
       <source>Version</source>
-      <translation>Version</translation>
+      <translation>Siga</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="157"/>
       <source>Library Version</source>
-      <translation>Version der Bibliothek</translation>
+      <translation>Sigar Laburare</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="165"/>
       <source>Synchronization</source>
-      <translation>Synchronisation</translation>
+      <translation>Haɗa Aiki tare</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SettingsPane.qml" line="170"/>
       <source>Network Status</source>
-      <translation>Netzwerkstatus</translation>
+      <translation>Matsayin hanyar sadarwa</translation>
     </message>
   </context>
   <context>
@@ -824,124 +822,124 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="63"/>
       <source>Protect your wallet with a password</source>
-      <translation>Schützen Sie Ihre Geldbörse mit einem Passwort</translation>
+      <translation type="unfinished">Protect your wallet with a password</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="89"/>
       <source>Pin to Pay</source>
-      <translation>Pin um zu bezahlen</translation>
+      <translation type="unfinished">Pin to Pay</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="94"/>
       <source>Protect your funds</source>
       <comment>pin to pay</comment>
-      <translation>Schützen Sie Ihr Guthaben</translation>
+      <translation type="unfinished">Protect your funds</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="95"/>
       <source>Fully open, except for sending funds</source>
       <comment>pin to pay</comment>
-      <translation>Vollständig geöffnet, außer für das Senden von Guthaben</translation>
+      <translation type="unfinished">Fully open, except for sending funds</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="96"/>
       <source>Keeps in sync</source>
       <comment>pin to pay</comment>
-      <translation>Bleibt synchron</translation>
+      <translation type="unfinished">Keeps in sync</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="102"/>
       <source>Pin to Open</source>
-      <translation>Pin zum Öffnen</translation>
+      <translation type="unfinished">Pin to Open</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="107"/>
       <source>Protect your entire wallet</source>
       <comment>pin to open</comment>
-      <translation>Schützen Sie Ihre gesamte Geldbörse</translation>
+      <translation type="unfinished">Protect your entire wallet</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="108"/>
       <source>Balance and history protected</source>
       <comment>pin to open</comment>
-      <translation>Guthaben und Verlauf geschützt</translation>
+      <translation type="unfinished">Balance and history protected</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="109"/>
       <source>Requires Pin to view, sync or pay</source>
       <comment>pin to open</comment>
-      <translation>Benötigt Pin zum Ansehen, Synchronisieren oder Bezahlen</translation>
+      <translation type="unfinished">Requires Pin to view, sync or pay</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="119"/>
       <source>Make &quot;%1&quot; wallet require a pin to pay</source>
-      <translation>Erfordere einen Pin zum Bezahlen für &quot;%1&quot; Geldbörse</translation>
+      <translation type="unfinished">Make &quot;%1&quot; wallet require a pin to pay</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="120"/>
       <source>Make &quot;%1&quot; wallet require a pin to open</source>
-      <translation>Erfordere einen Pin zum Öffnen für &quot;%1&quot; Geldbörse</translation>
+      <translation type="unfinished">Make &quot;%1&quot; wallet require a pin to open</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="132"/>
       <location filename="../guis/desktop/WalletEncryption.qml" line="144"/>
       <source>Wallet already has pin to open applied</source>
-      <translation>Geldbörse hat bereits eine PIN zum Öffnen an</translation>
+      <translation type="unfinished">Wallet already has pin to open applied</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="134"/>
       <source>Wallet already has pin to pay applied</source>
-      <translation>Geldbörse hat bereits eine PIN zum Bezahlen</translation>
+      <translation type="unfinished">Wallet already has pin to pay applied</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="135"/>
       <source>Your wallet will get partially encrypted and payments will become impossible without a password. If you don&apos;t have a backup of this wallet, make one first.</source>
-      <translation>Ihre Geldbörse wird teilweise verschlüsselt und Zahlungen werden ohne Passwort nicht möglich. Wenn Sie über kein Backup dieser Geldbörse verfügen, erstellen Sie zuerst eines.</translation>
+      <translation type="unfinished">Your wallet will get partially encrypted and payments will become impossible without a password. If you don&apos;t have a backup of this wallet, make one first.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="145"/>
       <source>Your full wallet gets encrypted, opening it will need a password. If you don&apos;t have a backup of this wallet, make one first.</source>
-      <translation>Ihre vollständige Geldbörse wird verschlüsselt, um sie zu öffnen, wird ein Passwort benötigen. Wenn Sie über kein Backup dieser Geldbörse verfügen, erstellen Sie zuerst eines.</translation>
+      <translation type="unfinished">Your full wallet gets encrypted, opening it will need a password. If you don&apos;t have a backup of this wallet, make one first.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="171"/>
       <source>Password</source>
-      <translation>Passwort</translation>
+      <translation>Kwadon shiga</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="194"/>
       <source>Wallet</source>
-      <translation>Geldbörse</translation>
+      <translation type="unfinished">Wallet</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="216"/>
       <source>Encrypt</source>
-      <translation>Verschlüsseln</translation>
+      <translation type="unfinished">Encrypt</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="223"/>
       <source>Invalid password to open this wallet</source>
-      <translation>Ungültiges Passwort zum Öffnen dieser Geldbörse</translation>
+      <translation type="unfinished">Invalid password to open this wallet</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="235"/>
       <source>Close</source>
-      <translation>Schließen</translation>
+      <translation>Kulle</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="245"/>
       <source>Repeat password</source>
-      <translation>Passwort wiederholen</translation>
+      <translation type="unfinished">Repeat password</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="246"/>
       <source>Please confirm the password by entering it again</source>
-      <translation>Bitte bestätigen Sie Ihr Passwort, indem Sie es erneut eingeben</translation>
+      <translation type="unfinished">Please confirm the password by entering it again</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="251"/>
       <source>Typed passwords do not match</source>
-      <translation>Die eingegebenen Passwörter stimmen nicht überein</translation>
+      <translation type="unfinished">Typed passwords do not match</translation>
     </message>
   </context>
   <context>
@@ -949,18 +947,18 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="47"/>
       <source>Pin to Pay</source>
-      <translation>Pin um zu bezahlen</translation>
+      <translation type="unfinished">Pin to Pay</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="45"/>
       <source>Pin to Open</source>
-      <translation>Pin zum Öffnen</translation>
+      <translation type="unfinished">Pin to Open</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="49"/>
       <source>(Opened)</source>
       <comment>Wallet is decrypted</comment>
-      <translation>(Geöffnet)</translation>
+      <translation type="unfinished">(Opened)</translation>
     </message>
   </context>
   <context>
@@ -968,7 +966,7 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="63"/>
       <source>Miner Reward</source>
-      <translation>Miner Belohnung</translation>
+      <translation type="unfinished">Miner Reward</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="65"/>
@@ -978,27 +976,27 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="67"/>
       <source>Received</source>
-      <translation>Empfangen</translation>
+      <translation type="unfinished">Received</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="70"/>
       <source>Moved</source>
-      <translation>Verschoben</translation>
+      <translation type="unfinished">Moved</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="71"/>
       <source>Sent</source>
-      <translation>Gesendet</translation>
+      <translation type="unfinished">Sent</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="79"/>
       <source>rejected</source>
-      <translation>abgelehnt</translation>
+      <translation type="unfinished">rejected</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="82"/>
       <source>unconfirmed</source>
-      <translation>unbestätigt</translation>
+      <translation type="unfinished">unconfirmed</translation>
     </message>
   </context>
   <context>
@@ -1006,69 +1004,69 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="31"/>
       <source>Copy transaction-ID</source>
-      <translation>Transaktions-ID kopieren</translation>
+      <translation type="unfinished">Copy transaction-ID</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="37"/>
       <source>Status</source>
-      <translation>Status</translation>
+      <translation type="unfinished">Status</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="44"/>
       <source>rejected</source>
-      <translation>Abgelehnt</translation>
+      <translation type="unfinished">rejected</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="46"/>
       <source>unconfirmed</source>
-      <translation>Unbestätigt</translation>
+      <translation type="unfinished">unconfirmed</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="48"/>
       <source>%1 confirmations (mined in block %2)</source>
-      <translation>
-        <numerusform>%1 Bestätigungen (im Block %2)</numerusform>
-        <numerusform>%1 Bestätigungen (im Block %2)</numerusform>
+      <translation type="unfinished">
+        <numerusform>%1 confirmations (mined in block %2)</numerusform>
+        <numerusform>%1 confirmations (mined in block %2)</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="52"/>
       <source>Copy block height</source>
-      <translation>Kopiere Blockhöhe</translation>
+      <translation type="unfinished">Copy block height</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="73"/>
       <source>Fees</source>
-      <translation>Gebühren</translation>
+      <translation type="unfinished">Fees</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="82"/>
       <source>Size</source>
-      <translation>Größe</translation>
+      <translation type="unfinished">Size</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="85"/>
       <source>%1 bytes</source>
-      <translation>
-        <numerusform>%1 Bytes</numerusform>
-        <numerusform>%1 Bytes</numerusform>
+      <translation type="unfinished">
+        <numerusform>%1 bytes</numerusform>
+        <numerusform>%1 bytes</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="88"/>
       <source>Inputs</source>
-      <translation>Eingaben</translation>
+      <translation type="unfinished">Inputs</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="135"/>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="241"/>
       <source>Copy Address</source>
-      <translation>Adresse kopieren</translation>
+      <translation type="unfinished">Copy Address</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="164"/>
       <source>Outputs</source>
-      <translation>Ausgaben</translation>
+      <translation type="unfinished">Outputs</translation>
     </message>
   </context>
   <context>
@@ -1076,104 +1074,104 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/main.qml" line="174"/>
       <source>Activity</source>
-      <translation>Aktivität</translation>
+      <translation type="unfinished">Activity</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="203"/>
       <source>Archived wallets do not check for activities. Balance may be out of date.</source>
-      <translation>Archivierte Geldbörsen überprüfen nicht auf Aktivitäten. Das Guthaben kann veraltet sein.</translation>
+      <translation type="unfinished">Archived wallets do not check for activities. Balance may be out of date.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="207"/>
       <source>Unarchive</source>
-      <translation>Entarchivieren</translation>
+      <translation type="unfinished">Unarchive</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="239"/>
       <source>This wallet needs a password to open.</source>
-      <translation>Diese Geldbörse benötigt ein Passwort zum Öffnen.</translation>
+      <translation type="unfinished">This wallet needs a password to open.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="246"/>
       <source>Password:</source>
-      <translation>Passwort:</translation>
+      <translation type="unfinished">Password:</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="265"/>
       <source>Invalid password</source>
-      <translation>Ungültiges Passwort</translation>
+      <translation type="unfinished">Invalid password</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="270"/>
       <source>Open</source>
-      <translation>Öffnen</translation>
+      <translation>Bude</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="345"/>
       <source>Send</source>
-      <translation>Senden</translation>
+      <translation type="unfinished">Send</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="353"/>
       <source>Receive</source>
-      <translation>Empfangen</translation>
+      <translation type="unfinished">Receive</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="427"/>
       <source>Balance</source>
-      <translation>Guthaben</translation>
+      <translation type="unfinished">Balance</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="495"/>
       <source>Main</source>
       <comment>balance (money), non specified</comment>
-      <translation>Haupt</translation>
+      <translation type="unfinished">Main</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="505"/>
       <source>Unconfirmed</source>
       <comment>balance (money)</comment>
-      <translation>Unbestätigt</translation>
+      <translation type="unfinished">Unconfirmed</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="514"/>
       <source>Immature</source>
       <comment>balance (money)</comment>
-      <translation>Immature</translation>
+      <translation type="unfinished">Immature</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="561"/>
       <source>1 BCH is: %1</source>
-      <translation>1 BCH ist: %1</translation>
+      <translation type="unfinished">1 BCH is: %1</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="607"/>
       <source>Network status</source>
-      <translation>Netzwerkstatus</translation>
+      <translation type="unfinished">Network status</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="619"/>
       <source>Offline</source>
-      <translation>Offline</translation>
+      <translation type="unfinished">Offline</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="651"/>
       <source>Add Bitcoin Cash wallet</source>
-      <translation>Bitcoin Cash-Geldbörse hinzufügen</translation>
+      <translation type="unfinished">Add Bitcoin Cash wallet</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/main.qml" line="686"/>
       <source>Archived wallets [%1]</source>
       <comment>Arg is wallet count</comment>
-      <translation>
-        <numerusform>Archivierte Geldbörsen [%1]</numerusform>
-        <numerusform>Archivierte Geldbörsen [%1]</numerusform>
+      <translation type="unfinished">
+        <numerusform>Archived wallets [%1]</numerusform>
+        <numerusform>Archived wallets [%1]</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="716"/>
       <source>Preparing...</source>
-      <translation>Wird vorbereitet...</translation>
+      <translation type="unfinished">Preparing...</translation>
     </message>
   </context>
 </TS>

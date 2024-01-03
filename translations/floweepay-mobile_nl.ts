@@ -30,17 +30,17 @@
       <translation>© 2020-2023 Tom Zander en bijdragers</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="96"/>
+      <location filename="../guis/mobile/About.qml" line="98"/>
       <source>Project Home</source>
       <translation>Startpagina project</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="97"/>
+      <location filename="../guis/mobile/About.qml" line="99"/>
       <source>With git repository and issues tracker</source>
       <translation>Met git data en takenlijst</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/About.qml" line="102"/>
+      <location filename="../guis/mobile/About.qml" line="104"/>
       <source>Telegram</source>
       <translation>Telegram</translation>
     </message>
@@ -132,88 +132,93 @@
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="148"/>
+      <source>Seed format</source>
+      <translation>Herstelzin formaat</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="157"/>
       <source>Starting Height</source>
       <comment>height refers to block-height</comment>
       <translation>Beginhoogte</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="153"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="162"/>
       <source>Derivation Path</source>
       <translation>Derivatie pad</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="160"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="169"/>
       <source>xpub</source>
       <translation>xpub</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="171"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="180"/>
       <source>Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case you lose your mobile.</source>
       <translation>Schrijf de herstelzin op papier, in de juiste volgorde, samen met het derivatie pad. Deze herstelzin stelt u in staat om uw portemonnee te herstellen in geval van een computerfout.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="178"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="187"/>
       <source>&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</source>
       <translation>&lt;b&gt;Belangrijk&lt;/b&gt;: Deel nooit uw herstelzin met anderen!</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="190"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="199"/>
       <source>Wallet keys</source>
       <translation>Sleutels van portemonnee</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="193"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="202"/>
       <source>Show Index</source>
       <comment>toggle to show numbers</comment>
       <translation>Toon Index</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="209"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="217"/>
       <source>Change Addresses</source>
       <translation>Wisselgeldadres</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="212"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="220"/>
       <source>Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</source>
       <translation>Schakelt tussen adressen waar anderen je op kunnen betalen, en adressen welke de portemonnee voor wisselgeld gebruikt.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="216"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="223"/>
       <source>Used Addresses</source>
       <translation>Gebruikte adressen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="219"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="226"/>
       <source>Switches between still in use addresses and formerly used, new empty, addresses</source>
       <translation>Schakelt tussen nog steeds gebruikte adressen en eerder gebruikte, nieuw/lege adressen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="299"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="306"/>
       <source>Addresses and keys</source>
       <translation>Adressen en sleutels</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="307"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="314"/>
       <source>Sync Status</source>
       <translation>Synchronisatie status</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="347"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="354"/>
       <source>Hide balance in overviews</source>
       <translation>Balans in overzichten verbergen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="354"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="361"/>
       <source>Hide in private mode</source>
       <translation>Verbergen in privémodus</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="369"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="376"/>
       <source>Unarchive Wallet</source>
       <translation>Portemonnee De-archiveren</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/AccountPageListItem.qml" line="369"/>
+      <location filename="../guis/mobile/AccountPageListItem.qml" line="376"/>
       <source>Archive Wallet</source>
       <translation>Portemonnee Archiveren</translation>
     </message>
@@ -327,27 +332,32 @@
       <translation>Scherminstellingen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/GuiSettings.qml" line="32"/>
+      <location filename="../guis/mobile/GuiSettings.qml" line="39"/>
       <source>Font sizing</source>
       <translation>Lettertypegrootte</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/GuiSettings.qml" line="68"/>
+      <location filename="../guis/mobile/GuiSettings.qml" line="75"/>
+      <source>Dark Theme</source>
+      <translation>Donker Thema</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/GuiSettings.qml" line="100"/>
       <source>Unit</source>
       <translation>Eenheid</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/GuiSettings.qml" line="128"/>
+      <location filename="../guis/mobile/GuiSettings.qml" line="161"/>
       <source>Change Currency (%1)</source>
       <translation>Verander valuta (%1)</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/GuiSettings.qml" line="134"/>
+      <location filename="../guis/mobile/GuiSettings.qml" line="167"/>
       <source>Main View</source>
       <translation>Hoofd overzicht</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/GuiSettings.qml" line="139"/>
+      <location filename="../guis/mobile/GuiSettings.qml" line="172"/>
       <source>Show Bitcoin Cash value</source>
       <translation>Toon Bitcoin Cash waarde</translation>
     </message>
@@ -360,68 +370,90 @@
       <translation>Portemonnee importeren</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="45"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="48"/>
       <source>Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.</source>
       <translation>Voer de geheimen in van de te importeren portemonnee. Dit kan een herstelzin of een privésleutel zijn.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="51"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="54"/>
       <source>Secret</source>
       <comment>The seed-phrase or private key</comment>
       <translation>Geheim</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="93"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="96"/>
       <source>Private key</source>
       <comment>description of type</comment>
       <translation>Privé-sleutel</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="95"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="99"/>
+      <source>BIP 39 seed-phrase (interpreted as Electrum)</source>
+      <comment>description of type</comment>
+      <translation>BIP 39 herstelzin (geïnterpreteerd als Electrum formaat)</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="100"/>
       <source>BIP 39 seed-phrase</source>
       <comment>description of type</comment>
       <translation>BIP 39 herstelzin</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="97"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="103"/>
+      <source>Electrum seed-phrase</source>
+      <comment>description of type</comment>
+      <translation>Electron-Cash herstelzin</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="105"/>
       <source>Unrecognized word</source>
       <comment>Word from the seed-phrases lexicon</comment>
       <translation>Niet herkend woord</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="105"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="113"/>
       <source>Name</source>
       <translation>Naam</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="114"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="122"/>
       <source>Force Single Address</source>
       <translation>Forceer één adres</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="115"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="123"/>
       <source>When enabled, no extra addresses will be auto-generated in this wallet.
 Change will come back to the imported key.</source>
       <translation>Als ingeschakeld zullen er geen extra adressen automatisch toegevoegd worden in deze portemonnee.
 Wisselgeld gaat weer naar de geïmporteerde sleutel.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="120"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="129"/>
+      <source>Old Electrum Phrase</source>
+      <translation>Oude Electrum herstelzin</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="130"/>
+      <source>When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</source>
+      <translation>Zet deze optie aan als Electrum detectie mislukt en u zeker weet dat je herstelzin in die portemonnee is gemaakt.</translation>
+    </message>
+    <message>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="149"/>
       <source>Oldest Transaction</source>
       <translation>Oudste transactie</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="152"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="182"/>
       <source>Derivation</source>
       <translation>Derivatie</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="163"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="193"/>
       <source>Alternate phrase</source>
       <translation>Alternatieve zin</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ImportWalletPage.qml" line="180"/>
+      <location filename="../guis/mobile/ImportWalletPage.qml" line="210"/>
       <source>Create</source>
       <translation>Creëer</translation>
     </message>
@@ -439,17 +471,17 @@ Wisselgeld gaat weer naar de geïmporteerde sleutel.</translation>
       <translation>Configureer Direct Betalen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigButton.qml" line="40"/>
+      <location filename="../guis/mobile/InstaPayConfigButton.qml" line="46"/>
       <source>Fast payments for low amounts</source>
       <translation>Direct betalen bij lage bedragen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigButton.qml" line="42"/>
+      <location filename="../guis/mobile/InstaPayConfigButton.qml" line="48"/>
       <source>Not configured</source>
       <translation>Niet geconfigureerd</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/InstaPayConfigButton.qml" line="43"/>
+      <location filename="../guis/mobile/InstaPayConfigButton.qml" line="49"/>
       <source>Limit set to: %1</source>
       <translation>Limiet ingesteld op: %1</translation>
     </message>
@@ -538,7 +570,7 @@ Wisselgeld gaat weer naar de geïmporteerde sleutel.</translation>
   <context>
     <name>MenuOverlay</name>
     <message>
-      <location filename="../guis/mobile/MenuOverlay.qml" line="310"/>
+      <location filename="../guis/mobile/MenuOverlay.qml" line="312"/>
       <source>Add Wallet</source>
       <translation>Portemonnee toevoegen</translation>
     </message>
@@ -685,49 +717,49 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>Alles verzenden</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="40"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="41"/>
       <source>Show Address</source>
       <comment>to show a bitcoincash address</comment>
       <translation>Toon adres</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="43"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="44"/>
       <source>Edit Amount</source>
       <comment>Edit amount of money to send</comment>
       <translation>Bedrag aanpassen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="127"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="135"/>
       <source>Invalid QR code</source>
       <translation>Ongeldige QR-code</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="140"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="148"/>
       <source>I don&apos;t understand the scanned code. I&apos;m sorry, I can&apos;t start a payment.</source>
       <translation>Ik begrijp de gelezen code niet. Sorry, ik kan de betaling niet starten.</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="144"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="152"/>
       <source>details</source>
       <translation>details</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="155"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="163"/>
       <source>Scanned text: &lt;pre&gt;%1&lt;/pre&gt;</source>
       <translation>Gelezen tekst: &lt;pre&gt;%1&lt;/pre&gt;</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="204"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="212"/>
       <source>Payment description</source>
       <translation>Omschrijving betaling</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="243"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="251"/>
       <source>Destination Address</source>
       <translation>Bestemmingsadres</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/PayWithQR.qml" line="416"/>
+      <location filename="../guis/mobile/PayWithQR.qml" line="425"/>
       <source>Unlock Wallet</source>
       <translation>Portemonnee ontgrendelen</translation>
     </message>
@@ -762,7 +794,7 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
   <context>
     <name>PriceInputWidget</name>
     <message>
-      <location filename="../guis/mobile/PriceInputWidget.qml" line="196"/>
+      <location filename="../guis/mobile/PriceInputWidget.qml" line="200"/>
       <source>All Currencies</source>
       <translation>Alle valuta's</translation>
     </message>
@@ -770,22 +802,22 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
   <context>
     <name>QRScannerOverlay</name>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="129"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="124"/>
       <source>Paste</source>
       <translation>Plak</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="147"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="148"/>
       <source>Failed</source>
       <translation>Mislukt!</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="208"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="214"/>
       <source>Instant Pay limit is %1</source>
       <translation>Directbetalen limiet is %1</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/QRScannerOverlay.qml" line="211"/>
+      <location filename="../guis/mobile/QRScannerOverlay.qml" line="217"/>
       <source>Selected wallet: &apos;%1&apos;</source>
       <translation>Geselecteerde portemonnee: &apos;%1&apos;</translation>
     </message>
@@ -814,7 +846,7 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="172"/>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="221"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="222"/>
       <source>Description</source>
       <translation>Omschrijving</translation>
     </message>
@@ -836,43 +868,43 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>Wissen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="367"/>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="394"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="368"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="395"/>
       <source>Payment Seen</source>
       <translation>Betaling gezien</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="374"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="375"/>
       <source>Checking...</source>
       <translation>Controleren...</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="389"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="390"/>
       <source>Transaction high risk</source>
       <translation>Transactie met hoog risico</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="392"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="393"/>
       <source>Partially Paid</source>
       <translation>Deels betaald</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="396"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="397"/>
       <source>Payment Accepted</source>
       <translation>Betaling geaccepteerd</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="398"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="399"/>
       <source>Payment Settled</source>
       <translation>Betaling Afgewikkeld</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="414"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="415"/>
       <source>Instant payment failed. Wait for confirmation. (double spent proof received)</source>
       <translation>Directe betaling is mislukt. Wacht op bevestiging. (Double Spent Proof ontvangen)</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/ReceiveTab.qml" line="423"/>
+      <location filename="../guis/mobile/ReceiveTab.qml" line="424"/>
       <source>Continue</source>
       <translation>Doorgaan</translation>
     </message>
@@ -1010,48 +1042,48 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
       <translation>Coinbase</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="129"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="124"/>
       <source>Fees paid</source>
       <translation>Betaalde kosten</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="132"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="127"/>
       <source>%1 Satoshi / 1000 bytes</source>
       <translation>%1 Satoshi / 1000 bytes</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="146"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="141"/>
       <source>Fused from my addresses</source>
       <translation>Mijn gefuseerde adressen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="148"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="143"/>
       <source>Sent from my addresses</source>
       <translation>Verzonden vanaf mijn adressen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="150"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="145"/>
       <source>Sent from addresses</source>
       <translation>Verzonden vanaf adressen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="184"/>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="248"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="179"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="243"/>
       <source>Copy Address</source>
       <translation>Kopieer adres</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="217"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="212"/>
       <source>Fused into my addresses</source>
       <translation>Gefuseerd naar mijn adressen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="219"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="214"/>
       <source>Received at addresses</source>
       <translation>Ontvangen op adressen</translation>
     </message>
     <message>
-      <location filename="../guis/mobile/TransactionDetails.qml" line="220"/>
+      <location filename="../guis/mobile/TransactionDetails.qml" line="215"/>
       <source>Received at my addresses</source>
       <translation>Ontvangen op mijn adressen</translation>
     </message>

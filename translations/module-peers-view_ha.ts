@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="pt-BR" sourcelanguage="en">
+<TS version="2.1" language="ha" sourcelanguage="en">
   <context>
     <name>NetView</name>
     <message>
@@ -12,32 +12,32 @@
       <location filename="../modules/peers-view/NetView.qml" line="55"/>
       <source>Address</source>
       <comment>network address (IP)</comment>
-      <translation type="unfinished">Address</translation>
+      <translation>Adireshi</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="61"/>
       <source>Start-height: %1</source>
-      <translation type="unfinished">Start-height: %1</translation>
+      <translation>Fara-tsawo: %1</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="64"/>
       <source>ban-score: %1</source>
-      <translation type="unfinished">ban-score: %1</translation>
+      <translation>Tsame-ci: %1</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="75"/>
       <source>initializing connection</source>
-      <translation type="unfinished">initializing connection</translation>
+      <translation>Farawa haɗi</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="77"/>
       <source>Verifying peer</source>
-      <translation type="unfinished">Verifying peer</translation>
+      <translation>Tabbatar da tsari</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="83"/>
       <source>Peer for wallet: %1</source>
-      <translation type="unfinished">Peer for wallet: %1</translation>
+      <translation>Haɗin asusu %1</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="85"/>

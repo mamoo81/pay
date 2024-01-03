@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en" sourcelanguage="en">
+<TS version="2.1" language="ha" sourcelanguage="en">
   <context>
     <name>BuildTransactionModuleInfo</name>
     <message>
@@ -42,7 +42,7 @@
       <location filename="../modules/build-transaction/PayToOthers.qml" line="75"/>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="675"/>
       <source>Add Destination</source>
-      <translation type="unfinished">Add Destination</translation>
+      <translation>Ƙara madakata</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="76"/>
@@ -68,28 +68,28 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="125"/>
       <source>Fee</source>
-      <translation type="unfinished">Fee</translation>
+      <translation>Kudin</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="132"/>
       <source>Transaction size</source>
-      <translation type="unfinished">Transaction size</translation>
+      <translation>Girman ciniki</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="135"/>
       <source>%1 bytes</source>
-      <translation type="unfinished">%1 bytes</translation>
+      <translation>%1 bytes</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="138"/>
       <source>Fee per byte</source>
-      <translation type="unfinished">Fee per byte</translation>
+      <translation>Kudin kowane byte</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="145"/>
       <source>%1 sat/byte</source>
       <comment>fee</comment>
-      <translation type="unfinished">%1 sat/byte</translation>
+      <translation>%1 sat/bytes</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="177"/>
@@ -123,7 +123,7 @@
       <location filename="../modules/build-transaction/PayToOthers.qml" line="258"/>
       <source>Send All</source>
       <comment>all money in wallet</comment>
-      <translation type="unfinished">Send All</translation>
+      <translation>Tura duka</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="264"/>
@@ -133,12 +133,12 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="338"/>
       <source>Paste</source>
-      <translation type="unfinished">Paste</translation>
+      <translation>Wallafa</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="422"/>
       <source>Warning</source>
-      <translation type="unfinished">Warning</translation>
+      <translation>Gargaɗi</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="430"/>
@@ -163,7 +163,7 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="688"/>
       <source>Unlock Wallet</source>
-      <translation type="unfinished">Unlock Wallet</translation>
+      <translation>Buɗe Asusu</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="688"/>

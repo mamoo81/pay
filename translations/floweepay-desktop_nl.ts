@@ -130,21 +130,26 @@
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="298"/>
+      <source>Seed format</source>
+      <translation>Herstelzin formaat</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/AccountDetails.qml" line="308"/>
       <source>Derivation</source>
       <translation>Derivatie</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="310"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="320"/>
       <source>Please save the seed-phrase on paper, in the right order, with the derivation path. This seed will allow you to recover your wallet in case of computer failure.</source>
       <translation>Schrijf de herstelzin op papier, in de juiste volgorde, samen met het derivatie pad. Deze herstelzin stelt u in staat om uw portemonnee te herstellen in geval van een computerfout.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="320"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="330"/>
       <source>&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</source>
       <translation>&lt;b&gt;Belangrijk&lt;/b&gt;: Deel nooit uw herstelzin met anderen!</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/AccountDetails.qml" line="328"/>
+      <location filename="../guis/desktop/AccountDetails.qml" line="338"/>
       <source>This wallet is protected by password (pin-to-pay). To see the backup details you need to provide the password.</source>
       <translation>Deze portemonnee is beveiligd met een wachtwoord (pin-to-pay). Om de back-upgegevens te zien moet u het wachtwoord invullen.</translation>
     </message>
@@ -280,79 +285,101 @@ Dit zorgt ervoor dat er slechts één privésleutel zal moeten worden geback-upt
   <context>
     <name>NewAccountImportAccount</name>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="35"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="42"/>
       <source>Please enter the secrets of the wallet to import. This can be a seed-phrase or a private key.</source>
       <translation>Voer de geheimen in van de te importeren portemonnee. Dit kan een herstelzin of een privésleutel zijn.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="40"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="47"/>
       <source>Secret</source>
       <comment>The seed-phrase or private key</comment>
       <translation>Geheim</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="47"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="54"/>
       <source>Example: %1</source>
       <comment>placeholder text</comment>
       <translation>Voorbeeld: %1</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="57"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="64"/>
       <source>Name</source>
       <translation>Naam</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="75"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="82"/>
       <source>Private key</source>
       <comment>description of type</comment>
       <translation>Privé-sleutel</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="77"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="85"/>
+      <source>BIP 39 seed-phrase (interpreted as Electrum format)</source>
+      <comment>description of type</comment>
+      <translation>BIP 39 herstelzin (geïnterpreteerd als Electrum formaat)</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="86"/>
       <source>BIP 39 seed-phrase</source>
       <comment>description of type</comment>
       <translation>BIP 39 herstelzin</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="79"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="89"/>
+      <source>Electrum seed-phrase</source>
+      <comment>description of type</comment>
+      <translation>Electron-Cash herstelzin</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="91"/>
       <source>Unrecognized word</source>
       <comment>Word from the seed-phrases lexicon</comment>
       <translation>Niet herkend woord</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="90"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="102"/>
       <source>Import wallet</source>
       <translation>Portemonnee importeren</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="116"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="128"/>
       <source>Advanced Options</source>
       <translation>Geavanceerde Opties</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="131"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="143"/>
       <source>Force Single Address</source>
       <translation>Forceer één adres</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="132"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="144"/>
       <source>When enabled, no extra addresses will be auto-generated in this wallet.
 Change will come back to the imported key.</source>
       <translation>Wanneer ingeschakeld, zullen er geen extra adressen automatisch worden gegenereerd in deze portemonnee.
 Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="138"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="151"/>
+      <source>Old Electrum Phrase</source>
+      <translation>Oude Electrum herstelzin</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="152"/>
+      <source>When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</source>
+      <translation>Zet deze optie aan als Electrum detectie mislukt en u zeker weet dat je herstelzin in die portemonnee is gemaakt.</translation>
+    </message>
+    <message>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="171"/>
       <source>Start Height</source>
       <translation>Beginhoogte</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="145"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="179"/>
       <source>Derivation</source>
       <translation>Derivatie</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="156"/>
+      <location filename="../guis/desktop/NewAccountImportAccount.qml" line="190"/>
       <source>Alternate phrase</source>
       <translation>Alternatieve zin</translation>
     </message>
@@ -920,12 +947,12 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
   <context>
     <name>WalletEncryptionStatus</name>
     <message>
-      <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="45"/>
+      <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="47"/>
       <source>Pin to Pay</source>
       <translation>PIN bij betalen</translation>
     </message>
     <message>
-      <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="47"/>
+      <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="45"/>
       <source>Pin to Open</source>
       <translation>PIN bij openen</translation>
     </message>
@@ -945,8 +972,8 @@ Wisselgeld zal teruggestort worden op de geïmporteerde sleutel.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="65"/>
-      <source>Cash Fusion</source>
-      <translation>Cash Fusion</translation>
+      <source>Fused</source>
+      <translation>Gefuseerd</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="67"/>

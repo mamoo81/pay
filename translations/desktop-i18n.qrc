@@ -6,11 +6,13 @@
         <file>floweepay-desktop_de.qm</file>
         <file>floweepay-desktop_es.qm</file>
         <file>floweepay-desktop_pt.qm</file>
+        <file>floweepay-desktop_ha.qm</file>
         <file>floweepay-common_nl.qm</file>
         <file>floweepay-common_pl.qm</file>
         <file>floweepay-common_en.qm</file>
         <file>floweepay-common_de.qm</file>
         <file>floweepay-common_pt.qm</file>
         <file>floweepay-common_es.qm</file>
+        <file>floweepay-common_ha.qm</file>
     </qresource>
 </RCC>
