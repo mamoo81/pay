@@ -26,7 +26,6 @@ set (PAY_SOURCES
     FloweePay.cpp
     MenuModel.cpp
     NetDataProvider.cpp
-    NetPeer.cpp
     NewWalletConfig.cpp
     NotificationManager.cpp
     Payment.cpp

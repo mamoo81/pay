@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *c
         app->setPaymentProtocolRequest(cld->payRequest.first());
     NetDataProvider *netData = new NetDataProvider(&engine);
     app->p2pNet()->addP2PNetListener(netData);
-    netData->startRefreshTimer();
+    netData->startTimer();
 
     PortfolioDataProvider *portfolio = new PortfolioDataProvider(&engine);
     engine.rootContext()->setContextProperty("net", netData);

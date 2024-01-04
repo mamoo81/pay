@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2021 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,44 +18,62 @@
 #ifndef NETDATAPROVIDER_H
 #define NETDATAPROVIDER_H
 
-#include "NetPeer.h"
-
 #include <p2p/P2PNetInterface.h>
+#include "WalletEnums.h"
 
-#include <QList>
+#include <QAbstractItemModel>
 #include <QMutex>
+#include <QTimer>
+
+#include <vector>
+#include <memory>
 
 class QTimer;
 
-class NetDataProvider : public QObject, public P2PNetInterface
+class NetDataProvider : public QAbstractListModel, public P2PNetInterface
 {
     Q_OBJECT
-    Q_PROPERTY(QList<QObject*> peers READ peers NOTIFY peerListChanged)
 public:
     explicit NetDataProvider(QObject *parent = nullptr);
 
-    // P2PNetInterface
-    void newPeer(int peerId, const std::string &userAgent, int startHeight, PeerAddress address) override;
-    void lostPeer(int peerId) override;
-    void punishmentChanged(int peerId) override;
+    // the refresh data polling timer.
+    void startTimer();
 
-    QList<QObject*> peers() const;
-    void startRefreshTimer();
+    // P2PNetInterface interface
+    void newPeer(const std::shared_ptr<Peer> &peer) override;
 
-signals:
-    void peerListChanged();
-    void blockHeightChanged();
-    void peerDeleted(int id);
+    enum {
+        ConnectionId = Qt::UserRole,
+        UserAgent,
+        StartHeight,
+        NodeValidity,
+        Address,
+        SegmentId,
+        Downloading,
+        PeerHeight,
+        BanScore
+    };
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QHash<int, QByteArray> roleNames() const override;
 
 private slots:
-    void deleteNetPeer(int id);
     void updatePeers();
 
 private:
-    mutable QMutex m_peerMutex;
-    QList<NetPeer*> m_peers;
+    mutable QRecursiveMutex m_peerMutex;
+    struct PeerData {
+        std::weak_ptr<Peer> peer;
+        WalletEnums::PeerValidity valid = WalletEnums::UnknownValidity;
+        bool isDownloading = false;
+        uint16_t segment = 0;
+    };
 
-    QTimer *m_refreshTimer = nullptr;
+    std::vector<PeerData> m_peers;
+
+    // we use some polling to keep the data up-to-date
+    QTimer m_refreshTimer;
 };
 
 #endif

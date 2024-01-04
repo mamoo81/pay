@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,110 +16,165 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "NetDataProvider.h"
-#include "NetPeer.h"
-#include "FloweePay.h"
 #include <ConnectionManager.h>
 #include <Peer.h>
+#include <PrivacySegment.h>
 
 #include <QThread>
 #include <QTimer>
 
 NetDataProvider::NetDataProvider(QObject *parent)
-    : QObject(parent)
+    : QAbstractListModel(parent)
 {
-    connect (this, SIGNAL(peerDeleted(int)), this, SLOT(deleteNetPeer(int)), Qt::QueuedConnection); // Make this thread-safe
+    m_refreshTimer.setInterval(1200);
+    m_refreshTimer.setTimerType(Qt::VeryCoarseTimer);
+    connect (&m_refreshTimer, SIGNAL(timeout()), this, SLOT(updatePeers()));
 }
 
-
-void NetDataProvider::newPeer(int peerId, const std::string &userAgent, int startHeight, PeerAddress address)
+void NetDataProvider::startTimer()
 {
-    QMutexLocker l(&m_peerMutex);
-    NetPeer *newPeer = new NetPeer(peerId, QString::fromStdString(userAgent), startHeight, address);
-    // assume this interface method is called in a thread that is not the Qt main one.
-    newPeer->moveToThread(thread());
-    newPeer->setParent(this);
-    m_peers.append(newPeer);
-    emit peerListChanged();
-
-    if (m_refreshTimer)
-        QTimer::singleShot(0, m_refreshTimer, SLOT(start()));
+    m_refreshTimer.start();
 }
 
-void NetDataProvider::lostPeer(int peerId)
+void NetDataProvider::newPeer(const std::shared_ptr<Peer> &peer)
 {
-    // this callback is not guarenteed to be made in our thread.
-    emit peerDeleted(peerId);
+    QMutexLocker<QRecursiveMutex> l(&m_peerMutex);
+    beginInsertRows(QModelIndex(), m_peers.size(), m_peers.size());
+    PeerData pd;
+    pd.peer = peer;
+    m_peers.push_back(pd);
+    endInsertRows();
 }
 
-void NetDataProvider::deleteNetPeer(int peerId)
+int NetDataProvider::rowCount(const QModelIndex &parent) const
 {
-    Q_ASSERT(QThread::currentThread() == thread()); // make sure we have no threading issues
-    QMutexLocker l(&m_peerMutex);
-    QList<NetPeer *> peers(m_peers);
-    for (int i = 0; i < peers.size(); ++i) {
-        if (peers.at(i)->connectionId() == peerId) {
-            auto oldPeer = peers.takeAt(i);
-            m_peers = peers;
-            emit peerListChanged();
-            oldPeer->deleteLater();
-            return;
-        }
+    if (parent.isValid()) // only for the (invalid) root node we return a count, since this is a list not a tree
+        return 0;
+    QMutexLocker<QRecursiveMutex> l(&m_peerMutex);
+    return m_peers.size();
+}
+
+QVariant NetDataProvider::data(const QModelIndex &index_, int role) const
+{
+    if (!index_.isValid())
+        return QVariant();
+
+    QMutexLocker<QRecursiveMutex> l(&m_peerMutex);
+    const auto index = index_.row();
+    if (index < 0 || index >= m_peers.size())
+        return QVariant();
+
+    const auto &peerData = m_peers.at(index);
+    std::shared_ptr<Peer> peer = peerData.peer.lock();
+    if (peer.get() == nullptr)
+        return QVariant();
+
+    switch (role) {
+    case ConnectionId:
+        return QVariant::fromValue<int>(peer->connectionId());
+    case UserAgent:
+        return QVariant::fromValue<QString>(QString::fromStdString(peer->userAgent()));
+    case StartHeight:
+        return QVariant::fromValue<int>(peer->startHeight());
+    case NodeValidity:
+        return QVariant::fromValue<WalletEnums::PeerValidity>(peerData.valid);
+    case Address: {
+        QString answer;
+        const auto &ep = peer->peerAddress().peerAddress();
+        if (ep.ipAddress.is_unspecified())
+            answer = QString::fromStdString(ep.hostname);
+        else
+            answer = QString::fromStdString(ep.ipAddress.to_string());
+        answer += QString(":%1").arg(ep.announcePort);
+        return QVariant(answer);
     }
+    case SegmentId:
+        return QVariant::fromValue<int>(peerData.segment);
+    case Downloading:
+        return QVariant::fromValue<bool>(peerData.isDownloading);
+    case PeerHeight:
+        return QVariant::fromValue<int>(peer->peerHeight());
+    case BanScore:
+        return QVariant::fromValue<short>(peer->peerAddress().punishment());
+    }
+
+    return QVariant();
+}
+
+QHash<int, QByteArray> NetDataProvider::roleNames() const
+{
+    QHash<int, QByteArray> mapping;
+    mapping[ConnectionId] = "connectionId";
+    mapping[UserAgent] = "userAgent";
+    mapping[StartHeight] = "startHeight";
+    mapping[NodeValidity] = "validity";
+    mapping[Address] = "address";
+    mapping[SegmentId] = "segment";
+    mapping[Downloading] = "isDownloading";
+    mapping[StartHeight] = "startHeight";
+    mapping[PeerHeight] = "height";
+    mapping[BanScore] = "banScore";
+    return mapping;
 }
 
 void NetDataProvider::updatePeers()
 {
-    auto &conMan = FloweePay::instance()->p2pNet()->connectionManager();
-    QList<NetPeer *> peers;
-    {
-        QMutexLocker l(&m_peerMutex);
-        peers = m_peers;
-    }
-    bool stopTimer = true;
-    for (auto &p : peers) {
-        auto peer = conMan.peer(p->connectionId());
-        // update 'p' with up to date data from the peer.
-        p->setRelaysTransactions(peer->relaysTransactions());
-        p->setHeadersReceived(peer->receivedHeaders());
+    /*
+     * The peers are managed by the p2p layer and they don't send any events on
+     * changes, so we just do polling since that's cheap enough. An average wallet
+     * will not have even 100 connections, making this check very cheap.
+     *
+     * One of the main things is that a deleted peer needs to be removed from
+     * the list and we have some properties that may change over time (like
+     * its validation state) which we check for.
+     */
+    QMutexLocker<QRecursiveMutex> l(&m_peerMutex);
+    int index = 0;
+    auto iter = m_peers.begin();
+    while (iter != m_peers.end()) {
+        try {
+            std::shared_ptr<Peer> peer(iter->peer);
 
-        if (peer->privacySegment() == nullptr)
-            stopTimer = false;
-    }
-    if (stopTimer)
-        m_refreshTimer->stop();
-}
+            bool changed = false;
 
-void NetDataProvider::punishmentChanged(int peerId)
-{
-    QMutexLocker l(&m_peerMutex);
-    QList<NetPeer *> peers(m_peers);
-    for (auto &p : peers) {
-        if (p->connectionId() == peerId) {
-            p->notifyPunishmentChanged();
-            break;
+            WalletEnums::PeerValidity valid = WalletEnums::UnknownValidity;
+            if (peer->requestedHeader())
+                valid = peer->receivedHeaders() ? WalletEnums::CheckedOk : WalletEnums::Checking;
+            else
+                valid = WalletEnums::KnownGood;
+            if (valid != iter->valid) {
+                iter->valid = valid;
+                changed = true;
+            }
+
+            const bool isDownloading = peer->merkleDownloadInProgress();
+            if (iter->isDownloading != isDownloading) {
+                iter->isDownloading = isDownloading;
+                changed = true;
+            }
+
+            if (iter->segment == 0) {
+                auto segment = peer->privacySegment();
+                if (segment) {
+                    iter->segment = segment->segmentId();
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                // to change a row, we delete and re-insert it.
+                beginRemoveRows(QModelIndex(), index, index);
+                endRemoveRows();
+                beginInsertRows(QModelIndex(), index, index);
+                endInsertRows();
+            }
+            ++index;
+            ++iter;
+        } catch (const std::exception &e) {
+            // the peer has been deleted.
+            beginRemoveRows(QModelIndex(), index, index);
+            iter = m_peers.erase(iter);
+            endRemoveRows();
         }
     }
-}
-
-QList<QObject *> NetDataProvider::peers() const
-{
-    QList<QObject *> answer;
-    for (auto * const p : m_peers) {
-        answer.append(p);
-    }
-    return answer;
-}
-
-void NetDataProvider::startRefreshTimer()
-{
-    /*
-     * Start a timer that checks every second if the peer has changed one of the not-broadcast status.
-     * When a segment is assigned we can stop the timer.
-     */
-    QMutexLocker l(&m_peerMutex);
-    assert(m_refreshTimer == nullptr); // can be called only once
-    m_refreshTimer = new QTimer(this);
-    connect(m_refreshTimer, SIGNAL(timeout()), this, SLOT(updatePeers()));
-    m_refreshTimer->setTimerType(Qt::VeryCoarseTimer);
-    m_refreshTimer->setInterval(950);
 }

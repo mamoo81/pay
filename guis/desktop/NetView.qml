@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import "../Flowee" as Flowee
+import Flowee.org.pay;
 
 ApplicationWindow {
     id: root
@@ -27,14 +28,14 @@ ApplicationWindow {
     minimumHeight: 200
     width: 400
     height: 500
-    title: qsTr("Peers (%1)", "", net.peers.length).arg(net.peers.length)
+    title: qsTr("Peers (%1)", "", listView.count).arg(listView.count)
     modality: Qt.NonModal
     flags: Qt.Dialog
 
 
     ListView {
         id: listView
-        model: net.peers
+        model: net
         clip: true
         ScrollBar.vertical: ScrollBar { }
 
@@ -51,55 +52,68 @@ ApplicationWindow {
             width: listView.width
             height: peerPane.height + 12
             color: index % 2 === 0 ? palette.button : palette.base
+            opacity: {
+                let validity = model.validity;
+                if (validity === Wallet.Checking)
+                    return 0.7;
+                return 1;
+            }
+            Label {
+                text: "(" + model.connectionId + ")"
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                y: 20
+            }
+
             ColumnLayout {
                 id: peerPane
-                width: listView.width - 20
+                width: listView.width - 40
                 x: 10
                 y: 6
 
                 Label {
-                    text: modelData.userAgent
+                    text: model.userAgent
                 }
                 Label {
-                    text: qsTr("Address", "network address (IP)") + ": " + modelData.address
+                    text: qsTr("Address", "network address (IP)") + ": " + model.address
                 }
                 RowLayout {
                     height: secondRow.height
+                    spacing: 0
                     Label {
                         id: secondRow
-                        text: qsTr("Start-height: %1").arg(modelData.startHeight)
+                        text: qsTr("Start-height: %1").arg(model.startHeight)
                     }
                     Label {
-                        text: qsTr("ban-score: %1").arg(modelData.banScore)
+                        text: ", " + qsTr("ban-score: %1").arg(model.banScore)
                     }
                 }
                 Label {
                     id : accountStatus
                     font.bold: true
                     text: {
-                        var id = modelData.segmentId;
+                        var id = model.segment;
                         if (id === 0) {
-                            // not peered yet.
-                            if (modelData.services.Length === 0)
-                                return qsTr("initializing connection")
-                            if (!modelData.headersReceived)
-                                return qsTr("Verifying peer")
-                            return qsTr("Assigning...")
+                            let validity = model.validity;
+                            if (validity === Wallet.Checking)
+                                return "Validating peer";
+                            if (validity === Wallet.CheckedOk)
+                                return "Validated";
+                            if (validity === Wallet.KnownGood)
+                                return "Good Peer";
+                            return ""; // unknown
                         }
-                        var accounts = portfolio.accounts;
+                        var accounts = portfolio.rawAccounts;
                         for (var i = 0; i < accounts.length; ++i) {
                             if (accounts[i].id === id)
                                 return qsTr("Peer for wallet: %1").arg(accounts[i].name);
                         }
-                        return qsTr("Peer for initial wallet");
+                        return "Internal Error";
                     }
-                    visible: text !== ""
                 }
-                Flow {
-                    Repeater {
-                        model: modelData.services
-                        delegate: Label { text: modelData }
-                    }
+                Label {
+                    text: "Downloading!"
+                    visible: model.isDownloading
                 }
             }
         }

@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,12 +158,15 @@ void loadCompleteHandler(QQmlApplicationEngine &engine, CommandLineParserData *c
 
     NetDataProvider *netData = new NetDataProvider(&engine);
     app->p2pNet()->addP2PNetListener(netData);
-    netData->startRefreshTimer();
+
+    const bool isOffline = cld->parser.isSet(cld->offline);
+    if (!isOffline)
+        netData->startTimer();
 
     PortfolioDataProvider *portfolio = new PortfolioDataProvider(&engine);
     engine.rootContext()->setContextProperty("net", netData);
     engine.rootContext()->setContextProperty("portfolio", portfolio);
-    if (!cld->parser.isSet(cld->offline) && cld->parser.isSet(cld->connect)) {
+    if (!isOffline && cld->parser.isSet(cld->connect)) {
         const int port = cld->parser.isSet(cld->testnet4) ?  28333 : 8333;
         // add it to the DB, making sure there is at least one.
         app->p2pNet()->connectionManager().peerAddressDb().addOne(
