@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
  */
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import QtQuick.Layouts
 import "../Flowee" as Flowee
 import "../ControlColors.js" as ControlColors
@@ -129,7 +130,13 @@ ApplicationWindow {
                     color: "white"
                     showFiat: false
                     fontPixelSize: 28
-                    opacity: Pay.hideBalance ? 0.2 : 1
+                    layer.enabled: Pay.hideBalance
+                    layer.effect: MultiEffect {
+                        blurEnabled: true
+                        blur: 1
+                        blurMultiplier: 0.4
+                        blurMax: 40
+                    }
                 }
             }
             Label {
@@ -142,11 +149,16 @@ ApplicationWindow {
 
                 text: {
                     if (Pay.hideBalance && Pay.isMainChain)
-                        return "-- " + Fiat.currencyName
+                        return Fiat.formattedPrice(100000000, Fiat.price)
                     return Fiat.formattedPrice(totalBalance.value, Fiat.price)
                 }
                 visible: balanceInHeader.visible
                 opacity: 0.6
+                layer.enabled: Pay.hideBalance
+                layer.effect: MultiEffect {
+                    blurEnabled: true
+                    blur: 1
+                }
             }
         }
 
@@ -454,11 +466,10 @@ ApplicationWindow {
                     id: balanceDetailsPane
                     property bool showDetails: false
                     width: parent.width
-                    clip: true // avoid the balance overlapping the tabbar.
+                    clip: !Pay.hideBalance // on to avoid the balance overlapping the tabbar.
                     height: balance.height + (showDetails ? extraBalances.height + 10 : 0)
                     Flowee.BitcoinAmountLabel {
                         id: balance
-                        opacity: Pay.hideBalance ? 0.2 : 1
                         value: {
                             if (isLoading)
                                 return 0;
@@ -476,6 +487,13 @@ ApplicationWindow {
                             if (leftColumn.width < 240) // max width is 252
                                 return leftColumn.width / 9
                             return 27;
+                        }
+                        layer.enabled: Pay.hideBalance
+                        layer.effect: MultiEffect {
+                            blurEnabled: true
+                            blur: 1
+                            blurMultiplier: 0.4
+                            blurMax: 40
                         }
                     }
 
@@ -550,6 +568,11 @@ ApplicationWindow {
                         return Fiat.formattedPrice(balance.value, Fiat.price);
                     }
                     opacity: 0.6
+                    layer.enabled: Pay.hideBalance
+                    layer.effect: MultiEffect {
+                        blurEnabled: true
+                        blur: 1
+                    }
                 }
                 Item { width: 1; height: fiatValue.visible ? 10 : 0 } // spacer
                 Item {
