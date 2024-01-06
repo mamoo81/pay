@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1426,6 +1426,19 @@ DownloadManager *FloweePay::p2pNet()
         m_downloadManager->connectionManager().setUserAgent(useragent.toStdString());
         emit headerChainHeightChanged();
         emit expectedChainHeightChanged();
+
+#ifdef TARGET_OS_Android
+            // ask the Android system which interfaces there are;
+            QJniEnvironment env;
+            jclass floweeNetworks = env.findClass("org/flowee/pay/Networks");
+            quint32 flags = QJniObject::callStaticMethod<jint>(floweeNetworks, "networkSupport", "()I");
+            if (flags != 0) {
+                logInfo() << "org.flowee.pay.Networks.networkSupport() returns flags:" << flags;
+                auto &addressDb = p2pNet()->connectionManager().peerAddressDb();
+                addressDb.setSupportIPv4Net((flags & 1) == 1);
+                addressDb.setSupportIPv6Net((flags & 2) == 2);
+            }
+#endif
     }
     return m_downloadManager.get();
 }
