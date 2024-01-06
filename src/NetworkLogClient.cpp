@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,21 +85,21 @@ void NetworkLogClient::pushLog(int64_t timeMillis, std::string *timestamp, const
     auto payload = payloadBuilder.message();
 
     // then build the locator
-    auto &pool = Streaming::pool(m_logPath.size() + 20);
-    pool.write(m_logPath);
-    pool.write(std::to_string(timeMillis));
+    auto pool = Streaming::pool(m_logPath.size() + 20);
+    pool->write(m_logPath);
+    pool->write(std::to_string(timeMillis));
     if (timeMillis == m_lastTimestamp) {
         // if we have multiple items with the same timetamp, differntiate to avoid the remote thinking we repeat outselves
-         pool.write("/");
-         pool.write(std::to_string(m_milliIndex++));
+         pool->write("/");
+         pool->write(std::to_string(m_milliIndex++));
     }
     else {
         m_lastTimestamp = timeMillis;
         m_milliIndex = 1;
     }
-    auto locator = pool.commit();
+    auto locator = pool->commit();
 
-    pool.reserve(payload.body().size() + locator.size() + 20);
+    pool->reserve(payload.body().size() + locator.size() + 20);
     Streaming::MessageBuilder builder(pool);
     builder.add(Locator, locator);
     builder.add(Content, payload.body());
