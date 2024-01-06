@@ -18,8 +18,10 @@
 #ifndef NETDATAPROVIDER_H
 #define NETDATAPROVIDER_H
 
-#include <p2p/P2PNetInterface.h>
 #include "WalletEnums.h"
+
+#include <p2p/P2PNetInterface.h>
+#include <p2p/PeerAddressDB.h>
 
 #include <QAbstractItemModel>
 #include <QMutex>
@@ -29,6 +31,37 @@
 #include <memory>
 
 class QTimer;
+
+class BasicAddressStats : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(int count READ count CONSTANT FINAL)
+    Q_PROPERTY(int banned READ banned CONSTANT FINAL)
+    Q_PROPERTY(int partialBanned READ partialBanned CONSTANT FINAL)
+    Q_PROPERTY(int ipv6Addresses READ ipv6Addresses CONSTANT FINAL)
+    Q_PROPERTY(int everConnected READ everConnected CONSTANT FINAL)
+    Q_PROPERTY(bool usesIPv4 READ usesIPv4 CONSTANT FINAL)
+    Q_PROPERTY(bool usesIPv6 READ usesIPv6 CONSTANT FINAL)
+public:
+    explicit BasicAddressStats(const AddressDBStats &stats, QObject *parent = nullptr);
+
+    int count() const;
+    int banned() const;
+    int partialBanned() const;
+    int ipv6Addresses() const;
+    int everConnected() const;
+    bool usesIPv4() const;
+    bool usesIPv6() const;
+
+private:
+    const int m_count;
+    const int m_banned;
+    const int m_partialBanned;
+    const int m_ipv6Addresses;
+    const int m_everConnected;
+    const bool m_usesIPv4;
+    const bool m_usesIPv6;
+};
 
 class NetDataProvider : public QAbstractListModel, public P2PNetInterface
 {
@@ -57,6 +90,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+
+    Q_INVOKABLE QObject *createStats(QObject *parent) const;
 
 private slots:
     void updatePeers();

@@ -173,5 +173,15 @@ Pane {
                 netView.item.show();
             }
         }
+        Item { width: 1; height: 1 } // empty row
+
+        Button {
+            Layout.columnSpan: 2
+            text: qsTr("Address Stats")
+            onClicked: {
+                netView.source = "./AddressDbStats.qml"
+                netView.item.show();
+            }
+        }
     }
 }

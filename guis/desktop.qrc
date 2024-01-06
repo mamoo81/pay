@@ -32,5 +32,6 @@
         <file>desktop/PaymentTweakingPanel.qml</file>
         <file>desktop/WalletEncryptionStatus.qml</file>
         <file>desktop/AccountConfigMenu.qml</file>
+        <file>desktop/AddressDbStats.qml</file>
     </qresource>
 </RCC>

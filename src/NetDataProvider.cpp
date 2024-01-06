@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "FloweePay.h"
 #include "NetDataProvider.h"
 #include <ConnectionManager.h>
 #include <Peer.h>
@@ -22,6 +23,56 @@
 
 #include <QThread>
 #include <QTimer>
+
+BasicAddressStats::BasicAddressStats(const AddressDBStats &stats, QObject *parent)
+    : QObject(parent),
+    m_count(stats.count),
+    m_banned(stats.banned),
+    m_partialBanned(stats.partialBanned),
+    m_ipv6Addresses(stats.ipv6Addresses),
+    m_everConnected(stats.everConnected),
+    m_usesIPv4(stats.usesIPv4),
+    m_usesIPv6(stats.usesIPv6)
+{
+}
+
+int BasicAddressStats::count() const
+{
+    return m_count;
+}
+
+int BasicAddressStats::banned() const
+{
+    return m_banned;
+}
+
+int BasicAddressStats::partialBanned() const
+{
+    return m_partialBanned;
+}
+
+int BasicAddressStats::ipv6Addresses() const
+{
+    return m_ipv6Addresses;
+}
+
+int BasicAddressStats::everConnected() const
+{
+    return m_everConnected;
+}
+
+bool BasicAddressStats::usesIPv4() const
+{
+    return m_usesIPv4;
+}
+
+bool BasicAddressStats::usesIPv6() const
+{
+    return m_usesIPv6;
+}
+
+
+// ////////////////////////////////////////////////////////////////////////////////////
 
 NetDataProvider::NetDataProvider(QObject *parent)
     : QAbstractListModel(parent)
@@ -115,6 +166,13 @@ QHash<int, QByteArray> NetDataProvider::roleNames() const
     mapping[PeerHeight] = "height";
     mapping[BanScore] = "banScore";
     return mapping;
+}
+
+QObject *NetDataProvider::createStats(QObject *parent) const
+{
+    return new BasicAddressStats(
+        FloweePay::instance()->p2pNet()->connectionManager().peerAddressDb().createStats(),
+        parent);
 }
 
 void NetDataProvider::updatePeers()

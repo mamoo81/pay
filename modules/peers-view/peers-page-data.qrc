@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/peers-view">
         <file>NetView.qml</file>
+        <file>StatsPage.qml</file>
     </qresource>
 </RCC>

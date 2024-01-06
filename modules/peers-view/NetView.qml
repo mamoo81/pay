@@ -23,7 +23,17 @@ import "../mobile" as Mobile;
 import Flowee.org.pay;
 
 Mobile.Page {
+    id: root
     headerText: qsTr("Peers")
+
+    property QtObject statsAction : QQC2.Action {
+        text: qsTr("Statistics")
+        onTriggered: thePile.push("./StatsPage.qml", {"stats": net.createStats(root) });
+    }
+
+    menuItems: [statsAction];
+
+
     ListView {
         id: listView
         model: net
