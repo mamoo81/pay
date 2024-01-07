@@ -131,7 +131,7 @@
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="298"/>
       <source>Seed format</source>
-      <translation type="unfinished">Seed format</translation>
+      <translation>Tsarin iri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="308"/>
@@ -167,9 +167,9 @@
     <message numerus="yes">
       <location filename="../guis/desktop/NetView.qml" line="30"/>
       <source>Peers (%1)</source>
-      <translation type="unfinished">
+      <translation>
         <numerusform>Takwarori (%1)</numerusform>
-        <numerusform>Peers (%1)</numerusform>
+        <numerusform>Takwarori (%1)</numerusform>
       </translation>
     </message>
     <message>
@@ -315,7 +315,7 @@ This ensures only one private key will need to be backed up</source>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="85"/>
       <source>BIP 39 seed-phrase (interpreted as Electrum format)</source>
       <comment>description of type</comment>
-      <translation type="unfinished">BIP 39 seed-phrase (interpreted as Electrum format)</translation>
+      <translation>BIP 39 zuriyar jimla (an fassara shi azaman Electrum)</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="86"/>
@@ -327,7 +327,7 @@ This ensures only one private key will need to be backed up</source>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="89"/>
       <source>Electrum seed-phrase</source>
       <comment>description of type</comment>
-      <translation type="unfinished">Electrum seed-phrase</translation>
+      <translation>Zuriyar jimlar Electrum</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="91"/>
@@ -359,12 +359,12 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="151"/>
       <source>Old Electrum Phrase</source>
-      <translation type="unfinished">Old Electrum Phrase</translation>
+      <translation>Tsohon Zuriyar jimlar Electrum</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="152"/>
       <source>When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</source>
-      <translation type="unfinished">When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</translation>
+      <translation>Lokacin gano Electrum ya gaza, kuma kun tabbata an ƙirƙira shi a cikin wallet ɗin, kunna wannan zaɓi.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="171"/>
@@ -634,34 +634,34 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="260"/>
       <source>Send</source>
-      <translation type="unfinished">Send</translation>
+      <translation>Aika</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="300"/>
       <source>Destination</source>
-      <translation type="unfinished">Destination</translation>
+      <translation>Madakata</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="307"/>
       <source>Max available</source>
       <comment>The maximum balance available</comment>
-      <translation type="unfinished">Max available</translation>
+      <translation>Mafi girman samuwa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="316"/>
       <source>%1 to %2</source>
       <comment>summary text to pay X-euro to address M</comment>
-      <translation type="unfinished">%1 to %2</translation>
+      <translation>%1 to %2</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="334"/>
       <source>Enter Bitcoin Cash Address</source>
-      <translation type="unfinished">Enter Bitcoin Cash Address</translation>
+      <translation>Shigar da Adireshin Kuɗi na Bitcoin</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="359"/>
       <source>Copy Address</source>
-      <translation type="unfinished">Copy Address</translation>
+      <translation>Kwafi Adireshi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="369"/>
@@ -671,22 +671,22 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="393"/>
       <source>Max</source>
-      <translation type="unfinished">Max</translation>
+      <translation>Matsakaici</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="439"/>
       <source>This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</source>
-      <translation type="unfinished">This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</translation>
+      <translation>Wannan adireshin BTC ne, wanda tsabar kudin da bai dace ba. Kuɗin ku na iya yin asara kuma Flowee ba za ta sami hanyar dawo da su ba. Shin kun tabbata wannan shine daidai adireshin?</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="451"/>
       <source>Continue</source>
-      <translation type="unfinished">Continue</translation>
+      <translation>Ci gaba</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="455"/>
       <source>Cancel</source>
-      <translation type="unfinished">Cancel</translation>
+      <translation>Soke</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="476"/>
@@ -697,41 +697,41 @@ Change will come back to the imported key.</source>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="477"/>
       <source>Selected %1 %2 in %3 coins</source>
       <comment>selected 2 BCH in 5 coins</comment>
-      <translation type="unfinished">
-        <numerusform>Selected %1 %2 in %3 coins</numerusform>
-        <numerusform>Selected %1 %2 in %3 coins</numerusform>
+      <translation>
+        <numerusform>An zaɓi %1 %2 a cikin %3 tsabar kudi</numerusform>
+        <numerusform>An zaɓi %1 %2 a cikin %3 tsabar kudi</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="488"/>
       <source>Total</source>
       <comment>Number of coins</comment>
-      <translation type="unfinished">Total</translation>
+      <translation>Jimilla</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="495"/>
       <source>Needed</source>
-      <translation type="unfinished">Needed</translation>
+      <translation>Ake Bukata</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="505"/>
       <source>Selected</source>
-      <translation type="unfinished">Selected</translation>
+      <translation>An zaɓa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="512"/>
       <source>Value</source>
-      <translation type="unfinished">Value</translation>
+      <translation>Daraja</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="550"/>
       <source>Locked coins will never be used for payments. Right-click for menu.</source>
-      <translation type="unfinished">Locked coins will never be used for payments. Right-click for menu.</translation>
+      <translation>Kullallun tsabar kudi ba za a taɓa amfani da su don biyan kuɗi ba. Danna-dama don menu.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="586"/>
       <source>Age</source>
-      <translation type="unfinished">Age</translation>
+      <translation>Shekaru</translation>
     </message>
     <message>
       <location filename="../guis/desktop/SendTransactionPane.qml" line="624"/>
@@ -822,84 +822,84 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="63"/>
       <source>Protect your wallet with a password</source>
-      <translation type="unfinished">Protect your wallet with a password</translation>
+      <translation>Kare asusun ku da kalmar sirri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="89"/>
       <source>Pin to Pay</source>
-      <translation type="unfinished">Pin to Pay</translation>
+      <translation>Matsa lamba don biya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="94"/>
       <source>Protect your funds</source>
       <comment>pin to pay</comment>
-      <translation type="unfinished">Protect your funds</translation>
+      <translation>Kare kuɗin ku</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="95"/>
       <source>Fully open, except for sending funds</source>
       <comment>pin to pay</comment>
-      <translation type="unfinished">Fully open, except for sending funds</translation>
+      <translation>Cikakken buɗewa, Sai dai don aika kudi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="96"/>
       <source>Keeps in sync</source>
       <comment>pin to pay</comment>
-      <translation type="unfinished">Keeps in sync</translation>
+      <translation>Yana ci gaba da daidaitawa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="102"/>
       <source>Pin to Open</source>
-      <translation type="unfinished">Pin to Open</translation>
+      <translation>Pin don Buɗe</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="107"/>
       <source>Protect your entire wallet</source>
       <comment>pin to open</comment>
-      <translation type="unfinished">Protect your entire wallet</translation>
+      <translation>Kare dukkan asusun ku</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="108"/>
       <source>Balance and history protected</source>
       <comment>pin to open</comment>
-      <translation type="unfinished">Balance and history protected</translation>
+      <translation>Ma'auni da tarihi a tsare suke</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="109"/>
       <source>Requires Pin to view, sync or pay</source>
       <comment>pin to open</comment>
-      <translation type="unfinished">Requires Pin to view, sync or pay</translation>
+      <translation>Da buƙatar Pin don dubawa, daidaitawa ko biya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="119"/>
       <source>Make &quot;%1&quot; wallet require a pin to pay</source>
-      <translation type="unfinished">Make &quot;%1&quot; wallet require a pin to pay</translation>
+      <translation>Yi &quot;%1&quot; asusu yana buƙatar Pin don biya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="120"/>
       <source>Make &quot;%1&quot; wallet require a pin to open</source>
-      <translation type="unfinished">Make &quot;%1&quot; wallet require a pin to open</translation>
+      <translation>Yi &quot;%1&quot; asusu yana buƙatar Pin don buɗewa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="132"/>
       <location filename="../guis/desktop/WalletEncryption.qml" line="144"/>
       <source>Wallet already has pin to open applied</source>
-      <translation type="unfinished">Wallet already has pin to open applied</translation>
+      <translation>Asusun tuni yana da Pin don buɗewa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="134"/>
       <source>Wallet already has pin to pay applied</source>
-      <translation type="unfinished">Wallet already has pin to pay applied</translation>
+      <translation>Asusun tuni yana da Pin don biya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="135"/>
       <source>Your wallet will get partially encrypted and payments will become impossible without a password. If you don&apos;t have a backup of this wallet, make one first.</source>
-      <translation type="unfinished">Your wallet will get partially encrypted and payments will become impossible without a password. If you don&apos;t have a backup of this wallet, make one first.</translation>
+      <translation>Asusun ku zai sami rufaffen ɓangarori kuma biyan kuɗi zai yi wuya ba tare da kalmar sirri ba. Idan babu ajiyar wannan asusun ɗin, fara yin ɗaya.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="145"/>
       <source>Your full wallet gets encrypted, opening it will need a password. If you don&apos;t have a backup of this wallet, make one first.</source>
-      <translation type="unfinished">Your full wallet gets encrypted, opening it will need a password. If you don&apos;t have a backup of this wallet, make one first.</translation>
+      <translation>Cikakken asusun ku yana ɓoye, domin buɗe shi za'a buƙaci kalmar sirri. Idan ba ku da ajiyar wannan asusun, fara yin ɗaya.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="171"/>
@@ -909,17 +909,17 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="194"/>
       <source>Wallet</source>
-      <translation type="unfinished">Wallet</translation>
+      <translation>Asusu</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="216"/>
       <source>Encrypt</source>
-      <translation type="unfinished">Encrypt</translation>
+      <translation>Rufewa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="223"/>
       <source>Invalid password to open this wallet</source>
-      <translation type="unfinished">Invalid password to open this wallet</translation>
+      <translation>Kalmar sirri mara inganci don buɗe wannan asusu</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="235"/>
@@ -929,17 +929,17 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="245"/>
       <source>Repeat password</source>
-      <translation type="unfinished">Repeat password</translation>
+      <translation>Maimaita kalmar sirri</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="246"/>
       <source>Please confirm the password by entering it again</source>
-      <translation type="unfinished">Please confirm the password by entering it again</translation>
+      <translation>Da fatan za a tabbatar da kalmar wucewa ta hanyar sake shigar da shi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="251"/>
       <source>Typed passwords do not match</source>
-      <translation type="unfinished">Typed passwords do not match</translation>
+      <translation>Rubutun kalmomin shiga ba su dace ba</translation>
     </message>
   </context>
   <context>
@@ -947,18 +947,18 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="47"/>
       <source>Pin to Pay</source>
-      <translation type="unfinished">Pin to Pay</translation>
+      <translation>Matsa lamba don biya</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="45"/>
       <source>Pin to Open</source>
-      <translation type="unfinished">Pin to Open</translation>
+      <translation>Pin don Buɗe</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryptionStatus.qml" line="49"/>
       <source>(Opened)</source>
       <comment>Wallet is decrypted</comment>
-      <translation type="unfinished">(Opened)</translation>
+      <translation>(An buɗe)</translation>
     </message>
   </context>
   <context>
@@ -966,37 +966,37 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="63"/>
       <source>Miner Reward</source>
-      <translation type="unfinished">Miner Reward</translation>
+      <translation>Ladan Ma'adinai</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="65"/>
       <source>Fused</source>
-      <translation type="unfinished">Fused</translation>
+      <translation>Fuskanci</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="67"/>
       <source>Received</source>
-      <translation type="unfinished">Received</translation>
+      <translation>An samu</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="70"/>
       <source>Moved</source>
-      <translation type="unfinished">Moved</translation>
+      <translation>Motsa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="71"/>
       <source>Sent</source>
-      <translation type="unfinished">Sent</translation>
+      <translation>An aika</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="79"/>
       <source>rejected</source>
-      <translation type="unfinished">rejected</translation>
+      <translation>an ƙii</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="82"/>
       <source>unconfirmed</source>
-      <translation type="unfinished">unconfirmed</translation>
+      <translation>ba'a tabbatar ba</translation>
     </message>
   </context>
   <context>
@@ -1004,50 +1004,50 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="31"/>
       <source>Copy transaction-ID</source>
-      <translation type="unfinished">Copy transaction-ID</translation>
+      <translation>Kwafi shaidar ma'amala-ID</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="37"/>
       <source>Status</source>
-      <translation type="unfinished">Status</translation>
+      <translation>Matsayi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="44"/>
       <source>rejected</source>
-      <translation type="unfinished">rejected</translation>
+      <translation>an ƙii</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="46"/>
       <source>unconfirmed</source>
-      <translation type="unfinished">unconfirmed</translation>
+      <translation>ba'a tabbatar ba</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="48"/>
       <source>%1 confirmations (mined in block %2)</source>
-      <translation type="unfinished">
-        <numerusform>%1 confirmations (mined in block %2)</numerusform>
-        <numerusform>%1 confirmations (mined in block %2)</numerusform>
+      <translation>
+        <numerusform>%1 tabbatarwa (ma'adinai a tubali %2)</numerusform>
+        <numerusform>%1 tabbatarwa (ma'adinai a tubali %2)</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="52"/>
       <source>Copy block height</source>
-      <translation type="unfinished">Copy block height</translation>
+      <translation>Kwafi tsayin tubali</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="73"/>
       <source>Fees</source>
-      <translation type="unfinished">Fees</translation>
+      <translation>Kudin</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="82"/>
       <source>Size</source>
-      <translation type="unfinished">Size</translation>
+      <translation>Girman</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="85"/>
       <source>%1 bytes</source>
-      <translation type="unfinished">
+      <translation>
         <numerusform>%1 bytes</numerusform>
         <numerusform>%1 bytes</numerusform>
       </translation>
@@ -1055,18 +1055,18 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="88"/>
       <source>Inputs</source>
-      <translation type="unfinished">Inputs</translation>
+      <translation>Abubuwan shigarwa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="135"/>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="241"/>
       <source>Copy Address</source>
-      <translation type="unfinished">Copy Address</translation>
+      <translation>Kwafi Adireshi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransactionDetails.qml" line="164"/>
       <source>Outputs</source>
-      <translation type="unfinished">Outputs</translation>
+      <translation>Abubuwan da aka fitar</translation>
     </message>
   </context>
   <context>
@@ -1074,32 +1074,32 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/main.qml" line="174"/>
       <source>Activity</source>
-      <translation type="unfinished">Activity</translation>
+      <translation>Ayyuka</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="203"/>
       <source>Archived wallets do not check for activities. Balance may be out of date.</source>
-      <translation type="unfinished">Archived wallets do not check for activities. Balance may be out of date.</translation>
+      <translation>Asusun ɗin da aka adana ba sa bincika ayyuka. Ma'auni na iya zama ya tsufa.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="207"/>
       <source>Unarchive</source>
-      <translation type="unfinished">Unarchive</translation>
+      <translation>Cire Takardu</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="239"/>
       <source>This wallet needs a password to open.</source>
-      <translation type="unfinished">This wallet needs a password to open.</translation>
+      <translation>Wannan asusun tana buƙatar kalmar sirri don buɗewa.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="246"/>
       <source>Password:</source>
-      <translation type="unfinished">Password:</translation>
+      <translation>Kalmar wucewa:</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="265"/>
       <source>Invalid password</source>
-      <translation type="unfinished">Invalid password</translation>
+      <translation>Kalmar shiga mara inganci</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="270"/>
@@ -1109,69 +1109,69 @@ Change will come back to the imported key.</source>
     <message>
       <location filename="../guis/desktop/main.qml" line="345"/>
       <source>Send</source>
-      <translation type="unfinished">Send</translation>
+      <translation>Aika</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="353"/>
       <source>Receive</source>
-      <translation type="unfinished">Receive</translation>
+      <translation>Karɓa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="427"/>
       <source>Balance</source>
-      <translation type="unfinished">Balance</translation>
+      <translation>Sauran kudi</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="495"/>
       <source>Main</source>
       <comment>balance (money), non specified</comment>
-      <translation type="unfinished">Main</translation>
+      <translation>Babban</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="505"/>
       <source>Unconfirmed</source>
       <comment>balance (money)</comment>
-      <translation type="unfinished">Unconfirmed</translation>
+      <translation>Ba'a tabbatar ba</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="514"/>
       <source>Immature</source>
       <comment>balance (money)</comment>
-      <translation type="unfinished">Immature</translation>
+      <translation>Rashin cika</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="561"/>
       <source>1 BCH is: %1</source>
-      <translation type="unfinished">1 BCH is: %1</translation>
+      <translation>1 BCH shi ne: %1</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="607"/>
       <source>Network status</source>
-      <translation type="unfinished">Network status</translation>
+      <translation>Matsayin hanyar sadarwa</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="619"/>
       <source>Offline</source>
-      <translation type="unfinished">Offline</translation>
+      <translation>Baya kan na'ura</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="651"/>
       <source>Add Bitcoin Cash wallet</source>
-      <translation type="unfinished">Add Bitcoin Cash wallet</translation>
+      <translation>Sanya asusun Bitcoin Cash</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/desktop/main.qml" line="686"/>
       <source>Archived wallets [%1]</source>
       <comment>Arg is wallet count</comment>
-      <translation type="unfinished">
-        <numerusform>Archived wallets [%1]</numerusform>
-        <numerusform>Archived wallets [%1]</numerusform>
+      <translation>
+        <numerusform>Asusun da aka adana [%1]</numerusform>
+        <numerusform>Asusun da aka adana [%1]</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="716"/>
       <source>Preparing...</source>
-      <translation type="unfinished">Preparing...</translation>
+      <translation>Shiryawa...</translation>
     </message>
   </context>
 </TS>

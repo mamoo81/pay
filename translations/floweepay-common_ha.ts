@@ -162,23 +162,23 @@
       <source>%1 minutes ago</source>
       <comment>relative time stamp</comment>
       <translation>
-        <numerusform>Minti daya da yawuce</numerusform>
-        <numerusform>Minti 1 da ya wuce</numerusform>
+        <numerusform>%1 da yawuce</numerusform>
+        <numerusform>%1 minti da yawuce</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../src/FloweePay.cpp" line="693"/>
       <source>½ hour ago</source>
       <comment>timestamp</comment>
-      <translation>Rabin awa da ya wuce</translation>
+      <translation>½ awa da ya wuce</translation>
     </message>
     <message numerus="yes">
       <location filename="../src/FloweePay.cpp" line="695"/>
       <source>%1 hours ago</source>
       <comment>timestamp</comment>
       <translation>
-        <numerusform>Awa daya da ya wuce</numerusform>
-        <numerusform>Awa 1 da ta wuce</numerusform>
+        <numerusform>%1 Awa da ya wuce</numerusform>
+        <numerusform>%1 Awa da ya wuce</numerusform>
       </translation>
     </message>
   </context>
@@ -247,7 +247,7 @@
     <message>
       <location filename="../src/NotificationManager.cpp" line="196"/>
       <source>%1 new transactions across %2 wallets found (%3)</source>
-      <translation>sabbin ma'amaloli a cikin asusun da aka samu</translation>
+      <translation>%1 sabbin ma'amaloli a cikin %2 asusun da aka samu (%3)</translation>
     </message>
     <message>
       <location filename="../src/NotificationManager.cpp" line="201"/>
@@ -258,8 +258,8 @@
       <location filename="../src/NotificationManager.cpp" line="205"/>
       <source>%1 new transactions found (%2)</source>
       <translation>
-        <numerusform>sababbin ma'amaloli akasamu</numerusform>
-        <numerusform>sababbin ma'amaloli aka samu</numerusform>
+        <numerusform>%1 sababbin ma'amaloli akasamu (%2)</numerusform>
+        <numerusform>%1 sababbin ma'amaloli aka samu (%2)</numerusform>
       </translation>
     </message>
   </context>
@@ -324,13 +324,13 @@
       <location filename="../src/Wallet_support.cpp" line="265"/>
       <location filename="../src/Wallet_support.cpp" line="303"/>
       <source>Change #%1</source>
-      <translation>Chanji</translation>
+      <translation>Chanji #%1</translation>
     </message>
     <message>
       <location filename="../src/Wallet_support.cpp" line="268"/>
       <location filename="../src/Wallet_support.cpp" line="306"/>
       <source>Main #%1</source>
-      <translation>Mafarin</translation>
+      <translation>Mafarin #%1</translation>
     </message>
   </context>
   <context>
@@ -338,15 +338,15 @@
     <message>
       <location filename="../src/WalletCoinsModel.cpp" line="85"/>
       <source>Unconfirmed</source>
-      <translation>Ba a tabbatar ba</translation>
+      <translation>Ba'a tabbatar ba</translation>
     </message>
     <message numerus="yes">
       <location filename="../src/WalletCoinsModel.cpp" line="90"/>
       <source>%1 hours</source>
       <comment>age, like: hours old</comment>
       <translation>
-        <numerusform>Awa</numerusform>
-        <numerusform>Awowi</numerusform>
+        <numerusform>%1 awowi</numerusform>
+        <numerusform>%1 Awowi</numerusform>
       </translation>
     </message>
     <message numerus="yes">
@@ -354,8 +354,8 @@
       <source>%1 days</source>
       <comment>age, like: days old</comment>
       <translation>
-        <numerusform>Ranaku</numerusform>
-        <numerusform>Ranaku</numerusform>
+        <numerusform>%1 Ranaku</numerusform>
+        <numerusform>%1 Ranaku</numerusform>
       </translation>
     </message>
     <message numerus="yes">
@@ -363,8 +363,8 @@
       <source>%1 weeks</source>
       <comment>age, like: weeks old</comment>
       <translation>
-        <numerusform>makonni</numerusform>
-        <numerusform>Makonni</numerusform>
+        <numerusform>%1 makonni</numerusform>
+        <numerusform>%1 Makonni</numerusform>
       </translation>
     </message>
     <message numerus="yes">
@@ -372,14 +372,14 @@
       <source>%1 months</source>
       <comment>age, like: months old</comment>
       <translation>
-        <numerusform>Watanni</numerusform>
-        <numerusform>Watanni</numerusform>
+        <numerusform>%1 Watanni</numerusform>
+        <numerusform>%1 Watanni</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../src/WalletCoinsModel.cpp" line="139"/>
       <source>Change #%1</source>
-      <translation>Chanji daya</translation>
+      <translation>Chanji #%1</translation>
     </message>
   </context>
   <context>

@@ -953,7 +953,7 @@ This ensures only one private key will need to be backed up</source>
     <message>
       <location filename="../guis/mobile/SlideToApprove.qml" line="31"/>
       <source>SLIDE TO SEND</source>
-      <translation>TURA DON AIKA</translation>
+      <translation>Tura don Aika</translation>
     </message>
   </context>
   <context>
@@ -981,12 +981,12 @@ This ensures only one private key will need to be backed up</source>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="152"/>
       <source>OR</source>
-      <translation type="unfinished">OR</translation>
+      <translation>Ko</translation>
     </message>
     <message>
       <location filename="../guis/mobile/StartupScreen.qml" line="174"/>
       <source>Add a different wallet</source>
-      <translation type="unfinished">Add a different wallet</translation>
+      <translation>Ƙara wani asusu na daban</translation>
     </message>
   </context>
   <context>
@@ -999,7 +999,7 @@ This ensures only one private key will need to be backed up</source>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="39"/>
       <source>Transaction Hash</source>
-      <translation type="unfinished">Transaction Hash</translation>
+      <translation>Zanta Ma'amala</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="73"/>
@@ -1009,81 +1009,81 @@ This ensures only one private key will need to be backed up</source>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="75"/>
       <source>Unconfirmed</source>
-      <translation type="unfinished">Unconfirmed</translation>
+      <translation>Ba a tabbatar ba</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="76"/>
       <source>Mined at</source>
-      <translation type="unfinished">Mined at</translation>
+      <translation>An haƙo daga</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/mobile/TransactionDetails.qml" line="93"/>
       <source>%1 blocks ago</source>
-      <translation type="unfinished">
-        <numerusform>%1 blocks ago</numerusform>
-        <numerusform>%1 blocks ago</numerusform>
+      <translation>
+        <numerusform>%1 tubalan da suka wuce</numerusform>
+        <numerusform>%1 Tubalin da suka gabata</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="100"/>
       <source>Transaction comment</source>
-      <translation type="unfinished">Transaction comment</translation>
+      <translation>Sharhin Ma'amala</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="113"/>
       <source>Size: %1 bytes</source>
-      <translation type="unfinished">Size: %1 bytes</translation>
+      <translation>Girma: %1 bytes</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="116"/>
       <source>Coinbase</source>
-      <translation type="unfinished">Coinbase</translation>
+      <translation>Coinbase</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="124"/>
       <source>Fees paid</source>
-      <translation type="unfinished">Fees paid</translation>
+      <translation>An biya kudade</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="127"/>
       <source>%1 Satoshi / 1000 bytes</source>
-      <translation type="unfinished">%1 Satoshi / 1000 bytes</translation>
+      <translation>%1 Satoshi / 1000 bytes</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="141"/>
       <source>Fused from my addresses</source>
-      <translation type="unfinished">Fused from my addresses</translation>
+      <translation>An haɗe daga adiresoshin na</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="143"/>
       <source>Sent from my addresses</source>
-      <translation type="unfinished">Sent from my addresses</translation>
+      <translation>An aiko daga adiresoshin na</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="145"/>
       <source>Sent from addresses</source>
-      <translation type="unfinished">Sent from addresses</translation>
+      <translation>An aiko daga adiresoshi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="179"/>
       <location filename="../guis/mobile/TransactionDetails.qml" line="243"/>
       <source>Copy Address</source>
-      <translation type="unfinished">Copy Address</translation>
+      <translation>Kwafi Adireshi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="212"/>
       <source>Fused into my addresses</source>
-      <translation type="unfinished">Fused into my addresses</translation>
+      <translation>An haɗe cikin adiresoshin na</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="214"/>
       <source>Received at addresses</source>
-      <translation type="unfinished">Received at addresses</translation>
+      <translation>An karɓa a adiresoshi</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TransactionDetails.qml" line="215"/>
       <source>Received at my addresses</source>
-      <translation type="unfinished">Received at my addresses</translation>
+      <translation>An karɓa a adireshi na</translation>
     </message>
   </context>
   <context>
@@ -1091,71 +1091,71 @@ This ensures only one private key will need to be backed up</source>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="40"/>
       <source>Transaction is rejected</source>
-      <translation type="unfinished">Transaction is rejected</translation>
+      <translation>An ƙi ma'amalar ciniki</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="42"/>
       <source>Processing</source>
-      <translation type="unfinished">Processing</translation>
+      <translation>Sarrafawa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="55"/>
       <source>Mined</source>
-      <translation type="unfinished">Mined</translation>
+      <translation>Haƙar ma'adinai</translation>
     </message>
     <message numerus="yes">
       <location filename="../guis/mobile/TxInfoSmall.qml" line="66"/>
       <source>%1 blocks ago</source>
       <comment>Confirmations</comment>
-      <translation type="unfinished">
-        <numerusform>%1 blocks ago</numerusform>
-        <numerusform>%1 blocks ago</numerusform>
+      <translation>
+        <numerusform>%1 Tubalin da suka gabata</numerusform>
+        <numerusform>%1 tubalan da suka wuce</numerusform>
       </translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="75"/>
       <source>Miner Reward</source>
-      <translation type="unfinished">Miner Reward</translation>
+      <translation>Ladan Ma'adinai</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="77"/>
       <source>Fees</source>
-      <translation type="unfinished">Fees</translation>
+      <translation>Kudin</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="79"/>
       <source>Received</source>
-      <translation type="unfinished">Received</translation>
+      <translation>An samu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="81"/>
       <source>Payment to self</source>
-      <translation type="unfinished">Payment to self</translation>
+      <translation>Biyan kuɗi ga kai</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="82"/>
       <source>Sent</source>
-      <translation type="unfinished">Sent</translation>
+      <translation>An aika</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="113"/>
       <source>Holds a token</source>
-      <translation type="unfinished">Holds a token</translation>
+      <translation>Rike alama</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="119"/>
       <source>Sent to</source>
-      <translation type="unfinished">Sent to</translation>
+      <translation>An aika zuwa</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="136"/>
       <source>Value now</source>
-      <translation type="unfinished">Value now</translation>
+      <translation>Daraja yanzu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="167"/>
       <source>Value then</source>
-      <translation type="unfinished">Value then</translation>
+      <translation>Daraja zuwa ga</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="181"/>
@@ -1168,7 +1168,7 @@ This ensures only one private key will need to be backed up</source>
     <message>
       <location filename="../guis/mobile/UnlockWidget.qml" line="98"/>
       <source>Enter your wallet passcode</source>
-      <translation type="unfinished">Enter your wallet passcode</translation>
+      <translation>Shiga da lambar wucewar asusu</translation>
     </message>
     <message>
       <location filename="../guis/mobile/UnlockWidget.qml" line="226"/>

@@ -6,17 +6,17 @@
     <message>
       <location filename="../modules/build-transaction/BuildTransactionModuleInfo.cpp" line="23"/>
       <source>Create Transactions</source>
-      <translation type="unfinished">Create Transactions</translation>
+      <translation>Ƙirƙiri Ma'amaloli</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/BuildTransactionModuleInfo.cpp" line="24"/>
       <source>This module allows building more powerful transactions in one simple user interface.</source>
-      <translation type="unfinished">This module allows building more powerful transactions in one simple user interface.</translation>
+      <translation>Wannan tsarin yana ba da damar gina ƙarin ma'amaloli masu ƙarfi a cikin sauƙin mai amfani guda ɗaya.</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/BuildTransactionModuleInfo.cpp" line="27"/>
       <source>Build Transaction</source>
-      <translation type="unfinished">Build Transaction</translation>
+      <translation>Gina Ma'amala</translation>
     </message>
   </context>
   <context>
@@ -24,19 +24,19 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="28"/>
       <source>Build Transaction</source>
-      <translation type="unfinished">Build Transaction</translation>
+      <translation>Gina Ma'amala</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="59"/>
       <source>Building Error</source>
       <comment>error during build</comment>
-      <translation type="unfinished">Building Error</translation>
+      <translation>Kuskuren gini</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="67"/>
       <source>Add Payment Detail</source>
       <comment>page title</comment>
-      <translation type="unfinished">Add Payment Detail</translation>
+      <translation>Ƙara Bayanin Biyan Kuɗi</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="75"/>
@@ -47,23 +47,23 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="76"/>
       <source>an address to send money to</source>
-      <translation type="unfinished">an address to send money to</translation>
+      <translation>Adireshin da za'a aika kudi zuwa</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="94"/>
       <source>Confirm Sending</source>
       <comment>confirm we want to send the transaction</comment>
-      <translation type="unfinished">Confirm Sending</translation>
+      <translation>Tabbatar da Aika</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="114"/>
       <source>TXID</source>
-      <translation type="unfinished">TXID</translation>
+      <translation>TXID</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="122"/>
       <source>Copy transaction-ID</source>
-      <translation type="unfinished">Copy transaction-ID</translation>
+      <translation>Kwafi shaidar ma'amala-ID</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="125"/>
@@ -94,30 +94,30 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="177"/>
       <source>Destination</source>
-      <translation type="unfinished">Destination</translation>
+      <translation>Madakata</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="186"/>
       <source>unset</source>
       <comment>indication of empty</comment>
-      <translation type="unfinished">unset</translation>
+      <translation>Rashin saitawa</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="187"/>
       <source>invalid</source>
       <comment>address is not correct</comment>
-      <translation type="unfinished">invalid</translation>
+      <translation>Ba daidai ba</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="194"/>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="367"/>
       <source>Copy Address</source>
-      <translation type="unfinished">Copy Address</translation>
+      <translation>Kwafi Adireshi</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="253"/>
       <source>Edit Destination</source>
-      <translation type="unfinished">Edit Destination</translation>
+      <translation>Gyara Madakata</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="258"/>
@@ -128,7 +128,7 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="264"/>
       <source>Bitcoin Cash Address</source>
-      <translation type="unfinished">Bitcoin Cash Address</translation>
+      <translation>Adireshin Kuɗi na Bitcoin</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="338"/>
@@ -143,22 +143,22 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="430"/>
       <source>This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</source>
-      <translation type="unfinished">This is a BTC address, which is an incompatible coin. Your funds could get lost and Flowee will have no way to recover them. Are you sure this is the right address?</translation>
+      <translation>Wannan adireshin BTC ne, wanda tsabar kudin da bai dace ba. Kuɗin ku na iya yin asara kuma Flowee ba za ta sami hanyar dawo da su ba. Shin kun tabbata wannan shine daidai adireshin?</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="439"/>
       <source>I am certain</source>
-      <translation type="unfinished">I am certain</translation>
+      <translation>Na tabbata</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="652"/>
       <source>Drag to Edit</source>
-      <translation type="unfinished">Drag to Edit</translation>
+      <translation>Jawo don Gyarawa</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="652"/>
       <source>Drag to Delete</source>
-      <translation type="unfinished">Drag to Delete</translation>
+      <translation>Jawo don gogewa</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="688"/>
@@ -168,7 +168,7 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="688"/>
       <source>Prepare Payment...</source>
-      <translation type="unfinished">Prepare Payment...</translation>
+      <translation>Shirya Biya...</translation>
     </message>
   </context>
 </TS>

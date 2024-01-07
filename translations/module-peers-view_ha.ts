@@ -6,7 +6,7 @@
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="25"/>
       <source>Peers</source>
-      <translation type="unfinished">Peers</translation>
+      <translation>Takwarori</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="55"/>
@@ -42,7 +42,7 @@
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="85"/>
       <source>Peer for wallet</source>
-      <translation type="unfinished">Peer for wallet</translation>
+      <translation>Takwaran asusu</translation>
     </message>
   </context>
   <context>
@@ -50,17 +50,17 @@
     <message>
       <location filename="../modules/peers-view/PeersViewModuleInfo.cpp" line="24"/>
       <source>Peers View</source>
-      <translation type="unfinished">Peers View</translation>
+      <translation>Takwarorin duba</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/PeersViewModuleInfo.cpp" line="25"/>
       <source>This module provides a view of network servers we connect to often called &apos;peers&apos;.</source>
-      <translation type="unfinished">This module provides a view of network servers we connect to often called &apos;peers&apos;.</translation>
+      <translation>Wannan tsarin yana ba da ra'ayi na sabar cibiyar sadarwa da muke haɗawa da yawa ana kiranta &apos;takwarori&apos;.</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/PeersViewModuleInfo.cpp" line="30"/>
       <source>Network Details</source>
-      <translation type="unfinished">Network Details</translation>
+      <translation>Matsayin hanyar sadarwa</translation>
     </message>
   </context>
 </TS>
