@@ -71,6 +71,8 @@ Deutsc
 <dd>Georg Engelmann</dd>
 <dt>Español</dt>
 <dd>Gerard H.R.(devperate)</dd>
+<dt>Hausa</dt>
+<dd>Ibrahim Rabiu</dd>
 <dt>Nederlands</dt>
 <dd>Tom Zander</dd>
 <dt>Polski</dt>
