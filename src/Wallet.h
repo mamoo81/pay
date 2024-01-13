@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 class WalletInfoObject;
 class TransactionInfo;
 class WalletKeyView;
+class Blockchain;
 
 namespace P2PNet {
 struct Notification;
@@ -111,6 +112,10 @@ public:
     /// Let the wallet know that it is up-to-date to \a height
     void setLastSynchedBlockHeight(int height) override;
     void headerSyncComplete() override;
+    /**
+     * Check if the headers are high enough for our usage.
+     */
+    void checkHeaderSyncComplete(const Blockchain &blockchain);
 
     PrivacySegment *segment() const;
 

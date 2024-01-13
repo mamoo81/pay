@@ -386,6 +386,9 @@ void FloweePay::init()
                     connectToWallet(w);
                     logDebug() << "Found wallet" << w->name() << "with segment ID:" << w->segment()->segmentId();
                     lastOpened = w;
+
+                    // help make sure newly started wallets start synching.
+                    w->checkHeaderSyncComplete(p2pNet()->blockchain());
                 } catch (const std::runtime_error &e) {
                     logWarning() << "Wallet load failed:" << e;
                     lastOpened = nullptr;

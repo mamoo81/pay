@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1411,12 +1411,12 @@ void Wallet::headerSyncComplete()
      *   Find the matching block and update the bloom filter.
      */
 
+    const Blockchain &blockchain = FloweePay::instance()->p2pNet()->blockchain();
     bool changedOne = false;
     for (auto iter = m_walletSecrets.begin(); iter != m_walletSecrets.end(); ++iter) {
         if (iter->second.initialHeight > 10000000) {
             // this is a time based height, lets resolve it to a real height.
-            const Blockchain &blockchain = FloweePay::instance()->p2pNet()->blockchain();
-            iter->second.initialHeight = blockchain.blockHeightAtTime(iter->second.initialHeight);
+            iter->second.initialHeight = blockchain.blockHeightAtTime(iter->second.initialHeight) - 1;
             m_secretsChanged = true;
             changedOne = true;
         }
@@ -1427,7 +1427,21 @@ void Wallet::headerSyncComplete()
         rebuildBloom(ForceBuild);
         // make the wallet initial sync also show something sane.
         if (m_segment)
-            m_segment->blockSynched(FloweePay::instance()->p2pNet()->blockHeight());
+            m_segment->blockSynched(blockchain.height());
+    }
+}
+
+// called on startup to ensure we don't get stuck waiting for tip.
+void Wallet::checkHeaderSyncComplete(const Blockchain &blockchain)
+{
+    if (m_walletSecrets.empty())
+        return;
+    auto timestamp = m_walletSecrets.begin()->second.initialHeight;
+    if (timestamp > 10000000) {
+        // is a time based height
+        auto block = blockchain.block(blockchain.height());
+        if (block.nTime >= timestamp)
+            headerSyncComplete();
     }
 }
 
