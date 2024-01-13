@@ -1,5 +1,5 @@
 # This file is part of the Flowee project
-# Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+# Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.19)
-project(flowee_pay VERSION 0.2 LANGUAGES CXX)
+project(flowee_pay VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -49,9 +49,7 @@ else ()
     find_package(ZXing REQUIRED)
 endif()
 find_package(Boost 1.67.0 REQUIRED filesystem chrono thread)
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
-endif()
+include_directories(${Boost_INCLUDE_DIRS})
 
 function(download_file url path)
     if (NOT EXISTS "${path}")
