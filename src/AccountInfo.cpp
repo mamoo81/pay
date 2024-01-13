@@ -33,13 +33,18 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     : QObject(parent),
       m_wallet(wallet),
       m_config(m_wallet),
-      m_initialBlockHeight(wallet->segment()->lastBlockSynched())
+      m_initialBlockHeight(wallet->segment()->lastBlockSynched()),
+      m_accountStartBlockHeight(wallet->segment()->firstBlock())
 {
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(balanceChanged()), this, SLOT(balanceHasChanged()), Qt::QueuedConnection);
     connect(wallet, &Wallet::lastBlockSynchedChanged, m_wallet, [=]() {
         if (m_initialBlockHeight < 0)
             m_initialBlockHeight = m_wallet->segment()->lastBlockSynched();
+        if (m_accountStartBlockHeight < 0) {
+            m_accountStartBlockHeight  = m_wallet->segment()->firstBlock();
+            emit accountStartBlockHeightChanged();
+        }
         emit lastBlockSynchedChanged();
         emit timeBehindChanged();
     }, Qt::QueuedConnection);
@@ -221,6 +226,11 @@ void AccountInfo::walletEncryptionChanged()
     emit modelsChanged();
     emit encryptionChanged();
     emit nameChanged();
+}
+
+int AccountInfo::accountStartBlockHeight() const
+{
+    return m_accountStartBlockHeight;
 }
 
 bool AccountInfo::isPrivate() const

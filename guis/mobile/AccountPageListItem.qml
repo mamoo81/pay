@@ -155,7 +155,7 @@ QQC2.Control {
 
                         PageTitledBox {
                             title: qsTr("Starting Height", "height refers to block-height")
-                            Flowee.LabelWithClipboard { text: root.account.initialBlockHeight }
+                            Flowee.LabelWithClipboard { text: root.account.accountStartBlockHeight }
                         }
 
                         PageTitledBox {

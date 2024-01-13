@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,13 @@ class AccountInfo : public QObject
     Q_PROPERTY(int historicalOutputCount READ historicalOutputCount NOTIFY utxosChanged)
     Q_PROPERTY(int id READ id CONSTANT)
     Q_PROPERTY(int lastBlockSynched READ lastBlockSynched NOTIFY lastBlockSynchedChanged)
+
+    /**
+     * This is the oldest block that this account ever might have seen transactions at.
+     * Essentially the creation date.
+     */
+    Q_PROPERTY(int accountStartBlockHeight READ accountStartBlockHeight NOTIFY accountStartBlockHeightChanged FINAL)
+
     /**
      * This is the first block that on this instantiation we need to sync.
      * This property is useful to determine how much we need to sync this session.
@@ -174,6 +181,9 @@ public:
     bool isPrivate() const;
     void setIsPrivate(bool newIsPrivate);
 
+    // the first blockheight ever used for this account
+    int accountStartBlockHeight() const;
+
 signals:
     void balanceChanged();
     void utxosChanged();
@@ -189,6 +199,7 @@ signals:
     void instaPayAllowedChanged();
     void instaPayLimitChanged(const QString &currencyCode);
     void neverEmitted(); // to silence the lambs^Warnings
+    void accountStartBlockHeightChanged();
 
     // for the benefit of the portfolio data provider
     void isPrivateChanged();
@@ -205,6 +216,7 @@ private:
     std::unique_ptr<WalletHistoryModel> m_model;
     std::unique_ptr<WalletSecretsModel> m_secretsModel;
     int m_lastTxHeight = -1; ///< last seen tx blockheight.
+    int m_accountStartBlockHeight;
     int m_initialBlockHeight;
     bool m_hasFreshTransactions = false;
 
