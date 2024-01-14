@@ -363,6 +363,7 @@ void FloweePay::sendTransactionNotification(const P2PNet::Notification &notifica
 void FloweePay::init()
 {
     auto dl = p2pNet(); // this wil load the p2p layer.
+    dl->connectionManager().peerAddressDb().pardonOldCrimes();
 
     QFile in(m_basedir + AppdataFilename);
     Wallet *lastOpened = nullptr;
