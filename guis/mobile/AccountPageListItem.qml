@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,6 +212,7 @@ QQC2.Control {
                     }
 
                     PageTitledBox {
+                        width: parent.width
                         id: optionsBox
                         Flowee.CheckBox {
                             text: qsTr("Change Addresses")
@@ -227,6 +228,19 @@ QQC2.Control {
                         }
                     }
 
+                    PageTitledBox {
+                        // since the non-HD wallet type has only the 'wallet-keys' as a backup page,
+                        // for such wallets we additionally add the starting height here.
+                        id: startingHeight
+                        width: parent.width
+                        visible: !root.account.isHDWallet
+                        height: visible ? implicitHeight : 0
+                        anchors.top: optionsBox.bottom
+                        title: qsTr("Starting Height", "height refers to block-height")
+                        Flowee.LabelWithClipboard { text: root.account.accountStartBlockHeight }
+                    }
+
+
                     Item {
                         // this is a horrible hack...
                         // First, ListViews almost always require clipping on,
@@ -237,7 +251,7 @@ QQC2.Control {
                         // left and right margin)
                         id: clipItem
                         anchors {
-                            top: optionsBox.bottom
+                            top: startingHeight.bottom
                             topMargin: 10
                             bottom: parent.bottom
                             left: parent.left
