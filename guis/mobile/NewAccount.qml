@@ -140,7 +140,7 @@ Page {
                         onClicked: {
                             var options = Pay.createNewBasicWallet(accountName.text);
                             options.forceSingleAddress = singleAddress.checked;
-                            var accounts = portfolio.accounts;
+                            var accounts = portfolio.rawAccounts;
                             portfolio.current = accounts[accounts.length - 1]
                             thePile.pop();
                             thePile.pop();
@@ -194,7 +194,7 @@ Page {
                         text: qsTr("Create")
                         onClicked: {
                             var options = Pay.createNewWallet(derivationPath.text, /* password */"", accountName.text);
-                            var accounts = portfolio.accounts;
+                            var accounts = portfolio.rawAccounts;
                             portfolio.current = accounts[accounts.length - 1]
                             thePile.pop();
                             thePile.pop();

@@ -383,7 +383,7 @@ QQC2.Control {
             height: archiveButtonText.height + 20
             color: Pay.useDarkSkin ? "#b39554" : "#e5be6b"
             width: archiveButtonText.width + 30
-            visible: !singleAccountSetup
+            visible: !singleAccountSetup && root.account.isUserOwned
 
             Text {
                 id: archiveButtonText
