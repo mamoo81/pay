@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,6 +85,10 @@ QList<QObject *> PortfolioDataProvider::rawAccounts() const
 {
     QList<QObject *> answer;
     for (auto *account : m_accountInfos) {
+        if (!account->userOwnedWallet() && account->isArchived()) {
+            // the initial wallet is hard ignored after a couple of weeks
+            continue;
+        }
         answer.append(account);
     }
     return answer;
