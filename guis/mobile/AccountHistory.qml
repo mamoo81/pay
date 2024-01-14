@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2023-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -200,6 +200,7 @@ ListView {
             var amount = model.fundsOut - model.fundsIn
             return amount < 0 && amount > -2500 // then the diff is likely just fees.
         }
+        property bool isRejected: model.height === -2 // special height as defined by the wallet
 
         width: root.width
         height: 80
@@ -256,6 +257,7 @@ ListView {
             x: 20
             smooth: true
             anchors.verticalCenter: ruler.verticalCenter
+            opacity: isRejected ? 0.6 : 1
         }
 
         Flowee.Label {
@@ -265,6 +267,7 @@ ListView {
             anchors.left: parent.left
             anchors.leftMargin: 80
             clip: true // future, maybe wordwrap?
+            font.strikeout: isRejected
             text: {
                 var comment = model.comment
                 if (comment !== "")
@@ -285,7 +288,7 @@ ListView {
             id: dateLine
             anchors.top: ruler.bottom
             anchors.left: commentLabel.left
-            color: palette.text
+            color: isRejected ? mainWindow.errorRed : palette.text;
             text: {
                 var minedHeight = model.height;
                 if (minedHeight === -1) { // unconfirmed.
@@ -341,6 +344,7 @@ ListView {
                 }
                 anchors.centerIn: parent
                 opacity: Math.abs(amountBch) < 2000 ? 0.5 : 1
+                font.strikeout: isRejected
             }
         }
         Flowee.Label { // plus or minus in front of the price
