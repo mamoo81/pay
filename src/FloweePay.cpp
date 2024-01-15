@@ -709,6 +709,14 @@ QString FloweePay::formatDateTime(QDateTime date) const
     return date.toString(format);
 }
 
+QString FloweePay::formatBlockTime(int blockHeight) const
+{
+    // wrap this for convenience and also ensure that we never return an insanely old
+    // date (1970) just because we lack blockheader data.
+    return formatDateTime(QDateTime::fromSecsSinceEpoch(std::max<uint32_t>(1250000000,
+            m_downloadManager->blockchain().block(blockHeight).nTime)));
+}
+
 Wallet *FloweePay::createWallet(const QString &name)
 {
     auto dl = p2pNet();

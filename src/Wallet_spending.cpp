@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,7 +145,7 @@ Wallet::OutputSet Wallet::findInputsFor(qint64 output, int feePerByte, int txSiz
 
         const auto &wtx = wtxIter->second;
         int h = wtx.minedBlockHeight;
-        if (h == WalletPriv::Unconfirmed) {
+        if (h == Wallet::Unconfirmed) {
             out.score = -10; // unconfirmed.
         } else if (wtx.isCoinbase
                    && h + MATURATION_AGE >= m_lastBlockHeightSeen) {

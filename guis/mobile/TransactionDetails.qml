@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,6 +63,18 @@ Page {
                     }
                 }
             }
+            PageTitledBox {
+                title: qsTr("First Seen")
+                Flowee.Label {
+                    Layout.fillWidth: true
+                    text: {
+                        var tx = root.transaction; // delayed initialized
+                        if (tx == null)
+                            return "";
+                        return Qt.formatDateTime(tx.date);
+                    }
+                }
+            }
 
             PageTitledBox {
                 title: {
@@ -87,7 +99,7 @@ Page {
                             return "";
 
                         let txHeight = tx.height;
-                        var answer = txHeight + "\n" + Pay.formatDateTime(tx.date)
+                        var answer = txHeight + "\n" + Pay.formatBlockTime(tx.height)
                         let blockAge = Pay.chainHeight - txHeight;
                         answer += "\n";
                         answer += qsTr("%1 blocks ago", "", blockAge).arg(blockAge);

@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -184,12 +184,12 @@ uint16_t WalletInfoObject::privSegment() const
 
 bool Wallet::WalletTransaction::isUnconfirmed() const
 {
-    return minedBlockHeight == WalletPriv::Unconfirmed;
+    return minedBlockHeight == Wallet::Unconfirmed;
 }
 
 bool Wallet::WalletTransaction::isRejected() const
 {
-    return minedBlockHeight == WalletPriv::Rejected;
+    return minedBlockHeight == Wallet::Rejected;
 }
 
 

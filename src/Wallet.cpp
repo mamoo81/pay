@@ -373,7 +373,8 @@ void Wallet::newTransaction(const Tx &tx)
         }
         m_utxoDirty = true;
         setUserOwnedWallet(true);
-        wtx.minedBlockHeight = WalletPriv::Unconfirmed;
+        wtx.minedBlockHeight = Wallet::Unconfirmed;
+        wtx.transactionTime = time(nullptr);
         bool dummy = false;
         while (updateHDSignatures(wtx, dummy)) {
             // if we added a bunch of new private keys, then rerun the matching
@@ -472,7 +473,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
                 walletTransactionId = oldTx->second;
             }
             m_utxoDirty = true;
-            const bool wasUnconfirmed = wtx.minedBlockHeight == WalletPriv::Unconfirmed;
+            const bool wasUnconfirmed = wtx.minedBlockHeight == Wallet::Unconfirmed;
             while (updateHDSignatures(wtx, needNewBloom)) {
                 // if we added a bunch of new private keys, then rerun the matching
                 // so we make sure we matched all we can
@@ -574,7 +575,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
             logDebug(LOG_WALLET) << "Confirmed transaction(s) in block" << blockHeight <<
                           "made invalid transaction:" << ejectedTx << tx->second.txid;
             auto &wtx = tx->second;
-            wtx.minedBlockHeight = WalletPriv::Rejected;
+            wtx.minedBlockHeight = Wallet::Rejected;
             // Any outputs we locked need to be unlocked
             for (auto i = wtx.inputToWTX.begin(); i != wtx.inputToWTX.end(); ++i) {
                 auto iter = m_lockedOutputs.find(i->second);
@@ -1161,7 +1162,7 @@ void Wallet::broadcastTxFinished(int txIndex, bool success)
                 if (wtx != m_walletTransactions.end()) {
                     logCritical(LOG_WALLET) << "Marking transaction invalid";
                     auto &tx = wtx->second;
-                    if (tx.minedBlockHeight == WalletPriv::Unconfirmed) {
+                    if (tx.minedBlockHeight == Wallet::Unconfirmed) {
                         // a transaction that has been added before, but now marked
                         // rejected means we should revert some stuff that newTransaction() did.
                         // - locked output
@@ -1187,7 +1188,7 @@ void Wallet::broadcastTxFinished(int txIndex, bool success)
                         assert(false); // Can't imagine the usecase, so if this hits in a debug build lets fail-fast
                         logWarning(LOG_WALLET) << "Transaction marked rejected that had blockHeight:" << tx.minedBlockHeight;
                     }
-                    tx.minedBlockHeight = WalletPriv::Rejected;
+                    tx.minedBlockHeight = Wallet::Rejected;
                 }
             }
             return;
@@ -1457,7 +1458,7 @@ void Wallet::broadcastUnconfirmed()
     for (auto iter = m_walletTransactions.begin();
          iter != m_walletTransactions.end(); ++iter) {
 
-        if (iter->second.minedBlockHeight == WalletPriv::Unconfirmed) {
+        if (iter->second.minedBlockHeight == Wallet::Unconfirmed) {
             auto tx = loadTransaction(iter->second.txid, Streaming::pool(0));
             if (tx.data().size() > 64) {
                 auto bc = std::make_shared<WalletInfoObject>(this, iter->first, tx);
@@ -1974,6 +1975,9 @@ void Wallet::loadWallet()
             assert(parser.isString());
             wtx.userComment = QString::fromUtf8(parser.stringData().c_str(), parser.dataLength());
         }
+        else if (parser.tag() == WalletPriv::TransactionTime) {
+            wtx.transactionTime = parser.longData();
+        }
         else if (parser.tag() == WalletPriv::LastSynchedBlock) {
             highestBlockHeight = std::max(parser.intData(), highestBlockHeight);
         }
@@ -1987,9 +1991,9 @@ void Wallet::loadWallet()
         auto iter = m_walletTransactions.find(txIndex);
         assert(iter != m_walletTransactions.end());
 
-        if (iter->second.minedBlockHeight == WalletPriv::Rejected)
+        if (iter->second.minedBlockHeight == Wallet::Rejected)
             continue;
-        if (iter->second.minedBlockHeight != WalletPriv::Unconfirmed) {
+        if (iter->second.minedBlockHeight != Wallet::Unconfirmed) {
             assert(iter->second.minedBlockHeight > 0);
             // remove UTXOs this Tx spent
             for (auto i = iter->second.inputToWTX.begin(); i != iter->second.inputToWTX.end(); ++i) {
@@ -2142,6 +2146,8 @@ void Wallet::saveWallet()
         }
         if (!item.second.userComment.isEmpty())
             builder.add(WalletPriv::UserComment, item.second.userComment.toStdString());
+        if (item.second.transactionTime != 0)
+            builder.add(WalletPriv::TransactionTime, static_cast<uint64_t>(item.second.transactionTime));
         builder.add(WalletPriv::Separator, true);
     }
     builder.add(WalletPriv::LastSynchedBlock, m_segment->lastBlockSynched());
@@ -2180,7 +2186,7 @@ void Wallet::recalculateBalance()
         auto wtx = m_walletTransactions.find(OutputRef(utxo.first).txIndex());
         Q_ASSERT(wtx != m_walletTransactions.end());
         const int h = wtx->second.minedBlockHeight;
-        if (h == WalletPriv::Rejected)
+        if (h == Wallet::Rejected)
             continue;
         const auto loi = m_lockedOutputs.find(utxo.first);
         if (loi != m_lockedOutputs.end()) {
@@ -2194,7 +2200,7 @@ void Wallet::recalculateBalance()
                 continue;
             }
         }
-        if (h == WalletPriv::Unconfirmed)
+        if (h == Wallet::Unconfirmed)
             balanceUnconfirmed += utxo.second;
         else
             balanceConfirmed += utxo.second;

@@ -47,6 +47,12 @@ class Wallet : public QObject, public DataListenerInterface, public HeaderSyncIn
 {
     Q_OBJECT
 public:
+    enum SpecialBlockHeight {
+        Genesis = 0,
+        Unconfirmed = -1,   // a tx marked with this height is waiting to get confirmed
+        Rejected = -2       // a tx marked with this height can no longer be mined
+    };
+
     /**
      * Create an empty, new, wallet.
      */
@@ -493,6 +499,7 @@ private:
         int minedBlockHeight = 0;
         bool isCoinbase = false;
         bool isCashFusionTx = false;
+        uint32_t transactionTime = 0;
         QString userComment;
 
         bool isUnconfirmed() const;

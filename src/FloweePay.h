@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,6 +150,7 @@ public:
 
     Q_INVOKABLE QString formatDate(QDateTime date) const;
     Q_INVOKABLE QString formatDateTime(QDateTime datetime) const;
+    Q_INVOKABLE QString formatBlockTime(int blockHeight) const;
 
     /// create a new HD wallet with an optional name.
     Q_INVOKABLE NewWalletConfig* createNewWallet(const QString &derivationPath, const QString &password = QString(), const QString &walletName = QString());

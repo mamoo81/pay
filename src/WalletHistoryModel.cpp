@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -129,10 +129,9 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
     case MinedHeight:
         return QVariant(item.minedBlockHeight);
     case MinedDate: {
-        if (item.minedBlockHeight <= 0)
-            return QVariant();
-
-        auto timestamp = secsSinceEpochFor(item.minedBlockHeight);
+        int64_t timestamp = item.transactionTime;
+        if (timestamp == 0)
+            timestamp = secsSinceEpochFor(item.minedBlockHeight);
         return QVariant(QDateTime::fromSecsSinceEpoch(timestamp));
     }
     case FundsIn: {
@@ -379,11 +378,45 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
     if (m_groups.empty())
         m_groups.push_back(TransactionGroup());
 
-    uint32_t timestamp;
-    if (blockheight <= 0) {
-        timestamp = time(nullptr);
-    } else {
+    uint32_t timestamp = 0;
+    auto txIter = m_wallet->m_walletTransactions.find(txIndex);
+    if (txIter != m_wallet->m_walletTransactions.end())
+        timestamp = txIter->second.transactionTime;
+
+    if (timestamp == 0 && blockheight > 0) // We only know when it was mined
         timestamp = secsSinceEpochFor(blockheight);
+
+    if (timestamp == 0) {
+        // we should really not get into this if(), but only in 2024.01 did we save the
+        // time of the transaction, so older ones are to be treated special.
+        if (blockheight == Wallet::Rejected) {
+            // we don't actually know when a rejected transaction was made which didn't
+            // save it yet, back then. We can only guesstimeate and show that.
+
+            const auto nope = m_wallet->m_walletTransactions.end();
+            auto txIter2 = txIter;
+            while (timestamp == 0 && txIter2 != nope) {
+                if (txIter2->second.minedBlockHeight > 0) {
+                    timestamp = secsSinceEpochFor(txIter2->second.minedBlockHeight);
+                    break;
+                }
+                txIter2++;
+            }
+            // other direction.
+            txIter2 = txIter;
+            while (timestamp == 0 && txIter2 != m_wallet->m_walletTransactions.begin()) {
+                if (txIter2->second.minedBlockHeight > 0) {
+                    timestamp = secsSinceEpochFor(txIter2->second.minedBlockHeight);
+                    break;
+                }
+                txIter2--;
+            }
+        }
+        if (timestamp == 0)
+            timestamp = time(nullptr);
+
+        // update the wallet to avoid this whole calc next time around.
+        txIter->second.transactionTime = timestamp;
     }
 
     if (!m_groups.back().add(txIndex, timestamp, m_today)) {

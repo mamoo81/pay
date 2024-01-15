@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,6 +103,7 @@ enum WalletDataSaveTags {
 
     // per tx metadata
     UserComment,            // string
+    TransactionTime,        // secs-since-epoch when the transaction was first seen.
 
     OutputIndex = 30,
     OutputValue,            // in Satoshi
@@ -116,12 +117,6 @@ enum OutputLockStateEnum {
     Unlocked = 0, // default value when not saved
     AutoLocked,   // Locked due to it being spent. Locked until mined.
     UserLocked    // User locked this output
-};
-
-enum SpecialBlockHeight {
-    Genesis = 0,
-    Unconfirmed = -1,   // a tx marked with this height is waiting to get confirmed
-    Rejected = -2       // a tx marked with this height can no longer be mined
 };
 
 }

@@ -60,7 +60,7 @@ ColumnLayout {
             text: {
                 if (root.minedHeight <= 0)
                     return "";
-                var rc = Pay.formatDateTime(model.date);
+                var rc = Pay.formatBlockTime(model.height);
                 var confirmations = Pay.headerChainHeight - root.minedHeight + 1;
                 if (confirmations > 0 && confirmations < 100)
                     rc += " (" + qsTr("%1 blocks ago", "Confirmations", confirmations).arg(confirmations) + ")";
