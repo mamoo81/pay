@@ -27,6 +27,12 @@ Page {
     property QtObject infoObject: null
     headerText: qsTr("Transaction Details")
 
+    property QtObject openInExplorer: QQC2.Action {
+        text: qsTr("Open in Explorer")
+        onTriggered: Pay.openInExplorer(root.transaction.txid);
+    }
+    menuItems: [ openInExplorer ]
+
     Flickable {
         anchors.fill: parent
         contentHeight: content.height
@@ -41,6 +47,7 @@ Page {
                 Item {
                     implicitHeight: txidLabel.implicitHeight
                     width: parent.width
+
                     Flowee.Label {
                         id: txidLabel
                         text: root.transaction == null ? "" : root.transaction.txid
@@ -48,6 +55,20 @@ Page {
                         anchors.right: copyIcon.left
                         anchors.rightMargin: 10
                         wrapMode: Text.WrapAnywhere
+
+                        Rectangle {
+                            id: txidHighlight
+                            anchors.fill: parent
+                            color: palette.mid
+                            opacity: 0
+                            visible: opacity > 0
+                            Timer {
+                                running: parent.visible
+                                onTriggered: parent.opacity = 0;
+                                interval: 500
+                            }
+                            Behavior on opacity { NumberAnimation { duration: 250 } }
+                        }
                     }
                     Image {
                         id: copyIcon
@@ -58,7 +79,10 @@ Page {
                         MouseArea {
                             anchors.fill: parent
                             anchors.margins: -15
-                            onClicked: Pay.copyToClipboard(txidLabel.text)
+                            onClicked: {
+                                txidHighlight.opacity = 0.6
+                                Pay.copyToClipboard(txidLabel.text)
+                            }
                         }
                     }
                 }
@@ -100,7 +124,7 @@ Page {
 
                         let txHeight = tx.height;
                         var answer = txHeight + "\n" + Pay.formatBlockTime(tx.height)
-                        let blockAge = Pay.chainHeight - txHeight;
+                        let blockAge = Pay.chainHeight - txHeight + 1;
                         answer += "\n";
                         answer += qsTr("%1 blocks ago", "", blockAge).arg(blockAge);
                         return answer;
