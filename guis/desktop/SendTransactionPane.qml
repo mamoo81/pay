@@ -637,6 +637,10 @@ Item {
                                         coinsListView.menuIsOpen = false
                                     }
                                 }
+                                MenuItem {
+                                    text: qsTr("Copy Address")
+                                    onClicked: Pay.copyToClipboard(Pay.chainPrefix + address);
+                                }
                             }
                         }
                     }
