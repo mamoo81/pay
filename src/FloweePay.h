@@ -73,6 +73,7 @@ class FloweePay : public QObject, public WorkerThreads, public HeaderSyncInterfa
 
     // unique helper property..
     Q_PROPERTY(QString paymentProtocolRequest READ paymentProtocolRequest WRITE setPaymentProtocolRequest NOTIFY paymentProtocolRequestChanged FINAL)
+    Q_PROPERTY(QString chainPrefix READ qchainPrefix CONSTANT FINAL)
 public:
     enum UnitOfBitcoin {
         BCH,
@@ -271,6 +272,7 @@ public:
      */
     P2PNet::Chain chain() const;
     const std::string &chainPrefix() const { return m_chainPrefix; }
+    QString qchainPrefix() const; // for the QML property
 
     /**
      * return if the user engaged the hide-balance feature to avoid people seeing the balance on-screen.

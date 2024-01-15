@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,31 @@ ListView {
 
     model: root.account.secrets
     property bool showHdIndex: true
+    Item {
+        // non-layoutable items.
+
+        QQC2.Popup {
+            id: seedPopup
+            width: 260
+            height: 260
+            x: 55
+            y: 100
+            modal: true
+            closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
+            background: Rectangle {
+                color: palette.light
+                border.color: palette.midlight
+                border.width: 1
+                radius: 5
+            }
+            QRWidget {
+                id: seedQr
+                qrSize: 250
+                textVisible: false
+                useRawString: true
+            }
+        }
+    }
 
     header: Item {
         width: root.width
@@ -131,11 +156,26 @@ ListView {
                     id: ourMenu
                     QQC2.Action {
                         text: qsTr("Copy Address")
-                        onTriggered: Pay.copyToClipboard(address)
+                        onTriggered: Pay.copyToClipboard(Pay.chainPrefix + address)
+                    }
+                    QQC2.Action {
+                        text: qsTr("QR of Address")
+                        onTriggered: {
+                            seedQr.qrText = Pay.chainPrefix + address
+                            seedPopup.open();
+                        }
                     }
                     QQC2.Action {
                         text: qsTr("Copy Private Key")
                         onTriggered: Pay.copyToClipboard(privatekey)
+                    }
+                    QQC2.Action {
+                        text: qsTr("QR of Private Key")
+                        onTriggered: {
+                        console.log("-> " + privatekey)
+                            seedQr.qrText = privatekey
+                            seedPopup.open();
+                        }
                     }
                 }
                 onClicked: ourMenu.popup()

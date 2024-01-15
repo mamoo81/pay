@@ -747,6 +747,11 @@ P2PNet::Chain FloweePay::chain() const
     return m_chain;
 }
 
+QString FloweePay::qchainPrefix() const
+{
+    return QString("%1:").arg(QString::fromStdString(m_chainPrefix));
+}
+
 void FloweePay::copyToClipboard(const QString &text)
 {
     QGuiApplication::clipboard()->setText(text);
