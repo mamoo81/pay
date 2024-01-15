@@ -92,7 +92,7 @@ WalletHistoryModel::WalletHistoryModel(Wallet *wallet, QObject *parent)
     QMutexLocker locker(&m_wallet->m_lock);
     assert(wallet->segment());
     resetLastSyncIndicator();
-    createMap();
+    QTimer::singleShot(0, this, SLOT(createMap()));
 
     connect(wallet, SIGNAL(appendedTransactions(int,int)), SLOT(appendTransactions(int,int)), Qt::QueuedConnection);
     connect(wallet, SIGNAL(transactionConfirmed(int)), SLOT(transactionChanged(int)), Qt::QueuedConnection);
@@ -333,24 +333,34 @@ void WalletHistoryModel::transactionChanged(int txIndex)
 void WalletHistoryModel::createMap()
 {
     m_recreateTriggered = false;
-    m_rowsProxy.clear();
-    m_rowsProxy.reserve(m_wallet->m_walletTransactions.size());
     m_groups.clear();
     m_today = today();
+    m_groupCache = { -1 , 0 };
+    if (!m_rowsProxy.isEmpty()) {
+        beginRemoveRows(QModelIndex(), 0, m_rowsProxy.size() - 1);
+        m_rowsProxy.clear();
+        endRemoveRows();
+    }
+    m_rowsProxy.reserve(m_wallet->m_walletTransactions.size());
 
     // we insert the key used in the m_wallet->m_walletTransaction map
     // in the order of how our rows work here.
     // This is oldest to newest, which is how our model is also structured.
-    QMutexLocker locker(&m_wallet->m_lock);
-    for (const auto &iter : m_wallet->m_walletTransactions) {
-        if (!filterTransaction(iter.second))
-            continue;
-        m_rowsProxy.push_back(iter.first);
-        // Last, resolve grouping
-        addTxIndexToGroups(iter.first, iter.second.minedBlockHeight);
+    {
+        QMutexLocker locker(&m_wallet->m_lock);
+        for (const auto &iter : m_wallet->m_walletTransactions) {
+            if (!filterTransaction(iter.second))
+                continue;
+            m_rowsProxy.push_back(iter.first);
+            // Last, resolve grouping
+            addTxIndexToGroups(iter.first, iter.second.minedBlockHeight);
+        }
     }
 
-    m_groupCache = { -1 , 0 };
+    if (!m_rowsProxy.isEmpty()) {
+        beginInsertRows(QModelIndex(), 0, m_rowsProxy.size() - 1);
+        endInsertRows();
+    }
 }
 
 bool WalletHistoryModel::filterTransaction(const Wallet::WalletTransaction &wtx) const
