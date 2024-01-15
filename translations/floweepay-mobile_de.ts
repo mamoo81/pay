@@ -70,7 +70,7 @@
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="276"/>
       <source>Fused</source>
-      <translation type="unfinished">Fused</translation>
+      <translation>Fusioniert</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountHistory.qml" line="278"/>
@@ -133,7 +133,7 @@
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="148"/>
       <source>Seed format</source>
-      <translation type="unfinished">Seed format</translation>
+      <translation>Seed-Format</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="157"/>
@@ -339,7 +339,7 @@
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="75"/>
       <source>Dark Theme</source>
-      <translation type="unfinished">Dark Theme</translation>
+      <translation>Dunkles Design</translation>
     </message>
     <message>
       <location filename="../guis/mobile/GuiSettings.qml" line="100"/>
@@ -390,7 +390,7 @@
       <location filename="../guis/mobile/ImportWalletPage.qml" line="99"/>
       <source>BIP 39 seed-phrase (interpreted as Electrum)</source>
       <comment>description of type</comment>
-      <translation type="unfinished">BIP 39 seed-phrase (interpreted as Electrum)</translation>
+      <translation>BIP 39 Seed-Phrase (interpretiert als Electrum Format)</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="100"/>
@@ -402,7 +402,7 @@
       <location filename="../guis/mobile/ImportWalletPage.qml" line="103"/>
       <source>Electrum seed-phrase</source>
       <comment>description of type</comment>
-      <translation type="unfinished">Electrum seed-phrase</translation>
+      <translation>Electrum Seed-Phrase</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="105"/>
@@ -430,12 +430,12 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="129"/>
       <source>Old Electrum Phrase</source>
-      <translation type="unfinished">Old Electrum Phrase</translation>
+      <translation>Alte Electrum Phrase</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="130"/>
       <source>When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</source>
-      <translation type="unfinished">When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</translation>
+      <translation>Wenn die Electrum Erkennung fehlschlägt, und Sie sind sicher, dass sie in dieser Geldbörse erstellt wurde, aktivieren Sie diese Option.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="149"/>

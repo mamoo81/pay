@@ -1125,7 +1125,7 @@ Pozwala to na tworzenie kopii zapasowej tylko jednego klucza prywatnego</transla
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="77"/>
       <source>Fees</source>
-      <translation type="unfinished">Fees</translation>
+      <translation>Koszt</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="79"/>

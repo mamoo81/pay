@@ -379,7 +379,7 @@
     <message>
       <location filename="../src/WalletCoinsModel.cpp" line="139"/>
       <source>Change #%1</source>
-      <translation type="unfinished">Change #%1</translation>
+      <translation>Alterar %1</translation>
     </message>
   </context>
   <context>
@@ -387,12 +387,12 @@
     <message>
       <location filename="../src/WalletHistoryModel.cpp" line="213"/>
       <source>Today</source>
-      <translation type="unfinished">Today</translation>
+      <translation>Hoje</translation>
     </message>
     <message>
       <location filename="../src/WalletHistoryModel.cpp" line="215"/>
       <source>Yesterday</source>
-      <translation type="unfinished">Yesterday</translation>
+      <translation>Ontem</translation>
     </message>
     <message>
       <location filename="../src/WalletHistoryModel.cpp" line="217"/>

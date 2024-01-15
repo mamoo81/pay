@@ -108,7 +108,7 @@
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="41"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Nome</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="64"/>
@@ -159,7 +159,7 @@
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="187"/>
       <source>&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</source>
-      <translation type="unfinished">&lt;b&gt;Important&lt;/b&gt;: Never share your seed-phrase with others!</translation>
+      <translation>&lt;b&gt;Importante&lt;/b&gt;: Nunca compartilhe sua frase secreta com outros!</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="199"/>
@@ -175,17 +175,17 @@
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="217"/>
       <source>Change Addresses</source>
-      <translation type="unfinished">Change Addresses</translation>
+      <translation>Alterar endereço</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="220"/>
       <source>Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</source>
-      <translation type="unfinished">Switches between addresses others can pay you on, and addresses the wallet uses to send change back to yourself.</translation>
+      <translation>Altera entre endereços para receber pagamentos e endereços que a carteira usa para mandar troco de volta para você.</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="223"/>
       <source>Used Addresses</source>
-      <translation type="unfinished">Used Addresses</translation>
+      <translation>Endereços utilizados</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="226"/>
@@ -200,7 +200,7 @@
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="314"/>
       <source>Sync Status</source>
-      <translation type="unfinished">Sync Status</translation>
+      <translation>Status da sincronização</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="354"/>
@@ -210,7 +210,7 @@
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="361"/>
       <source>Hide in private mode</source>
-      <translation type="unfinished">Hide in private mode</translation>
+      <translation>Esconder no modo privado</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="376"/>
@@ -220,7 +220,7 @@
     <message>
       <location filename="../guis/mobile/AccountPageListItem.qml" line="376"/>
       <source>Archive Wallet</source>
-      <translation type="unfinished">Archive Wallet</translation>
+      <translation>Arquivar Carteira</translation>
     </message>
   </context>
   <context>
@@ -264,7 +264,7 @@
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="25"/>
       <source>Wallets</source>
-      <translation type="unfinished">Wallets</translation>
+      <translation>Carteiras</translation>
     </message>
     <message>
       <location filename="../guis/mobile/AccountsList.qml" line="28"/>
@@ -315,7 +315,7 @@
     <message>
       <location filename="../guis/mobile/ExploreModules.qml" line="24"/>
       <source>Explore</source>
-      <translation type="unfinished">Explore</translation>
+      <translation>Explorar</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ExploreModules.qml" line="121"/>
@@ -413,7 +413,7 @@
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="113"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Nome</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="122"/>
@@ -445,7 +445,7 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="182"/>
       <source>Derivation</source>
-      <translation type="unfinished">Derivation</translation>
+      <translation>Derivação</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ImportWalletPage.qml" line="193"/>
@@ -519,7 +519,7 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="25"/>
       <source>Security</source>
-      <translation type="unfinished">Security</translation>
+      <translation>Segurança</translation>
     </message>
     <message>
       <location filename="../guis/mobile/LockApplication.qml" line="35"/>
@@ -667,7 +667,7 @@ Change will come back to the imported key.</translation>
       <location filename="../guis/mobile/NewAccount.qml" line="120"/>
       <location filename="../guis/mobile/NewAccount.qml" line="169"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Nome</translation>
     </message>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="130"/>
@@ -700,7 +700,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/mobile/NewAccount.qml" line="177"/>
       <source>Derivation</source>
-      <translation type="unfinished">Derivation</translation>
+      <translation>Derivação</translation>
     </message>
   </context>
   <context>
@@ -860,7 +860,7 @@ This ensures only one private key will need to be backed up</translation>
       <location filename="../guis/mobile/ReceiveTab.qml" line="188"/>
       <source>Address</source>
       <comment>Bitcoin Cash address</comment>
-      <translation type="unfinished">Address</translation>
+      <translation>Endereço</translation>
     </message>
     <message>
       <location filename="../guis/mobile/ReceiveTab.qml" line="197"/>
@@ -1176,7 +1176,7 @@ This ensures only one private key will need to be backed up</translation>
       <location filename="../guis/mobile/UnlockWidget.qml" line="226"/>
       <source>Open</source>
       <comment>open wallet with PIN</comment>
-      <translation type="unfinished">Open</translation>
+      <translation>Abrir</translation>
     </message>
   </context>
 </TS>

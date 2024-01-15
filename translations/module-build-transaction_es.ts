@@ -133,7 +133,7 @@
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="338"/>
       <source>Paste</source>
-      <translation type="unfinished">Paste</translation>
+      <translation>Pegar</translation>
     </message>
     <message>
       <location filename="../modules/build-transaction/PayToOthers.qml" line="422"/>

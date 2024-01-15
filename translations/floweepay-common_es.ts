@@ -91,7 +91,7 @@
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="85"/>
       <source>Failed</source>
-      <translation type="unfinished">Failed</translation>
+      <translation>Fallido</translation>
     </message>
     <message>
       <location filename="../guis/Flowee/BroadcastFeedback.qml" line="86"/>

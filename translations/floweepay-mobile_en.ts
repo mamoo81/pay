@@ -1022,7 +1022,7 @@ This ensures only one private key will need to be backed up</translation>
       <location filename="../guis/mobile/TransactionDetails.qml" line="93"/>
       <source>%1 blocks ago</source>
       <translation type="unfinished">
-        <numerusform>%1 blocks ago</numerusform>
+        <numerusform>%1 block ago</numerusform>
         <numerusform>%1 blocks ago</numerusform>
       </translation>
     </message>

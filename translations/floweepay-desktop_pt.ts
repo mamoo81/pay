@@ -229,7 +229,7 @@
     <message>
       <location filename="../guis/desktop/NewAccountCreateBasicAccount.qml" line="33"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Nome</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateBasicAccount.qml" line="46"/>
@@ -264,7 +264,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/desktop/NewAccountCreateHDAccount.qml" line="34"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Nome</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountCreateHDAccount.qml" line="47"/>
@@ -279,7 +279,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/desktop/NewAccountCreateHDAccount.qml" line="78"/>
       <source>Derivation</source>
-      <translation type="unfinished">Derivation</translation>
+      <translation>Derivação</translation>
     </message>
   </context>
   <context>
@@ -304,7 +304,7 @@ This ensures only one private key will need to be backed up</translation>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="64"/>
       <source>Name</source>
-      <translation type="unfinished">Name</translation>
+      <translation>Nome</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="82"/>
@@ -376,7 +376,7 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="179"/>
       <source>Derivation</source>
-      <translation type="unfinished">Derivation</translation>
+      <translation>Derivação</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="190"/>
@@ -906,7 +906,7 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="171"/>
       <source>Password</source>
-      <translation type="unfinished">Password</translation>
+      <translation>Senha</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletEncryption.qml" line="194"/>
@@ -1106,7 +1106,7 @@ Change will come back to the imported key.</translation>
     <message>
       <location filename="../guis/desktop/main.qml" line="270"/>
       <source>Open</source>
-      <translation type="unfinished">Open</translation>
+      <translation>Abrir</translation>
     </message>
     <message>
       <location filename="../guis/desktop/main.qml" line="345"/>

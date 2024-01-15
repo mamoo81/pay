@@ -411,12 +411,12 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
                 }
                 txIter2--;
             }
-        }
-        if (timestamp == 0)
-            timestamp = time(nullptr);
 
-        // update the wallet to avoid this whole calc next time around.
-        txIter->second.transactionTime = timestamp;
+            // update the wallet to avoid this whole calc next time around.
+            txIter->second.transactionTime = timestamp;
+        }
+        if (timestamp == 0) // probably an unconfirmed transaction.
+            timestamp = time(nullptr);
     }
 
     if (!m_groups.back().add(txIndex, timestamp, m_today)) {

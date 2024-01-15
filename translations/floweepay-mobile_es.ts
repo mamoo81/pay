@@ -1122,7 +1122,7 @@ Esto asegura que solo una clave privada tendrá que ser respaldada</translation>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="77"/>
       <source>Fees</source>
-      <translation type="unfinished">Fees</translation>
+      <translation>Comisiones</translation>
     </message>
     <message>
       <location filename="../guis/mobile/TxInfoSmall.qml" line="79"/>

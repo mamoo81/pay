@@ -131,7 +131,7 @@
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="298"/>
       <source>Seed format</source>
-      <translation type="unfinished">Seed format</translation>
+      <translation>Seed-Format</translation>
     </message>
     <message>
       <location filename="../guis/desktop/AccountDetails.qml" line="308"/>
@@ -316,7 +316,7 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="85"/>
       <source>BIP 39 seed-phrase (interpreted as Electrum format)</source>
       <comment>description of type</comment>
-      <translation type="unfinished">BIP 39 seed-phrase (interpreted as Electrum format)</translation>
+      <translation>BIP 39 Seed-Phrase (interpretiert als Electrum Format)</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="86"/>
@@ -328,7 +328,7 @@ Dies stellt sicher, dass nur ein privater Schlüssel gesichert werden muss</tran
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="89"/>
       <source>Electrum seed-phrase</source>
       <comment>description of type</comment>
-      <translation type="unfinished">Electrum seed-phrase</translation>
+      <translation>Electrum Seed-Phrase</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="91"/>
@@ -361,12 +361,12 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="151"/>
       <source>Old Electrum Phrase</source>
-      <translation type="unfinished">Old Electrum Phrase</translation>
+      <translation>Alte Electrum Phrase</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="152"/>
       <source>When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</source>
-      <translation type="unfinished">When Electrum detection fails, and you are sure it was created in that wallet, enable this option.</translation>
+      <translation>Wenn die Electrum Erkennung fehlschlägt, und Sie sind sicher, dass sie in dieser Geldbörse erstellt wurde, aktivieren Sie diese Option.</translation>
     </message>
     <message>
       <location filename="../guis/desktop/NewAccountImportAccount.qml" line="171"/>
@@ -973,7 +973,7 @@ Wechselgeld wird zum importierten Schlüssel zurückgeführt.</translation>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="65"/>
       <source>Fused</source>
-      <translation type="unfinished">Fused</translation>
+      <translation>Fusioniert</translation>
     </message>
     <message>
       <location filename="../guis/desktop/WalletTransaction.qml" line="67"/>
