@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,14 +25,14 @@ T.CheckBox {
     property bool sliderOnIndicator: true
     property string toolTipText: ""
 
-    implicitWidth: slider.width + 6 + title.implicitWidth + (toolTipText === "" ? 0 : (questionMarkIcon.width + 16))
-    implicitHeight: Math.max(slider.implicitHeight, title.implicitHeight)
+    implicitWidth: indicator.width + contentItem.implicitWidth + (toolTipText === "" ? 0 : (questionMarkIcon.width + 10))
+    implicitHeight: Math.max(indicator.implicitHeight, contentItem.implicitHeight)
     clip: true
+    spacing: 6
 
     indicator: Item {
-        id: slider
+        implicitHeight: titleLabel.implicitHeight / titleLabel.lineCount
         implicitWidth: implicitHeight * 2.1
-        implicitHeight: title.implicitHeight / title.lineCount
 
         Rectangle {
             anchors.fill: parent
@@ -75,26 +75,23 @@ T.CheckBox {
         }
         cursorShape: Qt.PointingHandCursor
     }
-
-    Label {
-        id: title
+    contentItem: Label {
+        id: titleLabel
         text: control.text
-        anchors.left: slider.right
+        opacity: enabled ? 1.0 : 0.7
         anchors.verticalCenter: parent.verticalCenter
-        anchors.leftMargin: 6
-        anchors.right: parent.right
         color: enabled ? palette.windowText : "darkgray"
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        leftPadding: text === "" ? 0 : (control.indicator.width + control.spacing)
     }
 
     Rectangle {
         id: questionMarkIcon
         visible: control.toolTipText !== "" && control.enabled
-        width: title.implicitWidth + 14
-        height: title.implicitHeight
-        anchors.left: title.right
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.leftMargin: 16
+        width: q.implicitWidth + 14
+        height: q.implicitHeight
+        x: titleLabel.x + titleLabel.implicitWidth + 10
+        anchors.verticalCenter: contentItem.verticalCenter
         radius: width
         color: palette.windowText
         Label {
@@ -106,7 +103,6 @@ T.CheckBox {
                 anchors.fill: parent
                 anchors.margins: -7
                 cursorShape: Qt.PointingHandCursor
-                id: clicky
                 onClicked: QQC2.ToolTip.show(control.toolTipText, 15000);
             }
         }
