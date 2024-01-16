@@ -163,6 +163,14 @@ endif()
 ###### Pay executable
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
+# local QML means we hardcode the full path to the 'guis' dir for this build.
+# and instead of pointing to the QRC, we point here. Avoding re-compile / linking
+# after updating the QML files.
+if (local_qml)
+    set (QML_PATH ${CMAKE_SOURCE_DIR}/guis)
+endif()
+configure_file(src/qml_path_helper.cpp.in src/qml_path_helper.cpp)
+
 if (build_desktop_pay)
     # The qm files are generated in the build tree, but the qrc file is inside the
     # source directory and the path to resources are relative to the location of
@@ -170,13 +178,9 @@ if (build_desktop_pay)
     # directory such that it can find the qm translations files. The qrc file is
     # copied if it doesn't exist in the destination or if it is modified.
     file(COPY translations/desktop-i18n.qrc DESTINATION ${CMAKE_BINARY_DIR})
-    if (local_qml)
-        set (QML_PATH ${CMAKE_SOURCE_DIR}/guis/)
-    endif()
-    configure_file(src/qml_path_helper.cpp.in guis/desktop/qml_path_helper.cpp)
     set (SOURCES_PAY
         src/main.cpp
-        guis/desktop/qml_path_helper.cpp
+        ${CMAKE_BINARY_DIR}/src/qml_path_helper.cpp
         src/ModuleManager_empty.cpp # because we don't have modules in the desktop one
     )
     qt6_add_resources(SOURCES_PAY
@@ -241,12 +245,11 @@ if (ANDROID AND build_mobile_pay)
               ${CMAKE_SOURCE_DIR}/data/bip39-spanish
         DESTINATION ${ASSETS_DIR})
 
-    configure_file(src/qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
     set (SOURCES_PAY_MOBILE
         src/main.cpp
         src/CameraController.cpp
         src/QRScanner.cpp
-        guis/mobile/qml_path_helper.cpp
+        ${CMAKE_BINARY_DIR}/src/qml_path_helper.cpp
         ${CMAKE_BINARY_DIR}/modules/modules-load.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
@@ -270,10 +273,6 @@ if (ANDROID AND build_mobile_pay)
 endif ()
 
 if(NOT ANDROID AND build_mobile_pay)
-    if(local_qml)
-        set (QML_PATH ${CMAKE_SOURCE_DIR}/guis)
-    endif()
-    configure_file(src/qml_path_helper.cpp.in guis/mobile/qml_path_helper.cpp)
     file(COPY translations/mobile-i18n.qrc DESTINATION ${CMAKE_BINARY_DIR})
 
     set (SOURCES_PAY_MOBILE
@@ -281,7 +280,7 @@ if(NOT ANDROID AND build_mobile_pay)
         src/CameraController.cpp
         src/QRScanner.cpp
         ${CMAKE_BINARY_DIR}/modules/modules-load.cpp
-        guis/mobile/qml_path_helper.cpp
+        ${CMAKE_BINARY_DIR}/src/qml_path_helper.cpp
     )
     qt6_add_resources(SOURCES_PAY_MOBILE
         guis/mobile.qrc
