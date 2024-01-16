@@ -37,7 +37,7 @@ public:
     Q_INVOKABLE void abort();
 
     enum ScanType {
-        Seed,
+        SeedOrPrivKey,
         PaymentDetails,
         PaymentDetailsTestnet
         // others like private key or cashId

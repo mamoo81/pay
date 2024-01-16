@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  * Copyright (C) 2020 Axel Waggershauser <awagger@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  */
 #include "CameraController.h"
 #include "QRScanner.h"
-#include "FloweePay.h"
+#include "base58.h"
 #include <Logger.h>
 
 #include <ZXing/ReadBarcode.h>
@@ -295,10 +295,23 @@ void QRScanningThread::run()
         auto results = readBarcodes(frame);
         for (const auto &result : results) {
             const auto &bytes = result.bytes();
-            logFatal() << "result:" << QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+            // logInfo() << "result:" << QString::fromUtf8(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 
             switch (m_scanType) {
-            case QRScanner::Seed: {
+            case QRScanner::SeedOrPrivKey: {
+                // we expect WIF encoded private keys heree
+                if (bytes.size() >= 50 && bytes.size() < 55 && (bytes[0] == 'K' || bytes[0] == 'L')) {
+                    // might be one!!
+                    const std::string str(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+                    std::vector<uint8_t> dummy;
+                    if (Base58::decodeCheck(str, dummy)) {
+                        // good enough for me. Further checking is done by the app, we just exit scanning now.
+                        text = QString::fromUtf8(str);
+                        return;
+                    }
+                }
+                // no privkey, ok. Then check if its a seed :-)
+
                 /*
                  * The Seed QR would obviously just use the 12 or 24 words sentence in a QR.
                  * Simple.

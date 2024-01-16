@@ -80,7 +80,7 @@ Page {
 
                         QRScanner {
                             id: scanner
-                            scanType: QRScanner.Seed
+                            scanType: QRScanner.SeedOrPrivKey
                             onFinished: if (scanResult !== "") secrets.text = scanResult;
                         }
                     }
@@ -119,6 +119,7 @@ Page {
 
             Flowee.CheckBox {
                 id: singleAddress
+                Layout.fillWidth: true
                 text: qsTr("Force Single Address");
                 toolTipText: qsTr("When enabled, no extra addresses will be auto-generated in this wallet.\nChange will come back to the imported key.")
                 checked: true
@@ -131,6 +132,7 @@ Page {
                 checked: importAccount.isElectrumMnemonic
                 visible: importAccount.isMnemonic
                 enabled: importAccount.isMnemonic && !importAccount.isElectrumMnemonic
+                Layout.fillWidth: true
                 property string prevDerPath: ""
                 onCheckedChanged: {
                     derivationLabel.enabled = !checked;
