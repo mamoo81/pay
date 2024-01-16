@@ -96,6 +96,9 @@ private:
     std::vector<ZXing::Result> readBarcodes(const QVideoFrame &frame) const;
 
     CameraControllerPrivate *m_parent;
+    // notice that since ZXIng 2.2.0 this is renamed to 'ReaderOptions'.
+    // this was released in December 2023, so we'll be using the old stuff
+    // for quite a bit longer to keep stuff compiling on older systems.
     ZXing::DecodeHints m_decodeHints;
     QRScanner::ScanType m_scanType;
 };
