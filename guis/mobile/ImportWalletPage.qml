@@ -81,7 +81,12 @@ Page {
                         QRScanner {
                             id: scanner
                             scanType: QRScanner.SeedOrPrivKey
-                            onFinished: if (scanResult !== "") secrets.text = scanResult;
+                            onFinished: {
+                                if (scanResult !== "")
+                                    secrets.text = scanResult;
+                                // make sure to give focus back to this page after the camera took it.
+                                startScan.forceActiveFocus();
+                            }
                         }
                     }
                 }
