@@ -28,10 +28,10 @@ ListView {
         // non-layoutable items.
 
         QQC2.Popup {
-            id: seedPopup
-            width: 260
-            height: 260
-            x: 55
+            id: qrPopup
+            width: 270
+            height: 270
+            x: (root.width - width) / 2
             y: 100
             modal: true
             closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
@@ -46,6 +46,7 @@ ListView {
                 qrSize: 250
                 textVisible: false
                 useRawString: true
+                anchors.centerIn: parent
             }
         }
     }
@@ -162,7 +163,7 @@ ListView {
                         text: qsTr("QR of Address")
                         onTriggered: {
                             seedQr.qrText = Pay.chainPrefix + address
-                            seedPopup.open();
+                            qrPopup.open();
                         }
                     }
                     QQC2.Action {
@@ -172,9 +173,8 @@ ListView {
                     QQC2.Action {
                         text: qsTr("QR of Private Key")
                         onTriggered: {
-                        console.log("-> " + privatekey)
                             seedQr.qrText = privatekey
-                            seedPopup.open();
+                            qrPopup.open();
                         }
                     }
                 }

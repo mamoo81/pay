@@ -90,9 +90,9 @@ QQC2.Control {
 
                         QQC2.Popup {
                             id: seedPopup
-                            width: 260
-                            height: 260
-                            x: 55
+                            width: 270
+                            height: 270
+                            x: (root.width - width) / 2
                             y: 100
                             modal: true
                             closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
@@ -107,6 +107,7 @@ QQC2.Control {
                                 qrSize: 250
                                 textVisible: false
                                 useRawString: true
+                                anchors.centerIn: parent
                             }
                         }
                     }
