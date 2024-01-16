@@ -1,5 +1,5 @@
 # This file is part of the Flowee project
-# Copyright (C) 2023 Tom Zander <tom@flowee.org>
+# Copyright (C) 2023-2024 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,13 +25,15 @@ foreach (child ${sub_directories})
     if (IS_DIRECTORY ${child})
         file(GLOB subModule ${child}/*ModuleInfo.h)
         if (EXISTS ${subModule})
-            add_subdirectory(${child})
             file (RELATIVE_PATH module ${CMAKE_CURRENT_SOURCE_DIR} ${child})
             get_filename_component(className ${subModule} NAME_WE)
-            list (APPEND CLASSES_LIST ${className})
 
-            file (RELATIVE_PATH include_file ${CMAKE_CURRENT_SOURCE_DIR} ${subModule})
-            list (APPEND INCLUDES_LIST ${include_file})
+            if (NOT (${skip_example} AND ${className} STREQUAL "ExampleModuleInfo"))
+                add_subdirectory(${child})
+                list (APPEND CLASSES_LIST ${className})
+                file (RELATIVE_PATH include_file ${CMAKE_CURRENT_SOURCE_DIR} ${subModule})
+                list (APPEND INCLUDES_LIST ${include_file})
+            endif()
         endif()
     endif()
 endforeach()

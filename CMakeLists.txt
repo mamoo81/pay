@@ -17,6 +17,21 @@
 cmake_minimum_required(VERSION 3.19)
 project(flowee_pay VERSION 1.0 LANGUAGES CXX)
 
+if (NOT ANDROID)
+    set (NOT_ANDROID TRUE)
+endif()
+option(skip_example "Make a release build for Android, with the release package name" OFF)
+option(quick_deploy "Do not include the blockchain in the APK, for a smaller (developer ONLY) deployment" OFF)
+option(build_desktop_pay "Build the desktop (dev) client of Pay" ${NOT_ANDROID})
+option(build_mobile_pay "Build the mobile client of Pay" ON)
+option(build_pay_tools "Build the tools Pay" ${NOT_ANDROID})
+
+# options from src/CMakeLists.txt
+option(local_qml "Allow local QML loading" OFF)
+option(NetworkLogClient "Include the network based logging in the executables" OFF)
+
+
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -26,8 +41,8 @@ find_package(Qt6 COMPONENTS Core Quick Svg REQUIRED
     OPTIONAL_COMPONENTS Multimedia)
 find_package(flowee REQUIRED flowee_p2p)
 find_package(OpenSSL REQUIRED)
+
 if (ANDROID)
-    option(quick_deploy "Do not include the blockchain in the APK, for a smaller (developer ONLY) deployment" OFF)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
         ${CMAKE_SOURCE_DIR}/android/cmake)
 
@@ -148,14 +163,7 @@ endif()
 ###### Pay executable
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-if (NOT ANDROID)
-    set (NOT_ANDROID TRUE)
-endif()
-option (BUILD_DESKTOP_PAY
-    "Build the desktop (dev) client of Pay"
-    ${NOT_ANDROID})
-
-if (BUILD_DESKTOP_PAY)
+if (build_desktop_pay)
     # The qm files are generated in the build tree, but the qrc file is inside the
     # source directory and the path to resources are relative to the location of
     # the qrc file itself. We copy the qrc file in the build
@@ -183,15 +191,14 @@ if (BUILD_DESKTOP_PAY)
 endif()
 
 ###### Pay-mobile executable
-option (BUILD_MOBILE_PAY "Build the mobile client of Pay" ON)
 
 if (NOT "${Qt6Multimedia_FOUND}")
-    set (BUILD_MOBILE_PAY OFF)
+    set (build_mobile_pay OFF)
 endif ()
 
 set (PAY_MOBILE_LIBS "")
 set (PAY_MOBILE_RESOURCES "")
-if (BUILD_MOBILE_PAY)  # support modules, which get enabled currently for mobile only
+if (build_mobile_pay)  # support modules, which get enabled currently for mobile only
     add_subdirectory(modules)
 
     # find all modules present in the source-tree and make sure we link them into the
@@ -202,10 +209,12 @@ if (BUILD_MOBILE_PAY)  # support modules, which get enabled currently for mobile
         if (IS_DIRECTORY ${child} AND NOT IS_SYMLINK ${child})
             file(GLOB subModule ${child}/*ModuleInfo.h)
             file(RELATIVE_PATH moduleName ${CMAKE_CURRENT_SOURCE_DIR}/modules ${child})
-            list(APPEND PAY_MOBILE_LIBS "${moduleName}_module_lib")
 
-            file(GLOB resources ${child}/*qrc)
-            list(APPEND PAY_MOBILE_RESOURCES "${resources}")
+            if (NOT (${skip_example} AND ${moduleName} STREQUAL "example"))
+                list(APPEND PAY_MOBILE_LIBS "${moduleName}_module_lib")
+                file(GLOB resources ${child}/*qrc)
+                list(APPEND PAY_MOBILE_RESOURCES "${resources}")
+            endif()
         endif()
     endforeach()
 
@@ -213,7 +222,7 @@ if (BUILD_MOBILE_PAY)  # support modules, which get enabled currently for mobile
 endif()
 
 
-if (ANDROID AND BUILD_MOBILE_PAY)
+if (ANDROID AND build_mobile_pay)
     # blockheaders to be included in the APK
     set (ASSETS_DIR ${CMAKE_BINARY_DIR}/android-build/assets/)
     if (NOT quick_deploy)
@@ -260,7 +269,7 @@ if (ANDROID AND BUILD_MOBILE_PAY)
     )
 endif ()
 
-if(NOT ANDROID AND BUILD_MOBILE_PAY)
+if(NOT ANDROID AND build_mobile_pay)
     if(local_qml)
         set (QML_PATH ${CMAKE_SOURCE_DIR}/guis)
     endif()
@@ -292,11 +301,7 @@ endif()
 
 ###### blockheaders-meta-extractor executable
 
-option (BUILD_PAY_TOOLS
-    "Build the tools Pay"
-    ${NOT_ANDROID})
-
-if (BUILD_PAY_TOOLS)
+if (build_pay_tools)
     add_executable(blockheaders-meta-extractor
         src/MetaExtractor.cpp
     )
@@ -337,7 +342,7 @@ message("Qt version: ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
 if (${local_qml})
     message("   Using QML from source-dir. DO NOT DISTRIBUTE BINARIES!")
 endif ()
-if (${BUILD_DESKTOP_PAY})
+if (build_desktop_pay)
     message ("-> Building Desktop-Pay...")
     if (${Qt6DBus_FOUND})
         message("   Found optional lib: QtDBus")
@@ -348,8 +353,11 @@ endif()
 if (NOT ${Qt6Multimedia_FOUND})
     message("ww Missing QtMultimedia libs, not building Pay for mobile ")
 endif ()
-if (${BUILD_MOBILE_PAY})
+if (${build_mobile_pay})
     message ("-> Building Pay for mobile")
+    if (ANDROID AND ${skip_example})
+        message ("   With release package-ID!")
+    endif()
     if (ANDROID AND DEFINED MOBILE_PAY_I18N_QRC)
         message ("   Found translation files, including in package")
     endif ()
@@ -357,20 +365,22 @@ endif()
 if (NetworkLogClient)
     message ("-> Including network-logging capability")
 endif()
-if (${BUILD_PAY_TOOLS})
+if (build_pay_tools)
     message ("-> Building Pay tools")
 endif()
 
-if (${BUILD_MOBILE_PAY})
+if (${build_mobile_pay})
     file(GLOB sub_directories ${CMAKE_SOURCE_DIR}/modules/*)
     foreach (child ${sub_directories})
         if (IS_DIRECTORY ${child})
             file(GLOB subModule ${child}/*ModuleInfo.h)
             if (EXISTS ${subModule})
                 file (RELATIVE_PATH module ${CMAKE_CURRENT_SOURCE_DIR} ${child})
-                message("-> Including module '${module}'")
-                get_filename_component(className ${subModule} NAME_WE)
-                message("   ${className}")
+                if (NOT (${skip_example} AND ${module} STREQUAL "modules/example"))
+                    message("-> Including module '${module}'")
+                    get_filename_component(className ${subModule} NAME_WE)
+                    message("   ${className}")
+                endif()
             endif()
         endif()
     endforeach()

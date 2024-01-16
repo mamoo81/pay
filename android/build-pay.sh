@@ -1,6 +1,6 @@
 #!/bin/bash
 # This file is part of the Flowee project
-# Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
+# Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,17 +19,17 @@ _thehub_dir_="$1"
 _pay_native_name_="$2"
 
 if test -f smartBuild.sh; then
-    ./smartBuild.sh noapk
+    ./smartBuild.sh
     exit
 fi
 
-if test -z "$_pay_native_name_"; then
+if test -z "$_thehub_dir_"; then
     echo "Usage:"
-    echo "  build-pay <HUB_builddir> <PAY_NATIVE_builddir>"
+    echo "  build-pay <HUB_builddir> [PAY_NATIVE_builddir]"
     echo ""
     echo "Start this client in your builddir"
     echo "HUB-builddir is the dir where the android build of flowe-thehub is."
-    echo "Pay_NATIVE-builddir for a native build of flowee-pay."
+    echo "Pay_NATIVE-builddir for a native build of flowee-pay, for translations."
     exit
 fi
 
@@ -51,13 +51,10 @@ if test -z "$_docker_name_"; then
     _docker_name_="codeberg.org/flowee/buildenv-android:v6.5.3"
 fi
 
-if ! test -f "$_pay_native_name_/blockheaders-meta-extractor"; then
-    echo "Invalid or not compiled for Android Pay-native dir."
-    exit
-fi
-
 mkdir -p imports
-cp -f "$_pay_native_name_"/*qm imports/
+if test -d "$_pay_native_name_"; then
+    cp -f "$_pay_native_name_"/*qm imports/
+fi
 
 floweePaySrcDir=`dirname $0`/..
 if test -f $floweePaySrcDir/android/netlog.conf; then
@@ -119,15 +116,6 @@ if test "\$1" = "distclean"; then
     mv blockheaders android-build/assets/
 fi
 
-if test "\$1" = "sign" -o "\$2" = "sign"
-then
-    MAKE_SIGNED_APK=1
-else
-  if test "\$1" != "noapk"; then
-    MAKE_UNSIGNED_APK=apk
-  fi
-fi
-
 if test -f .docker; then
     DOCKERID=\`cat .docker\`
     if test -n "\$DOCKERID"; then
@@ -158,10 +146,9 @@ if test -f $floweePaySrcDir/android/netlog.conf; then
     cp $floweePaySrcDir/android/netlog.conf android-build/assets/
 fi
 
-\$execInDocker /usr/bin/ninja -C build pay_mobile pay_mobile_prepare_apk_dir \$MAKE_UNSIGNED_APK
+\$execInDocker /usr/bin/ninja -C build pay_mobile pay_mobile_prepare_apk_dir
 
-if test -n "\$MAKE_SIGNED_APK"
-then
+if test "\$1" = "sign" -o "\$2" = "sign"; then
     \$execInDocker build/.sign
 fi
 

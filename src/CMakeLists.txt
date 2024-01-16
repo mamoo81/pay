@@ -16,9 +16,6 @@
 
 project(flowee_lib)
 
-option(local_qml "Allow local QML loading" OFF)
-option(NetworkLogClient "Include the network based logging in the executables" OFF)
-
 set (PAY_SOURCES
     AccountInfo.cpp
     AddressInfo.cpp
