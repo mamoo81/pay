@@ -48,10 +48,8 @@ ColumnLayout {
             onClicked: {
                 var options = Pay.createNewBasicWallet(accountName.text);
                 options.forceSingleAddress = singleAddress.checked;
-                var accounts = portfolio.accounts;
-                for (var i = 0; i < accounts.length; ++i) {
-                    var a = accounts[i];
-                    if (a.name === options.name) {
+                for (let a of portfolio.accounts) {
+                    if (a.id === options.accountId) {
                         portfolio.current = a;
                         break;
                     }
@@ -73,11 +71,5 @@ ColumnLayout {
             text: qsTr("Force Single Address");
             toolTipText: qsTr("When enabled, this wallet will be limited to one address.\nThis ensures only one private key will need to be backed up")
         }
-        /*
-        Flowee.CheckBox {
-            id: schnorr
-            text: qsTr("Default to signing using ECDSA");
-            toolTipText: qsTr("When enabled, newer style Schnorr signatures are not set as default for this wallet.")
-        } */
     }
 }

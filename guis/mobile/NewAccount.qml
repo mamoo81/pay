@@ -140,8 +140,13 @@ Page {
                         onClicked: {
                             var options = Pay.createNewBasicWallet(accountName.text);
                             options.forceSingleAddress = singleAddress.checked;
-                            var accounts = portfolio.rawAccounts;
-                            portfolio.current = accounts[accounts.length - 1]
+                            for (let a of portfolio.accounts) {
+                                if (a.id === options.accountId) {
+                                    portfolio.current = a;
+                                    break;
+                                }
+                            }
+
                             thePile.pop();
                             thePile.pop();
                         }
@@ -194,8 +199,12 @@ Page {
                         text: qsTr("Create")
                         onClicked: {
                             var options = Pay.createNewWallet(derivationPath.text, /* password */"", accountName.text);
-                            var accounts = portfolio.rawAccounts;
-                            portfolio.current = accounts[accounts.length - 1]
+                            for (let a of portfolio.accounts) {
+                                if (a.id === options.accountId) {
+                                    portfolio.current = a;
+                                    break;
+                                }
+                            }
                             thePile.pop();
                             thePile.pop();
                         }

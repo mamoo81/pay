@@ -37,6 +37,7 @@ class NewWalletConfig : public QObject
     Q_OBJECT
     Q_PROPERTY(QString name READ name CONSTANT)
     Q_PROPERTY(bool forceSingleAddress READ forceSingleAddress WRITE setForceSingleAddress NOTIFY SIChanged)
+    Q_PROPERTY(int accountId READ accountId CONSTANT FINAL)
 public:
     NewWalletConfig() {}
     explicit NewWalletConfig(Wallet *wallet);
@@ -47,6 +48,8 @@ public:
     /// A wallet with this set will never receive funds on anything but 1 address
     bool forceSingleAddress() const;
     void setForceSingleAddress(bool on);
+
+    int accountId() const;
 
 signals:
     void SIChanged();

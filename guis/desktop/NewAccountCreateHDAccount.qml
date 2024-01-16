@@ -48,10 +48,8 @@ ColumnLayout {
             anchors.right: parent.right
             onClicked: {
                 var options = Pay.createNewWallet(derivationPath.text, /* password */"", accountName.text);
-                var accounts = portfolio.accounts;
-                for (var i = 0; i < accounts.length; ++i) {
-                    var a = accounts[i];
-                    if (a.name === options.name) {
+                for (let a of portfolio.accounts) {
+                    if (a.id === options.accountId) {
                         portfolio.current = a;
                         break;
                     }

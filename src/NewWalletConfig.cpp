@@ -57,3 +57,10 @@ void NewWalletConfig::setForceSingleAddress(bool on)
         emit SIChanged();
     }
 }
+
+int NewWalletConfig::accountId() const
+{
+    assert(m_wallet);
+    assert(m_wallet->segment());
+    return m_wallet->segment()->segmentId();
+}

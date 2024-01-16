@@ -108,13 +108,10 @@ GridLayout {
                     var options = Pay.createImportedHDWallet(secrets.text, passwordField.text, derivationPath.text, accountName.text, sh, forceElectrum.checked);
                 else
                     options = Pay.createImportedWallet(secrets.text, accountName.text, sh)
-
                 options.forceSingleAddress = singleAddress.checked;
 
-                var accounts = portfolio.accounts;
-                for (var i = 0; i < accounts.length; ++i) {
-                    var a = accounts[i];
-                    if (a.name === options.name) {
+                for (let a of portfolio.accounts) {
+                    if (a.id === options.accountId) {
                         portfolio.current = a;
                         break;
                     }
