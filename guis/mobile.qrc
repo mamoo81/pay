@@ -68,7 +68,7 @@
         <file>mobile/VisualSeparator.qml</file>
         <file>mobile/PopupOverlay.qml</file>
         <file>mobile/TransactionDetails.qml</file>
-        <file>mobile/TxInfoSmall.qml</file>
+        <file>mobile/TransactionInfoSmall.qml</file>
         <file>mobile/AccountSelectorPopup.qml</file>
         <file>mobile/CurrencySelector.qml</file>
         <file>mobile/StartupScreen.qml</file>

@@ -389,7 +389,7 @@ ListView {
         }
         Component {
             id: selectedItem
-            TxInfoSmall { }
+            TransactionInfoSmall { }
         }
     }
     displaced: Transition { NumberAnimation { properties: "y"; duration: 400 } }
