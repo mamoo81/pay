@@ -759,11 +759,7 @@ void FloweePay::copyToClipboard(const QString &text)
 
 void FloweePay::openInExplorer(const QString &txid)
 {
-    if (txid.size() == 64) { // assume this is a txid
-        QDesktopServices::openUrl(QUrl("https://blockchair.com/bitcoin-cash/transaction/" + txid));
-        return;
-    }
-    // Add maybe other types?
+    QDesktopServices::openUrl(QUrl("https://blockchair.com/search?q=" + txid));
 }
 
 FloweePay::UnitOfBitcoin FloweePay::unit() const
