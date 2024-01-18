@@ -38,6 +38,7 @@ set (PAY_SOURCES
     QRCreator.cpp
     QMLClipboardHelper.cpp
     TransactionInfo.cpp
+    TxInfoObject.cpp
     Wallet.cpp
     WalletCoinsModel.cpp
     AccountConfig.cpp

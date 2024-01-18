@@ -18,6 +18,7 @@
 #include "Wallet.h"
 #include "Wallet_p.h"
 #include "FloweePay.h"
+#include "TxInfoObject.h"
 
 #include <NotificationListener.h>
 #include <primitives/script.h>
@@ -34,6 +35,7 @@
 #include <QThread>
 
 #include <fstream>
+#include <cassert>
 
 // #define DEBUGUTXO
 
@@ -364,7 +366,7 @@ void Wallet::newTransaction(const Tx &tx)
 
         std::map<uint64_t, SignatureType> signatureTypes;
         WalletTransaction wtx = createWalletTransactionFromTx(tx, txid, signatureTypes, &notification);
-        Q_ASSERT(wtx.isCoinbase == false);
+        assert(wtx.isCoinbase == false);
         if (wtx.outputs.empty() && wtx.inputToWTX.empty()) {
             // no connection to our UTXOs
             if (++m_bloomScore > 25)
@@ -544,7 +546,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
 
             // and remember the transaction
             if (oldTx == m_txidCache.end()) {
-                Q_ASSERT(walletTransactionId == m_nextWalletTransactionId);
+                assert(walletTransactionId == m_nextWalletTransactionId);
                 m_txidCache.insert(std::make_pair(wtx.txid, m_nextWalletTransactionId));
                 m_walletTransactions.insert(std::make_pair(m_nextWalletTransactionId++, wtx));
                 transactionsToSave.push_back(tx);
@@ -571,7 +573,7 @@ void Wallet::newTransactions(const uint256 &blockId, int blockHeight, const std:
         // We actually mark it Rejected (in the blockHeight).
         for (auto ejectedTx : ejectedTransactions) {
             auto tx = m_walletTransactions.find(ejectedTx);
-            Q_ASSERT(tx != m_walletTransactions.end());
+            assert(tx != m_walletTransactions.end());
             logDebug(LOG_WALLET) << "Confirmed transaction(s) in block" << blockHeight <<
                           "made invalid transaction:" << ejectedTx << tx->second.txid;
             auto &wtx = tx->second;
@@ -1042,7 +1044,7 @@ void Wallet::rebuildBloom(RebuildBloomOption option)
     std::set<int> secretsWithBalance;
     for (auto utxo : m_unspentOutputs) {
         auto i = m_walletTransactions.find(OutputRef(utxo.first).txIndex());
-        Q_ASSERT(i != m_walletTransactions.end());
+        assert(i != m_walletTransactions.end());
         const auto &wtx = i->second;
         if (i->second.minedBlockHeight > 1) {
             for (const auto &output : wtx.outputs) {
@@ -1155,43 +1157,45 @@ void Wallet::broadcastTxFinished(int txIndex, bool success)
     QMutexLocker locker(&m_lock);
     for (int i = 0; i < m_broadcastingTransactions.size(); ++i) {
         if (m_broadcastingTransactions.at(i)->txIndex() == txIndex) {
+            // delete the TxInfoObject first, stopping broadcasts.
             m_broadcastingTransactions.removeAt(i);
+            break;
+         }
+    }
 
-            if (!success) {
-                auto wtx = m_walletTransactions.find(txIndex);
-                if (wtx != m_walletTransactions.end()) {
-                    logCritical(LOG_WALLET) << "Marking transaction invalid";
-                    auto &tx = wtx->second;
-                    if (tx.minedBlockHeight == Wallet::Unconfirmed) {
-                        // a transaction that has been added before, but now marked
-                        // rejected means we should revert some stuff that newTransaction() did.
-                        // - locked output
-                        // - utxo
-                        // - balance
+    if (!success) {
+        auto wtx = m_walletTransactions.find(txIndex);
+        if (wtx != m_walletTransactions.end()) {
+            logCritical(LOG_WALLET) << "Marking transaction invalid";
+            auto &tx = wtx->second;
+            if (tx.minedBlockHeight == Wallet::Unconfirmed) {
+                // a transaction that has been added before, but now marked
+                // rejected means we should revert some stuff that newTransaction() did.
+                // - locked output
+                // - utxo
+                // - balance
 
-                        auto j = m_lockedOutputs.begin();
-                        while (j != m_lockedOutputs.end()) {
-                            if (j->second == txIndex)
-                                j = m_lockedOutputs.erase(j);
-                            else
-                                ++j;
-                        }
-                        for (auto out = tx.outputs.begin(); out != tx.outputs.end(); ++out) {
-                            auto utxo = m_unspentOutputs.find(OutputRef(txIndex, out->first).encoded());
-                            assert(utxo != m_unspentOutputs.end());
-                            m_unspentOutputs.erase(utxo);
-                        }
-
-                        recalculateBalance();
-                    }
-                    else {
-                        assert(false); // Can't imagine the usecase, so if this hits in a debug build lets fail-fast
-                        logWarning(LOG_WALLET) << "Transaction marked rejected that had blockHeight:" << tx.minedBlockHeight;
-                    }
-                    tx.minedBlockHeight = Wallet::Rejected;
+                auto j = m_lockedOutputs.begin();
+                while (j != m_lockedOutputs.end()) {
+                    if (j->second == txIndex)
+                        j = m_lockedOutputs.erase(j);
+                    else
+                        ++j;
                 }
+                for (auto out = tx.outputs.begin(); out != tx.outputs.end(); ++out) {
+                    auto utxo = m_unspentOutputs.find(OutputRef(txIndex, out->first).encoded());
+                    assert(utxo != m_unspentOutputs.end());
+                    m_unspentOutputs.erase(utxo);
+                }
+
+                recalculateBalance();
             }
-            return;
+            else if (tx.minedBlockHeight > 0) {
+                assert(false); // Can't imagine the usecase, so if this hits in a debug build lets fail-fast
+                logWarning(LOG_WALLET) << "Transaction marked rejected that had blockHeight:" << tx.minedBlockHeight;
+            }
+            tx.minedBlockHeight = Wallet::Rejected;
+            emit transactionChanged(txIndex); // notify the UI
         }
     }
 }
@@ -1448,7 +1452,7 @@ void Wallet::checkHeaderSyncComplete(const Blockchain &blockchain)
 
 void Wallet::broadcastUnconfirmed()
 {
-    Q_ASSERT(thread() == QThread::currentThread());
+    assert(thread() == QThread::currentThread());
 
     // we are (again) up-to-date.
     // Lets broadcast any transactions that have not yet been confirmed.
@@ -1461,7 +1465,7 @@ void Wallet::broadcastUnconfirmed()
         if (iter->second.minedBlockHeight == Wallet::Unconfirmed) {
             auto tx = loadTransaction(iter->second.txid, Streaming::pool(0));
             if (tx.data().size() > 64) {
-                auto bc = std::make_shared<WalletInfoObject>(this, iter->first, tx);
+                auto bc = std::make_shared<TxInfoObject>(this, iter->first, tx);
                 bc->moveToThread(thread());
                 logDebug(LOG_WALLET) << "  broadcasting transaction" << tx.createHash() << tx.size();
                 m_broadcastingTransactions.append(bc);
@@ -2184,7 +2188,7 @@ void Wallet::recalculateBalance()
     qint64 balanceUnconfirmed = 0;
     for (auto utxo : m_unspentOutputs) {
         auto wtx = m_walletTransactions.find(OutputRef(utxo.first).txIndex());
-        Q_ASSERT(wtx != m_walletTransactions.end());
+        assert(wtx != m_walletTransactions.end());
         const int h = wtx->second.minedBlockHeight;
         if (h == Wallet::Rejected)
             continue;

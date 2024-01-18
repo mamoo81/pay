@@ -34,7 +34,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem.hpp>
 
-class WalletInfoObject;
+class TxInfoObject;
 class TransactionInfo;
 class WalletKeyView;
 class Blockchain;
@@ -386,9 +386,10 @@ public slots:
     void delayedSave();
 
 protected slots:
-    void broadcastTxFinished(int txIndex, bool success);
     /// find all not-yet-confirmed transactions and start a broadcast
     void broadcastUnconfirmed();
+    /// callback from the broadcast code: TxInfoObject
+    void broadcastTxFinished(int txIndex, bool success);
     void recalculateBalance();
     void delayedSaveTimeout();
 
@@ -600,6 +601,7 @@ private:
     friend class WalletSecretsModel;
     friend class WalletCoinsModel;
     friend class WalletKeyView;
+    friend class TxInfoObject;
 
     // auto-detected, causes us to send bigger gaps for bloom filters.
     bool m_walletStoresCashFusions = false;
@@ -623,7 +625,7 @@ private:
     std::vector<char, secure_allocator<char>> m_encryptionKey;
     std::vector<char, secure_allocator<char>> m_encryptionIR;
 
-    QList<std::shared_ptr<WalletInfoObject>> m_broadcastingTransactions;
+    QList<std::shared_ptr<TxInfoObject>> m_broadcastingTransactions;
 };
 
 #endif

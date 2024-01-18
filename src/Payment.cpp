@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
  */
 
 #include "Payment.h"
-#include "Payment_p.h"
 #include "PaymentDetailInputs_p.h"
 #include "PaymentDetailOutput_p.h"
 #include "FloweePay.h"
@@ -25,6 +24,7 @@
 #include "PriceDataProvider.h"
 #include "AccountConfig.h"
 #include "PaymentProtocol.h"
+#include "TxInfoObject.h"
 
 #include <cashaddr.h>
 #include <TransactionBuilder.h>
@@ -372,7 +372,14 @@ void Payment::broadcast()
     if (!m_userComment.isEmpty())
         m_wallet->setTransactionComment(m_tx, m_userComment);
 
-    m_infoObject = std::make_shared<PaymentInfoObject>(this, m_tx);
+    m_infoObject = std::make_shared<TxInfoObject>(this, m_tx);
+    connect(m_infoObject.get(), &TxInfoObject::sentOne, this, [=]() {
+        emit broadcastStatusChanged();
+        // we wait a second and force a recalc in the following singleShot.
+        QTimer::singleShot(1000, this, SIGNAL(broadcastStatusChanged()));
+    }, Qt::QueuedConnection);
+    // notice that rejections are automatically forwarded to the wallet from the TxInfoObject
+    connect(m_infoObject.get(), SIGNAL(rejectionSeen()), this, SIGNAL(broadcastStatusChanged()), Qt::QueuedConnection);
     FloweePay::instance()->p2pNet()->connectionManager().broadcastTransaction(m_infoObject);
     m_txBroadcastStarted = true;
     emit broadcastStatusChanged();
@@ -388,8 +395,6 @@ void Payment::reset()
     m_tx = Tx();
     m_assignedFee = 0;
     m_infoObject.reset();
-    m_sentPeerCount = 0;
-    m_rejectedPeerCount = 0;
     m_userComment.clear();
     m_wallet = nullptr;
 
@@ -502,8 +507,6 @@ void Payment::confirmReceivedOk()
     if (m_infoObject.get() == nullptr)
         return;
     m_infoObject.reset();
-    m_sentPeerCount = 1;
-    m_rejectedPeerCount = 0;
     emit broadcastStatusChanged();
 }
 
@@ -634,11 +637,18 @@ Payment::BroadcastStatus Payment::broadcastStatus() const
 #endif
     if (!m_txBroadcastStarted)
         return NotStarted;
-    if (m_sentPeerCount == 0)
+    auto infoObject = m_infoObject;
+    if (infoObject.get() == nullptr)
+        return TxBroadcastSuccess;
+    // The 'calcStatus' arg should match (or be slightly less than) the wait time before we do the
+    // emit making QML re-fetch this variable.
+    auto status = infoObject->calcStatus(950);
+    logDebug() << "sent:" << status.sent << "in progress:" << status.inProgress << "failed:" << status.failed;
+    if (status.sent == 0)
         return TxOffered;
-    if (m_rejectedPeerCount - m_sentPeerCount >= 0)
+    if (status.failed)
         return TxRejected;
-    if (m_infoObject.get() == nullptr)
+    if (status.sent - status.inProgress >= 2)
         return TxBroadcastSuccess;
     return TxWaiting;
 }
@@ -703,40 +713,6 @@ QString Payment::txid() const
 Wallet *Payment::wallet() const
 {
     return m_wallet;
-}
-
-// this callback happens when one of our peers did a getdata for the transaction.
-void Payment::sentToPeer()
-{
-    /*
-     * We offered the Tx to all peers (typically 3) and we need at least one to have
-     * downloaded it from us.
-     * Possibly more peers will download it from us, but it is more likely that they
-     * download it from each other and we won't be able to see progress.
-     *
-     * On the other hand, when a transaction is invalid we will get a rejection message
-     * and then likely other nodes will download it from us as well and we'll get more
-     * rejections that way.  For this reason we need to wait a seconds after download
-     * started to see if we have more peers we sent it to than that rejected it.
-     */
-    ++m_sentPeerCount;
-
-    QTimer::singleShot(1000, this, [=]() {
-        if (m_rejectedPeerCount == 0 || m_sentPeerCount > 1) {
-            // When enough peers received the transaction stop broadcasting it.
-            m_infoObject.reset();
-        }
-        emit broadcastStatusChanged();
-    });
-    emit broadcastStatusChanged();
-}
-
-void Payment::txRejected(short reason, const QString &message)
-{
-    // reason is hinted using BroadcastTxData::RejectReason
-    logCritical() << "Transaction rejected" << reason << message;
-    ++m_rejectedPeerCount;
-    emit broadcastStatusChanged();
 }
 
 void Payment::recalcAmounts()
@@ -854,36 +830,6 @@ int Payment::txSize() const
 }
 
 
-// //////////////////////////////////////////////////
-
-PaymentInfoObject::PaymentInfoObject(Payment *payment, const Tx &tx)
-    : BroadcastTxData(tx),
-      m_parent(payment)
-{
-    connect(this, SIGNAL(sentOneFired()), payment, SLOT(sentToPeer()), Qt::QueuedConnection);
-    connect(this, SIGNAL(txRejectedFired(short,QString)), payment,
-            SLOT(txRejected(short,QString)), Qt::QueuedConnection);
-}
-
-void PaymentInfoObject::txRejected(RejectReason reason, const std::string &message)
-{
-    emit txRejectedFired(reason, QString::fromStdString(message));
-}
-
-void PaymentInfoObject::sentOne()
-{
-    emit sentOneFired();
-}
-
-uint16_t PaymentInfoObject::privSegment() const
-{
-    assert(m_parent);
-    assert(m_parent->wallet());
-    assert(m_parent->wallet()->segment());
-    return m_parent->wallet()->segment()->segmentId();
-}
-
-
 // ///////////////////////////////
 
 PaymentDetail::PaymentDetail(Payment *parent, Payment::DetailType type)
@@ -939,4 +885,3 @@ bool PaymentDetail::valid() const
 void PaymentDetail::setWallet(Wallet *)
 {
 }
-

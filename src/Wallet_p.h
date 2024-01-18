@@ -121,33 +121,4 @@ enum OutputLockStateEnum {
 
 }
 
-// this is used to broadcast transactions
-// see ConnectionManager::broadcastTransaction()
-class WalletInfoObject : public QObject, public BroadcastTxData
-{
-    Q_OBJECT
-public:
-    WalletInfoObject(Wallet *parent, int txIndex, const Tx &tx);
-    void txRejected(RejectReason reason, const std::string &message);
-    void sentOne();
-    uint16_t privSegment() const;
-
-    int txIndex() const;
-
-private slots:
-    // scheduled from a non-Qt thread to start a timer.
-    void startCheckState();
-    // called 5 seonds after every request from a peer for data
-    void checkState();
-
-signals:
-    void finished(int txIndex, bool success);
-
-private:
-    const Wallet *m_wallet;
-    const int m_txIndex;
-    short m_sentPeerCount = 0;
-    short m_rejectedPeerCount = 0;
-};
-
 #endif

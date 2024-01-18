@@ -127,61 +127,6 @@ uint64_t Wallet::OutputRef::encoded() const
 
 // //////////////////////////////////////////////////
 
-WalletInfoObject::WalletInfoObject(Wallet *wallet, int txIndex, const Tx &tx)
-    : BroadcastTxData(tx),
-      m_wallet(wallet),
-      m_txIndex(txIndex)
-{
-    connect(this, SIGNAL(finished(int,bool)),
-            m_wallet, SLOT(broadcastTxFinished(int,bool)), Qt::QueuedConnection);
-}
-
-void WalletInfoObject::txRejected(RejectReason reason, const std::string &message)
-{
-    // reason is hinted using BroadcastTxData::RejectReason
-    logCritical(LOG_WALLET) << "Transaction rejected" << reason << message;
-    ++m_rejectedPeerCount;
-}
-
-void WalletInfoObject::sentOne()
-{
-    if (++m_sentPeerCount >= 2) {
-        // Two stage singleshots. First (Qt requires that to be zero ms) to move
-        // to a thread that Qt owns.
-        // Second (in startCheckState()) to actually wait several seconds.
-        QTimer::singleShot(0, this, SLOT(startCheckState()));
-    }
-}
-
-void WalletInfoObject::startCheckState()
-{
-    Q_ASSERT(thread() == QThread::currentThread());
-    QTimer::singleShot(5 * 1000, this, SLOT(checkState()));
-}
-
-void WalletInfoObject::checkState()
-{
-    Q_ASSERT(thread() == QThread::currentThread());
-    if (m_sentPeerCount >= 2) {
-        emit finished(m_txIndex, m_sentPeerCount - m_rejectedPeerCount >= 1);
-    }
-}
-
-int WalletInfoObject::txIndex() const
-{
-    return m_txIndex;
-}
-
-uint16_t WalletInfoObject::privSegment() const
-{
-    assert(m_wallet);
-    assert(m_wallet->segment());
-    return m_wallet->segment()->segmentId();
-}
-
-
-// //////////////////////////////////////////////////
-
 bool Wallet::WalletTransaction::isUnconfirmed() const
 {
     return minedBlockHeight == Wallet::Unconfirmed;

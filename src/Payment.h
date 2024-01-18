@@ -22,7 +22,6 @@
 #include <QObject>
 #include <QSet>
 
-#include <BroadcastTxData.h>
 #include <primitives/Tx.h>
 #include <memory>
 
@@ -31,6 +30,7 @@ class PaymentDetail;
 class PaymentDetailOutput;
 class PaymentDetailInputs;
 class AccountInfo;
+class TxInfoObject;
 
 
 class Payment : public QObject
@@ -261,8 +261,6 @@ public:
     void setSimpleAddressTarget(bool newSimpleAddressTarget);
 
 private slots:
-    void sentToPeer();
-    void txRejected(short reason, const QString &message);
     void recalcAmounts();
     void broadcast();
 
@@ -312,9 +310,7 @@ private:
     int m_fee; // in sats per byte
     int m_assignedFee;
     int m_fiatPrice = 50000; // price for one whole BCH
-    std::shared_ptr<BroadcastTxData> m_infoObject;
-    short m_sentPeerCount;
-    short m_rejectedPeerCount;
+    std::shared_ptr<TxInfoObject> m_infoObject;
     Wallet *m_wallet = nullptr;
     QString m_error;
     QString m_userComment;
