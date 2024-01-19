@@ -1,7 +1,6 @@
-
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2023-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +18,8 @@
 
 #include "WalletKeyView.h"
 #include "Wallet.h"
+
+#include <QThread>
 
 WalletKeyView::WalletKeyView(Wallet *wallet, QObject *parent)
     : QObject(parent),
@@ -49,8 +50,9 @@ void WalletKeyView::appendedTransactions(const int firstNew, const int count)
 {
     if (m_walletIsImporting)
         return;
+    assert(QThread::currentThread() == thread());
     QMutexLocker locker(&m_wallet->m_lock);
-    // logDebug() << " getting" << index.row() << "=>" << txIndex;
+    logInfo() << " getting new tx. Index:" << firstNew << "count:" << count;
     for (int txIndex = firstNew; txIndex < firstNew + count; ++txIndex) {
         auto itemIter = m_wallet->m_walletTransactions.find(txIndex);
         if (itemIter == m_wallet->m_walletTransactions.end()) // the wallet changed, we're probably waiting for a queued connection
@@ -84,6 +86,7 @@ void WalletKeyView::appendedTransactions(const int firstNew, const int count)
 
 void WalletKeyView::lastBlockSynchedChanged()
 {
+    assert(QThread::currentThread() == thread());
     if (m_walletIsImporting && !m_wallet->walletIsImporting()) {
         m_walletIsImporting = false;
         emit importFinished();
@@ -97,6 +100,7 @@ QList<WalletKeyView::Transaction> WalletKeyView::transactions() const
 
 void WalletKeyView::transactionConfirmed(int txIndex)
 {
+    assert(QThread::currentThread() == thread());
     if (m_walletIsImporting)
         return;
     auto refBase = Wallet::OutputRef(txIndex, 0).encoded();
@@ -112,6 +116,7 @@ void WalletKeyView::transactionConfirmed(int txIndex)
 
 void WalletKeyView::encryptionChanged()
 {
+    assert(QThread::currentThread() == thread());
     if (m_wallet->encryption() == Wallet::FullyEncrypted && !m_wallet->isDecrypted())
         emit walletEncrypted();
 }

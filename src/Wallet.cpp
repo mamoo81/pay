@@ -720,6 +720,7 @@ void Wallet::setTransactionComment(const Tx &transaction, const QString &comment
 
 void Wallet::setTransactionComment(int txIndex, const QString &comment)
 {
+    QMutexLocker locker(&m_lock);
     auto wtxIter = m_walletTransactions.find(txIndex);
     assert(wtxIter != m_walletTransactions.end());
     if (wtxIter == m_walletTransactions.end())

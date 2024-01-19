@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,14 +126,17 @@ void PaymentRequest::setAccount(QObject *account)
         assert(QThread::currentThread() == thread());
         m_view = new WalletKeyView(m_account->wallet(), this);
         connect (m_view, &WalletKeyView::walletEncrypted, this, [=]() {
+            assert(QThread::currentThread() == thread());
             updateFailReason();
         });
         connect (m_view, &WalletKeyView::importFinished, this, [=]() {
+            assert(QThread::currentThread() == thread());
             updateFailReason();
             start();
         });
         connect (m_view, &WalletKeyView::transactionMatch, this, [=]() {
-            uint64_t seen = 0;
+            assert(QThread::currentThread() == thread());
+            int64_t seen = 0;
             for (const auto &tx : m_view->transactions()) {
                 if (tx.state != WalletKeyView::UTXORejected) {
                     seen += tx.amount;
@@ -184,9 +187,9 @@ void PaymentRequest::start()
 
 #if 0
         // by enabling this you can simulate the payment request being fulfilled
-        QTimer::singleShot(5000, [=]() {
+        QTimer::singleShot(5000, this, [=]() {
             setPaymentState(PaymentSeen);
-            QTimer::singleShot(3000, [=]() {
+            QTimer::singleShot(3000, this, [=]() {
                 setPaymentState(PaymentSeenOk);
                 // setPaymentState(DoubleSpentSeen);
             });
