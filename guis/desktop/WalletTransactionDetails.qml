@@ -24,7 +24,7 @@ GridLayout {
     id: root
 
     property QtObject infoObject: null
-    property var minedDate: model.date
+    property var createDate: model.date
 
     columns: 2
     Flowee.LabelWithClipboard {
@@ -42,9 +42,11 @@ GridLayout {
         text: {
             if (txRoot.isRejected)
                 return qsTr("rejected")
-            if (typeof root.minedDate === "undefined")
+            if (txRoot.minedHeight === -1)
                 return qsTr("unconfirmed")
-            var confirmations = Pay.headerChainHeight - model.height + 1;
+            var confirmations = Pay.headerChainHeight - txRoot.minedHeight + 1;
+            if (confirmations < 0)
+                return "";
             return qsTr("%1 confirmations (mined in block %2)", "", confirmations)
                 .arg(confirmations).arg(model.height);
         }

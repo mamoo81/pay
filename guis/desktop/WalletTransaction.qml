@@ -30,7 +30,8 @@ Rectangle {
     width: mainLabel.width + bitcoinAmountLabel.width + 30
     color: (index % 2) == 0 ? palette.light : palette.alternateBase
 
-    property bool isRejected: model.height === -2 // -2 is the magic block-height indicating 'rejected'
+    property int minedHeight: model.height
+    property bool isRejected: minedHeight === -2 // -2 is the magic block-height indicating 'rejected'
 
     /*
        we have
