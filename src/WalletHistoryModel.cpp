@@ -128,10 +128,15 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
         return QVariant(QString::fromStdString(item.txid.ToString()));
     case MinedHeight:
         return QVariant(item.minedBlockHeight);
-    case MinedDate: {
+    case TxDate: {
         int64_t timestamp = item.transactionTime;
+        if (timestamp == 0) {
+            // lets see if it was mined, we then take the blocktime
+            if (item.minedBlockHeight > 0)
+                timestamp = secsSinceEpochFor(item.minedBlockHeight);
+        }
         if (timestamp == 0)
-            timestamp = secsSinceEpochFor(item.minedBlockHeight);
+            return QVariant(); // undefined.
         return QVariant(QDateTime::fromSecsSinceEpoch(timestamp));
     }
     case FundsIn: {
@@ -236,7 +241,7 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
     answer[NewTransaction] = "isNew"; // Deprecated
     answer[TxId] = "txid";
     answer[MinedHeight] = "height";
-    answer[MinedDate] = "date";
+    answer[TxDate] = "date";
     answer[FundsIn] = "fundsIn";
     answer[FundsOut] = "fundsOut";
     answer[WalletIndex] = "walletIndex";
@@ -484,10 +489,17 @@ bool WalletHistoryModel::isModelFrozen() const
 
 uint32_t WalletHistoryModel::secsSinceEpochFor(int blockHeight) const
 {
+    assert(blockHeight > 0);
     // wrap this for convenience and also ensure that we never return an insanely old
     // date (1970) just because we lack blockheader data.
-    return std::max<uint32_t>(1250000000,
-            FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime);
+    try {
+        return std::max<uint32_t>(1250000000,
+                FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime);
+    } catch (const std::exception &e) {
+        // a blockheight we don't have.
+        assert(false); // for debug builds, please figure out if the caller can be improved
+        return 0;
+    }
 }
 
 QDate WalletHistoryModel::today() const

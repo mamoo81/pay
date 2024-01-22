@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ public:
         TxId = Qt::UserRole,
         NewTransaction, ///< Deprecated
         MinedHeight,  ///< int, height of block this tx was mined at.
-        MinedDate,    ///< A date-time object when the item was mined
+        TxDate,       ///< A date-time object when the item was created
         FundsIn,      ///< value (in sats) of the funds we own being spent
         FundsOut,     ///< value (in sats) of the outputs created we own
         WalletIndex,  ///< wallet-internal index for this transaction.
