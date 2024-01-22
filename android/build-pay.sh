@@ -156,4 +156,4 @@ HERE
     chmod 700 smartBuild.sh
 fi
 
-./smartBuild.sh noapk
+./smartBuild.sh
