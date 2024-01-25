@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     }, Qt::QueuedConnection);
     connect(wallet, SIGNAL(encryptionChanged()), this, SLOT(walletEncryptionChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(userOwnedChanged()), this, SIGNAL(userOwnedChanged()), Qt::QueuedConnection);
+    connect(wallet, SIGNAL(transactionConfirmed(int)), this, SIGNAL(balanceChanged()), Qt::QueuedConnection);
     connect(FloweePay::instance(), SIGNAL(headerChainHeightChanged()), this, SIGNAL(timeBehindChanged()));
 }
 
