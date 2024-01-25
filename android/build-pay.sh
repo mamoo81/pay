@@ -146,8 +146,7 @@ if test -f $floweePaySrcDir/android/netlog.conf; then
     cp $floweePaySrcDir/android/netlog.conf android-build/assets/
 fi
 
-\$execInDocker /usr/bin/ninja -C build pay_mobile pay_mobile_prepare_apk_dir
-
+\$execInDocker /usr/bin/ninja -C build pay_mobile pay_mobile_prepare_apk_dir && \
 if test "\$1" = "sign" -o "\$2" = "sign"; then
     \$execInDocker build/.sign
 fi
