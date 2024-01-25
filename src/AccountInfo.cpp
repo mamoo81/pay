@@ -33,8 +33,8 @@ AccountInfo::AccountInfo(Wallet *wallet, QObject *parent)
     : QObject(parent),
       m_wallet(wallet),
       m_config(m_wallet),
-      m_initialBlockHeight(wallet->segment()->lastBlockSynched()),
-      m_accountStartBlockHeight(wallet->segment()->firstBlock())
+      m_accountStartBlockHeight(wallet->segment()->firstBlock()),
+      m_initialBlockHeight(wallet->segment()->lastBlockSynched())
 {
     connect(wallet, SIGNAL(utxosChanged()), this, SIGNAL(utxosChanged()), Qt::QueuedConnection);
     connect(wallet, SIGNAL(balanceChanged()), this, SLOT(balanceHasChanged()), Qt::QueuedConnection);
