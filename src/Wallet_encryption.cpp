@@ -296,7 +296,7 @@ bool Wallet::decrypt(const QString &password)
         // the enabled flag is used purely for disabling network sync while the wallet is fully encrypted
         if (m_segment) m_segment->setEnabled(true);
     }
-    rebuildBloom();
+    rebuildBloom(ForceBuild);
     recalculateBalance();
     emit encryptionChanged();
     emit balanceChanged();
