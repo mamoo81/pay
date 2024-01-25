@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,11 +113,24 @@ Item {
                         time = "  (" + syncLabel.time + ")";
                     return qsTr("Sync Status") + ": " + height + " / " + Pay.chainHeight + time;
                 }
+                Connections {
+                    target: root.account;
+                    function onLastBlockSynchedChanged() {
+                        if (timeTimer.interval === 30000) {
+                            // if it just changed, fetch the new time shortly thereafter.
+                            // this makes us show the latest time much more often when doing a sync.
+                            timeTimer.stop();
+                            timeTimer.interval = 500;
+                            timeTimer.start();
+                        }
+                    }
+                }
                 Timer {
                     // the lastBlockSynchedTime does not change,
                     // but since we render it as '12 minutes ago'
                     // we need to actually re-interpret that
                     // ever so often to keep the relative time.
+                    id: timeTimer
                     running: !root.account.isArchived
                     interval: 30000 // 30 sec
                     repeat: true
@@ -125,6 +138,7 @@ Item {
                     onTriggered: {
                         syncLabel.time = Pay.formatDateTime(
                                     root.account.lastBlockSynchedTime);
+                        interval = 30000; // 30 sec
                     }
                 }
             }
