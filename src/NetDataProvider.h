@@ -88,6 +88,7 @@ private:
 class NetDataProvider : public QAbstractListModel, public P2PNetInterface
 {
     Q_OBJECT
+    Q_PROPERTY(int selectedId READ selectedId WRITE setSelectedId NOTIFY selectedIdChanged FINAL)
 public:
     explicit NetDataProvider(QObject *parent = nullptr);
 
@@ -115,6 +116,14 @@ public:
 
     Q_INVOKABLE QObject *createStats(QObject *parent) const;
     Q_INVOKABLE void pardonBanned();
+    Q_INVOKABLE void disconnectPeer(int connectionId);
+    Q_INVOKABLE void banPeer(int connectionId);
+
+    int selectedId() const;
+    void setSelectedId(int newSelectedId);
+
+signals:
+    void selectedIdChanged();
 
 private slots:
     void updatePeers();
@@ -129,6 +138,7 @@ private:
     };
 
     std::vector<PeerData> m_peers;
+    int m_selectedId = -1;
 
     // we use some polling to keep the data up-to-date
     QTimer m_refreshTimer;

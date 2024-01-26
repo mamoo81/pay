@@ -236,6 +236,16 @@ void NetDataProvider::pardonBanned()
     FloweePay::instance()->p2pNet()->connectionManager().peerAddressDb().pardonOldCrimes(0);
 }
 
+void NetDataProvider::disconnectPeer(int connectionId)
+{
+    FloweePay::instance()->p2pNet()->connectionManager().disconnect(connectionId);
+}
+
+void NetDataProvider::banPeer(int connectionId)
+{
+    FloweePay::instance()->p2pNet()->connectionManager().punish(connectionId, 1000);
+}
+
 void NetDataProvider::updatePeers()
 {
     /*
@@ -298,4 +308,18 @@ void NetDataProvider::updatePeers()
             endRemoveRows();
         }
     }
+}
+
+int NetDataProvider::selectedId() const
+{
+    return m_selectedId;
+}
+
+void NetDataProvider::setSelectedId(int newSelectedId)
+{
+    QMutexLocker<QRecursiveMutex> l(&m_peerMutex);
+    if (m_selectedId == newSelectedId)
+        return;
+    m_selectedId = newSelectedId;
+    emit selectedIdChanged();
 }

@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as QQC2;
 import QtQuick.Layouts
 import "../Flowee" as Flowee
 import Flowee.org.pay;
 
-ApplicationWindow {
+QQC2.ApplicationWindow {
     id: root
     visible: false
     minimumWidth: 200
@@ -37,7 +37,7 @@ ApplicationWindow {
         id: listView
         model: net
         clip: true
-        ScrollBar.vertical: ScrollBar { }
+        QQC2.ScrollBar.vertical: QQC2.ScrollBar { }
 
         anchors.fill: parent
         focus: true
@@ -51,6 +51,8 @@ ApplicationWindow {
         delegate: Rectangle {
             width: listView.width
             height: peerPane.height + 12
+            border.width: net.selectedId === model.connectionId ? 2 : 0
+            border.color: palette.highlight
             color: index % 2 === 0 ? palette.button : palette.base
             opacity: {
                 let validity = model.validity;
@@ -58,7 +60,7 @@ ApplicationWindow {
                     return 0.7;
                 return 1;
             }
-            Label {
+            QQC2.Label {
                 text: "(" + model.connectionId + ")"
                 anchors.right: parent.right
                 anchors.rightMargin: 10
@@ -71,24 +73,24 @@ ApplicationWindow {
                 x: 10
                 y: 6
 
-                Label {
+                QQC2.Label {
                     text: model.userAgent
                 }
-                Label {
+                QQC2.Label {
                     text: qsTr("Address", "network address (IP)") + ": " + model.address
                 }
                 RowLayout {
                     height: secondRow.height
                     spacing: 0
-                    Label {
+                    QQC2.Label {
                         id: secondRow
                         text: qsTr("Start-height: %1").arg(model.startHeight)
                     }
-                    Label {
+                    QQC2.Label {
                         text: ", " + qsTr("ban-score: %1").arg(model.banScore)
                     }
                 }
-                Label {
+                QQC2.Label {
                     id : accountStatus
                     font.bold: true
                     text: {
@@ -113,9 +115,30 @@ ApplicationWindow {
                         return "Internal Error";
                     }
                 }
-                Label {
+                QQC2.Label {
                     text: "Downloading!"
                     visible: model.isDownloading
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: (event)=> {
+                    // for mouse
+                    net.selectedId = model.connectionId;
+                    if (event.button === Qt.RightButton)
+                        peerContextMenu.popup(parent, event.x, event.y)
+                }
+            }
+            QQC2.Menu {
+                id: peerContextMenu
+                QQC2.MenuItem {
+                    text: qsTr("Disconnect Peer")
+                    onClicked: net.disconnectPeer(model.connectionId);
+                }
+                QQC2.MenuItem {
+                    text: qsTr("Ban Peer")
+                    onClicked: net.banPeer(model.connectionId);
                 }
             }
         }
@@ -128,7 +151,7 @@ ApplicationWindow {
         width: parent.width
         height: closeButton.height + 20
 
-        Button {
+        QQC2.Button {
             id: closeButton
             anchors.right: parent.right
             anchors.bottom: parent.bottom

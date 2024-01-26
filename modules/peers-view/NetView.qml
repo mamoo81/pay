@@ -52,6 +52,8 @@ Mobile.Page {
             width: listView.width
             height: peerPane.height + 12
             color: index % 2 === 0 ? palette.button : palette.base
+            border.width: net.selectedId === model.connectionId ? 2 : 0
+            border.color: palette.highlight
             opacity: {
                 let validity = model.validity;
                 if (validity === Wallet.Checking)
@@ -109,6 +111,32 @@ Mobile.Page {
                 Flowee.Label {
                     text: "Downloading!"
                     visible: model.isDownloading
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: (event)=> {
+                    // for mouse
+                    net.selectedId = model.connectionId;
+                    if (event.button === Qt.RightButton)
+                        peerContextMenu.popup(parent, event.x, event.y)
+                }
+                onPressAndHold: (event) => {
+                    // for touch
+                    net.selectedId = model.connectionId;
+                    peerContextMenu.popup(parent, event.x, event.y)
+                }
+            }
+            QQC2.Menu {
+                id: peerContextMenu
+                QQC2.MenuItem {
+                    text: qsTr("Disconnect Peer")
+                    onClicked: net.disconnectPeer(model.connectionId);
+                }
+                QQC2.MenuItem {
+                    text: qsTr("Ban Peer")
+                    onClicked: net.banPeer(model.connectionId);
                 }
             }
         }
