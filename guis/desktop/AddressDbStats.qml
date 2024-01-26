@@ -16,12 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 
-ApplicationWindow {
+QQC2.ApplicationWindow {
     id: root
     visible: false
     minimumWidth: 200
@@ -42,51 +41,68 @@ ApplicationWindow {
         x: 10
         y: 10
 
-        Label {
+        QQC2.Label {
             text: qsTr("Total found") + ":"
             Layout.alignment: Qt.AlignRight
         }
-        Label {
+        QQC2.Label {
             text: root.stats.count;
             Layout.fillWidth: true 
         }
-        Label {
+        QQC2.Label {
             text: qsTr("Tried") + ":"
             Layout.alignment: Qt.AlignRight
         }
-        Label {
+        QQC2.Label {
             text: root.stats.everConnected;
         }
-        Label {
+        QQC2.Label {
             text: qsTr("Punished count") + ":"
             Layout.alignment: Qt.AlignRight
         }
-        Label {
+        QQC2.Label {
             text: root.stats.partialBanned;
         }
-        Label {
+        QQC2.Label {
             text: qsTr("Banned count") + ":"
             Layout.alignment: Qt.AlignRight
         }
-        Label {
+        QQC2.Label {
             text: root.stats.banned;
         }
 
-        Label {
+        QQC2.Label {
             text: qsTr("IP-v4 count") + ":"
             Layout.alignment: Qt.AlignRight
         }
-        Label {
+        QQC2.Label {
             text: root.stats.count - root.stats.ipv6Addresses
             font.strikeout: root.stats.usesIPv4 === false
         }
-        Label {
+        QQC2.Label {
             text: qsTr("IP-v6 count") + ":"
             Layout.alignment: Qt.AlignRight
         }
-        Label {
+        QQC2.Label {
             text: root.stats.ipv6Addresses
             font.strikeout: root.stats.usesIPv6 === false
+        }
+
+        Flowee.Button {
+            Layout.columnSpan: 2
+            text: qsTr("Pardon the Banned")
+            onClicked: {
+                net.pardonBanned();
+                var newStats = net.createStats(root);
+                root.stats.count = newStats.count;
+                root.stats.everConnected = newStats.everConnected;
+                root.stats.partialBanned = newStats.partialBanned;
+                root.stats.banned = newStats.banned;
+                root.stats.ipv6Addresses = newStats.ipv6Addresses;
+                root.stats.usesIPv6 = newStats.usesIPv6;
+                root.stats.usesIPv4 = newStats.usesIPv4;
+                enabled = false;
+            }
         }
     }
 
@@ -94,7 +110,7 @@ ApplicationWindow {
         width: parent.width
         height: closeButton.height + 20
 
-        Button {
+        Flowee.Button {
             id: closeButton
             anchors.right: parent.right
             anchors.bottom: parent.bottom

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
+import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 import "../mobile" as Mobile
 
@@ -43,7 +44,7 @@ Mobile.Page {
             title: qsTr("Misbehaving IPs")
             width: parent.width
             Flowee.Label {
-                text: qsTr("Bad") + ": " + (root.stats.partialBanned - root.stats.banned);
+                text: qsTr("Bad") + ": " + root.stats.partialBanned;
             }
             Flowee.Label {
                 text: qsTr("Banned") + ": " + root.stats.banned;
@@ -60,6 +61,22 @@ Mobile.Page {
             Flowee.Label {
                 text: "IP-v6" + ": " + root.stats.ipv6Addresses
                 font.strikeout: root.stats.usesIPv6 === false
+            }
+        }
+
+        Flowee.Button {
+            text: qsTr("Pardon the Banned")
+            onClicked: {
+                net.pardonBanned();
+                var newStats = net.createStats(root);
+                root.stats.count = newStats.count;
+                root.stats.everConnected = newStats.everConnected;
+                root.stats.partialBanned = newStats.partialBanned;
+                root.stats.banned = newStats.banned;
+                root.stats.ipv6Addresses = newStats.ipv6Addresses;
+                root.stats.usesIPv6 = newStats.usesIPv6;
+                root.stats.usesIPv4 = newStats.usesIPv4;
+                enabled = false;
             }
         }
     }

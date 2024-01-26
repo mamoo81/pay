@@ -35,32 +35,54 @@ class QTimer;
 class BasicAddressStats : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int count READ count CONSTANT FINAL)
-    Q_PROPERTY(int banned READ banned CONSTANT FINAL)
-    Q_PROPERTY(int partialBanned READ partialBanned CONSTANT FINAL)
-    Q_PROPERTY(int ipv6Addresses READ ipv6Addresses CONSTANT FINAL)
-    Q_PROPERTY(int everConnected READ everConnected CONSTANT FINAL)
-    Q_PROPERTY(bool usesIPv4 READ usesIPv4 CONSTANT FINAL)
-    Q_PROPERTY(bool usesIPv6 READ usesIPv6 CONSTANT FINAL)
+    Q_PROPERTY(int count READ count WRITE setCount NOTIFY countChanged FINAL)
+    Q_PROPERTY(int banned READ banned WRITE setBanned NOTIFY bannedChanged FINAL)
+    Q_PROPERTY(int partialBanned READ partialBanned WRITE setPartialBanned NOTIFY partialBannedChanged FINAL)
+    Q_PROPERTY(int ipv6Addresses READ ipv6Addresses WRITE setIpv6Addresses NOTIFY ipv6AddressesChanged FINAL)
+    Q_PROPERTY(int everConnected READ everConnected WRITE setEverConnected NOTIFY everConnectedChanged FINAL)
+    Q_PROPERTY(bool usesIPv4 READ usesIPv4 WRITE setUsesIPv4 NOTIFY usesIPv4Changed FINAL)
+    Q_PROPERTY(bool usesIPv6 READ usesIPv6 WRITE setUsesIPv6 NOTIFY usesIPv6Changed FINAL)
 public:
     explicit BasicAddressStats(const AddressDBStats &stats, QObject *parent = nullptr);
 
     int count() const;
+    void setCount(int newCount);
+
     int banned() const;
+    void setBanned(int newBanned);
+
     int partialBanned() const;
+    void setPartialBanned(int newPartialBanned);
+
     int ipv6Addresses() const;
+    void setIpv6Addresses(int newIpv6Addresses);
+
     int everConnected() const;
+    void setEverConnected(int newEverConnected);
+
     bool usesIPv4() const;
+    void setUsesIPv4(bool newUsesIPv4);
+
     bool usesIPv6() const;
+    void setUsesIPv6(bool newUsesIPv6);
+
+signals:
+    void countChanged();
+    void bannedChanged();
+    void partialBannedChanged();
+    void ipv6AddressesChanged();
+    void everConnectedChanged();
+    void usesIPv4Changed();
+    void usesIPv6Changed();
 
 private:
-    const int m_count;
-    const int m_banned;
-    const int m_partialBanned;
-    const int m_ipv6Addresses;
-    const int m_everConnected;
-    const bool m_usesIPv4;
-    const bool m_usesIPv6;
+    int m_count;
+    int m_banned;
+    int m_partialBanned;
+    int m_ipv6Addresses;
+    int m_everConnected;
+    bool m_usesIPv4;
+    bool m_usesIPv6;
 };
 
 class NetDataProvider : public QAbstractListModel, public P2PNetInterface
@@ -92,6 +114,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE QObject *createStats(QObject *parent) const;
+    Q_INVOKABLE void pardonBanned();
 
 private slots:
     void updatePeers();

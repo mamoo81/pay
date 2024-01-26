@@ -41,9 +41,25 @@ int BasicAddressStats::count() const
     return m_count;
 }
 
+void BasicAddressStats::setCount(int newCount)
+{
+    if (m_count == newCount)
+        return;
+    m_count = newCount;
+    emit countChanged();
+}
+
 int BasicAddressStats::banned() const
 {
     return m_banned;
+}
+
+void BasicAddressStats::setBanned(int newBanned)
+{
+    if (m_banned == newBanned)
+        return;
+    m_banned = newBanned;
+    emit bannedChanged();
 }
 
 int BasicAddressStats::partialBanned() const
@@ -51,14 +67,25 @@ int BasicAddressStats::partialBanned() const
     return m_partialBanned;
 }
 
+void BasicAddressStats::setPartialBanned(int newPartialBanned)
+{
+    if (m_partialBanned == newPartialBanned)
+        return;
+    m_partialBanned = newPartialBanned;
+    emit partialBannedChanged();
+}
+
 int BasicAddressStats::ipv6Addresses() const
 {
     return m_ipv6Addresses;
 }
 
-int BasicAddressStats::everConnected() const
+void BasicAddressStats::setIpv6Addresses(int newIpv6Addresses)
 {
-    return m_everConnected;
+    if (m_ipv6Addresses == newIpv6Addresses)
+        return;
+    m_ipv6Addresses = newIpv6Addresses;
+    emit ipv6AddressesChanged();
 }
 
 bool BasicAddressStats::usesIPv4() const
@@ -66,9 +93,38 @@ bool BasicAddressStats::usesIPv4() const
     return m_usesIPv4;
 }
 
+void BasicAddressStats::setUsesIPv4(bool newUsesIPv4)
+{
+    if (m_usesIPv4 == newUsesIPv4)
+        return;
+    m_usesIPv4 = newUsesIPv4;
+    emit usesIPv4Changed();
+}
+
 bool BasicAddressStats::usesIPv6() const
 {
     return m_usesIPv6;
+}
+
+void BasicAddressStats::setUsesIPv6(bool newUsesIPv6)
+{
+    if (m_usesIPv6 == newUsesIPv6)
+        return;
+    m_usesIPv6 = newUsesIPv6;
+    emit usesIPv6Changed();
+}
+
+int BasicAddressStats::everConnected() const
+{
+    return m_everConnected;
+}
+
+void BasicAddressStats::setEverConnected(int newEverConnected)
+{
+    if (m_everConnected == newEverConnected)
+        return;
+    m_everConnected = newEverConnected;
+    emit everConnectedChanged();
 }
 
 
@@ -173,6 +229,11 @@ QObject *NetDataProvider::createStats(QObject *parent) const
     return new BasicAddressStats(
         FloweePay::instance()->p2pNet()->connectionManager().peerAddressDb().createStats(),
         parent);
+}
+
+void NetDataProvider::pardonBanned()
+{
+    FloweePay::instance()->p2pNet()->connectionManager().peerAddressDb().pardonOldCrimes(0);
 }
 
 void NetDataProvider::updatePeers()
