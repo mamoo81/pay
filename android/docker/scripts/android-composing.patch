@@ -1,0 +1,46 @@
+From f5be35240b561c84f8b2b5d85bfe922e1c7391eb Mon Sep 17 00:00:00 2001
+From: Andreas Buhr <andreas.buhr@qt.io>
+Date: Thu, 14 Oct 2021 05:20:23 +0200
+Subject: [PATCH 1/2] Android: Fix handling of cursor position when stop
+ composing
+
+---
+ .../android/qandroidinputcontext.cpp          | 22 +++++++++++++------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/src/plugins/platforms/android/qandroidinputcontext.cpp b/src/plugins/platforms/android/qandroidinputcontext.cpp
+index d2eb05c24d..6798ad585c 100644
+--- a/src/plugins/platforms/android/qandroidinputcontext.cpp
++++ b/src/plugins/platforms/android/qandroidinputcontext.cpp
+@@ -1144,13 +1144,21 @@ bool QAndroidInputContext::focusObjectStopComposing()
+ 
+     m_composingCursor = -1;
+ 
+-    // commit composing text and cursor position
+-    QList<QInputMethodEvent::Attribute> attributes;
+-    attributes.append(
+-        QInputMethodEvent::Attribute(QInputMethodEvent::Selection, localCursorPos, 0));
+-    QInputMethodEvent event(QString(), attributes);
+-    event.setCommitString(m_composingText);
+-    sendInputMethodEvent(&event);
++    {
++        // commit the composing test
++        QList<QInputMethodEvent::Attribute> attributes;
++        QInputMethodEvent event(QString(), attributes);
++        event.setCommitString(m_composingText);
++        sendInputMethodEvent(&event);
++    }
++    {
++        // Moving Qt's cursor to where the preedit cursor used to be
++        QList<QInputMethodEvent::Attribute> attributes;
++        attributes.append(
++                QInputMethodEvent::Attribute(QInputMethodEvent::Selection, localCursorPos, 0));
++        QInputMethodEvent event(QString(), attributes);
++        sendInputMethodEvent(&event);
++    }
+ 
+     return true;
+ }
+-- 
+2.43.0
+

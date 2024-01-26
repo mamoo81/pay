@@ -25,10 +25,13 @@ function checkout (
 )
 
 # The QtBase builds are different.
-checkout qtbase
+TAG=6.5 checkout qtbase
 cd ~builduser
 curl 'https://code.qt.io/cgit/qt/qtbase.git/patch/?id=8af35d27' > libxkbcommon-1.6.patch
 patch -d qtbase -p1 < libxkbcommon-1.6.patch # Fix build with libxkbcommon 1.6
+patch -d qtbase -p1 < /usr/local/bin/android-composing.patch
+patch -d qtbase -p1 < /usr/local/bin/android-deployqt.patch
+
 mkdir -p ~builduser/build/qtbase
 cd ~builduser/build/qtbase
 ~builduser/qtbase/configure \

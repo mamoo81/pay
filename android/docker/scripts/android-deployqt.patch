@@ -1,0 +1,170 @@
+From 1b92ca6a08e69cd9a9870487ff548edc0193e789 Mon Sep 17 00:00:00 2001
+From: Alexey Edelev <alexey.edelev@qt.io>
+Date: Wed, 3 Jan 2024 13:16:41 +0100
+Subject: [PATCH 2/2] Add the support of the qt_import_plugins functionality to
+ androiddeployqt
+
+qt_import_plugins allows to control application deployment on
+non-Android platforms. This adds support for the pre-defined plugin list
+that is computed using the qt_import_plugins input.
+
+Task-number: QTBUG-118829
+Change-Id: Iaa9c3f600533a4b5a3079ab228fabf212d9ce5a5
+Reviewed-by: Assam Boudjelthia <assam.boudjelthia@qt.io>
+---
+ cmake/QtAndroidHelpers.cmake       |  3 +-
+ src/corelib/Qt6AndroidMacros.cmake |  6 ++-
+ src/tools/androiddeployqt/main.cpp | 70 ++++++++++++++++++++----------
+ 3 files changed, 55 insertions(+), 24 deletions(-)
+
+diff --git a/cmake/QtAndroidHelpers.cmake b/cmake/QtAndroidHelpers.cmake
+index 857a029991..ba72e21e84 100644
+--- a/cmake/QtAndroidHelpers.cmake
++++ b/cmake/QtAndroidHelpers.cmake
+@@ -252,7 +252,8 @@ function(qt_internal_android_dependencies target)
+     # Module plugins
+     if(module_plugin_types)
+         foreach(plugin IN LISTS module_plugin_types)
+-            string(APPEND file_contents "<bundled file=\"${INSTALL_PLUGINSDIR}/${plugin}\" />\n")
++            string(APPEND file_contents
++                "<bundled file=\"${INSTALL_PLUGINSDIR}/${plugin}\" type=\"plugin_dir\"/>\n")
+         endforeach()
+     endif()
+ 
+diff --git a/src/corelib/Qt6AndroidMacros.cmake b/src/corelib/Qt6AndroidMacros.cmake
+index 9a44308a0f..0a270b96bb 100644
+--- a/src/corelib/Qt6AndroidMacros.cmake
++++ b/src/corelib/Qt6AndroidMacros.cmake
+@@ -236,6 +236,10 @@ function(qt6_android_generate_deployment_settings target)
+     _qt_internal_add_android_deployment_property(file_contents "android-no-deploy-qt-libs"
+         ${target} "QT_ANDROID_NO_DEPLOY_QT_LIBS")
+ 
++    __qt_internal_collect_plugin_targets_from_dependencies("${target}" plugin_targets)
++    __qt_internal_collect_plugin_library_files("${target}" "${plugin_targets}" plugin_targets)
++    string(APPEND file_contents "   \"android-deploy-plugins\":\"${plugin_targets}\",\n")
++
+     # App binary
+     string(APPEND file_contents
+         "   \"application-binary\": \"${target_output_name}\",\n")
+@@ -303,7 +307,7 @@ function(qt6_android_generate_deployment_settings target)
+     # content end
+     string(APPEND file_contents "}\n")
+ 
+-    file(GENERATE OUTPUT ${deploy_file} CONTENT ${file_contents})
++    file(GENERATE OUTPUT ${deploy_file} CONTENT "${file_contents}")
+ 
+     set_target_properties(${target}
+         PROPERTIES
+diff --git a/src/tools/androiddeployqt/main.cpp b/src/tools/androiddeployqt/main.cpp
+index ec33fd354b..f3581de0e6 100644
+--- a/src/tools/androiddeployqt/main.cpp
++++ b/src/tools/androiddeployqt/main.cpp
+@@ -144,6 +144,7 @@ struct Options
+     QString qtQmlDirectory;
+     QString qtHostDirectory;
+     std::vector<QString> extraPrefixDirs;
++    QStringList androidDeployPlugins;
+     // Unlike 'extraPrefixDirs', the 'extraLibraryDirs' key doesn't expect the 'lib' subfolder
+     // when looking for dependencies.
+     std::vector<QString> extraLibraryDirs;
+@@ -1011,6 +1012,11 @@ bool readInputFile(Options *options)
+         }
+     }
+ 
++    {
++        const auto androidDeployPlugins = jsonObject.value("android-deploy-plugins"_L1).toString();
++        options->androidDeployPlugins = androidDeployPlugins.split(";"_L1, Qt::SkipEmptyParts);
++    }
++
+     {
+         const auto extraLibraryDirs = jsonObject.value("extraLibraryDirs"_L1).toArray();
+         options->extraLibraryDirs.reserve(extraLibraryDirs.size());
+@@ -1883,6 +1889,32 @@ QList<QtDependency> findFilesRecursively(const Options &options, const QString &
+     return deps;
+ }
+ 
++void readDependenciesFromFiles(Options *options, const QList<QtDependency> &files,
++                               QSet<QString> &usedDependencies,
++                               QSet<QString> &remainingDependencies)
++{
++    for (const QtDependency &fileName : files) {
++        if (usedDependencies.contains(fileName.absolutePath))
++            continue;
++
++        if (fileName.absolutePath.endsWith(".so"_L1)) {
++            if (!readDependenciesFromElf(options, fileName.absolutePath, &usedDependencies,
++                                         &remainingDependencies)) {
++                fprintf(stdout, "Skipping file dependency: %s\n",
++                        qPrintable(fileName.relativePath));
++                continue;
++            }
++        }
++        usedDependencies.insert(fileName.absolutePath);
++
++        if (options->verbose) {
++            fprintf(stdout, "Appending file dependency: %s\n", qPrintable(fileName.relativePath));
++        }
++
++        options->qtDependencies[options->currentArchitecture].append(fileName);
++    }
++}
++
+ bool readAndroidDependencyXml(Options *options,
+                               const QString &moduleName,
+                               QSet<QString> *usedDependencies,
+@@ -1913,29 +1945,15 @@ bool readAndroidDependencyXml(Options *options,
+ 
+                     QString file = reader.attributes().value("file"_L1).toString();
+ 
+-                    const QList<QtDependency> fileNames = findFilesRecursively(*options, file);
+-
+-                    for (const QtDependency &fileName : fileNames) {
+-                        if (usedDependencies->contains(fileName.absolutePath))
+-                            continue;
+-
+-                        if (fileName.absolutePath.endsWith(".so"_L1)) {
+-                            QSet<QString> remainingDependencies;
+-                            if (!readDependenciesFromElf(options, fileName.absolutePath,
+-                                                         usedDependencies,
+-                                                         &remainingDependencies)) {
+-                                fprintf(stdout, "Skipping dependencies from xml: %s\n",
+-                                        qPrintable(fileName.relativePath));
+-                                continue;
+-                            }
+-                        }
+-                        usedDependencies->insert(fileName.absolutePath);
+-
+-                        if (options->verbose)
+-                            fprintf(stdout, "Appending dependency from xml: %s\n", qPrintable(fileName.relativePath));
+-
+-                        options->qtDependencies[options->currentArchitecture].append(fileName);
++                    if (reader.attributes().hasAttribute("type"_L1)
++                        && reader.attributes().value("type"_L1) == "plugin_dir"_L1
++                        && !options->androidDeployPlugins.isEmpty()) {
++                        continue;
+                     }
++
++                    const QList<QtDependency> fileNames = findFilesRecursively(*options, file);
++                    readDependenciesFromFiles(options, fileNames, *usedDependencies,
++                                              *remainingDependencies);
+                 } else if (reader.name() == "jar"_L1) {
+                     int bundling = reader.attributes().value("bundling"_L1).toInt();
+                     QString fileName = QDir::cleanPath(reader.attributes().value("file"_L1).toString());
+@@ -2412,6 +2430,14 @@ bool readDependencies(Options *options)
+     if (!readDependenciesFromElf(options, "%1/libs/%2/lib%3_%2.so"_L1.arg(options->outputDirectory, options->currentArchitecture, options->applicationBinary), &usedDependencies, &remainingDependencies))
+         return false;
+ 
++    QList<QtDependency> pluginDeps;
++    for (const auto &pluginPath : options->androidDeployPlugins) {
++        pluginDeps.append(findFilesRecursively(*options, QFileInfo(pluginPath),
++                                               options->qtInstallDirectory + "/"_L1));
++    }
++
++    readDependenciesFromFiles(options, pluginDeps, usedDependencies, remainingDependencies);
++
+     while (!remainingDependencies.isEmpty()) {
+         QSet<QString>::iterator start = remainingDependencies.begin();
+         QString fileName = absoluteFilePath(options, *start);
+-- 
+2.43.0
+
