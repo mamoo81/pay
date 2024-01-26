@@ -87,7 +87,7 @@ void NetDataProvider::startTimer()
     m_refreshTimer.start();
 }
 
-void NetDataProvider::newPeer(const std::shared_ptr<Peer> &peer)
+void NetDataProvider::newConnection(const std::shared_ptr<Peer> &peer)
 {
     QMutexLocker<QRecursiveMutex> l(&m_peerMutex);
     beginInsertRows(QModelIndex(), m_peers.size(), m_peers.size());
@@ -196,7 +196,9 @@ void NetDataProvider::updatePeers()
             bool changed = false;
 
             WalletEnums::PeerValidity valid = WalletEnums::UnknownValidity;
-            if (peer->requestedHeader())
+            if (peer->status() == Peer::Connecting)
+                valid = WalletEnums::OpeningConnection;
+            else if (peer->requestedHeader())
                 valid = peer->receivedHeaders() ? WalletEnums::CheckedOk : WalletEnums::Checking;
             else
                 valid = WalletEnums::KnownGood;

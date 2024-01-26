@@ -88,6 +88,8 @@ Mobile.Page {
                         var id = model.segment;
                         if (id === 0) {
                             let validity = model.validity;
+                            if (validity === Wallet.OpeningConnection)
+                                return qsTr("Opening Connection");
                             if (validity === Wallet.Checking)
                                 return qsTr("Validating peer");
                             if (validity === Wallet.CheckedOk)

@@ -73,6 +73,7 @@ public:
 
     enum PeerValidity {
         UnknownValidity,
+        OpeningConnection,
         KnownGood,
         Checking,
         CheckedOk

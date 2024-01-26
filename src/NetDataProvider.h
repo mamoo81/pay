@@ -73,7 +73,7 @@ public:
     void startTimer();
 
     // P2PNetInterface interface
-    void newPeer(const std::shared_ptr<Peer> &peer) override;
+    void newConnection(const std::shared_ptr<Peer> &peer) override;
 
     enum {
         ConnectionId = Qt::UserRole,

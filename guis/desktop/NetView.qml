@@ -95,6 +95,8 @@ ApplicationWindow {
                         var id = model.segment;
                         if (id === 0) {
                             let validity = model.validity;
+                            if (validity === Wallet.OpeningConnection)
+                                return "Opening Connection";
                             if (validity === Wallet.Checking)
                                 return "Validating peer";
                             if (validity === Wallet.CheckedOk)
