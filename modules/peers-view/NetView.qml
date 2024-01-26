@@ -24,7 +24,7 @@ import Flowee.org.pay;
 
 Mobile.Page {
     id: root
-    headerText: qsTr("Peers")
+    headerText: qsTr("Peers") + " (" + listView.count +")";
 
     property QtObject statsAction : QQC2.Action {
         text: qsTr("Statistics")
