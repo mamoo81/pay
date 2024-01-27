@@ -264,6 +264,14 @@ if (ANDROID AND build_mobile_pay)
     endif()
 
     qt6_add_executable(pay_mobile ${SOURCES_PAY_MOBILE})
+    qt_import_plugins(pay_mobile
+        EXCLUDE_BY_TYPE
+            imageformats
+            qmltooling
+            networkinformation
+        INCLUDE
+            Qt::QSvgPlugin
+    )
 
     target_link_libraries(pay_mobile PRIVATE pay_lib Qt6::Svg Qt6::Multimedia ${PAY_MOBILE_LIBS})
     set_target_properties(pay_mobile PROPERTIES
