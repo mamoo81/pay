@@ -21,6 +21,7 @@
         <file>Flowee/CloseIcon.qml</file>
         <file>Flowee/GroupBox.qml</file>
         <file>Flowee/LabelWithClipboard.qml</file>
+        <file>Flowee/AddressLabel.qml</file>
         <file>Flowee/ListViewKeyHandler.qml</file>
         <file>Flowee/MultilineTextField.qml</file>
         <file>Flowee/RadioButton.qml</file>

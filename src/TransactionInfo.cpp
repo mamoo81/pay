@@ -71,6 +71,24 @@ QList<QObject *> TransactionInfo::inputs() const
     return answer;
 }
 
+QList<QObject *> TransactionInfo::knownOutputs() const
+{
+    QList<QObject *> answer;
+    for (auto o : m_outputs) {
+        if (o) answer.append(o);
+    }
+    return answer;
+}
+
+QList<QObject *> TransactionInfo::knownInputs() const
+{
+    QList<QObject *> answer;
+    for (auto i : m_inputs) {
+        if (i) answer.append(i);
+    }
+    return answer;
+}
+
 const QString &TransactionInfo::userComment() const
 {
     return m_userComment;

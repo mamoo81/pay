@@ -98,6 +98,8 @@ class TransactionInfo : public QObject
     Q_PROPERTY(double fees READ fees CONSTANT)
     Q_PROPERTY(QList<QObject*> inputs READ inputs CONSTANT)
     Q_PROPERTY(QList<QObject*> outputs READ outputs CONSTANT)
+    Q_PROPERTY(QList<QObject*> knownInputs READ knownInputs CONSTANT)
+    Q_PROPERTY(QList<QObject*> knownOutputs READ knownOutputs CONSTANT)
     Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY commentChanged)
     /**
      * The recipient of the transaction. Typically just an address.
@@ -115,6 +117,8 @@ public:
     double fees() const;
     QList<QObject *> outputs() const;
     QList<QObject *> inputs() const;
+    QList<QObject *> knownOutputs() const;
+    QList<QObject *> knownInputs() const;
     const QString &userComment() const;
     void setUserComment(const QString &comment);
     bool isCoinbase() const;

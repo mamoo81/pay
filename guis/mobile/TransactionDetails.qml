@@ -189,7 +189,7 @@ Page {
                      * no details about which address or anything else these funds come from if we didn't
                      * create the Tx. So just don't show anything.
                      */
-                    model: parent.visible ? infoObject.inputs : 0
+                    model: parent.visible ? infoObject.knownInputs : 0
                     delegate: Item {
                         Layout.alignment: Qt.AlignRight
                         width: content.width
@@ -200,32 +200,12 @@ Page {
                                 return inAddress.height + 10;
                             return inAddress.height + amount.height + 16;
                         }
-                        Rectangle {
-                            color: Pay.useDarkSkin ? "#4fb2e7" : "yellow"
-                            visible: inAddress.visible
-                            x: inAddress.x - 3
-                            y: inAddress.y -3
-                            height: inAddress.height + 6
-                            width: Math.min(inAddress.width, inAddress.contentWidth) + 6
-                            radius: height / 3
-                            opacity: 0.2
-                        }
-                        Flowee.LabelWithClipboard {
+                        Flowee.AddressLabel {
                             id: inAddress
-                            menuText: qsTr("Copy Address")
-                            text: {
-                                if (modelData === null)
-                                    return "";
-                                var cloaked = modelData.cloakedAddress
-                                if (cloaked !== "")
-                                    return cloaked;
-                                return modelData.address;
-                            }
-                            width: parent.width
-                            clipboardText: modelData === null ? "" : modelData.address
-                            visible: modelData !== null
-                            font.pixelSize: root.font.pixelSize * 0.9
+                            txInfo: modelData
+                            width: Math.min(implicitWidth, parent.width)
                         }
+
                         Flowee.BitcoinAmountLabel {
                             id: amount
                             visible: modelData !== null
@@ -250,51 +230,29 @@ Page {
                         return qsTr("Received at addresses");
                     return qsTr("Received at my addresses");
                 }
+
                 Repeater {
-                    model: root.infoObject == null ? 0 : infoObject.outputs
+                    model: root.infoObject == null ? 0 : infoObject.knownOutputs
                     delegate: Item {
                         Layout.alignment: Qt.AlignRight
                         width: content.width
                         height: {
-                            if (modelData === null)
-                                return 0;
                             if (outAddress.implicitWidth + 10 + outAmount.implicitWidth < width)
                                 return outAmount.height + 10;
                             return outAddress.height + outAmount.height + 16;
                         }
-                        Rectangle {
-                            color: Pay.useDarkSkin ? "#4fb2e7" : "yellow"
-                            visible: modelData !== null && modelData.forMe
-                            x: outAddress.x - 3
-                            y: outAddress.y -3
-                            height: outAddress.height + 6
-                            width: Math.min(outAddress.width, outAddress.contentWidth) + 6
-                            radius: height / 3
-                            opacity: 0.2
-                        }
-                        Flowee.LabelWithClipboard {
+                        Flowee.AddressLabel {
                             id: outAddress
-                            visible: modelData !== null
-                            elide: Text.ElideMiddle
-                            menuText: qsTr("Copy Address")
-                            text: {
-                                if (modelData === null)
-                                    return "";
-                                var cloaked = modelData.cloakedAddress
-                                if (cloaked !== "")
-                                    return cloaked;
-                                return modelData.address;
-                            }
-                            clipboardText: modelData === null ? "" : modelData.address
-                            width: parent.width
-                            font.pixelSize: root.font.pixelSize * 0.9
+                            txInfo: modelData
+                            highlight: modelData.forMe
+                            width: Math.min(implicitWidth, parent.width)
                         }
+
                         Flowee.BitcoinAmountLabel {
                             id: outAmount
-                            visible: modelData !== null
-                            value: modelData === null ? 0 : modelData.value
+                            value: modelData.value
                             fiatTimestamp: root.transaction.date
-                            colorize: modelData !== null && modelData.forMe
+                            colorize: modelData.forMe
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
                             anchors.bottomMargin: 10
