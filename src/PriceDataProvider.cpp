@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -211,7 +211,8 @@ QString PriceDataProvider::priceToStringSimple(int64_t cents) const
 
 void PriceDataProvider::fetch()
 {
-    assert(m_reply == nullptr);
+    if (m_reply)
+        return;
     if (m_yadioViaUSD && m_currencyConversions.isEmpty()) {
         m_reply = m_network.get(QNetworkRequest(QUrl(YadioURL)));
         logInfo() << "fetching yadio.io USD-conversions";
