@@ -56,9 +56,9 @@ Mobile.Page {
             border.color: palette.highlight
             opacity: {
                 let validity = model.validity;
-                if (validity === Wallet.Checking)
-                    return 0.7;
-                return 1;
+                if (validity === Wallet.CheckedOk || validity === Wallet.KnownGood)
+                    return 1;
+                return 0.7;
             }
             ColumnLayout {
                 id: peerPane
