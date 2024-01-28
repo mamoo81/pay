@@ -47,6 +47,10 @@ Mobile.Page {
                 event.accepted = true
             }
         }
+        // make removals animated to avoid the list looking 'shokking'
+        removeDisplaced: Transition {
+            NumberAnimation { properties: "y"; duration: 300; easing.type: Easing.InQuad }
+        }
 
         delegate: Rectangle {
             width: listView.width
@@ -67,7 +71,12 @@ Mobile.Page {
                 y: 6
 
                 Flowee.Label {
-                    text: model.userAgent
+                    text: {
+                        var t = model.userAgent;
+                        if (t === "")
+                            t = model.connectionId
+                        return t;
+                    }
                 }
                 Flowee.Label {
                     text: qsTr("Address", "network address (IP)") + ": " + model.address
