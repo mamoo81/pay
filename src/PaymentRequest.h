@@ -21,8 +21,9 @@
 #include <QObject>
 #include <primitives/PublicKey.h>
 
+#include "WalletKeyView.h"
+
 class AccountInfo;
-class WalletKeyView;
 
 /**
  * This is a user-created request for payment to a specific wallet/address.
@@ -63,6 +64,7 @@ public:
     Q_ENUM(FailReason)
 
     PaymentRequest(QObject *parent = nullptr);
+    ~PaymentRequest();
 
     QString message() const;
     void setMessage(const QString &message);

@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef WALLET_KEY_VIEW_H
+#define WALLET_KEY_VIEW_H
 #include <QObject>
 
 class Wallet;
@@ -26,7 +28,7 @@ class Wallet;
  * private key, which has to be owned by the wallet.
  *
  * The Wallet::reserveUnusedAddress() method returns a
- * privagte key-index, you can set that with setPrivKeyIndex()
+ * private key-index, you can set that with setPrivKeyIndex()
  * to activate this class.
  *
  * While a wallet is importing (see walletIsImporting()) all
@@ -38,11 +40,12 @@ class WalletKeyView : public QObject
 {
     Q_OBJECT
 public:
-    WalletKeyView(Wallet *wallet, QObject *parent);
+    explicit WalletKeyView(Wallet *wallet);
 
     // set which private key of the viewed wallet we are filtering on.
     void setPrivKeyIndex(int privKeyId);
 
+    /// !see importFinished()
     bool walletIsImporting() const;
 
     enum UTXOState {
@@ -59,6 +62,8 @@ public:
 
     QList<Transaction> transactions() const;
 
+    Wallet *wallet() const;
+
 signals:
     void transactionMatch(uint64_t ref, uint64_t amount, UTXOState state);
     void walletEncrypted();
@@ -71,7 +76,7 @@ private slots:
     void lastBlockSynchedChanged();
 
 private:
-    const Wallet * const m_wallet;
+    Wallet * const m_wallet;
     // set at startup to true if the wallet is in the (once in its lifetime) importing
     // stage. If true, all deposits are historical!
     bool m_walletIsImporting;
@@ -79,3 +84,5 @@ private:
 
     QList<Transaction> m_transactions;
 };
+
+#endif

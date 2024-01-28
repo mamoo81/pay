@@ -21,9 +21,8 @@
 
 #include <QThread>
 
-WalletKeyView::WalletKeyView(Wallet *wallet, QObject *parent)
-    : QObject(parent),
-      m_wallet(wallet)
+WalletKeyView::WalletKeyView(Wallet *wallet)
+    : m_wallet(wallet)
 {
     assert(wallet);
     m_walletIsImporting = wallet->walletIsImporting();
@@ -44,6 +43,11 @@ WalletKeyView::WalletKeyView(Wallet *wallet, QObject *parent)
 void WalletKeyView::setPrivKeyIndex(int privKeyIndex)
 {
     m_privKeyIndex = privKeyIndex;
+}
+
+bool WalletKeyView::walletIsImporting() const
+{
+    return m_walletIsImporting;
 }
 
 void WalletKeyView::appendedTransactions(const int firstNew, const int count)
@@ -91,6 +95,11 @@ void WalletKeyView::lastBlockSynchedChanged()
         m_walletIsImporting = false;
         emit importFinished();
     }
+}
+
+Wallet *WalletKeyView::wallet() const
+{
+    return m_wallet;
 }
 
 QList<WalletKeyView::Transaction> WalletKeyView::transactions() const

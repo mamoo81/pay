@@ -30,26 +30,34 @@
 PaymentRequest::PaymentRequest(QObject *parent)
     : QObject(parent)
 {
-    connect (this, &PaymentRequest::paymentStateChanged, this, [=]() {
-        if (m_paymentState == PaymentSeen) {
-            // unconfirmed fully paid, but lets see in a couple of seconds...
-            QTimer::singleShot(FloweePay::instance()->dspTimeout(), this, [=]() {
-                // A DSP can change the status, if its still unchanged then we
-                // can safely move to the 'Ok' state.
-                if (m_paymentState == PaymentSeen)
-                    setPaymentState(PaymentSeenOk);
-            });
-        }
-    }, Qt::QueuedConnection);
+}
+
+PaymentRequest::~PaymentRequest()
+{
+    delete m_view;
+    m_view = nullptr;
 }
 
 void PaymentRequest::setPaymentState(PaymentState newState)
 {
     if (newState == m_paymentState)
         return;
-
     m_paymentState = newState;
     emit paymentStateChanged();
+
+    if (m_paymentState == PaymentSeen) {
+#if 1
+        setPaymentState(PaymentSeenOk);
+#else
+        // unconfirmed fully paid, but lets see in a couple of seconds...
+        QTimer::singleShot(FloweePay::instance()->dspTimeout(), this, [=]() {
+            // A DSP can change the status, if its still unchanged then we
+            // can safely move to the 'Ok' state.
+            if (m_paymentState == PaymentSeen)
+                setPaymentState(PaymentSeenOk);
+        });
+#endif
+    }
 }
 
 void PaymentRequest::updateFailReason()
@@ -110,21 +118,26 @@ void PaymentRequest::setAccount(QObject *account)
 {
     if (account == m_account)
         return;
-    if (m_view && !m_view->transactions().isEmpty())
-        throw std::runtime_error("Not allowed to change wallet on partially fulfilled request");
+    if (m_view) {
+        if (!m_view->transactions().isEmpty())  {
+            // Not allowed to change wallet on partially fulfilled request !!
+            assert(false); // make debug build fail.
+            return; // release just ignores.
+        }
+        m_view->deleteLater();
+        m_view = nullptr;
+    }
 
     if (m_account && m_privKeyId != -1 && m_paymentState == Unpaid)
         m_account->wallet()->unreserveAddress(m_privKeyId);
 
-    delete m_view;
-    m_view = nullptr;
     m_account = qobject_cast<AccountInfo*>(account);
     m_privKeyId = -1;
     m_address = KeyId();
     m_amountSeen = 0;
     if (m_account) {
         assert(QThread::currentThread() == thread());
-        m_view = new WalletKeyView(m_account->wallet(), this);
+        m_view = new WalletKeyView(m_account->wallet());
         connect (m_view, &WalletKeyView::walletEncrypted, this, [=]() {
             assert(QThread::currentThread() == thread());
             updateFailReason();
@@ -137,7 +150,9 @@ void PaymentRequest::setAccount(QObject *account)
         connect (m_view, &WalletKeyView::transactionMatch, this, [=]() {
             assert(QThread::currentThread() == thread());
             int64_t seen = 0;
-            for (const auto &tx : m_view->transactions()) {
+            auto view = qobject_cast<WalletKeyView*>(sender());
+            assert(view);
+            for (const auto &tx : view->transactions()) {
                 if (tx.state != WalletKeyView::UTXORejected) {
                     seen += tx.amount;
                 }
@@ -145,7 +160,7 @@ void PaymentRequest::setAccount(QObject *account)
                 // for paying transactions.
                 if (!m_message.isEmpty()) {
                     Wallet::OutputRef ref(tx.ref);
-                    m_account->wallet()->setTransactionComment(ref.txIndex(), m_message);
+                    view->wallet()->setTransactionComment(ref.txIndex(), m_message);
                 }
             }
 
@@ -279,9 +294,9 @@ void PaymentRequest::clear()
     emit amountChanged();
     m_amountSeen = 0;
     setPaymentState(Unpaid);
-    delete m_view;
+    if (m_view)
+        m_view->deleteLater();
     m_view = nullptr;
     setAccount(nullptr);
-    assert(m_view == nullptr); // ensure we didn't get a new one
     m_privKeyId = -1;
 }
