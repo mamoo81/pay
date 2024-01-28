@@ -233,7 +233,7 @@ QObject *NetDataProvider::createStats(QObject *parent) const
 
 void NetDataProvider::pardonBanned()
 {
-    FloweePay::instance()->p2pNet()->connectionManager().peerAddressDb().pardonOldCrimes(0);
+    FloweePay::instance()->p2pNet()->connectionManager().peerAddressDb().resetAllStats();
 }
 
 void NetDataProvider::disconnectPeer(int connectionId)
@@ -261,52 +261,55 @@ void NetDataProvider::updatePeers()
     int index = 0;
     auto iter = m_peers.begin();
     while (iter != m_peers.end()) {
-        try {
-            std::shared_ptr<Peer> peer(iter->peer);
-
-            bool changed = false;
-
-            WalletEnums::PeerValidity valid = WalletEnums::UnknownValidity;
-            if (peer->status() == Peer::Connecting)
-                valid = WalletEnums::OpeningConnection;
-            else if (peer->requestedHeader())
-                valid = peer->receivedHeaders() ? WalletEnums::CheckedOk : WalletEnums::Checking;
-            else
-                valid = WalletEnums::KnownGood;
-            if (valid != iter->valid) {
-                iter->valid = valid;
-                changed = true;
-            }
-
-            const bool isDownloading = peer->merkleDownloadInProgress();
-            if (iter->isDownloading != isDownloading) {
-                iter->isDownloading = isDownloading;
-                changed = true;
-            }
-
-            if (iter->segment == 0) {
-                auto segment = peer->privacySegment();
-                if (segment) {
-                    iter->segment = segment->segmentId();
-                    changed = true;
-                }
-            }
-
-            if (changed) {
-                // to change a row, we delete and re-insert it.
-                beginRemoveRows(QModelIndex(), index, index);
-                endRemoveRows();
-                beginInsertRows(QModelIndex(), index, index);
-                endInsertRows();
-            }
-            ++index;
-            ++iter;
-        } catch (const std::exception &e) {
+        auto peer = iter->peer.lock();
+        if (peer.get() == nullptr) {
             // the peer has been deleted.
             beginRemoveRows(QModelIndex(), index, index);
             iter = m_peers.erase(iter);
             endRemoveRows();
+            continue;
         }
+        bool changed = false;
+
+        WalletEnums::PeerValidity valid = WalletEnums::OpeningConnection;
+        bool isDownloading = false;
+        if (peer->status() == Peer::Connected) {
+            const auto address = peer->peerAddress();
+            if (address.hasEverConnected()) {
+                // p2p level handshake some time in the past successeded
+                valid = WalletEnums::KnownGood;
+            }
+            if (peer->requestedHeader())
+                valid = peer->receivedHeaders() ? WalletEnums::CheckedOk : WalletEnums::Checking;
+            isDownloading = peer->merkleDownloadInProgress();
+        }
+        if (valid != iter->valid) {
+            iter->valid = valid;
+            changed = true;
+        }
+
+        if (iter->isDownloading != isDownloading) {
+            iter->isDownloading = isDownloading;
+            changed = true;
+        }
+
+        if (peer->status() == Peer::Connected && iter->segment == 0) {
+            auto segment = peer->privacySegment();
+            if (segment) {
+                iter->segment = segment->segmentId();
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            // to change a row, we delete and re-insert it.
+            beginRemoveRows(QModelIndex(), index, index);
+            endRemoveRows();
+            beginInsertRows(QModelIndex(), index, index);
+            endInsertRows();
+        }
+        ++index;
+        ++iter;
     }
 }
 
