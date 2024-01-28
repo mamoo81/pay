@@ -121,6 +121,7 @@ public:
     bool isFused() const;
     bool createdByUs() const;
 
+    /// The 'receiver' address of this transaction.
     QString receiver() const;
 
     /**

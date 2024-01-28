@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,21 +103,18 @@ bool TransactionInfo::createdByUs() const
 
 QString TransactionInfo::receiver() const
 {
-    if (!m_createdByUs) // the receiver, is us!
-        return QString();
+    QString answer;
     /*
-     * We iterate over the outputs and reject all outputs that we own.
+     * We iterate over the outputs and reject all outputs that make no sense.
      * If exactly one is left we have a 'receiver'.
      */
-    QString answer;
     for (auto out : m_outputs) {
-        if (!out->forMe()) {
+        if (out && out->forMe() != m_createdByUs) {
             if (answer.isEmpty())
                 answer = out->address();
             else
                 return QString(); // more than one address
         }
-
     }
     return answer;
 }
