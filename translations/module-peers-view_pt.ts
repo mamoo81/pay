@@ -12,12 +12,12 @@
       <location filename="../modules/peers-view/NetView.qml" line="55"/>
       <source>Address</source>
       <comment>network address (IP)</comment>
-      <translation type="unfinished">Address</translation>
+      <translation>Endereço</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="61"/>
       <source>Start-height: %1</source>
-      <translation type="unfinished">Start-height: %1</translation>
+      <translation>%1 Bloco inicial</translation>
     </message>
     <message>
       <location filename="../modules/peers-view/NetView.qml" line="64"/>
