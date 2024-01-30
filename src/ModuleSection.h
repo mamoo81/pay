@@ -35,6 +35,7 @@ class ModuleSection : public QObject
     Q_PROPERTY(QString qml READ startQMLFile CONSTANT)
     Q_PROPERTY(bool isSendMethod READ isSendMethod CONSTANT)
     Q_PROPERTY(bool isMainMenuMethod READ isMainMenuMethod CONSTANT)
+    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
 public:
     /// The placement in the main app of this section.
     enum SectionType {
@@ -94,7 +95,6 @@ private:
     bool m_enabled = true;
 
     QStringList m_requiredModules;
-    Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
 };
 
 #endif
