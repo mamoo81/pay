@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2023-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -163,6 +163,12 @@ void ModuleManager::load()
 
 void ModuleManager::save() const
 {
+    if (m_modules.isEmpty()) {
+        // be nice to the devs that use both mobile and non-mobile on their
+        // account, the non-mobile has no modules, as such we just don't
+        // (over)write the config file.
+        return;
+    }
     int saveFileSize = 100;
     for (const auto *m : m_modules) {
         saveFileSize += m->id().size() * 3;
