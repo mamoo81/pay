@@ -212,6 +212,7 @@ void Wallet::fetchTransactionInfo(TransactionInfo *info, int txIndex)
         else if (secret.fromHdWallet) {
             in->setCloakedAddress(tr("Main #%1").arg(secret.hdDerivationIndex));
         }
+        in->setFromFused(w->second.isCashFusionTx);
         info->m_inputs[pair.first] = in;
     }
 #ifndef NDEBUG

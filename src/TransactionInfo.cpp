@@ -186,6 +186,16 @@ void TransactionInputInfo::setCloakedAddress(const QString &newCloakedAddress)
     m_cloakedAddress = newCloakedAddress;
 }
 
+void TransactionInputInfo::setFromFused(bool fused)
+{
+    m_fromFused = fused;
+}
+
+bool TransactionInputInfo::fromFused() const
+{
+    return m_fromFused;
+}
+
 
 // //////////////////////////////////////////////////////
 

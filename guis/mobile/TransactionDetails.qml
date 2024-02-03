@@ -200,12 +200,16 @@ Page {
                                 return inAddress.height + 10;
                             return inAddress.height + amount.height + 16;
                         }
+                        Flowee.CFIcon {
+                            id: fusedIcon
+                            visible: modelData.fromFused
+                        }
                         Flowee.AddressLabel {
                             id: inAddress
                             txInfo: modelData
-                            width: Math.min(implicitWidth, parent.width)
+                            x: fusedIcon.visible ? fusedIcon.width + 6 : 0
+                            width: Math.min(implicitWidth, parent.width - (fusedIcon.visible ? fusedIcon.width: 0))
                         }
-
                         Flowee.BitcoinAmountLabel {
                             id: amount
                             visible: modelData !== null

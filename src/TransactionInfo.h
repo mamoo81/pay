@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ class TransactionInputInfo : public QObject
     Q_PROPERTY(QString address READ address CONSTANT)
     Q_PROPERTY(QString cloakedAddress READ cloakedAddress CONSTANT)
     Q_PROPERTY(qint64 value READ value CONSTANT)
+    Q_PROPERTY(bool fromFused READ fromFused CONSTANT FINAL)
 public:
     TransactionInputInfo(QObject *parent);
 
@@ -42,10 +43,14 @@ public:
     const QString &cloakedAddress() const;
     void setCloakedAddress(const QString &newCloakedAddress);
 
+    void setFromFused(bool fused);
+    bool fromFused() const;
+
 private:
     QString m_address;
     QString m_cloakedAddress;
     qint64 m_value = 0;
+    bool m_fromFused = false;
 };
 
 class TransactionOutputInfo : public QObject
