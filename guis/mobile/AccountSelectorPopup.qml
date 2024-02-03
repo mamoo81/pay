@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import "../Flowee" as Flowee
 QQC2.Popup {
     id: root
     closePolicy: QQC2.Popup.CloseOnEscape | QQC2.Popup.CloseOnPressOutsideParent
-    height: columnLayout.height + 10
+    height: columnLayout.height + 16
     focus: true // to allow Escape to close it
 
     property QtObject selectedAccount: portfolio.current
@@ -158,6 +158,7 @@ QQC2.Popup {
             }
         }
 
+        Item { width: 10; height: 10 } // spacer
         Item {
             width: parent.width
             opacity: 0.8 // less bright || dark text
@@ -170,7 +171,7 @@ QQC2.Popup {
                 x: 6
                 y: 5
                 text: qsTr("Balance Total") + ":"
-                font.pixelSize: root.font.pixelSize * 0.8
+                font.pixelSize: root.font.pixelSize * 0.9
             }
             Flowee.BitcoinAmountLabel {
                 id: totalAmount
@@ -178,7 +179,7 @@ QQC2.Popup {
                 anchors.right: parent.right
                 anchors.rightMargin: 6
                 anchors.bottom: parent.bottom
-                font.pixelSize: root.font.pixelSize * 0.8
+                font.pixelSize: root.font.pixelSize * 0.9
                 colorize: false
             }
         }
