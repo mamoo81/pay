@@ -17,7 +17,6 @@
  */
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Effects
 import QtQuick.Layouts
 import "../Flowee" as Flowee
 import "../ControlColors.js" as ControlColors
@@ -68,6 +67,12 @@ ApplicationWindow {
         id: mainScreen
         anchors.fill: parent
         focus: true
+
+        Loader {
+            id: effects
+            source: "./BlurComponents.qml"
+        }
+
 
         Rectangle {
             id: header
@@ -130,13 +135,8 @@ ApplicationWindow {
                     color: "white"
                     showFiat: false
                     fontPixelSize: 28
-                    layer.enabled: Pay.hideBalance
-                    layer.effect: MultiEffect {
-                        blurEnabled: true
-                        blur: 1
-                        blurMultiplier: 0.4
-                        blurMax: 40
-                    }
+                    layer.enabled: effects.loaded && Pay.hideBalance
+                    layer.effect: effects.item.biggerBlur
                 }
             }
             Label {
@@ -154,11 +154,8 @@ ApplicationWindow {
                 }
                 visible: balanceInHeader.visible
                 opacity: 0.6
-                layer.enabled: Pay.hideBalance
-                layer.effect: MultiEffect {
-                    blurEnabled: true
-                    blur: 1
-                }
+                layer.enabled: effects.loaded && Pay.hideBalance
+                layer.effect: effects.item.simpleBlur
             }
         }
 
@@ -488,13 +485,8 @@ ApplicationWindow {
                                 return leftColumn.width / 9
                             return 27;
                         }
-                        layer.enabled: Pay.hideBalance
-                        layer.effect: MultiEffect {
-                            blurEnabled: true
-                            blur: 1
-                            blurMultiplier: 0.4
-                            blurMax: 40
-                        }
+                        layer.enabled: effects.loaded && Pay.hideBalance
+                        layer.effect: effects.item.biggerBlur
                     }
 
                     GridLayout {
@@ -568,11 +560,8 @@ ApplicationWindow {
                         return Fiat.formattedPrice(balance.value, Fiat.price);
                     }
                     opacity: 0.6
-                    layer.enabled: Pay.hideBalance
-                    layer.effect: MultiEffect {
-                        blurEnabled: true
-                        blur: 1
-                    }
+                    layer.enabled: effects.loaded && Pay.hideBalance
+                    layer.effect: effects.item.simpleBlur
                 }
                 Item { width: 1; height: fiatValue.visible ? 10 : 0 } // spacer
                 Item {

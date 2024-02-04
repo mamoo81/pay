@@ -33,5 +33,6 @@
         <file>desktop/WalletEncryptionStatus.qml</file>
         <file>desktop/AccountConfigMenu.qml</file>
         <file>desktop/AddressDbStats.qml</file>
+        <file>desktop/BlurComponents.qml</file>
     </qresource>
 </RCC>
