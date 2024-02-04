@@ -44,12 +44,15 @@ Additionally you will want to have some development packages installed;
 
 ``` sh
     sudo apt install build-essential libboost-all-dev libssl-dev cmake \
-        qt6-tools-dev-tools qt6-tools-dev qt6-declarative-dev libqrencode-dev \
-        libqt6svg6-dev
-
+      libzxing-dev qdbus-qt6 qt6-l10n-tools, libqt6shadertools6-dev \
+      libqt6svg6-dev qt6-base-dev qt6-declarative-dev qt6-tools-dev
 ```
 
-After installing that succesfull, it is just a matter of calling:
+If you use the older Ubuntu Jammy (2022-04), you need to also install
+ `libgl-dev` since that was missing fromt the Qt packages back then.
+
+After installing that succesfully, you can compile Flowee Pay by fetching
+the sources and in the source tree run this sequence:
 
 ``` sh
   mkdir build
@@ -57,6 +60,19 @@ After installing that succesfull, it is just a matter of calling:
   cmake ..
   make install
 ```
+
+Running Flowee Pay requires Qt Quick, which on debian based Linux distro's
+have been packaged to a painful number of tiny packages and as such you
+will need these too:
+
+``` sh
+  sudo apt install \
+     qml6-module-qtquick qml6-module-qtqml-workerscript \
+     qml6-module-qtquick-controls qml6-module-qtquick-dialogs \
+     qml6-module-qtquick-layouts qml6-module-qtquick-shapes \
+     qml6-module-qtquick-templates qml6-module-qtquick-window \
+```
+
 
 ### Manually compiling flowee-libs:
 
