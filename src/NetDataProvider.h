@@ -40,6 +40,7 @@ class BasicAddressStats : public QObject
     Q_PROPERTY(int partialBanned READ partialBanned WRITE setPartialBanned NOTIFY partialBannedChanged FINAL)
     Q_PROPERTY(int ipv6Addresses READ ipv6Addresses WRITE setIpv6Addresses NOTIFY ipv6AddressesChanged FINAL)
     Q_PROPERTY(int everConnected READ everConnected WRITE setEverConnected NOTIFY everConnectedChanged FINAL)
+    Q_PROPERTY(int tried READ tried WRITE setTried NOTIFY triedChanged FINAL)
     Q_PROPERTY(bool usesIPv4 READ usesIPv4 WRITE setUsesIPv4 NOTIFY usesIPv4Changed FINAL)
     Q_PROPERTY(bool usesIPv6 READ usesIPv6 WRITE setUsesIPv6 NOTIFY usesIPv6Changed FINAL)
 public:
@@ -66,6 +67,9 @@ public:
     bool usesIPv6() const;
     void setUsesIPv6(bool newUsesIPv6);
 
+    int tried() const;
+    void setTried(int newTried);
+
 signals:
     void countChanged();
     void bannedChanged();
@@ -75,12 +79,15 @@ signals:
     void usesIPv4Changed();
     void usesIPv6Changed();
 
+    void triedChanged();
+
 private:
     int m_count;
     int m_banned;
     int m_partialBanned;
     int m_ipv6Addresses;
     int m_everConnected;
+    int m_tried;
     bool m_usesIPv4;
     bool m_usesIPv6;
 };

@@ -54,7 +54,7 @@ QQC2.ApplicationWindow {
             Layout.alignment: Qt.AlignRight
         }
         QQC2.Label {
-            text: root.stats.everConnected;
+            text: root.stats.tried;
         }
         QQC2.Label {
             text: qsTr("Punished count") + ":"
@@ -95,6 +95,7 @@ QQC2.ApplicationWindow {
                 net.pardonBanned();
                 var newStats = net.createStats(root);
                 root.stats.count = newStats.count;
+                root.stats.tried = newStats.tried;
                 root.stats.everConnected = newStats.everConnected;
                 root.stats.partialBanned = newStats.partialBanned;
                 root.stats.banned = newStats.banned;

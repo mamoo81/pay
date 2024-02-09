@@ -31,6 +31,7 @@ BasicAddressStats::BasicAddressStats(const AddressDBStats &stats, QObject *paren
     m_partialBanned(stats.partialBanned),
     m_ipv6Addresses(stats.ipv6Addresses),
     m_everConnected(stats.everConnected),
+    m_tried(stats.tried),
     m_usesIPv4(stats.usesIPv4),
     m_usesIPv6(stats.usesIPv6)
 {
@@ -112,6 +113,19 @@ void BasicAddressStats::setUsesIPv6(bool newUsesIPv6)
         return;
     m_usesIPv6 = newUsesIPv6;
     emit usesIPv6Changed();
+}
+
+int BasicAddressStats::tried() const
+{
+    return m_tried;
+}
+
+void BasicAddressStats::setTried(int newTried)
+{
+    if (m_tried == newTried)
+        return;
+    m_tried = newTried;
+    emit triedChanged();
 }
 
 int BasicAddressStats::everConnected() const
