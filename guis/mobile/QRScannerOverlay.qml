@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,8 +111,8 @@ FocusScope {
     Rectangle {
         id: pasteFrame
         x: 50
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 50
+        anchors.top: topBar.bottom
+        anchors.topMargin: 6
         visible: CameraController.supportsPaste && cbh.text !== ""
         radius: 6
         width: pasteButton.width
@@ -139,7 +139,7 @@ FocusScope {
             width: errorLabel.width + 10
             height: errorLabel.height + 10
             radius: 5
-            anchors.top : pasteButton.bottom
+            anchors.top: pasteButton.bottom
             visible: false
 
             Flowee.Label {
@@ -157,7 +157,7 @@ FocusScope {
     }
     Rectangle {
         id: flashFrame
-        anchors.top: pasteFrame.top
+        anchors.top: pasteFrame.bottom
         anchors.right: parent.right
         anchors.rightMargin: 50
         radius: 6
@@ -175,6 +175,7 @@ FocusScope {
     }
 
     Rectangle {
+        id: topBar
         width: parent.width
         height: Math.max(closeIcon.height, instaLabel.height) + 20
         color: mainWindow.floweeBlue
