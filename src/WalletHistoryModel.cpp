@@ -23,6 +23,7 @@
 #include <QLocale>
 #include <QDateTime>
 #include <QTimer>
+#include <QThread>
 
 /*
  * Attempt to add a transaction to this group.
@@ -102,6 +103,7 @@ WalletHistoryModel::WalletHistoryModel(Wallet *wallet, QObject *parent)
 
 int WalletHistoryModel::rowCount(const QModelIndex &parent) const
 {
+    assert(QThread::currentThread() == thread());
     if (parent.isValid()) // only for the (invalid) root node we return a count, since this is a list not a tree
         return 0;
 
@@ -110,6 +112,7 @@ int WalletHistoryModel::rowCount(const QModelIndex &parent) const
 
 QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
 {
+    assert(QThread::currentThread() == thread());
     if (!index.isValid())
         return QVariant();
 
@@ -194,6 +197,7 @@ QVariant WalletHistoryModel::data(const QModelIndex &index, int role) const
 
 int WalletHistoryModel::groupIdForTxIndex(int txIndex) const
 {
+    assert(QThread::currentThread() == thread());
     // Method is const because the cache is mutable.
     if (m_groupCache.txIndex != txIndex) {
         for (size_t i = 0; i < m_groups.size(); ++i) {
@@ -210,6 +214,7 @@ int WalletHistoryModel::groupIdForTxIndex(int txIndex) const
 
 QString WalletHistoryModel::groupingPeriod(int groupId) const
 {
+    assert(QThread::currentThread() == thread());
     if (groupId < 0 || groupId >= static_cast<int>(m_groups.size()))
         return "bad groupId";
     switch (m_groups.at(groupId).period) {
@@ -237,6 +242,7 @@ QString WalletHistoryModel::groupingPeriod(int groupId) const
 
 QHash<int, QByteArray> WalletHistoryModel::roleNames() const
 {
+    assert(QThread::currentThread() == thread());
     QHash<int, QByteArray> answer;
     answer[NewTransaction] = "isNew"; // Deprecated
     answer[TxId] = "txid";
@@ -256,6 +262,7 @@ QHash<int, QByteArray> WalletHistoryModel::roleNames() const
 
 QString WalletHistoryModel::dateForItem(qreal offset) const
 {
+    assert(QThread::currentThread() == thread());
     if (m_rowsProxy.isEmpty())
         return QString();
     if (std::isnan(offset) || offset < 0 || offset > 1.0)
@@ -276,6 +283,7 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
 
 void WalletHistoryModel::appendTransactions(int firstNew, int count)
 {
+    assert(QThread::currentThread() == thread());
     QMutexLocker locker(&m_wallet->m_lock);
     const auto oldCount = m_rowsProxy.size();
     for (auto i = firstNew; i < firstNew + count; ++i) {
@@ -308,6 +316,7 @@ void WalletHistoryModel::appendTransactions(int firstNew, int count)
 
 void WalletHistoryModel::removeTransaction(int txIndex)
 {
+    assert(QThread::currentThread() == thread());
     const int index = m_rowsProxy.indexOf(txIndex);
     if (index == -1) // probably never got inserted
         return;
@@ -321,6 +330,7 @@ void WalletHistoryModel::removeTransaction(int txIndex)
 
 void WalletHistoryModel::transactionChanged(int txIndex)
 {
+    assert(QThread::currentThread() == thread());
     const int index = m_rowsProxy.indexOf(txIndex);
     if (index == -1) // probably never got inserted
         return;
@@ -336,6 +346,7 @@ void WalletHistoryModel::transactionChanged(int txIndex)
 
 void WalletHistoryModel::createMap()
 {
+    assert(QThread::currentThread() == thread());
     m_recreateTriggered = false;
     m_groups.clear();
     m_today = today();
@@ -369,6 +380,7 @@ void WalletHistoryModel::createMap()
 
 bool WalletHistoryModel::filterTransaction(const Wallet::WalletTransaction &wtx) const
 {
+    assert(QThread::currentThread() == thread());
     if (!m_includeFlags.testFlag(WalletEnums::IncludeUnconfirmed) && wtx.isUnconfirmed())
         return false;
     if (!m_includeFlags.testFlag(WalletEnums::IncludeRejected) && wtx.isRejected())
@@ -380,6 +392,7 @@ bool WalletHistoryModel::filterTransaction(const Wallet::WalletTransaction &wtx)
 
 void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
 {
+    assert(QThread::currentThread() == thread());
     if (m_groups.empty())
         m_groups.push_back(TransactionGroup());
 
@@ -436,6 +449,7 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
 
 int WalletHistoryModel::txIndexFromRow(int row) const
 {
+    assert(QThread::currentThread() == thread());
     int newRow = m_rowsProxy.size() - row - 1;
     if (m_rowsSilentlyInserted > 0)
         newRow -= m_rowsSilentlyInserted;
@@ -446,11 +460,13 @@ int WalletHistoryModel::txIndexFromRow(int row) const
 
 const QFlags<WalletEnums::Include> &WalletHistoryModel::includeFlags() const
 {
+    assert(QThread::currentThread() == thread());
     return m_includeFlags;
 }
 
 void WalletHistoryModel::setIncludeFlags(const QFlags<WalletEnums::Include> &flags)
 {
+    assert(QThread::currentThread() == thread());
     if (m_includeFlags == flags)
         return;
     m_includeFlags = flags;
@@ -464,6 +480,7 @@ void WalletHistoryModel::setIncludeFlags(const QFlags<WalletEnums::Include> &fla
 
 void WalletHistoryModel::freezeModel(bool on)
 {
+    assert(QThread::currentThread() == thread());
     if ((on && m_rowsSilentlyInserted >= 0) || (!on && m_rowsSilentlyInserted < 0))
         return;
     if (on) {
@@ -484,11 +501,13 @@ void WalletHistoryModel::freezeModel(bool on)
 
 bool WalletHistoryModel::isModelFrozen() const
 {
+    assert(QThread::currentThread() == thread());
     return m_rowsSilentlyInserted >= 0;
 }
 
 uint32_t WalletHistoryModel::secsSinceEpochFor(int blockHeight) const
 {
+    assert(QThread::currentThread() == thread());
     assert(blockHeight > 0);
     // wrap this for convenience and also ensure that we never return an insanely old
     // date (1970) just because we lack blockheader data.
@@ -504,11 +523,13 @@ uint32_t WalletHistoryModel::secsSinceEpochFor(int blockHeight) const
 
 QDate WalletHistoryModel::today() const
 {
+    assert(QThread::currentThread() == thread());
     return QDate::currentDate();
 }
 
 int WalletHistoryModel::lastSyncIndicator() const
 {
+    assert(QThread::currentThread() == thread());
     return m_lastSyncIndicator;
 }
 
@@ -521,6 +542,7 @@ void WalletHistoryModel::setLastSyncIndicator(int)
 
 void WalletHistoryModel::resetLastSyncIndicator()
 {
+    assert(QThread::currentThread() == thread());
     const auto old = m_lastSyncIndicator;
     m_lastSyncIndicator = m_wallet->segment()->lastBlockSynched();
 
