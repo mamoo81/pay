@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include "Wallet.h"
 #include "FloweePay.h"
 
+#include <QThread>
 #include <base58.h>
 #include <cashaddr.h>
 
@@ -29,11 +30,12 @@ WalletSecretsModel::WalletSecretsModel(Wallet *wallet, QObject *parent)
     assert(m_wallet);
     update();
 
-    connect (wallet, SIGNAL(appendedTransactions(int,int)), this, SLOT(transactionsAddedToWallet(int,int)));
+    connect (wallet, SIGNAL(appendedTransactions(int,int)), this, SLOT(transactionsAddedToWallet(int,int)), Qt::QueuedConnection);
 }
 
 int WalletSecretsModel::rowCount(const QModelIndex &parent) const
 {
+    assert(QThread::currentThread() == thread());
     if (parent.isValid()) // only for the (invalid) root node we return a count, since this is a list not a tree
         return 0;
 
@@ -42,6 +44,7 @@ int WalletSecretsModel::rowCount(const QModelIndex &parent) const
 
 QVariant WalletSecretsModel::data(const QModelIndex &index, int role) const
 {
+    assert(QThread::currentThread() == thread());
     if (!index.isValid())
         return QVariant();
 
@@ -82,6 +85,7 @@ QVariant WalletSecretsModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> WalletSecretsModel::roleNames() const
 {
+    assert(QThread::currentThread() == thread());
     QHash<int, QByteArray> answer;
     answer[BitcoinAddress] = "address";
     answer[PrivateKey] = "privatekey";
@@ -97,11 +101,13 @@ QHash<int, QByteArray> WalletSecretsModel::roleNames() const
 
 bool WalletSecretsModel::showChangeChain() const
 {
+    assert(QThread::currentThread() == thread());
     return m_showChangeChain;
 }
 
 void WalletSecretsModel::setShowChangeChain(bool on)
 {
+    assert(QThread::currentThread() == thread());
     if (m_showChangeChain == on)
         return;
     m_showChangeChain = on;
@@ -111,11 +117,13 @@ void WalletSecretsModel::setShowChangeChain(bool on)
 
 bool WalletSecretsModel::showUsedAddresses() const
 {
+    assert(QThread::currentThread() == thread());
     return m_showUsedAddresses;
 }
 
 void WalletSecretsModel::setShowUsedAddresses(bool on)
 {
+    assert(QThread::currentThread() == thread());
     if (m_showUsedAddresses == on)
         return;
     m_showUsedAddresses = on;
@@ -125,11 +133,13 @@ void WalletSecretsModel::setShowUsedAddresses(bool on)
 
 const QString &WalletSecretsModel::searchTerm() const
 {
+    assert(QThread::currentThread() == thread());
     return m_search;
 }
 
 void WalletSecretsModel::search(const QString &newSearch)
 {
+    assert(QThread::currentThread() == thread());
     if (m_search == newSearch)
         return;
     m_search = newSearch;
@@ -139,6 +149,7 @@ void WalletSecretsModel::search(const QString &newSearch)
 
 void WalletSecretsModel::update()
 {
+    assert(QThread::currentThread() == thread());
     assert(m_wallet);
     QMutexLocker locker(&m_wallet->m_lock);
     if (!m_selectedPrivates.isEmpty()) {
@@ -201,6 +212,7 @@ void WalletSecretsModel::update()
 
 const Wallet::KeyDetails &WalletSecretsModel::details(int privKeyId) const
 {
+    assert(QThread::currentThread() == thread());
     QMutexLocker locker(&m_lock);
     auto iter = m_keyDetails.find(privKeyId);
     if (iter == m_keyDetails.end()) {
@@ -213,7 +225,9 @@ const Wallet::KeyDetails &WalletSecretsModel::details(int privKeyId) const
 
 void WalletSecretsModel::transactionsAddedToWallet(int from, int count)
 {
+    assert(QThread::currentThread() == thread());
     assert(m_wallet);
+    QMutexLocker locker(&m_wallet->m_lock);
     auto iter = m_wallet->m_walletTransactions.find(from);
     std::set<int> changedPrivateKeys;
     while ( count-- > 0 && iter != m_wallet->m_walletTransactions.end()) {
@@ -233,6 +247,7 @@ void WalletSecretsModel::transactionsAddedToWallet(int from, int count)
     }
 
     logDebug() << "New transactions touched these private keys:" << changedPrivateKeys;
+    QMutexLocker localLocker(&m_lock);
     for (auto privKeyId : changedPrivateKeys) {
         auto detailsIter = m_keyDetails.find(privKeyId);
         if (detailsIter != m_keyDetails.end()) {

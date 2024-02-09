@@ -85,6 +85,8 @@ private:
     QString m_search;
 
     QVector<int> m_selectedPrivates;
+    // locks m_keyDetails.
+    // Never lock this unless m_wallet->m_lock is already locked.
     mutable QMutex m_lock;
     mutable std::map<int, Wallet::KeyDetails> m_keyDetails;
 };
