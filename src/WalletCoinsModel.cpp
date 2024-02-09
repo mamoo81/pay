@@ -22,13 +22,17 @@
 #include <p2p/DownloadManager.h>
 
 #include <QMutex>
+#include <QThread>
 #include <cashaddr.h>
 
 
 WalletCoinsModel::WalletCoinsModel(Wallet *wallet, QObject *parent)
-    : QAbstractListModel(parent)
+    : QAbstractListModel(parent),
+    m_triggered(0)
 {
     setWallet(wallet);
+
+    connect (this, SIGNAL(startRecalc()), this, SLOT(utxosChanged()), Qt::QueuedConnection);
 }
 
 void WalletCoinsModel::setWallet(Wallet *newWallet)
@@ -40,7 +44,11 @@ void WalletCoinsModel::setWallet(Wallet *newWallet)
     if (m_wallet)
         disconnect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(utxosChanged()));
     m_wallet = newWallet;
-    connect (m_wallet, SIGNAL(utxosChanged()), this, SLOT(utxosChanged()));
+    connect (m_wallet, &Wallet::utxosChanged, this, [=]() {
+        // when there are a log of changes, only schedule one update.
+        if (m_triggered.testAndSetAcquire(0, 1))
+            emit startRecalc();
+    });
 
     beginRemoveRows(QModelIndex(), 0, m_rowsToOutputRefs.size() - 1);
     endRemoveRows();
@@ -51,6 +59,7 @@ void WalletCoinsModel::setWallet(Wallet *newWallet)
 
 int WalletCoinsModel::rowCount(const QModelIndex &parent) const
 {
+    assert(QThread::currentThread() == thread());
     if (parent.isValid()) // only for the (invalid) root node we return a count, since this is a list not a tree
         return 0;
 
@@ -59,6 +68,7 @@ int WalletCoinsModel::rowCount(const QModelIndex &parent) const
 
 QVariant WalletCoinsModel::data(const QModelIndex &index, int role) const
 {
+    assert(QThread::currentThread() == thread());
     if (!index.isValid())
         return QVariant();
 
@@ -170,6 +180,7 @@ QHash<int, QByteArray> WalletCoinsModel::roleNames() const
 
 uint64_t WalletCoinsModel::outRefForRow(int row) const
 {
+    assert(QThread::currentThread() == thread());
     auto i = m_rowsToOutputRefs.find(row);
     if (i == m_rowsToOutputRefs.end())
         return 0;
@@ -178,6 +189,7 @@ uint64_t WalletCoinsModel::outRefForRow(int row) const
 
 void WalletCoinsModel::setOutputLocked(int row, bool lock)
 {
+    assert(QThread::currentThread() == thread());
     auto i = m_rowsToOutputRefs.find(row);
     if (i == m_rowsToOutputRefs.end())
         return;
@@ -198,11 +210,13 @@ void WalletCoinsModel::setOutputLocked(int row, bool lock)
 
 void WalletCoinsModel::setSelectionGetter(const std::function<bool (uint64_t)> &callback)
 {
+    assert(QThread::currentThread() == thread());
     m_selectionGetter = callback;
 }
 
 void WalletCoinsModel::updateRow(uint64_t outRef)
 {
+    assert(QThread::currentThread() == thread());
     for (auto i = m_rowsToOutputRefs.cbegin(); i != m_rowsToOutputRefs.cend(); ++i) {
         if (i->second == outRef) {
             updateRow(i->first);
@@ -213,6 +227,7 @@ void WalletCoinsModel::updateRow(uint64_t outRef)
 
 void WalletCoinsModel::updateRow(int row)
 {
+    assert(QThread::currentThread() == thread());
     beginRemoveRows(QModelIndex(), row, row);
     endRemoveRows();
     beginInsertRows(QModelIndex(), row, row);
@@ -221,6 +236,7 @@ void WalletCoinsModel::updateRow(int row)
 
 void WalletCoinsModel::utxosChanged()
 {
+    assert(QThread::currentThread() == thread());
     beginRemoveRows(QModelIndex(), 0, m_rowsToOutputRefs.size());
     endRemoveRows();
     createMap();
@@ -230,6 +246,8 @@ void WalletCoinsModel::utxosChanged()
 
 void WalletCoinsModel::createMap()
 {
+    assert(QThread::currentThread() == thread());
+    m_triggered.storeRelaxed(0);
     QMutexLocker locker(&m_wallet->m_lock); // yes, its a recursive lock
     m_rowsToOutputRefs.clear();
 
@@ -258,5 +276,3 @@ void WalletCoinsModel::createMap()
         m_rowsToOutputRefs.insert(std::make_pair(index++, i->first));
     }
 }
-
-

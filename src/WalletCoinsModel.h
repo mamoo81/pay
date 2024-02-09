@@ -20,6 +20,7 @@
 
 #include <QAbstractListModel>
 #include <functional>
+#include <QAtomicInt>
 
 class Wallet;
 
@@ -60,6 +61,9 @@ public:
     /// mark row dirty for refresh in the UI
     void updateRow(int row);
 
+signals:
+    void startRecalc();
+
 private slots:
     void utxosChanged();
 
@@ -70,6 +74,7 @@ private:
     std::map<int, uint64_t> m_rowsToOutputRefs;
 
     std::function<bool(uint64_t)> m_selectionGetter;
+    QAtomicInt m_triggered;
 };
 
 #endif
