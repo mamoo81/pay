@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ QQC2.ScrollBar {
         onMovingChanged: if (moving) open = true
         width: 18
         height: 30
-        x: moving || open ? parent.width - width: parent.width + 2
+        x: moving || open ? parent.width - width : parent.width + 2
         y: {
             var pos = root.position
             var size = root.size
@@ -104,7 +104,7 @@ QQC2.ScrollBar {
         width: thumbRect.width + 20 + root.width
         height: thumbRect.height + 50
         anchors.right: parent.right
-        enabled: thumbRect.moving || thumbRect.open
+        enabled: thumbRect.moving || thumbRect.open || thumbRect.x < root.width
         y: {
             var pos = root.position
             var size = root.size
@@ -116,6 +116,7 @@ QQC2.ScrollBar {
         property real startPos: 0
         property bool engaged: false // seems that 'Mousearea.pressed' behaves different than I expect, this works better
         onPressed: (mouse)=> {
+            thumbRect.open = true;
             startY = root.flickable.mapFromItem(thumbInput, mouse.x, mouse.y).y
             startPos = root.position
             engaged = true
@@ -123,6 +124,7 @@ QQC2.ScrollBar {
         onReleased: engaged = false
         preventStealing: true
         onPositionChanged: (mouse)=> {
+            thumbRect.open = true;
             // Most of the scroller properties are in the 0.0 - 1.0 range
             var absolutePos = root.flickable.mapFromItem(thumbInput, mouse.x, mouse.y);
             var diff = startY - absolutePos.y;
