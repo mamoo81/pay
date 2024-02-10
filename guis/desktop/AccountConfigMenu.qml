@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,16 @@ ConfigItem {
     }
     property QtObject archiveAction: Action {
         text: root.account != null && root.account.isArchived ? qsTr("Unarchive") : qsTr("Archive Wallet")
-        onTriggered: root.account.isArchived = !root.account.isArchived
+        onTriggered: {
+            /*
+             * Toggling archive means this list and the list-item will be removed and a new one created at
+             * another place on screen.
+             * Focus is lost when the item that holds it suddenly dies, so let make sure it is moved
+             * somewhere useful first, allowing keyboard shortcuts to still work after.
+             */
+            mainScreen.forceActiveFocus(); // when the parent item is removed, make sure _something_ has focus
+            root.account.isArchived = !root.account.isArchived
+         }
     }
     property QtObject primaryAction: Action {
         enabled: root.account != null && !root.account.isPrimaryAccount
@@ -68,7 +77,7 @@ ConfigItem {
             items.push(closeWalletAction);
         if (onMainView && encrypted && !decrypted && tabbar.currentIndex != 0)
             items.push(openWalletAction);
-        var singleAccountSetup = portfolio.singleAccountSetup
+        var singleAccountSetup = portfolio.rawAccounts.length === 1
         var isArchived = root.account.isArchived;
         if (!singleAccountSetup && !isArchived)
             items.push(primaryAction);
