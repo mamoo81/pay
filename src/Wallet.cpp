@@ -1053,7 +1053,7 @@ void Wallet::rebuildBloom(RebuildBloomOption option)
             }
         }
     }
-    logDebug(LOG_WALLET) << "Rebuilding bloom filter. UTXO-size:" << secretsWithBalance.size();
+    logDebug(LOG_WALLET) << "Rebuilding bloom filter." << m_segment->segmentId() << "UTXO-size:" << secretsWithBalance.size();
     for (auto &i : m_walletSecrets) {
         const auto &secret = i.second;
         assert(secret.initialHeight < 10000000); // see similar check at start of this method
