@@ -271,7 +271,12 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     if (row >= m_rowsProxy.size())
         return QString();
     QMutexLocker locker(&m_wallet->m_lock);
-    auto item = m_wallet->m_walletTransactions.at(txIndexFromRow(row));
+    auto txIter = m_wallet->m_walletTransactions.find(txIndexFromRow(row));
+    if (txIter == m_wallet->m_walletTransactions.end()) {
+        // it is possible for a transaction to be removed async...
+        return QString();
+    }
+    const auto &item = txIter->second;
     if (item.minedBlockHeight <= 0)
         return QString();
     auto timestamp = secsSinceEpochFor(item.minedBlockHeight);
