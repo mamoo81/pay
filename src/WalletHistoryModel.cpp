@@ -270,6 +270,7 @@ QString WalletHistoryModel::dateForItem(qreal offset) const
     const int row = std::round(offset * m_rowsProxy.size());
     if (row >= m_rowsProxy.size())
         return QString();
+    QMutexLocker locker(&m_wallet->m_lock);
     auto item = m_wallet->m_walletTransactions.at(txIndexFromRow(row));
     if (item.minedBlockHeight <= 0)
         return QString();
@@ -356,13 +357,13 @@ void WalletHistoryModel::createMap()
         m_rowsProxy.clear();
         endRemoveRows();
     }
-    m_rowsProxy.reserve(m_wallet->m_walletTransactions.size());
 
     // we insert the key used in the m_wallet->m_walletTransaction map
     // in the order of how our rows work here.
     // This is oldest to newest, which is how our model is also structured.
     {
         QMutexLocker locker(&m_wallet->m_lock);
+        m_rowsProxy.reserve(m_wallet->m_walletTransactions.size());
         for (const auto &iter : m_wallet->m_walletTransactions) {
             if (!filterTransaction(iter.second))
                 continue;
@@ -396,6 +397,7 @@ void WalletHistoryModel::addTxIndexToGroups(int txIndex, int blockheight)
     if (m_groups.empty())
         m_groups.push_back(TransactionGroup());
 
+    QMutexLocker locker(&m_wallet->m_lock);
     uint32_t timestamp = 0;
     auto txIter = m_wallet->m_walletTransactions.find(txIndex);
     if (txIter != m_wallet->m_walletTransactions.end())
@@ -543,6 +545,7 @@ void WalletHistoryModel::setLastSyncIndicator(int)
 void WalletHistoryModel::resetLastSyncIndicator()
 {
     assert(QThread::currentThread() == thread());
+    QMutexLocker locker(&m_wallet->m_lock);
     const auto old = m_lastSyncIndicator;
     m_lastSyncIndicator = m_wallet->segment()->lastBlockSynched();
 
