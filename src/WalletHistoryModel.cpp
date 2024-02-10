@@ -553,9 +553,10 @@ void WalletHistoryModel::resetLastSyncIndicator()
             break;
         --index;
     }
-    const int lastRow = m_rowsProxy.size() - index - 1;
+    const int lastRow = m_rowsProxy.size() - std::max(0, index) - 1;
     // refresh the rows that need the 'new' indicator removed.
     if (lastRow > 0) {
+        assert(lastRow < m_rowsProxy.size());
         beginRemoveRows(QModelIndex(), 0, lastRow);
         endRemoveRows();
         beginInsertRows(QModelIndex(), 0, lastRow);
