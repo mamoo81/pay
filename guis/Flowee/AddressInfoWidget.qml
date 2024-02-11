@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick
-import Flowee.org.pay;
+import Flowee.org.pay
 
 Item {
     id: addressInfo
