@@ -55,6 +55,7 @@ Page {
                         anchors.right: copyIcon.left
                         anchors.rightMargin: 10
                         wrapMode: Text.WrapAnywhere
+                        font.pixelSize: root.font.pixelSize * 0.9
 
                         Rectangle {
                             id: txidHighlight
@@ -170,6 +171,7 @@ Page {
             }
 
             PageTitledBox {
+                spacing: 10
                 title: {
                     if (root.infoObject == null)
                         return "";
@@ -225,6 +227,7 @@ Page {
             }
 
             PageTitledBox {
+                spacing: 10
                 title: {
                     if (root.infoObject == null)
                         return "";

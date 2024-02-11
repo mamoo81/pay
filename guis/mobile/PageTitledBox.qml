@@ -46,7 +46,7 @@ Item {
     }
     Flowee.Label {
         id: boxTitle
-        font.weight: 600
+        font.weight: 700
         y: 4
     }
 
