@@ -24,7 +24,7 @@ Rectangle {
     height: {
         var rc = mainLabel.height + 10 + date.height
         if (detailsPane.item != null)
-            rc += detailsPane.item.height + 10;
+            rc += detailsPane.item.height;
         return rc;
     }
     width: mainLabel.width + bitcoinAmountLabel.width + 30
@@ -78,14 +78,10 @@ Rectangle {
         function updateText() {
             if (txRoot.isRejected)
                 text = qsTr("rejected")
-            var dat = model.date;
-            if (typeof dat === "undefined")
-                text = qsTr("unconfirmed")
-            else
-                text = Pay.formatDateTime(dat);
+            text = Pay.formatDateTime(model.date);
         }
-        opacity: txRoot.isRejected ? 1 : 0.5
-        font.pointSize: mainLabel.font.pointSize * 0.8
+        opacity: detailsPane.item === null ? 0.8 : 1;
+        font.pointSize: mainLabel.font.pointSize * 0.9
         color: txRoot.isRejected ? (Pay.useDarkSkin ? "#ec2327" : "#b41214") : palette.windowText
 
         Component.onCompleted: updateText()
@@ -134,7 +130,8 @@ Rectangle {
 
     Flowee.BitcoinAmountLabel {
         id: bitcoinAmountLabel
-        visible: Pay.activityShowsBch || !Pay.isMainChain
+        // visible: Pay.activityShowsBch || !Pay.isMainChain
+        fiatTimestamp: model.date
         value: {
             let inputs = model.fundsIn
             let outputs = model.fundsOut
@@ -150,13 +147,9 @@ Rectangle {
     Flowee.Label {
         anchors.top: mainLabel.top
         anchors.right: parent.right
-        visible: bitcoinAmountLabel.visible === false
+        // visible: bitcoinAmountLabel.visible === false
         text: {
-            var timestamp = model.date;
-            if (timestamp === undefined)
-                var fiatPrice = Fiat.price; // todays price
-            else
-                fiatPrice = Fiat.historicalPrice(timestamp);
+            var fiatPrice = Fiat.historicalPrice(model.date);
             return Fiat.formattedPrice(bitcoinAmountLabel.value, fiatPrice)
         }
         color: {
@@ -172,15 +165,14 @@ Rectangle {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: detailsPane.source = (detailsPane.source == "") ? "./WalletTransactionDetails.qml" : ""
+        onClicked: detailsPane.source = (detailsPane.source == "") ? "./TransactionInfoSmall.qml" : ""
     }
 
     Loader {
         id: detailsPane
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 6
-        x: 4 // indent it
-        width: parent.width - 6
+        width: parent.width
         onLoaded: item.infoObject = portfolio.current.txInfo(model.walletIndex, item)
     }
 

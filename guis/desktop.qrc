@@ -16,23 +16,24 @@
         <file>desktop/ConfigItem.qml</file>
         <file>ControlColors.js</file>
         <file>desktop/main.qml</file>
-        <file>desktop/NetView.qml</file>
-        <file>desktop/ReceiveTransactionPane.qml</file>
-        <file>desktop/SendTransactionPane.qml</file>
-        <file>desktop/WalletTransactionDetails.qml</file>
-        <file>desktop/WalletTransaction.qml</file>
-        <file>desktop/AccountListItem.qml</file>
-        <file>desktop/AccountDetails.qml</file>
-        <file>desktop/SettingsPane.qml</file>
-        <file>desktop/NewAccountPane.qml</file>
-        <file>desktop/NewAccountCreateBasicAccount.qml</file>
-        <file>desktop/NewAccountImportAccount.qml</file>
-        <file>desktop/NewAccountCreateHDAccount.qml</file>
-        <file>desktop/WalletEncryption.qml</file>
-        <file>desktop/PaymentTweakingPanel.qml</file>
-        <file>desktop/WalletEncryptionStatus.qml</file>
         <file>desktop/AccountConfigMenu.qml</file>
+        <file>desktop/AccountDetails.qml</file>
+        <file>desktop/AccountListItem.qml</file>
         <file>desktop/AddressDbStats.qml</file>
         <file>desktop/BlurComponents.qml</file>
+        <file>desktop/NetView.qml</file>
+        <file>desktop/NewAccountCreateBasicAccount.qml</file>
+        <file>desktop/NewAccountCreateHDAccount.qml</file>
+        <file>desktop/NewAccountImportAccount.qml</file>
+        <file>desktop/NewAccountPane.qml</file>
+        <file>desktop/PaymentTweakingPanel.qml</file>
+        <file>desktop/ReceiveTransactionPane.qml</file>
+        <file>desktop/SendTransactionPane.qml</file>
+        <file>desktop/SettingsPane.qml</file>
+        <file>desktop/Transaction.qml</file>
+        <file>desktop/TransactionDetails.qml</file>
+        <file>desktop/TransactionInfoSmall.qml</file>
+        <file>desktop/WalletEncryption.qml</file>
+        <file>desktop/WalletEncryptionStatus.qml</file>
     </qresource>
 </RCC>

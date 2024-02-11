@@ -300,7 +300,7 @@ ApplicationWindow {
                         id: activityView
                         model: isLoading ? 0 :  portfolio.current.transactions
                         clip: true
-                        delegate: WalletTransaction { width: activityView.width }
+                        delegate: Transaction { width: activityView.width }
                         anchors.top: activityHeader.bottom
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -755,6 +755,25 @@ ApplicationWindow {
                 function onVisibleChanged() {
                     if (!netView.item.visible)
                         netView.source = ""
+                }
+            }
+        }
+        Loader {
+            id: txDetailsWindow
+            function openTab(walletIndex) {
+                source = "./TransactionDetails.qml"
+                item.openTab(walletIndex);
+            }
+            onLoaded: {
+                ControlColors.applySkin(item);
+                txDetailsHandler.target = item;
+                item.show();
+            }
+            Connections {
+                id: txDetailsHandler
+                function onVisibleChanged() {
+                    if (!txDetailsWindow.item.visible)
+                        txDetailsWindow.source = ""
                 }
             }
         }

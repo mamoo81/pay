@@ -60,9 +60,9 @@ ColumnLayout {
             text: {
                 if (root.minedHeight <= 0)
                     return "";
-                var rc = Pay.formatBlockTime(model.height);
+                var rc = Pay.formatBlockTime(root.minedHeight);
                 var confirmations = Pay.headerChainHeight - root.minedHeight + 1;
-                if (confirmations > 0 && confirmations < 100)
+                if (confirmations > 0 && confirmations < 20)
                     rc += " (" + qsTr("%1 blocks ago", "Confirmations", confirmations).arg(confirmations) + ")";
                 return rc;
             }
@@ -100,7 +100,7 @@ ColumnLayout {
             if (infoObject == null)
                 return false;
             // visible if at least one output has a token.
-            var outputs = infoObject.outputs;
+            var outputs = infoObject.knownOutputs;
             for (let o of outputs) {
                 if (o !== null && o.hasCashToken)
                     return true;
