@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2022-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2022-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,8 @@ import QtQuick.Controls as QQC2
 
 Item {
     id: root
-    implicitHeight: flowLayout.implicitHeight
+    implicitHeight: 70 * 4
+    height: 90 * 4
 
     required property var dataInput;
 
@@ -64,7 +65,7 @@ Item {
             model: 12
             delegate: Item {
                 width: root.width / 3
-                height: 70
+                height: root.height / 4
                 QQC2.Label {
                     id: textLabel
                     anchors.centerIn: parent

@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2023-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,8 +64,8 @@ Item {
     Image {
         id: lockIcon
         source: "qrc:/lock" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
-        width: 80
-        height: 80
+        width: 60
+        height: 60
         anchors.horizontalCenter: parent.horizontalCenter
         smooth: true
         y: parent.height > 700 ? 40 : 10
@@ -106,6 +106,7 @@ Item {
 
     // Show the typed pin code, but as bullets as you type.
     Row {
+        id: pinPreview
         anchors.top: introText.bottom
         anchors.topMargin: root.height > 700 ? 20 : 6
         spacing: 10
@@ -144,9 +145,12 @@ Item {
         id: keyboard
 
         x: switchButton.numericInput ? 0 : 0 - parent.width
-        y: parent.height - openButton.height - height
-                - (root.height > 700 ? 20 : 6)
         width: parent.width
+        anchors.top: pinPreview.top
+        anchors.topMargin: introText.height * 2 // work around the fact that it takes less space when empty
+        anchors.bottom: openButton.top
+        anchors.bottomMargin: 10
+
         dataInput: Item {
             property QtObject editor: Item {
                 property string enteredString;
