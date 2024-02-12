@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+#include <QDateTime>
 
 class Wallet;
 
@@ -100,20 +101,26 @@ class TransactionInfo : public QObject
      * Return the amount of fees paid for this transaction.
      * This returns zero if we didn't create the transaction.
      */
-    Q_PROPERTY(double fees READ fees CONSTANT)
-    Q_PROPERTY(QList<QObject*> inputs READ inputs CONSTANT)
-    Q_PROPERTY(QList<QObject*> outputs READ outputs CONSTANT)
-    Q_PROPERTY(QList<QObject*> knownInputs READ knownInputs CONSTANT)
-    Q_PROPERTY(QList<QObject*> knownOutputs READ knownOutputs CONSTANT)
-    Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY commentChanged)
+    Q_PROPERTY(double fees READ fees CONSTANT FINAL)
+    Q_PROPERTY(QList<QObject*> inputs READ inputs CONSTANT FINAL)
+    Q_PROPERTY(QList<QObject*> outputs READ outputs CONSTANT FINAL)
+    Q_PROPERTY(QList<QObject*> knownInputs READ knownInputs CONSTANT FINAL)
+    Q_PROPERTY(QList<QObject*> knownOutputs READ knownOutputs CONSTANT FINAL)
+    Q_PROPERTY(QString userComment READ userComment WRITE setUserComment NOTIFY commentChanged FINAL)
     /**
      * The recipient of the transaction. Typically just an address.
      */
-    Q_PROPERTY(QString receiver READ receiver CONSTANT)
-    Q_PROPERTY(bool isCoinbase READ isCoinbase CONSTANT)
-    Q_PROPERTY(bool isFused READ isFused CONSTANT)
-    Q_PROPERTY(bool createdByUs READ createdByUs CONSTANT)
-    Q_PROPERTY(bool commentEditable READ commentEditable CONSTANT)
+    Q_PROPERTY(QString receiver READ receiver CONSTANT FINAL)
+    Q_PROPERTY(bool isCoinbase READ isCoinbase CONSTANT FINAL)
+    Q_PROPERTY(bool isFused READ isFused CONSTANT FINAL)
+    Q_PROPERTY(bool createdByUs READ createdByUs CONSTANT FINAL)
+    Q_PROPERTY(bool commentEditable READ commentEditable CONSTANT FINAL)
+
+    Q_PROPERTY(QString txid READ txid CONSTANT FINAL)
+    Q_PROPERTY(int minedHeight READ minedHeight NOTIFY blockHeightChanged FINAL)
+    Q_PROPERTY(QDateTime date READ transactionDate CONSTANT FINAL)
+    Q_PROPERTY(double fundsIn READ fundsIn CONSTANT FINAL)
+    Q_PROPERTY(double fundsOut READ fundsOut CONSTANT FINAL)
 
 public:
     explicit TransactionInfo(QObject *parent = nullptr);
@@ -130,8 +137,22 @@ public:
     bool isFused() const;
     bool createdByUs() const;
 
+    /// the combined amount of sats spent by us in the inputs
+    double fundsIn() const;
+    /// the combined amount of sats received by us in the outputs
+    double fundsOut() const;
+
+    /// the time we first saw this transaction.
+    QDateTime transactionDate() const;
+
+    /// the block-height this transaction got mined in.
+    /// it will be -1 for unconfirmed, or -2 for rejected.
+    int minedHeight() const;
+
     /// The 'receiver' address of this transaction.
     QString receiver() const;
+    /// the transactionId, as string.
+    QString txid() const;
 
     /**
      * The API allows the user to set a 'user comment'. Which needs
@@ -152,6 +173,7 @@ public:
 
 signals:
     void commentChanged();
+    void blockHeightChanged();
 
 private:
     Wallet *m_wallet = nullptr;

@@ -163,6 +163,12 @@ public:
     /// Fetch UTXO value (in sats)
     qint64 utxoOutputValue(OutputRef ref) const;
 
+    /// return the time first seen for a transaction.
+    int64_t transactionTime(int txIndex) const;
+
+    /// return the blockheight a transaction is mined at.
+    int transactionMined(int txIndex) const;
+
     struct PrivKeyData {
         int privKeyId = 0;
         PrivateKey key;

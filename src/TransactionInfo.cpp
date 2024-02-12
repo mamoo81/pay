@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "FloweePay.h"
 #include "TransactionInfo.h"
 #include "Wallet.h"
 
@@ -117,6 +118,55 @@ bool TransactionInfo::isCoinbase() const
 bool TransactionInfo::createdByUs() const
 {
     return m_createdByUs;
+}
+
+double TransactionInfo::fundsIn() const
+{
+    double answer = 0;
+    for (auto i : m_inputs) {
+        if (i) answer += i->value();
+    }
+    return answer;
+}
+
+double TransactionInfo::fundsOut() const
+{
+    double answer = 0;
+    for (auto o : m_outputs) {
+        if (o && o->forMe()) answer += o->value();
+    }
+    return answer;
+}
+
+QDateTime TransactionInfo::transactionDate() const
+{
+    if (m_wallet == nullptr)
+        return QDateTime::currentDateTimeUtc();
+    auto time = m_wallet->transactionTime(m_walletIndex);
+    if (time == 0) {
+        int blockHeight = m_wallet->transactionMined(m_walletIndex);
+        try {
+            time = FloweePay::instance()->p2pNet()->blockchain().block(blockHeight).nTime;
+        } catch (const std::exception &e) { // a blockheight we don't have.
+            return QDateTime::currentDateTimeUtc();
+        }
+    }
+
+    return QDateTime::fromSecsSinceEpoch(time);
+}
+
+int TransactionInfo::minedHeight() const
+{
+    if (m_wallet == nullptr)
+        return 0;
+    return m_wallet->transactionMined(m_walletIndex);
+}
+
+QString TransactionInfo::txid() const
+{
+    if (m_wallet == nullptr)
+        return QString();
+    return QString::fromStdString(m_wallet->txid(m_walletIndex).ToString());
 }
 
 QString TransactionInfo::receiver() const

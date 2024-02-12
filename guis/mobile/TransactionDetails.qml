@@ -146,77 +146,9 @@ Page {
             }
 
             PageTitledBox {
-                id: fiatBox
-                property double amountBch: {
-                    if (root.transaction === null)
-                        return 0;
-                    if (isMoved) 
-                        return root.transaction.fundsIn
-                    return root.transaction.fundsOut - root.transaction.fundsIn;
-                }
-                // Is this transaction a 'move between addresses' tx.
-                // This is a heuristic and not available in the model, which is why its in the view.
-                property bool isMoved: {
-                    if (root.transaction == null)
-                        return false;
-                    if (root.transaction.isCoinbase || root.transaction.isFused
-                            || root.transaction.fundsIn === 0)
-                        return false;
-                    var amount = root.transaction.fundsOut - root.transaction.fundsIn
-                    return amount < 0 && amount > -2500 // then the diff is likely just fees.
-                }
-                visible: {
-                    if (root.transaction === null)
-                        return false;
-                    if (root.transaction.minedHeight < 1)
-                        return false;
-                    if (root.transaction.isFused)
-                        return false;
-                    if (isMoved)
-                        return false;
-                    if (valueThenLabel.fiatPrice === 0)
-                        return false;
-                    if (Math.abs(amountBch) < 10000) // hardcode 10k sats here, may need adjustment later
-                        return false;
-                    return true;
-                }
-                GridLayout {
-                    columns: 2
-                    rowSpacing: 10
+                Flowee.FiatTxInfo {
+                    txInfo: root.transaction
                     width: parent.width
-
-                    Flowee.Label {
-                        text: qsTr("Value now") + ":"
-                    }
-                    Flowee.Label {
-                        text: {
-                            if (root.transaction === null || root.transaction.minedHeight <= 0)
-                                return "";
-                            var fiatPriceNow = Fiat.price;
-                            var gained = (fiatPriceNow - valueThenLabel.fiatPrice) / valueThenLabel.fiatPrice * 100
-                            return Fiat.formattedPrice(Math.abs(fiatBox.amountBch), fiatPriceNow)
-                                    + " (" + (gained >= 0 ? "↑" : "↓") + Math.abs(gained).toFixed(2) + "%)";
-                        }
-                    }
-
-                    // price at mining
-                    // value in exchange gained
-                    Flowee.Label {
-                        id: priceAtMining
-                        text: qsTr("Value then") + ":"
-                    }
-                    Flowee.Label {
-                        Layout.fillWidth: true
-                        id: valueThenLabel
-                        // when the backend does NOT get an 'accurate' (timewise) value,
-                        // it returns zero. Which makes us set visibility to false
-                        property int fiatPrice: {
-                            if (root.transaction == null)
-                                return 0;
-                            Fiat.historicalPriceAccurate(root.transaction.date)
-                        }
-                        text: Fiat.formattedPrice(Math.abs(fiatBox.amountBch), fiatPrice)
-                    }
                 }
             }
 
@@ -241,7 +173,7 @@ Page {
                 }
                 Flowee.BitcoinAmountLabel {
                     value: root.infoObject == null ? 0 : infoObject.fees
-                    fiatTimestamp: model.date
+                    fiatTimestamp: root.transaction.date
                     colorize: false
                 }
             }
@@ -249,7 +181,7 @@ Page {
             PageTitledBox {
                 spacing: 10
                 title: {
-                    if (root.infoObject == null)
+                    if (infoObject == null)
                         return "";
                     if (infoObject.isFused)
                         return qsTr("Fused from my addresses");
@@ -272,8 +204,6 @@ Page {
                         Layout.alignment: Qt.AlignRight
                         width: content.width
                         height: {
-                            if (modelData === null)
-                                return 0;
                             if (inAddress.implicitWidth + 10 + amount.implicitWidth < content.width)
                                 return inAddress.height + 10;
                             return inAddress.height + amount.height + 16;
@@ -290,8 +220,7 @@ Page {
                         }
                         Flowee.BitcoinAmountLabel {
                             id: amount
-                            visible: modelData !== null
-                            value: modelData === null ? 0 : (-1 * modelData.value)
+                            value: -1 * modelData.value
                             fiatTimestamp: root.transaction.date
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
@@ -305,7 +234,7 @@ Page {
             PageTitledBox {
                 spacing: 10
                 title: {
-                    if (root.infoObject == null)
+                    if (infoObject == null)
                         return "";
                     if (infoObject.isFused)
                         return qsTr("Fused into my addresses");

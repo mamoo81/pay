@@ -51,7 +51,11 @@ QQC2.Control {
             }
             return root.txInfo.address;
         }
-        font.pixelSize: root.font.pixelSize * 0.9
+        font.pixelSize: {
+            if (text == root.txInfo.cloakedAddress)
+                return root.font.pixelSize;
+            return root.font.pixelSize * 0.9;
+        }
 
         MouseArea {
             anchors.fill: parent

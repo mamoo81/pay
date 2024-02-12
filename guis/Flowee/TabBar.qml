@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2021-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2021-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,57 +30,71 @@ FocusScope {
 
     function setOpacities() {
         var visibleChild = null;
-        for (let i = 0; i < stack.children.length; ++i) {
+        for (let i = 0; i < header.tabs.length; ++i) {
             let on = i === currentIndex;
-            let child = stack.children[i];
+            let child = header.tabs[i];
             child.visible = on;
             if (on)
                 visibleChild = child;
         }
-
         // try to make sure the current tab gets keyboard focus properly.
         // We do some extra work in case the tab itself is a loader.
-        forceActiveFocus();
-        visibleChild.focus = true
-        if (visibleChild instanceof Loader) {
-            var child = visibleChild.item;
-            if (child != null)
-                child.focus = true;
+        if (visibleChild) {
+            forceActiveFocus();
+            visibleChild.focus = true
+            if (visibleChild instanceof Loader) {
+                var child = visibleChild.item;
+                if (child !== null)
+                    child.focus = true;
+            }
         }
     }
 
     Row {
         id: header
-
+        property var tabs: []
+        onTabsChanged: floweeTabBar.setOpacities();
         Repeater {
-            model: stack.children.length
+            model: header.tabs
             delegate: Item {
                 height: payTabButtonText.height + 10
-                width: floweeTabBar.width / stack.children.length;
+                width: floweeTabBar.width / header.tabs.length
 
-                Row {
+                Item { // text + icon, centered together.
+                    width: {
+                        var w = payTabButtonText.implicitWidth;
+                        if (tabIcon.visible)
+                            w += 6 + tabIcon.width;
+                        if (w > parent.width) // limit text to available space
+                            w = parent.width
+                        return w;
+                    }
                     height: parent.height
                     anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 6
+
                     Image {
+                        id: tabIcon
                         visible: source != ""
-                        source: stack.children[index].icon
+                        source: enabled ? header.tabs[index].icon : ""
                         anchors.bottom: payTabButtonText.baseline
                         anchors.bottomMargin: -2
-                        width: height
                         height: payTabButtonText.height
+                        width: height
                     }
                     Label {
                         id: payTabButtonText
-                        anchors.verticalCenter: parent.verticalCenter
+                        y: 6
+                        x: tabIcon.visible ? tabIcon.width + 6 : 0
+                        width: parent.width - x;
+                        elide: Text.ElideMiddle
+                        horizontalAlignment: Text.AlignHCenter
                         font.bold: true
                         color: {
-                            var child = stack.children[index];
-                            if (!child.enabled)
+                            if (!header.tabs[index].enabled)
                                 return "#888"
                             return "white"
                         }
-                        text: stack.children[index].title
+                        text: enabled ? header.tabs[index].title: ""
                     }
                 }
 
@@ -95,8 +109,7 @@ FocusScope {
                     color: {
                         if (index === floweeTabBar.currentIndex)
                             return mainWindow.floweeGreen
-                        var child = stack.children[index];
-                        if (!child.enabled)
+                        if (!header.tabs[index].enabled)
                             return "#888"
                         if (Pay.useDarkSkin) {
                             if (hover)
@@ -115,9 +128,8 @@ FocusScope {
                     onEntered: highlight.hover = true
                     onExited: highlight.hover = false
                     onClicked: {
-                        let child = stack.children[index];
                         // respect 'disabled' bool and don't change to the tab
-                        if (child.enabled)
+                        if (header.tabs[index].enabled)
                             floweeTabBar.currentIndex = index
                     }
                 }
@@ -127,6 +139,19 @@ FocusScope {
 
     Item {
         id: stack
+        onChildrenChanged: {
+            // copy the children, but skip Items that are not actually
+            // content. Like Repeaters
+            var copyOfChildren = [];
+            for (let i = 0; i < children.length; ++i) {
+                var item = children[i];
+                if (item instanceof Repeater)
+                    continue;
+                copyOfChildren.push(item);
+            }
+            header.tabs = copyOfChildren;
+        }
+
         width: floweeTabBar.width
         anchors.top: header.bottom; anchors.bottom: floweeTabBar.bottom
     }

@@ -722,7 +722,6 @@ void Wallet::setTransactionComment(int txIndex, const QString &comment)
 {
     QMutexLocker locker(&m_lock);
     auto wtxIter = m_walletTransactions.find(txIndex);
-    assert(wtxIter != m_walletTransactions.end());
     if (wtxIter == m_walletTransactions.end())
         return;
     auto &wtx = wtxIter->second;
@@ -1246,6 +1245,24 @@ qint64 Wallet::utxoOutputValue(OutputRef ref) const
     if (m_unspentOutputs.end() == iter)
         throw std::runtime_error("Invalid ref");
     return iter->second;
+}
+
+int64_t Wallet::transactionTime(int txIndex) const
+{
+    QMutexLocker locker(&m_lock);
+    auto iter = m_walletTransactions.find(txIndex);
+    if (m_walletTransactions.end() == iter)
+        throw std::runtime_error("Invalid tx-index");
+    return iter->second.transactionTime;
+}
+
+int Wallet::transactionMined(int txIndex) const
+{
+    QMutexLocker locker(&m_lock);
+    auto iter = m_walletTransactions.find(txIndex);
+    if (m_walletTransactions.end() == iter)
+        throw std::runtime_error("Invalid tx-index");
+    return iter->second.minedBlockHeight;
 }
 
 Wallet::PrivKeyData Wallet::unlockKey(Wallet::OutputRef ref) const

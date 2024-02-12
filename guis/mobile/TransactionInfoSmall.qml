@@ -126,54 +126,10 @@ ColumnLayout {
         text: infoObject == null ? "" : infoObject.receiver
         font.pixelSize: paymentTypeLabel.font.pixelSize * 0.8
     }
-    GridLayout {
-        columns: 2
-        rowSpacing: 10
+
+    Flowee.FiatTxInfo {
+        txInfo: infoObject
         width: parent.width
-
-        Flowee.Label {
-            visible: priceAtMining.visible
-            text: qsTr("Value now") + ":"
-        }
-        Flowee.Label {
-            visible: priceAtMining.visible
-            text: {
-                if (root.minedHeight <= 0)
-                    return "";
-                var fiatPriceNow = Fiat.price;
-                var gained = (fiatPriceNow - valueThenLabel.fiatPrice) / valueThenLabel.fiatPrice * 100
-                return Fiat.formattedPrice(Math.abs(amountBch), fiatPriceNow)
-                        + " (" + (gained >= 0 ? "↑" : "↓") + Math.abs(gained).toFixed(2) + "%)";
-            }
-        }
-
-        // price at mining
-        // value in exchange gained
-        Flowee.Label {
-            id: priceAtMining
-            visible: {
-                if (root.minedHeight < 1)
-                    return false;
-                if (model.isFused)
-                    return false;
-                if (isMoved)
-                    return false;
-                if (valueThenLabel.fiatPrice === 0)
-                    return false;
-                if (Math.abs(amountBch) < 10000) // hardcode 10k sats here, may need adjustment later
-                    return false;
-                return true;
-            }
-            text: qsTr("Value then") + ":"
-        }
-        Flowee.Label {
-            Layout.fillWidth: true
-            id: valueThenLabel
-            visible: priceAtMining.visible
-            // when the backend does NOT get an 'accurate' (timewise) value, it returns zero. Which makes us set visibility to false
-            property int fiatPrice: Fiat.historicalPriceAccurate(model.date)
-            text: Fiat.formattedPrice(Math.abs(amountBch), fiatPrice)
-        }
     }
 
     TextButton {

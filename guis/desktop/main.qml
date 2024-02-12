@@ -762,6 +762,8 @@ ApplicationWindow {
             id: txDetailsWindow
             function openTab(walletIndex) {
                 source = "./TransactionDetails.qml"
+                if (item.visible)
+                    item.requestActivate();
                 item.openTab(walletIndex);
             }
             onLoaded: {

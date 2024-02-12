@@ -20,15 +20,6 @@ import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import "../Flowee" as Flowee
 
-/*
- * Mined:
- * Sent: / Fees:
- * Value now:
- * Value then:
- * TxId:
- * More details
- */
-
 Item {
     id: root
     width: parent.width
@@ -116,6 +107,7 @@ Item {
                 menuText: qsTr("Copy transaction-ID")
                 text: model.txid
                 font.pixelSize: mainLabel.font.pixelSize * 0.9
+                Layout.fillWidth: true
             }
         }
 
@@ -142,55 +134,12 @@ Item {
             }
         }
 
-        GridLayout {
+        Flowee.FiatTxInfo {
+            txInfo: infoObject
             width: parent.width
-            columns: 2
-            Flowee.Label {
-                visible: priceAtMining.visible
-                text: qsTr("Value now") + ":"
-            }
-            Flowee.Label {
-                visible: priceAtMining.visible
-                text: {
-                    if (root.minedHeight <= 0)
-                        return "";
-                    var fiatPriceNow = Fiat.price;
-                    var gained = (fiatPriceNow - valueThenLabel.fiatPrice) / valueThenLabel.fiatPrice * 100
-                    return Fiat.formattedPrice(Math.abs(amountBch), fiatPriceNow)
-                            + " (" + (gained >= 0 ? "↑" : "↓") + Math.abs(gained).toFixed(2) + "%)";
-                }
-            }
-
-            // price at mining
-            // value in exchange gained
-            Flowee.Label {
-                id: priceAtMining
-                visible: {
-                    if (root.minedHeight < 1)
-                        return false;
-                    if (model.isFused)
-                        return false;
-                    if (isMoved)
-                        return false;
-                    if (valueThenLabel.fiatPrice === 0)
-                        return false;
-                    if (Math.abs(amountBch) < 10000) // hardcode 10k sats here, may need adjustment later
-                        return false;
-                    return true;
-                }
-                text: qsTr("Value then") + ":"
-            }
-            Flowee.Label {
-                Layout.fillWidth: true
-                id: valueThenLabel
-                visible: priceAtMining.visible
-                // when the backend does NOT get an 'accurate' (timewise) value, it returns zero. Which makes us set visibility to false
-                property int fiatPrice: Fiat.historicalPriceAccurate(model.date)
-                text: Fiat.formattedPrice(Math.abs(amountBch), fiatPrice)
-            }
         }
     }
-        Rectangle {
+    Rectangle {
         width: parent.width * 0.7
         height: 2
         color: palette.midlight
@@ -198,7 +147,21 @@ Item {
         anchors.bottom: parent.bottom
     }
     Rectangle {
-        color: "yellow"
+        color: "red" // open in explorer
+        opacity: 0.5
+        anchors.right: parent.right
+        anchors.rightMargin: 60
+        radius: 5
+        width: 30
+        height: 30
+        MouseArea {
+            anchors.fill: parent
+            anchors.margins: -7
+            onClicked: Pay.openInExplorer(model.txid);
+        }
+    }
+    Rectangle {
+        color: "yellow" // open details
         opacity: 0.5
         anchors.right: parent.right
         anchors.rightMargin: 20

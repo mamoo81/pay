@@ -47,5 +47,6 @@
         <file>Flowee/HamburgerMenu.qml</file>
         <file>Flowee/QRWidget.qml</file>
         <file>Flowee/AddressInfoWidget.qml</file>
+        <file>Flowee/FiatTxInfo.qml</file>
     </qresource>
 </RCC>
