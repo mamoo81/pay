@@ -38,6 +38,30 @@ ApplicationWindow {
 
     property bool isLoading: typeof portfolio === "undefined";
 
+    Component.onCompleted: updateFontSize(mainWindow);
+    function updateFontSize(window) {
+        // 75% = > 14.25,  100% => 19,  200% => 28
+        window.font.pixelSize = 17 + (11 * (Pay.fontScaling-100) / 100)
+    }
+    Connections {
+        target: Pay
+        function onFontScalingChanged() {
+            updateFontSize(mainWindow);
+            if (txDetailsWindow.loaded())
+                updateFontSize(txDetailsWindow.item);
+            if (netView.loaded())
+                updateFontSize(netView.item);
+        }
+        function onUseDarkSkinChanged() {
+            ControlColors.applySkin(mainWindow);
+            if (txDetailsWindow.loaded())
+                ControlColors.applySkin(txDetailsWindow.item);
+            if (netView.loaded())
+                ControlColors.applySkin(netView.item);
+        }
+    }
+
+
     onIsLoadingChanged: {
         if (!isLoading) {
             // delay loading to avoid errors due to not having a portfolio
@@ -749,6 +773,7 @@ ApplicationWindow {
             onLoaded: {
                 ControlColors.applySkin(item)
                 netViewHandler.target = item
+                item.font = mainWindow.font
             }
             Connections {
                 id: netViewHandler
@@ -769,6 +794,7 @@ ApplicationWindow {
             onLoaded: {
                 ControlColors.applySkin(item);
                 txDetailsHandler.target = item;
+                item.font = mainWindow.font
                 item.show();
             }
             Connections {

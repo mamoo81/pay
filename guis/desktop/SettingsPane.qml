@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ Pane {
         columns: 3
         rowSpacing: 10
         columnSpacing: 6
+        width: parent.width
 
         Label {
             text: qsTr("Unit") + ":"
@@ -53,8 +54,7 @@ Pane {
         Rectangle {
             color: "#00000000"
             radius: 6
-            border.color: palette.button
-            border.width: 0.8
+            Layout.fillWidth: true
 
             implicitHeight: units.height + 10
             implicitWidth: units.width + 10
@@ -101,6 +101,7 @@ Pane {
         }
         Flowee.CheckBoxLabel {
             Layout.columnSpan: 2
+            Layout.fillWidth: true
             buddy: showBchOnActivity
             text: qsTr("Show Bitcoin Cash value on Activity page")
             visible: Pay.isMainChain
@@ -145,6 +146,48 @@ Pane {
             toolTipText: qsTr("Hides private wallets while enabled")
         }
 
+        Flowee.Label {
+            id: fontSizingLabel
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+            text: qsTr("Font sizing") + ":"
+        }
+        Item {
+            Layout.fillWidth: true
+            Layout.columnSpan: 2
+            height: 30 + fontSizingLabel.height * 0.75
+            id: fontSizing
+            property double buttonWidth: width / 6
+            Repeater {
+                model: 6
+                delegate: Item {
+                    width: fontSizing.buttonWidth
+                    anchors.bottom: parent.bottom
+                    height: 30
+                    x: width * index
+                    property int target: index * 25 + 75
+
+                    Rectangle {
+                        width: parent.width - 5
+                        x: 2.5
+                        height: 5
+                        color: Pay.fontScaling === target ? palette.highlight : palette.button
+                    }
+
+                    Flowee.Label {
+                        font.pixelSize: 15
+                        text: "" + target
+                        anchors.bottom: parent.bottom
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.topMargin: -30
+                        onClicked: Pay.fontScaling = target
+                    }
+                }
+            }
+        }
+
         Label {
             text: qsTr("Version") + ":"
             Layout.alignment: Qt.AlignRight
@@ -162,6 +205,7 @@ Pane {
             Layout.columnSpan: 2
         }
         Label {
+            Layout.alignment: Qt.AlignRight
             text: qsTr("Synchronization") + ":"
         }
 
