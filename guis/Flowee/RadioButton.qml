@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2023 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2023-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,16 +27,18 @@ T.RadioButton {
     spacing: 6
 
     contentItem: Label {
+        id: textLabel
         text: control.text
         font: control.font
         opacity: enabled ? 1.0 : 0.3
         color: control.down ? palette.midlight : palette.text
         verticalAlignment: Text.AlignVCenter
         leftPadding: control.indicator.width + control.spacing
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
     }
 
     indicator: Rectangle {
-        implicitWidth: control.implicitHeight * 0.6 // effectively based on font size
+        implicitWidth: textLabel.font.pixelSize
         implicitHeight: implicitWidth
         x: control.leftPadding
         y: parent.height / 2 - height / 2

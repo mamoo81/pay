@@ -31,8 +31,9 @@ T.CheckBox {
     spacing: 6
 
     indicator: Item {
-        implicitHeight: titleLabel.implicitHeight / titleLabel.lineCount
+        implicitHeight: titleLabel.font.pixelSize
         implicitWidth: implicitHeight * 2.1
+        y: 4.5 // make the inner circle visually baseline aligned
 
         Rectangle {
             anchors.fill: parent
