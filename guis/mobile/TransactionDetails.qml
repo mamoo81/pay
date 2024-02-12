@@ -120,11 +120,11 @@ Page {
                         var tx = root.transaction;
                         if (tx == null)
                             return "";
-                        if (root.transaction.height < 1)
+                        let txHeight = tx.height;
+                        if (txHeight < 1)
                             return "";
 
-                        let txHeight = tx.height;
-                        var answer = txHeight + "\n" + Pay.formatBlockTime(tx.height)
+                        var answer = txHeight + "\n" + Pay.formatBlockTime(txHeight)
                         let blockAge = Pay.chainHeight - txHeight + 1;
                         answer += "\n";
                         answer += qsTr("%1 blocks ago", "", blockAge).arg(blockAge);
