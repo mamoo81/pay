@@ -12,6 +12,8 @@
         <file alias="activityIcon.png">desktop/images/activityIcon.png</file>
         <file alias="activityIcon-light.png">desktop/images/activityIcon-light.png</file>
         <file alias="edit-delete.svg">desktop/images/edit-delete.svg</file>
+        <file alias="infoIcon.svg">desktop/images/infoIcon.svg</file>
+        <file alias="infoIcon-light.svg">desktop/images/infoIcon-light.svg</file>
         <file alias="defaults.ini">desktop/defaults.ini</file>
         <file>desktop/ConfigItem.qml</file>
         <file>ControlColors.js</file>

@@ -146,32 +146,22 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
     }
-    Rectangle {
-        color: "red" // open in explorer
-        opacity: 0.5
-        anchors.right: parent.right
-        anchors.rightMargin: 60
-        radius: 5
-        width: 30
-        height: 30
-        MouseArea {
-            anchors.fill: parent
-            anchors.margins: -7
-            onClicked: Pay.openInExplorer(model.txid);
-        }
+    Flowee.ImageButton {
+        source: "qrc:/internet.svg"
+        smooth: true
+        iconSize: 25
+        onClicked: Pay.openInExplorer(model.txid);
+        responseText: qsTr("Opening Website")
+        anchors.right: moreInfo.left
+        anchors.rightMargin: 10
     }
-    Rectangle {
-        color: "yellow" // open details
-        opacity: 0.5
+    Flowee.ImageButton {
+        id: moreInfo
+        smooth: true
+        source: "qrc:/infoIcon" + (Pay.useDarkSkin ? "-light.svg" : ".svg");
+        iconSize: 25
         anchors.right: parent.right
         anchors.rightMargin: 20
-        radius: 5
-        width: 30
-        height: 30
-        MouseArea {
-            anchors.fill: parent
-            anchors.margins: -7
-            onClicked: txDetailsWindow.openTab(model.walletIndex);
-        }
+        onClicked: txDetailsWindow.openTab(model.walletIndex);
     }
 }

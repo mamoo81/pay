@@ -40,6 +40,17 @@ QQC2.ApplicationWindow {
     }
     property var transactions: []
 
+    Rectangle {
+        width: parent.width
+        height: tabbar.headerHeight
+        color: Pay.useDarkSkin ? palette.window : mainWindow.floweeBlue
+        Rectangle {
+            anchors.fill: parent
+            opacity: 0.2
+            color: Pay.useDarkSkin ? "black" : "white"
+        }
+    }
+
     Flowee.TabBar {
         id: tabbar
         anchors.fill: parent
@@ -57,23 +68,18 @@ QQC2.ApplicationWindow {
                 property string title: txInfo.txid
                 property string icon: ""
 
-                Rectangle {
-                    width: 20
-                    height: 20
-                    color: "red"
+                Flowee.CloseIcon {
                     anchors.right: parent.right
-                    anchors.rightMargin: 20
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            root.transactions.splice(index, 1);
-                            if (root.transactions.length == 0) {
-                                root.close();
-                            }
-                            else {
-                                tabbar.currentIndex = Math.max(0, index - 1)
-                                tabList.model = transactions.length
-                            }
+                    y: 6
+                    anchors.rightMargin: 6
+                    onClicked: {
+                        root.transactions.splice(index, 1);
+                        if (root.transactions.length == 0) {
+                            root.close();
+                        }
+                        else {
+                            tabbar.currentIndex = Math.max(0, index - 1)
+                            tabList.model = transactions.length
                         }
                     }
                 }
