@@ -145,11 +145,21 @@ Item {
         id: keyboard
 
         x: switchButton.numericInput ? 0 : 0 - parent.width
+        hasSeparator: false
         width: parent.width
         anchors.top: pinPreview.top
         anchors.topMargin: introText.height * 2 // work around the fact that it takes less space when empty
         anchors.bottom: openButton.top
         anchors.bottomMargin: 10
+
+        onFinished: {
+            var pwd = keyboard.dataInput.editor.enteredString;
+            if (pwd !== "") {
+                root.password = pwd;
+                keyboard.dataInput.editor.reset();
+                root.passwordEntered();
+            }
+        }
 
         dataInput: Item {
             property QtObject editor: Item {
@@ -220,6 +230,7 @@ Item {
 
     Flowee.Button {
         id: openButton
+        visible: !switchButton.numericInput
         anchors.right: parent.right
         y: {
             if (switchButton.numericInput)
@@ -230,10 +241,7 @@ Item {
         text: qsTr("Open", "open wallet with PIN")
 
         onClicked: {
-            if (switchButton.numericInput)
-                var pwd = keyboard.dataInput.editor.enteredString;
-            else
-                pwd = pwdField.text;
+            var pwd = pwdField.text;
             if (pwd !== "") {
                 root.password = pwd;
                 keyboard.dataInput.editor.reset();

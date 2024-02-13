@@ -21,6 +21,8 @@
         <file alias="qr-code-scan-light.svg">mobile/images/qr-code-scan-light.svg</file>
         <file alias="backspace.svg">mobile/images/backspace.svg</file>
         <file alias="backspace-light.svg">mobile/images/backspace-light.svg</file>
+        <file alias="confirmIcon.svg">mobile/images/confirmIcon.svg</file>
+        <file alias="confirmIcon-light.svg">mobile/images/confirmIcon-light.svg</file>
         <file alias="settingsIcon-light.svg">mobile/images/settingsIcon-light.svg</file>
         <file alias="settingsIcon.svg">mobile/images/settingsIcon.svg</file>
         <file alias="edit-pen.svg">mobile/images/edit-pen.svg</file>

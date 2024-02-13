@@ -19,6 +19,10 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import "../Flowee" as Flowee
 
+/**
+ * This widget shows a single wallet and the balance.
+ * It allows the user to change the 'current' wallet as well via a popup.
+ */
 Rectangle {
     id: root
     x: -10

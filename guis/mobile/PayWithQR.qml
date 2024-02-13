@@ -242,7 +242,7 @@ Page {
                 return 0;
             if (commentLabel.y < 0)
                 return priceInput.y + priceInput.height + 10;
-            return commentLabel.y + commentLabel.height + 10;
+            return commentLabel.y + commentLabel.height + 6;
         }
     }
 
@@ -286,7 +286,7 @@ Page {
                     return userComment.y + userComment.height + 10;
                 return priceInput.y + priceInput.height + 10;
             }
-            return destinationAddressHeader.y + destinationAddressHeader.height + 10;
+            return destinationAddressHeader.y + destinationAddressHeader.height + 6;
         }
     }
 
@@ -317,8 +317,25 @@ Page {
 
     AccountSelectorWidget {
         id: walletNameBackground
-        anchors.bottom: numericKeyboard.top
-        anchors.bottomMargin: 10
+        y: {
+            var y = priceInput.height
+            if (commentLabel.visible && !root.allowEditAmount && commentLabel.y > 0)
+                y += commentLabel.height + userComment.height + 6 + 10
+            else if (userComment.visible)
+                y += userComment.height + 10
+
+            if (destinationAddressHeader.visible && !root.allowEditAmount && destinationAddressHeader.y > 0)
+                y += destinationAddressHeader.height + destinationAddress.height + 6
+            else if (destinationAddress.visible)
+                y += destinationAddress.height + 10
+            y += 10;
+
+            var altY = parent.height;
+            altY -= 10 + slideToApprove.height + 25
+            altY -= numericKeyboard.contentHeight + height + 10
+
+            return Math.max(y, altY);
+        }
 
         balanceActions: {
             if (editPrice.checked)
@@ -331,7 +348,9 @@ Page {
         id: numericKeyboard
         anchors.bottom: slideToApprove.top
         anchors.bottomMargin: 15
+        anchors.top: walletNameBackground.bottom
         width: parent.width
+        height: implicitHeight
         enabled: !payment.details[0].maxSelected
         x: allowEditAmount ? 0 : 0 - width
         dataInput: priceInput

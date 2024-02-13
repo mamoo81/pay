@@ -21,9 +21,30 @@ import QtQuick.Controls as QQC2
 Item {
     id: root
     implicitHeight: 70 * 4
-    height: 90 * 4
+    height: contentHeight
 
     required property var dataInput;
+    /**
+     * The keyboard can have a separator in the bottom left position,
+     * which is either a dot or a comma based on locale.
+     * Or if this property is false, we put the backspace there and
+     * reserve the bottom right button for finished()
+     */
+    property bool hasSeparator: true
+
+    /// emitted when the user used the 'Ok' button. @see hasSeparator
+    signal finished;
+
+    // We export an implicitHeight that is rather small,
+    // the parent widget may consider giving this thing a LOT more
+    // space, though. Which equally looks bad.
+    // So here we have a maximum height we'll actually occupy for
+    // usability sake
+    property int contentHeight: {
+        // we aim to be have buttons no taller than 18mm
+        var realPixelSize = Screen.pixelDensity * 18;
+        return Math.min(height, realPixelSize * 4)
+    }
 
     Rectangle {
         // when the typed items are not allowd
@@ -60,12 +81,38 @@ Item {
 
     Flow {
         id: flowLayout
+
         width: parent.width
+        anchors.bottom: parent.bottom
         Repeater {
             model: 12
             delegate: Item {
                 width: root.width / 3
-                height: root.height / 4
+                height: root.contentHeight / 4
+                Rectangle {
+                    id: backgroundCircle
+                    width: Math.min(parent.width, parent.height) - 6
+                    height: width
+                    anchors.centerIn: parent
+                    radius: pressed ? 20 : height
+
+                    property bool pressed: false
+                    color: {
+                        if (pressed || index === 11 || index === 9)
+                            return palette.midlight
+                        return palette.mid
+                    }
+                    opacity: enabled ? 1 : 0
+                    Behavior on opacity { NumberAnimation { } }
+                    Behavior on color { ColorAnimation { } }
+                    Behavior on radius { NumberAnimation { duration: 100 } }
+
+                    Timer {
+                        interval: 200
+                        running: parent.pressed
+                        onTriggered: parent.pressed = false
+                    }
+                }
                 QQC2.Label {
                     id: textLabel
                     anchors.centerIn: parent
@@ -73,11 +120,11 @@ Item {
                     text: {
                         if (index < 9)
                             return index + 1;
-                        if (index === 9)
+                        if (index === 9 && root.hasSeparator)
                             return Qt.locale().decimalPoint
                         if (index === 10)
                             return "0"
-                        return ""; // index === 11, the backspace.
+                        return "";
                     }
                     // make dim when not enabled.
                     color: {
@@ -87,11 +134,21 @@ Item {
                     }
                 }
                 Image {
-                    visible: index === 11
+                    visible: index === 11 || (!root.hasSeparator && index == 9)
                     anchors.centerIn: parent
-                    source: index === 11 ? ("qrc:/backspace" + (Pay.useDarkSkin ? "-light" : "") + ".svg") : ""
-                    width: 27
-                    height: 17
+                    source: {
+                        let base = "";
+                        if ((root.hasSeparator && index == 11)
+                                || (!root.hasSeparator && index == 9))
+                            base = "qrc:/backspace";
+                        else if (!root.hasSeparator && index == 11)
+                            base = "qrc:/confirmIcon";
+                        if (base === "")
+                            return base;
+                        return base + (Pay.useDarkSkin ? "-light" : "") + ".svg";
+                    }
+                    width: 22
+                    height: 15
                     opacity: enabled ? 1 : 0.4
                 }
 
@@ -99,18 +156,27 @@ Item {
                     anchors.fill: parent
                     function doSomething() {
                         let editor = dataInput.editor;
+                        let fail = false;
                         if (index < 9) // these are digits
-                            var fail = !editor.insertNumber("" + (index + 1));
-                        else if (index === 9)
+                            fail = !editor.insertNumber("" + (index + 1));
+                        else if (index === 9 && root.hasSeparator)
                             fail = !editor.addSeparator()
                         else if (index === 10)
                             fail = !editor.insertNumber("0");
+                        else if (index === 11 && !root.hasSeparator) {
+                            fail = editor.enteredString === ""
+                            if (!fail)
+                                root.finished();
+                        }
                         else
                             fail = !editor.backspacePressed();
                         if (fail) {
                             anim.duration = 40
                             errorFeedback.opacity = 0.7
                             dataInput.shake();
+                        }
+                        else {
+                            backgroundCircle.pressed = true;
                         }
                     }
                     onClicked: doSomething();

@@ -475,7 +475,6 @@ Page {
         );
     }
 
-
     Flickable {
         id: contentArea
         anchors.fill: parent
