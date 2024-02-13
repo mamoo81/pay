@@ -569,10 +569,12 @@ void Payment::setCurrentAccount(AccountInfo *account)
     emit currentAccountChanged();
     emit walletPinChanged();
 
-    for (auto detail : m_paymentDetails) {
-        detail->setWallet(account->wallet());
+    if (account) {
+        for (auto detail : m_paymentDetails) {
+            detail->setWallet(account->wallet());
+        }
+        doAutoPrepare();
     }
-    doAutoPrepare();
 }
 
 int Payment::fiatPrice() const
