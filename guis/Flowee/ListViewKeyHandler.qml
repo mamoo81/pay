@@ -1,6 +1,6 @@
 /*
  * This file is part of the Flowee project
- * Copyright (C) 2020-2022 Tom Zander <tom@flowee.org>
+ * Copyright (C) 2020-2024 Tom Zander <tom@flowee.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,23 +33,33 @@ Item {
     id: root
     property ListView target: parent
 
+    onTargetChanged: if (target) target.flickDeceleration = 3000
+
     Keys.onPressed: (event)=> {
         if (root.target == null)
             return;
         if (event.key === Qt.Key_Down) {
-            root.target.flick(0, -500);
+            root.target.flick(0, -1000);
             event.accepted = true;
         }
         else if (event.key === Qt.Key_Up) {
-            root.target.flick(0, 500);
+            root.target.flick(0, 1000);
             event.accepted = true;
         }
         else if (event.key === Qt.Key_PageUp) {
-            root.target.flick(0, Math.sqrt(2 * 1000 * root.target.height));
+            var cy = root.target.contentY
+            if (cy - root.target.height * 2 < 0)
+                root.target.flick(0, root.target.height * 10000);
+            else
+                root.target.contentY -= root.target.height * 0.75
             event.accepted = true;
         }
         else if (event.key === Qt.Key_PageDown) {
-            root.target.flick(0, -Math.sqrt(2 * 1000 * root.target.height));
+            var cy = root.target.contentY
+            if (cy + root.target.height * 2 > root.target.contentHeight)
+                root.target.flick(0, -root.target.height * 10000);
+            else
+                root.target.contentY += root.target.height * 0.75
             event.accepted = true;
         }
         else if (event.key === Qt.Key_Home) {

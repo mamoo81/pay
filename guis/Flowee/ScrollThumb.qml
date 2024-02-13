@@ -30,6 +30,22 @@ QQC2.ScrollBar {
     background: Item {}
     contentItem: Item {}
 
+    Connections {
+        target: root.flickable
+        property double prevY: 0
+        function onFlickStarted() {
+            thumbRect.open = true
+        }
+        function onContentYChanged() {
+            var newY = root.flickable.contentY;
+            if (Math.abs(newY - prevY) > root.flickable.height / 3) {
+                // rapid movement, lets assist the user by showing the thumb.
+                thumbRect.open = true
+            }
+            prevY = newY;
+        }
+    }
+
     Item {
         parent: root.flickable
         anchors.fill: parent
