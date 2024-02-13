@@ -26,7 +26,8 @@ Page {
 
     Flowee.Label {
         id: introText
-        text: qsTr("Requests for payment can be approved automatically using Instant Pay.")
+        text: qsTr("Scanning QR code with Instant Pay enabled will make the transfer go out without confirmation. As long as it does not exceed the set limit.")
+
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
